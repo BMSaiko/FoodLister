@@ -1,6 +1,6 @@
 "use client";
 
-import { useRestaurants } from "./hooks/useRestaurants";
+import useRestaurants from "./hooks/useRestaurants";
 import RestaurantCard from "./components/RestaurantCard";
 import Navbar from "./components/Navbar";
 
