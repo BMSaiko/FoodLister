@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
-import { ArrowLeft, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, User } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ListDetails() {
@@ -81,7 +81,7 @@ export default function ListDetails() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
           <h2 className="text-2xl font-bold text-gray-800">Lista não encontrada</h2>
-          <Link href="/lists" className="mt-4 inline-block text-indigo-600 hover:underline">
+          <Link href="/lists" className="mt-4 inline-block text-amber-600 hover:underline">
             Voltar para a página de listas
           </Link>
         </div>
@@ -95,7 +95,7 @@ export default function ListDetails() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <Link href="/lists" className="flex items-center text-indigo-600 hover:underline">
+          <Link href="/lists" className="flex items-center text-amber-600 hover:underline">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Link>
@@ -103,7 +103,7 @@ export default function ListDetails() {
           <div className="flex space-x-2">
             <Link 
               href={`/lists/${id}/edit`}
-              className="flex items-center bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700 transition-colors"
+              className="flex items-center bg-amber-500 text-white px-3 py-2 rounded hover:bg-amber-600 transition-colors"
             >
               <Edit className="h-4 w-4 mr-1" />
               <span className="text-sm">Editar</span>
@@ -114,9 +114,19 @@ export default function ListDetails() {
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
           <h1 className="text-3xl font-bold text-gray-800">{list.name}</h1>
           <p className="text-gray-600 mt-2">{list.description}</p>
-          <p className="text-sm text-gray-500 mt-4">
-            {restaurants.length} restaurantes • Criada em {new Date(list.created_at).toLocaleDateString('pt-PT')}
-          </p>
+          
+          <div className="flex justify-between items-center mt-4">
+            <div className="text-sm text-gray-500">
+              {restaurants.length} restaurantes • Criada em {new Date(list.created_at).toLocaleDateString('pt-PT')}
+            </div>
+            
+            {list.creator && (
+              <div className="flex items-center text-sm text-gray-500">
+                <User className="h-4 w-4 mr-1" />
+                Criada por: {list.creator}
+              </div>
+            )}
+          </div>
         </div>
         
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Restaurantes nesta lista</h2>

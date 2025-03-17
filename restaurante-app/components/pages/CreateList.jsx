@@ -7,9 +7,11 @@ import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { ArrowLeft, Plus, X, Search } from 'lucide-react';
+import { useCreatorName } from '@/hooks/useCreatorName';
 
 export default function CreateList() {
   const router = useRouter();
+  const { creatorName } = useCreatorName();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -95,7 +97,8 @@ export default function CreateList() {
         .insert([
           {
             name: formData.name,
-            description: formData.description || ''
+            description: formData.description || '',
+            creator: creatorName || 'Anônimo'
           }
         ])
         .select();
@@ -137,7 +140,7 @@ export default function CreateList() {
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <Link href="/lists" className="flex items-center text-indigo-600 mb-6 hover:underline">
+        <Link href="/lists" className="flex items-center text-amber-600 mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para Listas
         </Link>
@@ -162,7 +165,7 @@ export default function CreateList() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
                 required
               />
             </div>
@@ -177,7 +180,7 @@ export default function CreateList() {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
               />
             </div>
             
@@ -192,7 +195,7 @@ export default function CreateList() {
                   placeholder="Procurar restaurantes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
                 />
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
@@ -210,7 +213,7 @@ export default function CreateList() {
                           <div className="font-medium">{restaurant.name}</div>
                           <div className="text-sm text-gray-500">€{restaurant.price_per_person.toFixed(2)} • {restaurant.rating.toFixed(1)}★</div>
                         </div>
-                        <Plus className="h-5 w-5 text-indigo-600" />
+                        <Plus className="h-5 w-5 text-amber-600" />
                       </li>
                     ))}
                   </ul>
@@ -226,7 +229,7 @@ export default function CreateList() {
                 {selectedRestaurants.length > 0 ? (
                   <ul className="space-y-2">
                     {selectedRestaurants.map(restaurant => (
-                      <li key={restaurant.id} className="flex justify-between items-center bg-indigo-50 p-3 rounded-md">
+                      <li key={restaurant.id} className="flex justify-between items-center bg-amber-50 p-3 rounded-md">
                         <span>{restaurant.name}</span>
                         <button
                           type="button"
@@ -254,7 +257,7 @@ export default function CreateList() {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                 disabled={loading}
               >
                 {loading ? 'Salvando...' : 'Criar Lista'}

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
+import { Utensils } from 'lucide-react';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -27,7 +28,8 @@ const Navbar = () => {
     <nav className="bg-white shadow-md px-4 py-3">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo/Nome do site */}
-        <Link href="/" className="text-xl font-bold text-indigo-600">
+        <Link href="/" className="flex items-center text-xl font-bold text-amber-500">
+          <Utensils className="h-6 w-6 mr-2" />
           FoodLister
         </Link>
 
@@ -38,22 +40,22 @@ const Navbar = () => {
               <button
                 className={`px-4 py-2 rounded-md transition-colors ${
                   activeSection === 'restaurants' 
-                    ? 'bg-white shadow-sm text-indigo-600' 
-                    : 'text-gray-600 hover:text-indigo-500'
+                    ? 'bg-white shadow-sm text-amber-500' 
+                    : 'text-gray-600 hover:text-amber-500'
                 }`}
               >
-                Restaurants
+                Restaurantes
               </button>
             </Link>
             <Link href="/lists">
               <button
                 className={`px-4 py-2 rounded-md transition-colors ${
                   activeSection === 'lists' 
-                    ? 'bg-white shadow-sm text-indigo-600' 
-                    : 'text-gray-600 hover:text-indigo-500'
+                    ? 'bg-white shadow-sm text-amber-500' 
+                    : 'text-gray-600 hover:text-amber-500'
                 }`}
               >
-                Lists
+                Listas
               </button>
             </Link>
           </div>

@@ -1,3 +1,4 @@
+// libs/supabase/client.ts
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 // Tipos para as tabelas do Supabase
@@ -8,6 +9,11 @@ export type Restaurant = {
   image_url: string;
   price_per_person: number;
   rating: number;
+  location: string;        // Novo: endereço/coordenadas para Google Maps
+  source_url: string;      // Novo: link de onde o restaurante foi encontrado
+  creator: string;         // Novo: nome da pessoa que adicionou o restaurante
+  menu_url: string;        // Novo: link para o menu online
+  visited: boolean;        // Novo: status de visita (true = visitado, false = não visitado)
 };
 
 export type List = {
@@ -15,6 +21,7 @@ export type List = {
   name: string;
   description: string;
   created_at: string;
+  creator: string;         // Novo: nome da pessoa que criou a lista
 };
 
 export type ListRestaurant = {

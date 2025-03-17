@@ -7,7 +7,7 @@ import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Star, ListChecks, Edit } from 'lucide-react';
+import { ArrowLeft, Star, ListChecks, Edit, MapPin, Globe, FileText, Check, X, User } from 'lucide-react';
 
 export default function RestaurantDetails() {
   const { id } = useParams();
@@ -59,6 +59,14 @@ export default function RestaurantDetails() {
     fetchRestaurantDetails();
   }, [id]);
   
+  // Função para abrir o Google Maps com a localização
+  const openInMaps = (location) => {
+    if (!location) return;
+    
+    const encodedLocation = encodeURIComponent(location);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -77,7 +85,7 @@ export default function RestaurantDetails() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 text-center">
           <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
-          <Link href="/restaurants" className="mt-4 inline-block text-indigo-600 hover:underline">
+          <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
             Voltar para a página de restaurantes
           </Link>
         </div>
@@ -91,7 +99,7 @@ export default function RestaurantDetails() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <Link href="/restaurants" className="flex items-center text-indigo-600 hover:underline">
+          <Link href="/restaurants" className="flex items-center text-amber-600 hover:underline">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Voltar
           </Link>
@@ -99,7 +107,7 @@ export default function RestaurantDetails() {
           <div className="flex space-x-2">
             <Link 
               href={`/restaurants/${id}/edit`}
-              className="flex items-center bg-indigo-600 text-white px-3 py-2 rounded hover:bg-indigo-700 transition-colors"
+              className="flex items-center bg-amber-500 text-white px-3 py-2 rounded hover:bg-amber-600 transition-colors"
             >
               <Edit className="h-4 w-4 mr-1" />
               <span className="text-sm">Editar</span>
@@ -115,6 +123,23 @@ export default function RestaurantDetails() {
               fill
               className="object-cover"
             />
+            
+            {/* Badge de visitado/não visitado */}
+            <div className={`absolute top-4 right-4 px-3 py-1 rounded-full flex items-center ${
+              restaurant.visited ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
+            }`}>
+              {restaurant.visited ? (
+                <>
+                  <Check className="h-4 w-4 mr-1" />
+                  <span className="text-sm font-medium">Visitado</span>
+                </>
+              ) : (
+                <>
+                  <X className="h-4 w-4 mr-1" />
+                  <span className="text-sm font-medium">Não visitado</span>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="p-6">
@@ -128,15 +153,62 @@ export default function RestaurantDetails() {
             
             <p className="text-gray-600 mt-4">{restaurant.description}</p>
             
-            <div className="mt-6 text-indigo-600 font-semibold text-xl">
+            <div className="mt-6 text-amber-600 font-semibold text-xl">
               €{restaurant.price_per_person.toFixed(2)} por pessoa
+            </div>
+            
+            {/* Informações do criador */}
+            <div className="mt-4 text-sm flex items-center text-gray-500">
+              <User className="h-4 w-4 mr-1" />
+              Adicionado por: {restaurant.creator || 'Anônimo'}
+            </div>
+            
+            {/* Campos adicionais */}
+            <div className="mt-6 space-y-3">
+              {restaurant.location && (
+                <div 
+                  className="flex items-center text-gray-700 cursor-pointer hover:text-amber-600"
+                  onClick={() => openInMaps(restaurant.location)}
+                >
+                  <MapPin className="h-5 w-5 mr-2 text-amber-500" />
+                  <span>{restaurant.location}</span>
+                </div>
+              )}
+              
+              {restaurant.source_url && (
+                <div className="flex items-center text-gray-700">
+                  <Globe className="h-5 w-5 mr-2 text-amber-500" />
+                  <a 
+                    href={restaurant.source_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-amber-600 hover:underline"
+                  >
+                    Fonte Original
+                  </a>
+                </div>
+              )}
+              
+              {restaurant.menu_url && (
+                <div className="flex items-center text-gray-700">
+                  <FileText className="h-5 w-5 mr-2 text-amber-500" />
+                  <a 
+                    href={restaurant.menu_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-amber-600 hover:underline"
+                  >
+                    Ver Menu
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
         
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-            <ListChecks className="h-5 w-5 mr-2 text-indigo-600" />
+            <ListChecks className="h-5 w-5 mr-2 text-amber-500" />
             Listas que incluem este restaurante
           </h2>
           
