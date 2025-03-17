@@ -1,121 +1,89 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import Navbar from '@/components/layout/Navbar';
-import RestaurantCard from '@/components/ui/RestaurantCard';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+// app/lists/page.js
+'use client';
 
-export default function ListDetails() {
-  const { id } = useParams();
-  const [list, setList] = useState(null);
-  const [restaurants, setRestaurants] = useState([]);
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { createClient } from '@/libs/supabase/client';
+import ListCard from '@/components/ui/ListCard';
+import Navbar from '@/components/layouts/Navbar';
+
+export default function ListsPage() {
+  const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search');
   
   const supabase = createClient();
   
   useEffect(() => {
-    async function fetchListDetails() {
-      if (!id) return;
-      
+    async function fetchLists() {
       setLoading(true);
       
-      // Fetch list details
-      const { data: listData } = await supabase
-        .from('lists')
-        .select('*')
-        .eq('id', id)
-        .single();
+      let query = supabase.from('lists').select('*');
+      
+      // Adiciona filtro de pesquisa se houver uma query
+      if (searchQuery) {
+        query = query.ilike('name', `%${searchQuery}%`);
+      }
+      
+      const { data, error } = await query;
         
-      if (listData) {
-        setList(listData);
+      if (!error && data) {
+        // Para cada lista, conta o número de restaurantes
+        const listsWithCounts = await Promise.all(
+          data.map(async (list) => {
+            const { count } = await supabase
+              .from('list_restaurants')
+              .select('*', { count: 'exact' })
+              .eq('list_id', list.id);
+              
+            return {
+              ...list,
+              restaurantCount: count || 0
+            };
+          })
+        );
         
-        // Fetch restaurants in this list
-        const { data: restaurantsData } = await supabase
-          .from('list_restaurants')
-          .select('restaurant_id')
-          .eq('list_id', id);
-          
-        if (restaurantsData && restaurantsData.length > 0) {
-          const restaurantIds = restaurantsData.map(item => item.restaurant_id);
-          
-          const { data: restaurantDetails } = await supabase
-            .from('restaurants')
-            .select('*')
-            .in('id', restaurantIds);
-            
-          if (restaurantDetails) {
-            setRestaurants(restaurantDetails);
-          }
-        }
+        setLists(listsWithCounts);
       }
       
       setLoading(false);
     }
     
-    fetchListDetails();
-  }, [id]);
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array(3).fill(0).map((_, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  if (!list) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Lista não encontrada</h2>
-          <Link href="/" className="mt-4 inline-block text-indigo-600 hover:underline">
-            Voltar para a página inicial
-          </Link>
-        </div>
-      </div>
-    );
-  }
+    fetchLists();
+  }, [searchQuery]);
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50">
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <Link href="/" className="flex items-center text-indigo-600 mb-6 hover:underline">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
-        </Link>
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+          {searchQuery ? `Resultados para "${searchQuery}"` : 'Todas as Listas'}
+        </h1>
         
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">{list.name}</h1>
-          <p className="text-gray-600 mt-2">{list.description}</p>
-          <p className="text-sm text-gray-500 mt-4">
-            {restaurants.length} restaurantes • Criada em {new Date(list.created_at).toLocaleDateString('pt-PT')}
-          </p>
-        </div>
-        
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Restaurantes nesta lista</h2>
-        
-        {restaurants.length === 0 ? (
-          <p className="text-gray-500">Não há restaurantes nesta lista.</p>
-        ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {restaurants.map(restaurant => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array(6).fill(0).map((_, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-md h-48 animate-pulse" />
             ))}
+          </div>
+        ) : lists.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {lists.map(list => (
+              <ListCard 
+                key={list.id} 
+                list={list} 
+                restaurantCount={list.restaurantCount} 
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-gray-500">Nenhuma lista encontrada.</p>
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
