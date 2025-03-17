@@ -7,5 +7,5 @@ import EditList from '@/components/pages/EditList';
 export default function EditListPage() {
   const { id } = useParams();
   
-  return <EditList restaurantId={id} />;
+  return <EditList listId={id} />;
 }

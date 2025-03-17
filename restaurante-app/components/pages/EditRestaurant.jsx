@@ -30,26 +30,36 @@ export default function EditRestaurant({ restaurantId }) {
       if (!restaurantId) return;
       
       try {
+        setLoading(true);
+        
+        // Changed from .single() to regular select with eq() to avoid potential errors
         const { data, error } = await supabase
           .from('restaurants')
           .select('*')
-          .eq('id', restaurantId)
-          .single();
+          .eq('id', restaurantId);
           
         if (error) throw error;
         
-        if (data) {
-          setFormData({
-            name: data.name,
-            description: data.description,
-            image_url: data.image_url || '',
-            price_per_person: data.price_per_person.toString(),
-            rating: data.rating.toString()
-          });
+        // Check if we got data back
+        if (!data || data.length === 0) {
+          setError('Restaurante não encontrado.');
+          setLoading(false);
+          return;
         }
+        
+        // Use first item instead of .single()
+        const restaurant = data[0];
+        
+        setFormData({
+          name: restaurant.name,
+          description: restaurant.description,
+          image_url: restaurant.image_url || '',
+          price_per_person: restaurant.price_per_person.toString(),
+          rating: restaurant.rating.toString()
+        });
       } catch (err) {
         console.error('Error fetching restaurant:', err);
-        setError('Erro ao carregar detalhes do restaurante.');
+        setError('Erro ao carregar detalhes do restaurante: ' + (err.message || 'Unknown error'));
       } finally {
         setLoading(false);
       }
@@ -105,6 +115,7 @@ export default function EditRestaurant({ restaurantId }) {
         .eq('id', restaurantId);
       
       if (updateError) {
+        console.error('Error updating restaurant:', updateError);
         throw updateError;
       }
       
@@ -117,7 +128,7 @@ export default function EditRestaurant({ restaurantId }) {
       if (err.code === '42501' || err.message?.includes('row-level security policy')) {
         setError('Erro de permissão: O usuário atual não tem permissões para editar restaurantes. Verifique as políticas de segurança no Supabase.');
       } else {
-        setError('Erro ao atualizar restaurante. Por favor, tente novamente.');
+        setError('Erro ao atualizar restaurante: ' + (err.message || 'Por favor, tente novamente.'));
       }
     } finally {
       setSaving(false);
