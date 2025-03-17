@@ -12,6 +12,10 @@
   --primary-hover: #d97706;  /* Amber-600 */
   --primary-light: #fde68a;  /* Amber-200 */
   --primary-dark: #b45309;  /* Amber-700 */
+  --input-bg: #f9fafb;  /* Cinza bem claro (gray-50) para o fundo dos inputs */
+  --input-text: #1f2937;  /* Texto escuro (gray-800) para melhor contraste */
+  --input-border: #d1d5db;  /* Borda cinza (gray-300) */
+  --input-focus-ring: rgba(245, 158, 11, 0.5);  /* Amber-500 com transparência */
 }
 
 @theme inline {
@@ -30,6 +34,9 @@
     --primary-hover: #f59e0b;  /* Amber-500 no modo escuro */
     --primary-light: #92400e;  /* Amber-800 desaturado no modo escuro */
     --primary-dark: #fcd34d;  /* Amber-300 no modo escuro */
+    --input-bg: #1f2937;  /* Cinza escuro para o fundo dos inputs no modo escuro */
+    --input-text: #f9fafb;  /* Texto claro para melhor contraste no modo escuro */
+    --input-border: #4b5563;  /* Borda cinza (gray-600) no modo escuro */
   }
 }
 
@@ -62,4 +69,31 @@ body {
 
 .focus\:ring-primary:focus {
   --tw-ring-color: var(--primary);
+}
+
+/* Estilos aprimorados para formulários */
+@layer components {
+  input[type="text"],
+  input[type="email"],
+  input[type="url"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="search"],
+  input[type="date"],
+  textarea,
+  select {
+    @apply bg-gray-50 text-gray-900 border border-gray-300;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply ring-2 ring-amber-400 border-amber-400 outline-none;
+  }
+
+  /* Para placeholders */
+  ::placeholder {
+    @apply text-gray-500;
+  }
 }
