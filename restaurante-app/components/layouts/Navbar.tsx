@@ -1,10 +1,11 @@
-// components/layout/Navbar.js
+// components/layouts/Navbar.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SearchBar from './Searchbar';
+import NavbarActions from './NavbarActions';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -61,9 +62,9 @@ const Navbar = () => {
           <SearchBar searchType={activeSection} />
         </div>
 
-        {/* Espaço para botões adicionais futuros (login, etc) */}
-        <div className="w-32 flex justify-end">
-          {/* Conteúdo futuro */}
+        {/* Botões de ações (criar restaurante/lista) */}
+        <div className="flex justify-end">
+          <NavbarActions activeSection={activeSection} />
         </div>
       </div>
     </nav>
