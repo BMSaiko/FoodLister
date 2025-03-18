@@ -63,7 +63,8 @@ export default function ListDetails() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
+        
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
           <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array(3).fill(0).map((_, index) => (
@@ -111,18 +112,18 @@ export default function ListDetails() {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">{list.name}</h1>
-          <p className="text-gray-600 mt-2">{list.description}</p>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{list.name}</h1>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">{list.description}</p>
           
-          <div className="flex justify-between items-center mt-4">
-            <div className="text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 gap-2 sm:gap-0">
+            <div className="text-xs sm:text-sm text-gray-500">
               {restaurants.length} restaurantes • Criada em {new Date(list.created_at).toLocaleDateString('pt-PT')}
             </div>
             
             {list.creator && (
-              <div className="flex items-center text-sm text-gray-500">
-                <User className="h-4 w-4 mr-1" />
+              <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 Criada por: {list.creator}
               </div>
             )}
@@ -134,7 +135,7 @@ export default function ListDetails() {
         {restaurants.length === 0 ? (
           <p className="text-gray-500">Não há restaurantes nesta lista.</p>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {restaurants.map(restaurant => (
               <RestaurantCard key={restaurant.id} restaurant={restaurant} />
             ))}

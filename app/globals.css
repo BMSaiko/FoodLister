@@ -97,3 +97,216 @@ body {
     @apply text-gray-500;
   }
 }
+
+/* Estilos responsivos a serem adicionados ao app/globals.css */
+
+/* Breakpoints responsivos */
+:root {
+  /* Breakpoints existentes no seu sistema */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* Estilos base para dispositivos móveis (mobile-first) */
+body {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Ajustes do navbar para mobile */
+@media (max-width: 767px) {
+  nav .container {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  
+  nav .flex.items-center.space-x-4 {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
+  }
+  
+  nav .flex.bg-gray-100 {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  nav form {
+    width: 100%;
+  }
+  
+  nav form input {
+    width: 100%;
+  }
+  
+  nav .flex.justify-end {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Ajustes para o grid de cartões */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Ajustes para os cards de restaurantes e listas */
+.card-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-image-container {
+  height: 200px;
+  position: relative;
+}
+
+@media (max-width: 639px) {
+  .card-image-container {
+    height: 180px;
+  }
+}
+
+/* Ajustes para páginas de detalhes */
+.detail-page-container {
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .detail-page-container {
+    padding: 2rem;
+  }
+}
+
+/* Ajustes para formulários em telas pequenas */
+@media (max-width: 639px) {
+  form .flex.justify-end {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  form .flex.justify-end button {
+    width: 100%;
+  }
+}
+
+/* Ajustes para modais em telas pequenas */
+@media (max-width: A639px) {
+  .modal-container {
+    padding: 1rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    max-width: 100%;
+  }
+}
+
+/* Melhoria na navegação para dispositivos touch */
+@media (max-width: 767px) {
+  button, a, input[type="submit"] {
+    min-height: 44px; /* Tamanho mínimo para áreas de toque em dispositivos móveis */
+  }
+}
+
+/* Melhorias de acessibilidade para controles de formulário em telas pequenas */
+@media (max-width: 639px) {
+  input, select, textarea {
+    font-size: 16px; /* Evita zoom automático em iPhones */
+  }
+}
+
+/* Adicione estes estilos ao app/globals.css */
+
+/* Melhorias para interação em dispositivos touch */
+@media (max-width: 767px) {
+  /* Aumenta área de toque para elementos interativos */
+  a, button, input[type="button"], input[type="submit"], input[type="reset"], select, .clickable {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Aumenta o espaçamento entre elementos interativos para evitar toques acidentais */
+  .touch-space > * + * {
+    margin-top: 0.5rem;
+  }
+  
+  /* Aumenta espaçamento em listas de elementos clicáveis */
+  ul.touch-list > li {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  /* Aumenta tamanho das fontes de input para evitar zoom automático no iOS */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="search"],
+  textarea {
+    font-size: 16px;
+  }
+  
+  /* Melhora feedback visual de toque */
+  .touch-feedback:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  
+  /* Evita que elementos fixos bloqueiem conteúdo importante em dispositivos iOS */
+  .ios-safe-padding-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  
+  .ios-safe-padding-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+}
+
+/* Melhorias de acessibilidade para todos os dispositivos */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Melhorar a visibilidade do estado de hover/focus em elementos clicáveis */
+a:hover, button:hover, 
+a:focus, button:focus {
+  opacity: 0.9;
+}
+
+/* Estado ativo mais visível para feedback tátil */
+a:active, button:active {
+  transform: translateY(1px);
+}
+
+/* Melhorar contraste dos botões para acessibilidade */
+.btn-primary, .bg-amber-500 {
+  --tw-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}

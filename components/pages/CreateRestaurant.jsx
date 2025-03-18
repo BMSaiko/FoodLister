@@ -104,13 +104,14 @@ export default function CreateRestaurant() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8">
-        <Link href="/restaurants" className="flex items-center text-amber-600 mb-6 hover:underline">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <Link href="/restaurants" className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para Restaurantes
         </Link>
         
-        <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
+   
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Adicionar Novo Restaurante</h1>
           
           {error && (
@@ -266,17 +267,17 @@ export default function CreateRestaurant() {
               </label>
             </div>
             
-            <div className="flex justify-end">
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 mt-6">
               <button
                 type="button"
                 onClick={() => router.push('/restaurants')}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 mr-4 hover:bg-gray-50"
+                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 order-2 sm:order-1"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 order-1 sm:order-2"
                 disabled={loading}
               >
                 {loading ? 'Salvando...' : 'Salvar Restaurante'}

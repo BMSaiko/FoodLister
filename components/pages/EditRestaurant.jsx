@@ -173,13 +173,13 @@ export default function EditRestaurant({ restaurantId }) {
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <Link href={`/restaurants/${restaurantId}`} className="flex items-center text-amber-600 mb-6 hover:underline">
+        <Link href={`/restaurants/${restaurantId}`} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para Detalhes do Restaurante
+          Voltar para Restaurantes
         </Link>
         
-        <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Editar Restaurante</h1>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">Editar Restaurante</h1>
           
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">
@@ -338,20 +338,20 @@ export default function EditRestaurant({ restaurantId }) {
               </label>
             </div>
             
-            <div className="flex justify-end">
+            <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 mt-6">
               <button
                 type="button"
-                onClick={() => router.push(`/restaurants/${restaurantId}`)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 mr-4 hover:bg-gray-50"
+                onClick={() => router.push('/restaurants')}
+                className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 order-2 sm:order-1"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
-                disabled={saving}
+                className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 order-1 sm:order-2"
+                disabled={loading}
               >
-                {saving ? 'Salvando...' : 'Salvar Alterações'}
+                {loading ? 'Salvando...' : 'Salvar Restaurante'}
               </button>
             </div>
           </form>

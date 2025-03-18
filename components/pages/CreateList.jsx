@@ -139,13 +139,14 @@ export default function CreateList() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8">
-        <Link href="/lists" className="flex items-center text-amber-600 mb-6 hover:underline">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <Link href="/lists" className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para Listas
         </Link>
         
-        <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
+        
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Criar Nova Lista</h1>
           
           {error && (
@@ -200,7 +201,7 @@ export default function CreateList() {
                 <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               </div>
               
-              <div className="mb-4 max-h-48 overflow-y-auto bg-gray-50 rounded-md border border-gray-200">
+              <div className="mb-4 max-h-36 sm:max-h-48 overflow-y-auto bg-gray-50 rounded-md border border-gray-200">
                 {filteredRestaurants.length > 0 ? (
                   <ul className="divide-y divide-gray-200">
                     {filteredRestaurants.map(restaurant => (
@@ -209,32 +210,33 @@ export default function CreateList() {
                         className="p-3 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
                         onClick={() => addRestaurant(restaurant)}
                       >
-                        <div>
-                          <div className="font-medium">{restaurant.name}</div>
-                          <div className="text-sm text-gray-500">€{restaurant.price_per_person.toFixed(2)} • {restaurant.rating.toFixed(1)}★</div>
+                        <div className="pr-2">
+                          <div className="font-medium text-sm sm:text-base line-clamp-1">{restaurant.name}</div>
+                          <div className="text-xs sm:text-sm text-gray-500">€{restaurant.price_per_person.toFixed(2)} • {restaurant.rating.toFixed(1)}★</div>
                         </div>
-                        <Plus className="h-5 w-5 text-amber-600" />
+                        <Plus className="h-5 w-5 text-amber-600 flex-shrink-0" />
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <div className="p-4 text-center text-gray-500">
+                  <div className="p-4 text-center text-gray-500 text-sm">
                     Nenhum restaurante encontrado
                   </div>
                 )}
               </div>
               
               <div className="mb-4">
-                <h3 className="font-medium text-gray-700 mb-2">Restaurantes Selecionados ({selectedRestaurants.length})</h3>
+                <h3 className="font-medium text-gray-700 mb-2 text-sm sm:text-base">Restaurantes Selecionados ({selectedRestaurants.length})</h3>
                 {selectedRestaurants.length > 0 ? (
                   <ul className="space-y-2">
                     {selectedRestaurants.map(restaurant => (
-                      <li key={restaurant.id} className="flex justify-between items-center bg-amber-50 p-3 rounded-md">
-                        <span>{restaurant.name}</span>
+                      <li key={restaurant.id} className="flex justify-between items-center bg-amber-50 p-2 sm:p-3 rounded-md">
+                        <span className="text-sm line-clamp-1 mr-2">{restaurant.name}</span>
                         <button
                           type="button"
                           onClick={() => removeRestaurant(restaurant.id)}
-                          className="text-gray-500 hover:text-red-500"
+                          className="text-gray-500 hover:text-red-500 flex-shrink-0"
+                          aria-label="Remover restaurante"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -242,7 +244,7 @@ export default function CreateList() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-gray-500 text-sm">Nenhum restaurante selecionado</p>
+                  <p className="text-gray-500 text-xs sm:text-sm">Nenhum restaurante selecionado</p>
                 )}
               </div>
             </div>

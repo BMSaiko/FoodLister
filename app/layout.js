@@ -1,4 +1,6 @@
-// app/layout.js
+// app/layout.js (com meta viewport)
+// Adicione ou atualize a tag meta viewport no cabeçalho
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/layouts/ClientLayout";
@@ -16,12 +18,13 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "FoodLister - Organize seus restaurantes favoritos",
   description: "Aplicativo para organizar e descobrir restaurantes",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover"
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="pt" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

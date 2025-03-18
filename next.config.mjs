@@ -8,7 +8,9 @@ const nextConfig = {
         'i.imgur.com',
         'res.cloudinary.com',
         'images.pexels.com',
-        'picsum.photos'], // adicione outros domínios conforme necessário
+        'picsum.photos',
+        'upload.wikimedia.org'
+      ], // adicione outros domínios conforme necessário
     },
     reactStrictMode: true,
   };

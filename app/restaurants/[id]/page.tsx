@@ -97,7 +97,7 @@ export default function RestaurantDetails() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="flex justify-between items-center mb-6">
           <Link href="/restaurants" className="flex items-center text-amber-600 hover:underline">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -116,38 +116,40 @@ export default function RestaurantDetails() {
         </div>
         
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-          <div className="relative h-64 w-full">
+          <div className="relative h-48 sm:h-56 md:h-64 w-full">
             <Image
               src={restaurant.image_url || '/placeholder-restaurant.jpg'}
               alt={restaurant.name}
               fill
               className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 1200px"
+              priority
             />
             
-            {/* Badge de visitado/não visitado */}
-            <div className={`absolute top-4 right-4 px-3 py-1 rounded-full flex items-center ${
+            {/* Badge responsivo */}
+            <div className={`absolute top-3 right-3 px-2 sm:px-3 py-1 rounded-full flex items-center ${
               restaurant.visited ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
             }`}>
               {restaurant.visited ? (
                 <>
-                  <Check className="h-4 w-4 mr-1" />
-                  <span className="text-sm font-medium">Visitado</span>
+                  <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="text-xs sm:text-sm font-medium">Visitado</span>
                 </>
               ) : (
                 <>
-                  <X className="h-4 w-4 mr-1" />
-                  <span className="text-sm font-medium">Não visitado</span>
+                  <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="text-xs sm:text-sm font-medium">Não visitado</span>
                 </>
               )}
             </div>
           </div>
           
           <div className="p-6">
-            <div className="flex justify-between items-start">
-              <h1 className="text-3xl font-bold text-gray-800">{restaurant.name}</h1>
-              <div className="flex items-center bg-yellow-100 px-3 py-2 rounded">
-                <Star className="h-5 w-5 text-yellow-500 mr-1" fill="currentColor" />
-                <span className="font-semibold text-lg text-gray-600">{restaurant.rating.toFixed(1)}</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{restaurant.name}</h1>
+              <div className="flex items-center bg-yellow-100 px-2 sm:px-3 py-1 sm:py-2 rounded self-start">
+                <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 mr-1" fill="currentColor" />
+                <span className="font-semibold text-base sm:text-lg">{restaurant.rating.toFixed(1)}</span>
               </div>
             </div>
             
@@ -215,16 +217,16 @@ export default function RestaurantDetails() {
           {lists.length === 0 ? (
             <p className="text-gray-500 mt-4">Este restaurante não está em nenhuma lista.</p>
           ) : (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {lists.map(list => (
-                <Link key={list.id} href={`/lists/${list.id}`} className="block">
-                  <div className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                    <h3 className="font-medium text-gray-800">{list.name}</h3>
-                    <p className="text-gray-600 text-sm mt-1 line-clamp-2">{list.description}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+  {lists.map(list => (
+    <Link key={list.id} href={`/lists/${list.id}`} className="block">
+      <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+        <h3 className="font-medium text-gray-800 text-sm sm:text-base">{list.name}</h3>
+        <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
+      </div>
+    </Link>
+  ))}
+</div>
           )}
         </div>
       </div>
