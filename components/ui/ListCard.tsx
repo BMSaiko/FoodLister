@@ -6,7 +6,7 @@ import { Utensils, User } from 'lucide-react';
 const ListCard = ({ list, restaurantCount = 0 }) => {
   return (
     <Link href={`/lists/${list.id}`}>
-      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 sm:p-5 h-full flex flex-col">
+      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 sm:p-5 h-full w-full flex flex-col">
         <div className="bg-amber-100 rounded-full p-2 sm:p-3 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3">
           <Utensils className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
         </div>

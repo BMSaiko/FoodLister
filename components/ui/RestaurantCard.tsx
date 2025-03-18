@@ -7,7 +7,7 @@ import { Star, Check, X, MapPin } from 'lucide-react';
 const RestaurantCard = ({ restaurant }) => {
   return (
     <Link href={`/restaurants/${restaurant.id}`}>
-      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
+      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full w-full flex flex-col">
         <div className="relative h-40 sm:h-48 w-full">
           <Image
             src={restaurant.image_url || '/placeholder-restaurant.jpg'}
