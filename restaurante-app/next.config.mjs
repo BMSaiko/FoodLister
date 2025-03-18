@@ -10,10 +10,6 @@ const nextConfig = {
         'images.pexels.com',
         'picsum.photos'], // adicione outros domínios conforme necessário
     },
-
-    experimental: {
-      appDir: true,
-    },
   };
 
 export default nextConfig;

@@ -38,7 +38,7 @@ const RestaurantCard = ({ restaurant }) => {
             <h3 className="font-bold text-lg text-gray-800">{restaurant.name}</h3>
             <div className="flex items-center bg-yellow-100 px-2 py-1 rounded">
               <Star className="h-4 w-4 text-yellow-500 mr-1" fill="currentColor" />
-              <span className="font-semibold">{restaurant.rating.toFixed(1)}</span>
+              <span className="font-semibold text-gray-600">{restaurant.rating.toFixed(1)}</span>
             </div>
           </div>
           <p className="text-gray-600 mt-2 line-clamp-2">{restaurant.description}</p>

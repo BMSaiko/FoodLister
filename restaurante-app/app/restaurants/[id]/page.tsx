@@ -147,7 +147,7 @@ export default function RestaurantDetails() {
               <h1 className="text-3xl font-bold text-gray-800">{restaurant.name}</h1>
               <div className="flex items-center bg-yellow-100 px-3 py-2 rounded">
                 <Star className="h-5 w-5 text-yellow-500 mr-1" fill="currentColor" />
-                <span className="font-semibold text-lg">{restaurant.rating.toFixed(1)}</span>
+                <span className="font-semibold text-lg text-gray-600">{restaurant.rating.toFixed(1)}</span>
               </div>
             </div>
             
