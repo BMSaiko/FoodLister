@@ -1,7 +1,7 @@
 // app/page.js (com ajustes responsivos)
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import ListCard from '@/components/ui/ListCard';
@@ -9,8 +9,19 @@ import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { Plus, Utensils, ListChecks } from 'lucide-react';
 
-export default function Home() {
-  const [activeTab, setActiveTab] = useState('restaurants');
+// Loading component
+function ContentLoading() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      {Array(6).fill(0).map((_, index) => (
+        <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+// Component to handle content
+function HomeContent({ activeTab }) {
   const [restaurants, setRestaurants] = useState([]);
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -83,47 +94,43 @@ export default function Home() {
     </div>
   );
   
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {Array(6).fill(0).map((_, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
-          ))}
-        </div>
-      );
+  if (loading) {
+    return <ContentLoading />;
+  }
+  
+  if (activeTab === 'restaurants') {
+    if (restaurants.length === 0) {
+      return renderEmptyRestaurants();
     }
     
-    if (activeTab === 'restaurants') {
-      if (restaurants.length === 0) {
-        return renderEmptyRestaurants();
-      }
-      
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {restaurants.map(restaurant => (
-            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-          ))}
-        </div>
-      );
-    } else {
-      if (lists.length === 0) {
-        return renderEmptyLists();
-      }
-      
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {lists.map(list => (
-            <ListCard 
-              key={list.id} 
-              list={list} 
-              restaurantCount={list.list_restaurants?.length || 0} 
-            />
-          ))}
-        </div>
-      );
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {restaurants.map(restaurant => (
+          <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+        ))}
+      </div>
+    );
+  } else {
+    if (lists.length === 0) {
+      return renderEmptyLists();
     }
-  };
+    
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {lists.map(list => (
+          <ListCard 
+            key={list.id} 
+            list={list} 
+            restaurantCount={list.list_restaurants?.length || 0} 
+          />
+        ))}
+      </div>
+    );
+  }
+}
+
+export default function Home() {
+  const [activeTab, setActiveTab] = useState('restaurants');
   
   return (
     <main className="min-h-screen bg-gray-50">
@@ -153,7 +160,9 @@ export default function Home() {
           </button>
         </div>
         
-        {renderContent()}
+        <Suspense fallback={<ContentLoading />}>
+          <HomeContent activeTab={activeTab} />
+        </Suspense>
       </div>
     </main>
   );

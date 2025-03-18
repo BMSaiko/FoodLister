@@ -1,7 +1,7 @@
 // app/lists/page.js (versão responsiva)
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import ListCard from '@/components/ui/ListCard';
@@ -9,7 +9,8 @@ import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { Plus, Search as SearchIcon, ListChecks } from 'lucide-react';
 
-export default function ListsPage() {
+// Component to handle the search params logic
+function ListsContent() {
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
@@ -99,35 +100,57 @@ export default function ListsPage() {
   };
   
   return (
+    <>
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+          {searchQuery ? `Resultados para "${searchQuery}"` : 'Todas as Listas'}
+        </h1>
+      </div>
+      
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {Array(6).fill(0).map((_, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-md h-48 animate-pulse" />
+          ))}
+        </div>
+      ) : lists.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {lists.map(list => (
+            <ListCard 
+              key={list.id} 
+              list={list} 
+              restaurantCount={list.restaurantCount} 
+            />
+          ))}
+        </div>
+      ) : (
+        renderEmptyState()
+      )}
+    </>
+  );
+}
+
+// Loading fallback for Suspense
+function ListsLoading() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      {Array(6).fill(0).map((_, index) => (
+        <div key={index} className="bg-white rounded-xl shadow-md h-48 animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+// Main component with Suspense
+export default function ListsPage() {
+  return (
     <main className="min-h-screen bg-gray-50">
       <Navbar />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-            {searchQuery ? `Resultados para "${searchQuery}"` : 'Todas as Listas'}
-          </h1>
-        </div>
-        
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {Array(6).fill(0).map((_, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md h-48 animate-pulse" />
-            ))}
-          </div>
-        ) : lists.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {lists.map(list => (
-              <ListCard 
-                key={list.id} 
-                list={list} 
-                restaurantCount={list.restaurantCount} 
-              />
-            ))}
-          </div>
-        ) : (
-          renderEmptyState()
-        )}
+        <Suspense fallback={<ListsLoading />}>
+          <ListsContent />
+        </Suspense>
       </div>
     </main>
   );

@@ -1,7 +1,7 @@
 // app/restaurants/page.js (versão responsiva)
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
@@ -9,7 +9,8 @@ import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { Plus, Search as SearchIcon, CookingPot } from 'lucide-react';
 
-export default function RestaurantsPage() {
+// Component to handle the search params logic
+function RestaurantsContent() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
@@ -84,31 +85,53 @@ export default function RestaurantsPage() {
   };
   
   return (
+    <>
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+          {searchQuery ? `Resultados para "${searchQuery}"` : 'Todos os Restaurantes'}
+        </h1>
+      </div>
+      
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {Array(6).fill(0).map((_, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
+          ))}
+        </div>
+      ) : restaurants.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {restaurants.map(restaurant => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          ))}
+        </div>
+      ) : (
+        renderEmptyState()
+      )}
+    </>
+  );
+}
+
+// Loading fallback for Suspense
+function RestaurantsLoading() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      {Array(6).fill(0).map((_, index) => (
+        <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+// Main component with Suspense
+export default function RestaurantsPage() {
+  return (
     <main className="min-h-screen bg-gray-50">
       <Navbar />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="flex justify-between items-center mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-            {searchQuery ? `Resultados para "${searchQuery}"` : 'Todos os Restaurantes'}
-          </h1>
-        </div>
-        
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {Array(6).fill(0).map((_, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
-            ))}
-          </div>
-        ) : restaurants.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {restaurants.map(restaurant => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-            ))}
-          </div>
-        ) : (
-          renderEmptyState()
-        )}
+        <Suspense fallback={<RestaurantsLoading />}>
+          <RestaurantsContent />
+        </Suspense>
       </div>
     </main>
   );
