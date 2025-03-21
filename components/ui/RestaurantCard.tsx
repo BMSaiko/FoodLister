@@ -1,11 +1,11 @@
-// components/ui/EnhancedRestaurantCard.tsx (versão com melhor destaque de atributos filtráveis)
+// components/ui/RestaurantCard.tsx (with amber Euro symbols)
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
 
 const RestaurantCard = ({ restaurant }) => {
-  // Função para renderizar os preços com ícones €
+  // Function to render prices with € icons
   const renderPriceCategory = (price) => {
     if (price <= 20) return { label: 'Econômico', level: 1 };
     if (price <= 40) return { label: 'Moderado', level: 2 };
@@ -13,9 +13,33 @@ const RestaurantCard = ({ restaurant }) => {
     return { label: 'Luxo', level: 4 };
   };
 
-  const priceCategory = renderPriceCategory(restaurant.price_per_person);
+  // Get color class based on price level
+  const getPriceColorClass = (level) => {
+    // Classes para os ícones - variação de cores mantendo legibilidade
+    switch(level) {
+      case 1: return 'text-amber-400';
+      case 2: return 'text-amber-500';
+      case 3: return 'text-amber-600';
+      case 4: return 'text-amber-800';
+      default: return 'text-amber-400';
+    }
+  };
   
-  // Estilo de rating baseado no valor
+  // Classe para o texto do label - garantindo melhor legibilidade
+  const getPriceLabelClass = (level) => {
+    switch(level) {
+      case 1: return 'text-amber-400 font-bold';
+      case 2: return 'text-amber-500 font-bold';
+      case 3: return 'text-amber-600 font-bold';
+      case 4: return 'text-amber-800 font-bold';
+      default: return 'text-amber-400 font-medium';
+    }
+  };
+
+  const priceCategory = renderPriceCategory(restaurant.price_per_person);
+  const priceColorClass = getPriceColorClass(priceCategory.level);
+  
+  // Style of rating based on value
   const getRatingStyle = (rating) => {
     if (rating >= 4.5) return 'bg-green-100 text-green-700';
     if (rating >= 3.5) return 'bg-amber-100 text-amber-700';
@@ -37,7 +61,7 @@ const RestaurantCard = ({ restaurant }) => {
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
           />
           
-          {/* Badge de visitado/não visitado mais destacado */}
+          {/* Badge for visited/not visited status */}
           <div className={`absolute top-3 right-3 px-2 py-1 rounded-full flex items-center ${
             restaurant.visited ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
           }`}>
@@ -64,16 +88,16 @@ const RestaurantCard = ({ restaurant }) => {
           </div>
           <p className="text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base">{restaurant.description}</p>
           
-          {/* Mostrar categoria de preço */}
+          {/* Display price category with amber colored Euro symbols */}
           <div className="flex items-center mt-2">
-            <div className="flex items-center text-gray-600">
+            <div className="flex items-center">
               {Array(priceCategory.level).fill(0).map((_, i) => (
-                <Euro key={i} className="h-3 w-3 inline-block" fill="currentColor" />
+                <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
               ))}
               {Array(4 - priceCategory.level).fill(0).map((_, i) => (
                 <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
               ))}
-              <span className="ml-1 text-xs">{priceCategory.label}</span>
+              <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
             </div>
             <div className="ml-auto text-amber-600 font-semibold text-sm">
               €{restaurant.price_per_person.toFixed(2)}

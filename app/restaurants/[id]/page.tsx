@@ -71,21 +71,45 @@ export default function RestaurantDetails() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
   };
 
+   // Get color class based on price level
+   const getPriceColorClass = (level) => {
+    // Classes para os ícones - variação de cores mantendo legibilidade
+    switch(level) {
+      case 1: return 'text-amber-400';
+      case 2: return 'text-amber-500';
+      case 3: return 'text-amber-600';
+      case 4: return 'text-amber-800';
+      default: return 'text-amber-400';
+    }
+  };
+  
+  // Classe para o texto do label - garantindo melhor legibilidade
+  const getPriceLabelClass = (level) => {
+    switch(level) {
+      case 1: return 'text-amber-400 font-bold';
+      case 2: return 'text-amber-500 font-bold';
+      case 3: return 'text-amber-600 font-bold';
+      case 4: return 'text-amber-800 font-bold';
+      default: return 'text-amber-400 font-medium';
+    }
+  };
+
   // Renderiza o nível de preço com ícones de Euro
   const renderPriceLevel = (price) => {
     const priceCategory = categorizePriceLevel(price);
+    const priceColorClass = getPriceColorClass(priceCategory.level);
     
     return (
       <div className="flex items-center mt-4 bg-gray-50 p-3 rounded-lg">
         <div className="flex items-center">
           {Array(priceCategory.level).fill(0).map((_, i) => (
-            <Euro key={i} className="h-4 w-4 text-amber-600" fill="currentColor" />
+            <Euro key={i} className={`h-4 w-4 ${priceColorClass}`} fill="currentColor" />
           ))}
           {Array(4 - priceCategory.level).fill(0).map((_, i) => (
             <Euro key={i + priceCategory.level} className="h-4 w-4 text-gray-300" />
           ))}
         </div>
-        <span className="ml-2 text-sm font-medium text-gray-700">{priceCategory.label}</span>
+        <span className={`ml-2 text-sm ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
         <div className="ml-auto text-amber-600 font-semibold">
           {formatPrice(price)}
           <span className="text-sm text-gray-500 ml-1">por pessoa</span>
