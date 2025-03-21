@@ -9,7 +9,8 @@ const nextConfig = {
       'res.cloudinary.com',
       'images.pexels.com',
       'picsum.photos',
-      'upload.wikimedia.org'
+      'upload.wikimedia.org',
+      'cdn.discordapp.com'
     ], // adicione outros domínios conforme necessário
   },
   reactStrictMode: true,
