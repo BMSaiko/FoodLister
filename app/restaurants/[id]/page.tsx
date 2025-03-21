@@ -7,7 +7,11 @@ import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Star, ListChecks, Edit, MapPin, Globe, FileText, Check, X, User } from 'lucide-react';
+import { 
+  ArrowLeft, Star, ListChecks, Edit, MapPin, Globe, 
+  FileText, Check, X, User, Euro, Tag, Clock 
+} from 'lucide-react';
+import { formatPrice, categorizePriceLevel, getRatingClass, formatDate } from '@/utils/formatters';
 
 export default function RestaurantDetails() {
   const { id } = useParams();
@@ -66,6 +70,29 @@ export default function RestaurantDetails() {
     const encodedLocation = encodeURIComponent(location);
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
   };
+
+  // Renderiza o nível de preço com ícones de Euro
+  const renderPriceLevel = (price) => {
+    const priceCategory = categorizePriceLevel(price);
+    
+    return (
+      <div className="flex items-center mt-4 bg-gray-50 p-3 rounded-lg">
+        <div className="flex items-center">
+          {Array(priceCategory.level).fill(0).map((_, i) => (
+            <Euro key={i} className="h-4 w-4 text-amber-600" fill="currentColor" />
+          ))}
+          {Array(4 - priceCategory.level).fill(0).map((_, i) => (
+            <Euro key={i + priceCategory.level} className="h-4 w-4 text-gray-300" />
+          ))}
+        </div>
+        <span className="ml-2 text-sm font-medium text-gray-700">{priceCategory.label}</span>
+        <div className="ml-auto text-amber-600 font-semibold">
+          {formatPrice(price)}
+          <span className="text-sm text-gray-500 ml-1">por pessoa</span>
+        </div>
+      </div>
+    );
+  };
   
   if (loading) {
     return (
@@ -92,6 +119,9 @@ export default function RestaurantDetails() {
       </div>
     );
   }
+
+  // Obtém a classe de estilo para a avaliação
+  const ratingClass = getRatingClass(restaurant.rating);
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -126,19 +156,19 @@ export default function RestaurantDetails() {
               priority
             />
             
-            {/* Badge responsivo */}
-            <div className={`absolute top-3 right-3 px-2 sm:px-3 py-1 rounded-full flex items-center ${
+            {/* Badge mais destacado e visível */}
+            <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full flex items-center shadow-md ${
               restaurant.visited ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
             }`}>
               {restaurant.visited ? (
                 <>
-                  <Check className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                  <span className="text-xs sm:text-sm font-medium">Visitado</span>
+                  <Check className="h-4 w-4 mr-1.5" />
+                  <span className="text-sm font-medium">Visitado</span>
                 </>
               ) : (
                 <>
-                  <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                  <span className="text-xs sm:text-sm font-medium">Não visitado</span>
+                  <X className="h-4 w-4 mr-1.5" />
+                  <span className="text-sm font-medium">Não visitado</span>
                 </>
               )}
             </div>
@@ -147,64 +177,91 @@ export default function RestaurantDetails() {
           <div className="p-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{restaurant.name}</h1>
-              <div className="flex items-center bg-yellow-100 px-2 sm:px-3 py-1 sm:py-2 rounded self-start">
-                <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-500 mr-1" fill="currentColor" />
+              <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
+                <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="currentColor" />
                 <span className="font-semibold text-base sm:text-lg">{restaurant.rating.toFixed(1)}</span>
               </div>
             </div>
             
+            {/* Se houver tipo de cozinha, mostrar como tag */}
+            {restaurant.cuisine && (
+              <div className="mt-3 flex items-center">
+                <Tag className="h-4 w-4 text-amber-500 mr-1.5" />
+                <span className="text-sm font-medium px-2 py-1 bg-amber-50 text-amber-700 rounded-md">
+                  {restaurant.cuisine}
+                </span>
+              </div>
+            )}
+            
             <p className="text-gray-600 mt-4">{restaurant.description}</p>
             
-            <div className="mt-6 text-amber-600 font-semibold text-xl">
-              €{restaurant.price_per_person.toFixed(2)} por pessoa
-            </div>
+            {/* Informações de preço mais destacadas */}
+            {renderPriceLevel(restaurant.price_per_person)}
+
             
-            {/* Informações do criador */}
-            <div className="mt-4 text-sm flex items-center text-gray-500">
-              <User className="h-4 w-4 mr-1" />
-              Adicionado por: {restaurant.creator || 'Anônimo'}
-            </div>
-            
-            {/* Campos adicionais */}
-            <div className="mt-6 space-y-3">
+            {/* Campos adicionais agora com cards estilizados */}
+            <div className="mt-3 space-y-3">
               {restaurant.location && (
                 <div 
-                  className="flex items-center text-gray-700 cursor-pointer hover:text-amber-600"
+                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                   onClick={() => openInMaps(restaurant.location)}
                 >
-                  <MapPin className="h-5 w-5 mr-2 text-amber-500" />
-                  <span>{restaurant.location}</span>
+                  <MapPin className="h-5 w-5 mr-3 text-amber-500" />
+                  <span className="flex-grow">{restaurant.location}</span>
+                  <span className="text-xs text-amber-600">Abrir no mapa</span>
                 </div>
               )}
               
               {restaurant.source_url && (
-                <div className="flex items-center text-gray-700">
-                  <Globe className="h-5 w-5 mr-2 text-amber-500" />
+                <div 
+                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => window.open(restaurant.source_url, '_blank', 'noopener,noreferrer')}
+                >
+                  <Globe className="h-5 w-5 mr-3 text-amber-500" />
+                  <span className="flex-grow">Fonte Original</span>
                   <a 
                     href={restaurant.source_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="hover:text-amber-600 hover:underline"
+                    className="text-amber-600 hover:text-amber-800 hover:underline text-sm"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    Fonte Original
+                    Visitar site
                   </a>
                 </div>
               )}
-              
+
               {restaurant.menu_url && (
-                <div className="flex items-center text-gray-700">
-                  <FileText className="h-5 w-5 mr-2 text-amber-500" />
+                <div 
+                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => window.open(restaurant.menu_url, '_blank', 'noopener,noreferrer')}
+                >
+                  <FileText className="h-5 w-5 mr-3 text-amber-500" />
+                  <span className="flex-grow">Menu do restaurante</span>
                   <a 
                     href={restaurant.menu_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="hover:text-amber-600 hover:underline"
+                    className="text-amber-600 hover:text-amber-800 hover:underline text-sm"
+                    onClick={(e) => e.stopPropagation()}
                   >
-                    Ver Menu
+                    Ver menu
                   </a>
                 </div>
               )}
             </div>
+            {/* Informações do criador */}
+            <div className="mt-3 text-sm flex items-center text-gray-500">
+              <User className="h-4 w-4 mr-1" />
+              Adicionado por: {restaurant.creator || 'Anônimo'}
+            </div>
+            {/* Data de adição */}
+            {restaurant.created_at && (
+              <div className="mt-3 text-sm flex items-center text-gray-500">
+                <Clock className="h-4 w-4 mr-1" />
+                Adicionado em: {formatDate(restaurant.created_at)}
+              </div>
+            )}
           </div>
         </div>
         
@@ -218,15 +275,15 @@ export default function RestaurantDetails() {
             <p className="text-gray-500 mt-4">Este restaurante não está em nenhuma lista.</p>
           ) : (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-  {lists.map(list => (
-    <Link key={list.id} href={`/lists/${list.id}`} className="block">
-      <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors">
-        <h3 className="font-medium text-gray-800 text-sm sm:text-base">{list.name}</h3>
-        <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
-      </div>
-    </Link>
-  ))}
-</div>
+              {lists.map(list => (
+                <Link key={list.id} href={`/lists/${list.id}`} className="block">
+                  <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+                    <h3 className="font-medium text-gray-800 text-sm sm:text-base">{list.name}</h3>
+                    <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           )}
         </div>
       </div>

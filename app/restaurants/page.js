@@ -1,23 +1,49 @@
-// app/restaurants/page.js (versão responsiva)
+// app/restaurants/page.js (com sistema de filtros)
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
+import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
-import { Plus, Search as SearchIcon, CookingPot } from 'lucide-react';
+import { Plus, Search as SearchIcon, CookingPot, Filter } from 'lucide-react';
 
-// Component to handle the search params logic
+// Component para mostrar loading
+function RestaurantsLoading() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      {Array(6).fill(0).map((_, index) => (
+        <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+// Filtros iniciais
+const initialFilters = {
+  maxPrice: 100,
+  minRating: 0,
+  visited: false,
+  notVisited: false
+};
+
+// Component to handle the search params logic and filtering
 function RestaurantsContent() {
   const [restaurants, setRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState(initialFilters);
+  const [activeFilters, setActiveFilters] = useState(false);
+  
   const searchParams = useSearchParams();
+  const router = useRouter();
   const searchQuery = searchParams.get('search');
   
   const supabase = createClient();
   
+  // Fetch all restaurants
   useEffect(() => {
     async function fetchRestaurants() {
       setLoading(true);
@@ -33,9 +59,11 @@ function RestaurantsContent() {
         
       if (!error) {
         setRestaurants(data || []);
+        setFilteredRestaurants(data || []);
       } else {
         console.error('Erro ao buscar restaurantes:', error);
         setRestaurants([]);
+        setFilteredRestaurants([]);
       }
       
       setLoading(false);
@@ -43,6 +71,42 @@ function RestaurantsContent() {
     
     fetchRestaurants();
   }, [searchQuery]);
+  
+  // Aplicar filtros
+  const applyFilters = () => {
+    const filtered = restaurants.filter(restaurant => {
+      // Filtro de preço
+      if (restaurant.price_per_person > filters.maxPrice) {
+        return false;
+      }
+      
+      // Filtro de avaliação
+      if (restaurant.rating < filters.minRating) {
+        return false;
+      }
+      
+      // Filtros de status (visitado/não visitado)
+      if (filters.visited && !restaurant.visited) {
+        return false;
+      }
+      
+      if (filters.notVisited && restaurant.visited) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setFilteredRestaurants(filtered);
+    setActiveFilters(true);
+  };
+  
+  // Limpar filtros
+  const clearFilters = () => {
+    setFilters(initialFilters);
+    setFilteredRestaurants(restaurants);
+    setActiveFilters(false);
+  };
   
   const renderEmptyState = () => {
     // Se há uma pesquisa, mostra mensagem de "nenhum resultado"
@@ -84,6 +148,22 @@ function RestaurantsContent() {
     );
   };
   
+  const renderFilterStats = () => {
+    if (!activeFilters) return null;
+    
+    const totalRestaurants = restaurants.length;
+    const filteredCount = filteredRestaurants.length;
+    
+    return (
+      <div className="text-sm text-gray-500 mb-4 flex items-center">
+        <Filter className="h-3 w-3 mr-1 text-amber-500" />
+        <span>
+          Mostrando {filteredCount} de {totalRestaurants} restaurantes
+        </span>
+      </div>
+    );
+  };
+  
   return (
     <>
       <div className="flex justify-between items-center mb-4 sm:mb-6">
@@ -92,15 +172,20 @@ function RestaurantsContent() {
         </h1>
       </div>
       
+      <RestaurantFilters 
+        filters={filters}
+        setFilters={setFilters}
+        applyFilters={applyFilters}
+        clearFilters={clearFilters}
+      />
+      
+      {renderFilterStats()}
+      
       {loading ? (
+        <RestaurantsLoading />
+      ) : filteredRestaurants.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {Array(6).fill(0).map((_, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
-          ))}
-        </div>
-      ) : restaurants.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {restaurants.map(restaurant => (
+          {filteredRestaurants.map(restaurant => (
             <RestaurantCard key={restaurant.id} restaurant={restaurant} />
           ))}
         </div>
@@ -108,17 +193,6 @@ function RestaurantsContent() {
         renderEmptyState()
       )}
     </>
-  );
-}
-
-// Loading fallback for Suspense
-function RestaurantsLoading() {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {Array(6).fill(0).map((_, index) => (
-        <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
-      ))}
-    </div>
   );
 }
 

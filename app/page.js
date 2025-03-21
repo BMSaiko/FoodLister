@@ -1,13 +1,14 @@
-// app/page.js (com ajustes responsivos)
+// app/page.js (com sistema de filtros)
 "use client"
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import ListCard from '@/components/ui/ListCard';
+import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
-import { Plus, Utensils, ListChecks } from 'lucide-react';
+import { Plus, Utensils, ListChecks, Filter } from 'lucide-react';
 
 // Loading component
 function ContentLoading() {
@@ -20,11 +21,22 @@ function ContentLoading() {
   );
 }
 
+// Filtros iniciais
+const initialFilters = {
+  maxPrice: 100,
+  minRating: 0,
+  visited: false,
+  notVisited: false
+};
+
 // Component to handle content
 function HomeContent({ activeTab }) {
   const [restaurants, setRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState(initialFilters);
+  const [activeFilters, setActiveFilters] = useState(false);
   
   const supabase = createClient();
   
@@ -39,6 +51,7 @@ function HomeContent({ activeTab }) {
           
         if (!restaurantError) {
           setRestaurants(restaurantData || []);
+          setFilteredRestaurants(restaurantData || []);
         }
       } else {
         const { data: listData, error: listError } = await supabase
@@ -54,7 +67,46 @@ function HomeContent({ activeTab }) {
     }
     
     fetchData();
+    // Resetar filtros ativos quando mudar de aba
+    setActiveFilters(false);
+    setFilters(initialFilters);
   }, [activeTab]);
+  
+  // Aplicar filtros
+  const applyFilters = () => {
+    const filtered = restaurants.filter(restaurant => {
+      // Filtro de preço
+      if (restaurant.price_per_person > filters.maxPrice) {
+        return false;
+      }
+      
+      // Filtro de avaliação
+      if (restaurant.rating < filters.minRating) {
+        return false;
+      }
+      
+      // Filtros de status (visitado/não visitado)
+      if (filters.visited && !restaurant.visited) {
+        return false;
+      }
+      
+      if (filters.notVisited && restaurant.visited) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    setFilteredRestaurants(filtered);
+    setActiveFilters(true);
+  };
+  
+  // Limpar filtros
+  const clearFilters = () => {
+    setFilters(initialFilters);
+    setFilteredRestaurants(restaurants);
+    setActiveFilters(false);
+  };
   
   const renderEmptyRestaurants = () => (
     <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
@@ -94,21 +146,69 @@ function HomeContent({ activeTab }) {
     </div>
   );
   
+  const renderFilterStats = () => {
+    if (!activeFilters || activeTab !== 'restaurants') return null;
+    
+    const totalRestaurants = restaurants.length;
+    const filteredCount = filteredRestaurants.length;
+    
+    return (
+      <div className="text-sm text-gray-500 mb-4 flex items-center">
+        <Filter className="h-3 w-3 mr-1 text-amber-500" />
+        <span>
+          Mostrando {filteredCount} de {totalRestaurants} restaurantes
+        </span>
+      </div>
+    );
+  };
+  
   if (loading) {
     return <ContentLoading />;
   }
   
   if (activeTab === 'restaurants') {
-    if (restaurants.length === 0) {
-      return renderEmptyRestaurants();
-    }
-    
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {restaurants.map(restaurant => (
-          <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-        ))}
-      </div>
+      <>
+        {/* Mostrar filtros apenas na aba de restaurantes */}
+        <RestaurantFilters 
+          filters={filters}
+          setFilters={setFilters}
+          applyFilters={applyFilters}
+          clearFilters={clearFilters}
+        />
+        
+        {renderFilterStats()}
+        
+        {activeFilters ? (
+          filteredRestaurants.length === 0 ? (
+            <div className="w-full py-8 text-center text-gray-500">
+              <p>Nenhum restaurante corresponde aos filtros selecionados.</p>
+              <button 
+                onClick={clearFilters}
+                className="mt-2 text-amber-600 hover:text-amber-800 underline"
+              >
+                Limpar filtros
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {filteredRestaurants.map(restaurant => (
+                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+              ))}
+            </div>
+          )
+        ) : (
+          restaurants.length === 0 ? (
+            renderEmptyRestaurants()
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {restaurants.map(restaurant => (
+                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+              ))}
+            </div>
+          )
+        )}
+      </>
     );
   } else {
     if (lists.length === 0) {
