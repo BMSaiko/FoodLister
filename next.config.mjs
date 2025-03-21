@@ -10,7 +10,8 @@ const nextConfig = {
       'images.pexels.com',
       'picsum.photos',
       'upload.wikimedia.org',
-      'cdn.discordapp.com'
+      'cdn.discordapp.com',
+      'lh5.googleusercontent.com'
     ], // adicione outros domínios conforme necessário
   },
   reactStrictMode: true,
