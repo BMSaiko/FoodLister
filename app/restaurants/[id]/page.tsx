@@ -213,7 +213,10 @@ export default function RestaurantDetails() {
               )}
               
               {restaurant.source_url && (
-                <div className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg">
+                <div 
+                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => window.open(restaurant.source_url, '_blank', 'noopener,noreferrer')}
+                >
                   <Globe className="h-5 w-5 mr-3 text-amber-500" />
                   <span className="flex-grow">Fonte Original</span>
                   <a 
@@ -221,14 +224,18 @@ export default function RestaurantDetails() {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-amber-600 hover:text-amber-800 hover:underline text-sm"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     Visitar site
                   </a>
                 </div>
               )}
-              
+
               {restaurant.menu_url && (
-                <div className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg">
+                <div 
+                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  onClick={() => window.open(restaurant.menu_url, '_blank', 'noopener,noreferrer')}
+                >
                   <FileText className="h-5 w-5 mr-3 text-amber-500" />
                   <span className="flex-grow">Menu do restaurante</span>
                   <a 
@@ -236,6 +243,7 @@ export default function RestaurantDetails() {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-amber-600 hover:text-amber-800 hover:underline text-sm"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     Ver menu
                   </a>
