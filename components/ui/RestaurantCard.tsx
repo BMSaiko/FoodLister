@@ -15,12 +15,24 @@ const RestaurantCard = ({ restaurant }) => {
 
   // Get color class based on price level
   const getPriceColorClass = (level) => {
+    // Classes para os ícones - variação de cores mantendo legibilidade
     switch(level) {
-      case 1: return 'text-amber-300';
-      case 2: return 'text-amber-400';
-      case 3: return 'text-amber-500';
-      case 4: return 'text-amber-600';
+      case 1: return 'text-amber-400';
+      case 2: return 'text-amber-500';
+      case 3: return 'text-amber-600';
+      case 4: return 'text-amber-800';
       default: return 'text-amber-400';
+    }
+  };
+  
+  // Classe para o texto do label - garantindo melhor legibilidade
+  const getPriceLabelClass = (level) => {
+    switch(level) {
+      case 1: return 'text-amber-400 font-bold';
+      case 2: return 'text-amber-500 font-bold';
+      case 3: return 'text-amber-600 font-bold';
+      case 4: return 'text-amber-800 font-bold';
+      default: return 'text-amber-400 font-medium';
     }
   };
 
@@ -85,7 +97,7 @@ const RestaurantCard = ({ restaurant }) => {
               {Array(4 - priceCategory.level).fill(0).map((_, i) => (
                 <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
               ))}
-              <span className={`ml-1 text-xs ${priceColorClass} font-medium`}>{priceCategory.label}</span>
+              <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
             </div>
             <div className="ml-auto text-amber-600 font-semibold text-sm">
               €{restaurant.price_per_person.toFixed(2)}
