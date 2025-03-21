@@ -17,6 +17,7 @@ export default function RestaurantDetails() {
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
   const [lists, setLists] = useState([]);
+  const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const supabase = createClient();
@@ -27,37 +28,70 @@ export default function RestaurantDetails() {
       
       setLoading(true);
       
-      // Fetch restaurant details
-      const { data: restaurantData } = await supabase
-        .from('restaurants')
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-      if (restaurantData) {
-        setRestaurant(restaurantData);
-        
-        // Fetch lists containing this restaurant
-        const { data: listRelations } = await supabase
-          .from('list_restaurants')
-          .select('list_id')
-          .eq('restaurant_id', id);
+      try {
+        // Fetch restaurant details
+        const { data: restaurantData, error: restaurantError } = await supabase
+          .from('restaurants')
+          .select('*')
+          .eq('id', id)
+          .single();
           
-        if (listRelations && listRelations.length > 0) {
-          const listIds = listRelations.map(item => item.list_id);
+        if (restaurantError) throw restaurantError;
+        
+        if (restaurantData) {
+          setRestaurant(restaurantData);
           
-          const { data: listDetails } = await supabase
-            .from('lists')
-            .select('*')
-            .in('id', listIds);
+          // Fetch cuisine types for this restaurant
+          const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
+            .from('restaurant_cuisine_types')
+            .select('cuisine_type_id')
+            .eq('restaurant_id', id);
             
-          if (listDetails) {
-            setLists(listDetails);
+          if (cuisineRelationsError) throw cuisineRelationsError;
+          
+          if (cuisineRelations && cuisineRelations.length > 0) {
+            const cuisineTypeIds = cuisineRelations.map(item => item.cuisine_type_id);
+            
+            const { data: cuisineTypeDetails, error: cuisineTypeError } = await supabase
+              .from('cuisine_types')
+              .select('*')
+              .in('id', cuisineTypeIds);
+              
+            if (cuisineTypeError) throw cuisineTypeError;
+            
+            if (cuisineTypeDetails) {
+              setCuisineTypes(cuisineTypeDetails);
+            }
+          }
+          
+          // Fetch lists containing this restaurant
+          const { data: listRelations, error: listRelationsError } = await supabase
+            .from('list_restaurants')
+            .select('list_id')
+            .eq('restaurant_id', id);
+            
+          if (listRelationsError) throw listRelationsError;
+          
+          if (listRelations && listRelations.length > 0) {
+            const listIds = listRelations.map(item => item.list_id);
+            
+            const { data: listDetails, error: listDetailsError } = await supabase
+              .from('lists')
+              .select('*')
+              .in('id', listIds);
+              
+            if (listDetailsError) throw listDetailsError;
+            
+            if (listDetails) {
+              setLists(listDetails);
+            }
           }
         }
+      } catch (error) {
+        console.error('Error fetching restaurant details:', error);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     }
     
     fetchRestaurantDetails();
@@ -71,8 +105,8 @@ export default function RestaurantDetails() {
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
   };
 
-   // Get color class based on price level
-   const getPriceColorClass = (level) => {
+  // Get color class based on price level
+  const getPriceColorClass = (level) => {
     // Classes para os ícones - variação de cores mantendo legibilidade
     switch(level) {
       case 1: return 'text-amber-400';
@@ -207,13 +241,18 @@ export default function RestaurantDetails() {
               </div>
             </div>
             
-            {/* Se houver tipo de cozinha, mostrar como tag */}
-            {restaurant.cuisine && (
-              <div className="mt-3 flex items-center">
-                <Tag className="h-4 w-4 text-amber-500 mr-1.5" />
-                <span className="text-sm font-medium px-2 py-1 bg-amber-50 text-amber-700 rounded-md">
-                  {restaurant.cuisine}
-                </span>
+            {/* Mostrar categorias culinárias */}
+            {cuisineTypes && cuisineTypes.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {cuisineTypes.map(type => (
+                  <span 
+                    key={type.id} 
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700"
+                  >
+                    <Tag className="h-4 w-4 mr-1.5 text-amber-500" />
+                    {type.name}
+                  </span>
+                ))}
               </div>
             )}
             
@@ -221,7 +260,6 @@ export default function RestaurantDetails() {
             
             {/* Informações de preço mais destacadas */}
             {renderPriceLevel(restaurant.price_per_person)}
-
             
             {/* Campos adicionais agora com cards estilizados */}
             <div className="mt-3 space-y-3">

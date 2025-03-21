@@ -14,6 +14,21 @@ export type Restaurant = {
   creator: string;         // Novo: nome da pessoa que adicionou o restaurante
   menu_url: string;        // Novo: link para o menu online
   visited: boolean;        // Novo: status de visita (true = visitado, false = não visitado)
+  cuisine_types?: CuisineType[]; // Nova propriedade para relacionamento com categorias
+};
+
+export type CuisineType = {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  created_at?: string;
+};
+
+export type RestaurantCuisineType = {
+  restaurant_id: string;
+  cuisine_type_id: string;
+  created_at?: string;
 };
 
 export type List = {
@@ -41,6 +56,12 @@ export type Database = {
       };
       list_restaurants: {
         Row: ListRestaurant;
+      };
+      cuisine_types: {
+        Row: CuisineType;
+      };
+      restaurant_cuisine_types: {
+        Row: RestaurantCuisineType;
       };
     };
   };

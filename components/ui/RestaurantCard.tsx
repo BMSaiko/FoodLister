@@ -1,4 +1,4 @@
-// components/ui/RestaurantCard.tsx (with amber Euro symbols)
+// components/ui/RestaurantCard.tsx
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -86,6 +86,19 @@ const RestaurantCard = ({ restaurant }) => {
               <span className="font-semibold text-sm">{restaurant.rating.toFixed(1)}</span>
             </div>
           </div>
+          
+          {/* Mostrar categorias se disponíveis */}
+          {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {restaurant.cuisine_types.map(type => (
+                <span key={type.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">
+                  <Tag className="h-3 w-3 mr-1" />
+                  {type.name}
+                </span>
+              ))}
+            </div>
+          )}
+          
           <p className="text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base">{restaurant.description}</p>
           
           {/* Display price category with amber colored Euro symbols */}
