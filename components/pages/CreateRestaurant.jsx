@@ -1,18 +1,21 @@
 // components/pages/CreateRestaurant.jsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X } from 'lucide-react';
 import { useCreatorName } from '@/hooks/useCreatorName';
 
 export default function CreateRestaurant() {
   const router = useRouter();
   const { creatorName } = useCreatorName();
   const [loading, setLoading] = useState(false);
+  const [cuisineTypes, setCuisineTypes] = useState([]);
+  const [loadingCuisineTypes, setLoadingCuisineTypes] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -22,12 +25,38 @@ export default function CreateRestaurant() {
     location: '',
     source_url: '',
     menu_url: '',
-    visited: false
+    visited: false,
+    selectedCuisineTypes: []
   });
   
   const [error, setError] = useState('');
   
   const supabase = createClient();
+  
+  // Carregar tipos de cozinha do banco de dados
+  useEffect(() => {
+    async function fetchCuisineTypes() {
+      try {
+        setLoadingCuisineTypes(true);
+        const { data, error } = await supabase
+          .from('cuisine_types')
+          .select('*')
+          .order('name');
+          
+        if (error) {
+          console.error('Erro ao buscar tipos de cozinha:', error);
+        } else {
+          setCuisineTypes(data || []);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar tipos de cozinha:', err);
+      } finally {
+        setLoadingCuisineTypes(false);
+      }
+    }
+    
+    fetchCuisineTypes();
+  }, []);
   
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -36,6 +65,36 @@ export default function CreateRestaurant() {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
+  
+  const toggleCuisineType = (cuisineTypeId) => {
+    setFormData(prev => {
+      const isSelected = prev.selectedCuisineTypes.includes(cuisineTypeId);
+      
+      if (isSelected) {
+        // Remove o tipo selecionado
+        return {
+          ...prev,
+          selectedCuisineTypes: prev.selectedCuisineTypes.filter(id => id !== cuisineTypeId)
+        };
+      } else {
+        // Adiciona o tipo selecionado
+        return {
+          ...prev,
+          selectedCuisineTypes: [...prev.selectedCuisineTypes, cuisineTypeId]
+        };
+      }
+    });
+  };
+  
+  // Filtra os tipos de cozinha com base no texto de pesquisa
+  const filteredCuisineTypes = cuisineTypes.filter(type => 
+    type.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  // Retorna apenas os tipos selecionados na ordem original
+  const selectedCuisineTypesInOrder = cuisineTypes.filter(type => 
+    formData.selectedCuisineTypes.includes(type.id)
+  );
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,7 +123,8 @@ export default function CreateRestaurant() {
     setLoading(true);
     
     try {
-      const { data, error: supabaseError } = await supabase
+      // 1. Criar o restaurante
+      const { data: restaurantData, error: restaurantError } = await supabase
         .from('restaurants')
         .insert([
           {
@@ -82,13 +142,33 @@ export default function CreateRestaurant() {
         ])
         .select();
       
-      if (supabaseError) {
-        throw supabaseError;
+      if (restaurantError) {
+        throw restaurantError;
+      }
+      
+      // 2. Se houver tipos de cozinha selecionados, criar os relacionamentos
+      if (formData.selectedCuisineTypes.length > 0 && restaurantData && restaurantData[0]) {
+        const restaurantId = restaurantData[0].id;
+        
+        const cuisineRelations = formData.selectedCuisineTypes.map(cuisineTypeId => ({
+          restaurant_id: restaurantId,
+          cuisine_type_id: cuisineTypeId
+        }));
+        
+        const { error: relationError } = await supabase
+          .from('restaurant_cuisine_types')
+          .insert(cuisineRelations);
+        
+        if (relationError) {
+          console.error('Erro ao adicionar tipos de cozinha:', relationError);
+          // Não lançamos o erro aqui para que o usuário ainda seja redirecionado
+          // para a página do restaurante
+        }
       }
       
       // Redirect to the new restaurant's page
-      if (data && data[0]) {
-        router.push(`/restaurants/${data[0].id}`);
+      if (restaurantData && restaurantData[0]) {
+        router.push(`/restaurants/${restaurantData[0].id}`);
       } else {
         router.push('/restaurants');
       }
@@ -151,6 +231,89 @@ export default function CreateRestaurant() {
               />
             </div>
             
+            {/* Seção de categorias culinárias */}
+            <div className="mb-4">
+              <label className="flex items-center text-gray-700 font-medium mb-2">
+                <Tag className="h-4 w-4 mr-2" />
+                Categorias Culinárias
+              </label>
+              
+              {/* Campo de busca para categorias */}
+              <div className="relative mb-2">
+                <input 
+                  type="text"
+                  placeholder="Buscar categorias..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-8 pr-2 py-2 border border-gray-300 rounded text-sm"
+                />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              </div>
+              
+              {/* Lista de categorias disponíveis */}
+              {loadingCuisineTypes ? (
+                <div className="text-center py-4 text-gray-500">Carregando categorias...</div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto bg-gray-50 p-3 rounded-md border border-gray-200 mb-3">
+                  {filteredCuisineTypes.length > 0 ? (
+                    filteredCuisineTypes.map(cuisineType => (
+                      <div 
+                        key={cuisineType.id}
+                        className={`flex items-center px-2 py-1.5 rounded ${
+                          formData.selectedCuisineTypes.includes(cuisineType.id) 
+                            ? 'bg-amber-100 border border-amber-300' 
+                            : 'bg-white border border-gray-200 hover:bg-gray-100'
+                        } cursor-pointer transition-colors`}
+                        onClick={() => toggleCuisineType(cuisineType.id)}
+                      >
+                        <span className="text-sm flex-grow truncate">{cuisineType.name}</span>
+                        {formData.selectedCuisineTypes.includes(cuisineType.id) ? (
+                          <Check className="h-4 w-4 text-amber-600 flex-shrink-0" />
+                        ) : (
+                          <Plus className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-2 text-gray-500 col-span-full">
+                      Nenhuma categoria encontrada
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Categorias selecionadas */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Categorias Selecionadas ({formData.selectedCuisineTypes.length})
+                </label>
+                
+                {formData.selectedCuisineTypes.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCuisineTypesInOrder.map(cuisineType => (
+                      <div 
+                        key={cuisineType.id}
+                        className="flex items-center bg-amber-100 text-amber-800 px-2 py-1 rounded-full"
+                      >
+                        <span className="text-sm">{cuisineType.name}</span>
+                        <button 
+                          type="button"
+                          onClick={() => toggleCuisineType(cuisineType.id)}
+                          className="ml-1 text-amber-600 hover:text-amber-800"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500">
+                    Nenhuma categoria selecionada
+                  </div>
+                )}
+              </div>
+            </div>
+            
             <div className="mb-4">
               <label htmlFor="image_url" className="block text-gray-700 font-medium mb-2">
                 URL da Imagem
@@ -201,7 +364,7 @@ export default function CreateRestaurant() {
               />
             </div>
             
-            {/* Novos campos */}
+            {/* Outros campos */}
             <div className="mb-4">
               <label htmlFor="location" className="flex items-center text-gray-700 font-medium mb-2">
                 <MapPin className="h-4 w-4 mr-2" />

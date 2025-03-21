@@ -6,12 +6,18 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X } from 'lucide-react';
 
 export default function EditRestaurant({ restaurantId }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  // Estado para categorias culinárias
+  const [cuisineTypes, setCuisineTypes] = useState([]);
+  const [loadingCuisineTypes, setLoadingCuisineTypes] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -22,60 +28,76 @@ export default function EditRestaurant({ restaurantId }) {
     source_url: '',
     menu_url: '',
     visited: false,
-    creator: ''
+    creator: '',
+    selectedCuisineTypes: []
   });
   
   const [error, setError] = useState('');
   
   const supabase = createClient();
   
-  // Fetch restaurant data
+  // Carregar dados do restaurante e categorias
   useEffect(() => {
-    async function fetchRestaurant() {
+    async function fetchRestaurantAndCategories() {
       if (!restaurantId) return;
       
       try {
         setLoading(true);
         
-        // Changed from .single() to regular select with eq() to avoid potential errors
-        const { data, error } = await supabase
+        // 1. Buscar dados do restaurante
+        const { data: restaurantData, error: restaurantError } = await supabase
           .from('restaurants')
           .select('*')
-          .eq('id', restaurantId);
+          .eq('id', restaurantId)
+          .single();
           
-        if (error) throw error;
+        if (restaurantError) throw restaurantError;
         
-        // Check if we got data back
-        if (!data || data.length === 0) {
-          setError('Restaurante não encontrado.');
-          setLoading(false);
-          return;
+        // 2. Buscar tipos de cozinha relacionados
+        const { data: relationData, error: relationError } = await supabase
+          .from('restaurant_cuisine_types')
+          .select('cuisine_type_id')
+          .eq('restaurant_id', restaurantId);
+          
+        if (relationError) throw relationError;
+        
+        // 3. Buscar todos os tipos de cozinha disponíveis
+        const { data: allCuisineTypes, error: cuisineTypesError } = await supabase
+          .from('cuisine_types')
+          .select('*')
+          .order('name');
+          
+        if (cuisineTypesError) throw cuisineTypesError;
+        
+        // Atualizar estados
+        if (restaurantData) {
+          setFormData({
+            name: restaurantData.name,
+            description: restaurantData.description,
+            image_url: restaurantData.image_url || '',
+            price_per_person: restaurantData.price_per_person.toString(),
+            rating: restaurantData.rating.toString(),
+            location: restaurantData.location || '',
+            source_url: restaurantData.source_url || '',
+            menu_url: restaurantData.menu_url || '',
+            visited: restaurantData.visited || false,
+            creator: restaurantData.creator || 'Anônimo',
+            selectedCuisineTypes: relationData ? relationData.map(rel => rel.cuisine_type_id) : []
+          });
         }
         
-        // Use first item instead of .single()
-        const restaurant = data[0];
+        setCuisineTypes(allCuisineTypes || []);
         
-        setFormData({
-          name: restaurant.name,
-          description: restaurant.description,
-          image_url: restaurant.image_url || '',
-          price_per_person: restaurant.price_per_person.toString(),
-          rating: restaurant.rating.toString(),
-          location: restaurant.location || '',
-          source_url: restaurant.source_url || '',
-          menu_url: restaurant.menu_url || '',
-          visited: restaurant.visited || false,
-          creator: restaurant.creator || 'Anônimo'
-        });
       } catch (err) {
-        console.error('Error fetching restaurant:', err);
+        console.error('Error fetching restaurant data:', err);
         setError('Erro ao carregar detalhes do restaurante: ' + (err.message || 'Unknown error'));
       } finally {
         setLoading(false);
+        setLoadingCuisineTypes(false);
       }
     }
     
-    fetchRestaurant();
+    fetchRestaurantAndCategories();
   }, [restaurantId]);
   
   const handleChange = (e) => {
@@ -85,6 +107,36 @@ export default function EditRestaurant({ restaurantId }) {
       [name]: type === 'checkbox' ? checked : value
     }));
   };
+  
+  const toggleCuisineType = (cuisineTypeId) => {
+    setFormData(prev => {
+      const isSelected = prev.selectedCuisineTypes.includes(cuisineTypeId);
+      
+      if (isSelected) {
+        // Remove o tipo selecionado
+        return {
+          ...prev,
+          selectedCuisineTypes: prev.selectedCuisineTypes.filter(id => id !== cuisineTypeId)
+        };
+      } else {
+        // Adiciona o tipo selecionado
+        return {
+          ...prev,
+          selectedCuisineTypes: [...prev.selectedCuisineTypes, cuisineTypeId]
+        };
+      }
+    });
+  };
+  
+  // Filtra os tipos de cozinha com base no texto de pesquisa
+  const filteredCuisineTypes = cuisineTypes.filter(type => 
+    type.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
+  // Retorna apenas os tipos selecionados na ordem original
+  const selectedCuisineTypesInOrder = cuisineTypes.filter(type => 
+    formData.selectedCuisineTypes.includes(type.id)
+  );
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -113,6 +165,7 @@ export default function EditRestaurant({ restaurantId }) {
     setSaving(true);
     
     try {
+      // 1. Atualizar dados básicos do restaurante
       const { error: updateError } = await supabase
         .from('restaurants')
         .update({
@@ -130,8 +183,34 @@ export default function EditRestaurant({ restaurantId }) {
         .eq('id', restaurantId);
       
       if (updateError) {
-        console.error('Error updating restaurant:', updateError);
         throw updateError;
+      }
+      
+      // 2. Atualizar categorias culinárias
+      // 2.1 Remover todas as relações existentes
+      const { error: deleteError } = await supabase
+        .from('restaurant_cuisine_types')
+        .delete()
+        .eq('restaurant_id', restaurantId);
+        
+      if (deleteError) {
+        throw deleteError;
+      }
+      
+      // 2.2 Adicionar as novas relações selecionadas
+      if (formData.selectedCuisineTypes.length > 0) {
+        const cuisineRelations = formData.selectedCuisineTypes.map(cuisineTypeId => ({
+          restaurant_id: restaurantId,
+          cuisine_type_id: cuisineTypeId
+        }));
+        
+        const { error: insertError } = await supabase
+          .from('restaurant_cuisine_types')
+          .insert(cuisineRelations);
+          
+        if (insertError) {
+          throw insertError;
+        }
       }
       
       // Redirect back to the restaurant details page
@@ -175,11 +254,11 @@ export default function EditRestaurant({ restaurantId }) {
       <div className="container mx-auto px-4 py-8">
         <Link href={`/restaurants/${restaurantId}`} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para Restaurantes
+          Voltar para Detalhes do Restaurante
         </Link>
         
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Editar Restaurante</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-6">Editar Restaurante</h1>
           
           {error && (
             <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">
@@ -220,6 +299,89 @@ export default function EditRestaurant({ restaurantId }) {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
                 required
               />
+            </div>
+            
+            {/* Seção de categorias culinárias */}
+            <div className="mb-4">
+              <label className="flex items-center text-gray-700 font-medium mb-2">
+                <Tag className="h-4 w-4 mr-2" />
+                Categorias Culinárias
+              </label>
+              
+              {/* Campo de busca para categorias */}
+              <div className="relative mb-2">
+                <input 
+                  type="text"
+                  placeholder="Buscar categorias..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-8 pr-2 py-2 border border-gray-300 rounded text-sm"
+                />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              </div>
+              
+              {/* Lista de categorias disponíveis */}
+              {loadingCuisineTypes ? (
+                <div className="text-center py-4 text-gray-500">Carregando categorias...</div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto bg-gray-50 p-3 rounded-md border border-gray-200 mb-3">
+                  {filteredCuisineTypes.length > 0 ? (
+                    filteredCuisineTypes.map(cuisineType => (
+                      <div 
+                        key={cuisineType.id}
+                        className={`flex items-center px-2 py-1.5 rounded ${
+                          formData.selectedCuisineTypes.includes(cuisineType.id) 
+                            ? 'bg-amber-100 border border-amber-300' 
+                            : 'bg-white border border-gray-200 hover:bg-gray-100'
+                        } cursor-pointer transition-colors`}
+                        onClick={() => toggleCuisineType(cuisineType.id)}
+                      >
+                        <span className="text-sm flex-grow truncate">{cuisineType.name}</span>
+                        {formData.selectedCuisineTypes.includes(cuisineType.id) ? (
+                          <Check className="h-4 w-4 text-amber-600 flex-shrink-0" />
+                        ) : (
+                          <Plus className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-2 text-gray-500 col-span-full">
+                      Nenhuma categoria encontrada
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Categorias selecionadas */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Categorias Selecionadas ({formData.selectedCuisineTypes.length})
+                </label>
+                
+                {formData.selectedCuisineTypes.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCuisineTypesInOrder.map(cuisineType => (
+                      <div 
+                        key={cuisineType.id}
+                        className="flex items-center bg-amber-100 text-amber-800 px-2 py-1 rounded-full"
+                      >
+                        <span className="text-sm">{cuisineType.name}</span>
+                        <button 
+                          type="button"
+                          onClick={() => toggleCuisineType(cuisineType.id)}
+                          className="ml-1 text-amber-600 hover:text-amber-800"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500">
+                    Nenhuma categoria selecionada
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="mb-4">
@@ -341,7 +503,7 @@ export default function EditRestaurant({ restaurantId }) {
             <div className="flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 mt-6">
               <button
                 type="button"
-                onClick={() => router.push('/restaurants')}
+                onClick={() => router.push(`/restaurants/${restaurantId}`)}
                 className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 order-2 sm:order-1"
               >
                 Cancelar
@@ -349,9 +511,9 @@ export default function EditRestaurant({ restaurantId }) {
               <button
                 type="submit"
                 className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 order-1 sm:order-2"
-                disabled={loading}
+                disabled={saving}
               >
-                {loading ? 'Salvando...' : 'Salvar Restaurante'}
+                {saving ? 'Salvando...' : 'Salvar Alterações'}
               </button>
             </div>
           </form>

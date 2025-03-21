@@ -9,7 +9,7 @@ export interface RestaurantFilters {
   minRating: number;
   visited?: boolean;
   notVisited?: boolean;
-  cuisineType?: string[];
+  cuisineTypes?: string[]; // Array de IDs de categorias culinárias
   searchTerm?: string;
 }
 
@@ -19,7 +19,7 @@ export const defaultFilters: RestaurantFilters = {
   minRating: 0,
   visited: false,
   notVisited: false,
-  cuisineType: [],
+  cuisineTypes: [],
   searchTerm: ''
 };
 
@@ -50,9 +50,23 @@ export const applyFiltersToRestaurants = (restaurants: any[], filters: Restauran
       return false;
     }
     
-    // Filtro por tipo de cozinha (quando implementado)
-    if (filters.cuisineType && filters.cuisineType.length > 0 && restaurant.cuisine) {
-      if (!filters.cuisineType.includes(restaurant.cuisine)) {
+    // Filtro por tipo de cozinha
+    if (filters.cuisineTypes && filters.cuisineTypes.length > 0) {
+      // Se restaurant.cuisine_types estiver disponível (carregado com relacionamentos)
+      if (restaurant.cuisine_types && restaurant.cuisine_types.length > 0) {
+        const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
+        // Verificar se há pelo menos uma correspondência entre as categorias do restaurante e as selecionadas no filtro
+        const hasMatchingCuisine = filters.cuisineTypes.some(cuisineId => 
+          restaurantCuisineIds.includes(cuisineId)
+        );
+        
+        if (!hasMatchingCuisine) {
+          return false;
+        }
+      } else {
+        // Se não temos informações sobre as categorias do restaurante, talvez seja melhor
+        // não filtrar para evitar falsos negativos. Alternativa é excluir assumindo que
+        // não há categorias relacionadas.
         return false;
       }
     }
@@ -80,22 +94,48 @@ export const applyFiltersToRestaurants = (restaurants: any[], filters: Restauran
 export const fetchAndFilterRestaurants = async (filters: RestaurantFilters) => {
   const supabase = createClient();
   
-  let query = supabase.from('restaurants').select('*');
-  
-  // Se tiver termo de pesquisa, aplicar como filtro na consulta
-  if (filters.searchTerm && filters.searchTerm.trim() !== '') {
-    query = query.ilike('name', `%${filters.searchTerm}%`);
-  }
-  
-  const { data, error } = await query;
-  
-  if (error) {
-    console.error('Erro ao buscar restaurantes:', error);
+  try {
+    // 1. Primeiro buscamos todos os restaurantes
+    let query = supabase
+      .from('restaurants')
+      .select(`
+        *,
+        cuisine_types:restaurant_cuisine_types(
+          cuisine_type:cuisine_types(*)
+        )
+      `);
+    
+    // Se tiver termo de pesquisa, aplicar como filtro na consulta
+    if (filters.searchTerm && filters.searchTerm.trim() !== '') {
+      query = query.ilike('name', `%${filters.searchTerm}%`);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error('Erro ao buscar restaurantes:', error);
+      return [];
+    }
+    
+    // 2. Transformar os dados para facilitar o trabalho com as categorias
+    const restaurantsWithFormattedCuisines = data.map(restaurant => {
+      // Extrair e formatear os tipos de cozinha para um formato mais conveniente
+      const cuisineTypes = restaurant.cuisine_types
+        ? restaurant.cuisine_types.map(relation => relation.cuisine_type)
+        : [];
+        
+      return {
+        ...restaurant,
+        cuisine_types: cuisineTypes
+      };
+    });
+    
+    // 3. Aplicar os filtros restantes na memória
+    return applyFiltersToRestaurants(restaurantsWithFormattedCuisines, filters);
+  } catch (err) {
+    console.error('Erro ao buscar e filtrar restaurantes:', err);
     return [];
   }
-  
-  // Aplicar filtros restantes na memória
-  return applyFiltersToRestaurants(data || [], filters);
 };
 
 /**

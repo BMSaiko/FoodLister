@@ -1,4 +1,4 @@
-// app/page.js (com sistema de filtros)
+// app/page.js
 "use client"
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -26,7 +26,8 @@ const initialFilters = {
   maxPrice: 100,
   minRating: 0,
   visited: false,
-  notVisited: false
+  notVisited: false,
+  cuisineTypes: []
 };
 
 // Component to handle content
@@ -45,13 +46,38 @@ function HomeContent({ activeTab }) {
       setLoading(true);
       
       if (activeTab === 'restaurants') {
-        const { data: restaurantData, error: restaurantError } = await supabase
-          .from('restaurants')
-          .select('*');
-          
-        if (!restaurantError) {
-          setRestaurants(restaurantData || []);
-          setFilteredRestaurants(restaurantData || []);
+        try {
+          // Consulta para obter restaurantes com suas categorias culinárias
+          const { data: restaurantData, error: restaurantError } = await supabase
+            .from('restaurants')
+            .select(`
+              *,
+              cuisine_types:restaurant_cuisine_types(
+                cuisine_type:cuisine_types(*)
+              )
+            `);
+            
+          if (!restaurantError) {
+            // Transformar os dados para facilitar o trabalho com as categorias
+            const processedData = restaurantData.map(restaurant => {
+              // Extrair e formatar os tipos de cozinha para um formato mais conveniente
+              const cuisineTypes = restaurant.cuisine_types
+                ? restaurant.cuisine_types.map(relation => relation.cuisine_type)
+                : [];
+              
+              return {
+                ...restaurant,
+                cuisine_types: cuisineTypes
+              };
+            });
+            
+            setRestaurants(processedData || []);
+            setFilteredRestaurants(processedData || []);
+          } else {
+            console.error('Error fetching restaurants:', restaurantError);
+          }
+        } catch (err) {
+          console.error('Error processing restaurant data:', err);
         }
       } else {
         const { data: listData, error: listError } = await supabase
@@ -92,6 +118,22 @@ function HomeContent({ activeTab }) {
       
       if (filters.notVisited && restaurant.visited) {
         return false;
+      }
+      
+      // Filtro por categoria culinária
+      if (filters.cuisineTypes && filters.cuisineTypes.length > 0) {
+        // Extrair IDs de categorias do restaurante
+        const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
+        
+        // Verificar se há pelo menos uma correspondência entre as categorias do restaurante
+        // e as categorias selecionadas no filtro
+        const hasMatchingCuisine = filters.cuisineTypes.some(cuisineId => 
+          restaurantCuisineIds.includes(cuisineId)
+        );
+        
+        if (!hasMatchingCuisine) {
+          return false;
+        }
       }
       
       return true;
