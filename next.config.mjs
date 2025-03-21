@@ -12,6 +12,7 @@ const nextConfig = {
       'upload.wikimedia.org',
       'cdn.discordapp.com',
       'lh5.googleusercontent.com'
+      'lh3.googleusercontent.com'
     ], // adicione outros domínios conforme necessário
   },
   reactStrictMode: true,
