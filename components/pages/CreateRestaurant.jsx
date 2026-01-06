@@ -5,9 +5,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
+import GoogleMapsModal from '@/components/ui/GoogleMapsModal';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X, Map } from 'lucide-react';
 import { useCreatorName } from '@/hooks/useCreatorName';
+import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 
 export default function CreateRestaurant() {
   const router = useRouter();
@@ -16,6 +18,7 @@ export default function CreateRestaurant() {
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loadingCuisineTypes, setLoadingCuisineTypes] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [googleMapsModalOpen, setGoogleMapsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -84,6 +87,16 @@ export default function CreateRestaurant() {
         };
       }
     });
+  };
+
+  const handleGoogleMapsData = (data) => {
+    setFormData(prev => ({
+      ...prev,
+      name: data.name || prev.name,
+      location: data.location || prev.location,
+      source_url: data.source_url || prev.source_url
+    }));
+    setGoogleMapsModalOpen(false);
   };
   
   // Filtra os tipos de cozinha com base no texto de pesquisa
@@ -184,6 +197,12 @@ export default function CreateRestaurant() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
+      <GoogleMapsModal 
+        isOpen={googleMapsModalOpen}
+        onClose={() => setGoogleMapsModalOpen(false)}
+        onSubmit={handleGoogleMapsData}
+      />
+      
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <Link href="/restaurants" className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -205,15 +224,26 @@ export default function CreateRestaurant() {
               <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
                 Nome *
               </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
-                required
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setGoogleMapsModalOpen(true)}
+                  className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 flex items-center gap-2 font-medium whitespace-nowrap"
+                  title="Extrair informações do Google Maps"
+                >
+                  <Map className="h-4 w-4" />
+                  <span className="hidden sm:inline">Google Maps</span>
+                </button>
+              </div>
             </div>
             
             <div className="mb-4">
