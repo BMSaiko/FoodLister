@@ -12,6 +12,7 @@ import {
   FileText, Check, X, User, Euro, Tag, Clock 
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate } from '@/utils/formatters';
+import { convertImgurUrl } from '@/utils/imgurConverter';
 
 export default function RestaurantDetails() {
   const { id } = useParams();
@@ -206,7 +207,7 @@ export default function RestaurantDetails() {
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
           <div className="relative h-48 sm:h-56 md:h-64 w-full">
             <Image
-              src={restaurant.image_url || '/placeholder-restaurant.jpg'}
+              src={convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg'}
               alt={restaurant.name}
               fill
               className="object-cover"
