@@ -1,11 +1,42 @@
 // components/ui/RestaurantCard.tsx
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
 import { convertImgurUrl } from '@/utils/imgurConverter';
+import { createClient } from '@/libs/supabase/client';
 
 const RestaurantCard = ({ restaurant }) => {
+  const [visited, setVisited] = useState(restaurant.visited || false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const supabase = createClient();
+
+  const handleToggleVisited = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsUpdating(true);
+    try {
+      const newVisitedStatus = !visited;
+      
+      const { error } = await supabase
+        .from('restaurants')
+        .update({ visited: newVisitedStatus })
+        .eq('id', restaurant.id);
+      
+      if (error) throw error;
+      
+      setVisited(newVisitedStatus);
+    } catch (err) {
+      console.error('Erro ao atualizar status de visitado:', err);
+      // Revert state on error
+      setVisited(!visited);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
   // Converter URL do Imgur se necessário
   const imageUrl = convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg';
   // Function to render prices with € icons
@@ -64,30 +95,39 @@ const RestaurantCard = ({ restaurant }) => {
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
           />
           
-          {/* Badge for visited/not visited status */}
-          <div className={`absolute top-3 right-3 px-2 py-1 rounded-full flex items-center ${
-            restaurant.visited ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
-          }`}>
-            {restaurant.visited ? (
+          {/* Switch Button for visited/not visited status */}
+          <button
+            onClick={handleToggleVisited}
+            disabled={isUpdating}
+            className={`absolute top-3 right-3 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+              visited 
+                ? 'bg-green-500 text-white hover:bg-green-600' 
+                : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+            }`}
+            title={visited ? 'Clique para marcar como não visitado' : 'Clique para marcar como visitado'}
+          >
+            {visited ? (
               <>
-                <Check className="h-3 w-3 mr-1" />
-                <span className="text-xs font-medium">Visitado</span>
+                <Check className="h-4 w-4" />
+                <span className="text-xs font-medium hidden sm:inline">Visitado</span>
               </>
             ) : (
               <>
-                <X className="h-3 w-3 mr-1" />
-                <span className="text-xs font-medium">Não visitado</span>
+                <X className="h-4 w-4" />
+                <span className="text-xs font-medium hidden sm:inline">Não visitado</span>
               </>
             )}
-          </div>
+          </button>
         </div>
         <div className="p-3 sm:p-4 flex-grow">
           <div className="flex justify-between items-start">
             <h3 className="font-bold text-base sm:text-lg text-gray-800 line-clamp-1">{restaurant.name}</h3>
-            <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ml-2 flex-shrink-0`}>
-              <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="currentColor" />
-              <span className="font-semibold text-sm">{restaurant.rating.toFixed(1)}</span>
-            </div>
+            {visited && (
+              <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ml-2 flex-shrink-0`}>
+                <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="currentColor" />
+                <span className="font-semibold text-sm">{restaurant.rating.toFixed(1)}</span>
+              </div>
+            )}
           </div>
           
           {/* Mostrar categorias se disponíveis */}
@@ -104,21 +144,23 @@ const RestaurantCard = ({ restaurant }) => {
           
           <p className="text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base">{restaurant.description}</p>
           
-          {/* Display price category with amber colored Euro symbols */}
-          <div className="flex items-center mt-2">
-            <div className="flex items-center">
-              {Array(priceCategory.level).fill(0).map((_, i) => (
-                <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
-              ))}
-              {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-                <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
-              ))}
-              <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
+          {/* Display price category with amber colored Euro symbols - only if visited */}
+          {visited && (
+            <div className="flex items-center mt-2">
+              <div className="flex items-center">
+                {Array(priceCategory.level).fill(0).map((_, i) => (
+                  <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
+                ))}
+                {Array(4 - priceCategory.level).fill(0).map((_, i) => (
+                  <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
+                ))}
+                <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
+              </div>
+              <div className="ml-auto text-amber-600 font-semibold text-sm">
+                €{restaurant.price_per_person.toFixed(2)}
+              </div>
             </div>
-            <div className="ml-auto text-amber-600 font-semibold text-sm">
-              €{restaurant.price_per_person.toFixed(2)}
-            </div>
-          </div>
+          )}
           
           {restaurant.location && (
             <div className="flex items-center text-gray-500 text-xs sm:text-sm mt-2 line-clamp-1">
