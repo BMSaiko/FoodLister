@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X, Map } from 'lucide-react';
 import { useCreatorName } from '@/hooks/useCreatorName';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
+import { convertImgurUrl } from '@/utils/imgurConverter';
 
 export default function CreateRestaurant() {
   const router = useRouter();
