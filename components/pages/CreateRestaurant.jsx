@@ -22,10 +22,10 @@ export default function CreateRestaurant() {
   const [googleMapsModalOpen, setGoogleMapsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
+    description: ' ',
     image_url: '',
-    price_per_person: '',
-    rating: '4.0',
+    price_per_person: '1',
+    rating: '0',
     location: '',
     source_url: '',
     menu_url: '',
