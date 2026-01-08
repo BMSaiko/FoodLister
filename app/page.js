@@ -305,7 +305,6 @@ export default function Home() {
         <Suspense fallback={<ContentLoading />}>
           <HomeContent activeTab={activeTab} />
         </Suspense>
-        <SpeedInsights />
       </div>
     </main>
   );
