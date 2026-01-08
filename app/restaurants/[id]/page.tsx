@@ -17,9 +17,11 @@ import { convertImgurUrl } from '@/utils/imgurConverter';
 export default function RestaurantDetails() {
   const { id } = useParams();
   const [restaurant, setRestaurant] = useState(null);
+  const [visited, setVisited] = useState(false);
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   
   const supabase = createClient();
   
@@ -41,6 +43,7 @@ export default function RestaurantDetails() {
         
         if (restaurantData) {
           setRestaurant(restaurantData);
+          setVisited(restaurantData.visited || false);
           
           // Fetch cuisine types for this restaurant
           const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
@@ -97,6 +100,33 @@ export default function RestaurantDetails() {
     
     fetchRestaurantDetails();
   }, [id]);
+  
+  const handleToggleVisited = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsUpdating(true);
+    try {
+      const newVisitedStatus = !visited;
+      
+      const { error } = await supabase
+        .from('restaurants')
+        .update({ visited: newVisitedStatus })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      setVisited(newVisitedStatus);
+      if (restaurant) {
+        setRestaurant({ ...restaurant, visited: newVisitedStatus });
+      }
+    } catch (err) {
+      console.error('Erro ao atualizar status de visitado:', err);
+      setVisited(!visited);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
   
   // Função para abrir o Google Maps com a localização
   const openInMaps = (location) => {
@@ -215,31 +245,40 @@ export default function RestaurantDetails() {
               priority
             />
             
-            {/* Badge mais destacado e visível */}
-            <div className={`absolute top-4 right-4 px-3 py-1.5 rounded-full flex items-center shadow-md ${
-              restaurant.visited ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'
-            }`}>
-              {restaurant.visited ? (
+            {/* Badge com Switch Button */}
+            <button
+              onClick={handleToggleVisited}
+              disabled={isUpdating}
+              className={`absolute top-4 right-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                visited 
+                  ? 'bg-green-500 text-white hover:bg-green-600' 
+                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+              }`}
+              title={visited ? 'Clique para marcar como não visitado' : 'Clique para marcar como visitado'}
+            >
+              {visited ? (
                 <>
-                  <Check className="h-4 w-4 mr-1.5" />
+                  <Check className="h-4 w-4" />
                   <span className="text-sm font-medium">Visitado</span>
                 </>
               ) : (
                 <>
-                  <X className="h-4 w-4 mr-1.5" />
+                  <X className="h-4 w-4" />
                   <span className="text-sm font-medium">Não visitado</span>
                 </>
               )}
-            </div>
+            </button>
           </div>
           
           <div className="p-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{restaurant.name}</h1>
-              <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
-                <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="currentColor" />
-                <span className="font-semibold text-base sm:text-lg">{restaurant.rating.toFixed(1)}</span>
-              </div>
+              {visited && (
+                <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
+                  <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="currentColor" />
+                  <span className="font-semibold text-base sm:text-lg">{restaurant.rating.toFixed(1)}</span>
+                </div>
+              )}
             </div>
             
             {/* Mostrar categorias culinárias */}
@@ -259,8 +298,8 @@ export default function RestaurantDetails() {
             
             <p className="text-gray-600 mt-4">{restaurant.description}</p>
             
-            {/* Informações de preço mais destacadas */}
-            {renderPriceLevel(restaurant.price_per_person)}
+            {/* Informações de preço mais destacadas - apenas se visitado */}
+            {visited && renderPriceLevel(restaurant.price_per_person)}
             
             {/* Campos adicionais agora com cards estilizados */}
             <div className="mt-3 space-y-3">
