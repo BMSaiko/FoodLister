@@ -3,8 +3,11 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
+import { convertImgurUrl } from '@/utils/imgurConverter';
 
 const RestaurantCard = ({ restaurant }) => {
+  // Converter URL do Imgur se necessário
+  const imageUrl = convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg';
   // Function to render prices with € icons
   const renderPriceCategory = (price) => {
     if (price <= 20) return { label: 'Econômico', level: 1 };
@@ -54,7 +57,7 @@ const RestaurantCard = ({ restaurant }) => {
       <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full w-full flex flex-col">
         <div className="relative h-40 sm:h-48 w-full">
           <Image
-            src={restaurant.image_url || '/placeholder-restaurant.jpg'}
+            src={imageUrl}
             alt={restaurant.name}
             fill
             className="object-cover"

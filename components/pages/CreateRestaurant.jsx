@@ -136,6 +136,9 @@ export default function CreateRestaurant() {
     setLoading(true);
     
     try {
+      // Converter URL do Imgur se necessário
+      const processedImageUrl = convertImgurUrl(formData.image_url) || '/placeholder-restaurant.jpg';
+      
       // 1. Criar o restaurante
       const { data: restaurantData, error: restaurantError } = await supabase
         .from('restaurants')
@@ -143,7 +146,7 @@ export default function CreateRestaurant() {
           {
             name: formData.name,
             description: formData.description,
-            image_url: formData.image_url || '/placeholder-restaurant.jpg',
+            image_url: processedImageUrl,
             price_per_person: priceAsNumber,
             rating: ratingAsNumber,
             location: formData.location || '',
@@ -357,7 +360,27 @@ export default function CreateRestaurant() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
                 placeholder="https://exemplo.com/imagem.jpg"
               />
-              <p className="text-sm text-gray-500 mt-1">Deixe em branco para usar uma imagem padrão</p>
+              <div className="text-sm text-gray-500 mt-2 space-y-1">
+                <p>Deixe em branco para usar uma imagem padrão</p>
+                <p className="text-amber-600 font-medium">✓ Aceita URLs do Imgur (ex: https://imgur.com/ABC123 ou https://imgur.com/a/ABC123#ID)</p>
+              </div>
+              
+              {/* Preview da imagem e informações */}
+              {formData.image_url && (
+                <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-200">
+                  <p className="text-xs text-blue-700 font-medium mb-2">Preview da imagem:</p>
+                  <div className="w-full h-40 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
+                    <img 
+                      src={convertImgurUrl(formData.image_url)} 
+                      alt="Preview"
+                      className="max-w-full max-h-full object-contain"
+                      onError={(e) => {
+                        e.target.src = '/placeholder-restaurant.jpg';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="mb-4">
