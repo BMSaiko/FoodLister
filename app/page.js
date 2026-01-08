@@ -9,6 +9,7 @@ import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { Plus, Utensils, ListChecks, Filter } from 'lucide-react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 // Loading component
 function ContentLoading() {
@@ -305,6 +306,7 @@ export default function Home() {
         <Suspense fallback={<ContentLoading />}>
           <HomeContent activeTab={activeTab} />
         </Suspense>
+        <SpeedInsights />
       </div>
     </main>
   );
