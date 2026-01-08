@@ -41,9 +41,9 @@ const RestaurantCard = ({ restaurant }) => {
   const imageUrl = convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg';
   // Function to render prices with € icons
   const renderPriceCategory = (price) => {
-    if (price <= 20) return { label: 'Econômico', level: 1 };
-    if (price <= 40) return { label: 'Moderado', level: 2 };
-    if (price <= 70) return { label: 'Elevado', level: 3 };
+    if (price <= 10) return { label: 'Econômico', level: 1 };
+    if (price <= 20) return { label: 'Moderado', level: 2 };
+    if (price <= 50) return { label: 'Elevado', level: 3 };
     return { label: 'Luxo', level: 4 };
   };
 
