@@ -310,3 +310,162 @@ a:active, button:active {
   --tw-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
+
+/* Melhorias específicas para a roleta em mobile */
+@media (max-width: 639px) {
+  /* Garantir que a roleta SVG seja totalmente responsiva */
+  svg[viewBox="0 0 320 320"] {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Melhorar espaçamento em containers da roleta */
+  .roulette-container {
+    padding: 0.75rem;
+  }
+  
+  /* Ajustar tamanho de texto em elementos da roleta */
+  .roulette-text {
+    font-size: 0.875rem;
+  }
+  
+  /* Garantir que botões da roleta tenham área de toque adequada */
+  button[class*="bg-amber-500"] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* Melhorias gerais de espaçamento e responsividade */
+@media (max-width: 639px) {
+  /* Melhorar espaçamento em containers principais */
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  /* Ajustar espaçamento em grids */
+  .grid {
+    gap: 0.75rem;
+  }
+  
+  /* Melhorar espaçamento em cards */
+  .bg-white.rounded-xl,
+  .bg-white.rounded-lg {
+    margin-bottom: 1rem;
+  }
+  
+  /* Ajustar tamanhos de fonte em títulos */
+  h1 {
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+  
+  h2 {
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+  
+  /* Melhorar espaçamento entre seções */
+  section + section,
+  .mb-6,
+  .mb-8 {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Melhorias para tablets */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .grid {
+    gap: 1rem;
+  }
+}
+
+/* Melhorias para desktop */
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .grid {
+    gap: 1.5rem;
+  }
+}
+
+/* Melhorias de acessibilidade e usabilidade */
+@media (max-width: 767px) {
+  /* Garantir que links e botões tenham área de toque adequada */
+  a, button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Melhorar espaçamento em formulários */
+  form > * + * {
+    margin-top: 0.75rem;
+  }
+  
+  /* Ajustar padding em inputs e textareas */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="search"],
+  textarea,
+  select {
+    padding: 0.625rem 0.75rem;
+    min-height: 44px;
+  }
+  
+  /* Melhorar espaçamento em listas */
+  ul, ol {
+    padding-left: 1.25rem;
+  }
+  
+  /* Ajustar espaçamento em elementos de lista */
+  li {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Melhorias de transição e feedback visual */
+a, button {
+  transition: all 0.2s ease-in-out;
+}
+
+a:active, button:active {
+  transform: scale(0.98);
+}
+
+/* Melhorar contraste e legibilidade */
+@media (max-width: 639px) {
+  body {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  
+  p {
+    margin-bottom: 0.75rem;
+  }
+  
+  /* Melhorar espaçamento em textos */
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  .text-base {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+}

@@ -108,13 +108,13 @@ function ListsContent() {
       </div>
       
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {Array(6).fill(0).map((_, index) => (
             <div key={index} className="bg-white rounded-xl shadow-md h-48 animate-pulse" />
           ))}
         </div>
       ) : lists.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {lists.map(list => (
             <ListCard 
               key={list.id} 
@@ -147,7 +147,7 @@ export default function ListsPage() {
     <main className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <Suspense fallback={<ListsLoading />}>
           <ListsContent />
         </Suspense>

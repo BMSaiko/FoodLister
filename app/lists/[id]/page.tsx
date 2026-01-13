@@ -94,25 +94,25 @@ export default function ListDetails() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <Link href="/lists" className="flex items-center text-amber-600 hover:underline">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <Link href="/lists" className="flex items-center text-amber-600 hover:text-amber-700 active:text-amber-800 transition-colors min-h-[44px] sm:min-h-0">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
+            <span className="text-sm sm:text-base">Voltar</span>
           </Link>
           
-          <div className="flex space-x-2">
+          <div className="flex w-full sm:w-auto">
             <Link 
               href={`/lists/${id}/edit`}
-              className="flex items-center bg-amber-500 text-white px-3 py-2 rounded hover:bg-amber-600 transition-colors"
+              className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
             >
-              <Edit className="h-4 w-4 mr-1" />
-              <span className="text-sm">Editar</span>
+              <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
+              <span className="text-sm sm:text-base">Editar</span>
             </Link>
           </div>
         </div>
         
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-6 sm:mb-8">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-4 sm:mb-6 lg:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{list.name}</h1>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">{list.description}</p>
           
@@ -130,12 +130,12 @@ export default function ListDetails() {
           </div>
         </div>
         
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Restaurantes nesta lista</h2>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Restaurantes nesta lista</h2>
         
         {restaurants.length === 0 ? (
-          <p className="text-gray-500">Não há restaurantes nesta lista.</p>
+          <p className="text-gray-500 text-sm sm:text-base">Não há restaurantes nesta lista.</p>
         ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
             {restaurants.map(restaurant => (
               <RestaurantCard key={restaurant.id} restaurant={restaurant} />
             ))}
