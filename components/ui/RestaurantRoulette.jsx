@@ -14,6 +14,7 @@ const RestaurantRoulette = () => {
   const [spinning, setSpinning] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [rotation, setRotation] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   
   // Filtros
   const [showFilters, setShowFilters] = useState(false);
@@ -23,6 +24,17 @@ const RestaurantRoulette = () => {
   const [searchQuery, setSearchQuery] = useState('');
   
   const supabase = createClient();
+  
+  // Detectar tamanho da tela
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // Carregar restaurantes e categorias
   useEffect(() => {
@@ -135,16 +147,16 @@ const RestaurantRoulette = () => {
   const totalCount = restaurants.length;
   
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-            <ChefHat className="h-6 w-6 mr-2 text-amber-500" />
+    <div className="w-full max-w-4xl mx-auto px-2 sm:px-4">
+      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
+            <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-amber-500" />
             Roleta de Restaurantes
           </h2>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors"
+            className="flex items-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors w-full sm:w-auto justify-center min-h-[44px]"
           >
             <Filter className="h-4 w-4 mr-2" />
             Filtros
@@ -162,9 +174,9 @@ const RestaurantRoulette = () => {
                   id="notVisitedFilter"
                   checked={filterNotVisited}
                   onChange={(e) => setFilterNotVisited(e.target.checked)}
-                  className="h-4 w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded"
+                  className="h-5 w-5 sm:h-4 sm:w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded flex-shrink-0"
                 />
-                <label htmlFor="notVisitedFilter" className="text-sm font-medium text-gray-700">
+                <label htmlFor="notVisitedFilter" className="text-sm font-medium text-gray-700 cursor-pointer">
                   Apenas restaurantes não visitados
                 </label>
               </div>
@@ -181,14 +193,14 @@ const RestaurantRoulette = () => {
                     placeholder="Buscar categorias..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-8 pr-2 py-1 border border-gray-300 rounded text-sm"
+                    className="w-full pl-8 pr-2 py-2 sm:py-1 border border-gray-300 rounded text-base sm:text-sm min-h-[44px] sm:min-h-0"
                   />
-                  <Search className="absolute left-2 top-1.5 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 </div>
                 
-                <div className="max-h-36 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50">
+                <div className="max-h-36 sm:max-h-36 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50">
                   {filteredCuisineTypes.length > 0 ? (
-                    <div className="space-y-1">
+                    <div className="space-y-2 sm:space-y-1">
                       {filteredCuisineTypes.map(cuisineType => (
                         <div key={cuisineType.id} className="flex items-center">
                           <input
@@ -196,9 +208,9 @@ const RestaurantRoulette = () => {
                             id={`cuisine-${cuisineType.id}`}
                             checked={selectedCuisineTypes.includes(cuisineType.id)}
                             onChange={() => handleCuisineTypeToggle(cuisineType.id)}
-                            className="h-4 w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded mr-2"
+                            className="h-5 w-5 sm:h-4 sm:w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded mr-2 flex-shrink-0"
                           />
-                          <label htmlFor={`cuisine-${cuisineType.id}`} className="text-sm text-gray-700 cursor-pointer">
+                          <label htmlFor={`cuisine-${cuisineType.id}`} className="text-sm text-gray-700 cursor-pointer flex-1">
                             {cuisineType.name}
                           </label>
                         </div>
@@ -213,9 +225,9 @@ const RestaurantRoulette = () => {
               <div className="flex justify-end pt-2 border-t border-gray-200">
                 <button 
                   onClick={clearFilters}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex items-center"
+                  className="px-4 py-2 sm:px-3 sm:py-1.5 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex items-center min-h-[44px] sm:min-h-0"
                 >
-                  <X className="h-3 w-3 mr-1" />
+                  <X className="h-4 w-4 sm:h-3 sm:w-3 mr-1" />
                   Limpar
                 </button>
               </div>
@@ -224,7 +236,7 @@ const RestaurantRoulette = () => {
         )}
         
         {/* Estatísticas */}
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="mt-4 text-sm sm:text-sm text-gray-600">
           {availableCount > 0 ? (
             <p>
               <span className="font-semibold">{availableCount}</span> restaurante{availableCount !== 1 ? 's' : ''} disponível{availableCount !== 1 ? 'eis' : ''} 
@@ -241,15 +253,16 @@ const RestaurantRoulette = () => {
       </div>
       
       {/* Roleta */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
         <div className="flex flex-col items-center">
-          <div className="relative w-80 h-80 mb-6">
+          <div className="relative w-full max-w-[320px] aspect-square mb-4 sm:mb-6">
             {/* SVG Roleta com nomes */}
             <svg
-              width="320"
-              height="320"
+              width="100%"
+              height="100%"
               viewBox="0 0 320 320"
-              className="absolute inset-0"
+              className="absolute inset-0 w-full h-full"
+              preserveAspectRatio="xMidYMid meet"
               style={{
                 transform: `rotate(${rotation}deg)`,
                 transition: spinning ? 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
@@ -309,9 +322,14 @@ const RestaurantRoulette = () => {
                 // Rotação para que o texto fique vertical (radial, apontando para fora)
                 const textRotation = (i + 0.5) * anglePerSlice - 90;
                 
-                // Ajustar tamanho da fonte baseado no número de restaurantes
-                const fontSize = total <= 6 ? 14 : total <= 10 ? 12 : 10;
-                const maxLength = total <= 6 ? 18 : total <= 10 ? 15 : 12;
+                // Ajustar tamanho da fonte baseado no número de restaurantes e tamanho da tela
+                // Em mobile, usar fontes menores para caber melhor
+                const fontSize = isMobile 
+                  ? (total <= 6 ? 10 : total <= 10 ? 9 : 7)
+                  : (total <= 6 ? 14 : total <= 10 ? 12 : 10);
+                const maxLength = isMobile
+                  ? (total <= 6 ? 12 : total <= 10 ? 10 : 8)
+                  : (total <= 6 ? 18 : total <= 10 ? 15 : 12);
                 const displayName = restaurant.name.length > maxLength 
                   ? restaurant.name.substring(0, maxLength - 3) + '...' 
                   : restaurant.name;
@@ -371,14 +389,14 @@ const RestaurantRoulette = () => {
             </svg>
             
             {/* Indicador fixo */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
-              <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-t-[20px] border-transparent border-t-amber-600 drop-shadow-lg"></div>
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 sm:-translate-y-2 z-10">
+              <div className="w-0 h-0 border-l-[8px] sm:border-l-[12px] border-r-[8px] sm:border-r-[12px] border-t-[14px] sm:border-t-[20px] border-transparent border-t-amber-600 drop-shadow-lg"></div>
             </div>
             
             {/* Texto central */}
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-              <div className="bg-white rounded-full w-24 h-24 flex items-center justify-center shadow-lg border-4 border-amber-500">
-                <ChefHat className="h-8 w-8 text-amber-500" />
+              <div className="bg-white rounded-full w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center shadow-lg border-2 sm:border-4 border-amber-500">
+                <ChefHat className="h-5 w-5 sm:h-8 sm:w-8 text-amber-500" />
               </div>
             </div>
           </div>
@@ -387,17 +405,17 @@ const RestaurantRoulette = () => {
           <button
             onClick={handleSpin}
             disabled={spinning || availableCount === 0}
-            className="px-8 py-3 bg-amber-500 text-white rounded-full font-bold text-lg hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3 bg-amber-500 text-white rounded-full font-bold text-base sm:text-lg hover:bg-amber-600 active:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg min-h-[48px] sm:min-h-[44px]"
           >
             {spinning ? (
               <>
                 <RotateCcw className="h-5 w-5 animate-spin" />
-                Girando...
+                <span>Girando...</span>
               </>
             ) : (
               <>
                 <RotateCcw className="h-5 w-5" />
-                Girar Roleta
+                <span>Girar Roleta</span>
               </>
             )}
           </button>
@@ -406,8 +424,8 @@ const RestaurantRoulette = () => {
       
       {/* Resultado */}
       {selectedRestaurant && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">
             🎉 Restaurante Escolhido! 🎉
           </h3>
           <div className="max-w-md mx-auto">
@@ -416,7 +434,7 @@ const RestaurantRoulette = () => {
           <div className="mt-4 text-center">
             <Link
               href={`/restaurants/${selectedRestaurant.id}`}
-              className="inline-block px-6 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors"
+              className="inline-block w-full sm:w-auto px-6 py-3 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors text-center min-h-[48px] sm:min-h-[44px] flex items-center justify-center"
             >
               Ver Detalhes
             </Link>

@@ -310,3 +310,28 @@ a:active, button:active {
   --tw-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
+
+/* Melhorias específicas para a roleta em mobile */
+@media (max-width: 639px) {
+  /* Garantir que a roleta SVG seja totalmente responsiva */
+  svg[viewBox="0 0 320 320"] {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Melhorar espaçamento em containers da roleta */
+  .roulette-container {
+    padding: 0.75rem;
+  }
+  
+  /* Ajustar tamanho de texto em elementos da roleta */
+  .roulette-text {
+    font-size: 0.875rem;
+  }
+  
+  /* Garantir que botões da roleta tenham área de toque adequada */
+  button[class*="bg-amber-500"] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
