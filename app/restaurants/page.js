@@ -8,7 +8,7 @@ import RestaurantCard from '@/components/ui/RestaurantCard';
 import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
-import { Plus, Search as SearchIcon, CookingPot, Filter } from 'lucide-react';
+import { Plus, Search as SearchIcon, CookingPot, Filter, ChefHat } from 'lucide-react';
 
 // Component para mostrar loading
 function RestaurantsLoading() {
@@ -214,6 +214,13 @@ function RestaurantsContent() {
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
           {searchQuery ? `Resultados para "${searchQuery}"` : 'Todos os Restaurantes'}
         </h1>
+        <Link
+          href="/restaurants/roulette"
+          className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors text-sm sm:text-base"
+        >
+          <ChefHat className="h-4 w-4 mr-2" />
+          <span className="hidden sm:inline">Roleta</span>
+        </Link>
       </div>
       
       <RestaurantFilters 
