@@ -306,7 +306,8 @@ const RestaurantRoulette = () => {
                 const textRadius = (radius + innerRadius) / 2;
                 const textX = centerX + textRadius * Math.cos(textAngle);
                 const textY = centerY + textRadius * Math.sin(textAngle);
-                const textRotation = (i + 0.5) * anglePerSlice;
+                // Rotação para que o texto fique vertical (radial, apontando para fora)
+                const textRotation = (i + 0.5) * anglePerSlice - 90;
                 
                 // Ajustar tamanho da fonte baseado no número de restaurantes
                 const fontSize = total <= 6 ? 14 : total <= 10 ? 12 : 10;
