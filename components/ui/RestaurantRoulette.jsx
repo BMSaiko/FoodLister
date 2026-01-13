@@ -147,16 +147,17 @@ const RestaurantRoulette = () => {
   const totalCount = restaurants.length;
   
   return (
-    <div className="w-full max-w-4xl mx-auto px-2 sm:px-4">
-      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+    <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 pb-6 sm:pb-8">
+      {/* Header com Filtros */}
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center">
             <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-amber-500" />
             Roleta de Restaurantes
           </h2>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors w-full sm:w-auto justify-center min-h-[44px]"
+            className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] font-medium"
           >
             <Filter className="h-4 w-4 mr-2" />
             Filtros
@@ -222,13 +223,13 @@ const RestaurantRoulette = () => {
                 </div>
               </div>
               
-              <div className="flex justify-end pt-2 border-t border-gray-200">
+              <div className="flex justify-end pt-3 sm:pt-2 border-t border-gray-200">
                 <button 
                   onClick={clearFilters}
-                  className="px-4 py-2 sm:px-3 sm:py-1.5 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors flex items-center min-h-[44px] sm:min-h-0"
+                  className="px-5 py-2.5 sm:px-4 sm:py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center justify-center min-h-[44px] font-medium"
                 >
-                  <X className="h-4 w-4 sm:h-3 sm:w-3 mr-1" />
-                  Limpar
+                  <X className="h-4 w-4 mr-1.5 sm:mr-1" />
+                  Limpar Filtros
                 </button>
               </div>
             </div>
@@ -236,16 +237,16 @@ const RestaurantRoulette = () => {
         )}
         
         {/* Estatísticas */}
-        <div className="mt-4 text-sm sm:text-sm text-gray-600">
+        <div className="mt-4 pt-4 border-t border-gray-200">
           {availableCount > 0 ? (
-            <p>
-              <span className="font-semibold">{availableCount}</span> restaurante{availableCount !== 1 ? 's' : ''} disponível{availableCount !== 1 ? 'eis' : ''} 
+            <p className="text-sm sm:text-base text-gray-600">
+              <span className="font-semibold text-amber-600">{availableCount}</span> restaurante{availableCount !== 1 ? 's' : ''} disponível{availableCount !== 1 ? 'eis' : ''} 
               {totalCount !== availableCount && (
-                <span> de {totalCount} total</span>
+                <span className="text-gray-500"> de {totalCount} total</span>
               )}
             </p>
           ) : (
-            <p className="text-red-500">
+            <p className="text-sm sm:text-base text-red-500 font-medium">
               Nenhum restaurante disponível com os filtros selecionados
             </p>
           )}
@@ -253,9 +254,9 @@ const RestaurantRoulette = () => {
       </div>
       
       {/* Roleta */}
-      <div className="bg-white rounded-lg shadow-md p-3 sm:p-6 mb-4 sm:mb-6">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex flex-col items-center">
-          <div className="relative w-full max-w-[320px] aspect-square mb-4 sm:mb-6">
+          <div className="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px] aspect-square mb-4 sm:mb-6">
             {/* SVG Roleta com nomes */}
             <svg
               width="100%"
@@ -291,7 +292,8 @@ const RestaurantRoulette = () => {
                 const centerX = 160;
                 const centerY = 160;
                 const radius = 140;
-                const innerRadius = 60;
+                // Reduzir innerRadius para dar mais espaço ao texto quando há muitos restaurantes
+                const innerRadius = total > 20 ? 50 : total > 15 ? 55 : 60;
                 
                 // Calcular pontos do arco
                 const x1 = centerX + radius * Math.cos(startAngle);
@@ -323,13 +325,13 @@ const RestaurantRoulette = () => {
                 const textRotation = (i + 0.5) * anglePerSlice - 90;
                 
                 // Ajustar tamanho da fonte baseado no número de restaurantes e tamanho da tela
-                // Em mobile, usar fontes menores para caber melhor
+                // Aumentar significativamente os tamanhos para melhor legibilidade, especialmente com muitos restaurantes
                 const fontSize = isMobile 
-                  ? (total <= 6 ? 10 : total <= 10 ? 9 : 7)
-                  : (total <= 6 ? 14 : total <= 10 ? 12 : 10);
+                  ? (total <= 6 ? 16 : total <= 10 ? 14 : total <= 15 ? 13 : total <= 20 ? 12 : 11)
+                  : (total <= 6 ? 20 : total <= 10 ? 18 : total <= 15 ? 16 : total <= 20 ? 14 : 13);
                 const maxLength = isMobile
-                  ? (total <= 6 ? 12 : total <= 10 ? 10 : 8)
-                  : (total <= 6 ? 18 : total <= 10 ? 15 : 12);
+                  ? (total <= 6 ? 18 : total <= 10 ? 16 : total <= 15 ? 14 : total <= 20 ? 12 : 10)
+                  : (total <= 6 ? 22 : total <= 10 ? 20 : total <= 15 ? 18 : total <= 20 ? 16 : 14);
                 const displayName = restaurant.name.length > maxLength 
                   ? restaurant.name.substring(0, maxLength - 3) + '...' 
                   : restaurant.name;
@@ -351,14 +353,15 @@ const RestaurantRoulette = () => {
                       dominantBaseline="middle"
                       fontSize={fontSize}
                       fill="white"
-                      stroke="rgba(0,0,0,0.5)"
-                      strokeWidth="1"
+                      stroke="rgba(0,0,0,0.7)"
+                      strokeWidth="2"
                       fontWeight="bold"
                       style={{
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
+                        textShadow: '3px 3px 6px rgba(0,0,0,0.9), 1px 1px 2px rgba(0,0,0,0.8)',
                         pointerEvents: 'none',
                         userSelect: 'none',
                         fontFamily: 'system-ui, -apple-system, sans-serif',
+                        letterSpacing: total > 20 ? '0.3px' : '0.5px',
                       }}
                     >
                       {displayName}
@@ -377,11 +380,11 @@ const RestaurantRoulette = () => {
                 />
               )}
               
-              {/* Círculo central vazio */}
+              {/* Círculo central vazio - ajustar tamanho baseado no número de restaurantes */}
               <circle
                 cx="160"
                 cy="160"
-                r="60"
+                r={filteredRestaurants.length > 20 ? 50 : filteredRestaurants.length > 15 ? 55 : 60}
                 fill="white"
                 stroke="#F59E0B"
                 strokeWidth="4"
@@ -395,8 +398,16 @@ const RestaurantRoulette = () => {
             
             {/* Texto central */}
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-              <div className="bg-white rounded-full w-16 h-16 sm:w-24 sm:h-24 flex items-center justify-center shadow-lg border-2 sm:border-4 border-amber-500">
-                <ChefHat className="h-5 w-5 sm:h-8 sm:w-8 text-amber-500" />
+              <div className={`bg-white rounded-full flex items-center justify-center shadow-lg border-2 sm:border-4 border-amber-500 ${
+                filteredRestaurants.length > 20 ? 'w-12 h-12 sm:w-20 sm:h-20' : 
+                filteredRestaurants.length > 15 ? 'w-14 h-14 sm:w-22 sm:h-22' : 
+                'w-16 h-16 sm:w-24 sm:h-24'
+              }`}>
+                <ChefHat className={`text-amber-500 ${
+                  filteredRestaurants.length > 20 ? 'h-4 w-4 sm:h-6 sm:w-6' : 
+                  filteredRestaurants.length > 15 ? 'h-5 w-5 sm:h-7 sm:w-7' : 
+                  'h-5 w-5 sm:h-8 sm:w-8'
+                }`} />
               </div>
             </div>
           </div>
@@ -405,7 +416,7 @@ const RestaurantRoulette = () => {
           <button
             onClick={handleSpin}
             disabled={spinning || availableCount === 0}
-            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3 bg-amber-500 text-white rounded-full font-bold text-base sm:text-lg hover:bg-amber-600 active:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg min-h-[48px] sm:min-h-[44px]"
+            className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-3 bg-amber-500 text-white rounded-full font-bold text-base sm:text-lg hover:bg-amber-600 active:bg-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg min-h-[52px] sm:min-h-[48px] disabled:hover:bg-amber-500"
           >
             {spinning ? (
               <>
@@ -424,17 +435,28 @@ const RestaurantRoulette = () => {
       
       {/* Resultado */}
       {selectedRestaurant && (
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 text-center">
-            🎉 Restaurante Escolhido! 🎉
-          </h3>
-          <div className="max-w-md mx-auto">
-            <RestaurantCard restaurant={selectedRestaurant} />
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
+          <div className="text-center mb-4 sm:mb-6">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
+              🎉 Restaurante Escolhido! 🎉
+            </h3>
+            <p className="text-sm sm:text-base text-gray-600">
+              Este é o restaurante selecionado pela roleta
+            </p>
           </div>
-          <div className="mt-4 text-center">
+          
+          {/* Container centralizado para o card */}
+          <div className="flex justify-center items-center mb-5 sm:mb-6 px-2 sm:px-0">
+            <div className="w-full max-w-md mx-auto min-w-0">
+              <RestaurantCard restaurant={selectedRestaurant} centered={true} />
+            </div>
+          </div>
+          
+          {/* Botão de detalhes */}
+          <div className="text-center">
             <Link
               href={`/restaurants/${selectedRestaurant.id}`}
-              className="inline-block w-full sm:w-auto px-6 py-3 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors text-center min-h-[48px] sm:min-h-[44px] flex items-center justify-center"
+              className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-all min-h-[52px] sm:min-h-[48px] font-medium text-base shadow-md hover:shadow-lg"
             >
               Ver Detalhes
             </Link>

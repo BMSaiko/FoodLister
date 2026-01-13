@@ -8,7 +8,7 @@ import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import { createClient } from '@/libs/supabase/client';
 
-const RestaurantCard = ({ restaurant }) => {
+const RestaurantCard = ({ restaurant, centered = false }) => {
   const [visited, setVisited] = useState(restaurant.visited || false);
   const [isUpdating, setIsUpdating] = useState(false);
   const supabase = createClient();
@@ -84,15 +84,21 @@ const RestaurantCard = ({ restaurant }) => {
   const ratingStyle = getRatingStyle(restaurant.rating);
 
   return (
-    <Link href={`/restaurants/${restaurant.id}`}>
-      <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full w-full flex flex-col">
-        <div className="relative h-40 sm:h-48 w-full">
+    <Link href={`/restaurants/${restaurant.id}`} className={centered ? "block w-full" : ""}>
+      <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : ''}`}>
+        <div className={`relative h-40 sm:h-48 w-full min-h-[160px] sm:min-h-[192px] bg-gray-100 ${centered ? 'min-w-full' : ''}`}>
           <Image
             src={imageUrl}
             alt={restaurant.name}
             fill
             className="object-cover"
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+            style={{
+              minWidth: '100%',
+              minHeight: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
           />
           
           {/* Switch Button for visited/not visited status */}
@@ -119,11 +125,11 @@ const RestaurantCard = ({ restaurant }) => {
             )}
           </button>
         </div>
-        <div className="p-3 sm:p-4 flex-grow">
-          <div className="flex justify-between items-start">
-            <h3 className="font-bold text-base sm:text-lg text-gray-800 line-clamp-1">{restaurant.name}</h3>
+        <div className={`p-3 sm:p-4 flex-grow ${centered ? 'text-center' : ''}`}>
+          <div className={`flex ${centered ? 'flex-col items-center gap-2' : 'justify-between items-start'}`}>
+            <h3 className={`font-bold text-base sm:text-lg text-gray-800 line-clamp-1 ${centered ? 'text-center' : ''}`}>{restaurant.name}</h3>
             {visited && (
-              <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ml-2 flex-shrink-0`}>
+              <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ${centered ? '' : 'ml-2'} flex-shrink-0`}>
                 <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="currentColor" />
                 <span className="font-semibold text-sm">{restaurant.rating.toFixed(1)}</span>
               </div>
@@ -132,7 +138,7 @@ const RestaurantCard = ({ restaurant }) => {
           
           {/* Mostrar categorias se disponíveis */}
           {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className={`flex flex-wrap gap-1 mt-2 ${centered ? 'justify-center' : ''}`}>
               {restaurant.cuisine_types.map(type => (
                 <span key={type.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">
                   <Tag className="h-3 w-3 mr-1" />
@@ -142,11 +148,11 @@ const RestaurantCard = ({ restaurant }) => {
             </div>
           )}
           
-          <p className="text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base">{restaurant.description}</p>
+          <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{restaurant.description}</p>
           
           {/* Display price category with amber colored Euro symbols - only if visited */}
           {visited && (
-            <div className="flex items-center mt-2">
+            <div className={`flex items-center mt-2 ${centered ? 'justify-center flex-col gap-1' : ''}`}>
               <div className="flex items-center">
                 {Array(priceCategory.level).fill(0).map((_, i) => (
                   <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
@@ -156,21 +162,21 @@ const RestaurantCard = ({ restaurant }) => {
                 ))}
                 <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
               </div>
-              <div className="ml-auto text-amber-600 font-semibold text-sm">
+              <div className={`text-amber-600 font-semibold text-sm ${centered ? '' : 'ml-auto'}`}>
                 €{restaurant.price_per_person.toFixed(2)}
               </div>
             </div>
           )}
           
           {restaurant.location && (
-            <div className="flex items-center text-gray-500 text-xs sm:text-sm mt-2 line-clamp-1">
+            <div className={`flex items-center text-gray-500 text-xs sm:text-sm mt-2 line-clamp-1 ${centered ? 'justify-center' : ''}`}>
               <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
               <span className="truncate">{restaurant.location}</span>
             </div>
           )}
           
           {restaurant.creator && (
-            <div className="mt-2 text-xs text-gray-500">
+            <div className={`mt-2 text-xs text-gray-500 ${centered ? 'text-center' : ''}`}>
               Adicionado por: {restaurant.creator}
             </div>
           )}

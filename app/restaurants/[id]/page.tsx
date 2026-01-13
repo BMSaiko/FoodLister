@@ -216,26 +216,26 @@ export default function RestaurantDetails() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="flex justify-between items-center mb-6">
-          <Link href="/restaurants" className="flex items-center text-amber-600 hover:underline">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <Link href="/restaurants" className="flex items-center text-amber-600 hover:text-amber-700 active:text-amber-800 transition-colors min-h-[44px] sm:min-h-0">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
+            <span className="text-sm sm:text-base">Voltar</span>
           </Link>
           
-          <div className="flex space-x-2">
+          <div className="flex w-full sm:w-auto">
             <Link 
               href={`/restaurants/${id}/edit`}
-              className="flex items-center bg-amber-500 text-white px-3 py-2 rounded hover:bg-amber-600 transition-colors"
+              className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
             >
-              <Edit className="h-4 w-4 mr-1" />
-              <span className="text-sm">Editar</span>
+              <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
+              <span className="text-sm sm:text-base">Editar</span>
             </Link>
           </div>
         </div>
         
-        <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-          <div className="relative h-48 sm:h-56 md:h-64 w-full">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8">
+          <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 w-full">
             <Image
               src={convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg'}
               alt={restaurant.name}
@@ -270,8 +270,8 @@ export default function RestaurantDetails() {
             </button>
           </div>
           
-          <div className="p-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-0">
+          <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{restaurant.name}</h1>
               {visited && (
                 <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
@@ -302,30 +302,30 @@ export default function RestaurantDetails() {
             {visited && renderPriceLevel(restaurant.price_per_person)}
             
             {/* Campos adicionais agora com cards estilizados */}
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
               {restaurant.location && (
                 <div 
-                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
                   onClick={() => openInMaps(restaurant.location)}
                 >
-                  <MapPin className="h-5 w-5 mr-3 text-amber-500" />
-                  <span className="flex-grow">{restaurant.location}</span>
-                  <span className="text-xs text-amber-600">Abrir no mapa</span>
+                  <MapPin className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
+                  <span className="flex-grow text-sm sm:text-base">{restaurant.location}</span>
+                  <span className="text-xs sm:text-sm text-amber-600 ml-2">Abrir no mapa</span>
                 </div>
               )}
               
               {restaurant.source_url && (
                 <div 
-                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
                   onClick={() => window.open(restaurant.source_url, '_blank', 'noopener,noreferrer')}
                 >
-                  <Globe className="h-5 w-5 mr-3 text-amber-500" />
-                  <span className="flex-grow">Fonte Original</span>
+                  <Globe className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
+                  <span className="flex-grow text-sm sm:text-base">Fonte Original</span>
                   <a 
                     href={restaurant.source_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-amber-600 hover:text-amber-800 hover:underline text-sm"
+                    className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm ml-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     Visitar site
@@ -335,16 +335,16 @@ export default function RestaurantDetails() {
 
               {restaurant.menu_url && (
                 <div 
-                  className="flex items-center text-gray-700 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
                   onClick={() => window.open(restaurant.menu_url, '_blank', 'noopener,noreferrer')}
                 >
-                  <FileText className="h-5 w-5 mr-3 text-amber-500" />
-                  <span className="flex-grow">Menu do restaurante</span>
+                  <FileText className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
+                  <span className="flex-grow text-sm sm:text-base">Menu do restaurante</span>
                   <a 
                     href={restaurant.menu_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-amber-600 hover:text-amber-800 hover:underline text-sm"
+                    className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm ml-2"
                     onClick={(e) => e.stopPropagation()}
                   >
                     Ver menu
@@ -367,19 +367,19 @@ export default function RestaurantDetails() {
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
             <ListChecks className="h-5 w-5 mr-2 text-amber-500" />
             Listas que incluem este restaurante
           </h2>
           
           {lists.length === 0 ? (
-            <p className="text-gray-500 mt-4">Este restaurante não está em nenhuma lista.</p>
+            <p className="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base">Este restaurante não está em nenhuma lista.</p>
           ) : (
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
               {lists.map(list => (
                 <Link key={list.id} href={`/lists/${list.id}`} className="block">
-                  <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 transition-colors">
+                  <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[60px] sm:min-h-0">
                     <h3 className="font-medium text-gray-800 text-sm sm:text-base">{list.name}</h3>
                     <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
                   </div>

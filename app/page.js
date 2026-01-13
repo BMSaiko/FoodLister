@@ -209,16 +209,17 @@ function RestaurantsContent() {
   
   return (
     <>
-      <div className="flex justify-between items-center mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
           {searchQuery ? `Resultados para "${searchQuery}"` : 'Todos os Restaurantes'}
         </h1>
         <Link
           href="/restaurants/roulette"
-          className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors text-sm sm:text-base"
+          className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto"
         >
           <ChefHat className="h-4 w-4 mr-2" />
           <span className="hidden sm:inline">Roleta</span>
+          <span className="sm:hidden">Roleta de Restaurantes</span>
         </Link>
       </div>
       
@@ -234,7 +235,7 @@ function RestaurantsContent() {
       {loading ? (
         <RestaurantsLoading />
       ) : filteredRestaurants.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           {filteredRestaurants.map(restaurant => (
             <RestaurantCard key={restaurant.id} restaurant={restaurant} />
           ))}
@@ -252,7 +253,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50">
       <Navbar />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <Suspense fallback={<RestaurantsLoading />}>
           <RestaurantsContent />
         </Suspense>
