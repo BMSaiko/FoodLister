@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { 
   ArrowLeft, Star, ListChecks, Edit, MapPin, Globe, 
-  FileText, Check, X, User, Euro, Tag, Clock 
+  FileText, Check, X, User, Euro, Tag, Clock, Share2, Copy, MessageCircle, Send, Twitter, Facebook 
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
@@ -24,8 +24,15 @@ export default function RestaurantDetails() {
   const [isUpdating, setIsUpdating] = useState(false);
   
   const supabase = createClient();
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const shareRef = React.useRef<HTMLDivElement | null>(null);
   
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setShareUrl(window.location.href);
+    }
+
     async function fetchRestaurantDetails() {
       if (!id) return;
       
@@ -100,6 +107,45 @@ export default function RestaurantDetails() {
     
     fetchRestaurantDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (!isShareOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (shareRef.current && e.target instanceof Node && !shareRef.current.contains(e.target)) {
+        setIsShareOpen(false);
+      }
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [isShareOpen]);
+
+  const handleShareClick = async () => {
+    const shareData = {
+      title: restaurant?.name || 'Restaurante',
+      text: `Confira este restaurante: ${restaurant?.name || ''}`,
+      url: shareUrl
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        setIsShareOpen((o) => !o);
+      }
+    } catch (e) {
+      console.error('Erro ao compartilhar:', e);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setIsShareOpen(false);
+      alert('Link copiado para a área de transferência');
+    } catch (e) {
+      console.error('Erro ao copiar link:', e);
+    }
+  };
   
   const handleToggleVisited = async (e) => {
     e.preventDefault();
@@ -223,7 +269,75 @@ export default function RestaurantDetails() {
             <span className="text-sm sm:text-base">Voltar</span>
           </Link>
           
-          <div className="flex w-full sm:w-auto">
+          <div className="flex w-full sm:w-auto gap-2">
+            <div className="relative w-full sm:w-auto" ref={shareRef}>
+              <button
+                type="button"
+                onClick={handleShareClick}
+                className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-white text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto"
+                aria-label="Compartilhar"
+                title="Compartilhar"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Compartilhar</span>
+                <span className="sm:hidden">Share</span>
+              </button>
+              {isShareOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                  <ul className="py-1 text-sm text-gray-700">
+                    <li>
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent('Confira este restaurante! ' + shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-3 py-2 hover:bg-gray-50"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2 text-green-600" /> WhatsApp
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Confira este restaurante!')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-3 py-2 hover:bg-gray-50"
+                      >
+                        <Send className="h-4 w-4 mr-2 text-sky-600" /> Telegram
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Confira este restaurante!')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-3 py-2 hover:bg-gray-50"
+                      >
+                        <Twitter className="h-4 w-4 mr-2 text-black" /> Twitter/X
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center px-3 py-2 hover:bg-gray-50"
+                      >
+                        <Facebook className="h-4 w-4 mr-2 text-blue-600" /> Facebook
+                      </a>
+                    </li>
+                    <li>
+                      <button
+                        type="button"
+                        onClick={handleCopyLink}
+                        className="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50"
+                      >
+                        <Copy className="h-4 w-4 mr-2" /> Copiar link
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
             <Link 
               href={`/restaurants/${id}/edit`}
               className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
