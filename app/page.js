@@ -1,17 +1,17 @@
 // app/page.js
-"use client"
+'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
-import ListCard from '@/components/ui/ListCard';
 import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
-import { Plus, Utensils, ListChecks, Filter } from 'lucide-react';
+import { Plus, Search as SearchIcon, CookingPot, Filter, ChefHat } from 'lucide-react';
 
-// Loading component
-function ContentLoading() {
+// Component para mostrar loading
+function RestaurantsLoading() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {Array(6).fill(0).map((_, index) => (
@@ -30,73 +30,74 @@ const initialFilters = {
   cuisineTypes: []
 };
 
-// Component to handle content
-function HomeContent({ activeTab }) {
+// Component to handle the search params logic and filtering
+function RestaurantsContent() {
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
-  const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(initialFilters);
   const [activeFilters, setActiveFilters] = useState(false);
   
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get('search');
+  
   const supabase = createClient();
   
+  // Fetch all restaurants with cuisine types
   useEffect(() => {
-    async function fetchData() {
+    async function fetchRestaurants() {
       setLoading(true);
       
-      if (activeTab === 'restaurants') {
-        try {
-          // Consulta para obter restaurantes com suas categorias culinárias
-          const { data: restaurantData, error: restaurantError } = await supabase
-            .from('restaurants')
-            .select(`
-              *,
-              cuisine_types:restaurant_cuisine_types(
-                cuisine_type:cuisine_types(*)
-              )
-            `);
-            
-          if (!restaurantError) {
-            // Transformar os dados para facilitar o trabalho com as categorias
-            const processedData = restaurantData.map(restaurant => {
-              // Extrair e formatar os tipos de cozinha para um formato mais conveniente
-              const cuisineTypes = restaurant.cuisine_types
-                ? restaurant.cuisine_types.map(relation => relation.cuisine_type)
-                : [];
-              
-              return {
-                ...restaurant,
-                cuisine_types: cuisineTypes
-              };
-            });
-            
-            setRestaurants(processedData || []);
-            setFilteredRestaurants(processedData || []);
-          } else {
-            console.error('Error fetching restaurants:', restaurantError);
-          }
-        } catch (err) {
-          console.error('Error processing restaurant data:', err);
+      try {
+        // Consulta mais elaborada para obter restaurantes com suas categorias culinárias
+        let query = supabase
+          .from('restaurants')
+          .select(`
+            *,
+            cuisine_types:restaurant_cuisine_types(
+              cuisine_type:cuisine_types(*)
+            )
+          `);
+        
+        // Adiciona filtro de pesquisa se houver uma query
+        if (searchQuery) {
+          query = query.ilike('name', `%${searchQuery}%`);
         }
-      } else {
-        const { data: listData, error: listError } = await supabase
-          .from('lists')
-          .select('*, list_restaurants(restaurant_id)');
+        
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error('Erro ao buscar restaurantes:', error);
+          setRestaurants([]);
+          setFilteredRestaurants([]);
+        } else {
+          // Transformar os dados para facilitar o trabalho com as categorias
+          const processedData = data.map(restaurant => {
+            // Extrair e formatar os tipos de cozinha para um formato mais conveniente
+            const cuisineTypes = restaurant.cuisine_types
+              ? restaurant.cuisine_types.map(relation => relation.cuisine_type)
+              : [];
+            
+            return {
+              ...restaurant,
+              cuisine_types: cuisineTypes
+            };
+          });
           
-        if (!listError) {
-          setLists(listData || []);
+          setRestaurants(processedData || []);
+          setFilteredRestaurants(processedData || []);
         }
+      } catch (err) {
+        console.error('Erro ao processar dados de restaurantes:', err);
+        setRestaurants([]);
+        setFilteredRestaurants([]);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     }
     
-    fetchData();
-    // Resetar filtros ativos quando mudar de aba
-    setActiveFilters(false);
-    setFilters(initialFilters);
-  }, [activeTab]);
+    fetchRestaurants();
+  }, [searchQuery]);
   
   // Aplicar filtros
   const applyFilters = () => {
@@ -150,46 +151,48 @@ function HomeContent({ activeTab }) {
     setActiveFilters(false);
   };
   
-  const renderEmptyRestaurants = () => (
-    <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
-      <div className="text-center max-w-md">
-        <Utensils className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum restaurante encontrado</h3>
-        <p className="text-gray-500 mb-6 text-sm sm:text-base">
-          Comece adicionando seu primeiro restaurante para criar sua coleção gastronômica.
-        </p>
-        <Link 
-          href="/restaurants/create"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Adicionar Restaurante
-        </Link>
+  const renderEmptyState = () => {
+    // Se há uma pesquisa, mostra mensagem de "nenhum resultado"
+    if (searchQuery) {
+      return (
+        <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
+          <div className="text-center max-w-md">
+            <SearchIcon className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum resultado encontrado</h3>
+            <p className="text-gray-500 mb-6 text-sm sm:text-base">
+              Não encontramos nenhum restaurante que corresponda a "{searchQuery}".
+            </p>
+            <Link href="/" className="text-amber-600 hover:text-amber-800 font-medium">
+              Limpar pesquisa
+            </Link>
+          </div>
+        </div>
+      );
+    }
+    
+    // Se não há pesquisa, mostra mensagem para criar primeiro restaurante
+    return (
+      <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
+        <div className="text-center max-w-md">
+          <CookingPot className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum restaurante cadastrado</h3>
+          <p className="text-gray-500 mb-6 text-sm sm:text-base">
+            Comece adicionando seu primeiro restaurante para criar sua coleção gastronômica.
+          </p>
+          <Link 
+            href="/restaurants/create"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Adicionar Restaurante
+          </Link>
+        </div>
       </div>
-    </div>
-  );
-  
-  const renderEmptyLists = () => (
-    <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
-      <div className="text-center max-w-md">
-        <ListChecks className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhuma lista encontrada</h3>
-        <p className="text-gray-500 mb-6 text-sm sm:text-base">
-          Crie sua primeira lista para organizar seus restaurantes favoritos por categoria, ocasião ou qualquer critério.
-        </p>
-        <Link 
-          href="/lists/create"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Criar Nova Lista
-        </Link>
-      </div>
-    </div>
-  );
+    );
+  };
   
   const renderFilterStats = () => {
-    if (!activeFilters || activeTab !== 'restaurants') return null;
+    if (!activeFilters) return null;
     
     const totalRestaurants = restaurants.length;
     const filteredCount = filteredRestaurants.length;
@@ -204,106 +207,54 @@ function HomeContent({ activeTab }) {
     );
   };
   
-  if (loading) {
-    return <ContentLoading />;
-  }
-  
-  if (activeTab === 'restaurants') {
-    return (
-      <>
-        {/* Mostrar filtros apenas na aba de restaurantes */}
-        <RestaurantFilters 
-          filters={filters}
-          setFilters={setFilters}
-          applyFilters={applyFilters}
-          clearFilters={clearFilters}
-        />
-        
-        {renderFilterStats()}
-        
-        {activeFilters ? (
-          filteredRestaurants.length === 0 ? (
-            <div className="w-full py-8 text-center text-gray-500">
-              <p>Nenhum restaurante corresponde aos filtros selecionados.</p>
-              <button 
-                onClick={clearFilters}
-                className="mt-2 text-amber-600 hover:text-amber-800 underline"
-              >
-                Limpar filtros
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {filteredRestaurants.map(restaurant => (
-                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-              ))}
-            </div>
-          )
-        ) : (
-          restaurants.length === 0 ? (
-            renderEmptyRestaurants()
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {restaurants.map(restaurant => (
-                <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-              ))}
-            </div>
-          )
-        )}
-      </>
-    );
-  } else {
-    if (lists.length === 0) {
-      return renderEmptyLists();
-    }
-    
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {lists.map(list => (
-          <ListCard 
-            key={list.id} 
-            list={list} 
-            restaurantCount={list.list_restaurants?.length || 0} 
-          />
-        ))}
+  return (
+    <>
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+          {searchQuery ? `Resultados para "${searchQuery}"` : 'Todos os Restaurantes'}
+        </h1>
+        <Link
+          href="/restaurants/roulette"
+          className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors text-sm sm:text-base"
+        >
+          <ChefHat className="h-4 w-4 mr-2" />
+          <span className="hidden sm:inline">Roleta</span>
+        </Link>
       </div>
-    );
-  }
+      
+      <RestaurantFilters 
+        filters={filters}
+        setFilters={setFilters}
+        applyFilters={applyFilters}
+        clearFilters={clearFilters}
+      />
+      
+      {renderFilterStats()}
+      
+      {loading ? (
+        <RestaurantsLoading />
+      ) : filteredRestaurants.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {filteredRestaurants.map(restaurant => (
+            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+          ))}
+        </div>
+      ) : (
+        renderEmptyState()
+      )}
+    </>
+  );
 }
 
+// Main component with Suspense
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('restaurants');
-  
   return (
     <main className="min-h-screen bg-gray-50">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="sm:hidden flex bg-gray-100 rounded-lg p-1 justify-center mb-4">
-          <button
-            className={`px-4 py-2 rounded-md transition-colors ${
-              activeTab === 'restaurants' 
-                ? 'bg-white shadow-sm text-amber-500' 
-                : 'text-gray-600 hover:text-amber-500'
-            }`}
-            onClick={() => setActiveTab('restaurants')}
-          >
-            Restaurantes
-          </button>
-          <button
-            className={`px-4 py-2 rounded-md transition-colors ${
-              activeTab === 'lists' 
-                ? 'bg-white shadow-sm text-amber-500' 
-                : 'text-gray-600 hover:text-amber-500'
-            }`}
-            onClick={() => setActiveTab('lists')}
-          >
-            Listas
-          </button>
-        </div>
-        
-        <Suspense fallback={<ContentLoading />}>
-          <HomeContent activeTab={activeTab} />
+        <Suspense fallback={<RestaurantsLoading />}>
+          <RestaurantsContent />
         </Suspense>
       </div>
     </main>
