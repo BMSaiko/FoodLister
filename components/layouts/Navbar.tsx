@@ -8,7 +8,7 @@ import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
 import { Utensils, Menu, X } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar = ({ clearFilters = null }) => {
   const pathname = usePathname();
   const [activeSection, setActiveSection] = useState('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -35,7 +35,16 @@ const Navbar = () => {
         {/* Versão desktop */}
         <div className="hidden md:flex md:items-center md:justify-between md:gap-4">
           {/* Logo/Nome do site */}
-          <Link href="/" className="flex items-center text-lg sm:text-xl font-bold text-amber-500 flex-shrink-0">
+          <Link
+            href="/"
+            className="flex items-center text-lg sm:text-xl font-bold text-amber-500 flex-shrink-0"
+            onClick={(e) => {
+              if (clearFilters && (pathname === '/' || pathname === '/restaurants')) {
+                e.preventDefault();
+                clearFilters();
+              }
+            }}
+          >
             <Utensils className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
             <span className="whitespace-nowrap">FoodLister</span>
           </Link>
@@ -81,7 +90,16 @@ const Navbar = () => {
 
         {/* Versão mobile */}
         <div className="md:hidden flex items-center justify-between gap-2">
-          <Link href="/" className="flex items-center text-lg font-bold text-amber-500 flex-shrink-0">
+          <Link
+            href="/"
+            className="flex items-center text-lg font-bold text-amber-500 flex-shrink-0"
+            onClick={(e) => {
+              if (clearFilters && (pathname === '/' || pathname === '/restaurants')) {
+                e.preventDefault();
+                clearFilters();
+              }
+            }}
+          >
             <Utensils className="h-5 w-5 mr-1.5" />
             <span className="whitespace-nowrap">FoodLister</span>
           </Link>
