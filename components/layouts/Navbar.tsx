@@ -8,7 +8,7 @@ import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
 import { Utensils, Menu, X } from 'lucide-react';
 
-const Navbar = ({ clearFilters }) => {
+const Navbar = ({ clearFilters = null }) => {
   const pathname = usePathname();
   const [activeSection, setActiveSection] = useState('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
