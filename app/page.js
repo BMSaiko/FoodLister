@@ -7,6 +7,7 @@ import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
+import { FiltersProvider, useFilters } from '@/contexts/index';
 import Link from 'next/link';
 import { Plus, Search as SearchIcon, CookingPot, Filter, ChefHat } from 'lucide-react';
 
@@ -40,8 +41,18 @@ function RestaurantsContent() {
 
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
+  const { clearTrigger } = useFilters();
 
   const supabase = createClient();
+
+  // Clear filters when clearTrigger changes
+  useEffect(() => {
+    if (clearTrigger > 0) {
+      setFilters(initialFilters);
+      setFilteredRestaurants(restaurants);
+      setActiveFilters(false);
+    }
+  }, [clearTrigger, restaurants]);
 
   // Fetch all restaurants with cuisine types
   useEffect(() => {
@@ -250,8 +261,18 @@ function RestaurantsContent() {
 // Main component with Suspense
 export default function Home() {
   return (
+    <FiltersProvider>
+      <HomeContent />
+    </FiltersProvider>
+  );
+}
+
+function HomeContent() {
+  const { clearFilters } = useFilters();
+
+  return (
     <main className="min-h-screen bg-gray-50">
-      <Navbar />
+      <Navbar clearFilters={clearFilters} />
 
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <Suspense fallback={<RestaurantsLoading />}>
