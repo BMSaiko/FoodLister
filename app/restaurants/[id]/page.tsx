@@ -11,7 +11,7 @@ import {
   ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
   FileText, Check, X, User, Euro, Tag, Clock, Share2, Copy, MessageCircle, Send, Twitter, Facebook, Calendar
 } from 'lucide-react';
-import { formatPrice, categorizePriceLevel, getRatingClass, formatDate } from '@/utils/formatters';
+import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleDinnerModal from '@/components/ui/ScheduleDinnerModal';
@@ -419,7 +419,22 @@ export default function RestaurantDetails() {
               </div>
             )}
             
-            <p className="text-gray-600 mt-4">{restaurant.description}</p>
+            {(() => {
+              const formattedDescription = formatDescription(restaurant.description);
+              if (!formattedDescription || formattedDescription.length === 0) return null;
+
+              if (formattedDescription.length === 1) {
+                return <p className="text-gray-600 mt-4">{formattedDescription[0]}</p>;
+              }
+
+              return (
+                <div className="text-gray-600 mt-4 space-y-3">
+                  {formattedDescription.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+              );
+            })()}
             
             {/* Informações de preço mais destacadas - apenas se visitado */}
             {visited && renderPriceLevel(restaurant.price_per_person)}
