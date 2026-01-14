@@ -241,11 +241,12 @@ export default function CreateRestaurant() {
                 <button
                   type="button"
                   onClick={() => setGoogleMapsModalOpen(true)}
-                  className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 flex items-center gap-2 font-medium whitespace-nowrap"
-                  title="Extrair informações do Google Maps"
+                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:from-amber-600 hover:to-amber-700 flex items-center gap-2 font-medium whitespace-nowrap transition-all shadow-md hover:shadow-lg"
+                  title="Importar informações do Google Maps"
                 >
                   <Map className="h-4 w-4" />
                   <span className="hidden sm:inline">Google Maps</span>
+                  <span className="sm:hidden">Maps</span>
                 </button>
               </div>
             </div>

@@ -37,8 +37,10 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
     // Tenta extrair o parâmetro 'q' (query)
     if (searchParams.has('q')) {
       const query = searchParams.get('q') || '';
-      result.address = query;
-      result.location = result.location || query;
+      // Converte + para espaços no query
+      const decodedQuery = query.replace(/\+/g, ' ');
+      result.address = decodedQuery;
+      result.location = result.location || decodedQuery;
     }
 
     // Tenta extrair o nome e endereço do pathname
@@ -46,8 +48,8 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
       const placeMatch = pathname.match(/\/place\/([^/]+)/);
       if (placeMatch) {
         const placeName = decodeURIComponent(placeMatch[1]);
-        // Remove caracteres especiais que o Google Maps adiciona
-        result.name = placeName.split('/')[0].trim();
+        // Remove caracteres especiais que o Google Maps adiciona e converte + para espaços
+        result.name = placeName.split('/')[0].replace(/\+/g, ' ').trim();
       }
     }
 
@@ -60,7 +62,7 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
       if (parts.length > 0) {
         const lastPart = parts[parts.length - 1];
         if (lastPart && !lastPart.match(/^\d+/)) {
-          result.name = decodeURIComponent(lastPart);
+          result.name = decodeURIComponent(lastPart).replace(/\+/g, ' ');
         }
       }
     }
