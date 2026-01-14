@@ -7,13 +7,14 @@ import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  ArrowLeft, Star, ListChecks, Edit, MapPin, Globe, 
-  FileText, Check, X, User, Euro, Tag, Clock, Share2, Copy, MessageCircle, Send, Twitter, Facebook 
+import {
+  ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
+  FileText, Check, X, User, Euro, Tag, Clock, Share2, Copy, MessageCircle, Send, Twitter, Facebook, Calendar
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
+import ScheduleDinnerModal from '@/components/ui/ScheduleDinnerModal';
 
 export default function RestaurantDetails() {
   const { id } = useParams();
@@ -27,6 +28,7 @@ export default function RestaurantDetails() {
   const supabase = createClient();
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const shareRef = React.useRef<HTMLDivElement | null>(null);
   
@@ -334,7 +336,18 @@ export default function RestaurantDetails() {
                 </div>
               )}
             </div>
-            <Link 
+            <button
+              type="button"
+              onClick={() => setIsScheduleModalOpen(true)}
+              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 active:bg-blue-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
+              aria-label="Agendar jantar"
+              title="Agendar jantar"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Agendar Jantar</span>
+              <span className="sm:hidden">Agendar</span>
+            </button>
+            <Link
               href={`/restaurants/${id}/edit`}
               className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
             >
@@ -506,6 +519,14 @@ export default function RestaurantDetails() {
         location={restaurant.location}
         latitude={restaurant.latitude}
         longitude={restaurant.longitude}
+      />
+
+      <ScheduleDinnerModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        restaurantName={restaurant.name}
+        restaurantLocation={restaurant.location || ''}
+        restaurantDescription={restaurant.description}
       />
     </div>
   );
