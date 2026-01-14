@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
+import MapSelectorModal from '@/components/ui/MapSelectorModal';
 
 export default function RestaurantDetails() {
   const { id } = useParams();
@@ -25,6 +26,7 @@ export default function RestaurantDetails() {
   
   const supabase = createClient();
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const shareRef = React.useRef<HTMLDivElement | null>(null);
   
@@ -174,13 +176,7 @@ export default function RestaurantDetails() {
     }
   };
   
-  // Função para abrir o Google Maps com a localização
-  const openInMaps = (location) => {
-    if (!location) return;
-    
-    const encodedLocation = encodeURIComponent(location);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
-  };
+
 
   // Get color class based on price level
   const getPriceColorClass = (level) => {
@@ -418,9 +414,9 @@ export default function RestaurantDetails() {
             {/* Campos adicionais agora com cards estilizados */}
             <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
               {restaurant.location && (
-                <div 
+                <div
                   className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
-                  onClick={() => openInMaps(restaurant.location)}
+                  onClick={() => setIsMapModalOpen(true)}
                 >
                   <MapPin className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
                   <span className="flex-grow text-sm sm:text-base">{restaurant.location}</span>
@@ -503,6 +499,14 @@ export default function RestaurantDetails() {
           )}
         </div>
       </div>
+
+      <MapSelectorModal
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+        location={restaurant.location}
+        latitude={restaurant.latitude}
+        longitude={restaurant.longitude}
+      />
     </div>
   );
 }
