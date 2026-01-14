@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import { createClient } from '@/libs/supabase/client';
+import { getDescriptionPreview } from '@/utils/formatters';
 
 const RestaurantCard = ({ restaurant, centered = false }) => {
   const [visited, setVisited] = useState(restaurant.visited || false);
@@ -148,7 +149,7 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
             </div>
           )}
           
-          <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{restaurant.description}</p>
+          <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{getDescriptionPreview(restaurant.description)}</p>
           
           {/* Display price category with amber colored Euro symbols - only if visited */}
           {visited && (
