@@ -223,9 +223,12 @@ const RestaurantFilters = ({ filters, setFilters, applyFilters, clearFilters }) 
               <X className="h-4 w-4 sm:h-3 sm:w-3 mr-1" />
               Limpar
             </button>
-            <button 
+            <button
               type="button"
-              onClick={applyFilters}
+              onClick={() => {
+                applyFilters();
+                setIsOpen(false);
+              }}
               className="px-4 sm:px-3 py-2.5 sm:py-1.5 text-sm bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] sm:min-h-0 font-medium"
             >
               Aplicar
