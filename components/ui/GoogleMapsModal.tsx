@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Loader } from 'lucide-react';
+import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap } from 'lucide-react';
 import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData } from '@/utils/googleMapsExtractor';
 
 interface GoogleMapsModalProps {
@@ -35,7 +35,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
     try {
       const data = extractGoogleMapsData(googleMapsUrl);
       setExtractedData(data);
-      
+
       if (!data.name && !data.address && !data.latitude) {
         setError('Não foi possível extrair informações do link. Verifique se é um link válido do Google Maps.');
       }
@@ -65,46 +65,103 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="sticky top-0 flex justify-between items-center p-6 border-b border-gray-200 bg-white">
-          <h2 className="text-xl font-bold text-gray-800">Adicionar do Google Maps</h2>
-          <button
-            onClick={resetModal}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-6 w-6" />
-          </button>
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-5 text-white">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Map className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold">Importar do Google Maps</h2>
+                <p className="text-amber-100 text-sm">Extraia informações automaticamente</p>
+              </div>
+            </div>
+            <button
+              onClick={resetModal}
+              className="text-amber-100 hover:text-white hover:bg-white/20 rounded-full p-1 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
         <div className="p-6">
           {!extractedData ? (
             <>
+              {/* Instructions */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-1 bg-amber-100 rounded-lg flex-shrink-0">
+                    <Search className="h-4 w-4 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-amber-900 mb-2">Como fazer:</h3>
+                    <ol className="text-sm text-amber-800 space-y-1">
+                      <li className="flex items-center gap-2">
+                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
+                        Abra o Google Maps no navegador
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">2</span>
+                        Encontre e clique no restaurante
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">3</span>
+                        Copie o link da barra de endereço
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">4</span>
+                        Cole aqui e clique em "Extrair"
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+
               {/* Input URL */}
-              <div className="mb-4">
-                <label className="block text-gray-700 font-medium mb-2">
-                  Cola o link do Google Maps
+              <div className="mb-6">
+                <label className="block text-gray-800 font-semibold mb-3 flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-amber-600" />
+                  Link do Google Maps
                 </label>
-                <input
-                  type="url"
-                  value={googleMapsUrl}
-                  onChange={(e) => {
-                    setGoogleMapsUrl(e.target.value);
-                    setError('');
-                  }}
-                  placeholder="https://www.google.com/maps/place/..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  Abre o Google Maps, encontra o restaurante e copia o link do navegador
+                <div className="relative">
+                  <input
+                    type="url"
+                    value={googleMapsUrl}
+                    onChange={(e) => {
+                      setGoogleMapsUrl(e.target.value);
+                      setError('');
+                    }}
+                    placeholder="https://www.google.com/maps/place/Nome+do+Restaurante/..."
+                    className="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-colors text-gray-700"
+                  />
+                  {googleMapsUrl && (
+                    <button
+                      onClick={() => navigator.clipboard.readText().then(text => setGoogleMapsUrl(text))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      title="Colar do clipboard"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                  <ExternalLink className="h-3 w-3" />
+                  Cole o link completo do restaurante no Google Maps
                 </p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
-                  {error}
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Erro na extração</p>
+                    <p className="text-sm mt-1">{error}</p>
+                  </div>
                 </div>
               )}
 
@@ -112,64 +169,86 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               <button
                 onClick={handleExtract}
                 disabled={loading || !googleMapsUrl.trim()}
-                className="w-full px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 disabled:bg-gray-300 flex items-center justify-center gap-2 font-medium"
+                className="w-full px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed flex items-center justify-center gap-3 font-semibold transition-all shadow-md hover:shadow-lg"
               >
                 {loading ? (
                   <>
-                    <Loader className="h-4 w-4 animate-spin" />
-                    Extraindo...
+                    <Loader className="h-5 w-5 animate-spin" />
+                    Extraindo informações...
                   </>
                 ) : (
-                  'Extrair Informações'
+                  <>
+                    <Zap className="h-5 w-5" />
+                    Extrair Informações
+                  </>
                 )}
               </button>
             </>
           ) : (
             <>
+              {/* Success Message */}
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                  <CheckCircle className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Informações extraídas!</h3>
+                <p className="text-gray-600">Revise os dados antes de confirmar</p>
+              </div>
+
               {/* Extracted Data Display */}
               <div className="space-y-4 mb-6">
-                <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                  <p className="text-sm font-medium text-green-800 mb-3">
-                    ✓ Informações extraídas com sucesso!
-                  </p>
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <p className="font-semibold text-green-800">Dados extraídos com sucesso</p>
+                  </div>
 
                   {extractedData.name && (
-                    <div className="mb-3">
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Nome
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-gray-500" />
+                        Nome do Restaurante
                       </label>
-                      <p className="text-sm bg-white p-2 rounded border border-gray-200">
-                        {extractedData.name}
-                      </p>
+                      <div className="bg-white border border-gray-200 rounded-lg p-3">
+                        <p className="text-gray-900 font-medium">{extractedData.name}</p>
+                      </div>
                     </div>
                   )}
 
                   {extractedData.address && (
-                    <div className="mb-3">
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-gray-500" />
                         Endereço
                       </label>
-                      <p className="text-sm bg-white p-2 rounded border border-gray-200 break-words">
-                        {extractedData.address}
-                      </p>
+                      <div className="bg-white border border-gray-200 rounded-lg p-3">
+                        <p className="text-gray-900 text-sm break-words">{extractedData.address}</p>
+                      </div>
                     </div>
                   )}
 
                   {extractedData.latitude && extractedData.longitude && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
-                        Coordenadas
+                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-gray-500" />
+                        Coordenadas GPS
                       </label>
-                      <p className="text-sm bg-white p-2 rounded border border-gray-200 font-mono">
-                        {extractedData.latitude}, {extractedData.longitude}
-                      </p>
+                      <div className="bg-white border border-gray-200 rounded-lg p-3">
+                        <p className="text-gray-900 text-sm font-mono">
+                          {extractedData.latitude}, {extractedData.longitude}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
 
                 {error && (
-                  <div className="bg-yellow-50 text-yellow-700 p-3 rounded-md text-sm border border-yellow-200">
-                    ⚠️ {error}
+                  <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-xl flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium">Aviso</p>
+                      <p className="text-sm mt-1">{error}</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -182,15 +261,15 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                     setGoogleMapsUrl('');
                     setError('');
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-medium"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 font-medium transition-all"
                 >
-                  Tentar Outro Link
+                  Tentar outro link
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 font-medium"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
-                  Confirmar e Usar
+                  Usar estas informações
                 </button>
               </div>
             </>
