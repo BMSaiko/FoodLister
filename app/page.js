@@ -37,17 +37,17 @@ function RestaurantsContent() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(initialFilters);
   const [activeFilters, setActiveFilters] = useState(false);
-  
+
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
-  
+
   const supabase = createClient();
-  
+
   // Fetch all restaurants with cuisine types
   useEffect(() => {
     async function fetchRestaurants() {
       setLoading(true);
-      
+
       try {
         // Consulta mais elaborada para obter restaurantes com suas categorias culinárias
         let query = supabase
@@ -58,14 +58,14 @@ function RestaurantsContent() {
               cuisine_type:cuisine_types(*)
             )
           `);
-        
+
         // Adiciona filtro de pesquisa se houver uma query
         if (searchQuery) {
           query = query.ilike('name', `%${searchQuery}%`);
         }
-        
+
         const { data, error } = await query;
-        
+
         if (error) {
           console.error('Erro ao buscar restaurantes:', error);
           setRestaurants([]);
@@ -77,13 +77,13 @@ function RestaurantsContent() {
             const cuisineTypes = restaurant.cuisine_types
               ? restaurant.cuisine_types.map(relation => relation.cuisine_type)
               : [];
-            
+
             return {
               ...restaurant,
               cuisine_types: cuisineTypes
             };
           });
-          
+
           setRestaurants(processedData || []);
           setFilteredRestaurants(processedData || []);
         }
@@ -95,10 +95,10 @@ function RestaurantsContent() {
         setLoading(false);
       }
     }
-    
+
     fetchRestaurants();
   }, [searchQuery]);
-  
+
   // Aplicar filtros
   const applyFilters = () => {
     const filtered = restaurants.filter(restaurant => {
@@ -106,51 +106,51 @@ function RestaurantsContent() {
       if (restaurant.price_per_person > filters.maxPrice) {
         return false;
       }
-      
+
       // Filtro de avaliação
       if (restaurant.rating < filters.minRating) {
         return false;
       }
-      
+
       // Filtros de status (visitado/não visitado)
       if (filters.visited && !restaurant.visited) {
         return false;
       }
-      
+
       if (filters.notVisited && restaurant.visited) {
         return false;
       }
-      
+
       // Filtro por categoria culinária
       if (filters.cuisineTypes && filters.cuisineTypes.length > 0) {
         // Extrair IDs de categorias do restaurante
         const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
-        
+
         // Verificar se há pelo menos uma correspondência entre as categorias do restaurante
         // e as categorias selecionadas no filtro
-        const hasMatchingCuisine = filters.cuisineTypes.some(cuisineId => 
+        const hasMatchingCuisine = filters.cuisineTypes.some(cuisineId =>
           restaurantCuisineIds.includes(cuisineId)
         );
-        
+
         if (!hasMatchingCuisine) {
           return false;
         }
       }
-      
+
       return true;
     });
-    
+
     setFilteredRestaurants(filtered);
     setActiveFilters(true);
   };
-  
+
   // Limpar filtros
   const clearFilters = () => {
     setFilters(initialFilters);
     setFilteredRestaurants(restaurants);
     setActiveFilters(false);
   };
-  
+
   const renderEmptyState = () => {
     // Se há uma pesquisa, mostra mensagem de "nenhum resultado"
     if (searchQuery) {
@@ -162,14 +162,14 @@ function RestaurantsContent() {
             <p className="text-gray-500 mb-6 text-sm sm:text-base">
               Não encontramos nenhum restaurante que corresponda a "{searchQuery}".
             </p>
-            <Link href="/" className="text-amber-600 hover:text-amber-800 font-medium">
+            <Link href="/restaurants" className="text-amber-600 hover:text-amber-800 font-medium">
               Limpar pesquisa
             </Link>
           </div>
         </div>
       );
     }
-    
+
     // Se não há pesquisa, mostra mensagem para criar primeiro restaurante
     return (
       <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
@@ -179,7 +179,7 @@ function RestaurantsContent() {
           <p className="text-gray-500 mb-6 text-sm sm:text-base">
             Comece adicionando seu primeiro restaurante para criar sua coleção gastronômica.
           </p>
-          <Link 
+          <Link
             href="/restaurants/create"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
           >
@@ -190,13 +190,13 @@ function RestaurantsContent() {
       </div>
     );
   };
-  
+
   const renderFilterStats = () => {
     if (!activeFilters) return null;
-    
+
     const totalRestaurants = restaurants.length;
     const filteredCount = filteredRestaurants.length;
-    
+
     return (
       <div className="text-sm text-gray-500 mb-4 flex items-center">
         <Filter className="h-3 w-3 mr-1 text-amber-500" />
@@ -206,7 +206,7 @@ function RestaurantsContent() {
       </div>
     );
   };
-  
+
   return (
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
@@ -222,16 +222,16 @@ function RestaurantsContent() {
           <span className="sm:hidden">Roleta de Restaurantes</span>
         </Link>
       </div>
-      
-      <RestaurantFilters 
+
+      <RestaurantFilters
         filters={filters}
         setFilters={setFilters}
         applyFilters={applyFilters}
         clearFilters={clearFilters}
       />
-      
+
       {renderFilterStats()}
-      
+
       {loading ? (
         <RestaurantsLoading />
       ) : filteredRestaurants.length > 0 ? (
@@ -252,7 +252,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <Suspense fallback={<RestaurantsLoading />}>
           <RestaurantsContent />
