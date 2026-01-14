@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/libs/supabase/client';
-import { RotateCcw, ChefHat, Filter, X, Search } from 'lucide-react';
+import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import RestaurantCard from './RestaurantCard';
 
@@ -15,13 +15,26 @@ const RestaurantRoulette = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [rotation, setRotation] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // Filtros
   const [showFilters, setShowFilters] = useState(false);
   const [filterNotVisited, setFilterNotVisited] = useState(false);
   const [selectedCuisineTypes, setSelectedCuisineTypes] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Seleção de restaurantes para roleta
+  const [showRestaurantSelector, setShowRestaurantSelector] = useState(false);
+  const [restaurantSearchQuery, setRestaurantSearchQuery] = useState('');
+  const [availableRestaurants, setAvailableRestaurants] = useState([]);
+  const [selectedRestaurantsForRoulette, setSelectedRestaurantsForRoulette] = useState([]);
+  const [restaurantSelectorLoading, setRestaurantSelectorLoading] = useState(false);
+  const [displayLimit, setDisplayLimit] = useState(50);
+
+  // Reset display limit when search changes
+  useEffect(() => {
+    setDisplayLimit(50);
+  }, [restaurantSearchQuery]);
   
   const supabase = createClient();
   
@@ -81,28 +94,34 @@ const RestaurantRoulette = () => {
     fetchData();
   }, []);
   
-  // Aplicar filtros
+  // Aplicar filtros e seleção de restaurantes
   useEffect(() => {
     let filtered = [...restaurants];
-    
-    // Filtro de não visitados
-    if (filterNotVisited) {
-      filtered = filtered.filter(r => !r.visited);
+
+    // Se há restaurantes selecionados para a roleta, usar apenas esses
+    if (selectedRestaurantsForRoulette.length > 0) {
+      filtered = selectedRestaurantsForRoulette;
+    } else {
+      // Caso contrário, aplicar filtros normais
+      // Filtro de não visitados
+      if (filterNotVisited) {
+        filtered = filtered.filter(r => !r.visited);
+      }
+
+      // Filtro de categorias
+      if (selectedCuisineTypes.length > 0) {
+        filtered = filtered.filter(restaurant => {
+          const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
+          return selectedCuisineTypes.some(cuisineId =>
+            restaurantCuisineIds.includes(cuisineId)
+          );
+        });
+      }
     }
-    
-    // Filtro de categorias
-    if (selectedCuisineTypes.length > 0) {
-      filtered = filtered.filter(restaurant => {
-        const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
-        return selectedCuisineTypes.some(cuisineId => 
-          restaurantCuisineIds.includes(cuisineId)
-        );
-      });
-    }
-    
+
     setFilteredRestaurants(filtered);
     setSelectedRestaurant(null);
-  }, [restaurants, filterNotVisited, selectedCuisineTypes]);
+  }, [restaurants, filterNotVisited, selectedCuisineTypes, selectedRestaurantsForRoulette]);
   
   const handleSpin = () => {
     if (filteredRestaurants.length === 0) {
@@ -155,13 +174,22 @@ const RestaurantRoulette = () => {
             <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-amber-500" />
             Roleta de Restaurantes
           </h2>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] font-medium"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Filtros
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+            <button
+              onClick={() => setShowRestaurantSelector(true)}
+              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 active:from-amber-700 active:to-orange-700 transition-all duration-200 min-h-[44px] font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Selecionar Restaurantes
+            </button>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] font-medium"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filtros
+            </button>
+          </div>
         </div>
         
         {/* Painel de filtros */}
@@ -238,9 +266,22 @@ const RestaurantRoulette = () => {
         
         {/* Estatísticas */}
         <div className="mt-4 pt-4 border-t border-gray-200">
+          {selectedRestaurantsForRoulette.length > 0 && (
+            <div className="mb-2">
+              <p className="text-sm text-amber-600 font-medium">
+                Usando seleção personalizada ({selectedRestaurantsForRoulette.length} restaurante{selectedRestaurantsForRoulette.length !== 1 ? 's' : ''})
+              </p>
+              <button
+                onClick={() => setSelectedRestaurantsForRoulette([])}
+                className="text-xs text-gray-500 hover:text-gray-700 underline mt-1"
+              >
+                Limpar seleção
+              </button>
+            </div>
+          )}
           {availableCount > 0 ? (
             <p className="text-sm sm:text-base text-gray-600">
-              <span className="font-semibold text-amber-600">{availableCount}</span> restaurante{availableCount !== 1 ? 's' : ''} disponível{availableCount !== 1 ? 'eis' : ''} 
+              <span className="font-semibold text-amber-600">{availableCount}</span> restaurante{availableCount !== 1 ? 's' : ''} disponível{availableCount !== 1 ? 'eis' : ''}
               {totalCount !== availableCount && (
                 <span className="text-gray-500"> de {totalCount} total</span>
               )}
@@ -467,6 +508,179 @@ const RestaurantRoulette = () => {
       {loading && (
         <div className="text-center py-8 text-gray-500">
           Carregando restaurantes...
+        </div>
+      )}
+
+      {/* Modal de seleção de restaurantes */}
+      {showRestaurantSelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden border border-gray-100">
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 sm:p-6 border-b border-amber-100">
+              <div className="flex justify-between items-start sm:items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-amber-500 rounded-lg">
+                      <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold text-gray-800">Selecionar Restaurantes</h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-600 ml-11">
+                    Escolha os restaurantes que deseja incluir na roleta. Você pode buscar por nome.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowRestaurantSelector(false)}
+                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-colors flex-shrink-0"
+                >
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6 flex flex-col max-h-[calc(95vh-120px)] sm:max-h-[calc(90vh-120px)]">
+              {/* Barra de busca */}
+              <div className="relative mb-3 sm:mb-4 flex-shrink-0">
+                <input
+                  type="text"
+                  placeholder="Buscar restaurantes..."
+                  value={restaurantSearchQuery}
+                  onChange={(e) => setRestaurantSearchQuery(e.target.value)}
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-base sm:text-sm min-h-[44px] sm:min-h-0"
+                />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+              </div>
+
+              {/* Lista de restaurantes */}
+              <div className="flex-1 overflow-y-auto border border-gray-200 rounded-xl min-h-0 bg-gray-50/30">
+                {(() => {
+                  const filteredRestaurants = restaurants.filter(restaurant =>
+                    restaurant.name.toLowerCase().includes(restaurantSearchQuery.toLowerCase())
+                  );
+                  const displayedRestaurants = filteredRestaurants.slice(0, displayLimit);
+
+                  return (
+                    <>
+                      {displayedRestaurants.map(restaurant => {
+                        const isSelected = selectedRestaurantsForRoulette.some(r => r.id === restaurant.id);
+                        return (
+                          <div
+                            key={restaurant.id}
+                            className={`flex items-center justify-between p-3 sm:p-4 border-b border-gray-100 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 cursor-pointer active:bg-amber-100 transition-all duration-200 min-h-[60px] sm:min-h-[56px] group ${
+                              isSelected ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200' : ''
+                            }`}
+                            onClick={() => {
+                              if (isSelected) {
+                                setSelectedRestaurantsForRoulette(
+                                  selectedRestaurantsForRoulette.filter(r => r.id !== restaurant.id)
+                                );
+                              } else {
+                                setSelectedRestaurantsForRoulette([...selectedRestaurantsForRoulette, restaurant]);
+                              }
+                            }}
+                          >
+                            <div className="flex items-center space-x-3 flex-1 min-w-0">
+                              <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                                isSelected
+                                  ? 'bg-amber-500 border-amber-500 shadow-md'
+                                  : 'border-gray-300 group-hover:border-amber-400 group-hover:shadow-sm'
+                              }`}>
+                                {isSelected && <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-semibold text-gray-900 text-sm sm:text-base truncate pr-2 group-hover:text-amber-900 transition-colors">
+                                  {restaurant.name}
+                                </div>
+                                {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
+                                  <div className="text-xs sm:text-sm text-gray-500 truncate flex items-center gap-1">
+                                    <span className="inline-block w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
+                                    {restaurant.cuisine_types.map(type => type.name).join(', ')}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className={`text-xs sm:text-sm flex-shrink-0 ml-2 px-2 py-1 rounded-full font-medium ${
+                              restaurant.visited
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-amber-100 text-amber-700'
+                            }`}>
+                              {restaurant.visited ? 'Visitado' : 'Não Visitado'}
+                            </div>
+                          </div>
+                        );
+                      })}
+                      {filteredRestaurants.length === 0 && (
+                        <div className="text-center py-12 text-gray-500 text-sm sm:text-base">
+                          <Search className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-gray-300" />
+                          <p>Nenhum restaurante encontrado</p>
+                          <p className="text-xs text-gray-400 mt-1">Tente ajustar sua busca</p>
+                        </div>
+                      )}
+                      {displayedRestaurants.length < filteredRestaurants.length && (
+                        <div className="text-center p-4 border-t border-gray-100">
+                          <button
+                            onClick={() => setDisplayLimit(prev => prev + 50)}
+                            className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-colors text-sm font-medium"
+                          >
+                            Carregar mais ({filteredRestaurants.length - displayedRestaurants.length} restantes)
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+
+              {/* Restaurantes selecionados */}
+              {selectedRestaurantsForRoulette.length > 0 && (
+                <div className="mt-3 sm:mt-4 flex-shrink-0">
+                  <h4 className="font-medium text-gray-700 mb-2 text-sm sm:text-base">
+                    Selecionados ({selectedRestaurantsForRoulette.length}):
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-20 sm:max-h-24 overflow-y-auto">
+                    {selectedRestaurantsForRoulette.map(restaurant => (
+                      <div
+                        key={restaurant.id}
+                        className="inline-flex items-center bg-amber-100 text-amber-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm"
+                      >
+                        <span className="truncate max-w-20 sm:max-w-32">{restaurant.name}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedRestaurantsForRoulette(
+                              selectedRestaurantsForRoulette.filter(r => r.id !== restaurant.id)
+                            );
+                          }}
+                          className="ml-1 sm:ml-2 text-amber-600 hover:text-amber-800 flex-shrink-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Botões */}
+              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 flex-shrink-0 bg-gray-50/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
+                <button
+                  onClick={() => {
+                    setSelectedRestaurantsForRoulette([]);
+                    setShowRestaurantSelector(false);
+                  }}
+                  className="w-full sm:w-auto px-6 py-3 sm:py-2.5 text-sm sm:text-base text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100 transition-all duration-200 min-h-[48px] sm:min-h-0 font-medium shadow-sm hover:shadow-md"
+                >
+                  Usar Todos
+                </button>
+                <button
+                  onClick={() => setShowRestaurantSelector(false)}
+                  className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 active:from-amber-700 active:to-orange-700 transition-all duration-200 text-sm sm:text-base min-h-[48px] sm:min-h-0 font-semibold shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Check className="h-4 w-4 mr-2 inline" />
+                  Confirmar ({selectedRestaurantsForRoulette.length})
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
