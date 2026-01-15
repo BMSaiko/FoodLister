@@ -20,7 +20,7 @@ export const metadata = {
   description: "Aplicativo para organizar e descobrir restaurantes",
   viewport: "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover",
   icons: {
-    icon: '/vercel.svg',
+    icon: '/logo.svg',
   },
 };
 
