@@ -1,5 +1,16 @@
 export function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  if (!dateString || typeof dateString !== 'string' || dateString.trim() === '') {
+    return 'Data inválida';
+  }
+
+  const trimmedDateString = dateString.trim();
+  const date = new Date(trimmedDateString);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return 'Data inválida';
+  }
+
   return date.toLocaleDateString('pt-PT', {
     year: 'numeric',
     month: 'long',
@@ -55,9 +66,14 @@ export function getDescriptionPreview(description: string): string {
   const firstParagraph = description.split(/\r?\n/)[0]?.trim();
   if (!firstParagraph) return '';
 
+  // Normalize whitespace: replace multiple whitespace characters with single space
+  const normalizedText = firstParagraph.replace(/\s+/g, ' ');
+
+  // Split by single space and filter out empty strings
+  const words = normalizedText.split(' ').filter(word => word.length > 0);
+
   // For card previews, limit to reasonable length
-  const words = firstParagraph.split(' ');
-  if (words.length <= 20) return firstParagraph;
+  if (words.length <= 20) return normalizedText;
 
   return words.slice(0, 20).join(' ') + '...';
 }
