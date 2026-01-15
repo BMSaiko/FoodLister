@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
-  FileText, Check, X, User, Euro, Tag, Clock, Share2, Copy, MessageCircle, Send, Twitter, Facebook, Calendar, Phone, Smartphone, Home
+  FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
@@ -27,12 +27,10 @@ export default function RestaurantDetails() {
   const [isUpdating, setIsUpdating] = useState(false);
   
   const supabase = createClient();
-  const [isShareOpen, setIsShareOpen] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  const shareRef = React.useRef<HTMLDivElement | null>(null);
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -114,16 +112,7 @@ export default function RestaurantDetails() {
     fetchRestaurantDetails();
   }, [id]);
 
-  useEffect(() => {
-    if (!isShareOpen) return;
-    const onClick = (e: MouseEvent) => {
-      if (shareRef.current && e.target instanceof Node && !shareRef.current.contains(e.target)) {
-        setIsShareOpen(false);
-      }
-    };
-    document.addEventListener('click', onClick);
-    return () => document.removeEventListener('click', onClick);
-  }, [isShareOpen]);
+
 
   // Function to show notifications
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -151,9 +140,18 @@ export default function RestaurantDetails() {
         await navigator.share(shareData);
         logInfo('Restaurant shared successfully using Web Share API');
       } else {
-        // Fallback to manual sharing options
-        logWarn('Web Share API not supported, showing fallback options');
-        setIsShareOpen((prev) => !prev);
+        // Web Share API not supported - copy to clipboard as fallback
+        logWarn('Web Share API not supported, falling back to clipboard');
+
+        if (!navigator.clipboard) {
+          logWarn('Clipboard API also not supported');
+          showNotification('error', 'Compartilhamento não suportado neste navegador. Copie o link manualmente.');
+          return;
+        }
+
+        await navigator.clipboard.writeText(shareUrl);
+        logInfo('Link copied to clipboard as fallback for share');
+        showNotification('success', 'Link copiado para a área de transferência!');
       }
     } catch (error) {
       logError('Failed to share restaurant', error, { shareData });
@@ -169,51 +167,10 @@ export default function RestaurantDetails() {
           // Another share operation is already in progress
           showNotification('error', 'Uma operação de compartilhamento já está em andamento. Aguarde e tente novamente.');
         } else {
-          showNotification('error', 'Erro ao compartilhar. Tente usar as opções manuais.');
+          showNotification('error', 'Erro ao compartilhar. Tente novamente.');
         }
       } else {
         showNotification('error', 'Erro desconhecido ao compartilhar.');
-      }
-
-      // Fallback to manual options on any error
-      setIsShareOpen((prev) => !prev);
-    }
-  };
-
-  const handleCopyLink = async () => {
-    // Validate URL before attempting to copy
-    if (!shareUrl || shareUrl.trim() === '') {
-      logWarn('Share URL is empty or invalid');
-      showNotification('error', 'Não foi possível copiar: URL inválida');
-      return;
-    }
-
-    try {
-      // Check if Clipboard API is supported
-      if (!navigator.clipboard) {
-        logWarn('Clipboard API not supported');
-        showNotification('error', 'API de área de transferência não suportada. Copie manualmente o link.');
-        return;
-      }
-
-      await navigator.clipboard.writeText(shareUrl);
-      logInfo('Link copied to clipboard successfully');
-      showNotification('success', 'Link copiado para a área de transferência!');
-      setIsShareOpen(false);
-    } catch (error) {
-      logError('Failed to copy link to clipboard', error, { shareUrl });
-
-      // Handle specific error types
-      if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          showNotification('error', 'Cópia não permitida. Permita acesso à área de transferência.');
-        } else if (error.name === 'NotSupportedError') {
-          showNotification('error', 'Cópia não suportada neste navegador. Copie manualmente o link.');
-        } else {
-          showNotification('error', 'Erro ao copiar link. Tente novamente.');
-        }
-      } else {
-        showNotification('error', 'Erro desconhecido ao copiar link.');
       }
     }
   };
@@ -381,74 +338,17 @@ export default function RestaurantDetails() {
           </Link>
           
           <div className="flex w-full sm:w-auto gap-2">
-            <div className="relative w-full sm:w-auto" ref={shareRef}>
-              <button
-                type="button"
-                onClick={handleShareClick}
-                className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-white text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto"
-                aria-label="Compartilhar"
-                title="Compartilhar"
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Compartilhar</span>
-                <span className="sm:hidden">Share</span>
-              </button>
-              {isShareOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                  <ul className="py-1 text-sm text-gray-700">
-                    <li>
-                      <a
-                        href={`https://wa.me/?text=${encodeURIComponent('Confira este restaurante! ' + shareUrl)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center px-3 py-2 hover:bg-gray-50"
-                      >
-                        <MessageCircle className="h-4 w-4 mr-2 text-green-600" /> WhatsApp
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Confira este restaurante!')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center px-3 py-2 hover:bg-gray-50"
-                      >
-                        <Send className="h-4 w-4 mr-2 text-sky-600" /> Telegram
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Confira este restaurante!')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center px-3 py-2 hover:bg-gray-50"
-                      >
-                        <Twitter className="h-4 w-4 mr-2 text-black" /> Twitter/X
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center px-3 py-2 hover:bg-gray-50"
-                      >
-                        <Facebook className="h-4 w-4 mr-2 text-blue-600" /> Facebook
-                      </a>
-                    </li>
-                    <li>
-                      <button
-                        type="button"
-                        onClick={handleCopyLink}
-                        className="w-full text-left flex items-center px-3 py-2 hover:bg-gray-50"
-                      >
-                        <Copy className="h-4 w-4 mr-2" /> Copiar link
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={handleShareClick}
+              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-white text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto"
+              aria-label="Compartilhar"
+              title="Compartilhar"
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Compartilhar</span>
+              <span className="sm:hidden">Share</span>
+            </button>
             <button
               type="button"
               onClick={() => setIsScheduleModalOpen(true)}
