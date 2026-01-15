@@ -16,6 +16,8 @@ import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartph
 import { useCreatorName } from '@/hooks/useCreatorName';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertImgurUrl } from '@/utils/imgurConverter';
+import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
+import { toast } from 'react-toastify';
 
 export default function CreateRestaurant() {
   const router = useRouter();
@@ -170,7 +172,31 @@ export default function CreateRestaurant() {
       setError('A avaliação deve ser um número entre 0 e 5.');
       return;
     }
-    
+
+    // Validate phone numbers
+    const nonEmptyPhones = formData.phone_numbers.filter(phone => phone.trim().length > 0);
+    if (nonEmptyPhones.length > 0) {
+      const invalidPhones = nonEmptyPhones.filter(phone => !validatePhoneNumber(phone.trim()));
+
+      if (invalidPhones.length > 0) {
+        toast.error(
+          `Número(s) de telefone inválido(s): ${invalidPhones.join(', ')}. Use o formato internacional: +351 912 345 678`,
+          {
+            position: "top-center",
+            autoClose: 6000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "light",
+            className: "text-sm sm:text-base",
+            bodyClassName: "text-sm sm:text-base"
+          }
+        );
+        return;
+      }
+    }
+
     setLoading(true);
     
     try {
@@ -191,7 +217,7 @@ export default function CreateRestaurant() {
             source_url: formData.source_url || '',
             creator: creatorName || 'Anônimo',
             menu_url: formData.menu_url || '',
-            phone_numbers: formData.phone_numbers.filter(phone => phone.trim() !== ''),
+            phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
             visited: formData.visited
           }
         ])
