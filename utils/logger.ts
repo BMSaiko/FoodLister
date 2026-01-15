@@ -17,6 +17,33 @@ interface LogEntry {
   context?: Record<string, any>;
 }
 
+// List of keys that should be sanitized or removed from logs
+const SENSITIVE_KEYS = new Set([
+  'password',
+  'token',
+  'secret',
+  'key',
+  'api_key',
+  'apikey',
+  'auth',
+  'authorization',
+  'bearer',
+  'cookie',
+  'session',
+  'ssn',
+  'social_security',
+  'credit_card',
+  'card_number',
+  'cvv',
+  'pin',
+  'email', // Consider email as sensitive
+  'phone',
+  'address',
+  'location', // Location data might be sensitive
+  'ip',
+  'user_agent'
+]);
+
 /**
  * Sanitizes error objects to prevent logging of sensitive information
  * Only includes safe properties like message and name
@@ -42,27 +69,67 @@ function sanitizeError(error: unknown): string {
 }
 
 /**
+ * Recursively sanitizes an object to remove or mask sensitive information
+ */
+function sanitizeObject(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (typeof obj === 'string') {
+    // Mask potential sensitive strings
+    if (obj.length > 10) {
+      return '[REDACTED]';
+    }
+    return obj;
+  }
+
+  if (typeof obj === 'number' || typeof obj === 'boolean') {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeObject);
+  }
+
+  if (typeof obj === 'object') {
+    const sanitized: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+      const lowerKey = key.toLowerCase();
+      if (SENSITIVE_KEYS.has(lowerKey) || lowerKey.includes('password') || lowerKey.includes('secret')) {
+        sanitized[key] = '[REDACTED]';
+      } else {
+        sanitized[key] = sanitizeObject(value);
+      }
+    }
+
+    return sanitized;
+  }
+
+  // For other types (functions, symbols, etc.), don't log them
+  return '[UNSUPPORTED_TYPE]';
+}
+
+/**
  * Logs a message with the specified level and optional context
  */
 function log(level: LogLevel, message: string, context?: Record<string, any>): void {
+  const sanitizedContext = context ? sanitizeObject(context) : undefined;
+
   const entry: LogEntry = {
     level,
     message,
     timestamp: new Date().toISOString(),
-    context
+    context: sanitizedContext
   };
 
-  // In development, use console for immediate visibility
-  // In production, this could be sent to a logging service
+  // Structured JSON logging for security and parseability
   const logMethod = level === LogLevel.ERROR ? console.error :
                    level === LogLevel.WARN ? console.warn :
                    level === LogLevel.INFO ? console.info : console.debug;
 
-  if (context) {
-    logMethod(`[${level.toUpperCase()}] ${message}`, context);
-  } else {
-    logMethod(`[${level.toUpperCase()}] ${message}`);
-  }
+  logMethod(JSON.stringify(entry));
 }
 
 /**
