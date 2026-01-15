@@ -301,7 +301,7 @@ export default function EditRestaurant({ restaurantId }) {
       if (err.code === '42501' || err.message?.includes('row-level security policy')) {
         setError('Erro de permissão: O usuário atual não tem permissões para editar restaurantes. Verifique as políticas de segurança no Supabase.');
       } else {
-        setError('Erro ao atualizar restaurante: ' + (err.message || 'Por favor, tente novamente.'));
+        setError('Erro ao atualizar restaurante. Por favor, tente novamente.');
       }
     } finally {
       setSaving(false);

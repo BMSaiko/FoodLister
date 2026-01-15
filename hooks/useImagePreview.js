@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 /**
  * Custom hook for handling image preview state and loading
@@ -13,7 +13,13 @@ export function useImagePreview(imageUrl, convertUrl = null) {
     isLoaded: false
   });
 
+  const timeoutRef = useRef(null);
+
   const handleImageLoad = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     setPreviewState(prev => ({
       ...prev,
       isLoading: false,
@@ -23,6 +29,10 @@ export function useImagePreview(imageUrl, convertUrl = null) {
   }, []);
 
   const handleImageError = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     setPreviewState(prev => ({
       ...prev,
       isLoading: false,
@@ -43,15 +53,19 @@ export function useImagePreview(imageUrl, convertUrl = null) {
       img.onerror = handleImageError;
       img.src = processedUrl;
 
-      // Fallback timeout for slow-loading images
-      const timeout = setTimeout(() => {
-        if (previewState.isLoading) {
+      // Fallback timeout for slow-loading images - use ref to track if timeout should trigger
+      timeoutRef.current = setTimeout(() => {
+        // Only trigger if timeout wasn't cleared by load/error handlers
+        if (timeoutRef.current) {
           handleImageError();
         }
       }, 10000);
 
       return () => {
-        clearTimeout(timeout);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
         img.onload = null;
         img.onerror = null;
       };
