@@ -7,7 +7,7 @@ import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import GoogleMapsModal from '@/components/ui/GoogleMapsModal';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X, Map } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X, Map, Camera, Upload } from 'lucide-react';
 import { useCreatorName } from '@/hooks/useCreatorName';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertImgurUrl } from '@/utils/imgurConverter';
@@ -32,7 +32,7 @@ export default function CreateRestaurant() {
     visited: false,
     selectedCuisineTypes: []
   });
-  
+
   const [error, setError] = useState('');
   
   const supabase = createClient();
@@ -98,6 +98,16 @@ export default function CreateRestaurant() {
       source_url: data.source_url || prev.source_url
     }));
     setGoogleMapsModalOpen(false);
+  };
+
+  const openGoogleMaps = () => {
+    if (formData.source_url) {
+      window.open(formData.source_url, '_blank');
+    }
+  };
+
+  const openImgurUpload = () => {
+    window.open('https://imgur.com/upload', '_blank');
   };
   
   // Filtra os tipos de cozinha com base no texto de pesquisa
@@ -366,7 +376,33 @@ export default function CreateRestaurant() {
                 <p>Deixe em branco para usar uma imagem padrão</p>
                 <p className="text-amber-600 font-medium">✓ Aceita URLs do Imgur (ex: https://imgur.com/ABC123 ou https://imgur.com/a/ABC123#ID)</p>
               </div>
-              
+
+              {/* Botões para facilitar upload de imagem */}
+              <div className="flex flex-wrap gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={openGoogleMaps}
+                  disabled={!formData.source_url}
+                  className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium transition-all shadow-sm hover:shadow-md"
+                  title="Abrir Google Maps para tirar screenshot"
+                >
+                  <Camera className="h-4 w-4" />
+                  <span className="hidden sm:inline">Tirar Screenshot</span>
+                  <span className="sm:hidden">Screenshot</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openImgurUpload}
+                  className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium transition-all shadow-sm hover:shadow-md"
+                  title="Abrir site do Imgur para fazer upload da imagem"
+                >
+                  <Upload className="h-4 w-4" />
+                  <span className="hidden sm:inline">Upload Imgur</span>
+                  <span className="sm:hidden">Imgur</span>
+                </button>
+              </div>
+
               {/* Preview da imagem e informações */}
               {formData.image_url && (
                 <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-200">

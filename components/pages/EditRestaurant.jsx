@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Tag, Search, Plus, X, Camera, Upload } from 'lucide-react';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 
 export default function EditRestaurant({ restaurantId }) {
@@ -18,6 +18,7 @@ export default function EditRestaurant({ restaurantId }) {
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loadingCuisineTypes, setLoadingCuisineTypes] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+
   
   const [formData, setFormData] = useState({
     name: '',
@@ -135,9 +136,19 @@ export default function EditRestaurant({ restaurantId }) {
   );
   
   // Retorna apenas os tipos selecionados na ordem original
-  const selectedCuisineTypesInOrder = cuisineTypes.filter(type => 
+  const selectedCuisineTypesInOrder = cuisineTypes.filter(type =>
     formData.selectedCuisineTypes.includes(type.id)
   );
+
+  const openGoogleMaps = () => {
+    if (formData.source_url) {
+      window.open(formData.source_url, '_blank');
+    }
+  };
+
+  const openImgurUpload = () => {
+    window.open('https://imgur.com/upload', '_blank');
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -405,7 +416,33 @@ export default function EditRestaurant({ restaurantId }) {
                 <p>Deixe em branco para usar uma imagem padrão</p>
                 <p className="text-amber-600 font-medium">✓ Aceita URLs do Imgur (ex: https://imgur.com/ABC123 ou https://imgur.com/a/ABC123#ID)</p>
               </div>
-              
+
+              {/* Botões para facilitar upload de imagem */}
+              <div className="flex flex-wrap gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={openGoogleMaps}
+                  disabled={!formData.source_url}
+                  className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-sm font-medium transition-all shadow-sm hover:shadow-md"
+                  title="Abrir Google Maps para tirar screenshot"
+                >
+                  <Camera className="h-4 w-4" />
+                  <span className="hidden sm:inline">Tirar Screenshot</span>
+                  <span className="sm:hidden">Screenshot</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openImgurUpload}
+                  className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium transition-all shadow-sm hover:shadow-md"
+                  title="Abrir site do Imgur para fazer upload da imagem"
+                >
+                  <Upload className="h-4 w-4" />
+                  <span className="hidden sm:inline">Upload Imgur</span>
+                  <span className="sm:hidden">Imgur</span>
+                </button>
+              </div>
+
               {/* Preview da imagem e informações */}
               {formData.image_url && (
                 <div className="mt-3 p-3 bg-blue-50 rounded-md border border-blue-200">
