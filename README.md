@@ -228,12 +228,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Database powered by [Supabase](https://supabase.com)
 - Icons from [Lucide React](https://lucide.dev)
 
+## 📚 Documentation
+
+Comprehensive documentation is available in the [`docs/`](./docs/) directory:
+
+- **[Database Schema](./docs/database-schema.md)** - Complete database structure and relationships
+- **[API Documentation](./docs/api-documentation.md)** - API endpoints and database operations
+- **[Architecture Overview](./docs/architecture-overview.md)** - System design and technical decisions
+- **[Development Guide](./docs/development-guide.md)** - Setup, coding standards, and best practices
+- **[Deployment Guide](./docs/deployment-guide.md)** - Production deployment and configuration
+
 ## 📞 Support
 
 If you have any questions or need help:
 
 - Open an issue on GitHub
-- Check the documentation
+- Check the documentation in the `docs/` folder
 - Contact the maintainers
 
 ---
