@@ -1,5 +1,7 @@
 // utils/userCookies.ts
 
+import { logError } from './logger';
+
 // Constante para o nome do cookie
 const USER_NAME_COOKIE = 'foodlister_username';
 
@@ -25,7 +27,7 @@ export const saveUserName = (name: string, days = 90) => {
     
     return true;
   } catch (error) {
-    console.error('Erro ao salvar cookie de nome de usuário:', error);
+    logError('Erro ao salvar cookie de nome de usuário', error);
     return false;
   }
 };
@@ -54,7 +56,7 @@ export const getUserName = (): string | null => {
     
     return null;
   } catch (error) {
-    console.error('Erro ao ler cookie de nome de usuário:', error);
+    logError('Erro ao ler cookie de nome de usuário', error);
     return null;
   }
 };
