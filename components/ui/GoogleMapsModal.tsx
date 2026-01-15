@@ -146,7 +146,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                           return;
                         }
                         navigator.clipboard.readText().then(text => setGoogleMapsUrl(text)).catch(err => {
-                          console.error('Erro ao acessar clipboard:', err);
+                          console.error('Erro ao acessar clipboard:', { message: err.message, name: err.name });
                           setError('Não foi possível acessar o clipboard. Verifique as permissões do navegador.');
                         });
                       }}
