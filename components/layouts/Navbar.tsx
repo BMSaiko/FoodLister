@@ -36,12 +36,12 @@ const Navbar = ({ clearFilters = null }) => {
         <div className="hidden md:flex md:items-center md:justify-between md:gap-4">
           {/* Logo/Nome do site */}
           <Link
-            href="/"
+            href="/restaurants"
             className="flex items-center text-lg sm:text-xl font-bold text-amber-500 flex-shrink-0"
             onClick={(e) => {
-              if (clearFilters && (pathname === '/' || pathname === '/restaurants')) {
+              if (pathname === '/' || pathname === '/restaurants') {
                 e.preventDefault();
-                clearFilters();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
           >
@@ -91,12 +91,12 @@ const Navbar = ({ clearFilters = null }) => {
         {/* Versão mobile */}
         <div className="md:hidden flex items-center justify-between gap-2">
           <Link
-            href="/"
+            href="/restaurants"
             className="flex items-center text-lg font-bold text-amber-500 flex-shrink-0"
             onClick={(e) => {
-              if (clearFilters && (pathname === '/' || pathname === '/restaurants')) {
+              if (pathname === '/' || pathname === '/restaurants') {
                 e.preventDefault();
-                clearFilters();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
               }
             }}
           >
