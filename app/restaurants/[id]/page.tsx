@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
+import { logError, logWarn, logInfo } from '@/utils/logger';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleDinnerModal from '@/components/ui/ScheduleDinnerModal';
 
@@ -30,6 +31,7 @@ export default function RestaurantDetails() {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const shareRef = React.useRef<HTMLDivElement | null>(null);
   
   useEffect(() => {
@@ -123,7 +125,20 @@ export default function RestaurantDetails() {
     return () => document.removeEventListener('click', onClick);
   }, [isShareOpen]);
 
+  // Function to show notifications
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 4000); // Auto-hide after 4 seconds
+  };
+
   const handleShareClick = async () => {
+    // Validate share data
+    if (!shareUrl || shareUrl.trim() === '') {
+      logWarn('Share URL is empty or invalid');
+      showNotification('error', 'Não foi possível compartilhar: URL inválida');
+      return;
+    }
+
     const shareData = {
       title: restaurant?.name || 'Restaurante',
       text: `Confira este restaurante: ${restaurant?.name || ''}`,
@@ -131,23 +146,75 @@ export default function RestaurantDetails() {
     };
 
     try {
+      // Check if Web Share API is supported
       if (navigator.share) {
         await navigator.share(shareData);
+        logInfo('Restaurant shared successfully using Web Share API');
       } else {
-        setIsShareOpen((o) => !o);
+        // Fallback to manual sharing options
+        logWarn('Web Share API not supported, showing fallback options');
+        setIsShareOpen((prev) => !prev);
       }
-    } catch (e) {
-      console.error('Erro ao compartilhar:', e);
+    } catch (error) {
+      logError('Failed to share restaurant', error, { shareData });
+
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          showNotification('error', 'Compartilhamento não permitido. Verifique as permissões do navegador.');
+        } else if (error.name === 'AbortError') {
+          // User cancelled the share - don't show error
+          logWarn('User cancelled share operation');
+        } else if (error.name === 'InvalidStateError') {
+          // Another share operation is already in progress
+          showNotification('error', 'Uma operação de compartilhamento já está em andamento. Aguarde e tente novamente.');
+        } else {
+          showNotification('error', 'Erro ao compartilhar. Tente usar as opções manuais.');
+        }
+      } else {
+        showNotification('error', 'Erro desconhecido ao compartilhar.');
+      }
+
+      // Fallback to manual options on any error
+      setIsShareOpen((prev) => !prev);
     }
   };
 
   const handleCopyLink = async () => {
+    // Validate URL before attempting to copy
+    if (!shareUrl || shareUrl.trim() === '') {
+      logWarn('Share URL is empty or invalid');
+      showNotification('error', 'Não foi possível copiar: URL inválida');
+      return;
+    }
+
     try {
+      // Check if Clipboard API is supported
+      if (!navigator.clipboard) {
+        logWarn('Clipboard API not supported');
+        showNotification('error', 'API de área de transferência não suportada. Copie manualmente o link.');
+        return;
+      }
+
       await navigator.clipboard.writeText(shareUrl);
+      logInfo('Link copied to clipboard successfully');
+      showNotification('success', 'Link copiado para a área de transferência!');
       setIsShareOpen(false);
-      alert('Link copiado para a área de transferência');
-    } catch (e) {
-      console.error('Erro ao copiar link:', e);
+    } catch (error) {
+      logError('Failed to copy link to clipboard', error, { shareUrl });
+
+      // Handle specific error types
+      if (error instanceof Error) {
+        if (error.name === 'NotAllowedError') {
+          showNotification('error', 'Cópia não permitida. Permita acesso à área de transferência.');
+        } else if (error.name === 'NotSupportedError') {
+          showNotification('error', 'Cópia não suportada neste navegador. Copie manualmente o link.');
+        } else {
+          showNotification('error', 'Erro ao copiar link. Tente novamente.');
+        }
+      } else {
+        showNotification('error', 'Erro desconhecido ao copiar link.');
+      }
     }
   };
   
@@ -280,7 +347,32 @@ export default function RestaurantDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
+      {/* Notification */}
+      {notification && (
+        <div className="fixed top-4 right-4 z-50 max-w-sm">
+          <div className={`px-4 py-3 rounded-lg shadow-lg border-l-4 ${
+            notification.type === 'success'
+              ? 'bg-green-50 border-green-500 text-green-800'
+              : 'bg-red-50 border-red-500 text-red-800'
+          }`}>
+            <div className="flex items-center">
+              <div className="flex-1 text-sm font-medium">
+                {notification.message}
+              </div>
+              <button
+                onClick={() => setNotification(null)}
+                className={`ml-3 text-sm font-medium hover:underline ${
+                  notification.type === 'success' ? 'text-green-700' : 'text-red-700'
+                }`}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
           <Link href="/restaurants" className="flex items-center text-amber-600 hover:text-amber-700 active:text-amber-800 transition-colors min-h-[44px] sm:min-h-0">
