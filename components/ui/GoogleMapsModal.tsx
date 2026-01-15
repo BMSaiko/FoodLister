@@ -140,10 +140,16 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                   />
                   {googleMapsUrl && (
                     <button
-                      onClick={() => navigator.clipboard.readText().then(text => setGoogleMapsUrl(text)).catch(err => {
-                        console.error('Erro ao acessar clipboard:', err);
-                        setError('Não foi possível acessar o clipboard. Verifique as permissões do navegador.');
-                      })}
+                      onClick={() => {
+                        if (!navigator.clipboard || !navigator.clipboard.readText) {
+                          setError('Recurso de clipboard não disponível neste navegador ou contexto não seguro.');
+                          return;
+                        }
+                        navigator.clipboard.readText().then(text => setGoogleMapsUrl(text)).catch(err => {
+                          console.error('Erro ao acessar clipboard:', err);
+                          setError('Não foi possível acessar o clipboard. Verifique as permissões do navegador.');
+                        });
+                      }}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       title="Colar do clipboard"
                     >
