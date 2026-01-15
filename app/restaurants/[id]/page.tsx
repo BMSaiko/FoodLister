@@ -32,9 +32,54 @@ export default function RestaurantDetails() {
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   
+  // Helper function to sanitize and validate external URLs
+  const sanitizeUrl = (urlString: string): string | null => {
+    if (!urlString || typeof urlString !== 'string') return null;
+
+    try {
+      // Remove any potential script injection attempts
+      const sanitized = urlString.trim().replace(/[<>'"&]/g, '');
+
+      const url = new URL(sanitized);
+
+      // Only allow HTTP/HTTPS protocols
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        return null;
+      }
+
+      // Basic length check to prevent extremely long URLs
+      if (url.href.length > 2048) {
+        return null;
+      }
+
+      // Additional security checks for common attack vectors
+      const hostname = url.hostname.toLowerCase();
+
+      // Prevent localhost/private IP access
+      if (hostname === 'localhost' ||
+          hostname === '127.0.0.1' ||
+          hostname.startsWith('192.168.') ||
+          hostname.startsWith('10.') ||
+          hostname.startsWith('172.')) {
+        return null;
+      }
+
+      return url.href;
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setShareUrl(window.location.href);
+      const sanitizedUrl = sanitizeUrl(window.location.href);
+      if (sanitizedUrl) {
+        setShareUrl(sanitizedUrl);
+      } else {
+        logWarn('Failed to sanitize share URL from window.location.href');
+        // Fallback to a safe default or disable sharing
+        setShareUrl('');
+      }
     }
 
     async function fetchRestaurantDetails() {
@@ -120,10 +165,28 @@ export default function RestaurantDetails() {
     setTimeout(() => setNotification(null), 4000); // Auto-hide after 4 seconds
   };
 
+  // Helper function to validate URL format
+  const isValidUrl = (urlString: string): boolean => {
+    try {
+      const url = new URL(urlString);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
   const handleShareClick = async () => {
-    // Validate share data
+    // Security-first validation: check if URL was properly sanitized during initialization
     if (!shareUrl || shareUrl.trim() === '') {
-      logWarn('Share URL is empty or invalid');
+      logWarn('Share URL is empty - likely failed sanitization during initialization');
+      showNotification('error', 'Não foi possível compartilhar: URL não disponível');
+      return;
+    }
+
+    // Additional runtime validation with security checks
+    const sanitizedUrl = sanitizeUrl(shareUrl);
+    if (!sanitizedUrl) {
+      logWarn('Share URL failed runtime sanitization', { originalUrl: shareUrl?.substring(0, 100) });
       showNotification('error', 'Não foi possível compartilhar: URL inválida');
       return;
     }
@@ -131,7 +194,7 @@ export default function RestaurantDetails() {
     const shareData = {
       title: restaurant?.name || 'Restaurante',
       text: `Confira este restaurante: ${restaurant?.name || ''}`,
-      url: shareUrl
+      url: sanitizedUrl
     };
 
     try {
@@ -149,7 +212,14 @@ export default function RestaurantDetails() {
           return;
         }
 
-        await navigator.clipboard.writeText(shareUrl);
+        // Final security validation before clipboard write
+        if (!sanitizedUrl || sanitizedUrl.trim() === '') {
+          logWarn('Sanitized URL is empty before clipboard operation');
+          showNotification('error', 'Erro interno: URL inválida para cópia');
+          return;
+        }
+
+        await navigator.clipboard.writeText(sanitizedUrl);
         logInfo('Link copied to clipboard as fallback for share');
         showNotification('success', 'Link copiado para a área de transferência!');
       }
@@ -341,9 +411,10 @@ export default function RestaurantDetails() {
             <button
               type="button"
               onClick={handleShareClick}
-              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-white text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto"
+              disabled={!shareUrl || shareUrl.trim() === ''}
+              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-white text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
               aria-label="Compartilhar"
-              title="Compartilhar"
+              title={!shareUrl || shareUrl.trim() === '' ? 'Compartilhamento não disponível' : 'Compartilhar'}
             >
               <Share2 className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Compartilhar</span>
