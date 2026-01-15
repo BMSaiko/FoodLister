@@ -305,7 +305,6 @@ export default function EditRestaurant({ restaurantId }) {
                   >
                     <Map className="h-4 w-4" />
                     <span className="hidden sm:inline">Google Maps</span>
-                    <span className="sm:hidden">Maps</span>
                   </button>
                 </FormField>
 
