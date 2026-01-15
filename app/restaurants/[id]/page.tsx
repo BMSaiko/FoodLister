@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
-  FileText, Check, X, User, Euro, Tag, Clock, Share2, Copy, MessageCircle, Send, Twitter, Facebook, Calendar
+  FileText, Check, X, User, Euro, Tag, Clock, Share2, Copy, MessageCircle, Send, Twitter, Facebook, Calendar, Phone, Smartphone, Home
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
@@ -253,6 +253,27 @@ export default function RestaurantDetails() {
     );
   }
 
+  // Função para detectar se um número é móvel ou fixo
+  const detectPhoneType = (phoneNumber) => {
+    // Limpa o número removendo espaços, hífens, parênteses
+    const cleanNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
+
+    // Remove o código do país se existir (+351 ou 351)
+    let numberWithoutCountry = cleanNumber;
+    if (cleanNumber.startsWith('+351')) {
+      numberWithoutCountry = cleanNumber.substring(4);
+    } else if (cleanNumber.startsWith('351')) {
+      numberWithoutCountry = cleanNumber.substring(3);
+    }
+
+    // Verifica os primeiros 2 dígitos (código de área)
+    const areaCode = numberWithoutCountry.substring(0, 2);
+
+    // Códigos móveis em Portugal: 91, 92, 93, 96
+    const mobileCodes = ['91', '92', '93', '96'];
+    return mobileCodes.includes(areaCode) ? 'mobile' : 'landline';
+  };
+
   // Obtém a classe de estilo para a avaliação
   const ratingClass = getRatingClass(restaurant.rating);
   
@@ -449,6 +470,36 @@ export default function RestaurantDetails() {
                   <MapPin className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
                   <span className="flex-grow text-sm sm:text-base">{restaurant.location}</span>
                   <span className="text-xs sm:text-sm text-amber-600 ml-2">Abrir no mapa</span>
+                </div>
+              )}
+
+              {restaurant.phone_numbers && restaurant.phone_numbers.length > 0 && (
+                <div className="flex items-start text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0">
+                  <Phone className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-grow">
+                    <div className="text-sm sm:text-base font-medium mb-2">Telefones para contato</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {restaurant.phone_numbers.map((phone, index) => {
+                        const phoneType = detectPhoneType(phone);
+                        const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
+
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-center p-2 bg-white rounded-md border border-gray-200 hover:border-amber-300 transition-colors"
+                          >
+                            <PhoneIcon className="h-4 w-4 mr-2 text-amber-500" />
+                            <a
+                              href={`tel:${phone}`}
+                              className="text-sm text-amber-600 hover:text-amber-800 hover:underline flex-1"
+                            >
+                              {phone}
+                            </a>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
               

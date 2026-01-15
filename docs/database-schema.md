@@ -28,6 +28,7 @@ The FoodList application uses a relational database with the following main enti
 | `source_url` | `text` | YES | - | URL where restaurant was found |
 | `creator` | `text` | YES | - | Name of person who added restaurant |
 | `menu_url` | `text` | YES | - | Link to online menu |
+| `phone_numbers` | `text[]` | YES | `'{}'::text[]` | Array of phone numbers for the restaurant |
 | `visited` | `boolean` | NO | `false` | Whether restaurant has been visited |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 | `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
