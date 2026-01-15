@@ -12,7 +12,7 @@ import FormActions from '@/components/ui/FormActions';
 import CuisineSelector from '@/components/ui/CuisineSelector';
 import ImagePreview from '@/components/ui/ImagePreview';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check, Map } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home } from 'lucide-react';
 import { useCreatorName } from '@/hooks/useCreatorName';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertImgurUrl } from '@/utils/imgurConverter';
@@ -33,6 +33,7 @@ export default function CreateRestaurant() {
     location: '',
     source_url: '',
     menu_url: '',
+    phone_numbers: [],
     visited: false,
     selectedCuisineTypes: []
   });
@@ -103,6 +104,48 @@ export default function CreateRestaurant() {
     }));
     setGoogleMapsModalOpen(false);
   };
+
+  const addPhoneNumber = () => {
+    setFormData(prev => ({
+      ...prev,
+      phone_numbers: [...prev.phone_numbers, '']
+    }));
+  };
+
+  const updatePhoneNumber = (index, value) => {
+    setFormData(prev => ({
+      ...prev,
+      phone_numbers: prev.phone_numbers.map((phone, i) => i === index ? value : phone)
+    }));
+  };
+
+  const removePhoneNumber = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      phone_numbers: prev.phone_numbers.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Função para detectar se um número é móvel ou fixo
+  const detectPhoneType = (phoneNumber) => {
+    // Limpa o número removendo espaços, hífens, parênteses
+    const cleanNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
+
+    // Remove o código do país se existir (+351 ou 351)
+    let numberWithoutCountry = cleanNumber;
+    if (cleanNumber.startsWith('+351')) {
+      numberWithoutCountry = cleanNumber.substring(4);
+    } else if (cleanNumber.startsWith('351')) {
+      numberWithoutCountry = cleanNumber.substring(3);
+    }
+
+    // Verifica os primeiros 2 dígitos (código de área)
+    const areaCode = numberWithoutCountry.substring(0, 2);
+
+    // Códigos móveis em Portugal: 91, 92, 93, 96
+    const mobileCodes = ['91', '92', '93', '96'];
+    return mobileCodes.includes(areaCode) ? 'mobile' : 'landline';
+  };
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -148,6 +191,7 @@ export default function CreateRestaurant() {
             source_url: formData.source_url || '',
             creator: creatorName || 'Anônimo',
             menu_url: formData.menu_url || '',
+            phone_numbers: formData.phone_numbers.filter(phone => phone.trim() !== ''),
             visited: formData.visited
           }
         ])
@@ -310,6 +354,62 @@ export default function CreateRestaurant() {
                   helperText="Endereço ou coordenadas para abrir no Google Maps"
                   placeholder="Endereço ou coordenadas GPS"
                 />
+
+                {/* Números de Telefone */}
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <label className="block text-sm font-medium text-gray-700 flex items-center">
+                      <Phone className="h-4 w-4 mr-2 text-amber-500" />
+                      Números de Telefone
+                    </label>
+                    <button
+                      type="button"
+                      onClick={addPhoneNumber}
+                      className="flex items-center justify-center px-4 py-2 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-all duration-200 shadow-sm hover:shadow-md min-h-[44px] w-full sm:w-auto"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Adicionar Telefone
+                    </button>
+                  </div>
+
+                  {formData.phone_numbers.length === 0 ? (
+                    <div className="text-center py-6 px-4 bg-amber-50 rounded-lg border-2 border-dashed border-amber-200">
+                      <Phone className="h-8 w-8 mx-auto text-amber-400 mb-2" />
+                      <p className="text-sm text-amber-700 font-medium">Nenhum telefone adicionado</p>
+                      <p className="text-xs text-amber-600 mt-1">Clique em "Adicionar Telefone" para incluir contatos</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {formData.phone_numbers.map((phone, index) => {
+                        const phoneType = detectPhoneType(phone);
+                        const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
+
+                        return (
+                          <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-amber-300 transition-colors">
+                            <div className="flex-shrink-0">
+                              <PhoneIcon className="h-5 w-5 text-amber-500" />
+                            </div>
+                            <input
+                              type="tel"
+                              value={phone}
+                              onChange={(e) => updatePhoneNumber(index, e.target.value)}
+                              placeholder="Ex: +351 912 345 678"
+                              className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all text-sm"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removePhoneNumber(index)}
+                              className="flex items-center justify-center p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-all duration-200 min-h-[44px] min-w-[44px]"
+                              title="Remover telefone"
+                            >
+                              <X className="h-5 w-5" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
 
                 <FormField
                   label="Fonte"
