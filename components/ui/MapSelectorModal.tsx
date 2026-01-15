@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, MapPin, Navigation, Globe } from 'lucide-react';
+import { logError } from '../../utils/logger';
 
 interface MapSelectorModalProps {
   isOpen: boolean;
@@ -78,7 +79,7 @@ export default function MapSelectorModal({
       window.open(url, '_blank', 'noopener,noreferrer');
       onClose();
     } catch (error) {
-      console.error('Failed to open map application:', error);
+      logError('Failed to open map application', error);
       // Could add user notification here if needed
     }
   };
