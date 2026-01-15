@@ -553,9 +553,27 @@ const RestaurantRoulette = () => {
               {/* Lista de restaurantes */}
               <div className="flex-1 overflow-y-auto border border-gray-200 rounded-xl min-h-0 bg-gray-50/30">
                 {(() => {
-                  const filteredRestaurants = restaurants.filter(restaurant =>
-                    restaurant.name.toLowerCase().includes(restaurantSearchQuery.toLowerCase())
-                  );
+                  const filteredRestaurants = restaurants.filter(restaurant => {
+                    // Robust null/undefined checks and type safety for restaurant name
+                    const restaurantName = restaurant?.name;
+                    if (!restaurantName || typeof restaurantName !== 'string') {
+                      return false; // Skip restaurants with invalid names
+                    }
+
+                    // Robust null/undefined checks and type safety for search query
+                    const searchQuery = restaurantSearchQuery?.trim();
+                    if (!searchQuery) {
+                      return true; // If no search query, include all valid restaurants
+                    }
+
+                    // Perform case-insensitive search with error handling
+                    try {
+                      return restaurantName.toLowerCase().includes(searchQuery.toLowerCase());
+                    } catch (error) {
+                      console.warn('Error filtering restaurant:', restaurant.id, error);
+                      return false; // Skip on any filtering errors
+                    }
+                  });
                   const displayedRestaurants = filteredRestaurants.slice(0, displayLimit);
 
                   return (
