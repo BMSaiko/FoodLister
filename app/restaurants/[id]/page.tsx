@@ -34,21 +34,47 @@ export default function RestaurantDetails() {
   
   // Helper function to sanitize and validate external URLs
   const sanitizeUrl = (urlString: string): string | null => {
-    if (!urlString || typeof urlString !== 'string') return null;
+    if (!urlString || typeof urlString !== 'string') {
+      logWarn('sanitizeUrl: Invalid input - not a string or empty', {
+        input: urlString,
+        type: typeof urlString,
+        length: urlString?.length
+      });
+      return null;
+    }
 
     try {
       // Remove any potential script injection attempts
       const sanitized = urlString.trim().replace(/[<>'"&]/g, '');
 
+      // Log if input was modified during sanitization
+      if (sanitized !== urlString.trim()) {
+        logWarn('sanitizeUrl: Input contained potentially dangerous characters', {
+          original: urlString.substring(0, 100),
+          sanitized: sanitized.substring(0, 100),
+          dangerousChars: urlString.match(/[<>'"&]/g)?.join('') || 'none'
+        });
+      }
+
       const url = new URL(sanitized);
 
       // Only allow HTTP/HTTPS protocols
       if (!['http:', 'https:'].includes(url.protocol)) {
+        logWarn('sanitizeUrl: Invalid protocol', {
+          protocol: url.protocol,
+          hostname: url.hostname,
+          href: url.href.substring(0, 100)
+        });
         return null;
       }
 
       // Basic length check to prevent extremely long URLs
       if (url.href.length > 2048) {
+        logWarn('sanitizeUrl: URL too long', {
+          length: url.href.length,
+          hostname: url.hostname,
+          href: url.href.substring(0, 100)
+        });
         return null;
       }
 
@@ -61,11 +87,20 @@ export default function RestaurantDetails() {
           hostname.startsWith('192.168.') ||
           hostname.startsWith('10.') ||
           hostname.startsWith('172.')) {
+        logWarn('sanitizeUrl: Blocked localhost/private IP access', {
+          hostname: hostname,
+          href: url.href.substring(0, 100)
+        });
         return null;
       }
 
       return url.href;
-    } catch {
+    } catch (error) {
+      logWarn('sanitizeUrl: URL parsing failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        originalUrl: urlString.substring(0, 100),
+        errorType: error instanceof Error ? error.name : typeof error
+      });
       return null;
     }
   };
@@ -170,7 +205,11 @@ export default function RestaurantDetails() {
     try {
       const url = new URL(urlString);
       return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch {
+    } catch (error) {
+      logWarn('isValidUrl: URL validation failed', {
+        urlString: urlString?.substring(0, 100),
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
       return false;
     }
   };
