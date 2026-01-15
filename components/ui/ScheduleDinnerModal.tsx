@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { X, Calendar, Clock, Users, Mail, UtensilsCrossed } from 'lucide-react';
+import { validateEmails } from '../../utils/formatters';
+import { toast } from 'react-toastify';
 
 type ScheduleDinnerModalProps = {
   isOpen: boolean;
@@ -26,16 +28,39 @@ const ScheduleDinnerModal = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Input validation
     if (!date || !time) {
-      alert('Por favor, selecione data e hora.');
+      toast.error('Por favor, selecione data e hora.');
       return;
     }
 
-    // Create start and end datetime
-    const startDateTime = new Date(`${date}T${time}`);
-    const endDateTime = new Date(startDateTime.getTime() + duration * 60 * 60 * 1000);
+    let startDateTime: Date;
+    let endDateTime: Date;
+
+    try {
+      // Create start datetime with validation
+      startDateTime = new Date(`${date}T${time}`);
+      if (isNaN(startDateTime.getTime())) {
+        throw new Error('Data ou hora inválida');
+      }
+
+      // Create end datetime
+      endDateTime = new Date(startDateTime.getTime() + duration * 60 * 60 * 1000);
+      if (isNaN(endDateTime.getTime())) {
+        throw new Error('Erro ao calcular hora de fim');
+      }
+
+      // Ensure end time is after start time
+      if (endDateTime <= startDateTime) {
+        throw new Error('A hora de fim deve ser após a hora de início');
+      }
+    } catch (error) {
+      toast.error(`Erro na validação de data/hora: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      return;
+    }
 
     // Format for Google Calendar (YYYYMMDDTHHMMSSZ)
+    // Note: Using UTC format - for local timezone, would need different approach
     const formatDateTime = (dt: Date) => {
       return dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     };
@@ -43,30 +68,58 @@ const ScheduleDinnerModal = ({
     const start = formatDateTime(startDateTime);
     const end = formatDateTime(endDateTime);
 
-    // Prepare participants emails
-    const emails = participants
-      .split(',')
-      .map(email => email.trim())
-      .filter(email => email.includes('@'))
-      .join(',');
+    // Prepare and validate participants emails
+    let validEmails: string[] = [];
+    if (participants.trim()) {
+      const emailList = participants
+        .split(',')
+        .map(email => email.trim())
+        .filter(email => email.length > 0);
+
+      validEmails = validateEmails(emailList);
+
+      // Warn about invalid emails but don't block
+      const invalidCount = emailList.length - validEmails.length;
+      if (invalidCount > 0) {
+        toast.warn(`${invalidCount} email(s) inválido(s) foram ignorados. Apenas emails válidos serão incluídos.`);
+      }
+    }
+
+    const emails = validEmails.join(',');
+
+    // Prepare restaurant description with fallback
+    const safeDescription = (restaurantDescription && restaurantDescription.trim())
+      ? restaurantDescription.trim()
+      : 'Descrição não disponível';
 
     // Create Google Calendar URL
     const baseUrl = 'https://calendar.google.com/calendar/u/0/r/eventedit';
     const params = new URLSearchParams({
       text: `Jantar em ${restaurantName}`,
       dates: `${start}/${end}`,
-      details: `Jantar reservado no restaurante ${restaurantName}.\n\nDescrição: ${restaurantDescription}`,
+      details: `Jantar reservado no restaurante ${restaurantName}.\n\nDescrição: ${safeDescription}`,
       location: restaurantLocation,
       ...(emails && { add: emails })
     });
 
     const calendarUrl = `${baseUrl}?${params.toString()}`;
 
-    // Open in new tab
-    window.open(calendarUrl, '_blank', 'noopener,noreferrer');
+    // Open in new tab with error handling
+    try {
+      const newWindow = window.open(calendarUrl, '_blank', 'noopener,noreferrer');
 
-    // Close modal
-    onClose();
+      // Check if popup was blocked
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        toast.error('A janela popup foi bloqueada pelo navegador. Por favor, permita popups para este site e tente novamente.');
+        return;
+      }
+
+      // Close modal on success
+      toast.success('Evento criado com sucesso no Google Calendar!');
+      onClose();
+    } catch (error) {
+      toast.error('Erro ao abrir o Google Calendar. Verifique as configurações do navegador.');
+    }
   };
 
   if (!isOpen) return null;
