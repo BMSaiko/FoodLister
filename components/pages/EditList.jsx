@@ -227,12 +227,12 @@ export default function EditList({ listId }) {
       router.push(`/lists/${listId}`);
     } catch (err) {
       console.error('Error updating list:', err);
-      
+
       // Specific message for RLS error
       if (err.code === '42501' || err.message?.includes('row-level security policy')) {
         setError('Erro de permissão: O usuário atual não tem permissões para editar listas. Verifique as políticas de segurança no Supabase.');
       } else {
-        setError('Erro ao atualizar lista: ' + (err.message || 'Por favor, tente novamente.'));
+        setError('Erro ao atualizar lista. Por favor, tente novamente.');
       }
     } finally {
       setSaving(false);
