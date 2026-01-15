@@ -2,6 +2,7 @@
 // Funções e tipos para gerenciar filtros de restaurantes
 
 import { createClient } from '@/libs/supabase/client';
+import { logError } from './logger';
 
 // Interface para os filtros de restaurantes
 export interface RestaurantFilters {
@@ -113,7 +114,7 @@ export const fetchAndFilterRestaurants = async (filters: RestaurantFilters) => {
     const { data, error } = await query;
     
     if (error) {
-      console.error('Erro ao buscar restaurantes:', error);
+      logError('Erro ao buscar restaurantes', error);
       return [];
     }
     
@@ -133,7 +134,7 @@ export const fetchAndFilterRestaurants = async (filters: RestaurantFilters) => {
     // 3. Aplicar os filtros restantes na memória
     return applyFiltersToRestaurants(restaurantsWithFormattedCuisines, filters);
   } catch (err) {
-    console.error('Erro ao buscar e filtrar restaurantes:', err);
+    logError('Erro ao buscar e filtrar restaurantes', err);
     return [];
   }
 };

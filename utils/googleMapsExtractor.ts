@@ -1,5 +1,7 @@
 // utils/googleMapsExtractor.ts
 
+import { logError } from './logger';
+
 /**
  * Extrai informações de um link do Google Maps
  * Suporta vários formatos de URLs do Google Maps
@@ -69,7 +71,7 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
 
     return result;
   } catch (error) {
-    console.error('Erro ao extrair dados do Google Maps:', error);
+    logError('Erro ao extrair dados do Google Maps', error);
     return result;
   }
 }
