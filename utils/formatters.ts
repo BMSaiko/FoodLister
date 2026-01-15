@@ -151,6 +151,61 @@ export function normalizePhoneNumber(phone: string): string | null {
 }
 
 /**
+ * Validates an email address
+ * - Basic format validation using regex
+ * - Checks for common email patterns
+ * - Prevents basic XSS attempts
+ * @param email - The email string to validate
+ * @returns true if valid, false otherwise
+ */
+export function validateEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') return false;
+
+  const trimmed = email.trim();
+  if (trimmed.length === 0) return false;
+
+  // Basic email regex - more permissive but secure
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(trimmed)) return false;
+
+  // Check length limits
+  if (trimmed.length > 254) return false;
+
+  // Check for suspicious patterns (basic XSS prevention)
+  const suspiciousPatterns = [
+    /<script/i,
+    /javascript:/i,
+    /on\w+=/i,
+    /<iframe/i,
+    /<object/i,
+    /<embed/i
+  ];
+
+  for (const pattern of suspiciousPatterns) {
+    if (pattern.test(trimmed)) return false;
+  }
+
+  return true;
+}
+
+/**
+ * Validates and filters an array of email addresses
+ * - Removes empty strings
+ * - Validates each email
+ * - Returns only valid emails
+ * @param emails - Array of email strings
+ * @returns Array of validated emails
+ */
+export function validateEmails(emails: string[]): string[] {
+  if (!Array.isArray(emails)) return [];
+
+  return emails
+    .filter(email => email && typeof email === 'string' && email.trim().length > 0)
+    .map(email => email.trim())
+    .filter(email => validateEmail(email));
+}
+
+/**
  * Filters and validates an array of phone numbers
  * - Removes empty strings
  * - Validates each phone number
