@@ -61,3 +61,93 @@ export function getDescriptionPreview(description: string): string {
 
   return words.slice(0, 20).join(' ') + '...';
 }
+
+/**
+ * Validates a phone number for security and format compliance
+ * - Must be in E.164 format (starting with + followed by country code)
+ * - Only allows digits, spaces, hyphens, parentheses, and +
+ * - Must be between 7-15 digits (excluding formatting characters)
+ * - Must not contain malicious characters or scripts
+ * @param phone - The phone number string to validate
+ * @returns true if valid, false otherwise
+ */
+export function validatePhoneNumber(phone: string): boolean {
+  if (!phone || typeof phone !== 'string') return false;
+
+  // Remove all formatting characters to count digits
+  const digitsOnly = phone.replace(/[\s\-\(\)\+]/g, '');
+
+  // Must contain only valid characters: digits, spaces, hyphens, parentheses, +
+  if (!/^[+\-\(\)\s\d]+$/.test(phone)) return false;
+
+  // Must have at least 7 digits and at most 15 digits (E.164 standard)
+  if (digitsOnly.length < 7 || digitsOnly.length > 15) return false;
+
+  // Must start with + for international format (E.164)
+  if (!phone.startsWith('+')) return false;
+
+  // Check for potential XSS or injection attempts
+  const suspiciousPatterns = [
+    /<script/i,
+    /javascript:/i,
+    /on\w+=/i,
+    /<iframe/i,
+    /<object/i,
+    /<embed/i,
+    /eval\(/i,
+    /alert\(/i
+  ];
+
+  for (const pattern of suspiciousPatterns) {
+    if (pattern.test(phone)) return false;
+  }
+
+  return true;
+}
+
+/**
+ * Normalizes a phone number to E.164 format
+ * - Removes all formatting characters except digits and +
+ * - Ensures it starts with +
+ * - Validates the result
+ * @param phone - The phone number string to normalize
+ * @returns normalized phone number or null if invalid
+ */
+export function normalizePhoneNumber(phone: string): string | null {
+  if (!phone || typeof phone !== 'string') return null;
+
+  // Basic validation: must contain only valid characters
+  if (!/^[+\-\(\)\s\d]+$/.test(phone)) return null;
+
+  // Must start with + for international format
+  if (!phone.startsWith('+')) return null;
+
+  // Remove all characters except digits and +
+  const normalized = phone.replace(/[^\d\+]/g, '');
+
+  // Ensure it starts with +
+  const withPlus = normalized.startsWith('+') ? normalized : '+' + normalized;
+
+  // Validate the normalized number
+  if (!validatePhoneNumber(withPlus)) return null;
+
+  return withPlus;
+}
+
+/**
+ * Filters and validates an array of phone numbers
+ * - Removes empty strings
+ * - Validates each phone number
+ * - Normalizes valid phone numbers
+ * - Returns only valid, normalized phone numbers
+ * @param phones - Array of phone number strings
+ * @returns Array of validated and normalized phone numbers
+ */
+export function validateAndNormalizePhoneNumbers(phones: string[]): string[] {
+  if (!Array.isArray(phones)) return [];
+
+  return phones
+    .filter(phone => phone && typeof phone === 'string' && phone.trim().length > 0)
+    .map(phone => normalizePhoneNumber(phone.trim()))
+    .filter((phone): phone is string => phone !== null);
+}
