@@ -69,6 +69,32 @@ function sanitizeError(error: unknown): string {
 }
 
 /**
+ * Sanitizes URLs to remove sensitive query parameters while preserving the base URL
+ */
+function sanitizeUrlForLogging(urlString: string): string {
+  if (!urlString || typeof urlString !== 'string') {
+    return urlString;
+  }
+
+  try {
+    const url = new URL(urlString);
+    // Remove sensitive query parameters
+    const sensitiveParams = new Set(['token', 'key', 'api_key', 'apikey', 'auth', 'authorization', 'bearer', 'session', 'password', 'secret', 'access_token', 'refresh_token', 'id_token', 'code', 'state']);
+
+    for (const param of sensitiveParams) {
+      if (url.searchParams.has(param)) {
+        url.searchParams.set(param, '[REDACTED]');
+      }
+    }
+
+    return url.toString();
+  } catch (error) {
+    // If URL parsing fails, return a truncated version
+    return urlString.length > 100 ? urlString.substring(0, 100) + '...' : urlString;
+  }
+}
+
+/**
  * Recursively sanitizes an object to remove or mask sensitive information
  */
 function sanitizeObject(obj: any): any {
@@ -77,6 +103,11 @@ function sanitizeObject(obj: any): any {
   }
 
   if (typeof obj === 'string') {
+    // Check if this looks like a URL and sanitize accordingly
+    if (obj.startsWith('http://') || obj.startsWith('https://') || obj.startsWith('//')) {
+      return sanitizeUrlForLogging(obj);
+    }
+
     // Mask potential sensitive strings
     if (obj.length > 10) {
       return '[REDACTED]';
@@ -99,6 +130,9 @@ function sanitizeObject(obj: any): any {
       const lowerKey = key.toLowerCase();
       if (SENSITIVE_KEYS.has(lowerKey) || lowerKey.includes('password') || lowerKey.includes('secret')) {
         sanitized[key] = '[REDACTED]';
+      } else if (lowerKey.includes('url') || lowerKey.includes('href') || lowerKey.includes('original')) {
+        // Special handling for URL-related fields
+        sanitized[key] = sanitizeUrlForLogging(String(value));
       } else {
         sanitized[key] = sanitizeObject(value);
       }

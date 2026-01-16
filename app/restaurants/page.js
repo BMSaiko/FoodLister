@@ -65,12 +65,28 @@ function RestaurantsContent() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch restaurants');
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`Failed to fetch restaurants: ${response.status} ${response.statusText} - ${errorText}`);
         }
 
-        const { restaurants: data } = await response.json();
-        setRestaurants(data || []);
-        setFilteredRestaurants(data || []);
+        let responseData;
+        try {
+          responseData = await response.json();
+        } catch (jsonError) {
+          throw new Error(`Invalid JSON response: ${jsonError.message}`);
+        }
+
+        if (!responseData || typeof responseData !== 'object' || !('restaurants' in responseData)) {
+          throw new Error('Invalid response structure: missing restaurants data');
+        }
+
+        const { restaurants: data } = responseData;
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid response structure: restaurants data is not an array');
+        }
+
+        setRestaurants(data);
+        setFilteredRestaurants(data);
       } catch (err) {
         console.error('Erro ao buscar restaurantes:', err);
         setRestaurants([]);
