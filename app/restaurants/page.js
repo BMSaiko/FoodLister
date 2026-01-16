@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
@@ -44,8 +43,6 @@ function RestaurantsContent() {
   const searchQuery = searchParams.get('search');
   const { clearTrigger } = useFilters();
 
-  const supabase = createClient();
-
   // Clear filters when clearTrigger changes
   useEffect(() => {
     if (clearTrigger > 0) {
@@ -54,60 +51,35 @@ function RestaurantsContent() {
       setActiveFilters(false);
     }
   }, [clearTrigger, restaurants]);
-  
-  // Fetch all restaurants with cuisine types
+
+  // Fetch restaurants from optimized API route
   useEffect(() => {
     async function fetchRestaurants() {
       setLoading(true);
-      
+
       try {
-        // Consulta mais elaborada para obter restaurantes com suas categorias culinárias
-        let query = supabase
-          .from('restaurants')
-          .select(`
-            *,
-            cuisine_types:restaurant_cuisine_types(
-              cuisine_type:cuisine_types(*)
-            )
-          `);
-        
-        // Adiciona filtro de pesquisa se houver uma query
-        if (searchQuery) {
-          query = query.ilike('name', `%${searchQuery}%`);
+        const searchParam = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : '';
+        const response = await fetch(`/api/restaurants${searchParam}`, {
+          // Enable caching for better performance
+          next: { revalidate: 60 } // Cache for 60 seconds
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch restaurants');
         }
-        
-        const { data, error } = await query;
-        
-        if (error) {
-          console.error('Erro ao buscar restaurantes:', error);
-          setRestaurants([]);
-          setFilteredRestaurants([]);
-        } else {
-          // Transformar os dados para facilitar o trabalho com as categorias
-          const processedData = data.map(restaurant => {
-            // Extrair e formatar os tipos de cozinha para um formato mais conveniente
-            const cuisineTypes = restaurant.cuisine_types
-              ? restaurant.cuisine_types.map(relation => relation.cuisine_type)
-              : [];
-            
-            return {
-              ...restaurant,
-              cuisine_types: cuisineTypes
-            };
-          });
-          
-          setRestaurants(processedData || []);
-          setFilteredRestaurants(processedData || []);
-        }
+
+        const { restaurants: data } = await response.json();
+        setRestaurants(data || []);
+        setFilteredRestaurants(data || []);
       } catch (err) {
-        console.error('Erro ao processar dados de restaurantes:', err);
+        console.error('Erro ao buscar restaurantes:', err);
         setRestaurants([]);
         setFilteredRestaurants([]);
       } finally {
         setLoading(false);
       }
     }
-    
+
     fetchRestaurants();
   }, [searchQuery]);
   
