@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import { AuthProvider, FiltersProvider } from "@/contexts";
 import { useCreatorName } from "@/hooks/useCreatorName";
 import CreatorNameModal from "@/components/ui/CreatorNameModal";
 import { ToastContainer } from 'react-toastify';
@@ -11,23 +12,25 @@ export default function ClientLayout({ children }) {
   const { showModal, setCreatorName, isLoading } = useCreatorName();
 
   return (
-    <>
-      {children}
-      {!isLoading && showModal && <CreatorNameModal onSave={setCreatorName} />}
-      <ToastContainer
-        position="top-center"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        toastClassName="text-sm sm:text-base"
-        bodyClassName="text-sm sm:text-base"
-      />
-    </>
+    <AuthProvider>
+      <FiltersProvider>
+        {children}
+        {!isLoading && showModal && <CreatorNameModal onSave={setCreatorName} />}
+        <ToastContainer
+          position="top-center"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          toastClassName="text-sm sm:text-base"
+          bodyClassName="text-sm sm:text-base"
+        />
+      </FiltersProvider>
+    </AuthProvider>
   );
 }

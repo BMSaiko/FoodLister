@@ -3,10 +3,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts';
 
 const Navbar = ({ clearFilters = null }) => {
   const pathname = usePathname();
