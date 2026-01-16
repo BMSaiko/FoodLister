@@ -51,34 +51,39 @@ const ScheduleDinnerModal = ({
   const handleTimeChange = (newTime: string) => {
     setTime(newTime);
 
-    // Only auto-assign if meal type hasn't been manually selected
-    if (!mealType) {
-      const hour = parseInt(newTime.split(':')[0]);
-      let suggestedMealType = '';
+    // Only auto-assign if meal type hasn't been manually selected and time is valid
+    if (!mealType && newTime && newTime.includes(':')) {
+      const timeParts = newTime.split(':');
+      if (timeParts.length >= 2) {
+        const hour = parseInt(timeParts[0], 10);
+        if (!isNaN(hour) && hour >= 0 && hour <= 23) {
+          let suggestedMealType = '';
 
-      if (hour >= 6 && hour < 11) {
-        suggestedMealType = 'pequeno-almoco';
-      } else if (hour >= 11 && hour < 14) {
-        suggestedMealType = 'almoco';
-      } else if (hour >= 14 && hour < 17) {
-        suggestedMealType = 'lanche';
-      } else if (hour >= 17 && hour < 22) {
-        suggestedMealType = 'jantar';
-      } else if (hour >= 22 || hour < 6) {
-        suggestedMealType = 'ceia';
-      }
+          if (hour >= 6 && hour < 11) {
+            suggestedMealType = 'pequeno-almoco';
+          } else if (hour >= 11 && hour < 14) {
+            suggestedMealType = 'almoco';
+          } else if (hour >= 14 && hour < 17) {
+            suggestedMealType = 'lanche';
+          } else if (hour >= 17 && hour < 22) {
+            suggestedMealType = 'jantar';
+          } else if (hour >= 22 || hour < 6) {
+            suggestedMealType = 'ceia';
+          }
 
-      // Check for brunch time (10-12)
-      if (hour >= 10 && hour < 12) {
-        suggestedMealType = 'brunch';
-      }
+          // Check for brunch time (10-12) - overrides morning breakfast
+          if (hour >= 10 && hour < 12) {
+            suggestedMealType = 'brunch';
+          }
 
-      if (suggestedMealType) {
-        setMealType(suggestedMealType);
-        // Also set duration if still default
-        const selectedMeal = mealTypes.find(meal => meal.value === suggestedMealType);
-        if (selectedMeal && duration === 2) {
-          setDuration(selectedMeal.defaultDuration);
+          if (suggestedMealType) {
+            setMealType(suggestedMealType);
+            // Also set duration if still default
+            const selectedMeal = mealTypes.find(meal => meal.value === suggestedMealType);
+            if (selectedMeal && duration === 2) {
+              setDuration(selectedMeal.defaultDuration);
+            }
+          }
         }
       }
     }
@@ -292,7 +297,7 @@ const ScheduleDinnerModal = ({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
               >
                 <option value={0.5}>⚡ 30 min - Rápido</option>
-                <option value={1}>🍽️ 1 hora - {mealType === 'cafe-manha' ? 'Café da manhã' : mealType === 'almoco' ? 'Almoço' : mealType === 'brunch' ? 'Brunch' : mealType === 'lanche' ? 'Lanche' : mealType === 'jantar' ? 'Jantar' : 'Ceia'} rápido</option>
+                <option value={1}>🍽️ 1 hora - {mealType === 'pequeno-almoco' ? 'Pequeno almoço' : mealType === 'almoco' ? 'Almoço' : mealType === 'brunch' ? 'Brunch' : mealType === 'lanche' ? 'Lanche' : mealType === 'jantar' ? 'Jantar' : 'Ceia'} rápido</option>
                 <option value={1.5}>🍽️ 1.5 horas - Normal</option>
                 <option value={2}>🍽️ 2 horas - Completo</option>
                 <option value={3}>🍽️ 3 horas - Especial</option>
