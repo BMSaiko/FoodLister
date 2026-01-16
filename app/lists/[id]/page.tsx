@@ -3,7 +3,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import { ArrowLeft, Edit, User } from 'lucide-react';
@@ -14,48 +13,38 @@ export default function ListDetails() {
   const [list, setList] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  const supabase = createClient();
-  
+
   useEffect(() => {
     async function fetchListDetails() {
       if (!id) return;
-      
+
       setLoading(true);
-      
-      // Fetch list details
-      const { data: listData } = await supabase
-        .from('lists')
-        .select('*')
-        .eq('id', id)
-        .single();
-        
-      if (listData) {
-        setList(listData);
-        
-        // Fetch restaurants in this list
-        const { data: restaurantsData } = await supabase
-          .from('list_restaurants')
-          .select('restaurant_id')
-          .eq('list_id', id);
-          
-        if (restaurantsData && restaurantsData.length > 0) {
-          const restaurantIds = restaurantsData.map(item => item.restaurant_id);
-          
-          const { data: restaurantDetails } = await supabase
-            .from('restaurants')
-            .select('*')
-            .in('id', restaurantIds);
-            
-          if (restaurantDetails) {
-            setRestaurants(restaurantDetails);
-          }
+
+      try {
+        const response = await fetch(`/api/lists/${id}`, {
+          // Enable caching for better performance
+          next: { revalidate: 60 } // Cache for 60 seconds
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch list details');
         }
+
+        const { list: listData } = await response.json();
+
+        if (listData) {
+          setList(listData);
+          setRestaurants(listData.restaurants || []);
+        }
+      } catch (error) {
+        console.error('Error fetching list details:', error);
+        setList(null);
+        setRestaurants([]);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     }
-    
+
     fetchListDetails();
   }, [id]);
   
