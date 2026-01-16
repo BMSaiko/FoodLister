@@ -11,9 +11,12 @@ export type Restaurant = {
   rating: number;
   location: string;        // Novo: endereço/coordenadas para Google Maps
   source_url: string;      // Novo: link de onde o restaurante foi encontrado
-  creator: string;         // Novo: nome da pessoa que adicionou o restaurante
+  creator_id: string;      // ID do usuário autenticado (UUID do Supabase Auth)
+  creator_name?: string;   // Nome opcional do criador (cache para performance)
   menu_url: string;        // Novo: link para o menu online
   visited: boolean;        // Novo: status de visita (true = visitado, false = não visitado)
+  created_at: string;      // Data de criação
+  updated_at: string;      // Data de atualização
   cuisine_types?: CuisineType[]; // Nova propriedade para relacionamento com categorias
 };
 
@@ -35,8 +38,10 @@ export type List = {
   id: string;
   name: string;
   description: string;
+  creator_id: string;      // ID do usuário autenticado (UUID do Supabase Auth)
+  creator_name?: string;   // Nome opcional do criador (cache para performance)
   created_at: string;
-  creator: string;         // Novo: nome da pessoa que criou a lista
+  updated_at: string;
 };
 
 export type ListRestaurant = {

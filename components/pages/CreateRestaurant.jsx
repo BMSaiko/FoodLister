@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
+import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
 import GoogleMapsModal from '@/components/ui/GoogleMapsModal';
 import FormField from '@/components/ui/FormField';
@@ -12,8 +13,7 @@ import FormActions from '@/components/ui/FormActions';
 import CuisineSelector from '@/components/ui/CuisineSelector';
 import ImagePreview from '@/components/ui/ImagePreview';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home } from 'lucide-react';
-import { useCreatorName } from '@/hooks/useCreatorName';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home, Lock } from 'lucide-react';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
@@ -21,7 +21,7 @@ import { toast } from 'react-toastify';
 
 export default function CreateRestaurant() {
   const router = useRouter();
-  const { creatorName } = useCreatorName();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loadingCuisineTypes, setLoadingCuisineTypes] = useState(true);
@@ -149,7 +149,24 @@ export default function CreateRestaurant() {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    // Check if user is authenticated
+    if (!user) {
+      toast.error('Você precisa estar logado para criar um restaurante.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
+      router.push('/auth/signin');
+      return;
+    }
+
     // Simple validation
     if (!formData.name || !formData.description || !formData.price_per_person) {
       toast.error('Por favor, preencha os campos obrigatórios.', {
@@ -230,7 +247,7 @@ export default function CreateRestaurant() {
       // Converter URL do Imgur se necessário
       const processedImageUrl = convertImgurUrl(formData.image_url) || '/placeholder-restaurant.jpg';
       
-      // 1. Criar o restaurante
+      // 1. Criar o restaurante (creator_id será automaticamente definido pelo trigger)
       const { data: restaurantData, error: restaurantError } = await supabase
         .from('restaurants')
         .insert([
@@ -242,7 +259,6 @@ export default function CreateRestaurant() {
             rating: ratingAsNumber,
             location: formData.location || '',
             source_url: formData.source_url || '',
-            creator: creatorName || 'Anônimo',
             menu_url: formData.menu_url || '',
             phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
             visited: formData.visited
