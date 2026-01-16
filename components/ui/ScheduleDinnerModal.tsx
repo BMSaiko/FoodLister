@@ -21,13 +21,13 @@ const ScheduleDinnerModal = ({
   restaurantDescription
 }: ScheduleDinnerModalProps) => {
   const [date, setDate] = useState('');
-  const [time, setTime] = useState('19:00');
+  const [time, setTime] = useState('');
   const [participants, setParticipants] = useState('');
   const [duration, setDuration] = useState(2); // hours
-  const [mealType, setMealType] = useState('jantar'); // Default to jantar (dinner)
+  const [mealType, setMealType] = useState('');
 
   const mealTypes = [
-    { value: 'cafe-manha', label: 'Café da Manhã', icon: '☕', defaultTime: '08:00', defaultDuration: 1 },
+    { value: 'pequeno-almoco', label: 'Pequeno Almoço', icon: '☕', defaultTime: '08:00', defaultDuration: 1 },
     { value: 'almoco', label: 'Almoço', icon: '🍽️', defaultTime: '12:30', defaultDuration: 1.5 },
     { value: 'brunch', label: 'Brunch', icon: '🥐', defaultTime: '11:00', defaultDuration: 2 },
     { value: 'lanche', label: 'Lanche', icon: '🍪', defaultTime: '16:00', defaultDuration: 1 },
@@ -47,12 +47,54 @@ const ScheduleDinnerModal = ({
     }
   };
 
+  // Auto-assign meal type based on selected time
+  const handleTimeChange = (newTime: string) => {
+    setTime(newTime);
+
+    // Only auto-assign if meal type hasn't been manually selected
+    if (!mealType) {
+      const hour = parseInt(newTime.split(':')[0]);
+      let suggestedMealType = '';
+
+      if (hour >= 6 && hour < 11) {
+        suggestedMealType = 'pequeno-almoco';
+      } else if (hour >= 11 && hour < 14) {
+        suggestedMealType = 'almoco';
+      } else if (hour >= 14 && hour < 17) {
+        suggestedMealType = 'lanche';
+      } else if (hour >= 17 && hour < 22) {
+        suggestedMealType = 'jantar';
+      } else if (hour >= 22 || hour < 6) {
+        suggestedMealType = 'ceia';
+      }
+
+      // Check for brunch time (10-12)
+      if (hour >= 10 && hour < 12) {
+        suggestedMealType = 'brunch';
+      }
+
+      if (suggestedMealType) {
+        setMealType(suggestedMealType);
+        // Also set duration if still default
+        const selectedMeal = mealTypes.find(meal => meal.value === suggestedMealType);
+        if (selectedMeal && duration === 2) {
+          setDuration(selectedMeal.defaultDuration);
+        }
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Input validation
     if (!date || !time) {
       toast.error('Por favor, selecione data e hora.');
+      return;
+    }
+
+    if (!mealType) {
+      toast.error('Por favor, selecione o tipo de refeição.');
       return;
     }
 
@@ -209,7 +251,7 @@ const ScheduleDinnerModal = ({
                   type="time"
                   id="time"
                   value={time}
-                  onChange={(e) => setTime(e.target.value)}
+                  onChange={(e) => handleTimeChange(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white"
                   required
                 />
@@ -227,7 +269,9 @@ const ScheduleDinnerModal = ({
                 value={mealType}
                 onChange={(e) => handleMealTypeChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
+                required
               >
+                <option value="" disabled>Selecione um tipo de refeição</option>
                 {mealTypes.map((meal) => (
                   <option key={meal.value} value={meal.value}>
                     {meal.icon} {meal.label}
