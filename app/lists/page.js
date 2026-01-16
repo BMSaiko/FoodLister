@@ -27,11 +27,27 @@ function ListsContent() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch lists');
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`Failed to fetch lists: ${response.status} ${response.statusText} - ${errorText}`);
         }
 
-        const { lists: data } = await response.json();
-        setLists(data || []);
+        let responseData;
+        try {
+          responseData = await response.json();
+        } catch (jsonError) {
+          throw new Error(`Invalid JSON response: ${jsonError.message}`);
+        }
+
+        if (!responseData || typeof responseData !== 'object' || !('lists' in responseData)) {
+          throw new Error('Invalid response structure: missing lists data');
+        }
+
+        const { lists: data } = responseData;
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid response structure: lists data is not an array');
+        }
+
+        setLists(data);
       } catch (error) {
         console.error('Erro ao buscar listas:', error);
         setLists([]);
