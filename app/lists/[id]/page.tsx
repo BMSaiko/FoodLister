@@ -27,15 +27,28 @@ export default function ListDetails() {
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch list details');
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`Failed to fetch list details: ${response.status} ${response.statusText} - ${errorText}`);
         }
 
-        const { list: listData } = await response.json();
-
-        if (listData) {
-          setList(listData);
-          setRestaurants(listData.restaurants || []);
+        let responseData;
+        try {
+          responseData = await response.json();
+        } catch (jsonError) {
+          throw new Error(`Invalid JSON response: ${jsonError.message}`);
         }
+
+        if (!responseData || typeof responseData !== 'object' || !('list' in responseData)) {
+          throw new Error('Invalid response structure: missing list data');
+        }
+
+        const { list: listData } = responseData;
+        if (!listData || typeof listData !== 'object') {
+          throw new Error('Invalid response structure: list data is not an object');
+        }
+
+        setList(listData);
+        setRestaurants(listData.restaurants || []);
       } catch (error) {
         console.error('Error fetching list details:', error);
         setList(null);
