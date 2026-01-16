@@ -5,7 +5,7 @@ import { X, Calendar, Clock, Users, Mail, UtensilsCrossed } from 'lucide-react';
 import { validateEmails } from '../../utils/formatters';
 import { toast } from 'react-toastify';
 
-type ScheduleDinnerModalProps = {
+type ScheduleMealModalProps = {
   isOpen: boolean;
   onClose: () => void;
   restaurantName: string;
@@ -13,17 +13,81 @@ type ScheduleDinnerModalProps = {
   restaurantDescription: string;
 };
 
-const ScheduleDinnerModal = ({
+const ScheduleMealModal = ({
   isOpen,
   onClose,
   restaurantName,
   restaurantLocation,
   restaurantDescription
-}: ScheduleDinnerModalProps) => {
+}: ScheduleMealModalProps) => {
   const [date, setDate] = useState('');
-  const [time, setTime] = useState('19:00');
+  const [time, setTime] = useState('');
   const [participants, setParticipants] = useState('');
   const [duration, setDuration] = useState(2); // hours
+  const [mealType, setMealType] = useState('');
+
+  const mealTypes = [
+    { value: 'pequeno-almoco', label: 'Pequeno Almoço', icon: '☕', defaultTime: '08:00', defaultDuration: 1 },
+    { value: 'almoco', label: 'Almoço', icon: '🍽️', defaultTime: '12:30', defaultDuration: 1.5 },
+    { value: 'brunch', label: 'Brunch', icon: '🥐', defaultTime: '11:00', defaultDuration: 2 },
+    { value: 'lanche', label: 'Lanche', icon: '🍪', defaultTime: '16:00', defaultDuration: 1 },
+    { value: 'jantar', label: 'Jantar', icon: '🍽️', defaultTime: '19:00', defaultDuration: 2 },
+    { value: 'ceia', label: 'Ceia', icon: '🌙', defaultTime: '22:00', defaultDuration: 1 }
+  ];
+
+  // Update time and duration when meal type changes
+  const handleMealTypeChange = (newMealType: string) => {
+    setMealType(newMealType);
+    const selectedMeal = mealTypes.find(meal => meal.value === newMealType);
+    if (selectedMeal && !time) { // Only update if time hasn't been manually set
+      setTime(selectedMeal.defaultTime);
+    }
+    if (selectedMeal && duration === 2) { // Only update if duration is still default
+      setDuration(selectedMeal.defaultDuration);
+    }
+  };
+
+  // Auto-assign meal type based on selected time
+  const handleTimeChange = (newTime: string) => {
+    setTime(newTime);
+
+    // Only auto-assign if meal type hasn't been manually selected and time is valid
+    if (!mealType && newTime && newTime.includes(':')) {
+      const timeParts = newTime.split(':');
+      if (timeParts.length >= 2) {
+        const hour = parseInt(timeParts[0], 10);
+        if (!isNaN(hour) && hour >= 0 && hour <= 23) {
+          let suggestedMealType = '';
+
+          if (hour >= 6 && hour < 11) {
+            suggestedMealType = 'pequeno-almoco';
+          } else if (hour >= 11 && hour < 14) {
+            suggestedMealType = 'almoco';
+          } else if (hour >= 14 && hour < 17) {
+            suggestedMealType = 'lanche';
+          } else if (hour >= 17 && hour < 22) {
+            suggestedMealType = 'jantar';
+          } else if (hour >= 22 || hour < 6) {
+            suggestedMealType = 'ceia';
+          }
+
+          // Check for brunch time (10-12) - overrides morning breakfast
+          if (hour >= 10 && hour < 12) {
+            suggestedMealType = 'brunch';
+          }
+
+          if (suggestedMealType) {
+            setMealType(suggestedMealType);
+            // Also set duration if still default
+            const selectedMeal = mealTypes.find(meal => meal.value === suggestedMealType);
+            if (selectedMeal && duration === 2) {
+              setDuration(selectedMeal.defaultDuration);
+            }
+          }
+        }
+      }
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +95,11 @@ const ScheduleDinnerModal = ({
     // Input validation
     if (!date || !time) {
       toast.error('Por favor, selecione data e hora.');
+      return;
+    }
+
+    if (!mealType) {
+      toast.error('Por favor, selecione o tipo de refeição.');
       return;
     }
 
@@ -87,6 +156,10 @@ const ScheduleDinnerModal = ({
 
     const emails = validEmails.join(',');
 
+    // Get selected meal type label
+    const selectedMeal = mealTypes.find(meal => meal.value === mealType);
+    const mealLabel = selectedMeal ? selectedMeal.label : 'Refeição';
+
     // Prepare restaurant description with fallback
     const safeDescription = (restaurantDescription && restaurantDescription.trim())
       ? restaurantDescription.trim()
@@ -95,9 +168,9 @@ const ScheduleDinnerModal = ({
     // Create Google Calendar URL
     const baseUrl = 'https://calendar.google.com/calendar/u/0/r/eventedit';
     const params = new URLSearchParams({
-      text: `Jantar em ${restaurantName}`,
+      text: `${mealLabel} em ${restaurantName}`,
       dates: `${start}/${end}`,
-      details: `Jantar reservado no restaurante ${restaurantName}.\n\nDescrição: ${safeDescription}`,
+      details: `${mealLabel} reservado no restaurante ${restaurantName}.\n\nDescrição: ${safeDescription}`,
       location: restaurantLocation,
       ...(emails && { add: emails })
     });
@@ -135,7 +208,7 @@ const ScheduleDinnerModal = ({
                 <UtensilsCrossed className="h-6 w-6 text-amber-600" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Agendar Jantar</h3>
+                <h3 className="text-xl font-bold text-gray-900">Agendar Refeição</h3>
                 <p className="text-sm text-amber-700 font-medium">{restaurantName}</p>
               </div>
             </div>
@@ -183,11 +256,33 @@ const ScheduleDinnerModal = ({
                   type="time"
                   id="time"
                   value={time}
-                  onChange={(e) => setTime(e.target.value)}
+                  onChange={(e) => handleTimeChange(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white"
                   required
                 />
               </div>
+            </div>
+
+            {/* Meal Type */}
+            <div>
+              <label htmlFor="mealType" className="block text-gray-700 font-semibold mb-2 text-sm flex items-center">
+                <UtensilsCrossed className="h-4 w-4 mr-2 text-amber-500" />
+                Tipo de refeição
+              </label>
+              <select
+                id="mealType"
+                value={mealType}
+                onChange={(e) => handleMealTypeChange(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
+                required
+              >
+                <option value="" disabled>Selecione um tipo de refeição</option>
+                {mealTypes.map((meal) => (
+                  <option key={meal.value} value={meal.value}>
+                    {meal.icon} {meal.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Duration */}
@@ -201,10 +296,12 @@ const ScheduleDinnerModal = ({
                 onChange={(e) => setDuration(Number(e.target.value))}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
               >
-                <option value={1}>🍽️ 1 hora - Jantar rápido</option>
-                <option value={2}>🍽️ 2 horas - Jantar normal</option>
-                <option value={3}>🍽️ 3 horas - Jantar especial</option>
-                <option value={4}>🍽️ 4 horas - Noite completa</option>
+                <option value={0.5}>⚡ 30 min - Rápido</option>
+                <option value={1}>🍽️ 1 hora - {mealType === 'pequeno-almoco' ? 'Pequeno almoço' : mealType === 'almoco' ? 'Almoço' : mealType === 'brunch' ? 'Brunch' : mealType === 'lanche' ? 'Lanche' : mealType === 'jantar' ? 'Jantar' : 'Ceia'} rápido</option>
+                <option value={1.5}>🍽️ 1.5 horas - Normal</option>
+                <option value={2}>🍽️ 2 horas - Completo</option>
+                <option value={3}>🍽️ 3 horas - Especial</option>
+                <option value={4}>🍽️ 4 horas - Evento longo</option>
               </select>
             </div>
 
@@ -260,4 +357,4 @@ const ScheduleDinnerModal = ({
   );
 };
 
-export default ScheduleDinnerModal;
+export default ScheduleMealModal;

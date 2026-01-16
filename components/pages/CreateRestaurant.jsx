@@ -40,8 +40,6 @@ export default function CreateRestaurant() {
     selectedCuisineTypes: []
   });
   
-  const [error, setError] = useState('');
-  
   const supabase = createClient();
   
   // Carregar tipos de cozinha do banco de dados
@@ -151,25 +149,54 @@ export default function CreateRestaurant() {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     
     // Simple validation
     if (!formData.name || !formData.description || !formData.price_per_person) {
-      setError('Por favor, preencha os campos obrigatórios.');
+      toast.error('Por favor, preencha os campos obrigatórios.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       return;
     }
-    
+
     // Convert price and rating to numbers
     const priceAsNumber = parseFloat(formData.price_per_person);
     const ratingAsNumber = parseFloat(formData.rating);
-    
+
     if (isNaN(priceAsNumber) || priceAsNumber <= 0) {
-      setError('O preço deve ser um número positivo.');
+      toast.error('O preço deve ser um número positivo.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       return;
     }
-    
+
     if (isNaN(ratingAsNumber) || ratingAsNumber < 0 || ratingAsNumber > 5) {
-      setError('A avaliação deve ser um número entre 0 e 5.');
+      toast.error('A avaliação deve ser um número entre 0 e 5.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       return;
     }
 
@@ -247,15 +274,47 @@ export default function CreateRestaurant() {
         }
       }
       
-      // Redirect to the new restaurant's page
+      // Show success message and redirect to the new restaurant's page
       if (restaurantData && restaurantData[0]) {
+        toast.success('Restaurante criado com sucesso!', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base",
+          bodyClassName: "text-sm sm:text-base"
+        });
         router.push(`/restaurants/${restaurantData[0].id}`);
       } else {
+        toast.success('Restaurante criado com sucesso!', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base",
+          bodyClassName: "text-sm sm:text-base"
+        });
         router.push('/restaurants');
       }
     } catch (err) {
       console.error('Error creating restaurant:', err);
-      setError('Erro ao criar restaurante. Por favor, tente novamente.');
+      toast.error('Erro ao criar restaurante. Por favor, tente novamente.', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
     } finally {
       setLoading(false);
     }
@@ -280,13 +339,7 @@ export default function CreateRestaurant() {
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
    
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Adicionar Novo Restaurante</h1>
-          
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">
-              {error}
-            </div>
-          )}
-          
+
           <form onSubmit={handleSubmit}>
             {/* Informações Básicas */}
             <FormSection title="Informações Básicas">
