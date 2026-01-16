@@ -8,6 +8,7 @@ import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import { createClient } from '@/libs/supabase/client';
 import { getDescriptionPreview } from '@/utils/formatters';
+import { toast } from 'react-toastify';
 
 const RestaurantCard = ({ restaurant, centered = false }) => {
   const [visited, setVisited] = useState(restaurant.visited || false);
@@ -17,23 +18,52 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
   const handleToggleVisited = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setIsUpdating(true);
     try {
       const newVisitedStatus = !visited;
-      
+
       const { error } = await supabase
         .from('restaurants')
         .update({ visited: newVisitedStatus })
         .eq('id', restaurant.id);
-      
+
       if (error) throw error;
-      
+
       setVisited(newVisitedStatus);
+
+      // Show success toast
+      toast.success(
+        newVisitedStatus
+          ? 'Restaurante marcado como visitado!'
+          : 'Restaurante marcado como não visitado!',
+        {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base"
+        }
+      );
     } catch (err) {
       console.error('Erro ao atualizar status de visitado:', err);
       // Revert state on error
       setVisited(!visited);
+
+      // Show error toast
+      toast.error('Erro ao atualizar status de visita. Tente novamente.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base"
+      });
     } finally {
       setIsUpdating(false);
     }
