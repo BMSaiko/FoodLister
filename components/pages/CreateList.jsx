@@ -8,6 +8,7 @@ import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { ArrowLeft, Plus, X, Search } from 'lucide-react';
 import { useCreatorName } from '@/hooks/useCreatorName';
+import { toast } from 'react-toastify';
 
 export default function CreateList() {
   const router = useRouter();
@@ -17,8 +18,6 @@ export default function CreateList() {
     name: '',
     description: ''
   });
-  
-  const [error, setError] = useState('');
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurants, setSelectedRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -80,16 +79,25 @@ export default function CreateList() {
   
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    
+
     // Simple validation
     if (!formData.name) {
-      setError('Por favor, preencha o nome da lista.');
+      toast.error('Por favor, preencha o nome da lista.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       // Create the list first
       const { data: listData, error: listError } = await supabase
@@ -102,34 +110,55 @@ export default function CreateList() {
           }
         ])
         .select();
-      
+
       if (listError) {
         throw listError;
       }
-      
+
       const listId = listData[0].id;
-      
+
       // If there are selected restaurants, add them to the list
       if (selectedRestaurants.length > 0) {
         const restaurantRelations = selectedRestaurants.map(restaurant => ({
           list_id: listId,
           restaurant_id: restaurant.id
         }));
-        
+
         const { error: relationError } = await supabase
           .from('list_restaurants')
           .insert(restaurantRelations);
-        
+
         if (relationError) {
           throw relationError;
         }
       }
-      
-      // Redirect to the new list's page
+
+      // Show success message and redirect to the new list's page
+      toast.success('Lista criada com sucesso!', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       router.push(`/lists/${listId}`);
     } catch (err) {
       console.error('Error creating list:', err);
-      setError('Erro ao criar lista. Por favor, tente novamente.');
+      toast.error('Erro ao criar lista. Por favor, tente novamente.', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
     } finally {
       setLoading(false);
     }
@@ -148,13 +177,7 @@ export default function CreateList() {
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
         
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Criar Nova Lista</h1>
-          
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">
-              {error}
-            </div>
-          )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="name" className="block text-gray-700 font-medium mb-2">

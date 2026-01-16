@@ -40,8 +40,6 @@ export default function EditRestaurant({ restaurantId }) {
     selectedCuisineTypes: []
   });
 
-  const [error, setError] = useState('');
-
   const supabase = createClient();
 
   // Carregar dados do restaurante e categorias
@@ -99,7 +97,17 @@ export default function EditRestaurant({ restaurantId }) {
 
       } catch (err) {
         console.error('Error fetching restaurant data:', err);
-        setError('Erro ao carregar detalhes do restaurante: ' + (err.message || 'Unknown error'));
+        toast.error('Erro ao carregar detalhes do restaurante: ' + (err.message || 'Erro desconhecido'), {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base",
+          bodyClassName: "text-sm sm:text-base"
+        });
       } finally {
         setLoading(false);
         setLoadingCuisineTypes(false);
@@ -191,11 +199,20 @@ export default function EditRestaurant({ restaurantId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     // Simple validation
     if (!formData.name || !formData.description || !formData.price_per_person) {
-      setError('Por favor, preencha os campos obrigatórios.');
+      toast.error('Por favor, preencha os campos obrigatórios.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       return;
     }
 
@@ -204,12 +221,32 @@ export default function EditRestaurant({ restaurantId }) {
     const ratingAsNumber = parseFloat(formData.rating);
 
     if (isNaN(priceAsNumber) || priceAsNumber <= 0) {
-      setError('O preço deve ser um número positivo.');
+      toast.error('O preço deve ser um número positivo.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       return;
     }
 
     if (isNaN(ratingAsNumber) || ratingAsNumber < 0 || ratingAsNumber > 5) {
-      setError('A avaliação deve ser um número entre 0 e 5.');
+      toast.error('A avaliação deve ser um número entre 0 e 5.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       return;
     }
 
@@ -292,16 +329,47 @@ export default function EditRestaurant({ restaurantId }) {
         }
       }
 
-      // Redirect back to the restaurant details page
+      // Show success message and redirect back to the restaurant details page
+      toast.success('Restaurante atualizado com sucesso!', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
       router.push(`/restaurants/${restaurantId}`);
     } catch (err) {
       console.error('Error updating restaurant:', err);
 
       // Specific message for RLS error
       if (err.code === '42501' || err.message?.includes('row-level security policy')) {
-        setError('Erro de permissão: O usuário atual não tem permissões para editar restaurantes. Verifique as políticas de segurança no Supabase.');
+        toast.error('Erro de permissão: O usuário atual não tem permissões para editar restaurantes. Verifique as políticas de segurança no Supabase.', {
+          position: "top-center",
+          autoClose: 6000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base",
+          bodyClassName: "text-sm sm:text-base"
+        });
       } else {
-        setError('Erro ao atualizar restaurante. Por favor, tente novamente.');
+        toast.error('Erro ao atualizar restaurante. Por favor, tente novamente.', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base",
+          bodyClassName: "text-sm sm:text-base"
+        });
       }
     } finally {
       setSaving(false);
@@ -345,12 +413,6 @@ export default function EditRestaurant({ restaurantId }) {
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
 
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Editar Restaurante</h1>
-
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-md mb-6">
-              {error}
-            </div>
-          )}
 
           <div className="mb-4 text-sm text-gray-500">
             Adicionado por: {formData.creator}
