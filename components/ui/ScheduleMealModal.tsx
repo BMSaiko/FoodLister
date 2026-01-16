@@ -5,7 +5,7 @@ import { X, Calendar, Clock, Users, Mail, UtensilsCrossed } from 'lucide-react';
 import { validateEmails } from '../../utils/formatters';
 import { toast } from 'react-toastify';
 
-type ScheduleDinnerModalProps = {
+type ScheduleMealModalProps = {
   isOpen: boolean;
   onClose: () => void;
   restaurantName: string;
@@ -13,13 +13,13 @@ type ScheduleDinnerModalProps = {
   restaurantDescription: string;
 };
 
-const ScheduleDinnerModal = ({
+const ScheduleMealModal = ({
   isOpen,
   onClose,
   restaurantName,
   restaurantLocation,
   restaurantDescription
-}: ScheduleDinnerModalProps) => {
+}: ScheduleMealModalProps) => {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [participants, setParticipants] = useState('');
@@ -357,4 +357,4 @@ const ScheduleDinnerModal = ({
   );
 };
 
-export default ScheduleDinnerModal;
+export default ScheduleMealModal;
