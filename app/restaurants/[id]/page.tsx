@@ -15,7 +15,7 @@ import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDe
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import { logError, logWarn, logInfo } from '@/utils/logger';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
-import ScheduleDinnerModal from '@/components/ui/ScheduleDinnerModal';
+import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
 
 export default function RestaurantDetails() {
   const { id } = useParams();
@@ -650,7 +650,7 @@ export default function RestaurantDetails() {
         longitude={restaurant.longitude}
       />
 
-      <ScheduleDinnerModal
+      <ScheduleMealModal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
         restaurantName={restaurant.name}
