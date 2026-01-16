@@ -424,11 +424,11 @@ export default function RestaurantDetails() {
               type="button"
               onClick={() => setIsScheduleModalOpen(true)}
               className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 active:bg-blue-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
-              aria-label="Agendar jantar"
-              title="Agendar jantar"
+              aria-label="Agendar refeição"
+              title="Agendar refeição"
             >
               <Calendar className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Agendar Jantar</span>
+              <span className="hidden sm:inline">Agendar Refeição</span>
               <span className="sm:hidden">Agendar</span>
             </button>
             <Link
