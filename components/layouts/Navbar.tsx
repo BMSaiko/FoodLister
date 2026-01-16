@@ -3,13 +3,16 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
+import { useLoading } from '@/contexts/LoadingContext';
 import { Menu, X } from 'lucide-react';
 
 const Navbar = ({ clearFilters = null }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { setLoading } = useLoading();
   const [activeSection, setActiveSection] = useState('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -29,6 +32,20 @@ const Navbar = ({ clearFilters = null }) => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  const handleLogoClick = (e) => {
+    if (pathname === '/' || pathname === '/restaurants') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      e.preventDefault();
+      setLoading(true);
+      router.push('/restaurants');
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    }
+  };
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
@@ -38,12 +55,7 @@ const Navbar = ({ clearFilters = null }) => {
           <Link
             href="/restaurants"
             className="flex items-center text-lg sm:text-xl font-bold text-amber-500 flex-shrink-0"
-            onClick={(e) => {
-              if (pathname === '/' || pathname === '/restaurants') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
+            onClick={handleLogoClick}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 sm:h-6 sm:w-6 mr-2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
             <span className="whitespace-nowrap">FoodLister</span>
@@ -93,12 +105,7 @@ const Navbar = ({ clearFilters = null }) => {
           <Link
             href="/restaurants"
             className="flex items-center text-lg font-bold text-amber-500 flex-shrink-0"
-            onClick={(e) => {
-              if (pathname === '/' || pathname === '/restaurants') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
+            onClick={handleLogoClick}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1.5"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
             <span className="whitespace-nowrap">FoodLister</span>

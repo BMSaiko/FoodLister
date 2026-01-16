@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
-import Navbar from '@/components/layouts/Navbar';
+
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import { ArrowLeft, Edit, User } from 'lucide-react';
 import Link from 'next/link';
@@ -61,16 +61,12 @@ export default function ListDetails() {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array(3).fill(0).map((_, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
-            ))}
-          </div>
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array(3).fill(0).map((_, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
+          ))}
         </div>
       </div>
     );
@@ -78,22 +74,17 @@ export default function ListDetails() {
   
   if (!list) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Lista não encontrada</h2>
-          <Link href="/lists" className="mt-4 inline-block text-amber-600 hover:underline">
-            Voltar para a página de listas
-          </Link>
-        </div>
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">Lista não encontrada</h2>
+        <Link href="/lists" className="mt-4 inline-block text-amber-600 hover:underline">
+          Voltar para a página de listas
+        </Link>
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
+    <div>
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
           <Link href="/lists" className="flex items-center text-amber-600 hover:text-amber-700 active:text-amber-800 transition-colors min-h-[44px] sm:min-h-0">

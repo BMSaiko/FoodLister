@@ -5,7 +5,6 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import ListCard from '@/components/ui/ListCard';
-import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { Plus, Search as SearchIcon, ListChecks } from 'lucide-react';
 
@@ -144,14 +143,10 @@ function ListsLoading() {
 // Main component with Suspense
 export default function ListsPage() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
-      
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        <Suspense fallback={<ListsLoading />}>
-          <ListsContent />
-        </Suspense>
-      </div>
-    </main>
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <Suspense fallback={<ListsLoading />}>
+        <ListsContent />
+      </Suspense>
+    </div>
   );
 }

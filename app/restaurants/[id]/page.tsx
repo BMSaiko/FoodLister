@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
-import Navbar from '@/components/layouts/Navbar';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -323,26 +323,20 @@ export default function RestaurantDetails() {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse bg-white rounded-xl shadow-md h-96 mb-6"></div>
-          <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse bg-white rounded-xl shadow-md h-96 mb-6"></div>
+        <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
       </div>
     );
   }
   
   if (!restaurant) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
-          <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
-            Voltar para a página de restaurantes
-          </Link>
-        </div>
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
+        <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
+          Voltar para a página de restaurantes
+        </Link>
       </div>
     );
   }
@@ -372,9 +366,7 @@ export default function RestaurantDetails() {
   const ratingClass = getRatingClass(restaurant.rating);
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-
+    <div>
       {/* Notification */}
       {notification && (
         <div className="fixed top-4 right-4 z-50 max-w-sm">

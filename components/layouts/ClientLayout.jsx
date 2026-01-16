@@ -6,14 +6,23 @@ import { useCreatorName } from "@/hooks/useCreatorName";
 import CreatorNameModal from "@/components/ui/CreatorNameModal";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { LoadingProvider } from '@/contexts/LoadingContext';
+import Navbar from './Navbar';
+import LoadingScreen from '../ui/LoadingScreen';
+import { useLoading } from '@/contexts/LoadingContext';
 
-export default function ClientLayout({ children }) {
+function LayoutContent({ children }) {
   const { showModal, setCreatorName, isLoading } = useCreatorName();
+  const { loading } = useLoading();
 
   return (
     <>
-      {children}
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        {children}
+      </div>
       {!isLoading && showModal && <CreatorNameModal onSave={setCreatorName} />}
+      {loading && <LoadingScreen />}
       <ToastContainer
         position="top-center"
         autoClose={4000}
@@ -29,5 +38,13 @@ export default function ClientLayout({ children }) {
         bodyClassName="text-sm sm:text-base"
       />
     </>
+  );
+}
+
+export default function ClientLayout({ children }) {
+  return (
+    <LoadingProvider>
+      <LayoutContent>{children}</LayoutContent>
+    </LoadingProvider>
   );
 }

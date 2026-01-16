@@ -6,7 +6,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import RestaurantFilters from '@/components/ui/RestaurantFilters';
-import Navbar from '@/components/layouts/Navbar';
 import { FiltersProvider, useFilters } from '@/contexts/index';
 import Link from 'next/link';
 import { Plus, Search as SearchIcon, CookingPot, Filter, ChefHat } from 'lucide-react';
@@ -272,14 +271,10 @@ function RestaurantsPageContent() {
   const { clearFilters } = useFilters();
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar clearFilters={clearFilters} />
-
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        <Suspense fallback={<RestaurantsLoading />}>
-          <RestaurantsContent />
-        </Suspense>
-      </div>
-    </main>
+    <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <Suspense fallback={<RestaurantsLoading />}>
+        <RestaurantsContent />
+      </Suspense>
+    </div>
   );
 }
