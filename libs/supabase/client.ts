@@ -71,16 +71,24 @@ export type Database = {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
+let supabaseClient: ReturnType<typeof createSupabaseClient<Database>> | null = null;
+
+// Singleton pattern to reuse client instance across requests
+export const getClient = () => {
+  if (!supabaseClient) {
+    if (!supabaseUrl) {
+      throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_URL is required.');
+    }
+    if (!supabaseKey) {
+      throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_ANON_KEY is required.');
+    }
+
+    supabaseClient = createSupabaseClient<Database>(supabaseUrl, supabaseKey);
+  }
+  return supabaseClient;
+};
+
+// Legacy function for backward compatibility
 export const createClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl) {
-    throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_URL is required.');
-  }
-  if (!supabaseKey) {
-    throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_ANON_KEY is required.');
-  }
-
-  return createSupabaseClient<Database>(supabaseUrl, supabaseKey);
+  return getClient();
 };

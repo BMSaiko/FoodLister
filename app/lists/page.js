@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { createClient } from '@/libs/supabase/client';
 import ListCard from '@/components/ui/ListCard';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
@@ -15,47 +14,32 @@ function ListsContent() {
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
-  
-  const supabase = createClient();
-  
+
   useEffect(() => {
     async function fetchLists() {
       setLoading(true);
-      
-      let query = supabase.from('lists').select('*');
-      
-      // Adiciona filtro de pesquisa se houver uma query
-      if (searchQuery) {
-        query = query.ilike('name', `%${searchQuery}%`);
-      }
-      
-      const { data, error } = await query;
-        
-      if (!error && data) {
-        // Para cada lista, conta o número de restaurantes
-        const listsWithCounts = await Promise.all(
-          data.map(async (list) => {
-            const { count } = await supabase
-              .from('list_restaurants')
-              .select('*', { count: 'exact' })
-              .eq('list_id', list.id);
-              
-            return {
-              ...list,
-              restaurantCount: count || 0
-            };
-          })
-        );
-        
-        setLists(listsWithCounts);
-      } else {
+
+      try {
+        const searchParam = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : '';
+        const response = await fetch(`/api/lists${searchParam}`, {
+          // Enable caching for better performance
+          next: { revalidate: 60 } // Cache for 60 seconds
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch lists');
+        }
+
+        const { lists: data } = await response.json();
+        setLists(data || []);
+      } catch (error) {
         console.error('Erro ao buscar listas:', error);
         setLists([]);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     }
-    
+
     fetchLists();
   }, [searchQuery]);
   
