@@ -24,7 +24,26 @@ export default function CreateList() {
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   
   const supabase = createClient();
-  
+
+  // Verificar autenticação
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error('Você precisa estar logado para criar listas.', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
+      router.push('/auth/signin');
+      return;
+    }
+  }, [user, authLoading, router]);
+
   // Fetch all restaurants for selection
   useEffect(() => {
     async function fetchRestaurants() {

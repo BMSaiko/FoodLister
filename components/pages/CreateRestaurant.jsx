@@ -41,7 +41,26 @@ export default function CreateRestaurant() {
   });
   
   const supabase = createClient();
-  
+
+  // Verificar autenticação
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error('Você precisa estar logado para criar restaurantes.', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
+      router.push('/auth/signin');
+      return;
+    }
+  }, [user, authLoading, router]);
+
   // Carregar tipos de cozinha do banco de dados
   useEffect(() => {
     async function fetchCuisineTypes() {

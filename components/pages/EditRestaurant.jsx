@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
+import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
 import GoogleMapsModal from '@/components/ui/GoogleMapsModal';
 import FormField from '@/components/ui/FormField';
@@ -18,8 +19,47 @@ import { convertImgurUrl } from '@/utils/imgurConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 
+// Componente de proteção de autenticação
+function AuthGuard({ children }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      toast.error('Você precisa estar logado para editar restaurantes.', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
+      router.push('/auth/signin');
+      return;
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Não renderiza nada enquanto redireciona
+  }
+
+  return children;
+}
+
 export default function EditRestaurant({ restaurantId }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [cuisineTypes, setCuisineTypes] = useState([]);
@@ -395,228 +435,230 @@ export default function EditRestaurant({ restaurantId }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+    <AuthGuard>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
 
-      <GoogleMapsModal
-        isOpen={googleMapsModalOpen}
-        onClose={() => setGoogleMapsModalOpen(false)}
-        onSubmit={handleGoogleMapsData}
-      />
+        <GoogleMapsModal
+          isOpen={googleMapsModalOpen}
+          onClose={() => setGoogleMapsModalOpen(false)}
+          onSubmit={handleGoogleMapsData}
+        />
 
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Link href={`/restaurants/${restaurantId}`} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para Detalhes do Restaurante
-        </Link>
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+          <Link href={`/restaurants/${restaurantId}`} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar para Detalhes do Restaurante
+          </Link>
 
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
 
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Editar Restaurante</h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">Editar Restaurante</h1>
 
-          <div className="mb-4 text-sm text-gray-500">
-            Adicionado por: {formData.creator}
-          </div>
+            <div className="mb-4 text-sm text-gray-500">
+              Adicionado por: {formData.creator}
+            </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* Informações Básicas */}
-            <FormSection title="Informações Básicas">
-              <div className="space-y-4">
-                <FormField
-                  label="Nome"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                >
-                  <button
-                    type="button"
-                    onClick={() => setGoogleMapsModalOpen(true)}
-                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover flex items-center gap-2 font-medium whitespace-nowrap transition-all shadow-sm hover:shadow-md"
-                    title="Importar informações do Google Maps"
+            <form onSubmit={handleSubmit}>
+              {/* Informações Básicas */}
+              <FormSection title="Informações Básicas">
+                <div className="space-y-4">
+                  <FormField
+                    label="Nome"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
                   >
-                    <Map className="h-4 w-4" />
-                    <span className="hidden sm:inline">Google Maps</span>
-                  </button>
-                </FormField>
-
-                <FormField
-                  label="Descrição"
-                  name="description"
-                  type="textarea"
-                  value={formData.description}
-                  onChange={handleChange}
-                  required
-                  rows={4}
-                />
-              </div>
-            </FormSection>
-
-            {/* Categorias Culinárias */}
-            <FormSection title="Categorias Culinárias">
-              <CuisineSelector
-                cuisineTypes={cuisineTypes}
-                selectedCuisineTypes={formData.selectedCuisineTypes}
-                onToggleCuisine={toggleCuisineType}
-                loading={loadingCuisineTypes}
-              />
-            </FormSection>
-
-            {/* Imagem */}
-            <FormSection title="Imagem do Restaurante">
-              <ImagePreview
-                imageUrl={formData.image_url}
-                onImageUrlChange={(value) => setFormData(prev => ({ ...prev, image_url: value }))}
-              />
-            </FormSection>
-
-            {/* Avaliações e Preços */}
-            <FormSection title="Avaliações e Preços">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField
-                  label="Preço por Pessoa (€)"
-                  name="price_per_person"
-                  type="number"
-                  value={formData.price_per_person}
-                  onChange={handleChange}
-                  min="0"
-                  step="0.01"
-                  required
-                />
-
-                <FormField
-                  label="Avaliação (0-5)"
-                  name="rating"
-                  type="number"
-                  value={formData.rating}
-                  onChange={handleChange}
-                  min="0"
-                  max="5"
-                  step="0.1"
-                />
-              </div>
-            </FormSection>
-
-            {/* Informações Adicionais */}
-            <FormSection title="Informações Adicionais">
-              <div className="space-y-4">
-                <FormField
-                  label="Localização"
-                  name="location"
-                  type="text"
-                  value={formData.location}
-                  onChange={handleChange}
-                  icon={MapPin}
-                  helperText="Endereço ou coordenadas para abrir no Google Maps"
-                  placeholder="Endereço ou coordenadas GPS"
-                />
-
-                {/* Números de Telefone */}
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <label className="block text-sm font-medium text-gray-700 flex items-center">
-                      <Phone className="h-4 w-4 mr-2 text-amber-500" />
-                      Números de Telefone
-                    </label>
                     <button
                       type="button"
-                      onClick={addPhoneNumber}
-                      className="flex items-center justify-center px-4 py-2 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-all duration-200 shadow-sm hover:shadow-md min-h-[44px] w-full sm:w-auto"
+                      onClick={() => setGoogleMapsModalOpen(true)}
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover flex items-center gap-2 font-medium whitespace-nowrap transition-all shadow-sm hover:shadow-md"
+                      title="Importar informações do Google Maps"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Adicionar Telefone
+                      <Map className="h-4 w-4" />
+                      <span className="hidden sm:inline">Google Maps</span>
                     </button>
+                  </FormField>
+
+                  <FormField
+                    label="Descrição"
+                    name="description"
+                    type="textarea"
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                    rows={4}
+                  />
+                </div>
+              </FormSection>
+
+              {/* Categorias Culinárias */}
+              <FormSection title="Categorias Culinárias">
+                <CuisineSelector
+                  cuisineTypes={cuisineTypes}
+                  selectedCuisineTypes={formData.selectedCuisineTypes}
+                  onToggleCuisine={toggleCuisineType}
+                  loading={loadingCuisineTypes}
+                />
+              </FormSection>
+
+              {/* Imagem */}
+              <FormSection title="Imagem do Restaurante">
+                <ImagePreview
+                  imageUrl={formData.image_url}
+                  onImageUrlChange={(value) => setFormData(prev => ({ ...prev, image_url: value }))}
+                />
+              </FormSection>
+
+              {/* Avaliações e Preços */}
+              <FormSection title="Avaliações e Preços">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    label="Preço por Pessoa (€)"
+                    name="price_per_person"
+                    type="number"
+                    value={formData.price_per_person}
+                    onChange={handleChange}
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+
+                  <FormField
+                    label="Avaliação (0-5)"
+                    name="rating"
+                    type="number"
+                    value={formData.rating}
+                    onChange={handleChange}
+                    min="0"
+                    max="5"
+                    step="0.1"
+                  />
+                </div>
+              </FormSection>
+
+              {/* Informações Adicionais */}
+              <FormSection title="Informações Adicionais">
+                <div className="space-y-4">
+                  <FormField
+                    label="Localização"
+                    name="location"
+                    type="text"
+                    value={formData.location}
+                    onChange={handleChange}
+                    icon={MapPin}
+                    helperText="Endereço ou coordenadas para abrir no Google Maps"
+                    placeholder="Endereço ou coordenadas GPS"
+                  />
+
+                  {/* Números de Telefone */}
+                  <div className="space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <label className="block text-sm font-medium text-gray-700 flex items-center">
+                        <Phone className="h-4 w-4 mr-2 text-amber-500" />
+                        Números de Telefone
+                      </label>
+                      <button
+                        type="button"
+                        onClick={addPhoneNumber}
+                        className="flex items-center justify-center px-4 py-2 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-all duration-200 shadow-sm hover:shadow-md min-h-[44px] w-full sm:w-auto"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Adicionar Telefone
+                      </button>
+                    </div>
+
+                    {formData.phone_numbers.length === 0 ? (
+                      <div className="text-center py-6 px-4 bg-amber-50 rounded-lg border-2 border-dashed border-amber-200">
+                        <Phone className="h-8 w-8 mx-auto text-amber-400 mb-2" />
+                        <p className="text-sm text-amber-700 font-medium">Nenhum telefone adicionado</p>
+                        <p className="text-xs text-amber-600 mt-1">Clique em "Adicionar Telefone" para incluir contatos</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {formData.phone_numbers.map((phone, index) => {
+                          const phoneType = detectPhoneType(phone);
+                          const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
+
+                          return (
+                            <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-amber-300 transition-colors">
+                              <div className="flex-shrink-0">
+                                <PhoneIcon className="h-5 w-5 text-amber-500" />
+                              </div>
+                              <input
+                                type="tel"
+                                value={phone}
+                                onChange={(e) => updatePhoneNumber(index, e.target.value)}
+                                placeholder="Ex: +351 912 345 678"
+                                className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all text-sm"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removePhoneNumber(index)}
+                                className="flex items-center justify-center p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-all duration-200 min-h-[44px] min-w-[44px]"
+                                title="Remover telefone"
+                              >
+                                <X className="h-5 w-5" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
 
-                  {formData.phone_numbers.length === 0 ? (
-                    <div className="text-center py-6 px-4 bg-amber-50 rounded-lg border-2 border-dashed border-amber-200">
-                      <Phone className="h-8 w-8 mx-auto text-amber-400 mb-2" />
-                      <p className="text-sm text-amber-700 font-medium">Nenhum telefone adicionado</p>
-                      <p className="text-xs text-amber-600 mt-1">Clique em "Adicionar Telefone" para incluir contatos</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {formData.phone_numbers.map((phone, index) => {
-                        const phoneType = detectPhoneType(phone);
-                        const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
-
-                        return (
-                          <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-amber-300 transition-colors">
-                            <div className="flex-shrink-0">
-                              <PhoneIcon className="h-5 w-5 text-amber-500" />
-                            </div>
-                            <input
-                              type="tel"
-                              value={phone}
-                              onChange={(e) => updatePhoneNumber(index, e.target.value)}
-                              placeholder="Ex: +351 912 345 678"
-                              className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all text-sm"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removePhoneNumber(index)}
-                              className="flex items-center justify-center p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-all duration-200 min-h-[44px] min-w-[44px]"
-                              title="Remover telefone"
-                            >
-                              <X className="h-5 w-5" />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                <FormField
-                  label="Fonte"
-                  name="source_url"
-                  type="url"
-                  value={formData.source_url}
-                  onChange={handleChange}
-                  icon={Globe}
-                  helperText="Link de onde você encontrou este restaurante"
-                  placeholder="https://exemplo.com"
-                />
-
-                <FormField
-                  label="Menu"
-                  name="menu_url"
-                  type="url"
-                  value={formData.menu_url}
-                  onChange={handleChange}
-                  icon={FileText}
-                  helperText="Link para o menu do restaurante"
-                  placeholder="https://exemplo.com/menu"
-                />
-
-                <div className="flex items-center space-x-3 py-2">
-                  <input
-                    type="checkbox"
-                    id="visited"
-                    name="visited"
-                    checked={formData.visited}
+                  <FormField
+                    label="Fonte"
+                    name="source_url"
+                    type="url"
+                    value={formData.source_url}
                     onChange={handleChange}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                    icon={Globe}
+                    helperText="Link de onde você encontrou este restaurante"
+                    placeholder="https://exemplo.com"
                   />
-                  <label htmlFor="visited" className="flex items-center text-gray-700 font-medium cursor-pointer">
-                    <Check className={`h-4 w-4 mr-2 ${formData.visited ? 'text-primary' : 'text-gray-300'}`} />
-                    Já visitei este restaurante
-                  </label>
-                </div>
-              </div>
-            </FormSection>
 
-            {/* Ações */}
-            <FormActions
-              onCancel={() => router.push(`/restaurants/${restaurantId}`)}
-              onSubmit={handleSubmit}
-              submitText="Salvar Alterações"
-              loading={saving}
-            />
-          </form>
+                  <FormField
+                    label="Menu"
+                    name="menu_url"
+                    type="url"
+                    value={formData.menu_url}
+                    onChange={handleChange}
+                    icon={FileText}
+                    helperText="Link para o menu do restaurante"
+                    placeholder="https://exemplo.com/menu"
+                  />
+
+                  <div className="flex items-center space-x-3 py-2">
+                    <input
+                      type="checkbox"
+                      id="visited"
+                      name="visited"
+                      checked={formData.visited}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                    />
+                    <label htmlFor="visited" className="flex items-center text-gray-700 font-medium cursor-pointer">
+                      <Check className={`h-4 w-4 mr-2 ${formData.visited ? 'text-primary' : 'text-gray-300'}`} />
+                      Já visitei este restaurante
+                    </label>
+                  </div>
+                </div>
+              </FormSection>
+
+              {/* Ações */}
+              <FormActions
+                onCancel={() => router.push(`/restaurants/${restaurantId}`)}
+                onSubmit={handleSubmit}
+                submitText="Salvar Alterações"
+                loading={saving}
+              />
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }

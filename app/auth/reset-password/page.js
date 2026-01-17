@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts';
+import { useRouter } from 'next/navigation';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, Key } from 'lucide-react';
@@ -12,40 +11,101 @@ export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [otpCode, setOtpCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOtpMode, setIsOtpMode] = useState(false);
   const [isResetMode, setIsResetMode] = useState(false);
-  const { resetPassword, updatePassword } = useAuth();
+  const [userSession, setUserSession] = useState(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  useEffect(() => {
-    // Check if we're in password reset mode (user clicked link from email)
-    // Supabase uses 'access_token' and 'type=recovery' for password reset
-    const accessToken = searchParams.get('access_token');
-    const type = searchParams.get('type');
-
-    if (accessToken && type === 'recovery') {
-      setIsResetMode(true);
-    }
-  }, [searchParams]);
-
+  // Step 1: Send OTP code to user's email
   const handleRequestReset = async (e) => {
     e.preventDefault();
 
+    if (!email.trim()) {
+      toast.error('Digite seu email');
+      return;
+    }
+
     setIsLoading(true);
 
-    const { error } = await resetPassword(email);
+    try {
+      const supabase = getClient();
 
-    setIsLoading(false);
+      // Send OTP code for password reset
+      const { data, error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          shouldCreateUser: false, // Don't create new users
+          data: {
+            reset_password: true // Mark this as password reset
+          }
+        }
+      });
 
-    if (!error) {
-      toast.success('Email de redefinição enviado! Verifique sua caixa de entrada.');
-      router.push('/auth/signin');
+      if (error) {
+        console.error('Error sending OTP:', error);
+        toast.error('Erro ao enviar código. Verifique se o email está correto.');
+        return;
+      }
+
+      console.log('OTP sent successfully');
+      setIsOtpMode(true);
+      toast.success('Código de 6 dígitos enviado para seu email!');
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('Erro inesperado. Tente novamente.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Step 2: Verify OTP code and authenticate user
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+
+    if (otpCode.length !== 6) {
+      toast.error('O código deve ter 6 dígitos');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const supabase = getClient();
+
+      // Verify the OTP code
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: otpCode,
+        type: 'email'
+      });
+
+      if (error) {
+        console.error('OTP verification error:', error);
+        toast.error('Código inválido ou expirado. Tente novamente.');
+        return;
+      }
+
+      // OTP verified successfully - user is now authenticated
+      console.log('OTP verified, user authenticated:', data.user?.email);
+      setUserSession(data.session);
+      setIsOtpMode(false);
+      setIsResetMode(true);
+      toast.success('Código verificado! Agora defina sua nova senha.');
+
+    } catch (error) {
+      console.error('Unexpected error during verification:', error);
+      toast.error('Erro inesperado. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Step 3: Update password for authenticated user
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
 
@@ -61,28 +121,103 @@ export default function ResetPasswordPage() {
 
     setIsLoading(true);
 
-    // For Supabase password reset, we need to set the session first
-    const supabase = getClient();
-    const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-      access_token: searchParams.get('access_token'),
-      refresh_token: searchParams.get('refresh_token'),
-    });
+    try {
+      const supabase = getClient();
 
-    if (sessionError) {
-      toast.error('Sessão expirada. Solicite uma nova redefinição de senha.');
-      setIsLoading(false);
-      return;
-    }
+      // Update password for the authenticated user
+      const { data, error } = await supabase.auth.updateUser({
+        password: password
+      });
 
-    const { error } = await updatePassword(password);
+      if (error) {
+        console.error('Password update error:', error);
+        toast.error('Erro ao atualizar senha. Tente novamente.');
+        return;
+      }
 
-    setIsLoading(false);
-
-    if (!error) {
+      console.log('Password updated successfully');
       toast.success('Senha atualizada com sucesso!');
+
+      // Sign out the user after password reset for security
+      await supabase.auth.signOut();
       router.push('/auth/signin');
+
+    } catch (error) {
+      console.error('Unexpected error during password update:', error);
+      toast.error('Erro inesperado. Tente novamente.');
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isOtpMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div>
+            <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary">
+              <Key className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Verificar código
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Digite o código de 6 dígitos enviado para {email}
+            </p>
+          </div>
+          <form className="mt-8 space-y-6" onSubmit={handleVerifyOtp}>
+            <div>
+              <label htmlFor="otpCode" className="sr-only">
+                Código de verificação
+              </label>
+              <input
+                id="otpCode"
+                name="otpCode"
+                type="text"
+                autoComplete="one-time-code"
+                required
+                maxLength="6"
+                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm text-center text-2xl tracking-widest"
+                placeholder="000000"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+              />
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading || otpCode.length !== 6}
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              >
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Verificando...
+                  </div>
+                ) : (
+                  'Verificar código'
+                )}
+              </button>
+            </div>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOtpMode(false);
+                  setOtpCode('');
+                }}
+                className="font-medium text-primary hover:text-primary-dark"
+              >
+                Voltar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   if (isResetMode) {
     return (
