@@ -56,69 +56,64 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
         return;
       }
 
-      let data, error;
+      try {
+        let result;
 
-      if (isEditing && initialReview) {
-        // Update existing review
-        const result = await supabase
-          .from('reviews')
-          .update({
-            rating,
-            comment: comment.trim() || null,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', initialReview.id)
-          .eq('user_id', user.id) // Ensure user can only update their own reviews
-          .select('*')
-          .single();
+        if (isEditing && initialReview) {
+          // Update existing review
+          result = await supabase
+            .from('reviews')
+            .update({
+              rating,
+              comment: comment.trim() || null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', initialReview.id)
+            .eq('user_id', user.id) // Ensure user can only update their own reviews
+            .select('*')
+            .single();
+        } else {
+          // Check if user already has a review for this restaurant (only for new reviews)
+          const { data: existingReview, error: checkError } = await supabase
+            .from('reviews')
+            .select('id')
+            .eq('restaurant_id', restaurantId)
+            .eq('user_id', user.id)
+            .maybeSingle();
 
-        data = result.data;
-        error = result.error;
-      } else {
-        // Check if user already has a review for this restaurant (only for new reviews)
-        const { data: existingReview, error: checkError } = await supabase
-          .from('reviews')
-          .select('id')
-          .eq('restaurant_id', restaurantId)
-          .eq('user_id', user.id)
-          .maybeSingle();
+          if (checkError) {
+            console.error('Error checking existing review:', checkError);
+            setError('Erro ao verificar avaliação existente.');
+            return;
+          }
 
-        if (checkError) {
-          console.error('Error checking existing review:', checkError);
-          setError('Erro ao verificar avaliação existente.');
-          setIsSubmitting(false);
+          if (existingReview) {
+            setError('Você já avaliou este restaurante.');
+            return;
+          }
+
+          // Create new review
+          result = await supabase
+            .from('reviews')
+            .insert({
+              restaurant_id: restaurantId,
+              user_id: user.id,
+              rating,
+              comment: comment.trim() || null
+            })
+            .select('*')
+            .single();
+        }
+
+        if (result.error) {
+          console.error('Error saving review:', result.error);
+          setError(isEditing ? 'Erro ao atualizar avaliação.' : 'Erro ao enviar avaliação.');
           return;
         }
 
-        if (existingReview) {
-          setError('Você já avaliou este restaurante.');
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Create new review
-        const result = await supabase
-          .from('reviews')
-          .insert({
-            restaurant_id: restaurantId,
-            user_id: user.id,
-            rating,
-            comment: comment.trim() || null
-          })
-          .select('*')
-          .single();
-
-        data = result.data;
-        error = result.error;
-      }
-
-      if (error) {
-        console.error('Error saving review:', error);
-        setError(isEditing ? 'Erro ao atualizar avaliação.' : 'Erro ao enviar avaliação.');
-      } else {
         // Transform user data
         const transformedReview = {
-          ...data,
+          ...result.data,
           user: {
             id: user.id,
             name: user.user_metadata?.name ||
@@ -135,6 +130,9 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
           setRating(0);
           setComment('');
         }
+      } catch (apiError) {
+        console.error('API error:', apiError);
+        setError(isEditing ? 'Erro ao atualizar avaliação. Tente novamente.' : 'Erro ao enviar avaliação. Tente novamente.');
       }
     } catch (err) {
       console.error('Error submitting review:', err);

@@ -31,6 +31,7 @@ export default function RestaurantDetails() {
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
@@ -111,6 +112,18 @@ export default function RestaurantDetails() {
 
         // Fetch reviews for this restaurant
         await fetchReviews();
+
+        // Fetch review count for this restaurant
+        const { count: reviewCount, error: countError } = await supabase
+          .from('reviews')
+          .select('*', { count: 'exact', head: true })
+          .eq('restaurant_id', id);
+
+        if (countError) {
+          console.error('Error fetching review count:', countError);
+        } else {
+          setReviewCount(reviewCount || 0);
+        }
       }
     } catch (error) {
       console.error('Error fetching restaurant details:', error);
@@ -224,103 +237,8 @@ export default function RestaurantDetails() {
       }
     }
 
-    async function fetchRestaurantDetails() {
-      if (!id) return;
-
-      setLoading(true);
-
-      try {
-        // Fetch restaurant details
-        const { data: restaurantData, error: restaurantError } = await supabase
-          .from('restaurants')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (restaurantError) throw restaurantError;
-
-        if (restaurantData) {
-          setRestaurant(restaurantData);
-          setVisited(restaurantData.visited || false);
-
-          // Fetch cuisine types for this restaurant
-          const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
-            .from('restaurant_cuisine_types')
-            .select('cuisine_type_id')
-            .eq('restaurant_id', id);
-
-          if (cuisineRelationsError) throw cuisineRelationsError;
-
-          if (cuisineRelations && cuisineRelations.length > 0) {
-            const cuisineTypeIds = cuisineRelations.map(item => item.cuisine_type_id);
-
-            const { data: cuisineTypeDetails, error: cuisineTypeError } = await supabase
-              .from('cuisine_types')
-              .select('*')
-              .in('id', cuisineTypeIds);
-
-            if (cuisineTypeError) throw cuisineTypeError;
-
-            if (cuisineTypeDetails) {
-              setCuisineTypes(cuisineTypeDetails);
-            }
-          }
-
-          // Fetch lists containing this restaurant
-          const { data: listRelations, error: listRelationsError } = await supabase
-            .from('list_restaurants')
-            .select('list_id')
-            .eq('restaurant_id', id);
-
-          if (listRelationsError) throw listRelationsError;
-
-          if (listRelations && listRelations.length > 0) {
-            const listIds = listRelations.map(item => item.list_id);
-
-            const { data: listDetails, error: listDetailsError } = await supabase
-              .from('lists')
-              .select('*')
-              .in('id', listIds);
-
-            if (listDetailsError) throw listDetailsError;
-
-            if (listDetails) {
-              setLists(listDetails);
-            }
-          }
-
-          // Fetch reviews for this restaurant
-          await fetchReviews();
-        }
-      } catch (error) {
-        console.error('Error fetching restaurant details:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function fetchReviews() {
-      if (!id) return;
-
-      setLoadingReviews(true);
-      try {
-        const response = await fetch(`/api/reviews?restaurant_id=${id}`);
-        const data = await response.json();
-
-        if (response.ok) {
-          setReviews(data.reviews || []);
-        } else {
-          console.error('Error fetching reviews:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching reviews:', error);
-      } finally {
-        setLoadingReviews(false);
-      }
-    }
-
     fetchRestaurantDetails();
-  }, [id]);
+  }, [id, fetchRestaurantDetails]);
 
 
 
@@ -579,6 +497,7 @@ export default function RestaurantDetails() {
     } else {
       // Add new review
       setReviews(prev => [newReview, ...prev]);
+      setReviewCount(prev => prev + 1);
     }
     setShowReviewForm(false);
     setEditingReview(null);
@@ -608,6 +527,7 @@ export default function RestaurantDetails() {
 
       if (response.ok) {
         setReviews(prev => prev.filter(review => review.id !== reviewId));
+        setReviewCount(prev => prev - 1);
         // Refresh restaurant data to get updated rating
         if (restaurant) {
           setRestaurant(prev => prev ? { ...prev } : null);
@@ -900,7 +820,7 @@ export default function RestaurantDetails() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
               <Star className="h-5 w-5 mr-2 text-amber-500" />
-              Avaliações ({reviews.length})
+              Avaliações ({reviewCount})
             </h2>
             {user && !showReviewForm && (
               <button

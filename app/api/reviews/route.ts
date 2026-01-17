@@ -37,13 +37,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ reviews: [] });
     }
 
-    // For now, return reviews with anonymous users since we can't easily query auth.users from client-side
-    // In a production app, you'd want to create a server-side function or RPC to get user data
+    // Transform user data consistently across all endpoints
     const processedData = reviewsData.map(review => ({
       ...review,
       user: {
         id: review.user_id,
-        name: 'User' // Placeholder - you'd need server-side auth admin access
+        name: review.user_name || 'Anonymous User'
       }
     }));
 
@@ -81,6 +80,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
+    // Extract user name from metadata
+    const userName = user.user_metadata?.name ||
+                    user.user_metadata?.full_name ||
+                    user.email ||
+                    'Anonymous User';
+
     // Check if user already has a review for this restaurant
     const { data: existingReview, error: checkError } = await supabase
       .from('reviews')
@@ -107,6 +112,7 @@ export async function POST(request: NextRequest) {
       .insert({
         restaurant_id,
         user_id: user.id,
+        user_name: userName,
         rating,
         comment: comment || null
       })
@@ -118,15 +124,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });
     }
 
-    // Transform user data (simplified for now)
+    // Transform user data using stored user_name
     const processedData = {
       ...data,
       user: {
         id: user.id,
-        name: user.user_metadata?.name ||
-              user.user_metadata?.full_name ||
-              user.email ||
-              'Anonymous User'
+        name: data.user_name || 'Anonymous User'
       }
     };
 

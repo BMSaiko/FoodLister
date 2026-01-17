@@ -35,14 +35,12 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch review' }, { status: 500 });
     }
 
-    // Transform user data for easier client consumption
+    // Transform user data using stored user_name
     const processedData = {
       ...data,
       user: {
         id: data.user.id,
-        name: data.user.raw_user_meta_data?.name ||
-              data.user.raw_user_meta_data?.full_name ||
-              'Anonymous User'
+        name: data.user_name || 'Anonymous User'
       }
     };
 
@@ -118,14 +116,12 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update review' }, { status: 500 });
     }
 
-    // Transform user data
+    // Transform user data using stored user_name
     const processedData = {
       ...data,
       user: {
         id: data.user.id,
-        name: data.user.raw_user_meta_data?.name ||
-              data.user.raw_user_meta_data?.full_name ||
-              'Anonymous User'
+        name: data.user_name || 'Anonymous User'
       }
     };
 
