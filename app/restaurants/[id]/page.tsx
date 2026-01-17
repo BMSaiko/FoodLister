@@ -680,7 +680,7 @@ export default function RestaurantDetails() {
             {/* Informações do criador */}
             <div className="mt-3 text-sm flex items-center text-gray-500">
               <User className="h-4 w-4 mr-1" />
-              Adicionado por: {restaurant.creator || 'Anônimo'}
+              Adicionado por: {restaurant.creator_name || 'Anônimo'}
             </div>
             {/* Data de adição */}
             {restaurant.created_at && (

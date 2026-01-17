@@ -266,7 +266,12 @@ export default function CreateRestaurant() {
       // Converter URL do Imgur se necessário
       const processedImageUrl = convertImgurUrl(formData.image_url) || '/placeholder-restaurant.jpg';
       
-      // 1. Criar o restaurante (creator_id será automaticamente definido pelo trigger)
+      // 1. Obter o display name do usuário
+      const displayName = user.user_metadata?.name ||
+                         user.user_metadata?.full_name ||
+                         user.email;
+
+      // 2. Criar o restaurante com creator_id e creator_name definidos explicitamente
       const { data: restaurantData, error: restaurantError } = await supabase
         .from('restaurants')
         .insert([
@@ -280,7 +285,9 @@ export default function CreateRestaurant() {
             source_url: formData.source_url || '',
             menu_url: formData.menu_url || '',
             phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
-            visited: formData.visited
+            visited: formData.visited,
+            creator_id: user.id,
+            creator_name: displayName
           }
         ])
         .select();

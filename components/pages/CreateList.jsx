@@ -135,13 +135,20 @@ export default function CreateList() {
     setLoading(true);
 
     try {
-      // Create the list first (creator_id será automaticamente definido pelo trigger)
+      // 1. Obter o display name do usuário
+      const displayName = user.user_metadata?.name ||
+                         user.user_metadata?.full_name ||
+                         user.email;
+
+      // 2. Create the list with creator_id and creator_name defined explicitly
       const { data: listData, error: listError } = await supabase
         .from('lists')
         .insert([
           {
             name: formData.name,
-            description: formData.description || ''
+            description: formData.description || '',
+            creator_id: user.id,
+            creator_name: displayName
           }
         ])
         .select();
