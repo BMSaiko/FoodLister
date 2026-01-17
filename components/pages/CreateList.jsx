@@ -4,15 +4,15 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
+import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
 import Link from 'next/link';
 import { ArrowLeft, Plus, X, Search } from 'lucide-react';
-import { useCreatorName } from '@/hooks/useCreatorName';
 import { toast } from 'react-toastify';
 
 export default function CreateList() {
   const router = useRouter();
-  const { creatorName } = useCreatorName();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -24,7 +24,26 @@ export default function CreateList() {
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   
   const supabase = createClient();
-  
+
+  // Verificar autenticação
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error('Você precisa estar logado para criar listas.', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
+      router.push('/auth/signin');
+      return;
+    }
+  }, [user, authLoading, router]);
+
   // Fetch all restaurants for selection
   useEffect(() => {
     async function fetchRestaurants() {
@@ -80,6 +99,23 @@ export default function CreateList() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Check if user is authenticated
+    if (!user) {
+      toast.error('Você precisa estar logado para criar uma lista.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
+      router.push('/auth/signin');
+      return;
+    }
+
     // Simple validation
     if (!formData.name) {
       toast.error('Por favor, preencha o nome da lista.', {
@@ -99,14 +135,20 @@ export default function CreateList() {
     setLoading(true);
 
     try {
-      // Create the list first
+      // 1. Obter o display name do usuário
+      const displayName = user.user_metadata?.name ||
+                         user.user_metadata?.full_name ||
+                         user.email;
+
+      // 2. Create the list with creator_id and creator_name defined explicitly
       const { data: listData, error: listError } = await supabase
         .from('lists')
         .insert([
           {
             name: formData.name,
             description: formData.description || '',
-            creator: creatorName || 'Anônimo'
+            creator_id: user.id,
+            creator_name: displayName
           }
         ])
         .select();

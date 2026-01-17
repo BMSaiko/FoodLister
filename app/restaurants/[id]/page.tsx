@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
+import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,13 +21,14 @@ import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
 
 export default function RestaurantDetails() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [restaurant, setRestaurant] = useState(null);
   const [visited, setVisited] = useState(false);
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
-  
+
   const supabase = createClient();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
@@ -500,13 +502,15 @@ export default function RestaurantDetails() {
               <span className="hidden sm:inline">Agendar Refeição</span>
               <span className="sm:hidden">Agendar</span>
             </button>
-            <Link
-              href={`/restaurants/${id}/edit`}
-              className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
-            >
-              <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
-              <span className="text-sm sm:text-base">Editar</span>
-            </Link>
+            {user && restaurant?.creator_id === user.id && (
+              <Link
+                href={`/restaurants/${id}/edit`}
+                className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
+              >
+                <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
+                <span className="text-sm sm:text-base">Editar</span>
+              </Link>
+            )}
           </div>
         </div>
         
@@ -676,7 +680,7 @@ export default function RestaurantDetails() {
             {/* Informações do criador */}
             <div className="mt-3 text-sm flex items-center text-gray-500">
               <User className="h-4 w-4 mr-1" />
-              Adicionado por: {restaurant.creator || 'Anônimo'}
+              Adicionado por: {restaurant.creator_name || 'Anônimo'}
             </div>
             {/* Data de adição */}
             {restaurant.created_at && (

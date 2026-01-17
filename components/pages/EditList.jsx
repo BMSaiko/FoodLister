@@ -4,26 +4,69 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
+import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
+import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { ArrowLeft, Plus, X, Search } from 'lucide-react';
 
+// Componente de proteção de autenticação
+function AuthGuard({ children }) {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      toast.error('Você precisa estar logado para editar listas.', {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base",
+        bodyClassName: "text-sm sm:text-base"
+      });
+      router.push('/auth/signin');
+      return;
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Não renderiza nada enquanto redireciona
+  }
+
+  return children;
+}
+
 export default function EditList({ listId }) {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: ''
   });
-  
+
   const [error, setError] = useState('');
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurants, setSelectedRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
-  
+
   const supabase = createClient();
+
+
   
   // Fetch list data and its restaurants
   useEffect(() => {
