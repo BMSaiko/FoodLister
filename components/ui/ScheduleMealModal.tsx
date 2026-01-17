@@ -59,8 +59,8 @@ const ScheduleMealModal = ({
   const handleTimeChange = (newTime: string) => {
     setTime(newTime);
 
-    // Only auto-assign if meal type hasn't been manually selected and time is valid
-    if (!mealType && newTime && newTime.includes(':')) {
+    // Always auto-assign meal type based on time, regardless of previous selection
+    if (newTime && newTime.includes(':')) {
       const timeParts = newTime.split(':');
       if (timeParts.length >= 2) {
         const hour = parseInt(timeParts[0], 10);
