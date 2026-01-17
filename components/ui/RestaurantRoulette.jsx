@@ -31,6 +31,12 @@ const RestaurantRoulette = () => {
   const [restaurantSelectorLoading, setRestaurantSelectorLoading] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(50);
 
+  const resetRestaurantSelector = () => {
+    setRestaurantSearchQuery('');
+    setSelectedRestaurantsForRoulette([]);
+    setDisplayLimit(50);
+  };
+
   // Reset display limit when search changes
   useEffect(() => {
     setDisplayLimit(50);
@@ -529,7 +535,10 @@ const RestaurantRoulette = () => {
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowRestaurantSelector(false)}
+                  onClick={() => {
+                    resetRestaurantSelector();
+                    setShowRestaurantSelector(false);
+                  }}
                   className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-2 transition-colors flex-shrink-0"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />

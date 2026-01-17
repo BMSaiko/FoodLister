@@ -26,6 +26,14 @@ const ScheduleMealModal = ({
   const [duration, setDuration] = useState(2); // hours
   const [mealType, setMealType] = useState('');
 
+  const resetForm = () => {
+    setDate('');
+    setTime('');
+    setParticipants('');
+    setDuration(2);
+    setMealType('');
+  };
+
   const mealTypes = [
     { value: 'pequeno-almoco', label: 'Pequeno Almoço', icon: '☕', defaultTime: '08:00', defaultDuration: 1 },
     { value: 'almoco', label: 'Almoço', icon: '🍽️', defaultTime: '12:30', defaultDuration: 1.5 },
@@ -51,8 +59,8 @@ const ScheduleMealModal = ({
   const handleTimeChange = (newTime: string) => {
     setTime(newTime);
 
-    // Only auto-assign if meal type hasn't been manually selected and time is valid
-    if (!mealType && newTime && newTime.includes(':')) {
+    // Always auto-assign meal type based on time, regardless of previous selection
+    if (newTime && newTime.includes(':')) {
       const timeParts = newTime.split(':');
       if (timeParts.length >= 2) {
         const hour = parseInt(timeParts[0], 10);
@@ -189,6 +197,7 @@ const ScheduleMealModal = ({
 
       // Close modal on success
       toast.success('Evento criado com sucesso no Google Calendar!');
+      resetForm();
       onClose();
     } catch (error) {
       toast.error('Erro ao abrir o Google Calendar. Verifique as configurações do navegador.');
@@ -213,7 +222,10 @@ const ScheduleMealModal = ({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={() => {
+                resetForm();
+                onClose();
+              }}
               className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
               aria-label="Fechar"
             >
