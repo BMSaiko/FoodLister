@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 
@@ -33,35 +33,50 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasShownSignInToast, setHasShownSignInToast] = useState(false);
+  const previousUserRef = useRef(null);
   const supabase = getClient();
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
+    let subscription = null;
+
+    const initializeAuth = async () => {
+      // Get initial session first
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const initialUser = session?.user ?? null;
+      setUser(initialUser);
+      previousUserRef.current = initialUser;
+      // If user is already signed in on page load, mark toast as shown
+      if (initialUser !== null) {
+        setHasShownSignInToast(true);
+      }
       setLoading(false);
+
+      // Now listen for auth changes
+      const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          const newUser = session?.user ?? null;
+          setUser(newUser);
+          previousUserRef.current = newUser;
+          setLoading(false);
+
+          if (event === 'SIGNED_OUT') {
+            toast.info('Você foi desconectado');
+          } else if (event === 'PASSWORD_RECOVERY') {
+            toast.info('Verifique seu email para redefinir a senha');
+          }
+        }
+      );
+      subscription = sub;
     };
 
-    getInitialSession();
+    initializeAuth();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-
-        if (event === 'SIGNED_IN') {
-          toast.success('Login realizado com sucesso!');
-        } else if (event === 'SIGNED_OUT') {
-          toast.info('Você foi desconectado');
-        } else if (event === 'PASSWORD_RECOVERY') {
-          toast.info('Verifique seu email para redefinir a senha');
-        }
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
       }
-    );
-
-    return () => subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email, password) => {
@@ -104,6 +119,10 @@ export function AuthProvider({ children }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      // Clear login toast flag when signing out
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('loginToastShown');
+      }
       return { error: null };
     } catch (error) {
       toast.error(error.message);

@@ -33,6 +33,14 @@ export default function SignInPage() {
     setIsLoading(false);
 
     if (!error) {
+      // Check if toast was already shown in this session
+      const toastShown = sessionStorage.getItem('loginToastShown');
+      if (!toastShown) {
+        // Show success toast
+        toast.success('Login realizado com sucesso!');
+        // Mark that toast was shown
+        sessionStorage.setItem('loginToastShown', 'true');
+      }
       // Redirect to home page
       router.push('/');
     }
