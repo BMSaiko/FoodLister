@@ -186,5 +186,3 @@ export function useAuth() {
   }
   return context;
 }
-
-export { AuthProvider, FiltersProvider, useAuth, useFilters };
