@@ -10,6 +10,7 @@ import { Menu, X, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts';
 
 const Navbar = ({ clearFilters = null }) => {
+  const { user, signOut, loading } = useAuth();
   const pathname = usePathname();
   const [activeSection, setActiveSection] = useState('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,12 +86,12 @@ const Navbar = ({ clearFilters = null }) => {
 
           {/* Botões de ações (criar restaurante/lista) */}
           <div className="flex justify-end flex-shrink-0">
-            <NavbarActions activeSection={activeSection} />
+            <NavbarActions activeSection={activeSection} showLogin={true} />
           </div>
         </div>
 
         {/* Versão mobile */}
-        <div className="md:hidden flex items-center justify-between gap-2">
+        <div className="md:hidden flex items-center justify-between">
           <Link
             href="/restaurants"
             className="flex items-center text-lg font-bold text-amber-500 flex-shrink-0"
@@ -104,18 +105,37 @@ const Navbar = ({ clearFilters = null }) => {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1.5"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
             <span className="whitespace-nowrap">FoodLister</span>
           </Link>
-          
-          <button 
-            onClick={toggleMobileMenu}
-            className="p-2 text-amber-500 hover:text-amber-600 focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
+
+          <div className="flex items-center gap-1">
+            {!user && !loading && (
+              <Link href="/auth/signin">
+                <button className="flex items-center justify-center bg-amber-500 text-white px-3 py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] min-w-[44px] text-sm font-medium">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline ml-1">Entrar</span>
+                </button>
+              </Link>
             )}
-          </button>
+            {user && (
+              <button
+                onClick={async () => await signOut()}
+                className="flex items-center justify-center bg-gray-100 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-200 active:bg-gray-300 transition-colors min-h-[44px] min-w-[44px] text-sm font-medium"
+                title="Sair"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            )}
+            <button
+              onClick={toggleMobileMenu}
+              className="p-2 text-amber-500 hover:text-amber-600 focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Menu mobile expandido */}
@@ -151,7 +171,7 @@ const Navbar = ({ clearFilters = null }) => {
             </div>
             
             <div className="flex justify-center px-1">
-              <NavbarActions activeSection={activeSection} />
+              <NavbarActions activeSection={activeSection} showLogin={false} showSignout={false} />
             </div>
           </div>
         )}
