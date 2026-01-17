@@ -1,12 +1,14 @@
 // app/restaurants/[id]/page.tsx
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
+import { Review, ReviewFormData } from '@/libs/types';
 import Image from 'next/image';
+import ReviewForm from '@/components/ui/ReviewForm';
 import Link from 'next/link';
 import {
   ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
@@ -20,21 +22,122 @@ import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
 
 export default function RestaurantDetails() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { user } = useAuth();
+
   const [restaurant, setRestaurant] = useState(null);
   const [visited, setVisited] = useState(false);
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   const supabase = createClient();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  
+
+  // Memoize functions to prevent infinite re-renders
+  const fetchRestaurantDetails = useCallback(async () => {
+    if (!id) return;
+
+    setLoading(true);
+
+    try {
+      // Fetch restaurant details
+      const { data: restaurantData, error: restaurantError } = await supabase
+        .from('restaurants')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (restaurantError) throw restaurantError;
+
+      if (restaurantData) {
+        setRestaurant(restaurantData);
+        setVisited(restaurantData.visited || false);
+
+        // Fetch cuisine types for this restaurant
+        const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
+          .from('restaurant_cuisine_types')
+          .select('cuisine_type_id')
+          .eq('restaurant_id', id);
+
+        if (cuisineRelationsError) throw cuisineRelationsError;
+
+        if (cuisineRelations && cuisineRelations.length > 0) {
+          const cuisineTypeIds = cuisineRelations.map(item => item.cuisine_type_id);
+
+          const { data: cuisineTypeDetails, error: cuisineTypeError } = await supabase
+            .from('cuisine_types')
+            .select('*')
+            .in('id', cuisineTypeIds);
+
+          if (cuisineTypeError) throw cuisineTypeError;
+
+          if (cuisineTypeDetails) {
+            setCuisineTypes(cuisineTypeDetails);
+          }
+        }
+
+        // Fetch lists containing this restaurant
+        const { data: listRelations, error: listRelationsError } = await supabase
+          .from('list_restaurants')
+          .select('list_id')
+          .eq('restaurant_id', id);
+
+        if (listRelationsError) throw listRelationsError;
+
+        if (listRelations && listRelations.length > 0) {
+          const listIds = listRelations.map(item => item.list_id);
+
+          const { data: listDetails, error: listDetailsError } = await supabase
+            .from('lists')
+            .select('*')
+            .in('id', listIds);
+
+          if (listDetailsError) throw listDetailsError;
+
+          if (listDetails) {
+            setLists(listDetails);
+          }
+        }
+
+        // Fetch reviews for this restaurant
+        await fetchReviews();
+      }
+    } catch (error) {
+      console.error('Error fetching restaurant details:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  const fetchReviews = useCallback(async () => {
+    if (!id) return;
+
+    setLoadingReviews(true);
+    try {
+      const response = await fetch(`/api/reviews?restaurant_id=${id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setReviews(data.reviews || []);
+      } else {
+        console.error('Error fetching reviews:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  }, [id]);
+
   // Helper function to sanitize and validate external URLs
   const sanitizeUrl = (urlString: string): string | null => {
     if (!urlString || typeof urlString !== 'string') {
@@ -122,9 +225,9 @@ export default function RestaurantDetails() {
 
     async function fetchRestaurantDetails() {
       if (!id) return;
-      
+
       setLoading(true);
-      
+
       try {
         // Fetch restaurant details
         const { data: restaurantData, error: restaurantError } = await supabase
@@ -132,58 +235,61 @@ export default function RestaurantDetails() {
           .select('*')
           .eq('id', id)
           .single();
-          
+
         if (restaurantError) throw restaurantError;
-        
+
         if (restaurantData) {
           setRestaurant(restaurantData);
           setVisited(restaurantData.visited || false);
-          
+
           // Fetch cuisine types for this restaurant
           const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
             .from('restaurant_cuisine_types')
             .select('cuisine_type_id')
             .eq('restaurant_id', id);
-            
+
           if (cuisineRelationsError) throw cuisineRelationsError;
-          
+
           if (cuisineRelations && cuisineRelations.length > 0) {
             const cuisineTypeIds = cuisineRelations.map(item => item.cuisine_type_id);
-            
+
             const { data: cuisineTypeDetails, error: cuisineTypeError } = await supabase
               .from('cuisine_types')
               .select('*')
               .in('id', cuisineTypeIds);
-              
+
             if (cuisineTypeError) throw cuisineTypeError;
-            
+
             if (cuisineTypeDetails) {
               setCuisineTypes(cuisineTypeDetails);
             }
           }
-          
+
           // Fetch lists containing this restaurant
           const { data: listRelations, error: listRelationsError } = await supabase
             .from('list_restaurants')
             .select('list_id')
             .eq('restaurant_id', id);
-            
+
           if (listRelationsError) throw listRelationsError;
-          
+
           if (listRelations && listRelations.length > 0) {
             const listIds = listRelations.map(item => item.list_id);
-            
+
             const { data: listDetails, error: listDetailsError } = await supabase
               .from('lists')
               .select('*')
               .in('id', listIds);
-              
+
             if (listDetailsError) throw listDetailsError;
-            
+
             if (listDetails) {
               setLists(listDetails);
             }
           }
+
+          // Fetch reviews for this restaurant
+          await fetchReviews();
         }
       } catch (error) {
         console.error('Error fetching restaurant details:', error);
@@ -191,7 +297,27 @@ export default function RestaurantDetails() {
         setLoading(false);
       }
     }
-    
+
+    async function fetchReviews() {
+      if (!id) return;
+
+      setLoadingReviews(true);
+      try {
+        const response = await fetch(`/api/reviews?restaurant_id=${id}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setReviews(data.reviews || []);
+        } else {
+          console.error('Error fetching reviews:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      } finally {
+        setLoadingReviews(false);
+      }
+    }
+
     fetchRestaurantDetails();
   }, [id]);
 
@@ -441,6 +567,18 @@ export default function RestaurantDetails() {
 
   // Obtém a classe de estilo para a avaliação
   const ratingClass = getRatingClass(restaurant.rating);
+
+  // Handle review submission
+  const handleReviewSubmitted = (newReview: Review) => {
+    setReviews(prev => [newReview, ...prev]);
+    setShowReviewForm(false);
+    // Refresh restaurant data to get updated rating
+    if (restaurant) {
+      // Trigger a re-fetch of restaurant data or update the rating locally
+      setRestaurant(prev => prev ? { ...prev } : null); // This will trigger a re-render
+    }
+    toast.success('Avaliação enviada com sucesso!');
+  };
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -709,6 +847,76 @@ export default function RestaurantDetails() {
                     <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
                   </div>
                 </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Reviews Section */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+              <Star className="h-5 w-5 mr-2 text-amber-500" />
+              Avaliações ({reviews.length})
+            </h2>
+            {user && !showReviewForm && (
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors text-sm sm:text-base"
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Avaliar Restaurante
+              </button>
+            )}
+          </div>
+
+          {showReviewForm && (
+            <div className="mb-6">
+              <ReviewForm
+                restaurantId={id}
+                onReviewSubmitted={handleReviewSubmitted}
+                onCancel={() => setShowReviewForm(false)}
+              />
+            </div>
+          )}
+
+          {loadingReviews ? (
+            <div className="animate-pulse space-y-4">
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="text-center py-8">
+              <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 text-sm sm:text-base">Ainda não há avaliações para este restaurante.</p>
+              {user && !showReviewForm && (
+                <p className="text-gray-400 text-xs sm:text-sm mt-2">Seja o primeiro a avaliar!</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {reviews.map(review => (
+                <div key={review.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center">
+                      <div className="flex items-center mr-3">
+                        {Array(5).fill(0).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${i < review.rating ? 'text-amber-400 fill-current' : 'text-gray-300'}`}
+                          />
+                        ))}
+                      </div>
+                      <span className="font-medium text-gray-800">{review.user.name}</span>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {formatDate(review.created_at)}
+                    </span>
+                  </div>
+                  {review.comment && (
+                    <p className="text-gray-700 mt-2 text-sm sm:text-base">{review.comment}</p>
+                  )}
+                </div>
               ))}
             </div>
           )}
