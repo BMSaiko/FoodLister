@@ -18,10 +18,16 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "FoodLister - Organize seus restaurantes favoritos",
   description: "Aplicativo para organizar e descobrir restaurantes",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover",
   icons: {
     icon: '/logo.svg',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({ children }) {

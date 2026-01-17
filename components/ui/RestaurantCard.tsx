@@ -206,9 +206,9 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
             </div>
           )}
           
-          {restaurant.creator && (
+          {restaurant.creator_name && (
             <div className={`mt-2 text-xs text-gray-500 ${centered ? 'text-center' : ''}`}>
-              Adicionado por: {restaurant.creator}
+              Adicionado por: {restaurant.creator_name}
             </div>
           )}
         </div>

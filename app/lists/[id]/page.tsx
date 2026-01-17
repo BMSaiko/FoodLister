@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import { ArrowLeft, Edit, User } from 'lucide-react';
@@ -10,6 +11,7 @@ import Link from 'next/link';
 
 export default function ListDetails() {
   const { id } = useParams();
+  const { user } = useAuth();
   const [list, setList] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,13 +106,15 @@ export default function ListDetails() {
           </Link>
           
           <div className="flex w-full sm:w-auto">
-            <Link 
-              href={`/lists/${id}/edit`}
-              className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
-            >
-              <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
-              <span className="text-sm sm:text-base">Editar</span>
-            </Link>
+            {user && list?.creator_id === user.id && (
+              <Link
+                href={`/lists/${id}/edit`}
+                className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
+              >
+                <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
+                <span className="text-sm sm:text-base">Editar</span>
+              </Link>
+            )}
           </div>
         </div>
         
