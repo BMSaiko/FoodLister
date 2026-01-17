@@ -14,6 +14,7 @@ import {
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
 import { convertImgurUrl } from '@/utils/imgurConverter';
 import { logError, logWarn, logInfo } from '@/utils/logger';
+import { toast } from 'react-toastify';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
 
@@ -287,25 +288,54 @@ export default function RestaurantDetails() {
   const handleToggleVisited = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setIsUpdating(true);
     try {
       const newVisitedStatus = !visited;
-      
+
       const { error } = await supabase
         .from('restaurants')
         .update({ visited: newVisitedStatus })
         .eq('id', id);
-      
+
       if (error) throw error;
-      
+
       setVisited(newVisitedStatus);
       if (restaurant) {
         setRestaurant({ ...restaurant, visited: newVisitedStatus });
       }
+
+      // Show success toast
+      toast.success(
+        newVisitedStatus
+          ? 'Restaurante marcado como visitado!'
+          : 'Restaurante marcado como não visitado!',
+        {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base"
+        }
+      );
     } catch (err) {
       console.error('Erro ao atualizar status de visitado:', err);
       setVisited(!visited);
+
+      // Show error toast
+      toast.error('Erro ao atualizar status de visita. Tente novamente.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base"
+      });
     } finally {
       setIsUpdating(false);
     }
