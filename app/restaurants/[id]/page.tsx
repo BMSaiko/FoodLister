@@ -35,6 +35,7 @@ export default function RestaurantDetails() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
 
   const supabase = createClient();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
@@ -570,14 +571,56 @@ export default function RestaurantDetails() {
 
   // Handle review submission
   const handleReviewSubmitted = (newReview: Review) => {
-    setReviews(prev => [newReview, ...prev]);
+    if (editingReview) {
+      // Update existing review
+      setReviews(prev => prev.map(review =>
+        review.id === newReview.id ? newReview : review
+      ));
+    } else {
+      // Add new review
+      setReviews(prev => [newReview, ...prev]);
+    }
     setShowReviewForm(false);
+    setEditingReview(null);
     // Refresh restaurant data to get updated rating
     if (restaurant) {
       // Trigger a re-fetch of restaurant data or update the rating locally
       setRestaurant(prev => prev ? { ...prev } : null); // This will trigger a re-render
     }
-    toast.success('Avaliação enviada com sucesso!');
+    toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
+  };
+
+  // Handle review edit
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+  };
+
+  // Handle review deletion
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm('Tem certeza que deseja eliminar esta avaliação?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setReviews(prev => prev.filter(review => review.id !== reviewId));
+        // Refresh restaurant data to get updated rating
+        if (restaurant) {
+          setRestaurant(prev => prev ? { ...prev } : null);
+        }
+        toast.success('Avaliação eliminada com sucesso!');
+      } else {
+        const data = await response.json();
+        toast.error(data.error || 'Erro ao eliminar avaliação');
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      toast.error('Erro ao eliminar avaliação. Tente novamente.');
+    }
   };
   
   return (
@@ -870,12 +913,16 @@ export default function RestaurantDetails() {
             )}
           </div>
 
-          {showReviewForm && (
+          {(showReviewForm || editingReview) && (
             <div className="mb-6">
               <ReviewForm
                 restaurantId={id}
                 onReviewSubmitted={handleReviewSubmitted}
-                onCancel={() => setShowReviewForm(false)}
+                onCancel={() => {
+                  setShowReviewForm(false);
+                  setEditingReview(null);
+                }}
+                initialReview={editingReview}
               />
             </div>
           )}
@@ -909,9 +956,29 @@ export default function RestaurantDetails() {
                       </div>
                       <span className="font-medium text-gray-800">{review.user.name}</span>
                     </div>
-                    <span className="text-xs text-gray-500">
-                      {formatDate(review.created_at)}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {user && review.user_id === user.id && (
+                        <>
+                          <button
+                            onClick={() => setEditingReview(review)}
+                            className="text-gray-500 hover:text-amber-600 transition-colors p-1"
+                            title="Editar avaliação"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReview(review.id)}
+                            className="text-gray-500 hover:text-red-600 transition-colors p-1"
+                            title="Eliminar avaliação"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
+                      <span className="text-xs text-gray-500">
+                        {formatDate(review.created_at)}
+                      </span>
+                    </div>
                   </div>
                   {review.comment && (
                     <p className="text-gray-700 mt-2 text-sm sm:text-base">{review.comment}</p>

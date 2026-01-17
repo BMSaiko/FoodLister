@@ -1,23 +1,37 @@
 // components/ui/ReviewForm.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Send } from 'lucide-react';
-import { ReviewFormData } from '@/libs/types';
+import { ReviewFormData, Review } from '@/libs/types';
 import { getClient } from '@/libs/supabase/client';
 
 interface ReviewFormProps {
   restaurantId: string;
   onReviewSubmitted: (review: any) => void;
   onCancel?: () => void;
+  initialReview?: Review | null;
 }
 
-export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel }: ReviewFormProps) {
+export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, initialReview }: ReviewFormProps) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const isEditing = !!initialReview;
+
+  // Initialize form with existing review data when editing
+  useEffect(() => {
+    if (initialReview) {
+      setRating(initialReview.rating);
+      setComment(initialReview.comment || '');
+    } else {
+      setRating(0);
+      setComment('');
+    }
+  }, [initialReview]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,42 +56,65 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel }
         return;
       }
 
-      // Check if user already has a review for this restaurant
-      const { data: existingReview, error: checkError } = await supabase
-        .from('reviews')
-        .select('id')
-        .eq('restaurant_id', restaurantId)
-        .eq('user_id', user.id)
-        .maybeSingle();
+      let data, error;
 
-      if (checkError) {
-        console.error('Error checking existing review:', checkError);
-        setError('Erro ao verificar avaliação existente.');
-        setIsSubmitting(false);
-        return;
+      if (isEditing && initialReview) {
+        // Update existing review
+        const result = await supabase
+          .from('reviews')
+          .update({
+            rating,
+            comment: comment.trim() || null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', initialReview.id)
+          .eq('user_id', user.id) // Ensure user can only update their own reviews
+          .select('*')
+          .single();
+
+        data = result.data;
+        error = result.error;
+      } else {
+        // Check if user already has a review for this restaurant (only for new reviews)
+        const { data: existingReview, error: checkError } = await supabase
+          .from('reviews')
+          .select('id')
+          .eq('restaurant_id', restaurantId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (checkError) {
+          console.error('Error checking existing review:', checkError);
+          setError('Erro ao verificar avaliação existente.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        if (existingReview) {
+          setError('Você já avaliou este restaurante.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Create new review
+        const result = await supabase
+          .from('reviews')
+          .insert({
+            restaurant_id: restaurantId,
+            user_id: user.id,
+            rating,
+            comment: comment.trim() || null
+          })
+          .select('*')
+          .single();
+
+        data = result.data;
+        error = result.error;
       }
-
-      if (existingReview) {
-        setError('Você já avaliou este restaurante.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Create the review
-      const { data, error } = await supabase
-        .from('reviews')
-        .insert({
-          restaurant_id: restaurantId,
-          user_id: user.id,
-          rating,
-          comment: comment.trim() || null
-        })
-        .select('*')
-        .single();
 
       if (error) {
-        console.error('Error creating review:', error);
-        setError('Erro ao enviar avaliação.');
+        console.error('Error saving review:', error);
+        setError(isEditing ? 'Erro ao atualizar avaliação.' : 'Erro ao enviar avaliação.');
       } else {
         // Transform user data
         const transformedReview = {
@@ -92,13 +129,16 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel }
         };
 
         onReviewSubmitted(transformedReview);
-        // Reset form
-        setRating(0);
-        setComment('');
+
+        // Reset form only for new reviews
+        if (!isEditing) {
+          setRating(0);
+          setComment('');
+        }
       }
     } catch (err) {
       console.error('Error submitting review:', err);
-      setError('Erro ao enviar avaliação. Tente novamente.');
+      setError(isEditing ? 'Erro ao atualizar avaliação. Tente novamente.' : 'Erro ao enviar avaliação. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,7 +146,9 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel }
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Deixe sua avaliação</h3>
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        {isEditing ? 'Editar avaliação' : 'Deixe sua avaliação'}
+      </h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Rating Stars */}
@@ -185,12 +227,12 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel }
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Enviando...
+                {isEditing ? 'Atualizando...' : 'Enviando...'}
               </>
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Enviar Avaliação
+                {isEditing ? 'Atualizar Avaliação' : 'Enviar Avaliação'}
               </>
             )}
           </button>
