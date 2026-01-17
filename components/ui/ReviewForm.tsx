@@ -92,12 +92,19 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
             return;
           }
 
+          // Extract user name from metadata
+          const userName = user.user_metadata?.name ||
+                          user.user_metadata?.full_name ||
+                          user.email ||
+                          'Anonymous User';
+
           // Create new review
           result = await supabase
             .from('reviews')
             .insert({
               restaurant_id: restaurantId,
               user_id: user.id,
+              user_name: userName,
               rating,
               comment: comment.trim() || null
             })
@@ -111,15 +118,12 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
           return;
         }
 
-        // Transform user data
+        // Transform user data using stored user_name
         const transformedReview = {
           ...result.data,
           user: {
             id: user.id,
-            name: user.user_metadata?.name ||
-                  user.user_metadata?.full_name ||
-                  user.email ||
-                  'Anonymous User'
+            name: result.data.user_name || 'Anonymous User'
           }
         };
 
