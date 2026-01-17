@@ -38,7 +38,7 @@ DROP POLICY IF EXISTS "Allow delete access to own lists" ON lists;
 
 -- Create new RLS policies for restaurants
 CREATE POLICY "restaurants_select_policy" ON restaurants
-FOR SELECT USING (auth.role() = 'authenticated');
+FOR SELECT USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
 
 CREATE POLICY "restaurants_insert_policy" ON restaurants
 FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = creator_id);
@@ -51,7 +51,7 @@ FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
 
 -- Create new RLS policies for lists
 CREATE POLICY "lists_select_policy" ON lists
-FOR SELECT USING (auth.role() = 'authenticated');
+FOR SELECT USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
 
 CREATE POLICY "lists_insert_policy" ON lists
 FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = creator_id);
