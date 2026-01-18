@@ -502,8 +502,20 @@ export default function RestaurantDetails() {
     setShowReviewForm(false);
     setEditingReview(null);
 
-    // Refresh restaurant data to get updated rating
-    await fetchRestaurantDetails();
+    // Update restaurant rating after successful review submission/update
+    await updateRestaurantRating(id);
+
+    // Fetch updated restaurant data to get the new rating
+    const { data: updatedRestaurant, error: fetchError } = await supabase
+      .from('restaurants')
+      .select('rating')
+      .eq('id', id)
+      .single();
+
+    if (!fetchError && updatedRestaurant && restaurant) {
+      // Update local restaurant state with new rating
+      setRestaurant({ ...(restaurant as any), rating: updatedRestaurant.rating });
+    }
 
     toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
   };
@@ -520,23 +532,77 @@ export default function RestaurantDetails() {
     }
 
     try {
-      const response = await fetch(`/api/reviews/${reviewId}`, {
-        method: 'DELETE',
-      });
+      // Use Supabase client for authenticated request
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', reviewId)
+        .eq('user_id', user.id); // Ensure user can only delete their own reviews
 
-      if (response.ok) {
-        setReviews(prev => prev.filter(review => review.id !== reviewId));
-        setReviewCount(prev => prev - 1);
-        // Refresh restaurant data to get updated rating
-        await fetchRestaurantDetails();
-        toast.success('Avaliação eliminada com sucesso!');
-      } else {
-        const data = await response.json();
-        toast.error(data.error || 'Erro ao eliminar avaliação');
+      if (error) {
+        console.error('Error deleting review:', error);
+        toast.error('Erro ao eliminar avaliação');
+        return;
       }
+
+      // Update local state
+      setReviews(prev => prev.filter(review => review.id !== reviewId));
+      setReviewCount(prev => prev - 1);
+
+      // Update restaurant rating after successful review deletion
+      await updateRestaurantRating(id);
+
+      // Fetch updated restaurant data to get the new rating
+      const { data: updatedRestaurant, error: fetchError } = await supabase
+        .from('restaurants')
+        .select('rating')
+        .eq('id', id)
+        .single();
+
+      if (!fetchError && updatedRestaurant && restaurant) {
+        // Update local restaurant state with new rating
+        setRestaurant({ ...(restaurant as any), rating: updatedRestaurant.rating });
+      }
+
+      toast.success('Avaliação eliminada com sucesso!');
     } catch (error) {
       console.error('Error deleting review:', error);
       toast.error('Erro ao eliminar avaliação. Tente novamente.');
+    }
+  };
+
+  // Helper function to update restaurant rating based on reviews
+  const updateRestaurantRating = async (restaurantId: string) => {
+    try {
+      // Calculate average rating from all reviews for this restaurant
+      const { data: reviews, error: reviewsError } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('restaurant_id', restaurantId);
+
+      if (reviewsError) {
+        console.error('Error fetching reviews for rating calculation:', reviewsError);
+        return;
+      }
+
+      let averageRating = 0;
+      if (reviews && reviews.length > 0) {
+        const totalRating = (reviews as any[]).reduce((sum, review: any) => sum + review.rating, 0);
+        averageRating = totalRating / reviews.length;
+      }
+      // If no reviews, rating should be 0
+
+      // Update the restaurant's rating
+      const { error: updateError } = await (supabase as any)
+        .from('restaurants')
+        .update({ rating: averageRating })
+        .eq('id', restaurantId);
+
+      if (updateError) {
+        console.error('Error updating restaurant rating:', updateError);
+      }
+    } catch (error) {
+      console.error('Error in updateRestaurantRating:', error);
     }
   };
   
