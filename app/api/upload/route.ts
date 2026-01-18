@@ -1,0 +1,82 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      return NextResponse.json({ error: 'Nenhum arquivo fornecido' }, { status: 400 });
+    }
+
+    // Verifica se é uma imagem
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ error: 'O arquivo deve ser uma imagem' }, { status: 400 });
+    }
+
+    // Verifica o tamanho do arquivo (máximo 10MB para Cloudinary free tier)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      return NextResponse.json({ error: 'A imagem deve ter no máximo 10MB' }, { status: 400 });
+    }
+
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (!cloudName || !uploadPreset || !apiKey || !apiSecret) {
+      return NextResponse.json({ error: 'Configuração do Cloudinary incompleta' }, { status: 500 });
+    }
+
+    // Create signed upload parameters
+    const timestamp = Math.floor(Date.now() / 1000);
+    const signature = generateSignature({
+      timestamp,
+      upload_preset: uploadPreset,
+      folder: 'foodlist'
+    }, apiSecret);
+
+    // Create form data for Cloudinary
+    const cloudinaryFormData = new FormData();
+    cloudinaryFormData.append('file', file);
+    cloudinaryFormData.append('upload_preset', uploadPreset);
+    cloudinaryFormData.append('folder', 'foodlist');
+    cloudinaryFormData.append('timestamp', timestamp.toString());
+    cloudinaryFormData.append('signature', signature);
+    cloudinaryFormData.append('api_key', apiKey);
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      {
+        method: 'POST',
+        body: cloudinaryFormData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Cloudinary error:', errorText);
+      return NextResponse.json({ error: 'Erro no upload para Cloudinary' }, { status: 500 });
+    }
+
+    const result = await response.json();
+    return NextResponse.json({ url: result.secure_url });
+
+  } catch (error) {
+    console.error('Upload error:', error);
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
+  }
+}
+
+function generateSignature(params: Record<string, any>, apiSecret: string): string {
+  // Sort parameters alphabetically
+  const sortedParams = Object.keys(params)
+    .sort()
+    .map(key => `${key}=${params[key]}`)
+    .join('&');
+
+  // Create SHA-1 hash
+  const crypto = require('crypto');
+  return crypto.createHash('sha1').update(sortedParams + apiSecret).digest('hex');
+}

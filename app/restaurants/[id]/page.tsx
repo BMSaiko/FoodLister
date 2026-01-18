@@ -15,7 +15,7 @@ import {
   FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
-import { convertImgurUrl } from '@/utils/imgurConverter';
+import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { logError, logWarn, logInfo } from '@/utils/logger';
 import { toast } from 'react-toastify';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
@@ -681,7 +681,7 @@ export default function RestaurantDetails() {
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8">
           <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 w-full">
             <Image
-              src={convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg'}
+              src={convertCloudinaryUrl(restaurant.image_url) || '/placeholder-restaurant.jpg'}
               alt={restaurant.name}
               fill
               className="object-cover"
