@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data to include restaurant count
-    const processedData = data?.map(list => ({
+    const processedData = data?.map((list: any) => ({
       ...list,
       restaurantCount: list.list_restaurants?.[0]?.count || 0
     })) || [];

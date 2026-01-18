@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data for easier client consumption
-    const processedData = data?.map(restaurant => ({
+    const processedData = data?.map((restaurant: any) => ({
       ...restaurant,
       cuisine_types: restaurant.cuisine_types
         ? restaurant.cuisine_types.map((relation: any) => relation.cuisine_type)

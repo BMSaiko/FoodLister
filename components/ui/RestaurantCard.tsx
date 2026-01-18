@@ -23,7 +23,7 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
     try {
       const newVisitedStatus = !visited;
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('restaurants')
         .update({ visited: newVisitedStatus })
         .eq('id', restaurant.id);
@@ -162,7 +162,7 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
             {visited && (
               <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ${centered ? '' : 'ml-2'} flex-shrink-0`}>
                 <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="currentColor" />
-                <span className="font-semibold text-sm">{restaurant.rating.toFixed(1)}</span>
+                <span className="font-semibold text-sm">{(restaurant.rating || 0).toFixed(1)}</span>
               </div>
             )}
           </div>

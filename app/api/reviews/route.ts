@@ -1,6 +1,7 @@
 // app/api/reviews/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
+import { getServerClient } from '@/libs/supabase/server';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -20,12 +21,12 @@ async function updateRestaurantRating(restaurantId: string) {
 
     let averageRating = 0;
     if (reviews && reviews.length > 0) {
-      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const totalRating = (reviews as any[]).reduce((sum, review) => sum + review.rating, 0);
       averageRating = totalRating / reviews.length;
     }
 
     // Update the restaurant's rating
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('restaurants')
       .update({ rating: averageRating })
       .eq('id', restaurantId);
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform user data consistently across all endpoints
-    const processedData = reviewsData.map(review => ({
+    const processedData = reviewsData.map((review: any) => ({
       ...review,
       user: {
         id: review.user_id,
@@ -91,7 +92,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = getClient();
+    const response = NextResponse.next();
+    const supabase = await getServerClient(request, response);
     const body = await request.json();
     const { restaurant_id, rating, comment } = body;
 
@@ -143,7 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the review
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('reviews')
       .insert({
         restaurant_id,
@@ -165,10 +167,10 @@ export async function POST(request: NextRequest) {
 
     // Transform user data using stored user_name
     const processedData = {
-      ...data,
+      ...(data as any),
       user: {
         id: user.id,
-        name: data.user_name || 'Anonymous User'
+        name: (data as any).user_name || 'Anonymous User'
       }
     };
 

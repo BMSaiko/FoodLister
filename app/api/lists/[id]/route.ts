@@ -40,8 +40,8 @@ export async function GET(
 
     // Transform data for easier client consumption
     const processedData = {
-      ...data,
-      restaurants: data.list_restaurants?.map((lr: any) => lr.restaurants).filter(Boolean) || []
+      ...(data as any),
+      restaurants: (data as any).list_restaurants?.map((lr: any) => lr.restaurants).filter(Boolean) || []
     };
 
     // Remove the intermediate table data

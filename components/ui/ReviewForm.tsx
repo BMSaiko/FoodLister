@@ -12,7 +12,7 @@ async function updateRestaurantRating(restaurantId: string) {
 
   try {
     // Calculate average rating from all reviews for this restaurant
-    const { data: reviews, error: reviewsError } = await supabase
+    const { data: reviews, error: reviewsError } = await (supabase as any)
       .from('reviews')
       .select('rating')
       .eq('restaurant_id', restaurantId);
@@ -24,12 +24,12 @@ async function updateRestaurantRating(restaurantId: string) {
 
     let averageRating = 0;
     if (reviews && reviews.length > 0) {
-      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      const totalRating = (reviews as any[]).reduce((sum, review: any) => sum + review.rating, 0);
       averageRating = totalRating / reviews.length;
     }
 
     // Update the restaurant's rating
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('restaurants')
       .update({ rating: averageRating })
       .eq('id', restaurantId);
@@ -97,7 +97,7 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
 
         if (isEditing && initialReview) {
           // Update existing review
-          result = await supabase
+          result = await (supabase as any)
             .from('reviews')
             .update({
               rating,
@@ -110,7 +110,7 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
             .single();
         } else {
           // Check if user already has a review for this restaurant (only for new reviews)
-          const { data: existingReview, error: checkError } = await supabase
+          const { data: existingReview, error: checkError } = await (supabase as any)
             .from('reviews')
             .select('id')
             .eq('restaurant_id', restaurantId)
@@ -135,7 +135,7 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
                           'Anonymous User';
 
           // Create new review
-          result = await supabase
+          result = await (supabase as any)
             .from('reviews')
             .insert({
               restaurant_id: restaurantId,

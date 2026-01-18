@@ -61,8 +61,8 @@ export default function RestaurantDetails() {
       if (restaurantError) throw restaurantError;
 
       if (restaurantData) {
-        setRestaurant(restaurantData);
-        setVisited(restaurantData.visited || false);
+        setRestaurant(restaurantData as any);
+        setVisited((restaurantData as any).visited || false);
 
         // Fetch cuisine types for this restaurant
         const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
@@ -73,7 +73,7 @@ export default function RestaurantDetails() {
         if (cuisineRelationsError) throw cuisineRelationsError;
 
         if (cuisineRelations && cuisineRelations.length > 0) {
-          const cuisineTypeIds = cuisineRelations.map(item => item.cuisine_type_id);
+          const cuisineTypeIds = (cuisineRelations as any[]).map((item: any) => item.cuisine_type_id);
 
           const { data: cuisineTypeDetails, error: cuisineTypeError } = await supabase
             .from('cuisine_types')
@@ -96,7 +96,7 @@ export default function RestaurantDetails() {
         if (listRelationsError) throw listRelationsError;
 
         if (listRelations && listRelations.length > 0) {
-          const listIds = listRelations.map(item => item.list_id);
+          const listIds = (listRelations as any[]).map((item: any) => item.list_id);
 
           const { data: listDetails, error: listDetailsError } = await supabase
             .from('lists')
@@ -340,7 +340,7 @@ export default function RestaurantDetails() {
     try {
       const newVisitedStatus = !visited;
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('restaurants')
         .update({ visited: newVisitedStatus })
         .eq('id', id);
@@ -654,7 +654,7 @@ export default function RestaurantDetails() {
               {visited && (
                 <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
                   <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="currentColor" />
-                  <span className="font-semibold text-base sm:text-lg">{restaurant.rating.toFixed(1)}</span>
+                  <span className="font-semibold text-base sm:text-lg">{(restaurant.rating || 0).toFixed(1)}</span>
                 </div>
               )}
             </div>
