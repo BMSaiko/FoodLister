@@ -59,10 +59,7 @@ function RestaurantsContent() {
 
       try {
         const searchParam = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : '';
-        const response = await fetch(`/api/restaurants${searchParam}`, {
-          // Enable caching for better performance
-          next: { revalidate: 60 } // Cache for 60 seconds
-        });
+        const response = await fetch(`/api/restaurants${searchParam}`);
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');

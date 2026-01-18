@@ -38,10 +38,7 @@ export async function GET(request: NextRequest) {
         : []
     })) || [];
 
-    // Add caching headers for better performance
-    const response = NextResponse.json({ restaurants: processedData });
-    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
-    return response;
+    return NextResponse.json({ restaurants: processedData });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
