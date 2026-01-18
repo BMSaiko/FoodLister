@@ -178,6 +178,14 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
               ))}
             </div>
           )}
+
+          {/* Display review count */}
+          {restaurant.review_count !== undefined && (
+            <div className={`flex items-center text-gray-500 text-xs sm:text-sm mt-2 ${centered ? 'justify-center' : ''}`}>
+              <span className="font-medium">{restaurant.review_count}</span>
+              <span className="ml-1">{restaurant.review_count === 1 ? 'avaliação' : 'avaliações'}</span>
+            </div>
+          )}
           
           <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{getDescriptionPreview(restaurant.description)}</p>
           
