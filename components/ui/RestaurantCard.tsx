@@ -179,11 +179,30 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
             </div>
           )}
 
-          {/* Display review count */}
-          {restaurant.review_count !== undefined && (
-            <div className={`flex items-center text-gray-500 text-xs sm:text-sm mt-2 ${centered ? 'justify-center' : ''}`}>
-              <span className="font-medium">{restaurant.review_count}</span>
-              <span className="ml-1">{restaurant.review_count === 1 ? 'avaliação' : 'avaliações'}</span>
+          {/* Display reviews and rating */}
+          {visited && restaurant.review_count !== undefined && restaurant.review_count > 0 && (
+            <div className={`mt-3 p-2 bg-gray-50 rounded-lg border border-gray-100 ${centered ? 'text-center' : ''}`}>
+              <div className={`flex items-center ${centered ? 'justify-center flex-col gap-1' : 'justify-between'}`}>
+                <div className="flex items-center gap-1">
+                  {Array(5).fill(0).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-3 w-3 ${
+                        i < Math.floor(restaurant.rating || 0)
+                          ? 'text-amber-400 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                  <span className="text-xs sm:text-sm font-semibold text-amber-700 ml-1">
+                    {(restaurant.rating || 0).toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <span className="text-xs font-medium">{restaurant.review_count}</span>
+                  <span className="text-xs ml-1">{restaurant.review_count === 1 ? 'avaliação' : 'avaliações'}</span>
+                </div>
+              </div>
             </div>
           )}
           

@@ -879,97 +879,156 @@ export default function RestaurantDetails() {
         </div>
 
         {/* Reviews Section */}
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
-              <Star className="h-5 w-5 mr-2 text-amber-500" />
-              Avaliações ({reviewCount})
-            </h2>
-            {user && !showReviewForm && (
-              <button
-                onClick={() => setShowReviewForm(true)}
-                className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors text-sm sm:text-base"
-              >
-                <Star className="h-4 w-4 mr-2" />
-                Avaliar Restaurante
-              </button>
-            )}
-          </div>
-
-          {(showReviewForm || editingReview) && (
-            <div className="mb-6">
-              <ReviewForm
-                restaurantId={id}
-                onReviewSubmitted={handleReviewSubmitted}
-                onCancel={() => {
-                  setShowReviewForm(false);
-                  setEditingReview(null);
-                }}
-                initialReview={editingReview}
-              />
-            </div>
-          )}
-
-          {loadingReviews ? (
-            <div className="animate-pulse space-y-4">
-              <div className="h-20 bg-gray-200 rounded"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
-            </div>
-          ) : reviews.length === 0 ? (
-            <div className="text-center py-8">
-              <Star className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-500 text-sm sm:text-base">Ainda não há avaliações para este restaurante.</p>
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+          <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+              <div className="flex items-center">
+                <div className="bg-amber-500 rounded-full p-2 mr-3">
+                  <Star className="h-5 w-5 text-white fill-current" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                    Avaliações
+                  </h2>
+                  <p className="text-sm text-gray-600">{reviewCount} avaliação{reviewCount !== 1 ? 'ões' : ''}</p>
+                </div>
+              </div>
               {user && !showReviewForm && (
-                <p className="text-gray-400 text-xs sm:text-sm mt-2">Seja o primeiro a avaliar!</p>
+                <button
+                  onClick={() => setShowReviewForm(true)}
+                  className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-medium min-h-[44px] sm:min-h-0"
+                >
+                  <Star className="h-4 w-4 mr-2 fill-current" />
+                  Avaliar Restaurante
+                </button>
               )}
             </div>
-          ) : (
-            <div className="space-y-4">
-              {reviews.map(review => (
-                <div key={review.id} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center">
-                      <div className="flex items-center mr-3">
-                        {Array(5).fill(0).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${i < review.rating ? 'text-amber-400 fill-current' : 'text-gray-300'}`}
-                          />
-                        ))}
+          </div>
+
+          <div className="p-4 sm:p-6">
+            {(showReviewForm || editingReview) && (
+              <div className="mb-6 sm:mb-8">
+                <ReviewForm
+                  restaurantId={id}
+                  onReviewSubmitted={handleReviewSubmitted}
+                  onCancel={() => {
+                    setShowReviewForm(false);
+                    setEditingReview(null);
+                  }}
+                  initialReview={editingReview}
+                />
+              </div>
+            )}
+
+            {loadingReviews ? (
+              <div className="space-y-4 sm:space-y-6">
+                <div className="animate-pulse">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-24"></div>
+                  </div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+                <div className="animate-pulse">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                </div>
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="text-center py-12 sm:py-16">
+                <div className="bg-amber-50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                  <Star className="h-10 w-10 text-amber-400" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
+                  Nenhuma avaliação ainda
+                </h3>
+                <p className="text-gray-500 text-sm sm:text-base mb-4 max-w-sm mx-auto">
+                  Este restaurante ainda não foi avaliado. Seja o primeiro a compartilhar sua experiência!
+                </p>
+                {user && !showReviewForm && (
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+                  >
+                    <Star className="h-5 w-5 mr-2 fill-current" />
+                    Fazer primeira avaliação
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4 sm:space-y-6">
+                {reviews.map(review => (
+                  <div key={review.id} className="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
+                      <div className="flex items-start sm:items-center gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                            <span className="text-amber-600 font-semibold text-sm">
+                              {review.user.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                            <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                              {review.user.name}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {Array(5).fill(0).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                                    i < review.rating
+                                      ? 'text-amber-400 fill-current'
+                                      : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                              <span className="text-xs sm:text-sm text-gray-600 ml-1 font-medium">
+                                {review.rating}/5
+                              </span>
+                            </div>
+                          </div>
+                          {review.comment && (
+                            <p className="text-gray-700 text-sm sm:text-base leading-relaxed mt-2">
+                              {review.comment}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <span className="font-medium text-gray-800">{review.user.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {user && review.user_id === user.id && (
-                        <>
-                          <button
-                            onClick={() => setEditingReview(review)}
-                            className="text-gray-500 hover:text-amber-600 transition-colors p-1"
-                            title="Editar avaliação"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteReview(review.id)}
-                            className="text-gray-500 hover:text-red-600 transition-colors p-1"
-                            title="Eliminar avaliação"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </>
-                      )}
-                      <span className="text-xs text-gray-500">
-                        {formatDate(review.created_at)}
-                      </span>
+                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:flex-shrink-0">
+                        <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-md border">
+                          {formatDate(review.created_at)}
+                        </span>
+                        {user && review.user_id === user.id && (
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => setEditingReview(review)}
+                              className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200 touch-feedback"
+                              title="Editar avaliação"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteReview(review.id)}
+                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 touch-feedback"
+                              title="Eliminar avaliação"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  {review.comment && (
-                    <p className="text-gray-700 mt-2 text-sm sm:text-base">{review.comment}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

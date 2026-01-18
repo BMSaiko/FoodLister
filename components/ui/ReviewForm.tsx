@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Star, Send } from 'lucide-react';
+import { Star, Send, X } from 'lucide-react';
 import { ReviewFormData, Review } from '@/libs/types';
 import { getClient } from '@/libs/supabase/client';
 
@@ -186,75 +186,102 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        {isEditing ? 'Editar avaliação' : 'Deixe sua avaliação'}
-      </h3>
+    <div className="bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 sm:px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center">
+          <div className="bg-amber-500 rounded-full p-2 mr-3">
+            <Star className="h-5 w-5 text-white fill-current" />
+          </div>
+          <h3 className="text-lg sm:text-xl font-bold text-gray-800">
+            {isEditing ? 'Editar avaliação' : 'Deixe sua avaliação'}
+          </h3>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6">
         {/* Rating Stars */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
             Avaliação *
           </label>
-          <div className="flex items-center space-x-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                className="focus:outline-none focus:ring-2 focus:ring-amber-500 rounded"
-                onMouseEnter={() => setHoverRating(star)}
-                onMouseLeave={() => setHoverRating(0)}
-                onClick={() => setRating(star)}
-              >
-                <Star
-                  className={`h-8 w-8 ${
-                    star <= (hoverRating || rating)
-                      ? 'text-amber-400 fill-current'
-                      : 'text-gray-300'
-                  } transition-colors`}
-                />
-              </button>
-            ))}
-            <span className="ml-2 text-sm text-gray-600">
-              {rating > 0 && `${rating} estrela${rating > 1 ? 's' : ''}`}
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-center space-x-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  className="focus:outline-none focus:ring-2 focus:ring-amber-500 rounded-lg p-1 touch-feedback transition-transform hover:scale-110"
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => setRating(star)}
+                >
+                  <Star
+                    className={`h-8 w-8 sm:h-10 sm:w-10 ${
+                      star <= (hoverRating || rating)
+                        ? 'text-amber-400 fill-current'
+                        : 'text-gray-300'
+                    } transition-colors duration-200`}
+                  />
+                </button>
+              ))}
+            </div>
+            {rating > 0 && (
+              <div className="bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
+                <span className="text-sm font-medium text-amber-800">
+                  {rating} estrela{rating > 1 ? 's' : ''}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Comment */}
         <div>
-          <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
-            Comentário (opcional)
+          <label htmlFor="comment" className="block text-sm font-semibold text-gray-700 mb-3">
+            Comentário <span className="text-gray-500 font-normal">(opcional)</span>
           </label>
           <textarea
             id="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Compartilhe sua experiência neste restaurante..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
-            rows={3}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none bg-gray-50 hover:bg-white transition-colors text-sm sm:text-base"
+            rows={4}
             maxLength={500}
           />
-          <div className="text-xs text-gray-500 mt-1">
-            {comment.length}/500 caracteres
+          <div className="flex justify-between items-center mt-2">
+            <span className="text-xs text-gray-500">
+              Máximo 500 caracteres
+            </span>
+            <span className={`text-xs font-medium ${
+              comment.length > 450 ? 'text-red-600' : 'text-gray-600'
+            }`}>
+              {comment.length}/500
+            </span>
           </div>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-md p-3">
-            {error}
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <X className="h-5 w-5 text-red-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Submit Buttons */}
-        <div className="flex justify-end space-x-3">
+        <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-2">
           {onCancel && (
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+              className="px-6 py-3 text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200 font-medium min-h-[44px] order-2 sm:order-1"
               disabled={isSubmitting}
             >
               Cancelar
@@ -263,16 +290,16 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
           <button
             type="submit"
             disabled={isSubmitting || rating === 0}
-            className="flex items-center px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center justify-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg font-medium min-h-[44px] order-1 sm:order-2"
           >
             {isSubmitting ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 {isEditing ? 'Atualizando...' : 'Enviando...'}
               </>
             ) : (
               <>
-                <Send className="h-4 w-4 mr-2" />
+                <Send className="h-5 w-5 mr-2 fill-current" />
                 {isEditing ? 'Atualizar Avaliação' : 'Enviar Avaliação'}
               </>
             )}
