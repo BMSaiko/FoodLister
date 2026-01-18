@@ -1,7 +1,7 @@
 // app/api/reviews/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAdminClient } from '@/libs/supabase/server';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -41,7 +41,8 @@ async function updateRestaurantRating(restaurantId: string) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getClient();
+    const response = NextResponse.next();
+    const supabase = await getServerClient(request, response);
     const { searchParams } = new URL(request.url);
     const restaurantId = searchParams.get('restaurant_id');
 
@@ -74,12 +75,46 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ reviews: [] });
     }
 
+    // Get unique user IDs to fetch their profile images
+    const userIds = [...new Set(reviewsData.map((review: any) => review.user_id))];
+
+    // Fetch user profile images using admin client for metadata access
+    const userProfiles = new Map();
+    const adminClient = getAdminClient();
+
+    for (const userId of userIds) {
+      try {
+        // Try to get user data with metadata using admin client
+        const { data: userData, error: userError } = await adminClient.auth.admin.getUserById(userId);
+        if (!userError && userData.user?.user_metadata?.profile_image) {
+          userProfiles.set(userId, userData.user.user_metadata.profile_image);
+        } else {
+          // Fallback to profiles table using regular client
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('avatar_url')
+            .eq('user_id', userId)
+            .single();
+
+          if (!profileError && (profileData as any)?.avatar_url) {
+            userProfiles.set(userId, (profileData as any).avatar_url);
+          } else {
+            userProfiles.set(userId, null);
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching profile for user ${userId}:`, error);
+        userProfiles.set(userId, null);
+      }
+    }
+
     // Transform user data consistently across all endpoints
     const processedData = reviewsData.map((review: any) => ({
       ...review,
       user: {
         id: review.user_id,
-        name: review.user_name || 'Anonymous User'
+        name: review.user_name || 'Anonymous User',
+        profileImage: userProfiles.get(review.user_id) || null
       }
     }));
 
@@ -152,7 +187,8 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         user_name: userName,
         rating,
-        comment: comment || null
+        comment: comment || null,
+        user_profile_image: user.user_metadata?.profile_image || null
       })
       .select('*')
       .single();
@@ -165,12 +201,13 @@ export async function POST(request: NextRequest) {
     // Update restaurant rating after successful review creation
     await updateRestaurantRating(restaurant_id);
 
-    // Transform user data using stored user_name
+    // Transform user data using stored user_name and profile image
     const processedData = {
       ...(data as any),
       user: {
         id: user.id,
-        name: (data as any).user_name || 'Anonymous User'
+        name: (data as any).user_name || 'Anonymous User',
+        profileImage: user.user_metadata?.profile_image || null
       }
     };
 
