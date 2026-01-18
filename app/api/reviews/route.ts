@@ -1,7 +1,7 @@
 // app/api/reviews/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient, getAdminClient } from '@/libs/supabase/server';
+import { getServerClient } from '@/libs/supabase/server';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -75,37 +75,55 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ reviews: [] });
     }
 
-    // Get unique user IDs to fetch their profile images
+    // Get unique user IDs to fetch their profile images from profiles table
     const userIds = [...new Set(reviewsData.map((review: any) => review.user_id))];
 
-    // Fetch user profile images using admin client for metadata access
+    // Fetch user profile images from profiles table
     const userProfiles = new Map();
-    const adminClient = getAdminClient();
 
-    for (const userId of userIds) {
-      try {
-        // Try to get user data with metadata using admin client
-        const { data: userData, error: userError } = await adminClient.auth.admin.getUserById(userId);
-        if (!userError && userData.user?.user_metadata?.profile_image) {
-          userProfiles.set(userId, userData.user.user_metadata.profile_image);
-        } else {
-          // Fallback to profiles table using regular client
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('avatar_url')
-            .eq('user_id', userId)
-            .single();
+    if (userIds.length > 0) {
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, avatar_url')
+        .in('user_id', userIds);
 
-          if (!profileError && (profileData as any)?.avatar_url) {
-            userProfiles.set(userId, (profileData as any).avatar_url);
-          } else {
-            userProfiles.set(userId, null);
+      if (!profilesError && profilesData) {
+        profilesData.forEach((profile: any) => {
+          userProfiles.set(profile.user_id, profile.avatar_url || null);
+        });
+      } else {
+        // Try to create profiles for users that don't have one
+        for (const userId of userIds) {
+          if (!userProfiles.has(userId)) {
+            try {
+              const { error: createError } = await (supabase as any)
+                .from('profiles')
+                .insert({
+                  user_id: userId,
+                  display_name: null,
+                  bio: null,
+                  avatar_url: null,
+                  website: null,
+                  location: null,
+                  phone_number: null
+                });
+
+              if (!createError) {
+                userProfiles.set(userId, null); // Profile created but no avatar yet
+              }
+            } catch (createErr) {
+              // Ignore creation errors, will remain null
+            }
           }
         }
-      } catch (error) {
-        console.error(`Error fetching profile for user ${userId}:`, error);
-        userProfiles.set(userId, null);
       }
+
+      // Ensure all users have an entry in the map
+      userIds.forEach(userId => {
+        if (!userProfiles.has(userId)) {
+          userProfiles.set(userId, null);
+        }
+      });
     }
 
     // Transform user data consistently across all endpoints
@@ -179,6 +197,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get user's current profile image from profiles table
+    const { data: userProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('avatar_url')
+      .eq('user_id', user.id)
+      .single();
+
+    const userProfileImage = (!profileError && (userProfile as any)?.avatar_url) ? (userProfile as any).avatar_url : null;
+
     // Create the review
     const { data, error } = await (supabase as any)
       .from('reviews')
@@ -187,8 +214,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         user_name: userName,
         rating,
-        comment: comment || null,
-        user_profile_image: user.user_metadata?.profile_image || null
+        comment: comment || null
       })
       .select('*')
       .single();
@@ -201,13 +227,13 @@ export async function POST(request: NextRequest) {
     // Update restaurant rating after successful review creation
     await updateRestaurantRating(restaurant_id);
 
-    // Transform user data using stored user_name and profile image
+    // Transform user data using stored user_name and profile image from profiles table
     const processedData = {
       ...(data as any),
       user: {
         id: user.id,
         name: (data as any).user_name || 'Anonymous User',
-        profileImage: user.user_metadata?.profile_image || null
+        profileImage: userProfileImage
       }
     };
 

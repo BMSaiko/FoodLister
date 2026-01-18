@@ -50,20 +50,55 @@ const ProfileSettingsPage = () => {
     try {
       setLoading(true);
 
-      // Get user metadata from Supabase Auth
-      const { data: userData, error } = await supabase.auth.getUser();
+      // First try to get from profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-      if (error) throw error;
+      if (!profileError && profileData) {
+        // Use data from profiles table
+        setProfile({
+          displayName: (profileData as any).display_name || '',
+          phoneNumber: (profileData as any).phone_number || '',
+          description: (profileData as any).bio || '',
+          profileImage: (profileData as any).avatar_url || '',
+          email: user.email || ''
+        });
+      } else {
+        // Fallback to user metadata if profile doesn't exist
+        const metadata = user.user_metadata || {};
 
-      const metadata = userData.user?.user_metadata || {};
+        setProfile({
+          displayName: metadata.display_name || metadata.name || metadata.full_name || '',
+          phoneNumber: metadata.phone_number || metadata.phone || '',
+          description: metadata.description || metadata.bio || '',
+          profileImage: metadata.profile_image || metadata.avatar_url || '',
+          email: user.email || ''
+        });
 
-      setProfile({
-        displayName: metadata.display_name || metadata.name || metadata.full_name || '',
-        phoneNumber: metadata.phone_number || metadata.phone || '',
-        description: metadata.description || metadata.bio || '',
-        profileImage: metadata.profile_image || metadata.avatar_url || '',
-        email: userData.user?.email || ''
-      });
+        // Create profile entry if it doesn't exist
+        try {
+          const { error: createError } = await (supabase as any)
+            .from('profiles')
+            .insert({
+              user_id: user.id,
+              display_name: metadata.display_name || metadata.name || metadata.full_name || null,
+              bio: metadata.description || metadata.bio || null,
+              avatar_url: metadata.profile_image || metadata.avatar_url || null,
+              website: null,
+              location: null,
+              phone_number: metadata.phone_number || metadata.phone || null
+            });
+
+          if (createError && createError.code !== '23505') { // Ignore duplicate key error
+            console.error('Error creating profile:', createError);
+          }
+        } catch (createError) {
+          console.error('Error creating profile:', createError);
+        }
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
       toast.error('Erro ao carregar perfil');
@@ -100,7 +135,23 @@ const ProfileSettingsPage = () => {
     try {
       setSaving(true);
 
-      const { error } = await supabase.auth.updateUser({
+      // Update profiles table
+      const { error: profileError } = await (supabase as any)
+        .from('profiles')
+        .upsert({
+          user_id: user.id,
+          display_name: profile.displayName || null,
+          bio: profile.description || null,
+          avatar_url: profile.profileImage || null,
+          phone_number: profile.phoneNumber || null,
+          website: null,
+          location: null
+        });
+
+      if (profileError) throw profileError;
+
+      // Also update user metadata for consistency
+      const { error: metadataError } = await supabase.auth.updateUser({
         data: {
           display_name: profile.displayName,
           phone_number: profile.phoneNumber,
@@ -109,7 +160,10 @@ const ProfileSettingsPage = () => {
         }
       });
 
-      if (error) throw error;
+      if (metadataError) {
+        console.error('Error updating metadata:', metadataError);
+        // Don't throw here as the profile was updated successfully
+      }
 
       toast.success('Perfil atualizado com sucesso!');
     } catch (error) {

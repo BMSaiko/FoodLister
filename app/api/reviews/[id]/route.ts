@@ -1,7 +1,7 @@
 // app/api/reviews/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient, getAdminClient } from '@/libs/supabase/server';
+import { getServerClient } from '@/libs/supabase/server';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -73,26 +73,18 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch review' }, { status: 500 });
     }
 
-    // Get user profile image using admin client for metadata access
+    // Get user profile image from profiles table
     let userProfileImage = null;
-    const adminClient = getAdminClient();
 
     try {
-      // Try to get user data with metadata using admin client
-      const { data: userData, error: userError } = await adminClient.auth.admin.getUserById((data as any).user.id);
-      if (!userError && userData.user?.user_metadata?.profile_image) {
-        userProfileImage = userData.user.user_metadata.profile_image;
-      } else {
-        // Fallback to profiles table
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('avatar_url')
-          .eq('user_id', (data as any).user.id)
-          .single();
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('user_id', (data as any).user.id)
+        .single();
 
-        if (!profileError && (profileData as any)?.avatar_url) {
-          userProfileImage = (profileData as any).avatar_url;
-        }
+      if (!profileError && (profileData as any)?.avatar_url) {
+        userProfileImage = (profileData as any).avatar_url;
       }
     } catch (error) {
       console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
@@ -184,26 +176,18 @@ export async function PUT(
     // Update restaurant rating after successful review update
     await updateRestaurantRating((existingReview as any).restaurant_id);
 
-    // Get user profile image using admin client for metadata access
+    // Get user profile image from profiles table
     let userProfileImage = null;
-    const adminClient = getAdminClient();
 
     try {
-      // Try to get user data with metadata using admin client
-      const { data: userData, error: userError } = await adminClient.auth.admin.getUserById((data as any).user.id);
-      if (!userError && userData.user?.user_metadata?.profile_image) {
-        userProfileImage = userData.user.user_metadata.profile_image;
-      } else {
-        // Fallback to profiles table
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('avatar_url')
-          .eq('user_id', (data as any).user.id)
-          .single();
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('user_id', (data as any).user.id)
+        .single();
 
-        if (!profileError && (profileData as any)?.avatar_url) {
-          userProfileImage = (profileData as any).avatar_url;
-        }
+      if (!profileError && (profileData as any)?.avatar_url) {
+        userProfileImage = (profileData as any).avatar_url;
       }
     } catch (error) {
       console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
