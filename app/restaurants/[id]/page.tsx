@@ -514,7 +514,7 @@ export default function RestaurantDetails() {
 
     if (!fetchError && updatedRestaurant && restaurant) {
       // Update local restaurant state with new rating
-      setRestaurant({ ...(restaurant as any), rating: updatedRestaurant.rating });
+      setRestaurant({ ...(restaurant as any), rating: (updatedRestaurant as any).rating });
     }
 
     toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
@@ -561,7 +561,7 @@ export default function RestaurantDetails() {
 
       if (!fetchError && updatedRestaurant && restaurant) {
         // Update local restaurant state with new rating
-        setRestaurant({ ...(restaurant as any), rating: updatedRestaurant.rating });
+        setRestaurant({ ...(restaurant as any), rating: (updatedRestaurant as any).rating });
       }
 
       toast.success('Avaliação eliminada com sucesso!');
