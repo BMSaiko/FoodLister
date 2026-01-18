@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts';
 
 const Navbar = ({ clearFilters = null }) => {
@@ -14,6 +14,7 @@ const Navbar = ({ clearFilters = null }) => {
   const pathname = usePathname();
   const [activeSection, setActiveSection] = useState('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   
   // Determina a seção ativa com base na URL atual
   useEffect(() => {
@@ -84,9 +85,102 @@ const Navbar = ({ clearFilters = null }) => {
             </div>
           </div>
 
-          {/* Botões de ações (criar restaurante/lista) */}
-          <div className="flex justify-end flex-shrink-0">
-            <NavbarActions activeSection={activeSection} showLogin={true} />
+          {/* Botões de ações e menu do usuário */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Botão de criar */}
+            <NavbarActions activeSection={activeSection} showLogin={true} showSignout={false} />
+
+            {/* Menu do usuário (apenas se logado) */}
+            {user && !loading && (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 transition-colors min-h-[40px]"
+                  title="Menu do usuário"
+                >
+                  <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                    {user.user_metadata?.profile_image ? (
+                      <img
+                        src={user.user_metadata.profile_image}
+                        alt="Avatar"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white text-xs font-semibold">
+                        {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown do usuário */}
+                {userMenuOpen && (
+                  <>
+                    {/* Overlay para fechar ao clicar fora */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
+                      {/* Header com avatar e informações */}
+                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 border-b border-gray-100">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                            {user.user_metadata?.profile_image ? (
+                              <img
+                                src={user.user_metadata.profile_image}
+                                alt="Avatar"
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-white text-sm font-semibold">
+                                {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">
+                              {user.user_metadata?.name || user.user_metadata?.display_name || 'Usuário'}
+                            </p>
+                            <p className="text-xs text-gray-600 truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Menu Options */}
+                      <div className="py-2">
+                        <Link
+                          href="/profile"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-4 px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <Settings className="h-4 w-4 text-amber-600" />
+                          </div>
+                          <p className="font-medium">Configurações</p>
+                        </Link>
+
+                        <button
+                          onClick={async () => {
+                            setUserMenuOpen(false);
+                            await signOut();
+                          }}
+                          className="flex items-center gap-4 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors active:bg-red-100"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                            <LogOut className="h-4 w-4 text-red-600" />
+                          </div>
+                          <p className="font-medium">Sair</p>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -115,14 +209,94 @@ const Navbar = ({ clearFilters = null }) => {
                 </button>
               </Link>
             )}
-            {user && (
-              <button
-                onClick={async () => await signOut()}
-                className="flex items-center justify-center bg-gray-100 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-200 active:bg-gray-300 transition-colors min-h-[44px] min-w-[44px] text-sm font-medium"
-                title="Sair"
-              >
-                <LogOut className="h-4 w-4" />
-              </button>
+            {user && !loading && (
+              <>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 transition-colors min-h-[44px]"
+                  title="Menu do usuário"
+                >
+                  <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                    {user.user_metadata?.profile_image ? (
+                      <img
+                        src={user.user_metadata.profile_image}
+                        alt="Avatar"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white text-xs font-semibold">
+                        {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                {/* Dropdown do usuário - Mobile */}
+                {userMenuOpen && (
+                  <>
+                    {/* Overlay para fechar ao clicar fora */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setUserMenuOpen(false)}
+                    />
+                    <div className="absolute right-2 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
+                      {/* Header com avatar e informações */}
+                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 border-b border-gray-100">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                            {user.user_metadata?.profile_image ? (
+                              <img
+                                src={user.user_metadata.profile_image}
+                                alt="Avatar"
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-white text-lg font-semibold">
+                                {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">
+                              {user.user_metadata?.name || user.user_metadata?.display_name || 'Usuário'}
+                            </p>
+                            <p className="text-xs text-gray-600 truncate">
+                              {user.email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Menu Options */}
+                      <div className="py-2">
+                        <Link
+                          href="/profile"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center justify-center w-full px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                          title="Configurações"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <Settings className="h-5 w-5 text-amber-600" />
+                          </div>
+                        </Link>
+
+                        <button
+                          onClick={async () => {
+                            setUserMenuOpen(false);
+                            await signOut();
+                          }}
+                          className="flex items-center justify-center w-full px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors active:bg-red-100"
+                          title="Sair"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                            <LogOut className="h-5 w-5 text-red-600" />
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
             )}
             <button
               onClick={toggleMobileMenu}

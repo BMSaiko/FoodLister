@@ -39,7 +39,7 @@ const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }) 
     );
   }
 
-  // User authenticated - show create button, profile button and sign out if showSignout is true
+  // User authenticated - show create button and sign out if showSignout is true
   return (
     <div className="flex items-center gap-2 w-full sm:w-auto">
       {activeSection === 'restaurants' ? (
@@ -58,22 +58,6 @@ const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }) 
             <span className="sm:hidden">Nova</span>
           </button>
         </Link>
-      )}
-      <Link href="/profile" className="flex-shrink-0">
-        <button className="flex items-center justify-center bg-gray-100 text-gray-700 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md hover:bg-gray-200 active:bg-gray-300 transition-colors min-h-[44px] sm:min-h-[40px] text-sm sm:text-base font-medium" title="Configurações">
-          <Settings className="h-4 w-4" />
-          <span className="hidden sm:inline ml-1.5">Perfil</span>
-        </button>
-      </Link>
-      {showSignout && (
-        <button
-          onClick={handleSignOut}
-          className="flex items-center justify-center bg-gray-100 text-gray-700 px-3 sm:px-4 py-2.5 sm:py-2 rounded-md hover:bg-gray-200 active:bg-gray-300 transition-colors min-h-[44px] sm:min-h-[40px] text-sm sm:text-base font-medium"
-          title="Sair"
-        >
-          <LogOut className="h-4 w-4" />
-          <span className="hidden sm:inline ml-1.5">Sair</span>
-        </button>
       )}
     </div>
   );
