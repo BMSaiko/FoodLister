@@ -78,6 +78,20 @@ The FoodList application uses a relational database with the following main enti
 | `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 
+### Reviews Table
+
+**Table Name**: `reviews`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
+| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id |
+| `rating` | `integer` | NO | - | Rating from 1 to 5 stars |
+| `comment` | `text` | YES | - | Optional text comment for the review |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+| `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
+
 ## Relationships
 
 ### Entity Relationship Diagram
@@ -123,6 +137,8 @@ The FoodList application uses a relational database with the following main enti
 - **One-to-Many**: `cuisine_types` → `restaurant_cuisine_types` (one cuisine type can belong to many restaurants)
 - **One-to-Many**: `lists` → `list_restaurants` (one list can contain many restaurants)
 - **One-to-Many**: `restaurants` → `list_restaurants` (one restaurant can belong to many lists)
+- **One-to-Many**: `restaurants` → `reviews` (one restaurant can have many reviews)
+- **One-to-Many**: `auth.users` → `reviews` (one user can write many reviews)
 
 ## Indexes
 
@@ -189,6 +205,25 @@ FOR UPDATE USING (auth.uid()::text = creator);
 -- Allow users to delete lists they created
 CREATE POLICY "Allow delete access to own lists" ON lists
 FOR DELETE USING (auth.uid()::text = creator);
+```
+
+### Reviews Table
+```sql
+-- Allow anyone to read reviews (for public display)
+CREATE POLICY "reviews_select_policy" ON reviews
+FOR SELECT USING (true);
+
+-- Allow authenticated users to insert their own reviews
+CREATE POLICY "reviews_insert_policy" ON reviews
+FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
+
+-- Allow users to update their own reviews
+CREATE POLICY "reviews_update_policy" ON reviews
+FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
+
+-- Allow users to delete their own reviews
+CREATE POLICY "reviews_delete_policy" ON reviews
+FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
 ```
 
 ## Data Types and Constraints
