@@ -70,7 +70,6 @@ export default function EditRestaurant({ restaurantId }) {
     description: '',
     image_url: '',
     price_per_person: '',
-    rating: '',
     location: '',
     source_url: '',
     menu_url: '',
@@ -122,7 +121,6 @@ export default function EditRestaurant({ restaurantId }) {
             description: restaurantData.description,
             image_url: restaurantData.image_url || '',
             price_per_person: restaurantData.price_per_person.toString(),
-            rating: restaurantData.rating.toString(),
             location: restaurantData.location || '',
             source_url: restaurantData.source_url || '',
             menu_url: restaurantData.menu_url || '',
@@ -256,27 +254,11 @@ export default function EditRestaurant({ restaurantId }) {
       return;
     }
 
-    // Convert price and rating to numbers
+    // Convert price to numbers
     const priceAsNumber = parseFloat(formData.price_per_person);
-    const ratingAsNumber = parseFloat(formData.rating);
 
     if (isNaN(priceAsNumber) || priceAsNumber <= 0) {
       toast.error('O preço deve ser um número positivo.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base",
-        bodyClassName: "text-sm sm:text-base"
-      });
-      return;
-    }
-
-    if (isNaN(ratingAsNumber) || ratingAsNumber < 0 || ratingAsNumber > 5) {
-      toast.error('A avaliação deve ser um número entre 0 e 5.', {
         position: "top-center",
         autoClose: 4000,
         hideProgressBar: false,
@@ -328,7 +310,6 @@ export default function EditRestaurant({ restaurantId }) {
           description: formData.description,
           image_url: processedImageUrl,
           price_per_person: priceAsNumber,
-          rating: ratingAsNumber,
           location: formData.location,
           source_url: formData.source_url,
           menu_url: formData.menu_url,
@@ -512,31 +493,18 @@ export default function EditRestaurant({ restaurantId }) {
                 />
               </FormSection>
 
-              {/* Avaliações e Preços */}
-              <FormSection title="Avaliações e Preços">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    label="Preço por Pessoa (€)"
-                    name="price_per_person"
-                    type="number"
-                    value={formData.price_per_person}
-                    onChange={handleChange}
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-
-                  <FormField
-                    label="Avaliação (0-5)"
-                    name="rating"
-                    type="number"
-                    value={formData.rating}
-                    onChange={handleChange}
-                    min="0"
-                    max="5"
-                    step="0.1"
-                  />
-                </div>
+              {/* Preços */}
+              <FormSection title="Preços">
+                <FormField
+                  label="Preço por Pessoa (€)"
+                  name="price_per_person"
+                  type="number"
+                  value={formData.price_per_person}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                  required
+                />
               </FormSection>
 
               {/* Informações Adicionais */}

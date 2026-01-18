@@ -23,7 +23,7 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
     try {
       const newVisitedStatus = !visited;
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('restaurants')
         .update({ visited: newVisitedStatus })
         .eq('id', restaurant.id);
@@ -162,7 +162,7 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
             {visited && (
               <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ${centered ? '' : 'ml-2'} flex-shrink-0`}>
                 <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="currentColor" />
-                <span className="font-semibold text-sm">{restaurant.rating.toFixed(1)}</span>
+                <span className="font-semibold text-sm">{(restaurant.rating || 0).toFixed(1)}</span>
               </div>
             )}
           </div>
@@ -176,6 +176,33 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
                   {type.name}
                 </span>
               ))}
+            </div>
+          )}
+
+          {/* Display reviews and rating */}
+          {visited && restaurant.review_count !== undefined && restaurant.review_count > 0 && (
+            <div className={`mt-3 p-2 bg-gray-50 rounded-lg border border-gray-100 ${centered ? 'text-center' : ''}`}>
+              <div className={`flex items-center ${centered ? 'justify-center flex-col gap-1' : 'justify-between'}`}>
+                <div className="flex items-center gap-1">
+                  {Array(5).fill(0).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-3 w-3 ${
+                        i < Math.floor(restaurant.rating || 0)
+                          ? 'text-amber-400 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                  <span className="text-xs sm:text-sm font-semibold text-amber-700 ml-1">
+                    {(restaurant.rating || 0).toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <span className="text-xs font-medium">{restaurant.review_count}</span>
+                  <span className="text-xs ml-1">{restaurant.review_count === 1 ? 'avaliação' : 'avaliações'}</span>
+                </div>
+              </div>
             </div>
           )}
           
