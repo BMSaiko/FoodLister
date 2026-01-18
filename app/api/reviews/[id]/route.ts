@@ -2,6 +2,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 
+// Helper function to update restaurant rating based on reviews
+async function updateRestaurantRating(restaurantId: string) {
+  const supabase = getClient();
+
+  try {
+    // Calculate average rating from all reviews for this restaurant
+    const { data: reviews, error: reviewsError } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('restaurant_id', restaurantId);
+
+    if (reviewsError) {
+      console.error('Error fetching reviews for rating calculation:', reviewsError);
+      return;
+    }
+
+    let averageRating = 0;
+    if (reviews && reviews.length > 0) {
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      averageRating = totalRating / reviews.length;
+    }
+
+    // Update the restaurant's rating
+    const { error: updateError } = await supabase
+      .from('restaurants')
+      .update({ rating: averageRating })
+      .eq('id', restaurantId);
+
+    if (updateError) {
+      console.error('Error updating restaurant rating:', updateError);
+    }
+  } catch (error) {
+    console.error('Error in updateRestaurantRating:', error);
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -83,7 +119,7 @@ export async function PUT(
     // Check if the review exists and belongs to the current user
     const { data: existingReview, error: fetchError } = await supabase
       .from('reviews')
-      .select('id')
+      .select('id, restaurant_id')
       .eq('id', reviewId)
       .eq('user_id', user.id)
       .single();
@@ -115,6 +151,9 @@ export async function PUT(
       console.error('Error updating review:', error);
       return NextResponse.json({ error: 'Failed to update review' }, { status: 500 });
     }
+
+    // Update restaurant rating after successful review update
+    await updateRestaurantRating(existingReview.restaurant_id);
 
     // Transform user data using stored user_name
     const processedData = {
@@ -151,7 +190,7 @@ export async function DELETE(
     // Check if the review exists and belongs to the current user
     const { data: existingReview, error: fetchError } = await supabase
       .from('reviews')
-      .select('id')
+      .select('id, restaurant_id')
       .eq('id', reviewId)
       .eq('user_id', user.id)
       .single();
@@ -171,6 +210,9 @@ export async function DELETE(
       console.error('Error deleting review:', error);
       return NextResponse.json({ error: 'Failed to delete review' }, { status: 500 });
     }
+
+    // Update restaurant rating after successful review deletion
+    await updateRestaurantRating(existingReview.restaurant_id);
 
     return NextResponse.json({ message: 'Review deleted successfully' });
   } catch (error) {

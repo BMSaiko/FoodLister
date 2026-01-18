@@ -6,6 +6,42 @@ import { Star, Send } from 'lucide-react';
 import { ReviewFormData, Review } from '@/libs/types';
 import { getClient } from '@/libs/supabase/client';
 
+// Helper function to update restaurant rating based on reviews
+async function updateRestaurantRating(restaurantId: string) {
+  const supabase = getClient();
+
+  try {
+    // Calculate average rating from all reviews for this restaurant
+    const { data: reviews, error: reviewsError } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('restaurant_id', restaurantId);
+
+    if (reviewsError) {
+      console.error('Error fetching reviews for rating calculation:', reviewsError);
+      return;
+    }
+
+    let averageRating = 0;
+    if (reviews && reviews.length > 0) {
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      averageRating = totalRating / reviews.length;
+    }
+
+    // Update the restaurant's rating
+    const { error: updateError } = await supabase
+      .from('restaurants')
+      .update({ rating: averageRating })
+      .eq('id', restaurantId);
+
+    if (updateError) {
+      console.error('Error updating restaurant rating:', updateError);
+    }
+  } catch (error) {
+    console.error('Error in updateRestaurantRating:', error);
+  }
+}
+
 interface ReviewFormProps {
   restaurantId: string;
   onReviewSubmitted: (review: any) => void;
@@ -117,6 +153,9 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
           setError(isEditing ? 'Erro ao atualizar avaliação.' : 'Erro ao enviar avaliação.');
           return;
         }
+
+        // Update restaurant rating after successful review creation/update
+        await updateRestaurantRating(restaurantId);
 
         // Transform user data using stored user_name
         const transformedReview = {

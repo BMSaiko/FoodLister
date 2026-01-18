@@ -488,7 +488,7 @@ export default function RestaurantDetails() {
   const ratingClass = getRatingClass(restaurant.rating);
 
   // Handle review submission
-  const handleReviewSubmitted = (newReview: Review) => {
+  const handleReviewSubmitted = async (newReview: Review) => {
     if (editingReview) {
       // Update existing review
       setReviews(prev => prev.map(review =>
@@ -501,11 +501,10 @@ export default function RestaurantDetails() {
     }
     setShowReviewForm(false);
     setEditingReview(null);
+
     // Refresh restaurant data to get updated rating
-    if (restaurant) {
-      // Trigger a re-fetch of restaurant data or update the rating locally
-      setRestaurant(prev => prev ? { ...prev } : null); // This will trigger a re-render
-    }
+    await fetchRestaurantDetails();
+
     toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
   };
 
@@ -529,9 +528,7 @@ export default function RestaurantDetails() {
         setReviews(prev => prev.filter(review => review.id !== reviewId));
         setReviewCount(prev => prev - 1);
         // Refresh restaurant data to get updated rating
-        if (restaurant) {
-          setRestaurant(prev => prev ? { ...prev } : null);
-        }
+        await fetchRestaurantDetails();
         toast.success('Avaliação eliminada com sucesso!');
       } else {
         const data = await response.json();

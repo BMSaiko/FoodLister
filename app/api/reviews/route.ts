@@ -2,6 +2,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 
+// Helper function to update restaurant rating based on reviews
+async function updateRestaurantRating(restaurantId: string) {
+  const supabase = getClient();
+
+  try {
+    // Calculate average rating from all reviews for this restaurant
+    const { data: reviews, error: reviewsError } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('restaurant_id', restaurantId);
+
+    if (reviewsError) {
+      console.error('Error fetching reviews for rating calculation:', reviewsError);
+      return;
+    }
+
+    let averageRating = 0;
+    if (reviews && reviews.length > 0) {
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+      averageRating = totalRating / reviews.length;
+    }
+
+    // Update the restaurant's rating
+    const { error: updateError } = await supabase
+      .from('restaurants')
+      .update({ rating: averageRating })
+      .eq('id', restaurantId);
+
+    if (updateError) {
+      console.error('Error updating restaurant rating:', updateError);
+    }
+  } catch (error) {
+    console.error('Error in updateRestaurantRating:', error);
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = getClient();
@@ -123,6 +159,9 @@ export async function POST(request: NextRequest) {
       console.error('Error creating review:', error);
       return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });
     }
+
+    // Update restaurant rating after successful review creation
+    await updateRestaurantRating(restaurant_id);
 
     // Transform user data using stored user_name
     const processedData = {
