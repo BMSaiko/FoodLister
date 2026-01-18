@@ -119,12 +119,12 @@ export const fetchAndFilterRestaurants = async (filters: RestaurantFilters) => {
     }
     
     // 2. Transformar os dados para facilitar o trabalho com as categorias
-    const restaurantsWithFormattedCuisines = data.map(restaurant => {
+    const restaurantsWithFormattedCuisines = (data as any[]).map(restaurant => {
       // Extrair e formatear os tipos de cozinha para um formato mais conveniente
       const cuisineTypes = restaurant.cuisine_types
-        ? restaurant.cuisine_types.map(relation => relation.cuisine_type)
+        ? restaurant.cuisine_types.map((relation: any) => relation.cuisine_type)
         : [];
-        
+
       return {
         ...restaurant,
         cuisine_types: cuisineTypes
