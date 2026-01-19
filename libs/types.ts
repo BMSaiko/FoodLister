@@ -41,6 +41,7 @@ export interface List {
 export interface User {
   id: string;
   name: string;
+  profileImage?: string;
 }
 
 export interface Review {

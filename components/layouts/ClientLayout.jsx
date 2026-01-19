@@ -3,19 +3,14 @@
 
 import React from 'react';
 import { AuthProvider, FiltersProvider } from "@/contexts";
-import { useCreatorName } from "@/hooks/useCreatorName";
-import CreatorNameModal from "@/components/ui/CreatorNameModal";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function ClientLayout({ children }) {
-  const { showModal, setCreatorName, isLoading } = useCreatorName();
-
   return (
     <AuthProvider>
       <FiltersProvider>
         {children}
-        {!isLoading && showModal && <CreatorNameModal onSave={setCreatorName} />}
         <ToastContainer
           position="top-center"
           autoClose={4000}

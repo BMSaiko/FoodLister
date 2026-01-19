@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Image as ImageIcon, Upload, AlertCircle, CheckCircle, Loader } from 'lucide-react';
-import { convertImgurUrl } from '../../utils/imgurConverter';
+import { convertCloudinaryUrl } from '../../utils/cloudinaryConverter';
 import { useImagePreview } from '../../hooks/useImagePreview';
 
 export default function ImagePreview({
@@ -8,14 +8,14 @@ export default function ImagePreview({
   onImageUrlChange,
   className = ''
 }) {
-  const { previewState, handleImageError } = useImagePreview(imageUrl, convertImgurUrl);
+  const { previewState, handleImageError } = useImagePreview(imageUrl, convertCloudinaryUrl);
 
   const handleUrlChange = useCallback((value) => {
     onImageUrlChange(value);
   }, [onImageUrlChange]);
 
   // Get processed URL for display
-  const processedUrl = imageUrl ? convertImgurUrl(imageUrl) : '';
+  const processedUrl = imageUrl ? convertCloudinaryUrl(imageUrl) : '';
 
   return (
     <div className={`mb-6 ${className}`}>
@@ -47,8 +47,9 @@ export default function ImagePreview({
             <p>• Deixe em branco para usar uma imagem padrão</p>
             <p className="text-primary font-medium flex items-center">
               <CheckCircle className="h-3 w-3 mr-1" />
-              Aceita URLs do Imgur (ex: https://imgur.com/ABC123)
+              Aceita URLs do Cloudinary (ex: https://res.cloudinary.com/...)
             </p>
+            <p>• Você também pode fazer upload direto de arquivos de imagem</p>
           </div>
         </div>
       </div>

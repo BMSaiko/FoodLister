@@ -15,7 +15,7 @@ import {
   FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
-import { convertImgurUrl } from '@/utils/imgurConverter';
+import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { logError, logWarn, logInfo } from '@/utils/logger';
 import { toast } from 'react-toastify';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
@@ -141,7 +141,21 @@ export default function RestaurantDetails() {
       const data = await response.json();
 
       if (response.ok) {
-        setReviews(data.reviews || []);
+        // Inject current user's profile image if they have a review and it's missing
+        const processedReviews = (data.reviews || []).map((review: any) => {
+          if (review.user_id === user?.id && !review.user.profileImage && user?.user_metadata?.profile_image) {
+            return {
+              ...review,
+              user: {
+                ...review.user,
+                profileImage: user.user_metadata.profile_image
+              }
+            };
+          }
+          return review;
+        });
+
+        setReviews(processedReviews);
       } else {
         console.error('Error fetching reviews:', data.error);
       }
@@ -150,7 +164,7 @@ export default function RestaurantDetails() {
     } finally {
       setLoadingReviews(false);
     }
-  }, [id]);
+  }, [id, user]);
 
   // Helper function to sanitize and validate external URLs
   const sanitizeUrl = (urlString: string): string | null => {
@@ -495,8 +509,15 @@ export default function RestaurantDetails() {
         review.id === newReview.id ? newReview : review
       ));
     } else {
-      // Add new review
-      setReviews(prev => [newReview, ...prev]);
+      // Add new review - inject current user's profile image
+      const reviewWithImage = {
+        ...newReview,
+        user: {
+          ...newReview.user,
+          profileImage: user?.user_metadata?.profile_image || null
+        }
+      };
+      setReviews(prev => [reviewWithImage, ...prev]);
       setReviewCount(prev => prev + 1);
     }
     setShowReviewForm(false);
@@ -681,7 +702,7 @@ export default function RestaurantDetails() {
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8">
           <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 w-full">
             <Image
-              src={convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg'}
+              src={convertCloudinaryUrl(restaurant.image_url) || '/placeholder-restaurant.jpg'}
               alt={restaurant.name}
               fill
               className="object-cover"
@@ -966,11 +987,19 @@ export default function RestaurantDetails() {
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
                       <div className="flex items-start sm:items-center gap-3">
                         <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                            <span className="text-amber-600 font-semibold text-sm">
-                              {review.user.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
+                          {review.user.profileImage ? (
+                            <img
+                              src={review.user.profileImage}
+                              alt={`${review.user.name}'s profile`}
+                              className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                              <span className="text-amber-600 font-semibold text-sm">
+                                {review.user.name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">

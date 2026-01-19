@@ -78,6 +78,23 @@ The FoodList application uses a relational database with the following main enti
 | `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 
+### Profiles Table
+
+**Table Name**: `profiles`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id (unique) |
+| `display_name` | `text` | YES | - | User's display name |
+| `bio` | `text` | YES | - | User's biography |
+| `avatar_url` | `text` | YES | - | URL of user's avatar image |
+| `website` | `text` | YES | - | User's website URL |
+| `location` | `text` | YES | - | User's location |
+| `phone_number` | `text` | YES | - | User's phone number |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+| `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
+
 ### Reviews Table
 
 **Table Name**: `reviews`
@@ -87,8 +104,9 @@ The FoodList application uses a relational database with the following main enti
 | `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
 | `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
 | `user_id` | `uuid` | NO | - | Foreign key to auth.users.id |
-| `rating` | `integer` | NO | - | Rating from 1 to 5 stars |
+| `rating` | `numeric` | NO | - | Rating from 0.5 to 5.0 stars |
 | `comment` | `text` | YES | - | Optional text comment for the review |
+| `user_name` | `text` | YES | - | User's name at time of review (for historical data) |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 | `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
 
