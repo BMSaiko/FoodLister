@@ -117,6 +117,13 @@ const ProfileSettingsPage = () => {
     try {
       setSaving(true);
 
+      // Validate required fields
+      if (!profile.displayName || profile.displayName.trim() === '') {
+        toast.error('Nome de exibição é obrigatório');
+        setSaving(false);
+        return;
+      }
+
       // Check if profile exists
       const { data: existingProfile, error: checkError } = await supabase
         .from('profiles')
@@ -161,6 +168,28 @@ const ProfileSettingsPage = () => {
 
       if (profileError) throw profileError;
 
+      // Update creator_name in restaurants where user is the creator
+      const { error: restaurantsError } = await (supabase as any)
+        .from('restaurants')
+        .update({ creator_name: profile.displayName })
+        .eq('creator_id', user.id);
+
+      if (restaurantsError) {
+        console.error('Error updating restaurant creator names:', restaurantsError);
+        // Don't throw here as the profile was updated successfully
+      }
+
+      // Update creator_name in lists where user is the creator
+      const { error: listsError } = await (supabase as any)
+        .from('lists')
+        .update({ creator_name: profile.displayName })
+        .eq('creator_id', user.id);
+
+      if (listsError) {
+        console.error('Error updating list creator names:', listsError);
+        // Don't throw here as the profile was updated successfully
+      }
+
       // Also update user metadata for consistency
       const { error: metadataError } = await supabase.auth.updateUser({
         data: {
@@ -174,9 +203,17 @@ const ProfileSettingsPage = () => {
       if (metadataError) {
         console.error('Error updating metadata:', metadataError);
         // Don't throw here as the profile was updated successfully
+      } else {
+        // Force refresh the user data to update the context with new metadata
+        await supabase.auth.getUser();
       }
 
       toast.success('Perfil atualizado com sucesso!');
+
+      // Refresh the page to update navbar and other components with new user data
+      //setTimeout(() => {
+      //  window.location.reload();
+      //}, 1500);
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error('Erro ao salvar perfil');
@@ -265,17 +302,18 @@ const ProfileSettingsPage = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     <User className="h-4 w-4 inline mr-2 text-amber-500" />
-                    Nome de Exibição
+                    Nome de Exibição <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={profile.displayName}
                     onChange={(e) => handleInputChange('displayName', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors text-sm sm:text-base"
-                    placeholder="Seu nome de exibição"
+                    placeholder="Seu nome de exibição (obrigatório)"
                     disabled={saving}
+                    required
                   />
-                  <p className="text-xs text-gray-500 mt-2">Este nome aparecerá em suas avaliações e publicações</p>
+                  <p className="text-xs text-gray-500 mt-2">Este nome aparecerá em suas avaliações e publicações. Campo obrigatório.</p>
                 </div>
 
                 {/* Email (Read-only) */}

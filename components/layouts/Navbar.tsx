@@ -8,14 +8,45 @@ import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
 import { Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts';
+import { getClient } from '@/libs/supabase/client';
 
 const Navbar = ({ clearFilters = null }) => {
   const { user, signOut, loading } = useAuth();
   const pathname = usePathname();
+  const supabase = getClient();
   const [activeSection, setActiveSection] = useState('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
   
+  // Fetch user profile data when user changes
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user && !loading) {
+        try {
+          const { data: profileData, error } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!error && profileData) {
+            setUserProfile(profileData);
+          } else {
+            setUserProfile(null);
+          }
+        } catch (error) {
+          console.error('Error fetching user profile for navbar:', error);
+          setUserProfile(null);
+        }
+      } else {
+        setUserProfile(null);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user, loading, supabase]);
+
   // Determina a seção ativa com base na URL atual
   useEffect(() => {
     if (pathname.includes('/lists')) {
@@ -141,7 +172,7 @@ const Navbar = ({ clearFilters = null }) => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 truncate">
-                              {user.user_metadata?.name || user.user_metadata?.display_name || 'Usuário'}
+                              {userProfile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'Usuário'}
                             </p>
                             <p className="text-xs text-gray-600 truncate">
                               {user.email}
@@ -258,7 +289,7 @@ const Navbar = ({ clearFilters = null }) => {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 truncate">
-                              {user.user_metadata?.name || user.user_metadata?.display_name || 'Usuário'}
+                              {userProfile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'Usuário'}
                             </p>
                             <p className="text-xs text-gray-600 truncate">
                               {user.email}
