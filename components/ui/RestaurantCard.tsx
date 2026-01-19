@@ -9,6 +9,7 @@ import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { createClient } from '@/libs/supabase/client';
 import { getDescriptionPreview } from '@/utils/formatters';
 import { toast } from 'react-toastify';
+import RestaurantImagePlaceholder from './RestaurantImagePlaceholder';
 
 const RestaurantCard = ({ restaurant, centered = false }) => {
   const [visited, setVisited] = useState(restaurant.visited || false);
@@ -69,7 +70,8 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
     }
   };
   // Converter URL do Cloudinary se necessário
-  const imageUrl = convertCloudinaryUrl(restaurant.image_url) || '/placeholder-restaurant.jpg';
+  const imageUrl = convertCloudinaryUrl(restaurant.image_url);
+  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
   // Function to render prices with € icons
   const renderPriceCategory = (price) => {
     if (price <= 10) return { label: 'Econômico', level: 1 };
@@ -117,20 +119,24 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
   return (
     <Link href={`/restaurants/${restaurant.id}`} className={centered ? "block w-full" : ""}>
       <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : ''}`}>
-        <div className={`relative h-40 sm:h-48 w-full min-h-[160px] sm:min-h-[192px] bg-gray-100 ${centered ? 'min-w-full' : ''}`}>
-          <Image
-            src={imageUrl}
-            alt={restaurant.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-            style={{
-              minWidth: '100%',
-              minHeight: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-          />
+        <div className={`relative h-40 sm:h-48 w-full min-h-[160px] sm:min-h-[192px] ${centered ? 'min-w-full' : ''}`}>
+          {hasImage ? (
+            <Image
+              src={imageUrl}
+              alt={restaurant.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+              style={{
+                minWidth: '100%',
+                minHeight: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+              }}
+            />
+          ) : (
+            <RestaurantImagePlaceholder />
+          )}
           
           {/* Switch Button for visited/not visited status */}
           <button
