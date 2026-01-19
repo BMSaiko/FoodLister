@@ -38,6 +38,7 @@ export default function RestaurantDetails() {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
 
   const supabase = createClient();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
@@ -144,12 +145,12 @@ export default function RestaurantDetails() {
       if (response.ok) {
         // Inject current user's profile image if they have a review and it's missing
         const processedReviews = (data.reviews || []).map((review: any) => {
-          if (review.user_id === user?.id && !review.user.profileImage && user?.user_metadata?.profile_image) {
+          if (review.user_id === user?.id && !review.user.profileImage && userProfile?.avatar_url) {
             return {
               ...review,
               user: {
                 ...review.user,
-                profileImage: user.user_metadata.profile_image
+                profileImage: userProfile.avatar_url
               }
             };
           }
@@ -165,7 +166,7 @@ export default function RestaurantDetails() {
     } finally {
       setLoadingReviews(false);
     }
-  }, [id, user]);
+  }, [id, user, userProfile]);
 
   // Helper function to sanitize and validate external URLs
   const sanitizeUrl = (urlString: string): string | null => {
@@ -239,6 +240,32 @@ export default function RestaurantDetails() {
       return null;
     }
   };
+
+  // Fetch user profile
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        try {
+          const { data: profileData, error } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('user_id', user.id)
+            .single();
+
+          if (!error && profileData) {
+            setUserProfile({
+              display_name: (profileData as any).display_name || undefined,
+              avatar_url: (profileData as any).avatar_url || undefined
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user?.id]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -515,7 +542,7 @@ export default function RestaurantDetails() {
         ...newReview,
         user: {
           ...newReview.user,
-          profileImage: user?.user_metadata?.profile_image || null
+          profileImage: userProfile?.avatar_url || null
         }
       };
       setReviews(prev => [reviewWithImage, ...prev]);

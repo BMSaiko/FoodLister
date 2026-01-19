@@ -250,10 +250,14 @@ export default function CreateRestaurant() {
       // Converter URL do Cloudinary se necessário
       const processedImageUrl = convertCloudinaryUrl(formData.image_url) || '/placeholder-restaurant.jpg';
       
-      // 1. Obter o display name do usuário
-      const displayName = user.user_metadata?.name ||
-                         user.user_metadata?.full_name ||
-                         user.email;
+      // 1. Get user display name from profiles table or email
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('user_id', user.id)
+        .single();
+
+      const displayName = (!profileError && profileData?.display_name) ? profileData.display_name : user.email;
 
       // 2. Criar o restaurante com creator_id e creator_name definidos explicitamente
       const { data: restaurantData, error: restaurantError } = await supabase
