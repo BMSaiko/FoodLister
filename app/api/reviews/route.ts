@@ -78,10 +78,12 @@ export async function GET(request: NextRequest) {
     // Get unique user IDs to fetch their profile images from profiles table
     const userIds = [...new Set(reviewsData.map((review: any) => review.user_id))];
 
-    // Fetch user profiles (display_name and avatar_url) from profiles table
+    // Fetch user profiles and emails
     const userProfiles = new Map();
+    const userEmails = new Map();
 
     if (userIds.length > 0) {
+      // Get profile data
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, display_name, avatar_url')
@@ -95,10 +97,23 @@ export async function GET(request: NextRequest) {
           });
         });
       }
+
+      // Get user emails from auth.users
+      const { data: usersData, error: usersError } = await supabase
+        .from('auth.users')
+        .select('id, email')
+        .in('id', userIds);
+
+      if (!usersError && usersData) {
+        usersData.forEach((user: any) => {
+          userEmails.set(user.id, user.email || null);
+        });
+      }
+
       // Note: Profiles should be created automatically via Supabase Auth hooks
       // No manual profile creation needed here to avoid conflicts
 
-      // Ensure all users have an entry in the map
+      // Ensure all users have an entry in the maps
       userIds.forEach(userId => {
         if (!userProfiles.has(userId)) {
           userProfiles.set(userId, {
@@ -106,17 +121,23 @@ export async function GET(request: NextRequest) {
             avatarUrl: null
           });
         }
+        if (!userEmails.has(userId)) {
+          userEmails.set(userId, null);
+        }
       });
     }
 
     // Transform user data consistently across all endpoints
     const processedData = reviewsData.map((review: any) => {
       const profile = userProfiles.get(review.user_id) || { displayName: null, avatarUrl: null };
+      const email = userEmails.get(review.user_id);
+      const emailName = email ? email.split('@')[0] : null;
+
       return {
         ...review,
         user: {
           id: review.user_id,
-          name: profile.displayName || review.user_name || 'Anonymous User',
+          name: profile.displayName || review.user_name || emailName || 'Anonymous User',
           profileImage: profile.avatarUrl || null
         }
       };

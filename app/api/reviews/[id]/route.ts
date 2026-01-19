@@ -73,11 +73,13 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch review' }, { status: 500 });
     }
 
-    // Get user profile data from profiles table
+    // Get user profile data and email from database
     let userDisplayName = null;
     let userProfileImage = null;
+    let userEmail = null;
 
     try {
+      // Get profile data
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('display_name, avatar_url')
@@ -88,16 +90,30 @@ export async function GET(
         userDisplayName = (profileData as any).display_name || null;
         userProfileImage = (profileData as any).avatar_url || null;
       }
+
+      // Get user email
+      const { data: userData, error: userError } = await supabase
+        .from('auth.users')
+        .select('email')
+        .eq('id', (data as any).user.id)
+        .single();
+
+      if (!userError && userData) {
+        userEmail = (userData as any).email || null;
+      }
     } catch (error) {
       console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
     }
 
-    // Transform user data using display_name from profiles table
+    // Create email name (part before @)
+    const emailName = userEmail ? userEmail.split('@')[0] : null;
+
+    // Transform user data using display_name from profiles table with email fallback
     const processedData = {
       ...(data as any),
       user: {
         id: (data as any).user.id,
-        name: userDisplayName || (data as any).user_name || 'Anonymous User',
+        name: userDisplayName || (data as any).user_name || emailName,
         profileImage: userProfileImage
       }
     };
@@ -178,11 +194,13 @@ export async function PUT(
     // Update restaurant rating after successful review update
     await updateRestaurantRating((existingReview as any).restaurant_id);
 
-    // Get user profile data from profiles table
+    // Get user profile data and email from database
     let userDisplayName = null;
     let userProfileImage = null;
+    let userEmail = null;
 
     try {
+      // Get profile data
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('display_name, avatar_url')
@@ -193,16 +211,30 @@ export async function PUT(
         userDisplayName = (profileData as any).display_name || null;
         userProfileImage = (profileData as any).avatar_url || null;
       }
+
+      // Get user email
+      const { data: userData, error: userError } = await supabase
+        .from('auth.users')
+        .select('email')
+        .eq('id', (data as any).user.id)
+        .single();
+
+      if (!userError && userData) {
+        userEmail = (userData as any).email || null;
+      }
     } catch (error) {
       console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
     }
 
-    // Transform user data using display_name from profiles table
+    // Create email name (part before @)
+    const emailName = userEmail ? userEmail.split('@')[0] : null;
+
+    // Transform user data using display_name from profiles table with email fallback
     const processedData = {
       ...(data as any),
       user: {
         id: (data as any).user.id,
-        name: userDisplayName || (data as any).user_name || 'Anonymous User',
+        name: userDisplayName || (data as any).user_name || emailName || 'Anonymous User',
         profileImage: userProfileImage
       }
     };
