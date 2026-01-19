@@ -20,6 +20,7 @@ import { logError, logWarn, logInfo } from '@/utils/logger';
 import { toast } from 'react-toastify';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
+import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlaceholder';
 
 export default function RestaurantDetails() {
   const params = useParams();
@@ -701,14 +702,27 @@ export default function RestaurantDetails() {
         
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8">
           <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 w-full">
-            <Image
-              src={convertCloudinaryUrl(restaurant.image_url) || '/placeholder-restaurant.jpg'}
-              alt={restaurant.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 1200px"
-              priority
-            />
+            {(() => {
+              const imageUrl = convertCloudinaryUrl(restaurant.image_url);
+              const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
+
+              return hasImage ? (
+                <Image
+                  src={imageUrl}
+                  alt={restaurant.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 1200px"
+                  priority
+                />
+              ) : (
+                <RestaurantImagePlaceholder
+                  iconSize="80"
+                  textSize="text-lg"
+                  showText={true}
+                />
+              );
+            })()}
             
             {/* Badge com Switch Button */}
             <button
