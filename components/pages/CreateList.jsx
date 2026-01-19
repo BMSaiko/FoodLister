@@ -135,10 +135,14 @@ export default function CreateList() {
     setLoading(true);
 
     try {
-      // 1. Obter o display name do usuário
-      const displayName = user.user_metadata?.name ||
-                         user.user_metadata?.full_name ||
-                         user.email;
+      // 1. Get user display name from profiles table or email
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('user_id', user.id)
+        .single();
+
+      const displayName = (!profileError && profileData?.display_name) ? profileData.display_name : user.email;
 
       // 2. Create the list with creator_id and creator_name defined explicitly
       const { data: listData, error: listError } = await supabase

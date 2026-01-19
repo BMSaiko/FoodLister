@@ -128,11 +128,14 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
             return;
           }
 
-          // Extract user name from metadata
-          const userName = user.user_metadata?.name ||
-                          user.user_metadata?.full_name ||
-                          user.email ||
-                          'Anonymous User';
+          // Get user display name from profiles table or email
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('display_name')
+            .eq('user_id', user.id)
+            .single();
+
+          const userName = (!profileError && profileData && (profileData as any).display_name) ? (profileData as any).display_name : user.email;
 
           // Create new review
           result = await (supabase as any)
