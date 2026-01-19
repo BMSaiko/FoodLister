@@ -88,32 +88,8 @@ export function AuthProvider({ children }) {
 
       if (error) throw error;
 
-      // If user was created successfully, also create profile entry
-      if (data.user) {
-        try {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              user_id: data.user.id,
-              display_name: null,
-              bio: null,
-              avatar_url: null,
-              website: null,
-              location: null,
-              phone_number: null
-            });
-
-          if (profileError) {
-            console.error('Error creating user profile:', profileError);
-            // Don't throw here as the auth signup was successful
-          } else {
-            console.log('Profile created successfully for new user:', data.user.id);
-          }
-        } catch (profileCreateError) {
-          console.error('Error creating user profile:', profileCreateError);
-          // Don't throw here as the auth signup was successful
-        }
-      }
+      // Note: Profiles are created automatically via Supabase Auth hooks or triggers
+      // No manual profile creation needed here to avoid duplicate key conflicts
 
       if (data.user && !data.session) {
         toast.success('Verifique seu email para confirmar a conta!');

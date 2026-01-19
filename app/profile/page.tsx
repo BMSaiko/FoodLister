@@ -78,26 +78,8 @@ const ProfileSettingsPage = () => {
           email: user.email || ''
         });
 
-        // Create profile entry if it doesn't exist
-        try {
-          const { error: createError } = await (supabase as any)
-            .from('profiles')
-            .insert({
-              user_id: user.id,
-              display_name: metadata.display_name || metadata.name || metadata.full_name || null,
-              bio: metadata.description || metadata.bio || null,
-              avatar_url: metadata.profile_image || metadata.avatar_url || null,
-              website: null,
-              location: null,
-              phone_number: metadata.phone_number || metadata.phone || null
-            });
-
-          if (createError && createError.code !== '23505') { // Ignore duplicate key error
-            console.error('Error creating profile:', createError);
-          }
-        } catch (createError) {
-          console.error('Error creating profile:', createError);
-        }
+        // Note: Profiles should be created automatically via Supabase auth hooks
+        // No manual profile creation needed here to avoid conflicts
       }
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -135,18 +117,47 @@ const ProfileSettingsPage = () => {
     try {
       setSaving(true);
 
-      // Update profiles table
-      const { error: profileError } = await (supabase as any)
+      // Check if profile exists
+      const { data: existingProfile, error: checkError } = await supabase
         .from('profiles')
-        .upsert({
-          user_id: user.id,
-          display_name: profile.displayName || null,
-          bio: profile.description || null,
-          avatar_url: profile.profileImage || null,
-          phone_number: profile.phoneNumber || null,
-          website: null,
-          location: null
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      let profileError = null;
+
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = not found
+        console.error('Error checking existing profile:', checkError);
+        throw checkError;
+      } else if (!existingProfile) {
+        // Profile doesn't exist, insert it
+        const { error } = await (supabase as any)
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            display_name: profile.displayName || null,
+            bio: profile.description || null,
+            avatar_url: profile.profileImage || null,
+            phone_number: profile.phoneNumber || null,
+            website: null,
+            location: null
+          });
+        profileError = error;
+      } else {
+        // Profile exists, update it
+        const { error } = await (supabase as any)
+          .from('profiles')
+          .update({
+            display_name: profile.displayName || null,
+            bio: profile.description || null,
+            avatar_url: profile.profileImage || null,
+            phone_number: profile.phoneNumber || null,
+            website: null,
+            location: null
+          })
+          .eq('user_id', user.id);
+        profileError = error;
+      }
 
       if (profileError) throw profileError;
 

@@ -91,32 +91,9 @@ export async function GET(request: NextRequest) {
         profilesData.forEach((profile: any) => {
           userProfiles.set(profile.user_id, profile.avatar_url || null);
         });
-      } else {
-        // Try to create profiles for users that don't have one
-        for (const userId of userIds) {
-          if (!userProfiles.has(userId)) {
-            try {
-              const { error: createError } = await (supabase as any)
-                .from('profiles')
-                .insert({
-                  user_id: userId,
-                  display_name: null,
-                  bio: null,
-                  avatar_url: null,
-                  website: null,
-                  location: null,
-                  phone_number: null
-                });
-
-              if (!createError) {
-                userProfiles.set(userId, null); // Profile created but no avatar yet
-              }
-            } catch (createErr) {
-              // Ignore creation errors, will remain null
-            }
-          }
-        }
       }
+      // Note: Profiles should be created automatically via Supabase Auth hooks
+      // No manual profile creation needed here to avoid conflicts
 
       // Ensure all users have an entry in the map
       userIds.forEach(userId => {
