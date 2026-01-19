@@ -73,29 +73,31 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch review' }, { status: 500 });
     }
 
-    // Get user profile image from profiles table
+    // Get user profile data from profiles table
+    let userDisplayName = null;
     let userProfileImage = null;
 
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('avatar_url')
+        .select('display_name, avatar_url')
         .eq('user_id', (data as any).user.id)
         .single();
 
-      if (!profileError && (profileData as any)?.avatar_url) {
-        userProfileImage = (profileData as any).avatar_url;
+      if (!profileError && profileData) {
+        userDisplayName = (profileData as any).display_name || null;
+        userProfileImage = (profileData as any).avatar_url || null;
       }
     } catch (error) {
       console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
     }
 
-    // Transform user data using stored user_name and profile image
+    // Transform user data using display_name from profiles table
     const processedData = {
       ...(data as any),
       user: {
         id: (data as any).user.id,
-        name: (data as any).user_name || 'Anonymous User',
+        name: userDisplayName || (data as any).user_name || 'Anonymous User',
         profileImage: userProfileImage
       }
     };
@@ -176,29 +178,31 @@ export async function PUT(
     // Update restaurant rating after successful review update
     await updateRestaurantRating((existingReview as any).restaurant_id);
 
-    // Get user profile image from profiles table
+    // Get user profile data from profiles table
+    let userDisplayName = null;
     let userProfileImage = null;
 
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('avatar_url')
+        .select('display_name, avatar_url')
         .eq('user_id', (data as any).user.id)
         .single();
 
-      if (!profileError && (profileData as any)?.avatar_url) {
-        userProfileImage = (profileData as any).avatar_url;
+      if (!profileError && profileData) {
+        userDisplayName = (profileData as any).display_name || null;
+        userProfileImage = (profileData as any).avatar_url || null;
       }
     } catch (error) {
       console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
     }
 
-    // Transform user data using stored user_name and profile image
+    // Transform user data using display_name from profiles table
     const processedData = {
       ...(data as any),
       user: {
         id: (data as any).user.id,
-        name: (data as any).user_name || 'Anonymous User',
+        name: userDisplayName || (data as any).user_name || 'Anonymous User',
         profileImage: userProfileImage
       }
     };

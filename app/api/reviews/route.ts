@@ -78,18 +78,21 @@ export async function GET(request: NextRequest) {
     // Get unique user IDs to fetch their profile images from profiles table
     const userIds = [...new Set(reviewsData.map((review: any) => review.user_id))];
 
-    // Fetch user profile images from profiles table
+    // Fetch user profiles (display_name and avatar_url) from profiles table
     const userProfiles = new Map();
 
     if (userIds.length > 0) {
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, avatar_url')
+        .select('user_id, display_name, avatar_url')
         .in('user_id', userIds);
 
       if (!profilesError && profilesData) {
         profilesData.forEach((profile: any) => {
-          userProfiles.set(profile.user_id, profile.avatar_url || null);
+          userProfiles.set(profile.user_id, {
+            displayName: profile.display_name || null,
+            avatarUrl: profile.avatar_url || null
+          });
         });
       }
       // Note: Profiles should be created automatically via Supabase Auth hooks
@@ -98,20 +101,26 @@ export async function GET(request: NextRequest) {
       // Ensure all users have an entry in the map
       userIds.forEach(userId => {
         if (!userProfiles.has(userId)) {
-          userProfiles.set(userId, null);
+          userProfiles.set(userId, {
+            displayName: null,
+            avatarUrl: null
+          });
         }
       });
     }
 
     // Transform user data consistently across all endpoints
-    const processedData = reviewsData.map((review: any) => ({
-      ...review,
-      user: {
-        id: review.user_id,
-        name: review.user_name || 'Anonymous User',
-        profileImage: userProfiles.get(review.user_id) || null
-      }
-    }));
+    const processedData = reviewsData.map((review: any) => {
+      const profile = userProfiles.get(review.user_id) || { displayName: null, avatarUrl: null };
+      return {
+        ...review,
+        user: {
+          id: review.user_id,
+          name: profile.displayName || review.user_name || 'Anonymous User',
+          profileImage: profile.avatarUrl || null
+        }
+      };
+    });
 
     return NextResponse.json({ reviews: processedData });
   } catch (error) {
@@ -174,13 +183,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user's current profile image from profiles table
+    // Get user's profile data from profiles table
     const { data: userProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('avatar_url')
+      .select('display_name, avatar_url')
       .eq('user_id', user.id)
       .single();
 
+    const userDisplayName = (!profileError && (userProfile as any)?.display_name) ? (userProfile as any).display_name : userName;
     const userProfileImage = (!profileError && (userProfile as any)?.avatar_url) ? (userProfile as any).avatar_url : null;
 
     // Create the review
@@ -204,12 +214,12 @@ export async function POST(request: NextRequest) {
     // Update restaurant rating after successful review creation
     await updateRestaurantRating(restaurant_id);
 
-    // Transform user data using stored user_name and profile image from profiles table
+    // Transform user data using display_name from profiles table
     const processedData = {
       ...(data as any),
       user: {
         id: user.id,
-        name: (data as any).user_name || 'Anonymous User',
+        name: userDisplayName,
         profileImage: userProfileImage
       }
     };
