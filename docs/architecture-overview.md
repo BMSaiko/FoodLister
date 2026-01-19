@@ -71,15 +71,20 @@ This document provides a comprehensive overview of the FoodList application's ar
 
 ### Backend & Database
 - **Supabase**: Open-source Firebase alternative
-  - PostgreSQL database
+  - PostgreSQL database with custom schemas
   - Real-time subscriptions
-  - Authentication
-  - Row Level Security (RLS)
+  - Authentication with user profiles
+  - Row Level Security (RLS) policies
+  - Automatic profile creation on signup
 
 ### Development Tools
 - **ESLint**: Code linting
 - **Prettier**: Code formatting (implied)
 - **Next.js Turbopack**: Fast development bundler
+
+### External Services
+- **Cloudinary**: Image upload and hosting
+- **Google Maps**: URL parsing for restaurant location data
 
 ## Application Structure
 

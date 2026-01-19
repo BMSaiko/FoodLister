@@ -88,6 +88,35 @@ export function AuthProvider({ children }) {
 
       if (error) throw error;
 
+      // Create profile automatically with display_name as email prefix
+      if (data.user) {
+        try {
+          const emailPrefix = email.split('@')[0];
+
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: data.user.id,
+              display_name: emailPrefix,
+              bio: null,
+              avatar_url: null,
+              website: null,
+              location: null,
+              phone_number: null
+            });
+
+          if (profileError && profileError.code !== '23505') { // Ignore duplicate key error
+            console.error('Error creating user profile:', profileError);
+            // Don't throw here as the auth signup was successful
+          } else {
+            console.log('Profile created for new user:', data.user.id, 'with display_name:', emailPrefix);
+          }
+        } catch (profileCreateError) {
+          console.error('Error ensuring user profile exists:', profileCreateError);
+          // Don't throw here as the auth signup was successful
+        }
+      }
+
       if (data.user && !data.session) {
         toast.success('Verifique seu email para confirmar a conta!');
       }

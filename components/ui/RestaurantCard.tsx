@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
-import { convertImgurUrl } from '@/utils/imgurConverter';
+import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { createClient } from '@/libs/supabase/client';
 import { getDescriptionPreview } from '@/utils/formatters';
 import { toast } from 'react-toastify';
@@ -68,8 +68,8 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
       setIsUpdating(false);
     }
   };
-  // Converter URL do Imgur se necessário
-  const imageUrl = convertImgurUrl(restaurant.image_url) || '/placeholder-restaurant.jpg';
+  // Converter URL do Cloudinary se necessário
+  const imageUrl = convertCloudinaryUrl(restaurant.image_url) || '/placeholder-restaurant.jpg';
   // Function to render prices with € icons
   const renderPriceCategory = (price) => {
     if (price <= 10) return { label: 'Econômico', level: 1 };

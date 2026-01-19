@@ -12,10 +12,11 @@ import FormSection from '@/components/ui/FormSection';
 import FormActions from '@/components/ui/FormActions';
 import CuisineSelector from '@/components/ui/CuisineSelector';
 import ImagePreview from '@/components/ui/ImagePreview';
+import ImageUploader from '@/components/ui/ImageUploader';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home } from 'lucide-react';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
-import { convertImgurUrl } from '@/utils/imgurConverter';
+import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 
@@ -299,8 +300,8 @@ export default function EditRestaurant({ restaurantId }) {
     setSaving(true);
 
     try {
-      // Converter URL do Imgur se necessário
-      const processedImageUrl = convertImgurUrl(formData.image_url) || '/placeholder-restaurant.jpg';
+      // Converter URL do Cloudinary se necessário
+      const processedImageUrl = convertCloudinaryUrl(formData.image_url) || '/placeholder-restaurant.jpg';
 
       // 1. Atualizar dados básicos do restaurante
       const { error: updateError } = await supabase
@@ -487,10 +488,16 @@ export default function EditRestaurant({ restaurantId }) {
 
               {/* Imagem */}
               <FormSection title="Imagem do Restaurante">
-                <ImagePreview
-                  imageUrl={formData.image_url}
-                  onImageUrlChange={(value) => setFormData(prev => ({ ...prev, image_url: value }))}
-                />
+                <div className="space-y-4">
+                  <ImageUploader
+                    onImageUploaded={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                  />
+                  <div className="text-center text-sm text-gray-500">ou</div>
+                  <ImagePreview
+                    imageUrl={formData.image_url}
+                    onImageUrlChange={(value) => setFormData(prev => ({ ...prev, image_url: value }))}
+                  />
+                </div>
               </FormSection>
 
               {/* Preços */}

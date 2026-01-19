@@ -1,7 +1,23 @@
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { Database } from './client';
+
+// Admin client for operations requiring elevated privileges
+export const getAdminClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl) {
+    throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_URL is required.');
+  }
+  if (!serviceRoleKey) {
+    throw new Error('Environment variable SUPABASE_SERVICE_ROLE_KEY is required for admin operations.');
+  }
+
+  return createClient<Database>(supabaseUrl, serviceRoleKey);
+};
 
 // Server client for API routes with authentication
 export const getServerClient = async (request?: NextRequest, response?: NextResponse) => {
