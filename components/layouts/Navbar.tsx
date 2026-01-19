@@ -130,15 +130,15 @@ const Navbar = ({ clearFilters = null }) => {
                   title="Menu do usuário"
                 >
                   <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-                    {user.user_metadata?.profile_image ? (
+                    {userProfile?.avatar_url ? (
                       <img
-                        src={user.user_metadata.profile_image}
+                        src={userProfile.avatar_url}
                         alt="Avatar"
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
                       <span className="text-white text-xs font-semibold">
-                        {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                        {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -157,22 +157,22 @@ const Navbar = ({ clearFilters = null }) => {
                       {/* Header com avatar e informações */}
                       <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 border-b border-gray-100">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
-                            {user.user_metadata?.profile_image ? (
+                        <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                            {userProfile?.avatar_url ? (
                               <img
-                                src={user.user_metadata.profile_image}
+                                src={userProfile.avatar_url}
                                 alt="Avatar"
                                 className="w-full h-full rounded-full object-cover"
                               />
                             ) : (
                               <span className="text-white text-sm font-semibold">
-                                {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                                {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
                               </span>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 truncate">
-                              {userProfile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'Usuário'}
+                              {userProfile?.display_name || user.email?.split('@')[0] || 'Usuário'}
                             </p>
                             <p className="text-xs text-gray-600 truncate">
                               {user.email}
@@ -248,15 +248,15 @@ const Navbar = ({ clearFilters = null }) => {
                   title="Menu do usuário"
                 >
                   <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
-                    {user.user_metadata?.profile_image ? (
+                    {userProfile?.avatar_url ? (
                       <img
-                        src={user.user_metadata.profile_image}
+                        src={userProfile.avatar_url}
                         alt="Avatar"
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
                       <span className="text-white text-xs font-semibold">
-                        {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                        {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
                       </span>
                     )}
                   </div>
@@ -275,21 +275,21 @@ const Navbar = ({ clearFilters = null }) => {
                       <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 border-b border-gray-100">
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
-                            {user.user_metadata?.profile_image ? (
+                            {userProfile?.avatar_url ? (
                               <img
-                                src={user.user_metadata.profile_image}
+                                src={userProfile.avatar_url}
                                 alt="Avatar"
                                 className="w-full h-full rounded-full object-cover"
                               />
                             ) : (
                               <span className="text-white text-lg font-semibold">
-                                {(user.user_metadata?.name || user.email || 'U').charAt(0).toUpperCase()}
+                                {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
                               </span>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-900 truncate">
-                              {userProfile?.display_name || user.user_metadata?.display_name || user.email?.split('@')[0] || 'Usuário'}
+                              {userProfile?.display_name || user.email?.split('@')[0] || 'Usuário'}
                             </p>
                             <p className="text-xs text-gray-600 truncate">
                               {user.email}

@@ -178,12 +178,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    // Extract user name from metadata
-    const userName = user.user_metadata?.name ||
-                    user.user_metadata?.full_name ||
-                    user.email ||
-                    'Anonymous User';
-
     // Check if user already has a review for this restaurant
     const { data: existingReview, error: checkError } = await supabase
       .from('reviews')
@@ -211,7 +205,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .single();
 
-    const userDisplayName = (!profileError && (userProfile as any)?.display_name) ? (userProfile as any).display_name : userName;
+    const userDisplayName = (!profileError && (userProfile as any)?.display_name) ? (userProfile as any).display_name : (user.email?.split('@')[0] || 'Anonymous User');
     const userProfileImage = (!profileError && (userProfile as any)?.avatar_url) ? (userProfile as any).avatar_url : null;
 
     // Create the review
@@ -220,7 +214,7 @@ export async function POST(request: NextRequest) {
       .insert({
         restaurant_id,
         user_id: user.id,
-        user_name: userName,
+        user_name: userDisplayName,
         rating,
         comment: comment || null
       })
