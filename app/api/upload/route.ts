@@ -38,7 +38,16 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       const { imageData, mimeType: providedMimeType, fileName: providedFileName } = body;
 
+      console.log('📡 Received base64 upload:', {
+        hasImageData: !!imageData,
+        mimeType: providedMimeType,
+        fileName: providedFileName,
+        base64Length: imageData?.length || 0,
+        userAgent: request.headers.get('user-agent')
+      });
+
       if (!imageData || !providedMimeType) {
+        console.error('Missing required fields:', { hasImageData: !!imageData, mimeType: providedMimeType });
         return NextResponse.json({ error: 'Dados da imagem ou tipo MIME não fornecidos' }, { status: 400 });
       }
 
@@ -47,8 +56,15 @@ export async function POST(request: NextRequest) {
       mimeType = providedMimeType;
       fileName = providedFileName || 'uploaded_image.jpg';
 
+      console.log('📦 Base64 converted to buffer:', {
+        bufferSize: imageBuffer.length,
+        mimeType,
+        fileName
+      });
+
       // Validate size (base64 is ~33% larger, so check decoded size)
       if (imageBuffer.length > 10 * 1024 * 1024) {
+        console.error('Image too large:', { size: imageBuffer.length });
         return NextResponse.json({ error: 'A imagem deve ter no máximo 10MB' }, { status: 400 });
       }
 
