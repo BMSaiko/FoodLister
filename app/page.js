@@ -1,13 +1,14 @@
-// app/page.js
-import Navbar from '@/components/layouts/Navbar';
-import RestaurantsList from '@/components/RestaurantsList';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <Navbar />
+  const router = useRouter();
 
-      <RestaurantsList showHeader={false} />
-    </main>
-  );
+  useEffect(() => {
+    router.replace('/restaurants');
+  }, [router]);
+
+  return null;
 }

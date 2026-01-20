@@ -344,19 +344,13 @@ function RestaurantsContent({ showHeader = true }) {
 
     return (
       <>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-            {searchQuery ? `Resultados para "${searchQuery}"` : 'Todos os Restaurantes'}
-          </h1>
-          <Link
-            href="/restaurants/roulette"
-            className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto"
-          >
-            <ChefHat className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">Roleta</span>
-            <span className="sm:hidden">Roleta de Restaurantes</span>
-          </Link>
-        </div>
+        {searchQuery && (
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+              Resultados para "{searchQuery}"
+            </h1>
+          </div>
+        )}
       </>
     );
   };
