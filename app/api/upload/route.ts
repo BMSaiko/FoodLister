@@ -18,13 +18,25 @@ function isValidImageFile(file: File): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // Add CORS headers for mobile access
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 200, headers: corsHeaders });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
       console.error('No file provided in upload request');
-      return NextResponse.json({ error: 'Nenhum arquivo fornecido' }, { status: 400 });
+      return NextResponse.json({ error: 'Nenhum arquivo fornecido' }, { status: 400, headers: corsHeaders });
     }
 
     console.log('Processing upload for file:', {
@@ -42,13 +54,13 @@ export async function POST(request: NextRequest) {
         hasValidMimeType: file.type?.startsWith('image/'),
         extension: file.name.toLowerCase().split('.').pop()
       });
-      return NextResponse.json({ error: 'O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, etc.)' }, { status: 400 });
+      return NextResponse.json({ error: 'O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, etc.)' }, { status: 400, headers: corsHeaders });
     }
 
     // Verifica o tamanho do arquivo (máximo 10MB para Cloudinary free tier)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      return NextResponse.json({ error: 'A imagem deve ter no máximo 10MB' }, { status: 400 });
+      return NextResponse.json({ error: 'A imagem deve ter no máximo 10MB' }, { status: 400, headers: corsHeaders });
     }
 
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -57,7 +69,8 @@ export async function POST(request: NextRequest) {
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
     if (!cloudName || !uploadPreset || !apiKey || !apiSecret) {
-      return NextResponse.json({ error: 'Configuração do Cloudinary incompleta' }, { status: 500 });
+      console.error('Missing Cloudinary configuration');
+      return NextResponse.json({ error: 'Configuração do Cloudinary incompleta' }, { status: 500, headers: corsHeaders });
     }
 
     // Create signed upload parameters
@@ -88,15 +101,15 @@ export async function POST(request: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Cloudinary error:', errorText);
-      return NextResponse.json({ error: 'Erro no upload para Cloudinary' }, { status: 500 });
+      return NextResponse.json({ error: 'Erro no upload para Cloudinary' }, { status: 500, headers: corsHeaders });
     }
 
     const result = await response.json();
-    return NextResponse.json({ url: result.secure_url });
+    return NextResponse.json({ url: result.secure_url }, { headers: corsHeaders });
 
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500, headers: corsHeaders });
   }
 }
 

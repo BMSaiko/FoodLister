@@ -80,42 +80,85 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     throw new Error('A imagem deve ter no máximo 10MB');
   }
 
-  try {
-    console.log('Starting upload for file:', {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      lastModified: file.lastModified
-    });
+  const uploadWithRetry = async (attemptNumber = 1, maxRetries = 3) => {
+    try {
+      console.log(`Upload attempt ${attemptNumber}/${maxRetries} for file:`, {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified
+      });
 
-    const formData = new FormData();
-    formData.append('file', file);
+      const formData = new FormData();
+      formData.append('file', file);
 
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+      // Increased timeout for mobile networks (30 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Upload API error:', errorData);
-      throw new Error(errorData.error || 'Erro no upload da imagem');
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Upload API error:', errorData);
+
+        // Don't retry validation errors
+        if (response.status === 400 && errorData.error?.includes('arquivo deve ser uma imagem')) {
+          throw new Error(errorData.error);
+        }
+        if (response.status === 400 && errorData.error?.includes('10MB')) {
+          throw new Error(errorData.error);
+        }
+
+        throw new Error(errorData.error || 'Erro no upload da imagem');
+      }
+
+      const result = await response.json();
+      console.log('Upload successful:', result.url);
+      return result.url;
+
+    } catch (error) {
+      console.error(`Upload attempt ${attemptNumber} failed:`, error);
+
+      // Don't retry validation errors
+      if (error.message.includes('O arquivo deve ser uma imagem') ||
+          error.message.includes('10MB')) {
+        throw error;
+      }
+
+      // Retry on network errors
+      if (attemptNumber < maxRetries &&
+          (error.name === 'AbortError' || // Timeout
+           error.name === 'TypeError' || // Network error
+           !navigator.onLine)) { // Offline
+
+        console.log(`Retrying upload in ${attemptNumber * 2} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, attemptNumber * 2000));
+        return uploadWithRetry(attemptNumber + 1, maxRetries);
+      }
+
+      // Provide specific error messages based on error type
+      if (error.name === 'AbortError') {
+        throw new Error('Upload demorou demais. Verifique sua conexão e tente novamente.');
+      }
+      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+        throw new Error('Erro de conexão. Verifique se você está online e tente novamente.');
+      }
+      if (!navigator.onLine) {
+        throw new Error('Sem conexão com a internet. Verifique sua rede e tente novamente.');
+      }
+
+      throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
     }
+  };
 
-    const result = await response.json();
-    console.log('Upload successful:', result.url);
-    return result.url;
-  } catch (error) {
-    console.error('Erro ao fazer upload para Cloudinary:', error);
-    // Provide more specific error messages
-    if (error.message.includes('O arquivo deve ser uma imagem')) {
-      throw error; // Re-throw validation errors as-is
-    }
-    if (error.message.includes('10MB')) {
-      throw error; // Re-throw size errors as-is
-    }
-    throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
-  }
+  return uploadWithRetry();
 }
 
 /**
