@@ -1,41 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { getAuthenticatedClient } from '@/libs/supabase/server';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Get JWT token from Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    // Create a Supabase client and verify the token
-    const supabase = createSupabaseClient(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    });
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-
-    if (error || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = await getAuthenticatedClient(request);
 
     const { id: restaurantId } = await params;
 
     // Get the visit record for this user and restaurant
-    // Since RLS is disabled, we filter by user_id at application level
+    // RLS will automatically filter by authenticated user
     const { data: visitData, error: visitError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
-      .eq('user_id', user.id)
       .eq('restaurant_id', restaurantId)
       .single();
 
@@ -56,25 +32,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Get JWT token from Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = await getAuthenticatedClient(request);
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    // Create a Supabase client and verify the token
-    const supabase = createSupabaseClient(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    });
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-
-    if (error || !user) {
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -84,7 +46,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const { data: existingVisit, error: checkError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
-      .eq('user_id', user.id)
       .eq('restaurant_id', restaurantId)
       .single();
 
@@ -102,7 +63,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           visit_count: (existingVisit as any).visit_count + 1,
           updated_at: new Date().toISOString()
         })
-        .eq('user_id', user.id)
         .eq('restaurant_id', restaurantId)
         .select()
         .single();
@@ -117,7 +77,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         visitCount: (updatedVisit as any).visit_count
       });
     } else {
-      // Create new record
+      // Create new record with explicit user_id
       const { data: newVisit, error: insertError } = await (supabase as any)
         .from('user_restaurant_visits')
         .insert({
@@ -147,25 +107,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    // Get JWT token from Authorization header
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const supabase = await getAuthenticatedClient(request);
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    // Create a Supabase client and verify the token
-    const supabase = createSupabaseClient(supabaseUrl, supabaseKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false
-      }
-    });
-
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-
-    if (error || !user) {
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -178,7 +124,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       const { data: existingVisit, error: checkError } = await supabase
         .from('user_restaurant_visits')
         .select('*')
-        .eq('user_id', user.id)
         .eq('restaurant_id', restaurantId)
         .single();
 
@@ -189,14 +134,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       if (existingVisit) {
         // Update existing record - toggle visited status
-        const newVisitedStatus = !(existingVisit as any).visited;
+        const currentVisited = (existingVisit as any).visited;
+        const currentVisitCount = (existingVisit as any).visit_count;
+        const newVisitedStatus = !currentVisited;
+
+        // Prepare update data
+        const updateData: any = {
+          visited: newVisitedStatus,
+          updated_at: new Date().toISOString()
+        };
+
+        // If marking as visited and visit_count is 0, set it to 1
+        if (newVisitedStatus && currentVisitCount === 0) {
+          updateData.visit_count = 1;
+        }
+
         const { data: updatedVisit, error: updateError } = await (supabase as any)
           .from('user_restaurant_visits')
-          .update({
-            visited: newVisitedStatus,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id)
+          .update(updateData)
           .eq('restaurant_id', restaurantId)
           .select()
           .single();
@@ -211,7 +166,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           visitCount: (updatedVisit as any).visit_count
         });
       } else {
-        // Create new record with visited = true
+        // Create new record with visited = true and explicit user_id
         const { data: newVisit, error: insertError } = await (supabase as any)
           .from('user_restaurant_visits')
           .insert({
@@ -240,7 +195,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       const { data: existingVisit, error: checkError } = await supabase
         .from('user_restaurant_visits')
         .select('*')
-        .eq('user_id', user.id)
         .eq('restaurant_id', restaurantId)
         .single();
 
@@ -264,7 +218,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
               visited: shouldMarkUnvisited ? false : (existingVisit as any).visited,
               updated_at: new Date().toISOString()
             })
-            .eq('user_id', user.id)
             .eq('restaurant_id', restaurantId)
             .select()
             .single();

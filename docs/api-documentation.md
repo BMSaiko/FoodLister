@@ -232,6 +232,177 @@ fetch('/api/reviews', {
   .then(data => console.log(data));
 ```
 
+### Visits API
+
+#### GET `/api/restaurants/visits`
+
+**Purpose**: Retrieves visit data for multiple restaurants in a single request
+
+**Authentication**: Required (via Authorization header)
+
+**Parameters**:
+- `restaurantIds` (required): Array of restaurant UUIDs
+
+**Request Body**:
+```json
+{
+  "restaurantIds": [
+    "uuid1",
+    "uuid2",
+    "uuid3"
+  ]
+}
+```
+
+**Response**:
+```json
+{
+  "uuid1": {
+    "visited": true,
+    "visitCount": 2
+  },
+  "uuid2": {
+    "visited": false,
+    "visitCount": 0
+  },
+  "uuid3": {
+    "visited": true,
+    "visitCount": 1
+  }
+}
+```
+
+**Usage**:
+```javascript
+fetch('/api/restaurants/visits', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer your-jwt-token'
+  },
+  body: JSON.stringify({
+    restaurantIds: ['uuid1', 'uuid2', 'uuid3']
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+#### GET `/api/restaurants/[id]/visits`
+
+**Purpose**: Retrieves visit data for a specific restaurant
+
+**Authentication**: Required (via Authorization header)
+
+**Parameters**: Restaurant ID in URL path
+
+**Response**:
+```json
+{
+  "visited": true,
+  "visitCount": 3
+}
+```
+
+**Usage**:
+```javascript
+fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
+  headers: {
+    'Authorization': 'Bearer your-jwt-token'
+  }
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+#### POST `/api/restaurants/[id]/visits`
+
+**Purpose**: Records a visit to a restaurant (increments visit count)
+
+**Authentication**: Required (via Authorization header)
+
+**Parameters**: Restaurant ID in URL path
+
+**Response**:
+```json
+{
+  "visited": true,
+  "visitCount": 2
+}
+```
+
+**Usage**:
+```javascript
+fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer your-jwt-token'
+  }
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+#### PATCH `/api/restaurants/[id]/visits`
+
+**Purpose**: Updates visit status for a restaurant (toggle visited/unvisited or adjust visit count)
+
+**Authentication**: Required (via Authorization header)
+
+**Parameters**: Restaurant ID in URL path
+
+**Request Body** (one of):
+```json
+// Toggle visited status
+{
+  "action": "toggle_visited"
+}
+
+// Remove one visit
+{
+  "action": "remove_visit"
+}
+```
+
+**Response**:
+```json
+{
+  "visited": true,
+  "visitCount": 1
+}
+```
+
+**Usage**:
+```javascript
+// Toggle visited status
+fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer your-jwt-token'
+  },
+  body: JSON.stringify({
+    action: 'toggle_visited'
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+
+// Remove one visit
+fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer your-jwt-token'
+  },
+  body: JSON.stringify({
+    action: 'remove_visit'
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
 #### GET `/api/reviews/[id]`
 
 **Purpose**: Retrieves a specific review with user and restaurant details

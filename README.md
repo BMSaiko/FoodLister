@@ -8,7 +8,8 @@ A modern, responsive web application for managing your restaurant discoveries an
 - **Browse & Search**: Discover restaurants with powerful search functionality
 - **Advanced Filtering**: Filter by price range, rating, cuisine type, and visit status
 - **Create & Edit**: Add new restaurants with detailed information
-- **Visit Tracking**: Mark restaurants as visited or not visited
+- **Visit Tracking**: Mark restaurants as visited with visit counter (+1/-1 functionality)
+- **Row Level Security**: Complete data isolation per authenticated user
 
 ### 🎯 Restaurant Roulette
 - **Interactive Wheel**: Spin a customizable wheel to randomly select restaurants
