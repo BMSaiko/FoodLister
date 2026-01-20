@@ -108,7 +108,7 @@ export async function uploadToCloudinary(file: File): Promise<string> {
         const errorData = await response.json();
         console.error('Upload API error:', errorData);
 
-        // Don't retry validation errors
+        // Don't retry validation errors 
         if (response.status === 400 && errorData.error?.includes('arquivo deve ser uma imagem')) {
           throw new Error(errorData.error);
         }
