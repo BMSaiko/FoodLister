@@ -12,11 +12,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'restaurantIds array is required' }, { status: 400 });
     }
 
+    // Get current user info for debugging
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    console.log('🔍 API /restaurants/visits called for user:', user?.email, 'userId:', user?.id);
+
+    if (!user?.id) {
+      console.error('❌ No authenticated user found!');
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    }
+
     // Get visit records for all restaurants for this user
-    // RLS will automatically filter by authenticated user
+    // Add explicit user_id filter for reliability (RLS should also filter automatically)
     const { data: visitData, error: visitError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
+      .eq('user_id', user.id)
       .in('restaurant_id', restaurantIds);
 
     if (visitError) {
@@ -45,6 +55,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    console.log('📊 API returning visits data:', visitsMap);
     return NextResponse.json(visitsMap);
   } catch (error) {
     console.error('Unexpected error:', error);

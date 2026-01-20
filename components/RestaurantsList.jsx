@@ -37,12 +37,23 @@ function RestaurantsContent({ showHeader = true }) {
   const [loadingVisits, setLoadingVisits] = useState(false);
   const [filters, setFilters] = useState(initialFilters);
   const [activeFilters, setActiveFilters] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = searchParams.get('search');
   const { clearTrigger } = useFilters();
   const { user, getAccessToken } = useAuth();
+
+  // Clear visits data when user changes (logs in/out or switches accounts)
+  useEffect(() => {
+    const newUserId = user?.id || null;
+    if (newUserId !== currentUserId) {
+      // User changed - clear visits data to force fresh fetch
+      setVisitsData({});
+      setCurrentUserId(newUserId);
+    }
+  }, [user, currentUserId]);
 
   // Clear filters when clearTrigger changes
   useEffect(() => {
@@ -94,7 +105,7 @@ function RestaurantsContent({ showHeader = true }) {
           const data = await response.json();
           setVisitsData(data);
         } else {
-          console.error('Failed to fetch visits data, status:', response.status);
+          console.error('❌ Failed to fetch visits data, status:', response.status);
           // Set default visits data on failure
           const defaultVisitsData = {};
           restaurantIds.forEach(id => {
@@ -157,6 +168,7 @@ function RestaurantsContent({ showHeader = true }) {
 
   // Function to update visits data when a card notifies a change
   const handleVisitsDataUpdate = (restaurantId, newVisitsData) => {
+    console.log('🔄 Updating visits data for restaurant:', restaurantId, 'new data:', newVisitsData, 'user:', user?.email);
     setVisitsData(prev => ({
       ...prev,
       [restaurantId]: newVisitsData
