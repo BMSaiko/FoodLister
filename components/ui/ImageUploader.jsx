@@ -6,7 +6,7 @@ export default function ImageUploader({
   onImageUploaded,
   className = '',
   disabled = false
-}) {
+}) { 
 
   // Development helper: expose test functions to window
   if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
