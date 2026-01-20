@@ -114,12 +114,26 @@ export default function ImageUploader({
       const file = acceptedFiles[0];
       if (!file) return;
 
+      // Detect special mobile URIs
+      const isIOSAsset = file.name?.includes('assets-library://') || file.name?.startsWith('assets-library://');
+      const isAndroidContent = file.name?.includes('content://') || file.name?.startsWith('content://');
+      const isIOSFile = file.name?.includes('/var/mobile/') || file.name?.startsWith('file:///private/var/mobile/');
+      const isAndroidFile = file.name?.includes('/storage/emulated/') || file.name?.startsWith('file:///storage/emulated/');
+
       console.log('📱 File selected via dropzone:', {
         name: file.name,
         type: file.type,
         size: file.size,
         isMobile,
-        userAgent: navigator.userAgent
+        // Special URI detection
+        isIOSAsset,
+        isAndroidContent,
+        isIOSFile,
+        isAndroidFile,
+        // Full details
+        userAgent: navigator.userAgent,
+        lastModified: file.lastModified,
+        webkitRelativePath: file.webkitRelativePath
       });
 
       // Reset previous state
