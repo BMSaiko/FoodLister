@@ -1,7 +1,7 @@
 // components/ui/RestaurantRoulette.jsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
 import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check } from 'lucide-react';
@@ -33,6 +33,20 @@ const RestaurantRoulette = () => {
   const [restaurantSearchQuery, setRestaurantSearchQuery] = useState('');
   const [selectedRestaurantsForRoulette, setSelectedRestaurantsForRoulette] = useState([]);
   const [displayLimit, setDisplayLimit] = useState(50);
+  const resultRef = useRef(null);
+
+  // Scroll to result when restaurant is selected
+  useEffect(() => {
+    if (selectedRestaurant && resultRef.current) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        resultRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  }, [selectedRestaurant]);
 
   const resetRestaurantSelector = () => {
     setRestaurantSearchQuery('');
@@ -616,7 +630,7 @@ const RestaurantRoulette = () => {
       
       {/* Resultado */}
       {selectedRestaurant && (
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
+        <div ref={resultRef} className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
           <div className="text-center mb-4 sm:mb-6">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
               🎉 Restaurante Escolhido! 🎉
@@ -629,18 +643,19 @@ const RestaurantRoulette = () => {
           {/* Container centralizado para o card */}
           <div className="flex justify-center items-center mb-5 sm:mb-6 px-2 sm:px-0">
             <div className="w-full max-w-md mx-auto min-w-0">
-              <RestaurantCard restaurant={selectedRestaurant} centered={true} />
+              <RestaurantCard
+                restaurant={selectedRestaurant}
+                centered={true}
+                visitsData={visitsData[selectedRestaurant.id]}
+                loadingVisits={loadingVisits}
+                onVisitsDataUpdate={(restaurantId, newVisitsData) => {
+                  setVisitsData(prev => ({
+                    ...prev,
+                    [restaurantId]: newVisitsData
+                  }));
+                }}
+              />
             </div>
-          </div>
-          
-          {/* Botão de detalhes */}
-          <div className="text-center">
-            <Link
-              href={`/restaurants/${selectedRestaurant.id}`}
-              className="inline-flex items-center justify-center w-full sm:w-auto px-8 py-3 sm:py-2.5 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-all min-h-[52px] sm:min-h-[48px] font-medium text-base shadow-md hover:shadow-lg"
-            >
-              Ver Detalhes
-            </Link>
           </div>
         </div>
       )}
