@@ -79,7 +79,7 @@ export default function ImageUploader({
     };
   }
 
-  // Configure dropzone with mobile-optimized settings
+  // Configure dropzone with device-specific settings
   const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
     accept: {
       'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg']
@@ -87,11 +87,10 @@ export default function ImageUploader({
     maxSize: 10 * 1024 * 1024, // 10MB
     multiple: false,
     disabled: disabled || uploadState.isUploading,
-    // Mobile-specific options
-    noClick: isMobile, // Disable click on mobile (use native picker)
-    noKeyboard: isMobile,
-    // Prevent drag on mobile (not useful)
-    noDrag: isMobile,
+    // Device-specific options
+    noClick: false, // Allow click/touch on all devices
+    noKeyboard: true, // Disable keyboard on all devices (not useful for images)
+    noDrag: isMobile, // Disable drag only on mobile (touch conflicts)
     onDrop: useCallback(async (acceptedFiles, rejectedFiles) => {
       // Handle rejected files
       if (rejectedFiles.length > 0) {
@@ -190,7 +189,8 @@ export default function ImageUploader({
       <div
         {...getRootProps()}
         className={`
-          relative border-2 border-dashed rounded-xl p-6 transition-all duration-200 cursor-pointer
+          relative border-2 border-dashed rounded-xl p-6 transition-all duration-200
+          ${isMobile ? 'cursor-pointer active:scale-95' : 'cursor-pointer'}
           ${isDragActive && !isDragReject
             ? 'border-primary bg-primary/5 scale-105'
             : isDragReject
@@ -230,9 +230,14 @@ export default function ImageUploader({
             </p>
 
             {isMobile && (
-              <p className="text-xs text-gray-400 mt-2">
-                Suporte otimizado para dispositivos móveis
-              </p>
+              <div className="mt-3 space-y-1">
+                <p className="text-xs text-blue-600 font-medium">
+                  👆 Toque aqui para abrir câmera ou galeria
+                </p>
+                <p className="text-xs text-gray-400">
+                  Suporte otimizado para dispositivos móveis
+                </p>
+              </div>
             )}
           </div>
         </div>
