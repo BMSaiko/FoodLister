@@ -45,23 +45,6 @@ export function extractCloudinaryPublicId(url: string): string | null {
 }
 
 /**
- * Validates if a file is an image based on MIME type or file extension
- * More permissive validation for mobile devices
- */
-function isValidImageFile(file: File): boolean {
-  // First check MIME type (most reliable)
-  if (file.type && file.type.startsWith('image/')) {
-    return true;
-  }
-
-  // Fallback to file extension for mobile devices that don't set MIME type correctly
-  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'];
-  const fileName = file.name.toLowerCase();
-
-  return validExtensions.some(ext => fileName.endsWith(ext));
-}
-
-/**
  * Uploads image to Cloudinary using server-side API
  */
 export async function uploadToCloudinary(file: File): Promise<string> {
@@ -69,9 +52,9 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     throw new Error('Nenhum arquivo fornecido');
   }
 
-  // Verifica se é uma imagem (more permissive validation)
-  if (!isValidImageFile(file)) {
-    throw new Error('O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, etc.)');
+  // Verifica se é uma imagem
+  if (!file.type.startsWith('image/')) {
+    throw new Error('O arquivo deve ser uma imagem');
   }
 
   // Verifica o tamanho do arquivo (máximo 10MB para Cloudinary free tier)
@@ -81,13 +64,6 @@ export async function uploadToCloudinary(file: File): Promise<string> {
   }
 
   try {
-    console.log('Starting upload for file:', {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      lastModified: file.lastModified
-    });
-
     const formData = new FormData();
     formData.append('file', file);
 
@@ -103,18 +79,10 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     }
 
     const result = await response.json();
-    console.log('Upload successful:', result.url);
     return result.url;
   } catch (error) {
     console.error('Erro ao fazer upload para Cloudinary:', error);
-    // Provide more specific error messages
-    if (error.message.includes('O arquivo deve ser uma imagem')) {
-      throw error; // Re-throw validation errors as-is
-    }
-    if (error.message.includes('10MB')) {
-      throw error; // Re-throw size errors as-is
-    }
-    throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
+    throw new Error('Erro ao fazer upload da imagem');
   }
 }
 
