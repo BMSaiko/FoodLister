@@ -19,7 +19,7 @@ export default function FormActions({
         {cancelText}
       </button>
       <button
-        type="submit"
+        type="button"
         onClick={onSubmit}
         disabled={loading || disabled}
         className="w-full sm:w-auto px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm hover:shadow-md order-1 sm:order-2"

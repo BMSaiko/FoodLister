@@ -1,221 +1,161 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { uploadToCloudinary } from '../../utils/cloudinaryConverter';
 
+/**
+ * ImageUploader component using react-dropzone with Cloudinary API
+ * Complete reimplementation from scratch without Cloudinary widget
+ */
 export default function ImageUploader({
   onImageUploaded,
   className = '',
   disabled = false
 }) {
+  // State for upload process
   const [uploadState, setUploadState] = useState({
     isUploading: false,
     error: null,
-    success: false
+    success: false,
+    uploadedUrl: null, // Temporary URL, not applied to form yet
+    uploadProgress: null
   });
 
   // Detect mobile device
   const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-  // Development helpers
-  if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    window.testMobileUpload = async () => {
-      console.log('🧪 Testing mobile upload simulation...');
+  /**
+   * Handle file drop/upload
+   */
+  const onDrop = useCallback(async (acceptedFiles, rejectedFiles) => {
+    console.log('📁 Files dropped:', acceptedFiles, 'Rejected:', rejectedFiles);
 
-      // Create a tiny 1x1 transparent PNG that mimics mobile camera image (no MIME type)
-      const tinyPNGBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-      const imageBlob = await fetch(`data:image/png;base64,${tinyPNGBase64}`).then(r => r.blob());
+    // Handle rejected files
+    if (rejectedFiles.length > 0) {
+      const rejection = rejectedFiles[0];
+      let errorMessage = 'Arquivo rejeitado';
 
-      // Create a test file that mimics mobile behavior (no MIME type)
-      const testFile = new File([imageBlob], 'mobile_camera_image.jpg', { type: '' });
-      console.log('Test file created (simulating mobile camera):', {
-        name: testFile.name,
-        type: testFile.type,
-        size: testFile.size
-      });
-
-      try {
-        const { uploadToCloudinary } = await import('../../utils/cloudinaryConverter');
-        const result = await uploadToCloudinary(testFile);
-        console.log('✅ Mobile upload test successful:', result);
-        return result;
-      } catch (error) {
-        console.error('❌ Mobile upload test failed:', error.message);
-        throw error;
+      if (rejection.errors.some(error => error.code === 'file-too-large')) {
+        errorMessage = 'A imagem deve ter no máximo 10MB';
+      } else if (rejection.errors.some(error => error.code === 'file-invalid-type')) {
+        errorMessage = 'Tipo de arquivo não suportado. Use JPG, PNG, GIF, WebP, HEIC, etc.';
+      } else {
+        // Generic error for other rejection reasons
+        errorMessage = rejection.errors[0]?.message || 'Arquivo rejeitado';
       }
-    };
 
-    window.testFileValidation = (fileName, mimeType = '') => {
-      const isValid = mimeType.startsWith('image/') ||
-        ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg']
-        .some(ext => fileName.toLowerCase().endsWith(ext));
+      setUploadState({
+        isUploading: false,
+        error: errorMessage,
+        success: false,
+        uploadedUrl: null
+      });
+      return;
+    }
 
-      console.log(`📁 Teste de validação: ${fileName} (${mimeType || 'sem MIME type'})`);
-      console.log(`✅ Resultado: ${isValid ? 'APROVADO' : 'REJEITADO'}`);
-      return isValid;
-    };
+    // Check if we have a file
+    if (acceptedFiles.length === 0) {
+      return;
+    }
 
-    window.testValidationOnly = () => {
-      console.log('🧪 Testando validação de arquivos móveis...\n');
+    const file = acceptedFiles[0];
+    console.log('📤 Starting upload for file:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
 
-      const testCases = [
-        { name: 'camera_mobile.jpg', type: '', expected: true },
-        { name: 'photo.png', type: '', expected: true },
-        { name: 'normal.jpg', type: 'image/jpeg', expected: true },
-        { name: 'document.pdf', type: '', expected: false },
-      ];
+    // Reset state and start upload
+    setUploadState({
+      isUploading: true,
+      error: null,
+      success: false,
+      uploadedUrl: null
+    });
 
-      let passed = 0;
-      testCases.forEach((testCase, index) => {
-        console.log(`${index + 1}. Testando: ${testCase.name}`);
-        const result = window.testFileValidation(testCase.name, testCase.type);
-        const status = result === testCase.expected ? '✅' : '❌';
-        console.log(`${status} Resultado: ${result}\n`);
-        if (result === testCase.expected) passed++;
+    try {
+      // Upload using our Cloudinary converter
+      const uploadedUrl = await uploadToCloudinary(file);
+
+      console.log('✅ Upload successful:', uploadedUrl);
+
+      // Store URL temporarily, don't apply to form yet
+      setUploadState({
+        isUploading: false,
+        error: null,
+        success: true,
+        uploadedUrl: uploadedUrl
       });
 
-      console.log(`📊 ${passed}/${testCases.length} testes passaram`);
-      return { passed, total: testCases.length, success: passed === testCases.length };
-    };
-  }
+    } catch (error) {
+      console.error('❌ Upload failed:', error);
+      setUploadState({
+        isUploading: false,
+        error: error.message || 'Erro no upload da imagem',
+        success: false,
+        uploadedUrl: null
+      });
+    }
+  }, []);
 
-  // Configure dropzone with device-specific settings
-  const { getRootProps, getInputProps, isDragActive, isDragReject } = useDropzone({
+  // Configure dropzone
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
     accept: {
-      'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg']
+      'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg', '.heic', '.heif']
     },
     maxSize: 10 * 1024 * 1024, // 10MB
     multiple: false,
     disabled: disabled || uploadState.isUploading,
-    // Device-specific options
-    noClick: false, // Allow click/touch on all devices
-    noKeyboard: true, // Disable keyboard on all devices (not useful for images)
-    noDrag: isMobile, // Disable drag only on mobile (touch conflicts)
-    onDrop: useCallback(async (acceptedFiles, rejectedFiles) => {
-      // Handle rejected files
-      if (rejectedFiles.length > 0) {
-        const rejection = rejectedFiles[0];
-        let errorMessage = 'Arquivo não suportado';
-
-        if (rejection.errors.some(e => e.code === 'file-too-large')) {
-          errorMessage = 'A imagem deve ter no máximo 10MB';
-        } else if (rejection.errors.some(e => e.code === 'file-invalid-type')) {
-          errorMessage = 'O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, etc.)';
-        }
-
-        setUploadState({
-          isUploading: false,
-          error: errorMessage,
-          success: false
-        });
-        return;
-      }
-
-      const file = acceptedFiles[0];
-      if (!file) return;
-
-      // Detect special mobile URIs
-      const isIOSAsset = file.name?.includes('assets-library://') || file.name?.startsWith('assets-library://');
-      const isAndroidContent = file.name?.includes('content://') || file.name?.startsWith('content://');
-      const isIOSFile = file.name?.includes('/var/mobile/') || file.name?.startsWith('file:///private/var/mobile/');
-      const isAndroidFile = file.name?.includes('/storage/emulated/') || file.name?.startsWith('file:///storage/emulated/');
-
-      console.log('📱 File selected via dropzone:', {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        isMobile,
-        // Special URI detection
-        isIOSAsset,
-        isAndroidContent,
-        isIOSFile,
-        isAndroidFile,
-        // Full details
-        userAgent: navigator.userAgent,
-        lastModified: file.lastModified,
-        webkitRelativePath: file.webkitRelativePath
-      });
-
-      // Reset previous state
-      setUploadState({ isUploading: true, error: null, success: false });
-
-      try {
-        // Convert file to base64 for all devices to ensure compatibility
-        console.log('🔄 Converting file to base64...');
-
-        const base64Data = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const result = reader.result;
-            // Extract base64 data from data URL
-            const base64 = result.split(',')[1];
-            resolve(base64);
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-
-        // Determine MIME type from file extension
-        const mimeType = file.name.toLowerCase().endsWith('.png') ? 'image/png' :
-                        file.name.toLowerCase().endsWith('.gif') ? 'image/gif' :
-                        file.name.toLowerCase().endsWith('.webp') ? 'image/webp' :
-                        'image/jpeg';
-
-        console.log('✅ File converted to base64:', {
-          originalType: file.type,
-          mimeType,
-          size: file.size,
-          base64Length: base64Data.length,
-          isMobile
-        });
-
-        // Send base64 data to API
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            imageData: base64Data,
-            mimeType: mimeType,
-            fileName: file.name
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Erro no upload da imagem');
-        }
-
-        const result = await response.json();
-        const imageUrl = result.url;
-        setUploadState({ isUploading: false, error: null, success: true });
-
-        // Call the callback with the uploaded image URL
-        onImageUploaded(imageUrl);
-
-        // Reset success state after a delay
-        setTimeout(() => {
-          setUploadState(prev => ({ ...prev, success: false }));
-        }, 3000);
-
-      } catch (error) {
-        console.error('Upload error:', error);
-        setUploadState({
-          isUploading: false,
-          error: error.message || 'Erro ao fazer upload da imagem',
-          success: false
-        });
-      }
-    }, [onImageUploaded, isMobile])
+    // Add camera support for mobile
+    ...(isMobile && {
+      // This helps mobile browsers prioritize camera
+      capture: 'environment' // Use back camera by default
+    })
   });
 
-  const clearError = useCallback(() => {
-    setUploadState(prev => ({ ...prev, error: null }));
-  }, []);
+  /**
+   * Clear error state
+   */
+  const clearError = () => {
+    setUploadState(prev => ({
+      ...prev,
+      error: null
+    }));
+  };
+
+  /**
+   * Apply uploaded image to form
+   */
+  const applyImage = () => {
+    if (uploadState.uploadedUrl) {
+      console.log('✅ Applying image to form:', uploadState.uploadedUrl);
+      onImageUploaded(uploadState.uploadedUrl);
+
+      // Reset state
+      setUploadState(prev => ({
+        ...prev,
+        uploadedUrl: null,
+        success: false
+      }));
+    }
+  };
+
+  /**
+   * Retry upload (clear error state)
+   */
+  const retryUpload = () => {
+    setUploadState({
+      isUploading: false,
+      error: null,
+      success: false,
+      uploadedUrl: null
+    });
+  };
 
   return (
     <div className={`mb-4 ${className}`}>
+      {/* Label */}
       <label className="flex items-center text-gray-700 font-medium mb-3">
         <Upload className="h-4 w-4 mr-2" />
         Upload de Imagem
@@ -225,23 +165,20 @@ export default function ImageUploader({
       <div
         {...getRootProps()}
         className={`
-          relative border-2 border-dashed rounded-xl p-6 transition-all duration-200
-          ${isMobile ? 'cursor-pointer active:scale-95' : 'cursor-pointer'}
-          ${isDragActive && !isDragReject
-            ? 'border-primary bg-primary/5 scale-105'
-            : isDragReject
-            ? 'border-red-400 bg-red-50'
-            : 'border-gray-300 hover:border-primary hover:bg-gray-50'
-          }
+          w-full px-6 py-4 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
+          ${isDragActive ? 'border-primary bg-primary/10 scale-105' : 'border-gray-300 hover:border-primary hover:bg-primary/5'}
+          ${isMobile ? 'active:scale-95' : ''}
           ${disabled || uploadState.isUploading ? 'opacity-50 cursor-not-allowed' : ''}
+          focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
         `}
       >
         <input {...getInputProps()} />
-
         <div className="text-center">
           {/* Icon */}
-          <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-gray-100">
-            {isMobile ? (
+          <div className="mx-auto mb-3 flex items-center justify-center w-16 h-16 rounded-full bg-gray-100">
+            {uploadState.isUploading ? (
+              <Loader className="h-8 w-8 text-primary animate-spin" />
+            ) : isMobile ? (
               <Camera className="h-8 w-8 text-gray-600" />
             ) : (
               <ImageIcon className="h-8 w-8 text-gray-600" />
@@ -250,30 +187,27 @@ export default function ImageUploader({
 
           {/* Text */}
           <div className="space-y-2">
-            <p className="text-lg font-medium text-gray-700">
-              {isDragActive && !isDragReject
-                ? 'Solte a imagem aqui'
-                : isDragReject
-                ? 'Arquivo não suportado'
-                : isMobile
-                ? 'Toque para selecionar imagem'
-                : 'Arraste uma imagem ou clique para selecionar'
-              }
-            </p>
-
-            <p className="text-sm text-gray-500">
-              JPG, PNG, GIF, WebP até 10MB
-            </p>
-
-            {isMobile && (
-              <div className="mt-3 space-y-1">
-                <p className="text-xs text-blue-600 font-medium">
-                  👆 Toque aqui para abrir câmera ou galeria
+            {uploadState.isUploading ? (
+              <p className="text-lg font-medium text-primary">Fazendo upload...</p>
+            ) : (
+              <>
+                <p className="text-lg font-medium text-gray-700">
+                  {isDragActive ? 'Solte a imagem aqui' : isMobile ? 'Tirar Foto ou Selecionar' : 'Arraste uma imagem ou clique'}
                 </p>
-                <p className="text-xs text-gray-400">
-                  Suporte otimizado para dispositivos móveis
+                <p className="text-sm text-gray-500">
+                  JPG, PNG, GIF, WebP, HEIC até 10MB
                 </p>
-              </div>
+                {isMobile && (
+                  <p className="text-xs text-blue-600 font-medium mt-2">
+                    📱 Câmera integrada
+                  </p>
+                )}
+                {!isMobile && (
+                  <p className="text-xs text-gray-400 mt-2">
+                    ou clique para selecionar
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -287,13 +221,38 @@ export default function ImageUploader({
         </div>
       )}
 
-      {uploadState.success && (
-        <div className="mt-3 flex items-center justify-center text-green-600 text-sm">
-          <CheckCircle className="h-4 w-4 mr-2" />
-          Imagem enviada com sucesso!
+      {/* Success State with Preview */}
+      {uploadState.success && uploadState.uploadedUrl && (
+        <div className="mt-4 space-y-3">
+          {/* Image Preview */}
+          <div className="relative">
+            <img
+              src={uploadState.uploadedUrl}
+              alt="Preview da imagem carregada"
+              className="w-full h-48 object-cover rounded-lg border-2 border-green-200"
+            />
+            <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+              Preview
+            </div>
+          </div>
+
+          {/* Status and Apply Button */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center text-green-600 text-sm">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Imagem carregada para preview
+            </div>
+            <button
+              onClick={applyImage}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+            >
+              Aplicar Imagem
+            </button>
+          </div>
         </div>
       )}
 
+      {/* Error State */}
       {uploadState.error && (
         <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-start space-x-2">
@@ -302,21 +261,30 @@ export default function ImageUploader({
               <p className="text-sm font-medium text-red-800">Erro no upload</p>
               <p className="text-sm text-red-700 mt-1">{uploadState.error}</p>
             </div>
-            <button
-              onClick={clearError}
-              className="flex-shrink-0 p-1 hover:bg-red-100 rounded transition-colors"
-            >
-              <X className="h-3 w-3 text-red-500" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={retryUpload}
+                className="flex-shrink-0 p-1 hover:bg-blue-100 rounded transition-colors text-blue-600"
+                title="Tentar novamente"
+              >
+                <RefreshCw className="h-3 w-3" />
+              </button>
+              <button
+                onClick={clearError}
+                className="flex-shrink-0 p-1 hover:bg-red-100 rounded transition-colors"
+              >
+                <X className="h-3 w-3 text-red-500" />
+              </button>
+            </div>
           </div>
         </div>
       )}
 
+      {/* Footer Info */}
       <div className="mt-3 text-xs text-gray-500 text-center space-y-1">
-        <p>• Formatos aceitos: JPG, PNG, GIF, WebP</p>
-        <p>• Tamanho máximo: 10MB</p>
-        <p>• Imagem será otimizada automaticamente</p>
-        {isMobile && <p>• Compatibilidade total com câmera e galeria</p>}
+        <p>• Upload direto para Cloudinary via API</p>
+        <p>• Suporte completo para desktop e mobile</p>
+        <p>• Imagens otimizadas automaticamente</p>
       </div>
     </div>
   );
