@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Filter, X, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { createClient } from '@/libs/supabase/client';
 
-const RestaurantFilters = ({ filters, setFilters, applyFilters, clearFilters }) => {
+const RestaurantFilters = ({ filters, setFilters, applyFilters, clearFilters, autoApply = true }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -215,7 +215,12 @@ const RestaurantFilters = ({ filters, setFilters, applyFilters, clearFilters }) 
           
           {/* Botões de ação */}
           <div className="flex flex-col sm:flex-row justify-end pt-3 sm:pt-2 gap-2 sm:gap-0 sm:space-x-2 border-t border-gray-200">
-            <button 
+            {autoApply && (
+              <div className="flex-1 text-xs text-gray-500 flex items-center">
+                <span>Filtros aplicados automaticamente</span>
+              </div>
+            )}
+            <button
               type="button"
               onClick={clearFilters}
               className="px-4 sm:px-3 py-2.5 sm:py-1.5 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center justify-center min-h-[44px] sm:min-h-0"
@@ -223,16 +228,18 @@ const RestaurantFilters = ({ filters, setFilters, applyFilters, clearFilters }) 
               <X className="h-4 w-4 sm:h-3 sm:w-3 mr-1" />
               Limpar
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                applyFilters();
-                setIsOpen(false);
-              }}
-              className="px-4 sm:px-3 py-2.5 sm:py-1.5 text-sm bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] sm:min-h-0 font-medium"
-            >
-              Aplicar
-            </button>
+            {!autoApply && (
+              <button
+                type="button"
+                onClick={() => {
+                  applyFilters();
+                  setIsOpen(false);
+                }}
+                className="px-4 sm:px-3 py-2.5 sm:py-1.5 text-sm bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] sm:min-h-0 font-medium"
+              >
+                Aplicar
+              </button>
+            )}
           </div>
         </div>
       )}

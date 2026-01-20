@@ -12,7 +12,7 @@ import ReviewForm from '@/components/ui/ReviewForm';
 import Link from 'next/link';
 import {
   ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
-  FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home
+  FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home, Plus
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
@@ -25,10 +25,10 @@ import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlacehold
 export default function RestaurantDetails() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { user } = useAuth();
+  const { user, getAccessToken } = useAuth();
 
   const [restaurant, setRestaurant] = useState(null);
-  const [visited, setVisited] = useState(false);
+  const [visitData, setVisitData] = useState({ visited: false, visitCount: 0 });
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -64,7 +64,6 @@ export default function RestaurantDetails() {
 
       if (restaurantData) {
         setRestaurant(restaurantData as any);
-        setVisited((restaurantData as any).visited || false);
 
         // Fetch cuisine types for this restaurant
         const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
@@ -267,6 +266,61 @@ export default function RestaurantDetails() {
     fetchUserProfile();
   }, [user?.id]);
 
+  // Fetch visit data for authenticated users
+  useEffect(() => {
+    const fetchVisitData = async () => {
+      if (!user) return;
+
+      try {
+        const token = await getAccessToken();
+        if (!token) return;
+
+        const response = await fetch(`/api/restaurants/${id}/visits`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setVisitData({ visited: data.visited, visitCount: data.visitCount });
+        } else {
+          console.error('Failed to fetch visit data');
+        }
+      } catch (error) {
+        console.error('Error fetching visit data:', error);
+      }
+    };
+
+    fetchVisitData();
+  }, [user, id, getAccessToken]);
+
+  // Ensure visit count is updated when visited becomes true
+  useEffect(() => {
+    if (visitData.visited && visitData.visitCount === 0) {
+      // If visited is true but visitCount is still 0, refetch the data
+      const refetchVisitData = async () => {
+        try {
+          const token = await getAccessToken();
+          if (!token) return;
+
+          const response = await fetch(`/api/restaurants/${id}/visits`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
+          }
+        } catch (error) {
+          console.error('Error refetching visit data:', error);
+        }
+      };
+
+      refetchVisitData();
+    }
+  }, [visitData.visited, visitData.visitCount, id, getAccessToken]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const sanitizedUrl = sanitizeUrl(window.location.href);
@@ -380,23 +434,30 @@ export default function RestaurantDetails() {
 
     setIsUpdating(true);
     try {
-      const newVisitedStatus = !visited;
-
-      const { error } = await (supabase as any)
-        .from('restaurants')
-        .update({ visited: newVisitedStatus })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setVisited(newVisitedStatus);
-      if (restaurant) {
-        setRestaurant({ ...restaurant, visited: newVisitedStatus });
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('No access token available');
       }
+
+      const response = await fetch(`/api/restaurants/${id}/visits`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: 'toggle_visited' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update visit status');
+      }
+
+      const data = await response.json();
+      setVisitData({ visited: data.visited, visitCount: data.visitCount });
 
       // Show success toast
       toast.success(
-        newVisitedStatus
+        data.visited
           ? 'Restaurante marcado como visitado!'
           : 'Restaurante marcado como não visitado!',
         {
@@ -412,7 +473,6 @@ export default function RestaurantDetails() {
       );
     } catch (err) {
       console.error('Erro ao atualizar status de visitado:', err);
-      setVisited(!visited);
 
       // Show error toast
       toast.error('Erro ao atualizar status de visita. Tente novamente.', {
@@ -427,6 +487,107 @@ export default function RestaurantDetails() {
       });
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleAddVisit = async () => {
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('No access token available');
+      }
+
+      const response = await fetch(`/api/restaurants/${id}/visits`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add visit');
+      }
+
+      const data = await response.json();
+      setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
+
+      // Show success toast
+      toast.success('Visita adicionada com sucesso!', {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base"
+      });
+    } catch (err) {
+      console.error('Erro ao adicionar visita:', err);
+
+      // Show error toast
+      toast.error('Erro ao adicionar visita. Tente novamente.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base"
+      });
+    }
+  };
+
+  const handleRemoveVisit = async () => {
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('No access token available');
+      }
+
+      const response = await fetch(`/api/restaurants/${id}/visits`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: 'remove_visit' }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to remove visit');
+      }
+
+      const data = await response.json();
+      setVisitData(prev => ({ ...prev, visitCount: data.visitCount, visited: data.visited }));
+
+      // Show success toast
+      toast.success('Visita removida com sucesso!', {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base"
+      });
+    } catch (err) {
+      console.error('Erro ao remover visita:', err);
+
+      // Show error toast
+      toast.error('Erro ao remover visita. Tente novamente.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base"
+      });
     }
   };
   
@@ -751,35 +912,70 @@ export default function RestaurantDetails() {
               );
             })()}
             
-            {/* Badge com Switch Button */}
-            <button
-              onClick={handleToggleVisited}
-              disabled={isUpdating}
-              className={`absolute top-4 right-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                visited 
-                  ? 'bg-green-500 text-white hover:bg-green-600' 
-                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-              }`}
-              title={visited ? 'Clique para marcar como não visitado' : 'Clique para marcar como visitado'}
-            >
-              {visited ? (
-                <>
-                  <Check className="h-4 w-4" />
-                  <span className="text-sm font-medium">Visitado</span>
-                </>
-              ) : (
-                <>
-                  <X className="h-4 w-4" />
-                  <span className="text-sm font-medium">Não visitado</span>
-                </>
-              )}
-            </button>
+            {/* Visit controls for authenticated users */}
+            {user && (
+              <>
+                {/* Badge com Switch Button */}
+                <button
+                  onClick={handleToggleVisited}
+                  disabled={isUpdating}
+                  className={`absolute top-4 right-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                    visitData.visited
+                      ? 'bg-green-500 text-white hover:bg-green-600'
+                      : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                  }`}
+                  title={visitData.visited ? 'Clique para marcar como não visitado' : 'Clique para marcar como visitado'}
+                >
+                  {visitData.visited ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      <span className="text-sm font-medium">Visitado</span>
+                    </>
+                  ) : (
+                    <>
+                      <X className="h-4 w-4" />
+                      <span className="text-sm font-medium">Não visitado</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Visit counter and +1/-1 buttons - positioned below the toggle button */}
+                {visitData.visited && (
+                  <div className="absolute top-16 right-2 sm:right-4 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg border border-gray-200/50 px-2.5 py-2 sm:px-3.5 sm:py-2.5 flex items-center gap-2 sm:gap-2.5 backdrop-blur-sm">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs sm:text-sm font-semibold text-gray-800">Visitas</span>
+                    </div>
+                    <div className="flex items-center bg-amber-50 rounded-lg px-2 py-0.5">
+                      <span className="text-xs sm:text-sm font-bold text-amber-700 tabular-nums">{visitData.visitCount}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={handleRemoveVisit}
+                        disabled={visitData.visitCount <= 0}
+                        className="group flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-red-500 shadow-sm hover:shadow-md transform hover:scale-110 active:scale-95"
+                        title="Remover -1 visita"
+                      >
+                        <X className="h-2.5 w-2.5 sm:h-3 sm:w-3 group-hover:rotate-90 transition-transform duration-200" />
+                      </button>
+                      <button
+                        onClick={handleAddVisit}
+                        className="group flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-110 active:scale-95"
+                        title="Adicionar +1 visita"
+                      >
+                        <Plus className="h-2.5 w-2.5 sm:h-3 sm:w-3 group-hover:rotate-180 transition-transform duration-200" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
           
           <div className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{restaurant.name}</h1>
-              {visited && (
+              {visitData.visited && (
                 <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
                   <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="currentColor" />
                   <span className="font-semibold text-base sm:text-lg">{(restaurant.rating || 0).toFixed(1)}</span>
@@ -820,7 +1016,7 @@ export default function RestaurantDetails() {
             })()}
             
             {/* Informações de preço mais destacadas - apenas se visitado */}
-            {visited && renderPriceLevel(restaurant.price_per_person)}
+            {visitData.visited && renderPriceLevel(restaurant.price_per_person)}
             
             {/* Campos adicionais agora com cards estilizados */}
             <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
