@@ -79,13 +79,25 @@ export default function ImageUploader({
 
       console.log('✅ Upload successful:', uploadedUrl);
 
-      // Store URL temporarily, don't apply to form yet
+      // Apply URL to form immediately
+      onImageUploaded(uploadedUrl);
+
+      // Update state to show success (will auto-clear after 3 seconds)
       setUploadState({
         isUploading: false,
         error: null,
         success: true,
         uploadedUrl: uploadedUrl
       });
+
+      // Auto-clear success message after 3 seconds
+      setTimeout(() => {
+        setUploadState(prev => ({
+          ...prev,
+          success: false,
+          uploadedUrl: null
+        }));
+      }, 3000);
 
     } catch (error) {
       console.error('❌ Upload failed:', error);
@@ -124,22 +136,6 @@ export default function ImageUploader({
     }));
   };
 
-  /**
-   * Apply uploaded image to form
-   */
-  const applyImage = () => {
-    if (uploadState.uploadedUrl) {
-      console.log('✅ Applying image to form:', uploadState.uploadedUrl);
-      onImageUploaded(uploadState.uploadedUrl);
-
-      // Reset state
-      setUploadState(prev => ({
-        ...prev,
-        uploadedUrl: null,
-        success: false
-      }));
-    }
-  };
 
   /**
    * Retry upload (clear error state)
@@ -221,34 +217,11 @@ export default function ImageUploader({
         </div>
       )}
 
-      {/* Success State with Preview */}
+      {/* Success Message */}
       {uploadState.success && uploadState.uploadedUrl && (
-        <div className="mt-4 space-y-3">
-          {/* Image Preview */}
-          <div className="relative">
-            <img
-              src={uploadState.uploadedUrl}
-              alt="Preview da imagem carregada"
-              className="w-full h-48 object-cover rounded-lg border-2 border-green-200"
-            />
-            <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
-              Preview
-            </div>
-          </div>
-
-          {/* Status and Apply Button */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center text-green-600 text-sm">
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Imagem carregada para preview
-            </div>
-            <button
-              onClick={applyImage}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
-            >
-              Aplicar Imagem
-            </button>
-          </div>
+        <div className="mt-3 flex items-center justify-center text-green-600 text-sm">
+          <CheckCircle className="h-4 w-4 mr-2" />
+          Imagem carregada com sucesso! O preview aparecerá abaixo.
         </div>
       )}
 
