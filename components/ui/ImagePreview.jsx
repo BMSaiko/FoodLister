@@ -3,27 +3,37 @@ import { Image as ImageIcon, Upload, AlertCircle, CheckCircle, Loader } from 'lu
 import { convertCloudinaryUrl } from '../../utils/cloudinaryConverter';
 import { useImagePreview } from '../../hooks/useImagePreview';
 
+/**
+ * ImagePreview component for displaying and editing image URLs
+ * Complete reimplementation from scratch
+ */
 export default function ImagePreview({
   imageUrl,
   onImageUrlChange,
   className = ''
 }) {
+  // Use custom hook for image preview state management
   const { previewState, handleImageError } = useImagePreview(imageUrl, convertCloudinaryUrl);
 
+  /**
+   * Handle URL input change
+   */
   const handleUrlChange = useCallback((value) => {
     onImageUrlChange(value);
   }, [onImageUrlChange]);
 
-  // Get processed URL for display
+  // Get processed URL for display (with Cloudinary optimizations)
   const processedUrl = imageUrl ? convertCloudinaryUrl(imageUrl) : '';
 
   return (
     <div className={`mb-6 ${className}`}>
+      {/* Label */}
       <label className="flex items-center text-gray-700 font-medium mb-3">
         <ImageIcon className="h-4 w-4 mr-2" />
         URL da Imagem
       </label>
 
+      {/* URL Input Field */}
       <div className="relative">
         <input
           type="url"
@@ -37,6 +47,7 @@ export default function ImagePreview({
         </div>
       </div>
 
+      {/* Tips Section */}
       <div className="mt-3 p-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
         <div className="flex items-start space-x-2">
           <div className="flex-shrink-0 mt-0.5">
@@ -54,26 +65,31 @@ export default function ImagePreview({
         </div>
       </div>
 
-      {/* Preview da imagem */}
+      {/* Image Preview Section */}
       {imageUrl && (
         <div className="mt-4">
+          {/* Preview Header with Status */}
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium text-gray-700 flex items-center">
               <ImageIcon className="h-4 w-4 mr-2" />
               Preview da Imagem
             </h4>
+
+            {/* Status Indicator */}
             {previewState.isLoading && (
               <div className="flex items-center text-blue-600 text-xs">
                 <Loader className="h-3 w-3 mr-1 animate-spin" />
                 Carregando...
               </div>
             )}
+
             {previewState.isLoaded && !previewState.hasError && (
               <div className="flex items-center text-green-600 text-xs">
                 <CheckCircle className="h-3 w-3 mr-1" />
                 Carregada
               </div>
             )}
+
             {previewState.hasError && (
               <div className="flex items-center text-red-600 text-xs">
                 <AlertCircle className="h-3 w-3 mr-1" />
@@ -82,8 +98,10 @@ export default function ImagePreview({
             )}
           </div>
 
+          {/* Preview Container */}
           <div className="relative group">
             <div className="w-full h-56 bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
+              {/* Loading State */}
               {previewState.isLoading && (
                 <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
@@ -93,6 +111,7 @@ export default function ImagePreview({
                 </div>
               )}
 
+              {/* Loaded State */}
               {!previewState.isLoading && previewState.isLoaded && !previewState.hasError && (
                 <div className="w-full h-full bg-white flex items-center justify-center">
                   <img
@@ -104,6 +123,7 @@ export default function ImagePreview({
                 </div>
               )}
 
+              {/* Error State */}
               {previewState.hasError && !previewState.isLoading && (
                 <div className="w-full h-full bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
                   <div className="flex flex-col items-center justify-center space-y-3 text-center px-4">

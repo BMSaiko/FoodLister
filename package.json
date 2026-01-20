@@ -12,6 +12,7 @@
     "@cloudinary/url-gen": "^1.22.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.49.1",
+    "cloudinary": "^2.9.0",
     "framer-motion": "^12.27.5",
     "headlessui": "^0.0.0",
     "lucide-react": "^0.482.0",

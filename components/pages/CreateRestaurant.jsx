@@ -369,7 +369,7 @@ export default function CreateRestaurant() {
    
           <h1 className="text-2xl font-bold text-gray-800 mb-6">Adicionar Novo Restaurante</h1>
 
-          <form onSubmit={handleSubmit}>
+          <form>
             {/* Informações Básicas */}
             <FormSection title="Informações Básicas">
               <div className="space-y-4">

@@ -441,7 +441,7 @@ export default function EditRestaurant({ restaurantId }) {
               Adicionado por: {formData.creator}
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form>
               {/* Informações Básicas */}
               <FormSection title="Informações Básicas">
                 <div className="space-y-4">

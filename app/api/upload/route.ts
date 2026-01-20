@@ -1,30 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * API endpoint for image upload to Cloudinary
+ * Complete reimplementation from scratch
+ */
 export async function POST(request: NextRequest) {
   try {
+    // Get content type from request headers
     const contentType = request.headers.get('content-type') || '';
+
+    // Define file size limit (10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
 
     let imageBuffer: Buffer;
     let mimeType: string;
     let fileName: string;
 
+    // Handle multipart/form-data uploads (traditional file upload)
     if (contentType.includes('multipart/form-data')) {
-      // Traditional file upload
+      console.log('📁 Processing multipart/form-data upload');
+
       const formData = await request.formData();
       const file = formData.get('file') as File;
 
       if (!file) {
-        return NextResponse.json({ error: 'Nenhum arquivo fornecido' }, { status: 400 });
+        console.error('No file provided in form data');
+        return NextResponse.json(
+          { error: 'Nenhum arquivo fornecido' },
+          { status: 400 }
+        );
       }
 
-      // Validate file type and size
+      // Validate file type
       if (!file.type.startsWith('image/')) {
-        return NextResponse.json({ error: 'O arquivo deve ser uma imagem' }, { status: 400 });
+        console.error('Invalid file type:', file.type);
+        return NextResponse.json(
+          { error: 'O arquivo deve ser uma imagem' },
+          { status: 400 }
+        );
       }
 
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      // Validate file size (10MB limit)
       if (file.size > maxSize) {
-        return NextResponse.json({ error: 'A imagem deve ter no máximo 10MB' }, { status: 400 });
+        console.error('File too large:', file.size);
+        return NextResponse.json(
+          { error: 'A imagem deve ter no máximo 10MB' },
+          { status: 400 }
+        );
       }
 
       // Convert file to buffer
@@ -33,90 +55,121 @@ export async function POST(request: NextRequest) {
       mimeType = file.type;
       fileName = file.name;
 
+      console.log('✅ File processed:', {
+        name: fileName,
+        type: mimeType,
+        size: imageBuffer.length
+      });
+
     } else if (contentType.includes('application/json')) {
-      // Base64 upload
+      // Handle base64 uploads
+      console.log('📡 Processing base64 upload');
+
       const body = await request.json();
       const { imageData, mimeType: providedMimeType, fileName: providedFileName } = body;
 
-      console.log('📡 Received base64 upload:', {
+      console.log('Received base64 data:', {
         hasImageData: !!imageData,
         mimeType: providedMimeType,
         fileName: providedFileName,
-        base64Length: imageData?.length || 0,
+        dataLength: imageData?.length || 0,
         userAgent: request.headers.get('user-agent')
       });
 
+      // Validate required fields
       if (!imageData || !providedMimeType) {
-        console.error('Missing required fields:', { hasImageData: !!imageData, mimeType: providedMimeType });
-        return NextResponse.json({ error: 'Dados da imagem ou tipo MIME não fornecidos' }, { status: 400 });
+        console.error('Missing required fields for base64 upload');
+        return NextResponse.json(
+          { error: 'Dados da imagem ou tipo MIME não fornecidos' },
+          { status: 400 }
+        );
       }
 
       // Convert base64 to buffer
-      imageBuffer = Buffer.from(imageData, 'base64');
-      mimeType = providedMimeType;
-      fileName = providedFileName || 'uploaded_image.jpg';
+      try {
+        imageBuffer = Buffer.from(imageData, 'base64');
+        mimeType = providedMimeType;
+        fileName = providedFileName || 'uploaded_image.jpg';
 
-      console.log('📦 Base64 converted to buffer:', {
-        bufferSize: imageBuffer.length,
-        mimeType,
-        fileName
-      });
+        console.log('📦 Base64 converted successfully:', {
+          bufferSize: imageBuffer.length,
+          mimeType,
+          fileName
+        });
+      } catch (conversionError) {
+        console.error('Base64 conversion failed:', conversionError);
+        return NextResponse.json(
+          { error: 'Dados da imagem base64 inválidos' },
+          { status: 400 }
+        );
+      }
 
-      // Validate size (base64 is ~33% larger, so check decoded size)
-      if (imageBuffer.length > 10 * 1024 * 1024) {
-        console.error('Image too large:', { size: imageBuffer.length });
-        return NextResponse.json({ error: 'A imagem deve ter no máximo 10MB' }, { status: 400 });
+      // Validate decoded size (base64 is ~33% larger)
+      if (imageBuffer.length > maxSize) {
+        console.error('Decoded image too large:', imageBuffer.length);
+        return NextResponse.json(
+          { error: 'A imagem deve ter no máximo 10MB' },
+          { status: 400 }
+        );
       }
 
     } else {
-      return NextResponse.json({ error: 'Tipo de conteúdo não suportado' }, { status: 400 });
+      console.error('Unsupported content type:', contentType);
+      return NextResponse.json(
+        { error: 'Tipo de conteúdo não suportado' },
+        { status: 400 }
+      );
     }
 
-    console.log('Processing upload:', {
-      contentType,
-      mimeType,
-      fileName,
-      bufferSize: imageBuffer.length
-    });
+    console.log('🚀 Starting Cloudinary upload process');
 
+    // Get Cloudinary configuration from environment variables
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-    console.log('Cloudinary config:', {
-      cloudName: !!cloudName,
-      uploadPreset: !!uploadPreset,
-      apiKey: !!apiKey,
-      apiSecret: !!apiSecret
+    console.log('Cloudinary configuration check:', {
+      hasCloudName: !!cloudName,
+      hasUploadPreset: !!uploadPreset,
+      hasApiKey: !!apiKey,
+      hasApiSecret: !!apiSecret
     });
 
+    // Validate Cloudinary configuration
     if (!cloudName || !uploadPreset || !apiKey || !apiSecret) {
       console.error('Missing Cloudinary environment variables');
-      return NextResponse.json({ error: 'Configuração do Cloudinary incompleta' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Configuração do Cloudinary incompleta' },
+        { status: 500 }
+      );
     }
 
-    // Create signed upload parameters
+    // Generate timestamp and signature for authenticated upload
     const timestamp = Math.floor(Date.now() / 1000);
-    const signature = generateSignature({
+    const signature = generateCloudinarySignature({
       timestamp,
       upload_preset: uploadPreset,
       folder: 'foodlist'
     }, apiSecret);
 
-    // Create form data for Cloudinary with base64 data
+    console.log('Generated signature for upload');
+
+    // Prepare form data for Cloudinary API
     const cloudinaryFormData = new FormData();
 
-    // For base64, create a data URL
-    const dataUrl = `data:${mimeType};base64,${Buffer.from(imageBuffer).toString('base64')}`;
+    // Convert buffer to data URL for Cloudinary
+    const dataUrl = `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
     cloudinaryFormData.append('file', dataUrl);
-
     cloudinaryFormData.append('upload_preset', uploadPreset);
     cloudinaryFormData.append('folder', 'foodlist');
     cloudinaryFormData.append('timestamp', timestamp.toString());
     cloudinaryFormData.append('signature', signature);
     cloudinaryFormData.append('api_key', apiKey);
 
+    console.log('📤 Sending to Cloudinary API...');
+
+    // Upload to Cloudinary
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
       {
@@ -127,20 +180,31 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Cloudinary error:', errorText);
-      return NextResponse.json({ error: 'Erro no upload para Cloudinary' }, { status: 500 });
+      console.error('Cloudinary API error:', errorText);
+      return NextResponse.json(
+        { error: 'Erro no upload para Cloudinary' },
+        { status: 500 }
+      );
     }
 
     const result = await response.json();
+    console.log('✅ Cloudinary upload successful:', result.secure_url);
+
     return NextResponse.json({ url: result.secure_url });
 
   } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
+    console.error('Unexpected upload error:', error);
+    return NextResponse.json(
+      { error: 'Erro interno do servidor' },
+      { status: 500 }
+    );
   }
 }
 
-function generateSignature(params: Record<string, any>, apiSecret: string): string {
+/**
+ * Generates a signature for Cloudinary authenticated upload
+ */
+function generateCloudinarySignature(params: Record<string, any>, apiSecret: string): string {
   // Sort parameters alphabetically
   const sortedParams = Object.keys(params)
     .sort()
@@ -149,5 +213,7 @@ function generateSignature(params: Record<string, any>, apiSecret: string): stri
 
   // Create SHA-1 hash
   const crypto = require('crypto');
-  return crypto.createHash('sha1').update(sortedParams + apiSecret).digest('hex');
+  return crypto.createHash('sha1')
+    .update(sortedParams + apiSecret)
+    .digest('hex');
 }

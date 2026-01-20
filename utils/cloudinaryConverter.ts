@@ -1,43 +1,66 @@
 
+/**
+ * Cloudinary utilities for image upload and optimization
+ * Complete reimplementation from scratch
+ */
 
 /**
- * Converts Cloudinary URLs to optimized format
- * Supports various Cloudinary URL formats
+ * Converts Cloudinary URLs to optimized format with transformations
  */
-export function convertCloudinaryUrl(url: string, options: { width?: number; height?: number; quality?: number } = {}): string {
-  if (!url || typeof url !== 'string') return url;
+export function convertCloudinaryUrl(
+  url: string,
+  options: { width?: number; height?: number; quality?: number } = {}
+): string {
+  // Validate input
+  if (!url || typeof url !== 'string') {
+    return url;
+  }
 
-  // If already a Cloudinary URL, apply transformations
+  // Check if it's a Cloudinary URL that can be optimized
   if (url.includes('cloudinary.com') && url.includes('/upload/')) {
     const { width, height, quality = 80 } = options;
+
+    // Build transformation string
     let transformations = `f_auto,q_${quality}`;
 
-    if (width) transformations += `,w_${width}`;
-    if (height) transformations += `,h_${height}`;
+    if (width) {
+      transformations += `,w_${width}`;
+    }
 
-    // Replace the upload part with transformations
+    if (height) {
+      transformations += `,h_${height}`;
+    }
+
+    // Insert transformations into URL
     return url.replace('/upload/', `/upload/${transformations}/`);
   }
 
+  // Return original URL if not a Cloudinary URL
   return url;
 }
 
 /**
- * Validates if URL is a Cloudinary URL
+ * Validates if a given URL is a valid Cloudinary URL
  */
 export function isValidCloudinaryUrl(url: string): boolean {
-  if (!url || typeof url !== 'string') return false;
+  if (!url || typeof url !== 'string') {
+    return false;
+  }
+
   return url.includes('cloudinary.com');
 }
 
 /**
- * Extracts public ID from Cloudinary URL
+ * Extracts the public ID from a Cloudinary URL
  */
 export function extractCloudinaryPublicId(url: string): string | null {
-  if (!url || typeof url !== 'string') return null;
+  if (!url || typeof url !== 'string') {
+    return null;
+  }
 
+  // Match Cloudinary URL pattern and extract public ID
   const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/);
-  if (match) {
+  if (match && match[1]) {
     return match[1];
   }
 
@@ -45,57 +68,63 @@ export function extractCloudinaryPublicId(url: string): string | null {
 }
 
 /**
- * Validates if a file is an image based on MIME type or file extension
- * More permissive validation for mobile devices
+ * Validates if a file is a valid image
+ * Uses both MIME type and file extension for maximum compatibility
  */
 function isValidImageFile(file: File): boolean {
-  // First check MIME type (most reliable)
+  // Check MIME type first (most reliable)
   if (file.type && file.type.startsWith('image/')) {
     return true;
   }
 
-  // Fallback to file extension for mobile devices that don't set MIME type correctly
-  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'];
+  // Fallback to file extension (useful for mobile devices)
+  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg', '.heic'];
   const fileName = file.name.toLowerCase();
 
   return validExtensions.some(ext => fileName.endsWith(ext));
 }
 
 /**
- * Uploads image to Cloudinary using server-side API
+ * Uploads an image file to Cloudinary via the server API
  */
 export async function uploadToCloudinary(file: File): Promise<string> {
+  // Validate input file
   if (!file) {
     throw new Error('Nenhum arquivo fornecido');
   }
 
-  // Verifica se é uma imagem (more permissive validation)
+  // Validate file type
   if (!isValidImageFile(file)) {
-    throw new Error('O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, etc.)');
+    throw new Error('O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, HEIC, etc.)');
   }
 
-  // Verifica o tamanho do arquivo (máximo 10MB para Cloudinary free tier)
+  // Validate file size (10MB limit for Cloudinary free tier)
   const maxSize = 10 * 1024 * 1024; // 10MB
   if (file.size > maxSize) {
     throw new Error('A imagem deve ter no máximo 10MB');
   }
 
-  const uploadWithRetry = async (attemptNumber = 1, maxRetries = 3) => {
+  /**
+   * Internal function to handle upload with retry logic
+   */
+  const uploadWithRetry = async (attemptNumber = 1, maxRetries = 3): Promise<string> => {
     try {
-      console.log(`Upload attempt ${attemptNumber}/${maxRetries} for file:`, {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified
+      console.log(`Tentativa de upload ${attemptNumber}/${maxRetries} para arquivo:`, {
+        nome: file.name,
+        tamanho: file.size,
+        tipo: file.type,
+        modificado: file.lastModified
       });
 
+      // Prepare form data
       const formData = new FormData();
       formData.append('file', file);
 
-      // Increased timeout for mobile networks (30 seconds)
+      // Set up abort controller for timeout (30 seconds for mobile networks)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+      // Make upload request
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -104,9 +133,10 @@ export async function uploadToCloudinary(file: File): Promise<string> {
 
       clearTimeout(timeoutId);
 
+      // Handle response
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Upload API error:', errorData);
+        console.error('Erro na API de upload:', errorData);
 
         // Don't retry validation errors
         if (response.status === 400 && errorData.error?.includes('arquivo deve ser uma imagem')) {
@@ -120,15 +150,15 @@ export async function uploadToCloudinary(file: File): Promise<string> {
       }
 
       const result = await response.json();
-      console.log('Upload successful:', result.url);
+      console.log('Upload realizado com sucesso:', result.url);
       return result.url;
 
     } catch (error) {
-      console.error(`Upload attempt ${attemptNumber} failed:`, error);
+      console.error(`Tentativa ${attemptNumber} falhou:`, error);
 
       // Don't retry validation errors
-      if (error.message.includes('O arquivo deve ser uma imagem') ||
-          error.message.includes('10MB')) {
+      if (error.message?.includes('O arquivo deve ser uma imagem') ||
+          error.message?.includes('10MB')) {
         throw error;
       }
 
@@ -138,16 +168,17 @@ export async function uploadToCloudinary(file: File): Promise<string> {
            error.name === 'TypeError' || // Network error
            !navigator.onLine)) { // Offline
 
-        console.log(`Retrying upload in ${attemptNumber * 2} seconds...`);
-        await new Promise(resolve => setTimeout(resolve, attemptNumber * 2000));
+        const retryDelay = attemptNumber * 2000; // Progressive delay
+        console.log(`Tentando novamente em ${retryDelay / 1000} segundos...`);
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
         return uploadWithRetry(attemptNumber + 1, maxRetries);
       }
 
-      // Provide specific error messages based on error type
+      // Provide user-friendly error messages
       if (error.name === 'AbortError') {
         throw new Error('Upload demorou demais. Verifique sua conexão e tente novamente.');
       }
-      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+      if (error.name === 'TypeError' || error.message?.includes('fetch')) {
         throw new Error('Erro de conexão. Verifique se você está online e tente novamente.');
       }
       if (!navigator.onLine) {
@@ -162,24 +193,36 @@ export async function uploadToCloudinary(file: File): Promise<string> {
 }
 
 /**
- * Generates optimized image URL with transformations
+ * Generates an optimized Cloudinary image URL with custom transformations
  */
-export function getOptimizedImageUrl(publicId: string, options: {
-  width?: number;
-  height?: number;
-  quality?: number;
-  format?: string;
-} = {}): string {
+export function getOptimizedImageUrl(
+  publicId: string,
+  options: {
+    width?: number;
+    height?: number;
+    quality?: number;
+    format?: string;
+  } = {}
+): string {
   const { width, height, quality = 80, format = 'auto' } = options;
 
+  // Build transformation parameters
   let transformations = `f_${format},q_${quality}`;
-  if (width) transformations += `,w_${width}`;
-  if (height) transformations += `,h_${height}`;
 
+  if (width) {
+    transformations += `,w_${width}`;
+  }
+
+  if (height) {
+    transformations += `,h_${height}`;
+  }
+
+  // Get cloud name from environment
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   if (!cloudName) {
     throw new Error('CLOUDINARY_CLOUD_NAME não configurado');
   }
 
+  // Construct full URL
   return `https://res.cloudinary.com/${cloudName}/image/upload/${transformations}/v1/${publicId}`;
 }
