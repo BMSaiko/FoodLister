@@ -95,6 +95,20 @@ The FoodList application uses a relational database with the following main enti
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 | `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
 
+### User Restaurant Visits Table
+
+**Table Name**: `user_restaurant_visits`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id |
+| `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
+| `visit_count` | `integer` | NO | `0` | Number of times user visited this restaurant |
+| `visited` | `boolean` | NO | `false` | Whether user has visited this restaurant at least once |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+| `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
+
 ### Reviews Table
 
 **Table Name**: `reviews`
@@ -223,6 +237,29 @@ FOR UPDATE USING (auth.uid()::text = creator);
 -- Allow users to delete lists they created
 CREATE POLICY "Allow delete access to own lists" ON lists
 FOR DELETE USING (auth.uid()::text = creator);
+```
+
+### User Restaurant Visits Table
+```sql
+-- Allow users to view their own visit records
+CREATE POLICY "Users can view their own visits" ON user_restaurant_visits
+    FOR SELECT USING (auth.uid() = user_id);
+
+-- Allow users to insert visit records with their own user_id
+CREATE POLICY "Users can insert their own visits" ON user_restaurant_visits
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Allow users to update their own visit records
+CREATE POLICY "Users can update their own visits" ON user_restaurant_visits
+    FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- Allow users to delete their own visit records
+CREATE POLICY "Users can delete their own visits" ON user_restaurant_visits
+    FOR DELETE USING (auth.uid() = user_id);
+
+-- Allow service role to manage all visit records (for admin operations)
+CREATE POLICY "Service role can manage all visits" ON user_restaurant_visits
+    FOR ALL USING (auth.role() = 'service_role');
 ```
 
 ### Reviews Table

@@ -80,3 +80,37 @@ export const getServerClient = async (request?: NextRequest, response?: NextResp
     });
   }
 };
+
+// Authenticated client from JWT token (for API routes receiving external requests)
+export const getAuthenticatedClient = async (request: NextRequest) => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+
+  if (!supabaseUrl) {
+    throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_URL is required.');
+  }
+  if (!supabaseKey) {
+    throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_ANON_KEY is required.');
+  }
+
+  // Get JWT token from Authorization header
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new Error('Authorization header with Bearer token required');
+  }
+
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+  // Create client and set the session
+  const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+  const { error } = await supabase.auth.setSession({
+    access_token: token,
+    refresh_token: token, // Use same token for refresh (simplified)
+  });
+
+  if (error) {
+    throw new Error(`Failed to authenticate: ${error.message}`);
+  }
+
+  return supabase;
+};

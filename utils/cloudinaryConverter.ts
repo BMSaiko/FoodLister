@@ -64,12 +64,6 @@ export async function uploadToCloudinary(file: File): Promise<string> {
   }
 
   try {
-    console.log('Uploading file:', {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
-
     const formData = new FormData();
     formData.append('file', file);
 
