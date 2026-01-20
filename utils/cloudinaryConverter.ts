@@ -66,6 +66,21 @@ export async function uploadToCloudinary(file: File): Promise<string> {
   try {
     const formData = new FormData();
     formData.append('file', file);
+  const uploadWithRetry = async (attemptNumber = 1, maxRetries = 3) => {
+    try {
+      console.log(`Upload attempt ${attemptNumber}/${maxRetries} for file:`, {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified
+      });
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Increased timeout for mobile networks (30 seconds)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     const response = await fetch('/api/upload', {
       method: 'POST',
@@ -84,6 +99,46 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     console.error('Erro ao fazer upload para Cloudinary:', error);
     throw new Error('Erro ao fazer upload da imagem');
   }
+      const result = await response.json();
+      console.log('Upload successful:', result.url);
+      return result.url;
+
+    } catch (error) {
+      console.error(`Upload attempt ${attemptNumber} failed:`, error);
+
+      // Don't retry validation errors
+      if (error.message.includes('O arquivo deve ser uma imagem') ||
+          error.message.includes('10MB')) {
+        throw error;
+      }
+
+      // Retry on network errors
+      if (attemptNumber < maxRetries &&
+          (error.name === 'AbortError' || // Timeout
+           error.name === 'TypeError' || // Network error
+           !navigator.onLine)) { // Offline
+
+        console.log(`Retrying upload in ${attemptNumber * 2} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, attemptNumber * 2000));
+        return uploadWithRetry(attemptNumber + 1, maxRetries);
+      }
+
+      // Provide specific error messages based on error type
+      if (error.name === 'AbortError') {
+        throw new Error('Upload demorou demais. Verifique sua conexão e tente novamente.');
+      }
+      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+        throw new Error('Erro de conexão. Verifique se você está online e tente novamente.');
+      }
+      if (!navigator.onLine) {
+        throw new Error('Sem conexão com a internet. Verifique sua rede e tente novamente.');
+      }
+
+      throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
+    }
+  };
+
+  return uploadWithRetry();
 }
 
 /**
