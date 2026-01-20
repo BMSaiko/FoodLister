@@ -1,17 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Validates if a file is an image based on MIME type or file extension
+ * More permissive validation for mobile devices
+ */
+function isValidImageFile(file: File): boolean {
+  // First check MIME type (most reliable)
+  if (file.type && file.type.startsWith('image/')) {
+    return true;
+  }
+
+  // Fallback to file extension for mobile devices that don't set MIME type correctly
+  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'];
+  const fileName = file.name.toLowerCase();
+
+  return validExtensions.some(ext => fileName.endsWith(ext));
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
+      console.error('No file provided in upload request');
       return NextResponse.json({ error: 'Nenhum arquivo fornecido' }, { status: 400 });
     }
 
-    // Verifica se é uma imagem
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'O arquivo deve ser uma imagem' }, { status: 400 });
+    console.log('Processing upload for file:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified
+    });
+
+    // Verifica se é uma imagem (more permissive validation)
+    if (!isValidImageFile(file)) {
+      console.error('File validation failed:', {
+        name: file.name,
+        type: file.type,
+        hasValidMimeType: file.type?.startsWith('image/'),
+        extension: file.name.toLowerCase().split('.').pop()
+      });
+      return NextResponse.json({ error: 'O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, etc.)' }, { status: 400 });
     }
 
     // Verifica o tamanho do arquivo (máximo 10MB para Cloudinary free tier)
