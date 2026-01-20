@@ -63,12 +63,20 @@ export async function POST(request: NextRequest) {
       bufferSize: imageBuffer.length
     });
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
+    console.log('Cloudinary config:', {
+      cloudName: !!cloudName,
+      uploadPreset: !!uploadPreset,
+      apiKey: !!apiKey,
+      apiSecret: !!apiSecret
+    });
+
     if (!cloudName || !uploadPreset || !apiKey || !apiSecret) {
+      console.error('Missing Cloudinary environment variables');
       return NextResponse.json({ error: 'Configuração do Cloudinary incompleta' }, { status: 500 });
     }
 
