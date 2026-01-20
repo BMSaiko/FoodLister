@@ -1,7 +1,7 @@
 // components/ui/RestaurantCard.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Star, Check, X, MapPin, Euro, Tag } from 'lucide-react';
@@ -9,12 +9,23 @@ import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { createClient } from '@/libs/supabase/client';
 import { getDescriptionPreview } from '@/utils/formatters';
 import { toast } from 'react-toastify';
+import { useAuth } from '@/contexts';
 import RestaurantImagePlaceholder from './RestaurantImagePlaceholder';
 
-const RestaurantCard = ({ restaurant, centered = false }) => {
-  const [visited, setVisited] = useState(restaurant.visited || false);
+const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadingVisits = false, onVisitsDataUpdate = null }) => {
+  const { user, getAccessToken } = useAuth();
+  const [visited, setVisited] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const supabase = createClient();
+
+  // Update visited state when visitsData changes or component mounts
+  useEffect(() => {
+    if (visitsData !== null && visitsData !== undefined) {
+      const newVisited = visitsData.visited || false;
+      setVisited(newVisited);
+    } else {
+      setVisited(false);
+    }
+  }, [visitsData, restaurant.id]);
 
   const handleToggleVisited = async (e) => {
     e.preventDefault();
@@ -22,20 +33,38 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
 
     setIsUpdating(true);
     try {
-      const newVisitedStatus = !visited;
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('No access token available');
+      }
 
-      const { error } = await (supabase as any)
-        .from('restaurants')
-        .update({ visited: newVisitedStatus })
-        .eq('id', restaurant.id);
+      const response = await fetch(`/api/restaurants/${restaurant.id}/visits`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: 'toggle_visited' }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error('Failed to update visit status');
+      }
 
-      setVisited(newVisitedStatus);
+      const data = await response.json();
+      setVisited(data.visited);
+
+      // Notify parent component to update visits data
+      if (onVisitsDataUpdate) {
+        onVisitsDataUpdate(restaurant.id, {
+          visited: data.visited,
+          visitCount: data.visitCount
+        });
+      }
 
       // Show success toast
       toast.success(
-        newVisitedStatus
+        data.visited
           ? 'Restaurante marcado como visitado!'
           : 'Restaurante marcado como não visitado!',
         {
@@ -51,8 +80,6 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
       );
     } catch (err) {
       console.error('Erro ao atualizar status de visitado:', err);
-      // Revert state on error
-      setVisited(!visited);
 
       // Show error toast
       toast.error('Erro ao atualizar status de visita. Tente novamente.', {
@@ -137,40 +164,53 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
           ) : (
             <RestaurantImagePlaceholder />
           )}
-          
-          {/* Switch Button for visited/not visited status */}
-          <button
-            onClick={handleToggleVisited}
-            disabled={isUpdating}
-            className={`absolute top-3 right-3 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-              visited 
-                ? 'bg-green-500 text-white hover:bg-green-600' 
-                : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-            }`}
-            title={visited ? 'Clique para marcar como não visitado' : 'Clique para marcar como visitado'}
-          >
-            {visited ? (
-              <>
-                <Check className="h-4 w-4" />
-                <span className="text-xs font-medium hidden sm:inline">Visitado</span>
-              </>
-            ) : (
-              <>
-                <X className="h-4 w-4" />
-                <span className="text-xs font-medium hidden sm:inline">Não visitado</span>
-              </>
-            )}
-          </button>
+
+          {/* Switch Button for visited/not visited status - only for authenticated users */}
+          {user && (
+            <button
+              onClick={handleToggleVisited}
+              disabled={isUpdating || loadingVisits}
+              className={`absolute top-3 right-3 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                loadingVisits
+                  ? 'bg-gray-200 text-gray-400 animate-pulse'
+                  : visited
+                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+              }`}
+              title={
+                loadingVisits
+                  ? 'Carregando status de visita...'
+                  : visited
+                  ? 'Clique para marcar como não visitado'
+                  : 'Clique para marcar como visitado'
+              }
+            >
+              {loadingVisits ? (
+                <>
+                  <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
+                  <span className="text-xs font-medium hidden sm:inline">Carregando</span>
+                </>
+              ) : visited ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  <span className="text-xs font-medium hidden sm:inline">Visitado</span>
+                </>
+              ) : (
+                <>
+                  <X className="h-4 w-4" />
+                  <span className="text-xs font-medium hidden sm:inline">Não visitado</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
         <div className={`p-3 sm:p-4 flex-grow ${centered ? 'text-center' : ''}`}>
           <div className={`flex ${centered ? 'flex-col items-center gap-2' : 'justify-between items-start'}`}>
             <h3 className={`font-bold text-base sm:text-lg text-gray-800 line-clamp-1 ${centered ? 'text-center' : ''}`}>{restaurant.name}</h3>
-            {visited && (
-              <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ${centered ? '' : 'ml-2'} flex-shrink-0`}>
-                <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="currentColor" />
-                <span className="font-semibold text-sm">{(restaurant.rating || 0).toFixed(1)}</span>
-              </div>
-            )}
+            <div className={`flex items-center ${ratingStyle} px-2 py-1 rounded ${centered ? '' : 'ml-2'} flex-shrink-0`}>
+              <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="currentColor" />
+              <span className="font-semibold text-sm">{(restaurant.rating || 0).toFixed(1)}</span>
+            </div>
           </div>
           
           {/* Mostrar categorias se disponíveis */}
@@ -185,8 +225,8 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
             </div>
           )}
 
-          {/* Display reviews and rating */}
-          {visited && restaurant.review_count !== undefined && restaurant.review_count > 0 && (
+          {/* Display reviews and rating - always visible if there are reviews */}
+          {restaurant.review_count !== undefined && restaurant.review_count > 0 && (
             <div className={`mt-3 p-2 bg-gray-50 rounded-lg border border-gray-100 ${centered ? 'text-center' : ''}`}>
               <div className={`flex items-center ${centered ? 'justify-center flex-col gap-1' : 'justify-between'}`}>
                 <div className="flex items-center gap-1">
@@ -214,23 +254,21 @@ const RestaurantCard = ({ restaurant, centered = false }) => {
           
           <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{getDescriptionPreview(restaurant.description)}</p>
           
-          {/* Display price category with amber colored Euro symbols - only if visited */}
-          {visited && (
-            <div className={`flex items-center mt-2 ${centered ? 'justify-center flex-col gap-1' : ''}`}>
-              <div className="flex items-center">
-                {Array(priceCategory.level).fill(0).map((_, i) => (
-                  <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
-                ))}
-                {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-                  <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
-                ))}
-                <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
-              </div>
-              <div className={`text-amber-600 font-semibold text-sm ${centered ? '' : 'ml-auto'}`}>
-                €{restaurant.price_per_person.toFixed(2)}
-              </div>
+          {/* Display price category with amber colored Euro symbols - always visible */}
+          <div className={`flex items-center mt-2 ${centered ? 'justify-center flex-col gap-1' : ''}`}>
+            <div className="flex items-center">
+              {Array(priceCategory.level).fill(0).map((_, i) => (
+                <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
+              ))}
+              {Array(4 - priceCategory.level).fill(0).map((_, i) => (
+                <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
+              ))}
+              <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
             </div>
-          )}
+            <div className={`text-amber-600 font-semibold text-sm ${centered ? '' : 'ml-auto'}`}>
+              €{restaurant.price_per_person.toFixed(2)}
+            </div>
+          </div>
           
           {restaurant.location && (
             <div className={`flex items-center text-gray-500 text-xs sm:text-sm mt-2 line-clamp-1 ${centered ? 'justify-center' : ''}`}>

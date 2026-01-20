@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import RestaurantFilters from '@/components/ui/RestaurantFilters';
 import Navbar from '@/components/layouts/Navbar';
-import { FiltersProvider, useFilters } from '@/contexts/index';
+import { FiltersProvider, useFilters, useAuth } from '@/contexts/index';
 import Link from 'next/link';
 import { Plus, Search as SearchIcon, CookingPot, Filter, ChefHat } from 'lucide-react';
 
@@ -34,7 +34,9 @@ const initialFilters = {
 function RestaurantsContent() {
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [visitsData, setVisitsData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [loadingVisits, setLoadingVisits] = useState(false);
   const [filters, setFilters] = useState(initialFilters);
   const [activeFilters, setActiveFilters] = useState(false);
 
@@ -42,6 +44,7 @@ function RestaurantsContent() {
   const router = useRouter();
   const searchQuery = searchParams.get('search');
   const { clearTrigger } = useFilters();
+  const { user, getAccessToken } = useAuth();
 
   // Clear filters when clearTrigger changes
   useEffect(() => {
@@ -51,6 +54,116 @@ function RestaurantsContent() {
       setActiveFilters(false);
     }
   }, [clearTrigger, restaurants]);
+
+  // Aplicar filtros automaticamente quando filtros, restaurantes ou dados de visitas mudarem
+  useEffect(() => {
+    if (restaurants.length > 0) {
+      applyFilters();
+    }
+  }, [filters, restaurants, visitsData, user]);
+
+  // Fetch visits data for all restaurants when user is authenticated and restaurants are loaded
+  // Also refetch when component remounts (user navigates back from individual page)
+  useEffect(() => {
+    const fetchVisitsData = async () => {
+      if (!user) {
+        return;
+      }
+
+      if (restaurants.length === 0) {
+        return;
+      }
+      setLoadingVisits(true);
+      try {
+        const token = await getAccessToken();
+        if (!token) {
+          setLoadingVisits(false);
+          return;
+        }
+
+        const restaurantIds = restaurants.map(r => r.id);
+
+        const response = await fetch('/api/restaurants/visits', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ restaurantIds }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setVisitsData(data);
+        } else {
+          console.error('Failed to fetch visits data, status:', response.status);
+          // Set default visits data on failure
+          const defaultVisitsData = {};
+          restaurantIds.forEach(id => {
+            defaultVisitsData[id] = { visited: false, visitCount: 0 };
+          });
+          setVisitsData(defaultVisitsData);
+        }
+      } catch (error) {
+        console.error('Error fetching visits data:', error);
+        // Set default visits data on error
+        const defaultVisitsData = {};
+        restaurants.forEach(restaurant => {
+          defaultVisitsData[restaurant.id] = { visited: false, visitCount: 0 };
+        });
+        setVisitsData(defaultVisitsData);
+      } finally {
+        setLoadingVisits(false);
+      }
+    };
+
+    fetchVisitsData();
+  }, [user, restaurants, getAccessToken]);
+
+  // Also fetch visits data when the page becomes visible again (user navigates back)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user && restaurants.length > 0) {
+        // Refetch visits data when page becomes visible again
+        const refetchVisitsData = async () => {
+          try {
+            const token = await getAccessToken();
+            if (!token) return;
+
+            const restaurantIds = restaurants.map(r => r.id);
+            const response = await fetch('/api/restaurants/visits', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ restaurantIds }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              setVisitsData(data);
+            }
+          } catch (error) {
+            console.error('Error refetching visits data:', error);
+          }
+        };
+
+        refetchVisitsData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user, restaurants, getAccessToken]);
+
+  // Function to update visits data when a card notifies a change
+  const handleVisitsDataUpdate = (restaurantId, newVisitsData) => {
+    setVisitsData(prev => ({
+      ...prev,
+      [restaurantId]: newVisitsData
+    }));
+  };
 
   // Fetch restaurants from optimized API route
   useEffect(() => {
@@ -96,47 +209,59 @@ function RestaurantsContent() {
     fetchRestaurants();
   }, [searchQuery]);
   
-  // Aplicar filtros
+  // Aplicar filtros automaticamente
   const applyFilters = () => {
     const filtered = restaurants.filter(restaurant => {
       // Filtro de preço
       if (restaurant.price_per_person > filters.maxPrice) {
         return false;
       }
-      
+
       // Filtro de avaliação
       if (restaurant.rating < filters.minRating) {
         return false;
       }
-      
-      // Filtros de status (visitado/não visitado)
-      if (filters.visited && !restaurant.visited) {
-        return false;
+
+      // Filtros de status (visitado/não visitado) - apenas para usuários logados
+      if (user) {
+        const restaurantVisitsData = visitsData[restaurant.id];
+        const isVisited = restaurantVisitsData ? restaurantVisitsData.visited : false;
+
+        if (filters.visited && !isVisited) {
+          return false;
+        }
+
+        if (filters.notVisited && isVisited) {
+          return false;
+        }
+      } else {
+        // Para usuários não logados, os filtros de visita não se aplicam
+        // (todos os restaurantes são considerados "não visitados")
+        if (filters.visited) {
+          return false; // Nenhum restaurante é considerado visitado para usuários não logados
+        }
+        // filters.notVisited sempre será true para usuários não logados, então não filtra nada
       }
-      
-      if (filters.notVisited && restaurant.visited) {
-        return false;
-      }
-      
+
       // Filtro por categoria culinária
       if (filters.cuisineTypes && filters.cuisineTypes.length > 0) {
         // Extrair IDs de categorias do restaurante
         const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
-        
+
         // Verificar se há pelo menos uma correspondência entre as categorias do restaurante
         // e as categorias selecionadas no filtro
-        const hasMatchingCuisine = filters.cuisineTypes.some(cuisineId => 
+        const hasMatchingCuisine = filters.cuisineTypes.some(cuisineId =>
           restaurantCuisineIds.includes(cuisineId)
         );
-        
+
         if (!hasMatchingCuisine) {
           return false;
         }
       }
-      
+
       return true;
     });
-    
+
     setFilteredRestaurants(filtered);
     setActiveFilters(true);
   };
@@ -220,11 +345,12 @@ function RestaurantsContent() {
         </Link>
       </div>
       
-      <RestaurantFilters 
+      <RestaurantFilters
         filters={filters}
         setFilters={setFilters}
         applyFilters={applyFilters}
         clearFilters={clearFilters}
+        autoApply={true}
       />
       
       {renderFilterStats()}
@@ -233,9 +359,18 @@ function RestaurantsContent() {
         <RestaurantsLoading />
       ) : filteredRestaurants.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-          {filteredRestaurants.map(restaurant => (
-            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-          ))}
+          {filteredRestaurants.map(restaurant => {
+            const restaurantVisitsData = visitsData[restaurant.id];
+            return (
+              <RestaurantCard
+                key={restaurant.id}
+                restaurant={restaurant}
+                visitsData={restaurantVisitsData}
+                loadingVisits={loadingVisits}
+                onVisitsDataUpdate={handleVisitsDataUpdate}
+              />
+            );
+          })}
         </div>
       ) : (
         renderEmptyState()

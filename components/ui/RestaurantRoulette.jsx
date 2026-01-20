@@ -3,14 +3,19 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/libs/supabase/client';
-import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Trash2 } from 'lucide-react';
+import { useAuth } from '@/contexts';
+import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check } from 'lucide-react';
 import Link from 'next/link';
 import RestaurantCard from './RestaurantCard';
+import { toast } from 'react-toastify';
 
 const RestaurantRoulette = () => {
+  const { user, getAccessToken } = useAuth();
   const [restaurants, setRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [visitsData, setVisitsData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [loadingVisits, setLoadingVisits] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [rotation, setRotation] = useState(0);
@@ -26,9 +31,7 @@ const RestaurantRoulette = () => {
   // Seleção de restaurantes para roleta
   const [showRestaurantSelector, setShowRestaurantSelector] = useState(false);
   const [restaurantSearchQuery, setRestaurantSearchQuery] = useState('');
-  const [availableRestaurants, setAvailableRestaurants] = useState([]);
   const [selectedRestaurantsForRoulette, setSelectedRestaurantsForRoulette] = useState([]);
-  const [restaurantSelectorLoading, setRestaurantSelectorLoading] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(50);
 
   const resetRestaurantSelector = () => {
@@ -69,17 +72,17 @@ const RestaurantRoulette = () => {
               cuisine_type:cuisine_types(*)
             )
           `);
-        
+
         if (restaurantsError) throw restaurantsError;
-        
+
         // Buscar categorias
         const { data: cuisineData, error: cuisineError } = await supabase
           .from('cuisine_types')
           .select('*')
           .order('name');
-        
+
         if (cuisineError) throw cuisineError;
-        
+
         // Processar dados dos restaurantes
         const processedRestaurants = restaurantsData.map(restaurant => ({
           ...restaurant,
@@ -87,7 +90,7 @@ const RestaurantRoulette = () => {
             ? restaurant.cuisine_types.map(rel => rel.cuisine_type)
             : []
         }));
-        
+
         setRestaurants(processedRestaurants || []);
         setCuisineTypes(cuisineData || []);
       } catch (err) {
@@ -96,9 +99,63 @@ const RestaurantRoulette = () => {
         setLoading(false);
       }
     }
-    
+
     fetchData();
   }, []);
+
+  // Buscar dados de visitas para usuários autenticados
+  useEffect(() => {
+    const fetchVisitsData = async () => {
+      if (!user || restaurants.length === 0) {
+        return;
+      }
+
+      setLoadingVisits(true);
+      try {
+        const token = await getAccessToken();
+        if (!token) {
+          setLoadingVisits(false);
+          return;
+        }
+
+        const restaurantIds = restaurants.map(r => r.id);
+
+        const response = await fetch('/api/restaurants/visits', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ restaurantIds }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setVisitsData(data);
+        } else {
+          console.error('Failed to fetch visits data for roulette, status:', response.status);
+          // Set default visits data on failure
+          const defaultVisitsData = {};
+          restaurantIds.forEach(id => {
+            defaultVisitsData[id] = { visited: false, visitCount: 0 };
+          });
+          setVisitsData(defaultVisitsData);
+        }
+      } catch (error) {
+        console.error('Error fetching visits data for roulette:', error);
+        // Set default visits data on error
+        const defaultVisitsData = {};
+        restaurants.forEach(restaurant => {
+          defaultVisitsData[restaurant.id] = { visited: false, visitCount: 0 };
+        });
+        setVisitsData(defaultVisitsData);
+      } finally {
+        setLoadingVisits(false);
+      }
+    };
+
+    fetchVisitsData();
+  }, [user, restaurants, getAccessToken]);
   
   // Aplicar filtros e seleção de restaurantes
   useEffect(() => {
@@ -109,9 +166,13 @@ const RestaurantRoulette = () => {
       filtered = selectedRestaurantsForRoulette;
     } else {
       // Caso contrário, aplicar filtros normais
-      // Filtro de não visitados
-      if (filterNotVisited) {
-        filtered = filtered.filter(r => !r.visited);
+      // Filtro de não visitados - apenas para usuários logados
+      if (filterNotVisited && user) {
+        filtered = filtered.filter(restaurant => {
+          const restaurantVisitsData = visitsData[restaurant.id];
+          const isVisited = restaurantVisitsData ? restaurantVisitsData.visited : false;
+          return !isVisited;
+        });
       }
 
       // Filtro de categorias
@@ -127,7 +188,7 @@ const RestaurantRoulette = () => {
 
     setFilteredRestaurants(filtered);
     setSelectedRestaurant(null);
-  }, [restaurants, filterNotVisited, selectedCuisineTypes, selectedRestaurantsForRoulette]);
+  }, [restaurants, filterNotVisited, selectedCuisineTypes, selectedRestaurantsForRoulette, visitsData, user]);
   
   const handleSpin = () => {
     if (filteredRestaurants.length === 0) {
@@ -159,9 +220,80 @@ const RestaurantRoulette = () => {
   };
   
   const clearFilters = () => {
-    setFilterNotVisited(false);
+    if (user) {
+      setFilterNotVisited(false);
+    }
     setSelectedCuisineTypes([]);
     setSearchQuery('');
+  };
+
+  const handleToggleVisit = async (restaurantId) => {
+    if (!user) {
+      return;
+    }
+
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        console.error('No access token available');
+        return;
+      }
+
+      const response = await fetch(`/api/restaurants/${restaurantId}/visits`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action: 'toggle_visited' }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle visit status');
+      }
+
+      const data = await response.json();
+
+      // Update local visits data
+      setVisitsData(prev => ({
+        ...prev,
+        [restaurantId]: {
+          visited: data.visited,
+          visitCount: data.visitCount
+        }
+      }));
+
+      // Show success toast
+      toast.success(
+        data.visited
+          ? 'Restaurante marcado como visitado!'
+          : 'Restaurante marcado como não visitado!',
+        {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "light",
+          className: "text-sm sm:text-base"
+        }
+      );
+    } catch (err) {
+      console.error('Erro ao alterar status de visita:', err);
+
+      // Show error toast
+      toast.error('Erro ao alterar status de visita. Tente novamente.', {
+        position: "top-center",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        className: "text-sm sm:text-base"
+      });
+    }
   };
   
   const filteredCuisineTypes = cuisineTypes.filter(type => 
@@ -202,19 +334,21 @@ const RestaurantRoulette = () => {
         {showFilters && (
           <div className="border-t border-gray-200 pt-4 mt-4">
             <div className="space-y-4">
-              {/* Filtro de não visitados */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="notVisitedFilter"
-                  checked={filterNotVisited}
-                  onChange={(e) => setFilterNotVisited(e.target.checked)}
-                  className="h-5 w-5 sm:h-4 sm:w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded flex-shrink-0"
-                />
-                <label htmlFor="notVisitedFilter" className="text-sm font-medium text-gray-700 cursor-pointer">
-                  Apenas restaurantes não visitados
-                </label>
-              </div>
+              {/* Filtro de não visitados - apenas para usuários logados */}
+              {user && (
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="notVisitedFilter"
+                    checked={filterNotVisited}
+                    onChange={(e) => setFilterNotVisited(e.target.checked)}
+                    className="h-5 w-5 sm:h-4 sm:w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded flex-shrink-0"
+                  />
+                  <label htmlFor="notVisitedFilter" className="text-sm font-medium text-gray-700 cursor-pointer">
+                    Apenas restaurantes não visitados
+                  </label>
+                </div>
+              )}
               
               {/* Filtro de categorias */}
               <div>
@@ -625,12 +759,33 @@ const RestaurantRoulette = () => {
                                 )}
                               </div>
                             </div>
-                            <div className={`text-xs sm:text-sm flex-shrink-0 ml-2 px-2 py-1 rounded-full font-medium ${
-                              restaurant.visited
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-amber-100 text-amber-700'
-                            }`}>
-                              {restaurant.visited ? 'Visitado' : 'Não Visitado'}
+                            <div className="text-xs sm:text-sm flex-shrink-0 ml-2 flex items-center gap-1">
+                              {user ? (
+                                <>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleToggleVisit(restaurant.id);
+                                    }}
+                                    disabled={loadingVisits}
+                                    className={`px-2 py-1 rounded-full font-medium transition-all duration-200 ${
+                                      visitsData[restaurant.id]?.visited
+                                        ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                        : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                    title={`Clique para marcar como ${visitsData[restaurant.id]?.visited ? 'não visitado' : 'visitado'}`}
+                                  >
+                                    {visitsData[restaurant.id]?.visited ? 'Visitado' : 'Não Visitado'}
+                                  </button>
+                                  {loadingVisits && (
+                                    <div className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="px-2 py-1 rounded-full font-medium bg-gray-100 text-gray-600">
+                                  Status desconhecido
+                                </span>
+                              )}
                             </div>
                           </div>
                         );

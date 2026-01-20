@@ -61,6 +61,16 @@ export type Review = {
   user_name: string;
 };
 
+export type UserRestaurantVisit = {
+  id: string;
+  user_id: string;
+  restaurant_id: string;
+  visit_count: number;
+  visited: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 // Tipos para updates das tabelas
 export type RestaurantUpdate = {
   name?: string;
@@ -112,6 +122,14 @@ export type ReviewUpdate = {
   user_name?: string;
 };
 
+export type UserRestaurantVisitUpdate = {
+  user_id?: string;
+  restaurant_id?: string;
+  visit_count?: number;
+  visited?: boolean;
+  updated_at?: string;
+};
+
 // Tipos para o Database do Supabase
 export type Database = {
   public: {
@@ -146,6 +164,11 @@ export type Database = {
         Insert: Omit<Review, 'id' | 'created_at' | 'updated_at'>;
         Update: ReviewUpdate;
       };
+      user_restaurant_visits: {
+        Row: UserRestaurantVisit;
+        Insert: Omit<UserRestaurantVisit, 'id' | 'created_at' | 'updated_at'>;
+        Update: UserRestaurantVisitUpdate;
+      };
     };
   };
 };
@@ -166,7 +189,12 @@ export const getClient = () => {
       throw new Error('Environment variable NEXT_PUBLIC_SUPABASE_ANON_KEY is required.');
     }
 
-    supabaseClient = createSupabaseClient<Database>(supabaseUrl, supabaseKey);
+    supabaseClient = createSupabaseClient<Database>(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    });
   }
   return supabaseClient;
 };

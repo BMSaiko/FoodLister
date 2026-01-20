@@ -191,6 +191,17 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Function to get current access token
+  const getAccessToken = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token || null;
+    } catch (error) {
+      console.error('Error getting access token:', error);
+      return null;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -199,6 +210,7 @@ export function AuthProvider({ children }) {
     signOut,
     resetPassword,
     updatePassword,
+    getAccessToken,
   };
 
   return (
