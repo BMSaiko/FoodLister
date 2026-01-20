@@ -109,6 +109,8 @@ The FoodList application uses a relational database with the following main enti
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 | `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
 
+**Unique Constraint**: `(user_id, restaurant_id)` - Each user can have only one visit record per restaurant
+
 ### Reviews Table
 
 **Table Name**: `reviews`
@@ -335,5 +337,33 @@ INSERT INTO cuisine_types (name, description, icon) VALUES
 ('Mediterranean', 'Mediterranean cuisine', '🫒'),
 ('Korean', 'Korean cuisine', '🍲');
 ```
+
+## Data Isolation and Security
+
+### User Data Isolation
+
+The FoodList application implements strict user data isolation using Supabase Row Level Security (RLS) policies. Each user can only access their own data:
+
+#### User Restaurant Visits
+- **Isolation**: Each user sees only their own restaurant visit records
+- **Implementation**: RLS policies filter by `auth.uid() = user_id`
+- **Privacy**: Users cannot see or modify other users' visit history
+
+#### Restaurants and Lists
+- **Shared Access**: All authenticated users can view all restaurants and lists
+- **Creation Rights**: Users can only modify content they created
+- **Public Discovery**: Restaurant discovery is social within the authenticated user community
+
+### Security Implementation
+
+All data access is protected by RLS policies that automatically filter queries based on the authenticated user context. The application uses JWT tokens to establish user sessions, and all API calls include proper authentication headers.
+
+### Data Consistency
+
+The application maintains data consistency through:
+- **Unique constraints** on user-specific data (e.g., one visit record per user per restaurant)
+- **Foreign key relationships** with CASCADE deletes
+- **Atomic operations** for data updates
+- **Proper error handling** for failed operations
 
 This schema provides a solid foundation for the FoodList application with proper relationships, constraints, and security policies.
