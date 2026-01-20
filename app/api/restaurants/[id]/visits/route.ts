@@ -5,13 +5,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const supabase = await getAuthenticatedClient(request);
 
+    // Get authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id: restaurantId } = await params;
 
     // Get the visit record for this user and restaurant
-    // RLS will automatically filter by authenticated user
+    // Add explicit user_id filter for reliability
     const { data: visitData, error: visitError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
+      .eq('user_id', user.id)
       .eq('restaurant_id', restaurantId)
       .single();
 
@@ -46,6 +53,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const { data: existingVisit, error: checkError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
+      .eq('user_id', user.id)
       .eq('restaurant_id', restaurantId)
       .single();
 
@@ -63,6 +71,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           visit_count: (existingVisit as any).visit_count + 1,
           updated_at: new Date().toISOString()
         })
+        .eq('user_id', user.id)
         .eq('restaurant_id', restaurantId)
         .select()
         .single();
@@ -124,6 +133,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       const { data: existingVisit, error: checkError } = await supabase
         .from('user_restaurant_visits')
         .select('*')
+        .eq('user_id', user.id)
         .eq('restaurant_id', restaurantId)
         .single();
 
@@ -152,6 +162,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const { data: updatedVisit, error: updateError } = await (supabase as any)
           .from('user_restaurant_visits')
           .update(updateData)
+          .eq('user_id', user.id)
           .eq('restaurant_id', restaurantId)
           .select()
           .single();
@@ -195,6 +206,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       const { data: existingVisit, error: checkError } = await supabase
         .from('user_restaurant_visits')
         .select('*')
+        .eq('user_id', user.id)
         .eq('restaurant_id', restaurantId)
         .single();
 
@@ -218,6 +230,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
               visited: shouldMarkUnvisited ? false : (existingVisit as any).visited,
               updated_at: new Date().toISOString()
             })
+            .eq('user_id', user.id)
             .eq('restaurant_id', restaurantId)
             .select()
             .single();
