@@ -82,10 +82,25 @@ export async function uploadToCloudinary(file: File): Promise<string> {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Upload API error:', errorData);
+
+        // Don't retry validation errors 
+        if (response.status === 400 && errorData.error?.includes('arquivo deve ser uma imagem')) {
+          throw new Error(errorData.error);
+        }
+        if (response.status === 400 && errorData.error?.includes('10MB')) {
+          throw new Error(errorData.error);
+        }
 
     if (!response.ok) {
       const errorData = await response.json();
