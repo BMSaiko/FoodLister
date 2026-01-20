@@ -126,33 +126,55 @@ export default function ImageUploader({
       setUploadState({ isUploading: true, error: null, success: false });
 
       try {
-        // For mobile devices, ensure proper MIME type
-        let processedFile = file;
+        // Convert file to base64 for all devices to ensure compatibility
+        console.log('🔄 Converting file to base64...');
 
-        // If file has no type but looks like an image (mobile issue)
-        if (!file.type && /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name)) {
-          console.log('🔧 Processing mobile file without MIME type...');
+        const base64Data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const result = reader.result;
+            // Extract base64 data from data URL
+            const base64 = result.split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
 
-          // Create a new file with explicit MIME type
-          const mimeType = file.name.toLowerCase().endsWith('.png') ? 'image/png' :
-                          file.name.toLowerCase().endsWith('.gif') ? 'image/gif' :
-                          file.name.toLowerCase().endsWith('.webp') ? 'image/webp' :
-                          'image/jpeg';
+        // Determine MIME type from file extension
+        const mimeType = file.name.toLowerCase().endsWith('.png') ? 'image/png' :
+                        file.name.toLowerCase().endsWith('.gif') ? 'image/gif' :
+                        file.name.toLowerCase().endsWith('.webp') ? 'image/webp' :
+                        'image/jpeg';
 
-          // Convert to proper blob with MIME type
-          processedFile = new File([file], file.name, {
-            type: mimeType,
-            lastModified: file.lastModified
-          });
+        console.log('✅ File converted to base64:', {
+          originalType: file.type,
+          mimeType,
+          size: file.size,
+          base64Length: base64Data.length,
+          isMobile
+        });
 
-          console.log('✅ File processed:', {
-            originalType: file.type,
-            newType: processedFile.type,
-            name: processedFile.name
-          });
+        // Send base64 data to API
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageData: base64Data,
+            mimeType: mimeType,
+            fileName: file.name
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erro no upload da imagem');
         }
 
-        const imageUrl = await uploadToCloudinary(processedFile);
+        const result = await response.json();
+        const imageUrl = result.url;
         setUploadState({ isUploading: false, error: null, success: true });
 
         // Call the callback with the uploaded image URL
