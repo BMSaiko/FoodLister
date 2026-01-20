@@ -45,23 +45,6 @@ export function extractCloudinaryPublicId(url: string): string | null {
 }
 
 /**
- * Validates if a file is an image based on MIME type or file extension
- * More permissive validation for mobile devices
- */
-function isValidImageFile(file: File): boolean {
-  // First check MIME type (most reliable)
-  if (file.type && file.type.startsWith('image/')) {
-    return true;
-  }
-
-  // Fallback to file extension for mobile devices that don't set MIME type correctly
-  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg'];
-  const fileName = file.name.toLowerCase();
-
-  return validExtensions.some(ext => fileName.endsWith(ext));
-}
-
-/**
  * Uploads image to Cloudinary using server-side API
  */
 export async function uploadToCloudinary(file: File): Promise<string> {
@@ -69,9 +52,9 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     throw new Error('Nenhum arquivo fornecido');
   }
 
-  // Verifica se é uma imagem (more permissive validation)
-  if (!isValidImageFile(file)) {
-    throw new Error('O arquivo deve ser uma imagem válida (JPG, PNG, GIF, WebP, etc.)');
+  // Verifica se é uma imagem
+  if (!file.type.startsWith('image/')) {
+    throw new Error('O arquivo deve ser uma imagem');
   }
 
   // Verifica o tamanho do arquivo (máximo 10MB para Cloudinary free tier)
@@ -80,6 +63,9 @@ export async function uploadToCloudinary(file: File): Promise<string> {
     throw new Error('A imagem deve ter no máximo 10MB');
   }
 
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
   const uploadWithRetry = async (attemptNumber = 1, maxRetries = 3) => {
     try {
       console.log(`Upload attempt ${attemptNumber}/${maxRetries} for file:`, {
@@ -116,9 +102,18 @@ export async function uploadToCloudinary(file: File): Promise<string> {
           throw new Error(errorData.error);
         }
 
-        throw new Error(errorData.error || 'Erro no upload da imagem');
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Upload API error:', errorData);
+      throw new Error(errorData.error || 'Erro no upload da imagem');
+    }
 
+    const result = await response.json();
+    return result.url;
+  } catch (error) {
+    console.error('Erro ao fazer upload para Cloudinary:', error);
+    throw new Error('Erro ao fazer upload da imagem');
+  }
       const result = await response.json();
       console.log('Upload successful:', result.url);
       return result.url;
