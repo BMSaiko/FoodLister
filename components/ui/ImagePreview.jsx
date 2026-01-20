@@ -68,39 +68,9 @@ export default function ImagePreview({
       {/* Image Preview Section */}
       {imageUrl && (
         <div className="mt-4">
-          {/* Preview Header with Status */}
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-medium text-gray-700 flex items-center">
-              <ImageIcon className="h-4 w-4 mr-2" />
-              Preview da Imagem
-            </h4>
-
-            {/* Status Indicator */}
-            {previewState.isLoading && (
-              <div className="flex items-center text-blue-600 text-xs">
-                <Loader className="h-3 w-3 mr-1 animate-spin" />
-                Carregando...
-              </div>
-            )}
-
-            {previewState.isLoaded && !previewState.hasError && (
-              <div className="flex items-center text-green-600 text-xs">
-                <CheckCircle className="h-3 w-3 mr-1" />
-                Carregada
-              </div>
-            )}
-
-            {previewState.hasError && (
-              <div className="flex items-center text-red-600 text-xs">
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Erro no carregamento
-              </div>
-            )}
-          </div>
-
           {/* Preview Container */}
-          <div className="relative group">
-            <div className="w-full h-56 bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
+          <div className="relative">
+            <div className="w-full h-48 bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
               {/* Loading State */}
               {previewState.isLoading && (
                 <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
@@ -120,6 +90,10 @@ export default function ImagePreview({
                     className="max-w-full max-h-full object-contain"
                     onError={handleImageError}
                   />
+                  {/* Preview Badge */}
+                  <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+                    Preview
+                  </div>
                 </div>
               )}
 
@@ -138,9 +112,6 @@ export default function ImagePreview({
                 </div>
               )}
             </div>
-
-            {/* Hover overlay for better interaction */}
-            <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-200 rounded-xl pointer-events-none" />
           </div>
         </div>
       )}
