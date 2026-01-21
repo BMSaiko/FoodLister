@@ -861,7 +861,7 @@ export default function RestaurantDetails() {
             >
               <Share2 className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Compartilhar</span>
-              <span className="sm:hidden">Share</span>
+              <span className="sm:hidden">Compartilhar</span>
             </button>
             <button
               type="button"
