@@ -7,12 +7,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
 import { Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
-import { useAuth } from '@/contexts';
+import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
 
 const Navbar = ({ clearFilters = null }) => {
   const { user, signOut, loading } = useAuth();
+  const { clearFilters: clearFiltersFromContext } = useFilters();
   const pathname = usePathname();
+  const router = useRouter();
   const supabase = getClient();
   const [activeSection, setActiveSection] = useState('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -197,7 +199,11 @@ const Navbar = ({ clearFilters = null }) => {
                         <button
                           onClick={async () => {
                             setUserMenuOpen(false);
+                            // Clear all filters before logout
+                            clearFiltersFromContext();
+                            // Sign out and redirect to root page
                             await signOut();
+                            router.push('/');
                           }}
                           className="flex items-center gap-4 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors active:bg-red-100"
                         >
@@ -314,7 +320,11 @@ const Navbar = ({ clearFilters = null }) => {
                         <button
                           onClick={async () => {
                             setUserMenuOpen(false);
+                            // Clear all filters before logout
+                            clearFiltersFromContext();
+                            // Sign out and redirect to root page
                             await signOut();
+                            router.push('/');
                           }}
                           className="flex items-center justify-center w-full px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors active:bg-red-100"
                           title="Sair"
