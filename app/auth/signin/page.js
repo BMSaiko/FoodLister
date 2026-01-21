@@ -6,13 +6,16 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
+import TOTPVerification from '@/components/ui/TOTPVerification';
 
 function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [showTOTPVerification, setShowTOTPVerification] = useState(false);
+  const [mfaFactor, setMfaFactor] = useState(null);
+  const { signIn, getMFAFactors } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -28,23 +31,81 @@ function SignInForm() {
 
     setIsLoading(true);
 
-    const { error } = await signIn(email, password);
+    try {
+      // First, try to sign in with password
+      const { data: signInData, error: signInError } = await signIn(email, password);
 
-    setIsLoading(false);
-
-    if (!error) {
-      // Check if toast was already shown in this session
-      const toastShown = sessionStorage.getItem('loginToastShown');
-      if (!toastShown) {
-        // Show success toast
-        toast.success('Login realizado com sucesso!');
-        // Mark that toast was shown
-        sessionStorage.setItem('loginToastShown', 'true');
+      if (signInError) {
+        // If sign-in fails, show error and stop
+        setIsLoading(false);
+        return;
       }
-      // Redirect to home page
-      router.push('/');
+
+      // If sign-in succeeded, check for MFA factors
+      const { data: mfaData, error: mfaError } = await getMFAFactors();
+
+      if (mfaError) {
+        console.error('Error checking MFA factors:', mfaError);
+        // If we can't check MFA, assume no MFA and proceed
+        handleSuccessfulLogin();
+        return;
+      }
+
+      // Check if user has TOTP factors
+      const totpFactor = mfaData?.totp?.find(factor => factor.status === 'verified');
+
+      if (totpFactor) {
+        // User has 2FA enabled, show verification screen
+        setMfaFactor(totpFactor);
+        setShowTOTPVerification(true);
+        setIsLoading(false);
+      } else {
+        // No 2FA, proceed with login
+        handleSuccessfulLogin();
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
+      setIsLoading(false);
     }
   };
+
+  const handleSuccessfulLogin = () => {
+    // Check if toast was already shown in this session
+    const toastShown = sessionStorage.getItem('loginToastShown');
+    if (!toastShown) {
+      // Show success toast
+      toast.success('Login realizado com sucesso!');
+      // Mark that toast was shown
+      sessionStorage.setItem('loginToastShown', 'true');
+    }
+    // Redirect to home page
+    router.push('/');
+  };
+
+  const handleTOTPVerified = (data) => {
+    handleSuccessfulLogin();
+  };
+
+  const handleTOTPCancel = () => {
+    setShowTOTPVerification(false);
+    setMfaFactor(null);
+  };
+
+  if (showTOTPVerification && mfaFactor) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <TOTPVerification
+            onVerified={handleTOTPVerified}
+            onCancel={handleTOTPCancel}
+            email={email}
+            password={password}
+            factorId={mfaFactor.id}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

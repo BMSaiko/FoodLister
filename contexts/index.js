@@ -202,6 +202,93 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // 2FA Functions
+  const enrollTOTP = async () => {
+    try {
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: 'totp'
+      });
+
+      if (error) throw error;
+
+      return { data, error: null };
+    } catch (error) {
+      toast.error('Erro ao configurar 2FA');
+      return { data: null, error };
+    }
+  };
+
+  const verifyTOTP = async (factorId, code) => {
+    try {
+      const { data, error } = await supabase.auth.mfa.verify({
+        factorId,
+        code,
+      });
+
+      if (error) throw error;
+
+      return { data, error: null };
+    } catch (error) {
+      toast.error('Código 2FA inválido');
+      return { data: null, error };
+    }
+  };
+
+  const unenrollTOTP = async (factorId) => {
+    try {
+      const { data, error } = await supabase.auth.mfa.unenroll({
+        factorId,
+      });
+
+      if (error) throw error;
+
+      toast.success('2FA desabilitado com sucesso');
+      return { data, error: null };
+    } catch (error) {
+      toast.error('Erro ao desabilitar 2FA');
+      return { data: null, error };
+    }
+  };
+
+  const getMFAFactors = async () => {
+    try {
+      const { data, error } = await supabase.auth.mfa.listFactors();
+
+      if (error) throw error;
+
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error getting MFA factors:', error);
+      return { data: null, error };
+    }
+  };
+
+  const signInWithTOTP = async (email, password, factorId, code) => {
+    try {
+      // First, sign in with password
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) throw signInError;
+
+      // If user has MFA enabled, verify the TOTP code
+      if (signInData.user && factorId && code) {
+        const { data: verifyData, error: verifyError } = await verifyTOTP(factorId, code);
+
+        if (verifyError) throw verifyError;
+
+        return { data: { ...signInData, mfaVerified: true }, error: null };
+      }
+
+      return { data: signInData, error: null };
+    } catch (error) {
+      toast.error(error.message);
+      return { data: null, error };
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -211,6 +298,11 @@ export function AuthProvider({ children }) {
     resetPassword,
     updatePassword,
     getAccessToken,
+    enrollTOTP,
+    verifyTOTP,
+    unenrollTOTP,
+    getMFAFactors,
+    signInWithTOTP,
   };
 
   return (

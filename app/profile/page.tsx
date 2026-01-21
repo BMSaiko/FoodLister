@@ -5,9 +5,10 @@ import { useAuth } from '@/contexts';
 import { useRouter } from 'next/navigation';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
-import { User, Mail, Phone, FileText, Camera, Save, ArrowLeft } from 'lucide-react';
+import { User, Mail, Phone, FileText, Camera, Save, ArrowLeft, Shield, ShieldCheck, ShieldX } from 'lucide-react';
 import Link from 'next/link';
 import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
+import TOTPSetup from '@/components/ui/TOTPSetup';
 
 interface UserProfile {
   displayName: string;
@@ -18,12 +19,15 @@ interface UserProfile {
 }
 
 const ProfileSettingsPage = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, getMFAFactors, unenrollTOTP } = useAuth();
   const router = useRouter();
   const supabase = getClient();
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showTOTPSetup, setShowTOTPSetup] = useState(false);
+  const [mfaFactors, setMfaFactors] = useState(null);
+  const [loadingMFA, setLoadingMFA] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     displayName: '',
     phoneNumber: '',
@@ -39,10 +43,11 @@ const ProfileSettingsPage = () => {
     }
   }, [user, authLoading, router]);
 
-  // Load user profile data
+  // Load user profile data and MFA factors
   useEffect(() => {
     if (user) {
       loadProfile();
+      loadMFAFactors();
     }
   }, [user]);
 
@@ -221,6 +226,70 @@ const ProfileSettingsPage = () => {
       setSaving(false);
     }
   };
+
+  const loadMFAFactors = async () => {
+    try {
+      setLoadingMFA(true);
+      const { data, error } = await getMFAFactors();
+
+      if (error) {
+        console.error('Error loading MFA factors:', error);
+        return;
+      }
+
+      setMfaFactors(data);
+    } catch (error) {
+      console.error('Error loading MFA factors:', error);
+    } finally {
+      setLoadingMFA(false);
+    }
+  };
+
+  const handleEnable2FA = () => {
+    setShowTOTPSetup(true);
+  };
+
+  const handleDisable2FA = async (factorId) => {
+    if (!confirm('Tem certeza que deseja desabilitar a autenticação de dois fatores?')) {
+      return;
+    }
+
+    try {
+      setLoadingMFA(true);
+      const { error } = await unenrollTOTP(factorId);
+
+      if (error) throw error;
+
+      // Reload MFA factors
+      await loadMFAFactors();
+    } catch (error) {
+      console.error('Error disabling 2FA:', error);
+    } finally {
+      setLoadingMFA(false);
+    }
+  };
+
+  const handleTOTPSetupComplete = () => {
+    setShowTOTPSetup(false);
+    loadMFAFactors();
+  };
+
+  const handleTOTPSetupCancel = () => {
+    setShowTOTPSetup(false);
+  };
+
+  if (showTOTPSetup) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md mx-auto">
+          <TOTPSetup
+            onComplete={handleTOTPSetupComplete}
+            onCancel={handleTOTPSetupCancel}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (authLoading || loading) {
     return (
@@ -405,6 +474,78 @@ const ProfileSettingsPage = () => {
                     }) : 'N/A'}
                   </p>
                 </div>
+              </div>
+            </div>
+
+            {/* Two-Factor Authentication */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Autenticação de Dois Fatores</h2>
+
+              <div className="space-y-4">
+                {loadingMFA ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
+                    <span className="ml-2 text-gray-600">Carregando...</span>
+                  </div>
+                ) : (
+                  <>
+                    {/* Current 2FA Status */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          {mfaFactors?.totp?.some(factor => factor.status === 'verified') ? (
+                            <>
+                              <ShieldCheck className="h-5 w-5 text-green-500" />
+                              <div>
+                                <p className="font-medium text-gray-900">2FA Ativado</p>
+                                <p className="text-sm text-gray-600">Sua conta está protegida com autenticação de dois fatores</p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <ShieldX className="h-5 w-5 text-red-500" />
+                              <div>
+                                <p className="font-medium text-gray-900">2FA Desativado</p>
+                                <p className="text-sm text-gray-600">Adicione uma camada extra de segurança à sua conta</p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      {mfaFactors?.totp?.some(factor => factor.status === 'verified') ? (
+                        <button
+                          onClick={() => handleDisable2FA(mfaFactors.totp.find(factor => factor.status === 'verified').id)}
+                          className="flex items-center justify-center px-4 py-3 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors font-medium"
+                          disabled={loadingMFA}
+                        >
+                          <ShieldX className="h-4 w-4 mr-2" />
+                          Desabilitar 2FA
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleEnable2FA}
+                          className="flex items-center justify-center px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
+                          disabled={loadingMFA}
+                        >
+                          <Shield className="h-4 w-4 mr-2" />
+                          Ativar 2FA
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Information */}
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>Autenticação de dois fatores (2FA)</strong> adiciona uma camada extra de segurança à sua conta.
+                        Você precisará fornecer um código do seu aplicativo autenticador além da sua senha ao fazer login.
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
