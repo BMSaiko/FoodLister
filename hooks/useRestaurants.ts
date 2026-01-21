@@ -66,7 +66,7 @@ export function useRestaurants(searchQuery: string | null): UseRestaurantsReturn
         params.append('search', searchQuery);
       }
       params.append('page', page.toString());
-      params.append('limit', '20');
+      params.append('limit', '21');
 
       const response = await fetch(`/api/restaurants?${params.toString()}`);
 

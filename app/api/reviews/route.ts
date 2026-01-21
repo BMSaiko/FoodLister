@@ -83,11 +83,9 @@ export async function GET(request: NextRequest) {
     const userEmails = new Map();
 
     if (userIds.length > 0) {
-      // Get profile data
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, avatar_url')
-        .in('user_id', userIds);
+      // Get profile data using the secure function
+      const { data: profilesData, error: profilesError } = await (supabase as any)
+        .rpc('get_user_profiles', { user_ids: userIds });
 
       if (!profilesError && profilesData) {
         profilesData.forEach((profile: any) => {
