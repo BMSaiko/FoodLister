@@ -44,8 +44,8 @@ Before starting development, ensure you have the following installed:
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your_nextauth_secret
 
-   # Imgur API (optional)
-   IMGUR_CLIENT_ID=your_imgur_client_id
+   # Cloudinary Configuration (optional)
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
    ```
 
 4. **Set up Supabase database**

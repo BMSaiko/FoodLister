@@ -29,7 +29,7 @@ export default function CreateRestaurant() {
   const [googleMapsModalOpen, setGoogleMapsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    description: ' ',
+    description: '',
     image_url: '',
     price_per_person: '1',
     location: '',
@@ -187,7 +187,7 @@ export default function CreateRestaurant() {
     }
 
     // Simple validation
-    if (!formData.name || !formData.description || !formData.price_per_person) {
+    if (!formData.name || !formData.price_per_person) {
       toast.error('Por favor, preencha os campos obrigatórios.', {
         position: "top-center",
         autoClose: 4000,
@@ -398,7 +398,6 @@ export default function CreateRestaurant() {
                   type="textarea"
                   value={formData.description}
                   onChange={handleChange}
-                  required
                   rows={4}
                 />
               </div>

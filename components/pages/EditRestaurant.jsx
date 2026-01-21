@@ -240,7 +240,7 @@ export default function EditRestaurant({ restaurantId }) {
     e.preventDefault();
 
     // Simple validation
-    if (!formData.name || !formData.description || !formData.price_per_person) {
+    if (!formData.name || !formData.price_per_person) {
       toast.error('Por favor, preencha os campos obrigatórios.', {
         position: "top-center",
         autoClose: 4000,
@@ -470,7 +470,6 @@ export default function EditRestaurant({ restaurantId }) {
                     type="textarea"
                     value={formData.description}
                     onChange={handleChange}
-                    required
                     rows={4}
                   />
                 </div>
