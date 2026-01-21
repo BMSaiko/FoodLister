@@ -94,14 +94,26 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
 
       try {
         let result;
+        let currentProfileImage = null;
 
         if (isEditing && initialReview) {
-          // Update existing review
+          // Get user's current profile data
+          const { data: currentProfile, error: profileError } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('user_id', user.id)
+            .single();
+
+          const currentDisplayName = (!profileError && (currentProfile as any)?.display_name) ? (currentProfile as any).display_name : (user.email?.split('@')[0] || 'Anonymous User');
+          const currentProfileImage = (!profileError && (currentProfile as any)?.avatar_url) ? (currentProfile as any).avatar_url : null;
+
+          // Update existing review with current user data
           result = await (supabase as any)
             .from('reviews')
             .update({
               rating,
               comment: comment.trim() || null,
+              user_name: currentDisplayName, // Update with current display name
               updated_at: new Date().toISOString()
             })
             .eq('id', initialReview.id)
@@ -160,12 +172,13 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
         // Update restaurant rating after successful review creation/update
         await updateRestaurantRating(restaurantId);
 
-        // Transform user data using stored user_name
+        // Transform user data using current profile data
         const transformedReview = {
           ...result.data,
           user: {
             id: user.id,
-            name: result.data.user_name || 'Anonymous User'
+            name: result.data.user_name || 'Anonymous User',
+            profileImage: isEditing ? currentProfileImage : null
           }
         };
 

@@ -693,10 +693,8 @@ export default function RestaurantDetails() {
   // Handle review submission
   const handleReviewSubmitted = async (newReview: Review) => {
     if (editingReview) {
-      // Update existing review
-      setReviews(prev => prev.map(review =>
-        review.id === newReview.id ? newReview : review
-      ));
+      // Update existing review - refetch reviews to ensure profile image is updated
+      await fetchReviews();
     } else {
       // Add new review - inject current user's profile image
       const reviewWithImage = {

@@ -210,10 +210,10 @@ const ProfileSettingsPage = () => {
 
       toast.success('Perfil atualizado com sucesso!');
 
-      // Refresh the page to update navbar and other components with new user data
-      //setTimeout(() => {
-      //  window.location.reload();
-      //}, 1500);
+      // Redirect to root page after toast disappears (toast duration is typically 5000ms)
+      setTimeout(() => {
+        router.push('/');
+      }, 5000); // Slightly longer than toast duration to ensure it has disappeared
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error('Erro ao salvar perfil');
