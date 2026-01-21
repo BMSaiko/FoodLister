@@ -252,7 +252,9 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
             </div>
           )}
           
-          <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{getDescriptionPreview(restaurant.description)}</p>
+          {getDescriptionPreview(restaurant.description) && (
+            <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{getDescriptionPreview(restaurant.description)}</p>
+          )}
           
           {/* Display price category with amber colored Euro symbols - always visible */}
           <div className={`flex items-center mt-2 ${centered ? 'justify-center flex-col gap-1' : ''}`}>
