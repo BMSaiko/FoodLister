@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { validatePassword } from '@/utils/passwordValidation';
+import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -25,8 +27,9 @@ export default function SignUpPage() {
       return;
     }
 
-    if (password.length < 6) {
-      toast.error('A senha deve ter pelo menos 6 caracteres');
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      toast.error(`Senha inválida: ${passwordValidation.message}`);
       return;
     }
 
@@ -100,7 +103,7 @@ export default function SignUpPage() {
                   autoComplete="new-password"
                   required
                   className="appearance-none relative block w-full px-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                  placeholder="Senha (mínimo 6 caracteres)"
+                  placeholder="Senha forte (8+ caracteres, maiúscula, minúscula, número, especial)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -118,6 +121,7 @@ export default function SignUpPage() {
                   </button>
                 </div>
               </div>
+              <PasswordStrengthIndicator password={password} />
             </div>
             <div>
               <label htmlFor="confirmPassword" className="sr-only">
