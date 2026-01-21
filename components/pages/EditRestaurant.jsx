@@ -75,7 +75,6 @@ export default function EditRestaurant({ restaurantId }) {
     source_url: '',
     menu_url: '',
     phone_numbers: [],
-    visited: false,
     creator: '',
     selectedCuisineTypes: []
   });
@@ -126,7 +125,6 @@ export default function EditRestaurant({ restaurantId }) {
             source_url: restaurantData.source_url || '',
             menu_url: restaurantData.menu_url || '',
             phone_numbers: restaurantData.phone_numbers || [],
-            visited: restaurantData.visited || false,
             creator: restaurantData.creator || 'Anônimo',
             selectedCuisineTypes: relationData ? relationData.map(rel => rel.cuisine_type_id) : []
           });
@@ -314,8 +312,7 @@ export default function EditRestaurant({ restaurantId }) {
           location: formData.location,
           source_url: formData.source_url,
           menu_url: formData.menu_url,
-          phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
-          visited: formData.visited
+          phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers)
           // Não atualizamos o creator para preservar quem criou originalmente
         })
         .eq('id', restaurantId);
@@ -604,21 +601,6 @@ export default function EditRestaurant({ restaurantId }) {
                     helperText="Link para o menu do restaurante"
                     placeholder="https://exemplo.com/menu"
                   />
-
-                  <div className="flex items-center space-x-3 py-2">
-                    <input
-                      type="checkbox"
-                      id="visited"
-                      name="visited"
-                      checked={formData.visited}
-                      onChange={handleChange}
-                      className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                    />
-                    <label htmlFor="visited" className="flex items-center text-gray-700 font-medium cursor-pointer">
-                      <Check className={`h-4 w-4 mr-2 ${formData.visited ? 'text-primary' : 'text-gray-300'}`} />
-                      Já visitei este restaurante
-                    </label>
-                  </div>
                 </div>
               </FormSection>
 
