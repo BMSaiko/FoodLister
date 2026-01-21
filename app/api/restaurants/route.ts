@@ -1,71 +1,97 @@
 // app/api/restaurants/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getClient } from '@/libs/supabase/client';
+import { getServerClient } from '@/libs/supabase/server';
+
+interface Restaurant {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  price_per_person?: number;
+  rating?: number;
+  location?: string;
+  source_url?: string;
+  creator?: string;
+  menu_url?: string;
+  phone_numbers?: string[];
+  visited: boolean;
+  created_at: string;
+  updated_at: string;
+  creator_id?: string;
+  creator_name?: string;
+  cuisine_types?: any[];
+  review_count?: number;
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getClient();
+    const supabase = await getServerClient();
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
 
-    // First, fetch restaurants
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
+
+    // Single optimized query with joins
     let query = supabase
       .from('restaurants')
       .select(`
         *,
         cuisine_types:restaurant_cuisine_types(
           cuisine_type:cuisine_types(*)
-        )
-      `);
+        ),
+        reviews:reviews(count)
+      `, { count: 'exact' })
+      .order('rating', { ascending: false })
+      .order('created_at', { ascending: false });
 
     // Add search filter if provided
-    if (search) {
-      query = query.ilike('name', `%${search}%`);
+    if (search && search.trim()) {
+      query = query.ilike('name', `%${search.trim()}%`);
     }
 
-    const { data: restaurantsData, error: restaurantsError } = await query;
+    // Apply pagination
+    query = query.range(offset, offset + limit - 1);
+
+    const { data: restaurantsData, error: restaurantsError, count: totalCount } = await query;
 
     if (restaurantsError) {
       console.error('Error fetching restaurants:', restaurantsError);
       return NextResponse.json({ error: 'Failed to fetch restaurants' }, { status: 500 });
     }
 
-    if (!restaurantsData || restaurantsData.length === 0) {
-      return NextResponse.json({ restaurants: [] });
-    }
-
-    // Get review counts for all restaurants
-    const restaurantIds = restaurantsData.map((r: any) => r.id);
-    const { data: reviewCounts, error: reviewError } = await supabase
-      .from('reviews')
-      .select('restaurant_id')
-      .in('restaurant_id', restaurantIds);
-
-    if (reviewError) {
-      console.error('Error fetching review counts:', reviewError);
-      // Continue without review counts if there's an error
-    }
-
-    // Count reviews per restaurant
-    const countMap: { [key: string]: number } = {};
-    if (reviewCounts) {
-      reviewCounts.forEach((review: any) => {
-        countMap[review.restaurant_id] = (countMap[review.restaurant_id] || 0) + 1;
-      });
-    }
-
     // Transform data for easier client consumption
-    const processedData = restaurantsData.map((restaurant: any) => ({
+    const restaurants: Restaurant[] = (restaurantsData || []).map((restaurant: any) => ({
       ...restaurant,
       cuisine_types: restaurant.cuisine_types
         ? restaurant.cuisine_types.map((relation: any) => relation.cuisine_type)
         : [],
-      review_count: countMap[restaurant.id] || 0
+      review_count: restaurant.reviews?.[0]?.count || 0
     }));
 
-    return NextResponse.json({ restaurants: processedData });
+    return NextResponse.json(
+      {
+        restaurants,
+        pagination: {
+          page,
+          limit,
+          total: totalCount || 0,
+          hasMore: offset + limit < (totalCount || 0)
+        }
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Unexpected error in restaurants API:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
