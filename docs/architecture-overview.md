@@ -50,7 +50,7 @@ This document provides a comprehensive overview of the FoodList application's ar
 │  │              External Integrations                      │ │
 │  ├─────────────────────────────────────────────────────────┤ │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐  │ │
-│  │  │ Google Maps │  │   Imgur     │  │  Future APIs    │  │ │
+│  │  │ Google Maps │  │ Cloudinary  │  │  Future APIs    │  │ │
 │  │  │  Parsing    │  │   Upload    │  │  (Analytics)    │  │ │
 │  │  └─────────────┘  └─────────────┘  └─────────────────┘  │ │
 │  └─────────────────────────────────────────────────────────┘ │
@@ -325,18 +325,15 @@ function extractGoogleMapsData(url) {
 }
 ```
 
-### Image Upload (Imgur)
+### Image Upload (Cloudinary)
 ```javascript
 // Client-side image upload
-async function uploadToImgur(file) {
+async function uploadToCloudinary(file) {
   const formData = new FormData();
-  formData.append('image', file);
+  formData.append('file', file);
 
-  const response = await fetch('https://api.imgur.com/3/image', {
+  const response = await fetch('/api/upload', {
     method: 'POST',
-    headers: {
-      Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`
-    },
     body: formData
   });
 
