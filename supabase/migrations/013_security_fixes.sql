@@ -168,11 +168,11 @@ DROP POLICY IF EXISTS "cuisine_types_service_role" ON public.cuisine_types;
 
 -- Allow authenticated users to manage cuisine types (for admin purposes)
 CREATE POLICY "cuisine_types_authenticated_users" ON public.cuisine_types
-    FOR ALL USING (auth.role() = 'authenticated' AND auth.uid() IS NOT NULL);
+    FOR ALL USING ((select auth.role()) = 'authenticated' AND (select auth.uid()) IS NOT NULL);
 
 -- Service role can do everything
 CREATE POLICY "cuisine_types_service_role" ON public.cuisine_types
-    FOR ALL USING (auth.role() = 'service_role');
+    FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Drop and recreate policies for list_restaurants table
 DROP POLICY IF EXISTS "Permitir atualização de list_restaurants para usuários verif" ON public.list_restaurants;
@@ -184,17 +184,17 @@ DROP POLICY IF EXISTS "list_restaurants_service_role" ON public.list_restaurants
 -- Users can manage list_restaurants entries for their own lists
 CREATE POLICY "list_restaurants_own_lists" ON public.list_restaurants
     FOR ALL USING (
-        auth.role() = 'authenticated' AND
+        (select auth.role()) = 'authenticated' AND
         EXISTS (
             SELECT 1 FROM lists
             WHERE lists.id = list_restaurants.list_id
-            AND lists.creator_id = auth.uid()
+            AND lists.creator_id = (select auth.uid())
         )
     );
 
 -- Service role can do everything
 CREATE POLICY "list_restaurants_service_role" ON public.list_restaurants
-    FOR ALL USING (auth.role() = 'service_role');
+    FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Drop and recreate policies for lists table
 DROP POLICY IF EXISTS "Permitir atualização de listas para usuários verificados" ON public.lists;
@@ -205,11 +205,11 @@ DROP POLICY IF EXISTS "lists_service_role" ON public.lists;
 
 -- Users can manage their own lists
 CREATE POLICY "lists_user_ownership" ON public.lists
-    FOR ALL USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+    FOR ALL USING ((select auth.role()) = 'authenticated' AND (select auth.uid()) = creator_id);
 
 -- Service role can do everything
 CREATE POLICY "lists_service_role" ON public.lists
-    FOR ALL USING (auth.role() = 'service_role');
+    FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Drop and recreate policies for restaurant_cuisine_types table
 DROP POLICY IF EXISTS "Permitir atualização de restaurant_cuisine_types para usuári" ON public.restaurant_cuisine_types;
@@ -221,17 +221,17 @@ DROP POLICY IF EXISTS "restaurant_cuisine_types_service_role" ON public.restaura
 -- Users can manage restaurant_cuisine_types for their own restaurants
 CREATE POLICY "restaurant_cuisine_types_own_restaurants" ON public.restaurant_cuisine_types
     FOR ALL USING (
-        auth.role() = 'authenticated' AND
+        (select auth.role()) = 'authenticated' AND
         EXISTS (
             SELECT 1 FROM restaurants
             WHERE restaurants.id = restaurant_cuisine_types.restaurant_id
-            AND restaurants.creator_id = auth.uid()
+            AND restaurants.creator_id = (select auth.uid())
         )
     );
 
 -- Service role can do everything
 CREATE POLICY "restaurant_cuisine_types_service_role" ON public.restaurant_cuisine_types
-    FOR ALL USING (auth.role() = 'service_role');
+    FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Drop and recreate policies for restaurants table
 DROP POLICY IF EXISTS "Permitir atualização para usuários verificados" ON public.restaurants;
@@ -242,11 +242,11 @@ DROP POLICY IF EXISTS "restaurants_service_role" ON public.restaurants;
 
 -- Users can manage their own restaurants
 CREATE POLICY "restaurants_user_ownership" ON public.restaurants
-    FOR ALL USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+    FOR ALL USING ((select auth.role()) = 'authenticated' AND (select auth.uid()) = creator_id);
 
 -- Service role can do everything
 CREATE POLICY "restaurants_service_role" ON public.restaurants
-    FOR ALL USING (auth.role() = 'service_role');
+    FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Fix the profiles table policy (it already has proper policies, but ensure they're correct)
 DROP POLICY IF EXISTS "allow_all_for_now" ON public.profiles;
@@ -260,15 +260,15 @@ DROP POLICY IF EXISTS "profiles_service_role" ON public.profiles;
 
 -- Allow authenticated users to read public profile information (display_name, avatar_url)
 CREATE POLICY "profiles_read_public" ON public.profiles
-    FOR SELECT USING (auth.role() = 'authenticated');
+    FOR SELECT USING ((select auth.role()) = 'authenticated');
 
 -- Users can manage their own profiles
 CREATE POLICY "profiles_user_ownership" ON public.profiles
-    FOR ALL USING (auth.uid() = user_id);
+    FOR ALL USING ((select auth.uid()) = user_id);
 
 -- Service role can manage all profiles
 CREATE POLICY "profiles_service_role" ON public.profiles
-    FOR ALL USING (auth.role() = 'service_role');
+    FOR ALL USING ((select auth.role()) = 'service_role');
 
 -- Log completion
 DO $$
