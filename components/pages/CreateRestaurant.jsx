@@ -36,7 +36,6 @@ export default function CreateRestaurant() {
     source_url: '',
     menu_url: '',
     phone_numbers: [],
-    visited: false,
     selectedCuisineTypes: []
   });
   
@@ -272,7 +271,6 @@ export default function CreateRestaurant() {
             source_url: formData.source_url || '',
             menu_url: formData.menu_url || '',
             phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
-            visited: formData.visited,
             creator_id: user.id,
             creator_name: displayName
           }
@@ -532,21 +530,6 @@ export default function CreateRestaurant() {
                   helperText="Link para o menu do restaurante"
                   placeholder="https://exemplo.com/menu"
                 />
-
-                <div className="flex items-center space-x-3 py-2">
-                  <input
-                    type="checkbox"
-                    id="visited"
-                    name="visited"
-                    checked={formData.visited}
-                    onChange={handleChange}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                  />
-                  <label htmlFor="visited" className="flex items-center text-gray-700 font-medium cursor-pointer">
-                    <Check className={`h-4 w-4 mr-2 ${formData.visited ? 'text-primary' : 'text-gray-300'}`} />
-                    Já visitei este restaurante
-                  </label>
-                </div>
               </div>
             </FormSection>
 
