@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
 
     // Get current user info for debugging
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-    console.log('🔍 API /restaurants/visits called for user:', user?.email, 'userId:', user?.id);
 
     if (!user?.id) {
       console.error('❌ No authenticated user found!');
@@ -55,7 +54,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('📊 API returning visits data:', visitsMap);
     return NextResponse.json(visitsMap);
   } catch (error) {
     console.error('Unexpected error:', error);
