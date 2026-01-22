@@ -263,16 +263,16 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
             placeholder="Compartilhe sua experiência neste restaurante..."
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none bg-gray-50 hover:bg-white transition-colors text-sm sm:text-base"
             rows={4}
-            maxLength={500}
+            maxLength={5000}
           />
           <div className="flex justify-between items-center mt-2">
             <span className="text-xs text-gray-500">
-              Máximo 500 caracteres
+              Máximo 5000 caracteres
             </span>
             <span className={`text-xs font-medium ${
-              comment.length > 450 ? 'text-red-600' : 'text-gray-600'
+              comment.length > 4500 ? 'text-red-600' : 'text-gray-600'
             }`}>
-              {comment.length}/500
+              {comment.length}/5000
             </span>
           </div>
         </div>

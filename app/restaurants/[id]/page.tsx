@@ -887,7 +887,7 @@ export default function RestaurantDetails() {
         </div>
         
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8">
-          <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 w-full">
+          <div className="relative h-48 sm:h-56 md:h-[24rem] lg:h-[28rem] w-full">
             {(() => {
               const imageUrl = convertCloudinaryUrl(restaurant.image_url);
               const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
