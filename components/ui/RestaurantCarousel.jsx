@@ -3,10 +3,10 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Pause, Play, ImageIcon } from 'lucide-react';
 
 /**
- * MenuCarousel - Beautiful, responsive carousel with ErbApp color palette
- * Shows multiple images side-by-side with modern design and mobile-first approach
+ * RestaurantCarousel - Beautiful, responsive carousel for restaurant images
+ * Shows multiple restaurant images with modern design and mobile-first approach
  */
-export default function MenuCarousel({ images = [], className = '' }) {
+export default function RestaurantCarousel({ images = [], className = '' }) {
   const [startIndex, setStartIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -39,14 +39,14 @@ export default function MenuCarousel({ images = [], className = '' }) {
     setStartIndex(0);
   }, [images]);
 
-  // Auto-play functionality - DISABLED for menu carousel (simple animation like restaurant carousel)
+  // Auto-play functionality - DISABLED for restaurant carousel (kept for menu carousel)
   // useEffect(() => {
   //   if (!images || images.length <= visibleCount || !isAutoPlaying) return;
-
+  //
   //   const interval = setInterval(() => {
   //     nextSet();
   //   }, 6000); // Change every 6 seconds for better UX
-
+  //
   //   return () => clearInterval(interval);
   // }, [startIndex, images.length, visibleCount, isAutoPlaying]);
 
@@ -56,9 +56,9 @@ export default function MenuCarousel({ images = [], className = '' }) {
         <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
           <ImageIcon className="w-8 h-8 text-amber-500" />
         </div>
-        <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhuma imagem do menu</h3>
+        <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhuma imagem do restaurante</h3>
         <p className="text-sm text-amber-600 text-center max-w-xs">
-          As imagens dos menus aparecerão aqui quando adicionadas ao restaurante
+          As imagens do restaurante aparecerão aqui quando adicionadas
         </p>
       </div>
     );
@@ -153,7 +153,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
 
   return (
     <div className={`relative ${className}`}>
-      {/* Auto-play Toggle - REMOVED for menu carousel since autoplay is disabled */}
+      {/* Auto-play Toggle - REMOVED for restaurant carousel since autoplay is disabled */}
 
       {/* Images Grid - Mobile Optimized */}
       <div className={`relative grid gap-3 sm:gap-4 lg:gap-6 ${
@@ -237,7 +237,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
             >
               <Image
                 src={item.image}
-                alt={`Imagem do menu ${item.originalIndex + 1}`}
+                alt={`Imagem do restaurante ${item.originalIndex + 1}`}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105 sm:group-hover:scale-110"
                 sizes={`(max-width: 640px) 100vw, (max-width: 1024px) ${50}vw, ${33.333}vw`}
@@ -335,7 +335,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
               <div className="relative w-full h-full max-w-5xl max-h-full">
                 <Image
                   src={images[modalImageIndex]}
-                  alt={`Imagem do menu ${modalImageIndex + 1} (ampliada)`}
+                  alt={`Imagem do restaurante ${modalImageIndex + 1} (ampliada)`}
                   fill
                   className="object-contain"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 80vw"

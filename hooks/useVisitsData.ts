@@ -170,7 +170,6 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
 
   // Function to update visits data when a card notifies a change
   const handleVisitsDataUpdate = useCallback((restaurantId: string, newVisitsData: { visited: boolean; visitCount: number }) => {
-    console.log('🔄 Updating visits data for restaurant:', restaurantId, 'new data:', newVisitsData, 'user:', user?.email);
     setVisitsData(prev => ({
       ...prev,
       [restaurantId]: newVisitsData

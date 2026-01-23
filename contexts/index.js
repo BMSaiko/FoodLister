@@ -109,7 +109,6 @@ export function AuthProvider({ children }) {
             console.error('Error creating user profile:', profileError);
             // Don't throw here as the auth signup was successful
           } else {
-            console.log('Profile created for new user:', data.user.id, 'with display_name:', emailPrefix);
           }
         } catch (profileCreateError) {
           console.error('Error ensuring user profile exists:', profileCreateError);

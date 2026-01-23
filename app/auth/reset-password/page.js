@@ -53,7 +53,6 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      console.log('OTP sent successfully');
       setIsOtpMode(true);
       toast.success('Código de 6 dígitos enviado para seu email!');
 
@@ -93,7 +92,6 @@ export default function ResetPasswordPage() {
       }
 
       // OTP verified successfully - user is now authenticated
-      console.log('OTP verified, user authenticated:', data.user?.email);
       setUserSession(data.session);
       setIsOtpMode(false);
       setIsResetMode(true);
@@ -138,7 +136,6 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      console.log('Password updated successfully');
       toast.success('Senha atualizada com sucesso!');
 
       // Sign out the user after password reset for security

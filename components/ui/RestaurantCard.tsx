@@ -96,9 +96,25 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
       setIsUpdating(false);
     }
   };
-  // Converter URL do Cloudinary se necessário
-  const imageUrl = convertCloudinaryUrl(restaurant.image_url);
-  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
+  // Determine display image: use carousel display image if available, fallback to legacy image_url
+  const getDisplayImage = () => {
+    // If restaurant has images array and display_image_index is valid
+    if (restaurant.images && restaurant.images.length > 0) {
+      if (restaurant.display_image_index >= 0 &&
+          restaurant.display_image_index < restaurant.images.length) {
+        // Use the specified display image
+        return convertCloudinaryUrl(restaurant.images[restaurant.display_image_index]);
+      } else if (restaurant.images.length > 0) {
+        // Use first image as fallback
+        return convertCloudinaryUrl(restaurant.images[0]);
+      }
+    }
+    // Fallback to legacy image_url
+    return convertCloudinaryUrl(restaurant.image_url);
+  };
+
+  const imageUrl = getDisplayImage();
+  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg';
   // Function to render prices with € icons
   const renderPriceCategory = (price) => {
     if (price <= 10) return { label: 'Econômico', level: 1 };
