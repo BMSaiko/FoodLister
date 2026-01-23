@@ -714,16 +714,20 @@ export default function RestaurantDetails() {
     // Update restaurant rating after successful review submission/update
     await updateRestaurantRating(id);
 
-    // Fetch updated restaurant data to get the new rating
+    // Fetch updated restaurant data to get the new rating and price_per_person
     const { data: updatedRestaurant, error: fetchError } = await supabase
       .from('restaurants')
-      .select('rating')
+      .select('rating, price_per_person')
       .eq('id', id)
       .single();
 
     if (!fetchError && updatedRestaurant && restaurant) {
-      // Update local restaurant state with new rating
-      setRestaurant({ ...(restaurant as any), rating: (updatedRestaurant as any).rating });
+      // Update local restaurant state with new rating and price_per_person
+      setRestaurant({
+        ...(restaurant as any),
+        rating: (updatedRestaurant as any).rating,
+        price_per_person: (updatedRestaurant as any).price_per_person
+      });
     }
 
     toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
@@ -761,16 +765,20 @@ export default function RestaurantDetails() {
       // Update restaurant rating after successful review deletion
       await updateRestaurantRating(id);
 
-      // Fetch updated restaurant data to get the new rating
+      // Fetch updated restaurant data to get the new rating and price_per_person
       const { data: updatedRestaurant, error: fetchError } = await supabase
         .from('restaurants')
-        .select('rating')
+        .select('rating, price_per_person')
         .eq('id', id)
         .single();
 
       if (!fetchError && updatedRestaurant && restaurant) {
-        // Update local restaurant state with new rating
-        setRestaurant({ ...(restaurant as any), rating: (updatedRestaurant as any).rating });
+        // Update local restaurant state with new rating and price_per_person
+        setRestaurant({
+          ...(restaurant as any),
+          rating: (updatedRestaurant as any).rating,
+          price_per_person: (updatedRestaurant as any).price_per_person
+        });
       }
 
       toast.success('Avaliação eliminada com sucesso!');
@@ -1014,8 +1022,8 @@ export default function RestaurantDetails() {
               );
             })()}
             
-            {/* Informações de preço mais destacadas - apenas se visitado */}
-            {visitData.visited && renderPriceLevel(restaurant.price_per_person)}
+            {/* Informações de preço mais destacadas - apenas se visitado e houver preço positivo definido */}
+            {visitData.visited && restaurant.price_per_person && restaurant.price_per_person > 0 && renderPriceLevel(restaurant.price_per_person)}
             
             {/* Campos adicionais agora com cards estilizados */}
             <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
@@ -1280,6 +1288,12 @@ export default function RestaurantDetails() {
                             <p className="text-gray-700 text-sm sm:text-base leading-relaxed mt-2">
                               {review.comment}
                             </p>
+                          )}
+                          {review.amount_spent && review.amount_spent > 0 && (
+                            <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                              <Euro className="h-4 w-4 text-amber-500" />
+                              <span>Valor gasto: <span className="font-semibold text-amber-600">{formatPrice(review.amount_spent)}</span></span>
+                            </div>
                           )}
                         </div>
                       </div>

@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
     const body = await request.json();
-    const { restaurant_id, rating, comment } = body;
+    const { restaurant_id, rating, comment, amount_spent } = body;
 
     if (!restaurant_id || !rating) {
       return NextResponse.json(
@@ -165,6 +165,13 @@ export async function POST(request: NextRequest) {
     if (rating < 1 || rating > 5) {
       return NextResponse.json(
         { error: 'Rating must be between 1 and 5' },
+        { status: 400 }
+      );
+    }
+
+    if (amount_spent !== undefined && (amount_spent <= 0 || isNaN(amount_spent))) {
+      return NextResponse.json(
+        { error: 'Amount spent must be greater than 0' },
         { status: 400 }
       );
     }
@@ -214,7 +221,8 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         user_name: userDisplayName,
         rating,
-        comment: comment || null
+        comment: comment || null,
+        amount_spent: amount_spent || null
       })
       .select('*')
       .single();

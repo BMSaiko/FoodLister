@@ -53,6 +53,7 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [amountSpent, setAmountSpent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -63,9 +64,11 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
     if (initialReview) {
       setRating(initialReview.rating);
       setComment(initialReview.comment || '');
+      setAmountSpent(initialReview.amount_spent ? initialReview.amount_spent.toString() : '');
     } else {
       setRating(0);
       setComment('');
+      setAmountSpent('');
     }
   }, [initialReview]);
 
@@ -75,6 +78,15 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
     if (rating === 0) {
       setError('Por favor, selecione uma avaliação.');
       return;
+    }
+
+    // Validate amount spent if provided
+    if (amountSpent.trim() !== '') {
+      const amountValue = parseFloat(amountSpent);
+      if (isNaN(amountValue) || amountValue <= 0) {
+        setError('O valor gasto deve ser maior que 0.');
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -108,11 +120,15 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
           const currentProfileImage = (!profileError && (currentProfile as any)?.avatar_url) ? (currentProfile as any).avatar_url : null;
 
           // Update existing review with current user data
+          const amountValue = amountSpent.trim() !== '' ? parseFloat(amountSpent) : null;
+          const validAmount = (amountValue !== null && amountValue > 0) ? amountValue : null;
+
           result = await (supabase as any)
             .from('reviews')
             .update({
               rating,
               comment: comment.trim() || null,
+              amount_spent: validAmount,
               user_name: currentDisplayName, // Update with current display name
               updated_at: new Date().toISOString()
             })
@@ -150,6 +166,9 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
           const userName = (!profileError && profileData && (profileData as any).display_name) ? (profileData as any).display_name : user.email;
 
           // Create new review
+          const amountValue = amountSpent.trim() !== '' ? parseFloat(amountSpent) : null;
+          const validAmount = (amountValue !== null && amountValue > 0) ? amountValue : null;
+
           result = await (supabase as any)
             .from('reviews')
             .insert({
@@ -157,7 +176,8 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
               user_id: user.id,
               user_name: userName,
               rating,
-              comment: comment.trim() || null
+              comment: comment.trim() || null,
+              amount_spent: validAmount
             })
             .select('*')
             .single();
@@ -188,6 +208,7 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
         if (!isEditing) {
           setRating(0);
           setComment('');
+          setAmountSpent('');
         }
       } catch (apiError) {
         console.error('API error:', apiError);
@@ -275,6 +296,31 @@ export default function ReviewForm({ restaurantId, onReviewSubmitted, onCancel, 
               {comment.length}/5000
             </span>
           </div>
+        </div>
+
+        {/* Amount Spent */}
+        <div>
+          <label htmlFor="amountSpent" className="block text-sm font-semibold text-gray-700 mb-3">
+            Valor gasto <span className="text-gray-500 font-normal">(opcional)</span>
+          </label>
+          <div className="relative">
+            <input
+              id="amountSpent"
+              type="number"
+              value={amountSpent}
+              onChange={(e) => setAmountSpent(e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              className="w-full px-4 py-3 pl-8 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-sm sm:text-base"
+            />
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">
+              €
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Valor aproximado gasto na refeição (ajuda a calcular a média do restaurante)
+          </p>
         </div>
 
         {/* Error Message */}
