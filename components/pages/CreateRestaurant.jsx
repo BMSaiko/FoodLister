@@ -1,7 +1,7 @@
 // components/pages/CreateRestaurant.jsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
@@ -13,6 +13,7 @@ import FormActions from '@/components/ui/FormActions';
 import CuisineSelector from '@/components/ui/CuisineSelector';
 import ImagePreview from '@/components/ui/ImagePreview';
 import ImageUploader from '@/components/ui/ImageUploader';
+import MenuManager from '@/components/ui/MenuManager';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home, Lock } from 'lucide-react';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
@@ -34,7 +35,8 @@ export default function CreateRestaurant() {
     price_per_person: '1',
     location: '',
     source_url: '',
-    menu_url: '',
+    menu_links: [],
+    menu_images: [],
     phone_numbers: [],
     selectedCuisineTypes: []
   });
@@ -143,6 +145,15 @@ export default function CreateRestaurant() {
       phone_numbers: prev.phone_numbers.filter((_, i) => i !== index)
     }));
   };
+
+  // Stable callback functions to prevent recreation on every render
+  const handleMenuLinksChange = useCallback((links) => {
+    setFormData(prev => ({ ...prev, menu_links: links }));
+  }, []);
+
+  const handleMenuImagesChange = useCallback((images) => {
+    setFormData(prev => ({ ...prev, menu_images: images }));
+  }, []);
 
   // Função para detectar se um número é móvel ou fixo
   const detectPhoneType = (phoneNumber) => {
@@ -269,7 +280,8 @@ export default function CreateRestaurant() {
             price_per_person: priceAsNumber,
             location: formData.location || '',
             source_url: formData.source_url || '',
-            menu_url: formData.menu_url || '',
+            menu_links: formData.menu_links,
+            menu_images: formData.menu_images,
             phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
             creator_id: user.id,
             creator_name: displayName
@@ -519,17 +531,23 @@ export default function CreateRestaurant() {
                   helperText="Link de onde você encontrou este restaurante"
                   placeholder="https://exemplo.com"
                 />
+              </div>
+            </FormSection>
 
-                <FormField
-                  label="Menu"
-                  name="menu_url"
-                  type="url"
-                  value={formData.menu_url}
-                  onChange={handleChange}
-                  icon={FileText}
-                  helperText="Link para o menu do restaurante"
-                  placeholder="https://exemplo.com/menu"
-                />
+            {/* Menu */}
+            <FormSection title="Menu do Restaurante">
+              <MenuManager
+                menuLinks={formData.menu_links}
+                menuImages={formData.menu_images}
+                onMenuLinksChange={handleMenuLinksChange}
+                onMenuImagesChange={handleMenuImagesChange}
+                disabled={loading}
+              />
+            </FormSection>
+
+            {/* Continuação das Informações Adicionais */}
+            <FormSection title="">
+              <div className="space-y-4">
               </div>
             </FormSection>
 
