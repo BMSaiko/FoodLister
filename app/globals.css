@@ -542,3 +542,26 @@ a:active, button:active {
 .group:hover .group-hover\:-rotate-12 {
   transform: rotate(-12deg);
 }
+
+/* Hide browser's native password reveal buttons */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-outer-spin-button,
+input[type="password"]::-webkit-inner-spin-button,
+input[type="password"]::-webkit-search-decoration,
+input[type="password"]::-webkit-search-cancel-button,
+input[type="password"]::-webkit-search-results-button,
+input[type="password"]::-webkit-search-results-decoration {
+  display: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+/* Additional styles to ensure password inputs don't show browser controls */
+input[type="password"] {
+  -webkit-appearance: none;
+  -webkit-box-shadow: none;
+  -webkit-text-security: disc;
+}
