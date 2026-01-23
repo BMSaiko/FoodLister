@@ -32,7 +32,6 @@ export default function CreateRestaurant() {
     name: '',
     description: '',
     image_url: '',
-    price_per_person: '1',
     location: '',
     source_url: '',
     menu_links: [],
@@ -197,26 +196,8 @@ export default function CreateRestaurant() {
     }
 
     // Simple validation
-    if (!formData.name || !formData.price_per_person) {
-      toast.error('Por favor, preencha os campos obrigatórios.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base",
-        bodyClassName: "text-sm sm:text-base"
-      });
-      return;
-    }
-
-    // Convert price to numbers
-    const priceAsNumber = parseFloat(formData.price_per_person);
-
-    if (isNaN(priceAsNumber) || priceAsNumber <= 0) {
-      toast.error('O preço deve ser um número positivo.', {
+    if (!formData.name) {
+      toast.error('Por favor, preencha o nome do restaurante.', {
         position: "top-center",
         autoClose: 4000,
         hideProgressBar: false,
@@ -277,7 +258,6 @@ export default function CreateRestaurant() {
             name: formData.name,
             description: formData.description,
             image_url: processedImageUrl,
-            price_per_person: priceAsNumber,
             location: formData.location || '',
             source_url: formData.source_url || '',
             menu_links: formData.menu_links,
@@ -437,19 +417,7 @@ export default function CreateRestaurant() {
               </div>
             </FormSection>
 
-            {/* Preços */}
-            <FormSection title="Preços">
-              <FormField
-                label="Preço por Pessoa (€)"
-                name="price_per_person"
-                type="number"
-                value={formData.price_per_person}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                required
-              />
-            </FormSection>
+
 
             {/* Informações Adicionais */}
             <FormSection title="Informações Adicionais">

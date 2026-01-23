@@ -135,7 +135,7 @@ export async function PUT(
     const resolvedParams = await params;
     const reviewId = resolvedParams.id;
     const body = await request.json();
-    const { rating, comment } = body;
+    const { rating, comment, amount_spent } = body;
 
     if (!rating) {
       return NextResponse.json({ error: 'Rating is required' }, { status: 400 });
@@ -144,6 +144,13 @@ export async function PUT(
     if (rating < 1 || rating > 5) {
       return NextResponse.json(
         { error: 'Rating must be between 1 and 5' },
+        { status: 400 }
+      );
+    }
+
+    if (amount_spent !== undefined && (amount_spent <= 0 || isNaN(amount_spent))) {
+      return NextResponse.json(
+        { error: 'Amount spent must be greater than 0' },
         { status: 400 }
       );
     }
@@ -173,6 +180,7 @@ export async function PUT(
       .update({
         rating,
         comment: comment || null,
+        amount_spent: amount_spent || null,
         updated_at: new Date().toISOString()
       })
       .eq('id', reviewId)
