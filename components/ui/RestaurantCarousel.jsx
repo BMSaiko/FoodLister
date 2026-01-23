@@ -160,31 +160,6 @@ export default function RestaurantCarousel({ images = [], className = '' }) {
         visibleCount === 1 ? 'grid-cols-1' :
         visibleCount === 2 ? 'grid-cols-2' : 'grid-cols-3'
       }`}>
-        {/* Navigation Buttons - Overlaid on carousel */}
-        {images.length > visibleCount && (
-          <>
-            {/* Previous Button - Left of carousel */}
-            <button
-              onClick={prevSet}
-              disabled={isTransitioning}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 flex items-center justify-center w-14 h-14 sm:w-12 sm:h-12 bg-white hover:bg-amber-500 active:bg-amber-600 border-2 border-amber-200 hover:border-amber-500 active:border-amber-600 text-amber-600 hover:text-white active:text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
-              aria-label="Imagens anteriores"
-            >
-              <ChevronLeft className="h-7 w-7 sm:h-6 sm:w-6" />
-            </button>
-
-            {/* Next Button - Right of carousel */}
-            <button
-              onClick={nextSet}
-              disabled={isTransitioning}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 flex items-center justify-center w-14 h-14 sm:w-12 sm:h-12 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 border-2 border-amber-500 text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
-              aria-label="Próximas imagens"
-            >
-              <ChevronRight className="h-7 w-7 sm:h-6 sm:w-6" />
-            </button>
-          </>
-        )}
-
         {visibleImages.map((item, index) => (
           <div
             key={`${startIndex}-${index}`}
@@ -264,30 +239,105 @@ export default function RestaurantCarousel({ images = [], className = '' }) {
                   <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                 </div>
               </div>
+
+              {/* Navigation Buttons - Inside Images */}
+              {images.length > visibleCount && (
+                <>
+                  {/* Left Button - Only on first image (index 0) */}
+                  {index === 0 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prevSet();
+                      }}
+                      disabled={isTransitioning}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-white hover:bg-amber-500 active:bg-amber-600 border-2 border-amber-200 hover:border-amber-500 active:border-amber-600 text-amber-600 hover:text-white active:text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
+                      aria-label="Imagens anteriores"
+                    >
+                      <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7" />
+                    </button>
+                  )}
+
+                  {/* Right Button - Only on last image */}
+                  {index === visibleImages.length - 1 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        nextSet();
+                      }}
+                      disabled={isTransitioning}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 border-2 border-amber-500 text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
+                      aria-label="Próximas imagens"
+                    >
+                      <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7" />
+                    </button>
+                  )}
+
+                  {/* Progress Dots - Inside Central Image */}
+                  {visibleCount > 1 && (
+                    <>
+                      {/* Mobile: Single image shows dots */}
+                      {visibleCount === 1 && index === 0 && (
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                          {Array.from({ length: Math.ceil(images.length / Math.max(visibleCount, 1)) }, (_, dotIndex) => (
+                            <button
+                              key={dotIndex}
+                              onClick={() => goToSet(dotIndex)}
+                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                Math.floor(startIndex / visibleCount) === dotIndex
+                                  ? 'bg-amber-500 scale-125 shadow-sm'
+                                  : 'bg-gray-300 hover:bg-amber-400 hover:scale-110'
+                              }`}
+                              aria-label={`Conjunto ${dotIndex + 1} de imagens`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Tablet: Right image shows dots */}
+                      {visibleCount === 2 && index === 1 && (
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                          {Array.from({ length: Math.ceil(images.length / Math.max(visibleCount, 1)) }, (_, dotIndex) => (
+                            <button
+                              key={dotIndex}
+                              onClick={() => goToSet(dotIndex)}
+                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                Math.floor(startIndex / visibleCount) === dotIndex
+                                  ? 'bg-amber-500 scale-125 shadow-sm'
+                                  : 'bg-gray-300 hover:bg-amber-400 hover:scale-110'
+                              }`}
+                              aria-label={`Conjunto ${dotIndex + 1} de imagens`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Desktop: Center image shows dots */}
+                      {visibleCount === 3 && index === 1 && (
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                          {Array.from({ length: Math.ceil(images.length / Math.max(visibleCount, 1)) }, (_, dotIndex) => (
+                            <button
+                              key={dotIndex}
+                              onClick={() => goToSet(dotIndex)}
+                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                Math.floor(startIndex / visibleCount) === dotIndex
+                                  ? 'bg-amber-500 scale-125 shadow-sm'
+                                  : 'bg-gray-300 hover:bg-amber-400 hover:scale-110'
+                              }`}
+                              aria-label={`Conjunto ${dotIndex + 1} de imagens`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Progress Dots - Below carousel */}
-      {images.length > visibleCount && (
-        <div className="flex items-center justify-center mt-6 sm:mt-8">
-          <div className="hidden sm:flex space-x-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
-            {Array.from({ length: Math.ceil(images.length / Math.max(visibleCount, 1)) }, (_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSet(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  Math.floor(startIndex / visibleCount) === index
-                    ? 'bg-amber-500 scale-125 shadow-sm'
-                    : 'bg-gray-300 hover:bg-amber-400 hover:scale-110'
-                }`}
-                aria-label={`Conjunto ${index + 1} de imagens`}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Modal Lightbox */}
       {isModalOpen && (

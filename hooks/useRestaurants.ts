@@ -55,7 +55,6 @@ export function useRestaurants(searchQuery: string | null, savedState?: SavedSta
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [initialized, setInitialized] = useState<boolean>(false);
 
   const fetchRestaurants = async () => {
     setLoading(true);
@@ -102,16 +101,14 @@ export function useRestaurants(searchQuery: string | null, savedState?: SavedSta
 
   useEffect(() => {
     // If we have saved state and it matches current search query, use it
-    if (savedState && savedState.searchQuery === searchQuery && !initialized) {
+    if (savedState && savedState.searchQuery === searchQuery) {
       setRestaurants(savedState.restaurants);
       setLoading(false);
-      setInitialized(true);
-    } else if (!initialized) {
-      // Only fetch if we haven't initialized yet
+    } else {
+      // Fetch data when searchQuery changes or when we don't have matching saved state
       fetchRestaurants();
-      setInitialized(true);
     }
-  }, [searchQuery, savedState, initialized]);
+  }, [searchQuery, savedState]);
 
   // Simplified return - no more pagination
   return {
