@@ -27,7 +27,9 @@ The FoodList application uses a relational database with the following main enti
 | `location` | `text` | YES | - | Address/location string |
 | `source_url` | `text` | YES | - | URL where restaurant was found |
 | `creator` | `text` | YES | - | Name of person who added restaurant |
-| `menu_url` | `text` | YES | - | Link to online menu |
+| `menu_url` | `text` | YES | - | **Deprecated**: Single link to online menu (use menu_links instead) |
+| `menu_links` | `text[]` | YES | `'{}'::text[]` | Array of external links to restaurant menus (max 5) |
+| `menu_images` | `text[]` | YES | `'{}'::text[]` | Array of URLs for uploaded menu images (max 10) |
 | `phone_numbers` | `text[]` | YES | `'{}'::text[]` | Array of phone numbers for the restaurant |
 | `visited` | `boolean` | NO | `false` | Whether restaurant has been visited |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
@@ -282,6 +284,30 @@ FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
 CREATE POLICY "reviews_delete_policy" ON reviews
 FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
 ```
+
+## Menu System
+
+The FoodList application supports a comprehensive menu system allowing restaurants to have multiple external links and uploaded images.
+
+### Menu Links (`menu_links`)
+- **Type**: `text[]` (PostgreSQL text array)
+- **Maximum**: 5 external links per restaurant
+- **Purpose**: Store URLs to external menu pages (PDFs, websites, etc.)
+- **Validation**: URLs must be valid HTTP/HTTPS links
+- **Usage**: Displayed as clickable links in restaurant details
+
+### Menu Images (`menu_images`)
+- **Type**: `text[]` (PostgreSQL text array)
+- **Maximum**: 10 uploaded images per restaurant
+- **Purpose**: Store Cloudinary URLs for uploaded menu images
+- **Validation**: URLs must point to valid image files
+- **Usage**: Displayed in responsive carousel with modal viewer
+
+### Migration from Legacy `menu_url`
+The `menu_url` field is deprecated in favor of the new array-based system:
+- **Old**: Single URL stored as text
+- **New**: Multiple URLs stored as arrays
+- **Migration**: Existing `menu_url` values can be migrated to `menu_links[0]`
 
 ## Data Types and Constraints
 
