@@ -12,7 +12,7 @@ import ReviewForm from '@/components/ui/ReviewForm';
 import Link from 'next/link';
 import {
   ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
-  FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home, Plus
+  FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home, Plus, Image as ImageIcon
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
@@ -21,6 +21,7 @@ import { toast } from 'react-toastify';
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
 import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlaceholder';
+import MenuCarousel from '@/components/ui/MenuCarousel';
 
 export default function RestaurantDetails() {
   const params = useParams();
@@ -1078,22 +1079,40 @@ export default function RestaurantDetails() {
                 </div>
               )}
 
-              {restaurant.menu_url && (
-                <div 
-                  className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
-                  onClick={() => window.open(restaurant.menu_url, '_blank', 'noopener,noreferrer')}
-                >
-                  <FileText className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
-                  <span className="flex-grow text-sm sm:text-base">Menu do restaurante</span>
-                  <a 
-                    href={restaurant.menu_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm ml-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Ver menu
-                  </a>
+              {/* Menu Links */}
+              {restaurant.menu_links && restaurant.menu_links.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center text-gray-700 text-sm font-medium mb-2">
+                    <Globe className="h-4 w-4 mr-2 text-amber-500" />
+                    Links de Menus ({restaurant.menu_links.length})
+                  </div>
+                  {restaurant.menu_links.map((link, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
+                      onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}
+                    >
+                      <FileText className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
+                      <span className="flex-grow text-sm sm:text-base truncate">{link}</span>
+                      <span className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm ml-2">
+                        Ver menu
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Menu Images Carousel */}
+              {restaurant.menu_images && restaurant.menu_images.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center text-gray-700 text-sm font-medium">
+                    <ImageIcon className="h-4 w-4 mr-2 text-amber-500" />
+                    Imagens do Menu ({restaurant.menu_images.length})
+                  </div>
+                  <MenuCarousel
+                    images={restaurant.menu_images.map(img => convertCloudinaryUrl(img))}
+                    className="w-full"
+                  />
                 </div>
               )}
             </div>

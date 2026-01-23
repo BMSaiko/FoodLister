@@ -13,6 +13,8 @@ interface Restaurant {
   source_url?: string;
   creator?: string;
   menu_url?: string;
+  menu_links?: string[];
+  menu_images?: string[];
   phone_numbers?: string[];
   visited: boolean;
   created_at: string;

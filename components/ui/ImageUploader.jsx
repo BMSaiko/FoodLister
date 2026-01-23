@@ -10,7 +10,8 @@ import { uploadToCloudinary } from '../../utils/cloudinaryConverter';
 export default function ImageUploader({
   onImageUploaded,
   className = '',
-  disabled = false
+  disabled = false,
+  maxFiles = 10
 }) {
   // State for upload process
   const [uploadState, setUploadState] = useState({
@@ -18,7 +19,8 @@ export default function ImageUploader({
     error: null,
     success: false,
     uploadedUrl: null, // Temporary URL, not applied to form yet
-    uploadProgress: null
+    uploadProgress: null,
+    multipleProgress: null // { current: number, total: number }
   });
 
   // Detect mobile device
@@ -53,59 +55,78 @@ export default function ImageUploader({
       return;
     }
 
-    // Check if we have a file
+    // Check if we have files
     if (acceptedFiles.length === 0) {
       return;
     }
 
-    const file = acceptedFiles[0];
-    console.log('📤 Starting upload for file:', {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
-
-    // Reset state and start upload
+    // Reset state and start multiple uploads
     setUploadState({
       isUploading: true,
       error: null,
       success: false,
-      uploadedUrl: null
+      uploadedUrl: null,
+      multipleProgress: { current: 0, total: acceptedFiles.length }
     });
 
-    try {
-      // Upload using our Cloudinary converter
-      const uploadedUrl = await uploadToCloudinary(file);
+    let uploadErrors = [];
 
-      console.log('✅ Upload successful:', uploadedUrl);
+    // Process files sequentially
+    for (let i = 0; i < acceptedFiles.length; i++) {
+      const file = acceptedFiles[i];
+      console.log(`📤 Starting upload ${i + 1}/${acceptedFiles.length} for file:`, {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
 
-      // Apply URL to form immediately
-      onImageUploaded(uploadedUrl);
+      try {
+        // Upload using our Cloudinary converter
+        const uploadedUrl = await uploadToCloudinary(file);
 
-      // Update state to show success (will auto-clear after 3 seconds)
+        console.log(`✅ Upload ${i + 1}/${acceptedFiles.length} successful:`, uploadedUrl);
+
+        // Apply URL to form immediately for each successful upload
+        onImageUploaded(uploadedUrl);
+
+        // Update progress
+        setUploadState(prev => ({
+          ...prev,
+          multipleProgress: { current: i + 1, total: acceptedFiles.length }
+        }));
+
+      } catch (error) {
+        console.error(`❌ Upload ${i + 1}/${acceptedFiles.length} failed:`, error);
+        uploadErrors.push(`Imagem ${i + 1}: ${error.message || 'Erro no upload'}`);
+      }
+    }
+
+    // Update final state
+    if (uploadErrors.length === 0) {
+      // All uploads successful
       setUploadState({
         isUploading: false,
         error: null,
         success: true,
-        uploadedUrl: uploadedUrl
+        uploadedUrl: null,
+        multipleProgress: null
       });
 
       // Auto-clear success message after 3 seconds
       setTimeout(() => {
         setUploadState(prev => ({
           ...prev,
-          success: false,
-          uploadedUrl: null
+          success: false
         }));
       }, 3000);
-
-    } catch (error) {
-      console.error('❌ Upload failed:', error);
+    } else {
+      // Some uploads failed
       setUploadState({
         isUploading: false,
-        error: error.message || 'Erro no upload da imagem',
+        error: uploadErrors.join('; '),
         success: false,
-        uploadedUrl: null
+        uploadedUrl: null,
+        multipleProgress: null
       });
     }
   }, []);
@@ -117,7 +138,8 @@ export default function ImageUploader({
       'image/*': ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.tiff', '.svg', '.heic', '.heif']
     },
     maxSize: 10 * 1024 * 1024, // 10MB
-    multiple: false,
+    multiple: true,
+    maxFiles: maxFiles,
     disabled: disabled || uploadState.isUploading,
     // Add camera support for mobile
     ...(isMobile && {
@@ -191,7 +213,7 @@ export default function ImageUploader({
                   {isDragActive ? 'Solte a imagem aqui' : isMobile ? 'Tirar Foto ou Selecionar' : 'Arraste uma imagem ou clique'}
                 </p>
                 <p className="text-sm text-gray-500">
-                  JPG, PNG, GIF, WebP, HEIC até 10MB
+                  JPG, PNG, GIF, WebP, HEIC até 10MB (máximo {maxFiles} arquivos)
                 </p>
                 {isMobile && (
                   <p className="text-xs text-blue-600 font-medium mt-2">
@@ -210,15 +232,31 @@ export default function ImageUploader({
       </div>
 
       {/* Upload Status */}
-      {uploadState.isUploading && (
+      {uploadState.isUploading && uploadState.multipleProgress && (
+        <div className="mt-3 flex items-center justify-center text-blue-600 text-sm">
+          <Loader className="h-4 w-4 mr-2 animate-spin" />
+          Enviando {uploadState.multipleProgress.current} de {uploadState.multipleProgress.total} imagens...
+        </div>
+      )}
+
+      {/* Upload Status - Single */}
+      {uploadState.isUploading && !uploadState.multipleProgress && (
         <div className="mt-3 flex items-center justify-center text-blue-600 text-sm">
           <Loader className="h-4 w-4 mr-2 animate-spin" />
           Fazendo upload da imagem...
         </div>
       )}
 
-      {/* Success Message */}
-      {uploadState.success && uploadState.uploadedUrl && (
+      {/* Success Message - Multiple */}
+      {uploadState.success && uploadState.multipleProgress && (
+        <div className="mt-3 flex items-center justify-center text-green-600 text-sm">
+          <CheckCircle className="h-4 w-4 mr-2" />
+          {uploadState.multipleProgress.total} imagens carregadas com sucesso! Os previews aparecerão abaixo.
+        </div>
+      )}
+
+      {/* Success Message - Single */}
+      {uploadState.success && uploadState.uploadedUrl && !uploadState.multipleProgress && (
         <div className="mt-3 flex items-center justify-center text-green-600 text-sm">
           <CheckCircle className="h-4 w-4 mr-2" />
           Imagem carregada com sucesso! O preview aparecerá abaixo.
