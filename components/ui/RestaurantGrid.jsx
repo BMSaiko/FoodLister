@@ -8,13 +8,14 @@ export function RestaurantGrid({ restaurants, visitsData, loadingVisits, onVisit
       {restaurants.map(restaurant => {
         const restaurantVisitsData = visitsData[restaurant.id];
         return (
-          <RestaurantCard
-            key={restaurant.id}
-            restaurant={restaurant}
-            visitsData={restaurantVisitsData}
-            loadingVisits={loadingVisits}
-            onVisitsDataUpdate={onVisitsDataUpdate}
-          />
+          <div key={restaurant.id} data-restaurant-id={restaurant.id}>
+            <RestaurantCard
+              restaurant={restaurant}
+              visitsData={restaurantVisitsData}
+              loadingVisits={loadingVisits}
+              onVisitsDataUpdate={onVisitsDataUpdate}
+            />
+          </div>
         );
       })}
     </div>

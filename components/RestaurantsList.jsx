@@ -7,7 +7,7 @@ import { FiltersProvider, useAuth } from '@/contexts/index';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import { useVisitsData } from '@/hooks/useVisitsData';
 import { useFiltersLogic } from '@/hooks/useFiltersLogic';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+
 import { RestaurantsHeader } from '@/components/ui/RestaurantsHeader';
 import { RestaurantGrid } from '@/components/ui/RestaurantGrid';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -29,19 +29,56 @@ function RestaurantsContent({ showHeader = true }) {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
   const { user } = useAuth();
+  const [scrollRestored, setScrollRestored] = React.useState(false);
 
-  const { restaurants, loading, loadMore, loadingMore, hasMore } = useRestaurants(searchQuery);
+  const { restaurants, loading } = useRestaurants(searchQuery);
   const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
   const { filters, setFilters, filteredRestaurants, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
 
-  // Infinite scroll hook
-  const sentinelRef = useInfiniteScroll({
-    hasMore,
-    loading,
-    loadingMore,
-    onLoadMore: loadMore,
-    threshold: 200
-  });
+  // Simple scroll restoration when data is loaded
+  React.useEffect(() => {
+    if (!loading && restaurants.length > 0 && !scrollRestored) {
+      const pendingTarget = sessionStorage.getItem('targetRestaurantId');
+
+      if (pendingTarget) {
+        // Try to scroll to target restaurant
+        const attemptScroll = (attempts = 0) => {
+          const restaurantElement = document.querySelector(`[data-restaurant-id="${pendingTarget}"]`);
+
+          if (restaurantElement) {
+            restaurantElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            sessionStorage.removeItem('targetRestaurantId');
+            setScrollRestored(true);
+          } else if (attempts < 3) {
+            // Try again in next animation frame, up to 3 attempts
+            requestAnimationFrame(() => attemptScroll(attempts + 1));
+          } else {
+            // Fallback to saved scroll position
+            const savedScrollPosition = sessionStorage.getItem('restaurantsScrollPosition');
+            if (savedScrollPosition) {
+              window.scrollTo({ top: parseInt(savedScrollPosition, 10), behavior: 'smooth' });
+              sessionStorage.removeItem('restaurantsScrollPosition');
+            }
+            sessionStorage.removeItem('targetRestaurantId');
+            setScrollRestored(true);
+          }
+        };
+
+        // Start attempts after short delay
+        setTimeout(() => attemptScroll(), 300);
+      } else {
+        // No target, but check for saved scroll position
+        const savedScrollPosition = sessionStorage.getItem('restaurantsScrollPosition');
+        if (savedScrollPosition) {
+          setTimeout(() => {
+            window.scrollTo({ top: parseInt(savedScrollPosition, 10), behavior: 'smooth' });
+            sessionStorage.removeItem('restaurantsScrollPosition');
+            setScrollRestored(true);
+          }, 100);
+        }
+      }
+    }
+  }, [loading, restaurants.length, scrollRestored]);
 
   return (
     <>
@@ -63,30 +100,12 @@ function RestaurantsContent({ showHeader = true }) {
       {loading ? (
         <RestaurantsLoading />
       ) : filteredRestaurants.length > 0 ? (
-        <>
-          <RestaurantGrid
-            restaurants={filteredRestaurants}
-            visitsData={visitsData}
-            loadingVisits={loadingVisits}
-            onVisitsDataUpdate={handleVisitsDataUpdate}
-          />
-
-          {/* Infinite scroll sentinel */}
-          {hasMore && (
-            <div ref={sentinelRef} className="flex justify-center mt-8">
-              {loadingMore ? (
-                <div className="flex items-center space-x-2 text-amber-600">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"></div>
-                  <span className="text-sm font-medium">Carregando mais restaurantes...</span>
-                </div>
-              ) : (
-                <div className="h-10 flex items-center justify-center">
-                  <div className="text-sm text-gray-500">Role para carregar mais</div>
-                </div>
-              )}
-            </div>
-          )}
-        </>
+        <RestaurantGrid
+          restaurants={filteredRestaurants}
+          visitsData={visitsData}
+          loadingVisits={loadingVisits}
+          onVisitsDataUpdate={handleVisitsDataUpdate}
+        />
       ) : (
         <EmptyState searchQuery={searchQuery} />
       )}

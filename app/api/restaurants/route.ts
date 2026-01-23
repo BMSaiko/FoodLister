@@ -30,13 +30,8 @@ export async function GET(request: NextRequest) {
     const supabase = await getServerClient();
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
 
-    // Calculate offset for pagination
-    const offset = (page - 1) * limit;
-
-    // Single optimized query with joins
+    // Single optimized query with joins - Load ALL restaurants at once
     let query = supabase
       .from('restaurants')
       .select(`
@@ -53,9 +48,6 @@ export async function GET(request: NextRequest) {
     if (search && search.trim()) {
       query = query.ilike('name', `%${search.trim()}%`);
     }
-
-    // Apply pagination
-    query = query.range(offset, offset + limit - 1);
 
     const { data: restaurantsData, error: restaurantsError, count: totalCount } = await query;
 
@@ -75,13 +67,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       {
-        restaurants,
-        pagination: {
-          page,
-          limit,
-          total: totalCount || 0,
-          hasMore: offset + limit < (totalCount || 0)
-        }
+        restaurants
       },
       {
         headers: {
