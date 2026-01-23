@@ -11,7 +11,7 @@ import Image from 'next/image';
 import ReviewForm from '@/components/ui/ReviewForm';
 import Link from 'next/link';
 import {
-  ArrowLeft, Star, ListChecks, Edit, MapPin, Globe,
+  Star, ListChecks, Edit, MapPin, Globe,
   FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home, Plus, Image as ImageIcon
 } from 'lucide-react';
 import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
@@ -853,12 +853,7 @@ export default function RestaurantDetails() {
       )}
 
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
-          <Link href="/restaurants" className="flex items-center text-amber-600 hover:text-amber-700 active:text-amber-800 transition-colors min-h-[44px] sm:min-h-0">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            <span className="text-sm sm:text-base">Voltar</span>
-          </Link>
-          
+        <div className="flex justify-end mb-4 sm:mb-6">
           <div className="flex w-full sm:w-auto gap-2">
             <button
               type="button"

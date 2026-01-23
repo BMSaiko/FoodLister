@@ -143,8 +143,15 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
   
   const ratingStyle = getRatingStyle(restaurant.rating);
 
+  const handleCardClick = () => {
+    // Save restaurant ID for scroll targeting after navigation
+    sessionStorage.setItem('targetRestaurantId', restaurant.id);
+    // Also save scroll position as fallback
+    sessionStorage.setItem('restaurantsScrollPosition', window.scrollY.toString());
+  };
+
   return (
-    <Link href={`/restaurants/${restaurant.id}`} className={centered ? "block w-full" : ""}>
+    <Link href={`/restaurants/${restaurant.id}`} className={centered ? "block w-full" : ""} onClick={handleCardClick}>
       <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : ''}`}>
         <div className={`relative h-40 sm:h-48 w-full min-h-[160px] sm:min-h-[192px] ${centered ? 'min-w-full' : ''}`}>
           {hasImage ? (

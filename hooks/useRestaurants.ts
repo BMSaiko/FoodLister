@@ -44,20 +44,21 @@ interface UseRestaurantsReturn {
   hasMore: boolean;
 }
 
-export function useRestaurants(searchQuery: string | null): UseRestaurantsReturn {
+interface SavedState {
+  restaurants: Restaurant[];
+  hasMore: boolean;
+  searchQuery: string | null;
+  timestamp: number;
+}
+
+export function useRestaurants(searchQuery: string | null, savedState?: SavedState | null): UseRestaurantsReturn {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [initialized, setInitialized] = useState<boolean>(false);
 
-  const fetchRestaurants = async (page: number = 1, append: boolean = false) => {
-    if (append) {
-      setLoadingMore(true);
-    } else {
-      setLoading(true);
-    }
+  const fetchRestaurants = async () => {
+    setLoading(true);
     setError(null);
 
     try {
@@ -65,8 +66,6 @@ export function useRestaurants(searchQuery: string | null): UseRestaurantsReturn
       if (searchQuery) {
         params.append('search', searchQuery);
       }
-      params.append('page', page.toString());
-      params.append('limit', '21');
 
       const response = await fetch(`/api/restaurants?${params.toString()}`);
 
@@ -86,56 +85,42 @@ export function useRestaurants(searchQuery: string | null): UseRestaurantsReturn
         throw new Error('Invalid response structure: missing restaurants data');
       }
 
-      const { restaurants: data, pagination: paginationData } = responseData;
+      const { restaurants: data } = responseData;
       if (!Array.isArray(data)) {
         throw new Error('Invalid response structure: restaurants data is not an array');
       }
 
-      if (append) {
-        setRestaurants(prev => {
-          // Deduplicate restaurants by ID to prevent React key conflicts
-          const existingIds = new Set(prev.map(r => r.id));
-          const newRestaurants = data.filter(r => !existingIds.has(r.id));
-          return [...prev, ...newRestaurants];
-        });
-      } else {
-        setRestaurants(data);
-      }
-
-      setPagination(paginationData);
-      setCurrentPage(page);
+      setRestaurants(data);
     } catch (err) {
       console.error('Erro ao buscar restaurantes:', err);
       setError((err as Error).message);
-      if (!append) {
-        setRestaurants([]);
-      }
+      setRestaurants([]);
     } finally {
-      if (append) {
-        setLoadingMore(false);
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRestaurants(1, false);
-  }, [searchQuery]);
-
-  const loadMore = () => {
-    if (pagination?.hasMore && !loading && !loadingMore) {
-      fetchRestaurants(currentPage + 1, true);
+    // If we have saved state and it matches current search query, use it
+    if (savedState && savedState.searchQuery === searchQuery && !initialized) {
+      setRestaurants(savedState.restaurants);
+      setLoading(false);
+      setInitialized(true);
+    } else if (!initialized) {
+      // Only fetch if we haven't initialized yet
+      fetchRestaurants();
+      setInitialized(true);
     }
-  };
+  }, [searchQuery, savedState, initialized]);
 
+  // Simplified return - no more pagination
   return {
     restaurants,
     loading,
     error,
-    pagination,
-    loadMore,
-    loadingMore,
-    hasMore: pagination?.hasMore || false
+    pagination: null,
+    loadMore: () => {}, // No-op function
+    loadingMore: false,
+    hasMore: false
   };
 }
