@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
 
     // Handle multipart/form-data uploads (traditional file upload)
     if (contentType.includes('multipart/form-data')) {
-      console.log('📁 Processing multipart/form-data upload');
 
       const formData = await request.formData();
       const file = formData.get('file') as File;
@@ -55,26 +54,11 @@ export async function POST(request: NextRequest) {
       mimeType = file.type;
       fileName = file.name;
 
-      console.log('✅ File processed:', {
-        name: fileName,
-        type: mimeType,
-        size: imageBuffer.length
-      });
-
     } else if (contentType.includes('application/json')) {
       // Handle base64 uploads
-      console.log('📡 Processing base64 upload');
 
       const body = await request.json();
       const { imageData, mimeType: providedMimeType, fileName: providedFileName } = body;
-
-      console.log('Received base64 data:', {
-        hasImageData: !!imageData,
-        mimeType: providedMimeType,
-        fileName: providedFileName,
-        dataLength: imageData?.length || 0,
-        userAgent: request.headers.get('user-agent')
-      });
 
       // Validate required fields
       if (!imageData || !providedMimeType) {
@@ -90,12 +74,6 @@ export async function POST(request: NextRequest) {
         imageBuffer = Buffer.from(imageData, 'base64');
         mimeType = providedMimeType;
         fileName = providedFileName || 'uploaded_image.jpg';
-
-        console.log('📦 Base64 converted successfully:', {
-          bufferSize: imageBuffer.length,
-          mimeType,
-          fileName
-        });
       } catch (conversionError) {
         console.error('Base64 conversion failed:', conversionError);
         return NextResponse.json(
@@ -120,21 +98,11 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    console.log('🚀 Starting Cloudinary upload process');
-
     // Get Cloudinary configuration from environment variables
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = process.env.CLOUDINARY_UPLOAD_PRESET || process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
-    console.log('Cloudinary configuration check:', {
-      hasCloudName: !!cloudName,
-      hasUploadPreset: !!uploadPreset,
-      hasApiKey: !!apiKey,
-      hasApiSecret: !!apiSecret
-    });
 
     // Validate Cloudinary configuration
     if (!cloudName || !uploadPreset || !apiKey || !apiSecret) {
@@ -152,9 +120,6 @@ export async function POST(request: NextRequest) {
       upload_preset: uploadPreset,
       folder: 'foodlist'
     }, apiSecret);
-
-    console.log('Generated signature for upload');
-
     // Prepare form data for Cloudinary API
     const cloudinaryFormData = new FormData();
 
@@ -166,9 +131,6 @@ export async function POST(request: NextRequest) {
     cloudinaryFormData.append('timestamp', timestamp.toString());
     cloudinaryFormData.append('signature', signature);
     cloudinaryFormData.append('api_key', apiKey);
-
-    console.log('📤 Sending to Cloudinary API...');
-
     // Upload to Cloudinary
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
@@ -188,7 +150,6 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await response.json();
-    console.log('✅ Cloudinary upload successful:', result.secure_url);
 
     return NextResponse.json({ url: result.secure_url });
 

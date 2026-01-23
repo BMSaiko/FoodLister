@@ -14,6 +14,7 @@ import CuisineSelector from '@/components/ui/CuisineSelector';
 import ImagePreview from '@/components/ui/ImagePreview';
 import ImageUploader from '@/components/ui/ImageUploader';
 import MenuManager from '@/components/ui/MenuManager';
+import RestaurantImageManager from '@/components/ui/RestaurantImageManager';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home } from 'lucide-react';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
@@ -71,6 +72,8 @@ export default function EditRestaurant({ restaurantId }) {
     name: '',
     description: '',
     image_url: '',
+    images: [],
+    display_image_index: -1,
     location: '',
     source_url: '',
     menu_links: [],
@@ -121,6 +124,8 @@ export default function EditRestaurant({ restaurantId }) {
             name: restaurantData.name,
             description: restaurantData.description,
             image_url: restaurantData.image_url || '',
+            images: restaurantData.images || [],
+            display_image_index: restaurantData.display_image_index ?? -1,
             location: restaurantData.location || '',
             source_url: restaurantData.source_url || '',
             menu_links: restaurantData.menu_links || [],
@@ -223,6 +228,14 @@ export default function EditRestaurant({ restaurantId }) {
     setFormData(prev => ({ ...prev, menu_images: images }));
   }, []);
 
+  const handleRestaurantImagesChange = useCallback((images) => {
+    setFormData(prev => ({ ...prev, images: images }));
+  }, []);
+
+  const handleDisplayImageIndexChange = useCallback((index) => {
+    setFormData(prev => ({ ...prev, display_image_index: index }));
+  }, []);
+
   // Função para detectar se um número é móvel ou fixo
   const detectPhoneType = (phoneNumber) => {
     // Limpa o número removendo espaços, hífens, parênteses
@@ -300,6 +313,8 @@ export default function EditRestaurant({ restaurantId }) {
           name: formData.name,
           description: formData.description,
           image_url: processedImageUrl,
+          images: formData.images,
+          display_image_index: formData.display_image_index,
           location: formData.location,
           source_url: formData.source_url,
           menu_links: formData.menu_links,
@@ -474,19 +489,18 @@ export default function EditRestaurant({ restaurantId }) {
                 />
               </FormSection>
 
-              {/* Imagem */}
-              <FormSection title="Imagem do Restaurante">
-                <div className="space-y-4">
-                  <ImageUploader
-                    onImageUploaded={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
-                  />
-                  <div className="text-center text-sm text-gray-500">ou</div>
-                  <ImagePreview
-                    imageUrl={formData.image_url}
-                    onImageUrlChange={(value) => setFormData(prev => ({ ...prev, image_url: value }))}
-                  />
-                </div>
+              {/* Imagens do Restaurante */}
+              <FormSection title="Imagens do Restaurante">
+                <RestaurantImageManager
+                  images={formData.images}
+                  displayImageIndex={formData.display_image_index}
+                  onImagesChange={handleRestaurantImagesChange}
+                  onDisplayImageIndexChange={handleDisplayImageIndexChange}
+                  disabled={saving}
+                />
               </FormSection>
+
+
 
 
 

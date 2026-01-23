@@ -109,12 +109,6 @@ export async function uploadToCloudinary(file: File): Promise<string> {
    */
   const uploadWithRetry = async (attemptNumber = 1, maxRetries = 3): Promise<string> => {
     try {
-      console.log(`Tentativa de upload ${attemptNumber}/${maxRetries} para arquivo:`, {
-        nome: file.name,
-        tamanho: file.size,
-        tipo: file.type,
-        modificado: file.lastModified
-      });
 
       // Prepare form data
       const formData = new FormData();
@@ -150,7 +144,6 @@ export async function uploadToCloudinary(file: File): Promise<string> {
       }
 
       const result = await response.json();
-      console.log('Upload realizado com sucesso:', result.url);
       return result.url;
 
     } catch (error) {
@@ -169,7 +162,6 @@ export async function uploadToCloudinary(file: File): Promise<string> {
            !navigator.onLine)) { // Offline
 
         const retryDelay = attemptNumber * 2000; // Progressive delay
-        console.log(`Tentando novamente em ${retryDelay / 1000} segundos...`);
         await new Promise(resolve => setTimeout(resolve, retryDelay));
         return uploadWithRetry(attemptNumber + 1, maxRetries);
       }
