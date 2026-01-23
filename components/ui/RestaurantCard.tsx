@@ -256,21 +256,23 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
             <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>{getDescriptionPreview(restaurant.description)}</p>
           )}
           
-          {/* Display price category with amber colored Euro symbols - always visible */}
-          <div className={`flex items-center mt-2 ${centered ? 'justify-center flex-col gap-1' : ''}`}>
-            <div className="flex items-center">
-              {Array(priceCategory.level).fill(0).map((_, i) => (
-                <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
-              ))}
-              {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-                <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
-              ))}
-              <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
+          {/* Display price category with amber colored Euro symbols - only when price_per_person has positive value */}
+          {restaurant.price_per_person && restaurant.price_per_person > 0 && (
+            <div className={`flex items-center mt-2 ${centered ? 'justify-center flex-col gap-1' : ''}`}>
+              <div className="flex items-center">
+                {Array(priceCategory.level).fill(0).map((_, i) => (
+                  <Euro key={i} className={`h-3 w-3 inline-block ${priceColorClass}`} fill="currentColor" />
+                ))}
+                {Array(4 - priceCategory.level).fill(0).map((_, i) => (
+                  <Euro key={i + priceCategory.level} className="h-3 w-3 inline-block text-gray-300" />
+                ))}
+                <span className={`ml-1 text-xs ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
+              </div>
+              <div className={`text-amber-600 font-semibold text-sm ${centered ? '' : 'ml-auto'}`}>
+                €{restaurant.price_per_person.toFixed(2)}
+              </div>
             </div>
-            <div className={`text-amber-600 font-semibold text-sm ${centered ? '' : 'ml-auto'}`}>
-              €{restaurant.price_per_person.toFixed(2)}
-            </div>
-          </div>
+          )}
           
           {restaurant.location && (
             <div className={`flex items-center text-gray-500 text-xs sm:text-sm mt-2 line-clamp-1 ${centered ? 'justify-center' : ''}`}>

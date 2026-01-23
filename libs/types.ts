@@ -52,6 +52,7 @@ export interface Review {
   user_id: string;
   rating: number;
   comment?: string;
+  amount_spent?: number;
   created_at: string;
   updated_at: string;
   user: User;
@@ -60,6 +61,7 @@ export interface Review {
 export interface ReviewFormData {
   rating: number;
   comment?: string;
+  amount_spent?: number;
 }
 
 export interface RestaurantWithDetails extends Restaurant {
