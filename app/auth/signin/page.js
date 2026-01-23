@@ -41,8 +41,8 @@ function SignInForm() {
         // Mark that toast was shown
         sessionStorage.setItem('loginToastShown', 'true');
       }
-      // Redirect to home page
-      router.push('/');
+      // Redirect to restaurants page
+      router.push('/restaurants');
     }
   };
 
