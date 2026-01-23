@@ -467,6 +467,216 @@ const sanitizedName = DOMPurify.sanitize(userInput);
 const query = `SELECT * FROM restaurants WHERE name = '${userInput}'`;
 ```
 
+## Menu System Components
+
+The FoodList application includes advanced menu management components that allow restaurants to have multiple external links and uploaded images.
+
+### MenuCarousel Component
+
+**Location**: `components/ui/MenuCarousel.jsx`
+
+**Purpose**: Displays restaurant menu images in an interactive carousel with modal viewer.
+
+**Features**:
+- **Responsive grid layout**: 1-3 images per row based on screen size
+- **Side-by-side display**: Shows multiple images simultaneously
+- **Modal viewer**: Full-screen image viewer with navigation
+- **Auto-play**: Optional automatic advancement (desktop only)
+- **Touch gestures**: Swipe navigation on mobile
+- **Keyboard navigation**: Arrow keys and ESC in modal
+- **Image numbering**: Visual indicators for each image
+
+**Usage**:
+```jsx
+import MenuCarousel from '@/components/ui/MenuCarousel';
+
+function RestaurantPage({ restaurant }) {
+  return (
+    <div>
+      <MenuCarousel images={restaurant.menu_images} />
+    </div>
+  );
+}
+```
+
+**Props**:
+- `images` (array): Array of image URLs to display
+- `className` (string, optional): Additional CSS classes
+
+**Mobile Behavior**:
+- Shows 1 image per row
+- First click shows icon indicator
+- Second click opens modal
+- Swipe gestures for navigation
+
+**Desktop Behavior**:
+- Shows 2-3 images per row
+- Hover shows icon indicator
+- Click directly opens modal
+- Dots navigation for sets
+
+### MenuManager Component
+
+**Location**: `components/ui/MenuManager.jsx`
+
+**Purpose**: Form component for managing restaurant menu links and images during creation/editing.
+
+**Features**:
+- **Tabbed interface**: Separate tabs for "Links Externos" and "Imagens do Menu"
+- **Link management**: Add/remove external menu URLs (max 5)
+- **Image management**: Upload and manage menu images (max 10)
+- **Validation**: URL validation and duplicate checking
+- **Progress indicators**: Visual feedback on limits reached
+
+**Usage**:
+```jsx
+import MenuManager from '@/components/ui/MenuManager';
+
+function RestaurantForm({ formData, onMenuLinksChange, onMenuImagesChange }) {
+  return (
+    <div>
+      <MenuManager
+        menuLinks={formData.menu_links}
+        menuImages={formData.menu_images}
+        onMenuLinksChange={onMenuLinksChange}
+        onMenuImagesChange={onMenuImagesChange}
+        disabled={loading}
+      />
+    </div>
+  );
+}
+```
+
+**Props**:
+- `menuLinks` (array): Current menu links
+- `menuImages` (array): Current menu images
+- `onMenuLinksChange` (function): Callback for link updates
+- `onMenuImagesChange` (function): Callback for image updates
+- `disabled` (boolean): Disable form when submitting
+
+### ImageUploader Component
+
+**Location**: `components/ui/ImageUploader.jsx`
+
+**Purpose**: Handles image uploads to Cloudinary with progress feedback.
+
+**Features**:
+- **Multiple file selection**: Select multiple images at once
+- **Sequential uploads**: Upload images one by one to prevent overload
+- **Progress feedback**: Shows upload progress for multiple files
+- **Error handling**: Individual error handling per image
+- **Responsive design**: Optimized for mobile and desktop
+
+**Usage**:
+```jsx
+import ImageUploader from '@/components/ui/ImageUploader';
+
+function ImageUploadSection({ onImageUploaded, maxFiles }) {
+  return (
+    <ImageUploader
+      onImageUploaded={onImageUploaded}
+      maxFiles={maxFiles}
+    />
+  );
+}
+```
+
+**Props**:
+- `onImageUploaded` (function): Callback when image is uploaded
+- `className` (string, optional): Additional CSS classes
+- `disabled` (boolean): Disable uploader
+- `maxFiles` (number): Maximum files allowed (default: 10)
+
+### Menu Data Structure
+
+**Menu Links**:
+```javascript
+// Array of strings (URLs)
+const menuLinks = [
+  "https://restaurant.com/menu",
+  "https://menu.pdf"
+];
+```
+
+**Menu Images**:
+```javascript
+// Array of strings (Cloudinary URLs)
+const menuImages = [
+  "https://cloudinary.com/image1.jpg",
+  "https://cloudinary.com/image2.png"
+];
+```
+
+### Database Integration
+
+**Creating restaurant with menu**:
+```javascript
+const { data, error } = await supabase
+  .from('restaurants')
+  .insert({
+    name: 'Restaurant Name',
+    menu_links: ['https://menu.pdf'],
+    menu_images: ['https://cloudinary.com/image1.jpg'],
+    // ... other fields
+  });
+```
+
+**Updating menu data**:
+```javascript
+const { data, error } = await supabase
+  .from('restaurants')
+  .update({
+    menu_links: [...existingLinks, 'https://new-menu.pdf'],
+    menu_images: [...existingImages, 'https://cloudinary.com/new-image.jpg']
+  })
+  .eq('id', restaurantId);
+```
+
+### Best Practices
+
+#### Component Integration
+```jsx
+// Good: Proper state management
+function RestaurantForm() {
+  const [menuLinks, setMenuLinks] = useState([]);
+  const [menuImages, setMenuImages] = useState([]);
+
+  return (
+    <MenuManager
+      menuLinks={menuLinks}
+      menuImages={menuImages}
+      onMenuLinksChange={setMenuLinks}
+      onMenuImagesChange={setMenuImages}
+    />
+  );
+}
+```
+
+#### Performance Considerations
+- **Lazy loading**: Images are loaded as needed
+- **Progressive enhancement**: Works without JavaScript
+- **Memory management**: Proper cleanup of event listeners
+- **Bundle optimization**: Components are tree-shakable
+
+#### Accessibility
+- **Keyboard navigation**: Full keyboard support
+- **Screen readers**: Proper ARIA labels
+- **Focus management**: Logical tab order
+- **Color contrast**: WCAG compliant colors
+
+#### Error Handling
+```jsx
+// Proper error handling for uploads
+const handleImageUpload = async (imageUrl) => {
+  try {
+    setMenuImages(prev => [...prev, imageUrl]);
+  } catch (error) {
+    console.error('Upload failed:', error);
+    // Show user-friendly error message
+  }
+};
+```
+
 ## Contributing
 
 ### Code Review Guidelines
