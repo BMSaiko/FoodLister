@@ -30,8 +30,6 @@ export default function ImageUploader({
    * Handle file drop/upload
    */
   const onDrop = useCallback(async (acceptedFiles, rejectedFiles) => {
-    console.log('📁 Files dropped:', acceptedFiles, 'Rejected:', rejectedFiles);
-
     // Handle rejected files
     if (rejectedFiles.length > 0) {
       const rejection = rejectedFiles[0];
@@ -74,18 +72,10 @@ export default function ImageUploader({
     // Process files sequentially
     for (let i = 0; i < acceptedFiles.length; i++) {
       const file = acceptedFiles[i];
-      console.log(`📤 Starting upload ${i + 1}/${acceptedFiles.length} for file:`, {
-        name: file.name,
-        size: file.size,
-        type: file.type
-      });
 
       try {
         // Upload using our Cloudinary converter
         const uploadedUrl = await uploadToCloudinary(file);
-
-        console.log(`✅ Upload ${i + 1}/${acceptedFiles.length} successful:`, uploadedUrl);
-
         // Apply URL to form immediately for each successful upload
         onImageUploaded(uploadedUrl);
 

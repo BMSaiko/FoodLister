@@ -22,6 +22,7 @@ import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
 import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlaceholder';
 import MenuCarousel from '@/components/ui/MenuCarousel';
+import RestaurantCarousel from '@/components/ui/RestaurantCarousel';
 
 export default function RestaurantDetails() {
   const params = useParams();
@@ -891,37 +892,69 @@ export default function RestaurantDetails() {
         </div>
         
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8">
-          <div className="relative h-48 sm:h-56 md:h-[24rem] lg:h-[28rem] w-full">
+          {/* Restaurant Images Carousel */}
+          <div className="relative">
             {(() => {
-              const imageUrl = convertCloudinaryUrl(restaurant.image_url);
-              const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
+              // Check if restaurant has images array with content
+              const hasImages = restaurant.images && restaurant.images.length > 0;
 
-              return hasImage ? (
-                <Image
-                  src={imageUrl}
-                  alt={restaurant.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 1200px"
-                  priority
-                />
-              ) : (
-                <RestaurantImagePlaceholder
-                  iconSize="80"
-                  textSize="text-lg"
-                  showText={true}
-                />
-              );
+              if (hasImages) {
+                // Process images: if display_image_index is valid, move that image to front
+                let processedImages = [...restaurant.images];
+
+                if (restaurant.display_image_index >= 0 &&
+                    restaurant.display_image_index < restaurant.images.length &&
+                    restaurant.display_image_index !== 0) {
+                  // Move display image to front
+                  const displayImage = processedImages.splice(restaurant.display_image_index, 1)[0];
+                  processedImages.unshift(displayImage);
+                }
+
+                // Convert Cloudinary URLs
+                const carouselImages = processedImages.map(img => convertCloudinaryUrl(img));
+
+                return (
+                  <RestaurantCarousel
+                    images={carouselImages}
+                    className="w-full"
+                  />
+                );
+              } else {
+                // Fallback to single image logic for backward compatibility
+                const imageUrl = convertCloudinaryUrl(restaurant.image_url);
+                const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
+
+                return (
+                  <div className="relative h-48 sm:h-56 md:h-[24rem] lg:h-[28rem] w-full">
+                    {hasImage ? (
+                      <Image
+                        src={imageUrl}
+                        alt={restaurant.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 1200px"
+                        priority
+                      />
+                    ) : (
+                      <RestaurantImagePlaceholder
+                        iconSize="80"
+                        textSize="text-lg"
+                        showText={true}
+                      />
+                    )}
+                  </div>
+                );
+              }
             })()}
-            
-            {/* Visit controls for authenticated users */}
+
+            {/* Visit controls for authenticated users - positioned over carousel */}
             {user && (
               <>
                 {/* Badge com Switch Button */}
                 <button
                   onClick={handleToggleVisited}
                   disabled={isUpdating}
-                  className={`absolute top-4 right-4 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
                     visitData.visited
                       ? 'bg-green-500 text-white hover:bg-green-600'
                       : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
@@ -943,7 +976,7 @@ export default function RestaurantDetails() {
 
                 {/* Visit counter and +1/-1 buttons - positioned below the toggle button */}
                 {visitData.visited && (
-                  <div className="absolute top-16 right-2 sm:right-4 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg border border-gray-200/50 px-2.5 py-2 sm:px-3.5 sm:py-2.5 flex items-center gap-2 sm:gap-2.5 backdrop-blur-sm">
+                  <div className="absolute top-16 right-2 sm:right-4 z-10 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg border border-gray-200/50 px-2.5 py-2 sm:px-3.5 sm:py-2.5 flex items-center gap-2 sm:gap-2.5 backdrop-blur-sm">
                     <div className="flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></div>
                       <span className="text-xs sm:text-sm font-semibold text-gray-800">Visitas</span>
