@@ -4,10 +4,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
-import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check } from 'lucide-react';
+import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Sparkles, Apple, MapPin, Coffee, Wine, Utensils} from 'lucide-react';
 import Link from 'next/link';
 import RestaurantCard from './RestaurantCard';
 import { toast } from 'react-toastify';
+
 
 const RestaurantRoulette = () => {
   const { user, getAccessToken } = useAuth();
@@ -20,6 +21,7 @@ const RestaurantRoulette = () => {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [rotation, setRotation] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   // Filtros
   const [showFilters, setShowFilters] = useState(false);
@@ -27,6 +29,15 @@ const RestaurantRoulette = () => {
   const [selectedCuisineTypes, setSelectedCuisineTypes] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Função para calcular innerRadius baseado no número de restaurantes
+  const getInnerRadius = (totalRestaurants) => {
+    if (totalRestaurants <= 10) return 70;
+    if (totalRestaurants <= 20) return 60;
+    if (totalRestaurants <= 30) return 50;
+    if (totalRestaurants <= 40) return 45;
+    return 40; // Minimum inner radius for very large lists
+  };
 
   // Seleção de restaurantes para roleta
   const [showRestaurantSelector, setShowRestaurantSelector] = useState(false);
@@ -70,6 +81,11 @@ const RestaurantRoulette = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Iniciar animações quando o componente monta
+  useEffect(() => {
+    setIsVisible(true);
   }, []);
   
   // Carregar restaurantes e categorias
@@ -318,7 +334,7 @@ const RestaurantRoulette = () => {
   const totalCount = restaurants.length;
   
   return (
-    <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 pb-6 sm:pb-8">
+    <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 pb-6 sm:pb-8 relative overflow-hidden">
       {/* Header com Filtros */}
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4">
@@ -449,8 +465,8 @@ const RestaurantRoulette = () => {
       </div>
       
       {/* Roleta */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
-        <div className="flex flex-col items-center">
+      <div className="bg-transparent rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 relative overflow-hidden">
+        <div className="flex flex-col items-center relative z-10">
           <div className="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px] aspect-square mb-4 sm:mb-6">
             {/* SVG Roleta com nomes */}
             <svg
@@ -465,9 +481,31 @@ const RestaurantRoulette = () => {
               }}
             >
               <defs>
-                {/* Gradientes para cada seção */}
+                {/* Gradientes para cada seção - usando o sistema de cores consistente */}
                 {filteredRestaurants.map((_, i) => {
-                  const colors = ['#F59E0B', '#F97316', '#EF4444', '#EC4899', '#8B5CF6', '#6366F1', '#3B82F6', '#10B981', '#14B8A6', '#06B6D4'];
+                  // Usar o sistema de cores do design: amber, orange, red, yellow, pink, purple, blue, green
+                  const colors = [
+                    '#F59E0B', // amber-500
+                    '#F97316', // orange-500
+                    '#EF4444', // red-500
+                    '#EAB308', // yellow-500
+                    '#EC4899', // pink-500
+                    '#8B5CF6', // purple-500
+                    '#3B82F6', // blue-500
+                    '#10B981', // emerald-500
+                    '#14B8A6', // teal-500
+                    '#06B6D4', // cyan-500
+                    '#F59E0B', // amber-500 (repetir para mais variações)
+                    '#F97316', // orange-500
+                    '#EF4444', // red-500
+                    '#EAB308', // yellow-500
+                    '#EC4899', // pink-500
+                    '#8B5CF6', // purple-500
+                    '#3B82F6', // blue-500
+                    '#10B981', // emerald-500
+                    '#14B8A6', // teal-500
+                    '#06B6D4'  // cyan-500
+                  ];
                   const color = colors[i % colors.length];
                   return (
                     <linearGradient key={i} id={`gradient-${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
@@ -476,6 +514,12 @@ const RestaurantRoulette = () => {
                     </linearGradient>
                   );
                 })}
+                
+                {/* Gradiente para o indicador central */}
+                <radialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#F59E0B" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#F97316" stopOpacity="0.8" />
+                </radialGradient>
               </defs>
               
               {/* Seções da roleta */}
@@ -487,8 +531,8 @@ const RestaurantRoulette = () => {
                 const centerX = 160;
                 const centerY = 160;
                 const radius = 140;
-                // Reduzir innerRadius para dar mais espaço ao texto quando há muitos restaurantes
-                const innerRadius = total > 20 ? 50 : total > 15 ? 55 : 60;
+                // Usar função responsável para calcular innerRadius
+                const innerRadius = getInnerRadius(total);
                 
                 // Calcular pontos do arco
                 const x1 = centerX + radius * Math.cos(startAngle);
@@ -511,25 +555,13 @@ const RestaurantRoulette = () => {
                   Z
                 `;
                 
-                // Calcular posição do texto (meio da seção)
-                const textAngle = ((i + 0.5) * anglePerSlice - 90) * (Math.PI / 180);
-                const textRadius = (radius + innerRadius) / 2;
-                const textX = centerX + textRadius * Math.cos(textAngle);
-                const textY = centerY + textRadius * Math.sin(textAngle);
+                // Calcular posição do texto (meio da seção) - REMOVED since text is no longer displayed
+                // const textAngle = ((i + 0.5) * anglePerSlice - 90) * (Math.PI / 180);
+                // const textRadius = (radius + innerRadius) / 2;
+                // const textX = centerX + textRadius * Math.cos(textAngle);
+                // const textY = centerY + textRadius * Math.sin(textAngle);
                 // Rotação para que o texto fique vertical (radial, apontando para fora)
-                const textRotation = (i + 0.5) * anglePerSlice - 90;
-                
-                // Ajustar tamanho da fonte baseado no número de restaurantes e tamanho da tela
-                // Aumentar significativamente os tamanhos para melhor legibilidade, especialmente com muitos restaurantes
-                const fontSize = isMobile 
-                  ? (total <= 6 ? 16 : total <= 10 ? 14 : total <= 15 ? 13 : total <= 20 ? 12 : 11)
-                  : (total <= 6 ? 20 : total <= 10 ? 18 : total <= 15 ? 16 : total <= 20 ? 14 : 13);
-                const maxLength = isMobile
-                  ? (total <= 6 ? 18 : total <= 10 ? 16 : total <= 15 ? 14 : total <= 20 ? 12 : 10)
-                  : (total <= 6 ? 22 : total <= 10 ? 20 : total <= 15 ? 18 : total <= 20 ? 16 : 14);
-                const displayName = restaurant.name.length > maxLength 
-                  ? restaurant.name.substring(0, maxLength - 3) + '...' 
-                  : restaurant.name;
+                // const textRotation = (i + 0.5) * anglePerSlice - 90;
                 
                 return (
                   <g key={restaurant.id}>
@@ -539,28 +571,6 @@ const RestaurantRoulette = () => {
                       stroke="#fff"
                       strokeWidth="2"
                     />
-                    {/* Texto do nome do restaurante */}
-                    <text
-                      x={textX}
-                      y={textY}
-                      transform={`rotate(${textRotation} ${textX} ${textY})`}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fontSize={fontSize}
-                      fill="white"
-                      stroke="rgba(0,0,0,0.7)"
-                      strokeWidth="2"
-                      fontWeight="bold"
-                      style={{
-                        textShadow: '3px 3px 6px rgba(0,0,0,0.9), 1px 1px 2px rgba(0,0,0,0.8)',
-                        pointerEvents: 'none',
-                        userSelect: 'none',
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                        letterSpacing: total > 20 ? '0.3px' : '0.5px',
-                      }}
-                    >
-                      {displayName}
-                    </text>
                   </g>
                 );
               }) : (
@@ -575,11 +585,11 @@ const RestaurantRoulette = () => {
                 />
               )}
               
-              {/* Círculo central vazio - ajustar tamanho baseado no número de restaurantes */}
+              {/* Círculo central vazio - usar função responsável */}
               <circle
                 cx="160"
                 cy="160"
-                r={filteredRestaurants.length > 20 ? 50 : filteredRestaurants.length > 15 ? 55 : 60}
+                r={getInnerRadius(filteredRestaurants.length)}
                 fill="white"
                 stroke="#F59E0B"
                 strokeWidth="4"
@@ -630,11 +640,23 @@ const RestaurantRoulette = () => {
       
       {/* Resultado */}
       {selectedRestaurant && (
-        <div ref={resultRef} className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
-          <div className="text-center mb-4 sm:mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
-              🎉 Restaurante Escolhido! 🎉
-            </h3>
+        <div ref={resultRef} className="bg-transparent rounded-xl p-4 sm:p-6 lg:p-8 border border-amber-100/50 relative overflow-hidden">
+          {/* Elementos decorativos de fundo no resultado */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none">
+            <div className="absolute top-4 left-4 w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
+            <div className="absolute top-4 right-4 w-3 h-3 bg-orange-400 rounded-full animate-bounce animation-delay-300"></div>
+            <div className="absolute bottom-4 left-4 w-3 h-3 bg-red-400 rounded-full animate-pulse animation-delay-600"></div>
+            <div className="absolute bottom-4 right-4 w-3 h-3 bg-amber-500 rounded-full animate-bounce animation-delay-900"></div>
+          </div>
+          
+          <div className="relative z-10 text-center mb-4 sm:mb-6">
+            <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-3 sm:mb-4 border border-amber-200/50 shadow-md">
+              <Sparkles className="h-5 w-5 text-amber-500 animate-pulse" />
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
+                🎉 Restaurante Escolhido! 🎉
+              </h3>
+              <Sparkles className="h-5 w-5 text-orange-500 animate-pulse" />
+            </div>
             <p className="text-sm sm:text-base text-gray-600">
               Este é o restaurante selecionado pela roleta
             </p>
@@ -642,7 +664,7 @@ const RestaurantRoulette = () => {
           
           {/* Container centralizado para o card */}
           <div className="flex justify-center items-center mb-5 sm:mb-6 px-2 sm:px-0">
-            <div className="w-full max-w-md mx-auto min-w-0">
+            <div className="w-full max-w-md mx-auto min-w-0 bg-transparent rounded-xl p-2 sm:p-3 border border-amber-100/50">
               <RestaurantCard
                 restaurant={selectedRestaurant}
                 centered={true}
