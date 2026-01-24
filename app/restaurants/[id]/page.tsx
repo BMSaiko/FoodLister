@@ -3,8 +3,9 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 import { createClient } from '@/libs/supabase/client';
-import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
 import { Review, ReviewFormData } from '@/libs/types';
 import Image from 'next/image';
@@ -27,7 +28,9 @@ import RestaurantCarousel from '@/components/ui/RestaurantCarousel';
 export default function RestaurantDetails() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { user, getAccessToken } = useAuth();
+  const { user } = useAuth();
+  const { get, post, patch, del } = useSecureApiClient();
+  const supabase = createClient();
 
   const [restaurant, setRestaurant] = useState(null);
   const [visitData, setVisitData] = useState({ visited: false, visitCount: 0 });
@@ -41,8 +44,6 @@ export default function RestaurantDetails() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
-
-  const supabase = createClient();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
@@ -113,20 +114,17 @@ export default function RestaurantDetails() {
           }
         }
 
-        // Fetch reviews for this restaurant
-        await fetchReviews();
+      // Fetch reviews for this restaurant
+      await fetchReviews();
 
-        // Fetch review count for this restaurant
-        const { count: reviewCount, error: countError } = await supabase
-          .from('reviews')
-          .select('*', { count: 'exact', head: true })
-          .eq('restaurant_id', id);
-
-        if (countError) {
-          console.error('Error fetching review count:', countError);
-        } else {
-          setReviewCount(reviewCount || 0);
-        }
+      // Fetch review count for this restaurant
+      try {
+        const response = await get(`/api/reviews?restaurant_id=${id}`);
+        const data = await response.json();
+        setReviewCount(data.reviews?.length || 0);
+      } catch (error) {
+        console.error('Error fetching review count:', error);
+      }
       }
     } catch (error) {
       console.error('Error fetching restaurant details:', error);
@@ -140,7 +138,7 @@ export default function RestaurantDetails() {
 
     setLoadingReviews(true);
     try {
-      const response = await fetch(`/api/reviews?restaurant_id=${id}`);
+      const response = await get(`/api/reviews?restaurant_id=${id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -167,7 +165,7 @@ export default function RestaurantDetails() {
     } finally {
       setLoadingReviews(false);
     }
-  }, [id, user, userProfile]);
+  }, [id, user, userProfile, get]);
 
   // Helper function to sanitize and validate external URLs
   const sanitizeUrl = (urlString: string): string | null => {
@@ -247,26 +245,29 @@ export default function RestaurantDetails() {
     const fetchUserProfile = async () => {
       if (user?.id) {
         try {
-          const { data: profileData, error } = await supabase
-            .from('profiles')
-            .select('display_name, avatar_url')
-            .eq('user_id', user.id)
-            .single();
-
-          if (!error && profileData) {
+          const response = await get(`/api/profile`);
+          if (response.ok) {
+            const profileData = await response.json();
             setUserProfile({
-              display_name: (profileData as any).display_name || undefined,
-              avatar_url: (profileData as any).avatar_url || undefined
+              display_name: profileData.display_name || undefined,
+              avatar_url: profileData.avatar_url || undefined
             });
+          } else if (response.status === 401) {
+            // Handle unauthorized access gracefully
+            console.warn('User not authenticated for profile access');
           }
         } catch (error) {
           console.error('Error fetching user profile:', error);
+          // Don't show error toast for authentication issues
+          if (error.message !== 'No authentication token found') {
+            console.warn('Non-authentication error occurred');
+          }
         }
       }
     };
 
     fetchUserProfile();
-  }, [user?.id]);
+  }, [user?.id, get]);
 
   // Fetch visit data for authenticated users
   useEffect(() => {
@@ -274,27 +275,16 @@ export default function RestaurantDetails() {
       if (!user) return;
 
       try {
-        const token = await getAccessToken();
-        if (!token) return;
-
-        const response = await fetch(`/api/restaurants/${id}/visits`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setVisitData({ visited: data.visited, visitCount: data.visitCount });
-        } else {
-          console.error('Failed to fetch visit data');
-        }
+        const response = await get(`/api/restaurants/${id}/visits`);
+        const data = await response.json();
+        setVisitData({ visited: data.visited, visitCount: data.visitCount });
       } catch (error) {
         console.error('Error fetching visit data:', error);
       }
     };
 
     fetchVisitData();
-  }, [user, id, getAccessToken]);
+  }, [user, id, get]);
 
   // Ensure visit count is updated when visited becomes true
   useEffect(() => {
@@ -302,18 +292,9 @@ export default function RestaurantDetails() {
       // If visited is true but visitCount is still 0, refetch the data
       const refetchVisitData = async () => {
         try {
-          const token = await getAccessToken();
-          if (!token) return;
-
-          const response = await fetch(`/api/restaurants/${id}/visits`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
-          }
+          const response = await get(`/api/restaurants/${id}/visits`);
+          const data = await response.json();
+          setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
         } catch (error) {
           console.error('Error refetching visit data:', error);
         }
@@ -321,7 +302,7 @@ export default function RestaurantDetails() {
 
       refetchVisitData();
     }
-  }, [visitData.visited, visitData.visitCount, id, getAccessToken]);
+  }, [visitData.visited, visitData.visitCount, id, get]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -436,24 +417,7 @@ export default function RestaurantDetails() {
 
     setIsUpdating(true);
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('No access token available');
-      }
-
-      const response = await fetch(`/api/restaurants/${id}/visits`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action: 'toggle_visited' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update visit status');
-      }
-
+      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'toggle_visited' });
       const data = await response.json();
       setVisitData({ visited: data.visited, visitCount: data.visitCount });
 
@@ -494,22 +458,7 @@ export default function RestaurantDetails() {
 
   const handleAddVisit = async () => {
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('No access token available');
-      }
-
-      const response = await fetch(`/api/restaurants/${id}/visits`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add visit');
-      }
-
+      const response = await post(`/api/restaurants/${id}/visits`);
       const data = await response.json();
       setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
 
@@ -543,25 +492,7 @@ export default function RestaurantDetails() {
 
   const handleRemoveVisit = async () => {
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('No access token available');
-      }
-
-      const response = await fetch(`/api/restaurants/${id}/visits`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action: 'remove_visit' }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to remove visit');
-      }
-
+      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'remove_visit' });
       const data = await response.json();
       setVisitData(prev => ({ ...prev, visitCount: data.visitCount, visited: data.visited }));
 
@@ -654,19 +585,19 @@ export default function RestaurantDetails() {
     );
   }
   
-  if (!restaurant) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
-          <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
-            Voltar para a página de restaurantes
-          </Link>
+    if (!restaurant) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <div className="container mx-auto px-4 py-8 text-center">
+            <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
+            <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
+              Voltar para a página de restaurantes
+            </Link>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
   // Função para detectar se um número é móvel ou fixo
   const detectPhoneType = (phoneNumber) => {
@@ -716,19 +647,14 @@ export default function RestaurantDetails() {
     await updateRestaurantRating(id);
 
     // Fetch updated restaurant data to get the new rating and price_per_person
-    const { data: updatedRestaurant, error: fetchError } = await supabase
-      .from('restaurants')
-      .select('rating, price_per_person')
-      .eq('id', id)
-      .single();
-
-    if (!fetchError && updatedRestaurant && restaurant) {
-      // Update local restaurant state with new rating and price_per_person
-      setRestaurant({
-        ...(restaurant as any),
-        rating: (updatedRestaurant as any).rating,
-        price_per_person: (updatedRestaurant as any).price_per_person
-      });
+    try {
+      const response = await get(`/api/restaurants/${id}`);
+      const data = await response.json();
+      if (response.ok && data.restaurant) {
+        setRestaurant(data.restaurant);
+      }
+    } catch (error) {
+      console.error('Error fetching updated restaurant data:', error);
     }
 
     toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
@@ -746,43 +672,31 @@ export default function RestaurantDetails() {
     }
 
     try {
-      // Use Supabase client for authenticated request
-      const { error } = await supabase
-        .from('reviews')
-        .delete()
-        .eq('id', reviewId)
-        .eq('user_id', user.id); // Ensure user can only delete their own reviews
+      const response = await del(`/api/reviews/${reviewId}`);
+      
+      if (response.ok) {
+        // Update local state
+        setReviews(prev => prev.filter(review => review.id !== reviewId));
+        setReviewCount(prev => prev - 1);
 
-      if (error) {
-        console.error('Error deleting review:', error);
-        toast.error('Erro ao eliminar avaliação');
-        return;
+    // Update restaurant rating after successful review deletion
+    await updateRestaurantRating(id);
+
+    // Fetch updated restaurant data to get the new rating and price_per_person
+    try {
+      const response = await get(`/api/restaurants/${id}`);
+      const data = await response.json();
+      if (response.ok && data.restaurant) {
+        setRestaurant(data.restaurant);
       }
+    } catch (error) {
+      console.error('Error fetching updated restaurant data:', error);
+    }
 
-      // Update local state
-      setReviews(prev => prev.filter(review => review.id !== reviewId));
-      setReviewCount(prev => prev - 1);
-
-      // Update restaurant rating after successful review deletion
-      await updateRestaurantRating(id);
-
-      // Fetch updated restaurant data to get the new rating and price_per_person
-      const { data: updatedRestaurant, error: fetchError } = await supabase
-        .from('restaurants')
-        .select('rating, price_per_person')
-        .eq('id', id)
-        .single();
-
-      if (!fetchError && updatedRestaurant && restaurant) {
-        // Update local restaurant state with new rating and price_per_person
-        setRestaurant({
-          ...(restaurant as any),
-          rating: (updatedRestaurant as any).rating,
-          price_per_person: (updatedRestaurant as any).price_per_person
-        });
+        toast.success('Avaliação eliminada com sucesso!');
+      } else {
+        throw new Error('Failed to delete review');
       }
-
-      toast.success('Avaliação eliminada com sucesso!');
     } catch (error) {
       console.error('Error deleting review:', error);
       toast.error('Erro ao eliminar avaliação. Tente novamente.');
@@ -793,34 +707,31 @@ export default function RestaurantDetails() {
   const updateRestaurantRating = async (restaurantId: string) => {
     try {
       // Calculate average rating from all reviews for this restaurant
-      const { data: reviews, error: reviewsError } = await supabase
-        .from('reviews')
-        .select('rating')
-        .eq('restaurant_id', restaurantId);
-
-      if (reviewsError) {
-        console.error('Error fetching reviews for rating calculation:', reviewsError);
-        return;
-      }
-
+      const response = await get(`/api/reviews?restaurant_id=${restaurantId}`);
+      const data = await response.json();
+      
       let averageRating = 0;
-      if (reviews && reviews.length > 0) {
-        const totalRating = (reviews as any[]).reduce((sum, review: any) => sum + review.rating, 0);
-        averageRating = totalRating / reviews.length;
+      if (data.reviews && data.reviews.length > 0) {
+        const totalRating = data.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
+        averageRating = totalRating / data.reviews.length;
       }
       // If no reviews, rating should be 0
 
-      // Update the restaurant's rating
-      const { error: updateError } = await (supabase as any)
-        .from('restaurants')
-        .update({ rating: averageRating })
-        .eq('id', restaurantId);
-
-      if (updateError) {
-        console.error('Error updating restaurant rating:', updateError);
+      // Update the restaurant's rating via API
+      try {
+        const updateResponse = await patch(`/api/restaurants/${restaurantId}`, { rating: averageRating });
+        if (!updateResponse.ok) {
+          const errorText = await updateResponse.text();
+          console.error('Error updating restaurant rating via API:', errorText);
+          // Don't throw error, just log it - rating update is not critical for user experience
+        }
+      } catch (error) {
+        console.error('Error updating restaurant rating:', error);
+        // Don't throw error, just log it - rating update is not critical for user experience
       }
     } catch (error) {
       console.error('Error in updateRestaurantRating:', error);
+      // Don't throw error, just log it - rating update is not critical for user experience
     }
   };
   

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
+import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 
 const FiltersContext = createContext();
 

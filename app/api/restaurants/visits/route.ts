@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedClient } from '@/libs/supabase/server';
+import { getServerClient } from '@/libs/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await getAuthenticatedClient(request);
+    const supabase = await getServerClient(request, undefined);
 
     const body = await request.json();
     const { restaurantIds } = body;

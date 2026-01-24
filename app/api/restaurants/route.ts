@@ -26,8 +26,9 @@ interface Restaurant {
 }
 
 export async function GET(request: NextRequest) {
+  const response = NextResponse.next();
   try {
-    const supabase = await getServerClient();
+    const supabase = await getServerClient(request, response);
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
 

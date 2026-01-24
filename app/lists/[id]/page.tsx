@@ -3,7 +3,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/hooks/useAuth';
+import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 import Navbar from '@/components/layouts/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import { ArrowLeft, Edit, User } from 'lucide-react';
@@ -12,6 +13,7 @@ import Link from 'next/link';
 export default function ListDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { get } = useSecureApiClient();
   const [list, setList] = useState(null);
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,10 +25,7 @@ export default function ListDetails() {
       setLoading(true);
 
       try {
-        const response = await fetch(`/api/lists/${id}`, {
-          // Enable caching for better performance
-          next: { revalidate: 60 } // Cache for 60 seconds
-        });
+        const response = await get(`/api/lists/${id}`);
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');

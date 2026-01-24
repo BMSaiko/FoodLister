@@ -49,7 +49,7 @@ export async function GET(
     const resolvedParams = await params;
     const reviewId = resolvedParams.id;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('reviews')
       .select(`
         *,
