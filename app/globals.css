@@ -489,6 +489,53 @@ a:active, button:active {
   }
 }
 
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@keyframes float-very-slow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-strong {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -500,6 +547,7 @@ a:active, button:active {
   }
 }
 
+/* Enhanced animation classes with better visibility */
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -507,6 +555,27 @@ a:active, button:active {
 .animate-float-delayed {
   animation: float-delayed 8s ease-in-out infinite;
   animation-delay: 2s;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-very-slow {
+  animation: float-very-slow 10s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 4s ease-in-out infinite;
+}
+
+.animate-pulse-strong {
+  animation: pulse-strong 3s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
 }
 
 .animate-fade-in-up {
@@ -519,6 +588,111 @@ a:active, button:active {
 
 .animation-delay-500 {
   animation-delay: 0.5s;
+}
+
+/* Enhanced visibility classes for roulette animations */
+.animate-float-visible {
+  animation: float 6s ease-in-out infinite;
+  opacity: 0.8 !important;
+}
+
+.animate-float-delayed-visible {
+  animation: float-delayed 8s ease-in-out infinite;
+  animation-delay: 2s;
+  opacity: 0.8 !important;
+}
+
+.animate-bounce-visible {
+  animation: bounce-subtle 4s ease-in-out infinite;
+  opacity: 0.9 !important;
+}
+
+.animate-pulse-visible {
+  animation: pulse-strong 3s ease-in-out infinite;
+  opacity: 0.9 !important;
+}
+
+/* Mobile-optimized animation classes with reduced performance impact */
+@media (max-width: 639px) {
+  .animate-float-visible,
+  .animate-float-delayed-visible,
+  .animate-bounce-visible,
+  .animate-pulse-visible {
+    animation-duration: 8s; /* Slower animations on mobile */
+    will-change: transform; /* Optimize for performance */
+  }
+  
+  /* Reduce animation complexity on mobile */
+  .animate-pulse-strong {
+    animation-duration: 4s; /* Slower pulse on mobile */
+  }
+  
+  .animate-spin-slow {
+    animation-duration: 16s; /* Much slower spin on mobile */
+  }
+  
+  /* Reduce opacity slightly on mobile for better performance */
+  .opacity-90, .opacity-80, .opacity-70 {
+    opacity: 0.6 !important;
+  }
+}
+
+/* Performance optimizations for all devices */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+    will-change: transform;
+  }
+  50% {
+    transform: translateY(-10px);
+    will-change: transform;
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px);
+    will-change: transform;
+  }
+  50% {
+    transform: translateY(-15px);
+    will-change: transform;
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0px);
+    will-change: transform;
+  }
+  50% {
+    transform: translateY(-8px);
+    will-change: transform;
+  }
+}
+
+@keyframes pulse-strong {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    will-change: transform, opacity;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+    will-change: transform, opacity;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+    will-change: transform;
+  }
+  to {
+    transform: rotate(360deg);
+    will-change: transform;
+  }
 }
 
 /* Shadow variations for enhanced depth */
