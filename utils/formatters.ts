@@ -42,7 +42,7 @@ export function formatPrice(price: number): string {
  * @param description - The plain text description
  * @returns Array of paragraph strings or null if empty
  */
-export function formatDescription(description: string): string[] | null {
+export function formatDescription(description: string | undefined): string[] | null {
   if (!description || typeof description !== 'string') return null;
 
   // Split by any newlines to detect paragraphs
@@ -60,7 +60,7 @@ export function formatDescription(description: string): string[] | null {
  * @param description - The plain text description
  * @returns First paragraph of the description, truncated if too long
  */
-export function getDescriptionPreview(description: string): string {
+export function getDescriptionPreview(description: string | undefined): string {
   if (!description || typeof description !== 'string') return '';
 
   const firstParagraph = description.split(/\r?\n/)[0]?.trim();

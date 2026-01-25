@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
+import { AuthUser, SupabaseAuthSession } from '@/libs/types';
+import { logError, logInfo } from '@/utils/logger';
 
 interface AuthState {
-  session: any;
-  user: any;
+  session: SupabaseAuthSession | null;
+  user: AuthUser | null;
   loading: boolean;
   isRefreshing: boolean;
 }
@@ -52,7 +54,7 @@ export const useAuth = () => {
         });
       }
     } catch (error) {
-      console.error('Error clearing auth data:', error);
+      logError('Error clearing auth data', error);
     }
   }, []);
 
@@ -77,16 +79,20 @@ export const useAuth = () => {
         throw error;
       }
       
-      if (data.session) {
+      if (data.session && data.session.user) {
+        const session = data.session;
         setAuthState(prev => ({
           ...prev,
-          session: data.session,
-          user: data.session.user,
+          session,
+          user: session.user as AuthUser,
           isRefreshing: false
         }));
+      } else {
+        // No session returned, handle as expired
+        handleTokenExpiration();
       }
     } catch (error) {
-      console.error('Error refreshing session:', error);
+      logError('Error refreshing session', error);
       handleTokenExpiration();
     }
   }, [authState.isRefreshing, supabase.auth, handleTokenExpiration]);
@@ -106,14 +112,14 @@ export const useAuth = () => {
           setAuthState(prev => ({
             ...prev,
             session,
-            user: session.user,
+            user: session.user as AuthUser,
             loading: false
           }));
         } else {
           setAuthState(prev => ({ ...prev, loading: false }));
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        logError('Error initializing auth', error);
         setAuthState(prev => ({ ...prev, loading: false }));
       }
     };
@@ -129,7 +135,7 @@ export const useAuth = () => {
           setAuthState(prev => ({
             ...prev,
             session,
-            user: session?.user || null,
+            user: session?.user as AuthUser | null,
             loading: false
           }));
         } else if (event === 'SIGNED_OUT') {
@@ -140,7 +146,7 @@ export const useAuth = () => {
             setAuthState(prev => ({
               ...prev,
               session,
-              user: session.user,
+              user: session.user as AuthUser,
               loading: false
             }));
           }
@@ -181,7 +187,7 @@ export const useAuth = () => {
       await supabase.auth.signOut();
       handleTokenExpiration();
     } catch (error) {
-      console.error('Error signing out:', error);
+      logError('Error signing out', error);
       handleTokenExpiration();
     }
   }, [supabase.auth, handleTokenExpiration]);
@@ -202,7 +208,7 @@ export const useAuth = () => {
         setAuthState(prev => ({
           ...prev,
           session: data.session,
-          user: data.session.user
+          user: data.session.user as AuthUser
         }));
         toast.success('Login realizado com sucesso!');
         return { success: true };
@@ -210,14 +216,14 @@ export const useAuth = () => {
 
       return { success: false };
     } catch (error) {
-      console.error('Error signing in:', error);
+      logError('Error signing in', error);
       toast.error('Erro ao fazer login. Verifique suas credenciais.');
       return { success: false, error };
     }
   }, [supabase.auth]);
 
   // Sign up function
-  const signUp = useCallback(async (email: string, password: string, metadata?: any) => {
+  const signUp = useCallback(async (email: string, password: string, metadata?: Record<string, any>) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -238,7 +244,7 @@ export const useAuth = () => {
 
       return { success: false };
     } catch (error) {
-      console.error('Error signing up:', error);
+      logError('Error signing up', error);
       toast.error('Erro ao criar conta. Tente novamente.');
       return { success: false, error };
     }

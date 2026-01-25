@@ -3,6 +3,7 @@
 
 import { createClient } from '@/libs/supabase/client';
 import { logError } from './logger';
+import { CuisineType } from '@/libs/types';
 
 // Interface para os filtros de restaurantes
 export interface RestaurantFilters {
@@ -55,7 +56,7 @@ export const applyFiltersToRestaurants = (restaurants: any[], filters: Restauran
     if (filters.cuisineTypes && filters.cuisineTypes.length > 0) {
       // Se restaurant.cuisine_types estiver disponível (carregado com relacionamentos)
       if (restaurant.cuisine_types && restaurant.cuisine_types.length > 0) {
-        const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
+        const restaurantCuisineIds = restaurant.cuisine_types.map((type: CuisineType) => type.id);
         // Verificar se há pelo menos uma correspondência entre as categorias do restaurante e as selecionadas no filtro
         const hasMatchingCuisine = filters.cuisineTypes.some(cuisineId => 
           restaurantCuisineIds.includes(cuisineId)

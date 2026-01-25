@@ -2,8 +2,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { Utensils, User } from 'lucide-react';
+import type { List } from '@/libs/types';
 
-const ListCard = ({ list, restaurantCount = 0 }) => {
+const ListCard = ({ list, restaurantCount = 0 }: { list: List; restaurantCount?: number }) => {
   return (
     <Link href={`/lists/${list.id}`}>
       <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 p-4 sm:p-5 h-full w-full flex flex-col">

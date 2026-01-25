@@ -1,6 +1,6 @@
 // app/api/restaurants/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 
 interface Restaurant {
   id: string;
@@ -32,8 +32,22 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
 
-    // Single optimized query with joins - Load ALL restaurants at once
-    let query = supabase
+    // For unauthenticated requests, use public client that can access all restaurants
+    let client = supabase;
+    if (!supabase) {
+      // Create a public client for unauthenticated access
+      const publicClient = await getPublicServerClient();
+      if (!publicClient) {
+        return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      }
+      client = publicClient;
+    }
+
+    if (!client) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
+    let query = client
       .from('restaurants')
       .select(`
         *,

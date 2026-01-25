@@ -13,6 +13,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current user info for debugging
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (!user?.id) {

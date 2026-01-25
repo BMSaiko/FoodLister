@@ -1,25 +1,13 @@
 'use client';
 
 import RestaurantCard from '@/components/ui/RestaurantCard';
-
-interface Restaurant {
-  id: string;
-  name: string;
-  // Add other restaurant properties as needed
-}
-
-interface VisitsData {
-  [restaurantId: string]: {
-    visited: boolean;
-    visitCount: number;
-  };
-}
+import { RestaurantWithDetails, VisitData } from '@/libs/types';
 
 interface RestaurantGridProps {
-  restaurants: Restaurant[];
-  visitsData: VisitsData;
+  restaurants: RestaurantWithDetails[];
+  visitsData: { [restaurantId: string]: VisitData };
   loadingVisits: boolean;
-  onVisitsDataUpdate: (restaurantId: string, newVisitsData: { visited: boolean; visitCount: number }) => void;
+  onVisitsDataUpdate: (restaurantId: string, newVisitsData: { visited: boolean; visit_count: number }) => void;
 }
 
 export function RestaurantGrid({ restaurants, visitsData, loadingVisits, onVisitsDataUpdate }: RestaurantGridProps) {

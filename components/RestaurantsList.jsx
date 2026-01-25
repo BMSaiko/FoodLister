@@ -35,7 +35,7 @@ function RestaurantsContent({ showHeader = true }) {
   const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
   const { filters, setFilters, filteredRestaurants, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
 
-  // Simple scroll restoration when data is loaded
+  // Enhanced scroll restoration and search parameter persistence
   React.useEffect(() => {
     if (!loading && restaurants.length > 0 && !scrollRestored) {
       const pendingTarget = sessionStorage.getItem('targetRestaurantId');
@@ -79,6 +79,17 @@ function RestaurantsContent({ showHeader = true }) {
       }
     }
   }, [loading, restaurants.length, scrollRestored]);
+
+  // Ensure search parameters are preserved during page refreshes
+  React.useEffect(() => {
+    if (searchQuery) {
+      // Store current search query in session storage to maintain it during refreshes
+      sessionStorage.setItem('currentSearchQuery', searchQuery);
+    } else {
+      // Clear search query from session storage if no search is active
+      sessionStorage.removeItem('currentSearchQuery');
+    }
+  }, [searchQuery]);
 
   return (
     <>

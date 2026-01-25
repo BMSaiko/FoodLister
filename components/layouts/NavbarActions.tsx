@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Plus, User, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts';
 
-const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }) => {
+const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: { activeSection: 'restaurants' | 'lists'; showLogin?: boolean; showSignout?: boolean }) => {
   const { user, signOut, loading } = useAuth();
 
   const handleSignOut = async () => {

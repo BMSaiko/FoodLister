@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 import { getServerClient } from '@/libs/supabase/server';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
@@ -11,6 +11,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     if (!id) {
       return NextResponse.json({ error: 'Restaurant ID is required' }, { status: 400 });
+    }
+
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
 
     // Fetch restaurant details
@@ -45,7 +49,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
@@ -62,6 +66,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     // Get current user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
@@ -106,7 +114,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
@@ -117,6 +125,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     // Get current user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {

@@ -1,5 +1,6 @@
 // Type definitions for the FoodList application
 
+// Basic entities
 export interface Restaurant {
   id: string;
   name: string;
@@ -68,4 +69,156 @@ export interface RestaurantWithDetails extends Restaurant {
   cuisine_types: CuisineType[];
   reviews?: Review[];
   review_count?: number;
+  images?: string[];
+  display_image_index?: number;
+}
+
+// API Response types
+export interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// Auth types
+export interface AuthSession {
+  session: {
+    access_token: string;
+    refresh_token: string;
+    expires_at: number;
+    user: AuthUser;
+  } | null;
+  user: AuthUser | null;
+}
+
+export interface AuthUser {
+  id: string;
+  email?: string;
+  email_confirmed_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  user_metadata: {
+    display_name?: string;
+    avatar_url?: string;
+    website?: string;
+    location?: string;
+    phone_number?: string;
+  };
+}
+
+// Supabase Session type compatibility
+export interface SupabaseSession {
+  access_token: string;
+  refresh_token: string;
+  expires_at: number | undefined;
+  user: AuthUser;
+}
+
+// Supabase Session from @supabase/supabase-js - properly typed
+export interface SupabaseAuthSession {
+  access_token: string;
+  refresh_token: string;
+  expires_at?: number;
+  user: AuthUser;
+}
+
+// Database operation types
+export interface DatabaseError {
+  code: string;
+  message: string;
+  details?: string;
+  hint?: string;
+}
+
+// Visit tracking types
+export interface VisitData {
+  visited: boolean;
+  visit_count: number;
+  last_visit?: string;
+}
+
+// Restaurant visits data structure - maps restaurant IDs to visit data
+export interface RestaurantVisitsData {
+  [restaurantId: string]: VisitData;
+}
+
+// Filter types
+export interface RestaurantFilters {
+  search?: string;
+  cuisine_types?: string[];
+  price_range?: {
+    min?: number;
+    max?: number;
+  };
+  rating?: number;
+  visited?: boolean;
+  location?: string;
+}
+
+// Form validation types
+export interface ValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+}
+
+// Component prop types
+export interface RestaurantCardProps {
+  restaurant: RestaurantWithDetails;
+  onVisitToggle?: (restaurantId: string, visited: boolean) => void;
+  onReviewSubmit?: (review: ReviewFormData) => void;
+  className?: string;
+  centered?: boolean;
+}
+
+export interface ReviewFormProps {
+  restaurantId: string;
+  onReviewSubmitted: (review: Review) => void;
+  onCancel?: () => void;
+  isEditing?: boolean;
+  initialReview?: Review;
+}
+
+// Hook return types
+export interface UseVisitsDataReturn {
+  visitsData: Record<string, VisitData>;
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+export interface UseRestaurantsReturn {
+  restaurants: RestaurantWithDetails[];
+  isLoading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+}
+
+// API client types
+export interface SecureApiCallOptions {
+  retries?: number;
+  timeout?: number;
+  headers?: Record<string, string>;
+}
+
+// Context types
+export interface AuthContextValue {
+  user: AuthUser | null;
+  loading: boolean;
+  signUp: (email: string, password: string, metadata?: Record<string, any>) => Promise<{ data: any; error: any }>;
+  signIn: (email: string, password: string) => Promise<{ data: any; error: any }>;
+  signOut: () => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (newPassword: string) => Promise<{ error: any }>;
+  getAccessToken: () => Promise<string | null>;
+}
+
+export interface FiltersContextValue {
+  clearTrigger: number;
+  clearFilters: () => void;
 }

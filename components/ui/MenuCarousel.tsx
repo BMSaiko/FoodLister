@@ -2,17 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Pause, Play, ImageIcon } from 'lucide-react';
 
+interface MenuCarouselProps {
+  images?: string[];
+  className?: string;
+}
+
 /**
  * MenuCarousel - Beautiful, responsive carousel with ErbApp color palette
  * Shows multiple images side-by-side with modern design and mobile-first approach
  */
-export default function MenuCarousel({ images = [], className = '' }) {
+export default function MenuCarousel({ images = [], className = '' }: MenuCarouselProps) {
   const [startIndex, setStartIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
-  const [mobileIconShown, setMobileIconShown] = useState(null); // null or image index
+  const [mobileIconShown, setMobileIconShown] = useState<number | null>(null); // null or image index
 
   // Get number of visible images based on screen size
   const getVisibleCount = () => {
@@ -95,7 +100,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
     setTimeout(() => setIsTransitioning(false), 400);
   }, [images.length, visibleCount, isTransitioning]);
 
-  const goToSet = useCallback((index) => {
+  const goToSet = useCallback((index: number) => {
     if (isTransitioning || index === startIndex) return;
     setIsTransitioning(true);
     setStartIndex(index);
@@ -107,7 +112,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
   };
 
   // Modal functions
-  const openModal = useCallback((imageIndex) => {
+  const openModal = useCallback((imageIndex: number) => {
     setModalImageIndex(imageIndex);
     setIsModalOpen(true);
   }, []);
@@ -126,7 +131,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
 
   // Keyboard navigation for modal
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (!isModalOpen) return;
 
       switch (e.key) {
@@ -149,6 +154,20 @@ export default function MenuCarousel({ images = [], className = '' }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isModalOpen, nextModalImage, prevModalImage, closeModal]);
 
+  if (!images || images.length === 0) {
+    return (
+      <div className={`flex flex-col items-center justify-center py-12 px-6 bg-amber-50/50 rounded-2xl border-2 border-dashed border-amber-200 ${className}`}>
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
+          <ImageIcon className="w-8 h-8 text-amber-500" />
+        </div>
+        <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhuma imagem do menu</h3>
+        <p className="text-sm text-amber-600 text-center max-w-xs">
+          As imagens dos menus aparecerão aqui quando adicionadas ao restaurante
+        </p>
+      </div>
+    );
+  }
+
   const visibleImages = getVisibleImages();
 
   return (
@@ -168,7 +187,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
             }`}
             onTouchStart={(e) => {
               const touch = e.touches[0];
-              e.currentTarget.dataset.touchStart = touch.clientX;
+              e.currentTarget.dataset.touchStart = `${touch.clientX}`;
             }}
             onTouchEnd={(e) => {
               const touch = e.changedTouches[0];
@@ -397,7 +416,7 @@ export default function MenuCarousel({ images = [], className = '' }) {
                   className="absolute inset-0 sm:hidden"
                   onTouchStart={(e) => {
                     const touch = e.touches[0];
-                    e.currentTarget.dataset.touchStart = touch.clientX;
+                    e.currentTarget.dataset.touchStart = `${touch.clientX}`;
                   }}
                   onTouchEnd={(e) => {
                     const touch = e.changedTouches[0];

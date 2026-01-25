@@ -1,123 +1,101 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-/**
- * Custom hook for handling image preview state and loading
- * Complete reimplementation from scratch
- * @param {string} imageUrl - The image URL to preview
- * @param {function} convertUrl - Function to convert/process the URL (optional)
- * @returns {object} - Object containing preview state and handlers
- */
-export function useImagePreview(imageUrl, convertUrl = null) {
-  // State for tracking image loading status
-  const [previewState, setPreviewState] = useState({
-    isLoading: false,
-    hasError: false,
-    isLoaded: false
-  });
+import { logError } from '../utils/logger';
 
-  // Ref to track timeout for cleanup
+export function useImagePreview(file, maxSize = 5 * 1024 * 1024) {
+  const [preview, setPreview] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const timeoutRef = useRef(null);
 
-  /**
-   * Handles successful image load
-   */
-  const handleImageLoad = useCallback(() => {
-    // Clear any pending timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-
-    // Update state to reflect successful load
-    setPreviewState(prev => ({
-      ...prev,
-      isLoading: false,
-      hasError: false,
-      isLoaded: true
-    }));
-  }, []);
-
-  /**
-   * Handles image load error
-   */
   const handleImageError = useCallback(() => {
-    // Clear any pending timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-
-    // Update state to reflect error
-    setPreviewState(prev => ({
-      ...prev,
-      isLoading: false,
-      hasError: true,
-      isLoaded: false
-    }));
+    setError('Erro ao carregar a imagem. Por favor, tente novamente.');
+    setPreview(null);
+    setProgress(0);
   }, []);
 
-  /**
-   * Effect to preload image when URL changes
-   */
+  const handleImageLoad = useCallback(() => {
+    setLoading(false);
+    setError(null);
+    setProgress(100);
+  }, []);
+
+  const handleImageTimeout = useCallback(() => {
+    handleImageError();
+    logError('Image load timeout', null, { fileName: file?.name, fileSize: file?.size });
+  }, [file, handleImageError]);
+
   useEffect(() => {
-    // Only process if we have a URL
-    if (imageUrl) {
-      // Start loading state
-      setPreviewState(prev => ({
-        ...prev,
-        isLoading: true,
-        hasError: false,
-        isLoaded: false
-      }));
+    if (!file) {
+      setPreview(null);
+      setError(null);
+      setLoading(false);
+      setProgress(0);
+      return;
+    }
 
-      // Process URL with converter if provided
-      const processedUrl = convertUrl ? convertUrl(imageUrl) : imageUrl;
+    if (file.size > maxSize) {
+      setError(`O arquivo é muito grande. Tamanho máximo: ${maxSize / (1024 * 1024)}MB`);
+      return;
+    }
 
-      // Create new Image object for preloading
+    if (!file.type.startsWith('image/')) {
+      setError('Por favor, selecione um arquivo de imagem válido.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setProgress(0);
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
+
+    // Setup timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(handleImageTimeout, 10000); // 10 seconds timeout
+
+    // Cleanup
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [file, maxSize, handleImageTimeout]);
+
+  useEffect(() => {
+    if (preview) {
       const img = new Image();
-
-      // Set up event handlers
       img.onload = handleImageLoad;
       img.onerror = handleImageError;
-
-      // Trigger load
-      img.src = processedUrl;
-
-      // Set up fallback timeout (10 seconds)
-      timeoutRef.current = setTimeout(() => {
-        // Only trigger if timeout wasn't cleared by load/error handlers
-        if (timeoutRef.current) {
-          console.warn('Image load timeout, marking as error');
-          handleImageError();
-        }
-      }, 10000);
-
-      // Cleanup function
-      return () => {
-        // Clear timeout if it exists
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-          timeoutRef.current = null;
-        }
-
-        // Clear image event handlers to prevent memory leaks
-        img.onload = null;
-        img.onerror = null;
-      };
-    } else {
-      // No URL provided, reset to initial state
-      setPreviewState({
-        isLoading: false,
-        hasError: false,
-        isLoaded: false
-      });
+      img.src = preview;
     }
-  }, [imageUrl, convertUrl, handleImageLoad, handleImageError]);
+  }, [preview, handleImageLoad, handleImageError]);
 
-  // Return state and handlers
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const clearPreview = useCallback(() => {
+    if (preview) {
+      URL.revokeObjectURL(preview);
+      setPreview(null);
+    }
+    setError(null);
+    setLoading(false);
+    setProgress(0);
+  }, [preview]);
+
   return {
-    previewState,
-    handleImageLoad,
-    handleImageError
+    preview,
+    error,
+    loading,
+    progress,
+    clearError,
+    clearPreview
   };
 }
