@@ -1,3 +1,7 @@
+import js from "@eslint/js";
+import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import typescriptParser from "@typescript-eslint/parser";
+
 export default [
   {
     files: ["**/*.{js,jsx}"],
@@ -30,7 +34,18 @@ export default [
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
-      parser: "@typescript-eslint/parser",
+      ecmaVersion: 2022,
+      sourceType: "module",
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+        project: "./tsconfig.json",
+      },
+    },
+    plugins: {
+      "@typescript-eslint": typescriptEslint,
     },
     rules: {
       // TypeScript rules
@@ -41,6 +56,7 @@ export default [
         caughtErrors: "none"
       }],
       "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-empty-interface": "off",
     },
   },
 ];

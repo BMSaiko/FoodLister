@@ -536,6 +536,15 @@ a:active, button:active {
   }
 }
 
+@keyframes spin-super-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -578,6 +587,10 @@ a:active, button:active {
   animation: spin-slow 12s linear infinite;
 }
 
+.animate-spin-super-slow {
+  animation: spin-super-slow 24s linear infinite;
+}
+
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
@@ -614,26 +627,54 @@ a:active, button:active {
 
 /* Mobile-optimized animation classes with reduced performance impact */
 @media (max-width: 639px) {
+  .animate-float,
+  .animate-float-delayed,
+  .animate-float-slow,
+  .animate-float-very-slow,
   .animate-float-visible,
   .animate-float-delayed-visible,
+  .animate-bounce-subtle,
   .animate-bounce-visible,
+  .animate-pulse-strong,
   .animate-pulse-visible {
     animation-duration: 8s; /* Slower animations on mobile */
     will-change: transform; /* Optimize for performance */
   }
   
   /* Reduce animation complexity on mobile */
-  .animate-pulse-strong {
-    animation-duration: 4s; /* Slower pulse on mobile */
+  .animate-pulse-strong,
+  .animate-pulse-visible {
+    animation-duration: 6s; /* Slower pulse on mobile */
   }
   
-  .animate-spin-slow {
-    animation-duration: 16s; /* Much slower spin on mobile */
+  .animate-spin-slow,
+  .animate-spin-super-slow {
+    animation-duration: 24s; /* Much slower spin on mobile */
   }
   
   /* Reduce opacity slightly on mobile for better performance */
   .opacity-90, .opacity-80, .opacity-70 {
     opacity: 0.6 !important;
+  }
+  
+  /* Additional mobile performance optimizations */
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  /* Reduce animation complexity for smaller screens */
+  @media (max-width: 480px) {
+    .animate-float,
+    .animate-float-delayed,
+    .animate-float-slow,
+    .animate-float-very-slow {
+      animation-duration: 12s; /* Even slower on very small screens */
+    }
+    
+    .animate-bounce-subtle,
+    .animate-bounce-visible {
+      animation-duration: 8s; /* Slower bounce on small screens */
+    }
   }
 }
 
@@ -695,6 +736,17 @@ a:active, button:active {
   }
 }
 
+@keyframes spin-super-slow {
+  from {
+    transform: rotate(0deg);
+    will-change: transform;
+  }
+  to {
+    transform: rotate(360deg);
+    will-change: transform;
+  }
+}
+
 /* Shadow variations for enhanced depth */
 .shadow-3xl {
   box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
@@ -738,4 +790,587 @@ input[type="password"] {
   -webkit-appearance: none;
   -webkit-box-shadow: none;
   -webkit-text-security: disc;
+}
+
+/* Mobile-specific improvements for better UX */
+@media (max-width: 639px) {
+  /* Improve form field spacing and sizing */
+  .form-field {
+    margin-bottom: 1rem;
+  }
+  
+  .form-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Better button spacing for mobile */
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .btn-group .btn {
+    width: 100%;
+  }
+  
+  /* Improve card spacing on mobile */
+  .card {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Better spacing for lists */
+  .list-item {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .list-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* Improve navigation spacing */
+  .nav-item {
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Better spacing for sections */
+  .section {
+    padding: 1rem 0;
+  }
+  
+  .section:first-child {
+    padding-top: 0;
+  }
+  
+  .section:last-child {
+    padding-bottom: 0;
+  }
+  
+  /* Improve touch targets for icons */
+  .icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+  
+  /* Better spacing for badges and tags */
+  .badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+  }
+  
+  /* Improve modal responsiveness */
+  .modal {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+  
+  /* Better spacing for headers */
+  .page-header {
+    padding: 1rem 0 1.5rem;
+  }
+  
+  .section-header {
+    padding: 1rem 0;
+  }
+  
+  /* Improve table responsiveness */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .table {
+    min-width: 600px;
+  }
+  
+  /* Better spacing for alerts and notifications */
+  .alert {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  /* Improve loading states */
+  .loading {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Better spacing for empty states */
+  .empty-state {
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+  
+  /* Improve image responsiveness */
+  .responsive-image {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Better spacing for breadcrumbs */
+  .breadcrumb {
+    padding: 0.75rem 0;
+    font-size: 0.875rem;
+  }
+  
+  /* Improve dropdown responsiveness */
+  .dropdown {
+    min-width: 200px;
+    max-width: calc(100vw - 2rem);
+  }
+  
+  /* Better spacing for pagination */
+  .pagination {
+    padding: 1rem 0;
+    justify-content: center;
+  }
+  
+  /* Improve footer spacing */
+  .footer {
+    padding: 2rem 1rem 3rem;
+    margin-top: 2rem;
+  }
+  
+  /* Better spacing for hero sections */
+  .hero {
+    padding: 2rem 1rem;
+  }
+  
+  .hero h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+  
+  .hero p {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Improve card grid spacing */
+  .card-grid {
+    gap: 1rem;
+  }
+  
+  .card-grid .card {
+    margin-bottom: 0;
+  }
+  
+  /* Better spacing for form sections */
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  /* Improve sidebar responsiveness */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+    max-width: 300px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    background: white;
+    z-index: 50;
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  /* Better spacing for tabs */
+  .tabs {
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+  }
+  
+  .tab {
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .tab.active {
+    border-bottom-color: #f59e0b;
+    color: #f59e0b;
+  }
+  
+  /* Improve accordion responsiveness */
+  .accordion-item {
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .accordion-header {
+    padding: 1rem;
+    cursor: pointer;
+  }
+  
+  .accordion-content {
+    padding: 0 1rem 1rem;
+  }
+  
+  /* Better spacing for tooltips */
+  .tooltip {
+    position: absolute;
+    background: #1f2937;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  
+  .tooltip.show {
+    opacity: 1;
+  }
+  
+  /* Improve progress bars */
+  .progress {
+    height: 0.5rem;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background-color: #f59e0b;
+    transition: width 0.3s ease;
+  }
+  
+  /* Better spacing for steps */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .step {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+  }
+  
+  .step.active {
+    border-color: #f59e0b;
+    background-color: #fff7ed;
+  }
+  
+  /* Improve chat/message bubbles */
+  .message {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .message.own {
+    background-color: #f59e0b;
+    color: white;
+    margin-left: auto;
+  }
+  
+  .message.other {
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+  
+  /* Better spacing for tags */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+  }
+  
+  /* Improve skeleton loading */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+  }
+  
+  @keyframes skeleton-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  
+  /* Better spacing for notifications */
+  .notification {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+  }
+  
+  /* Improve search results */
+  .search-results {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .search-result {
+    padding: 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+  }
+  
+  .search-result:hover {
+    background-color: #f9fafb;
+  }
+  
+  .search-result:last-child {
+    border-bottom: none;
+  }
+  
+  /* Better spacing for comments */
+  .comment {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .comment-body {
+    margin-bottom: 0.5rem;
+  }
+  
+  .comment-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  /* Improve rating stars */
+  .rating {
+    display: flex;
+    gap: 0.25rem;
+  }
+  
+  .rating-star {
+    color: #f59e0b;
+    font-size: 1.25rem;
+  }
+  
+  .rating-star.empty {
+    color: #d1d5db;
+  }
+  
+  /* Better spacing for charts */
+  .chart-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+  }
+  
+  /* Improve calendar */
+  .calendar {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+  }
+  
+  .calendar-day {
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+  }
+  
+  .calendar-day:hover {
+    background-color: #f9fafb;
+  }
+  
+  .calendar-day.selected {
+    background-color: #f59e0b;
+    color: white;
+  }
+  
+  /* Improve file upload */
+  .file-upload {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .file-upload:hover {
+    border-color: #f59e0b;
+    background-color: #fff7ed;
+  }
+  
+  .file-upload.dragover {
+    border-color: #f59e0b;
+    background-color: #fff7ed;
+  }
+  
+  /* Better spacing for modals */
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+  }
+  
+  .modal-content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  /* Improve tooltips on mobile */
+  .tooltip-mobile {
+    position: fixed;
+    z-index: 60;
+    background: #1f2937;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    pointer-events: none;
+  }
+  
+  /* Better spacing for breadcrumbs on mobile */
+  .breadcrumb-mobile {
+    display: none;
+  }
+  
+  @media (max-width: 480px) {
+    .breadcrumb-mobile {
+      display: block;
+      padding: 0.5rem 1rem;
+      background-color: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.75rem;
+    }
+  }
+  
+  /* Improve form validation messages */
+  .form-error {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  
+  .form-success {
+    color: #10b981;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Better spacing for loading spinners */
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #f59e0b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Improve dark mode support for mobile */
+  @media (prefers-color-scheme: dark) {
+    .card {
+      background-color: #1f2937;
+      border-color: #374151;
+      color: #f9fafb;
+    }
+    
+    .form-field input,
+    .form-field textarea,
+    .form-field select {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: #f9fafb;
+    }
+    
+    .btn {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: #f9fafb;
+    }
+    
+    .btn:hover {
+      background-color: #4b5563;
+    }
+  }
 }

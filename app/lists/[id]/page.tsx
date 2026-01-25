@@ -3,17 +3,53 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@/contexts';
+import { useAuth } from '@/hooks/useAuth';
+import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 import Navbar from '@/components/layouts/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import { ArrowLeft, Edit, User } from 'lucide-react';
 import Link from 'next/link';
 
+interface Restaurant {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  price_per_person?: number;
+  rating?: number;
+  location?: string;
+  source_url?: string;
+  creator?: string;
+  menu_url?: string;
+  menu_links?: string[];
+  menu_images?: string[];
+  phone_numbers?: string[];
+  visited: boolean;
+  created_at: string;
+  updated_at: string;
+  creator_id?: string;
+  creator_name?: string;
+  cuisine_types?: any[];
+  review_count?: number;
+}
+
+interface List {
+  id: string;
+  name: string;
+  description?: string;
+  creator_id?: string;
+  creator?: string;
+  created_at: string;
+  updated_at: string;
+  restaurants: Restaurant[];
+}
+
 export default function ListDetails() {
   const { id } = useParams();
   const { user } = useAuth();
-  const [list, setList] = useState(null);
-  const [restaurants, setRestaurants] = useState([]);
+  const { get } = useSecureApiClient();
+  const [list, setList] = useState<List | null>(null);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,10 +59,7 @@ export default function ListDetails() {
       setLoading(true);
 
       try {
-        const response = await fetch(`/api/lists/${id}`, {
-          // Enable caching for better performance
-          next: { revalidate: 60 } // Cache for 60 seconds
-        });
+        const response = await get(`/api/lists/${id}`);
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');
@@ -37,7 +70,8 @@ export default function ListDetails() {
         try {
           responseData = await response.json();
         } catch (jsonError) {
-          throw new Error(`Invalid JSON response: ${jsonError.message}`);
+          const errorMessage = jsonError instanceof Error ? jsonError.message : 'Unknown error';
+          throw new Error(`Invalid JSON response: ${errorMessage}`);
         }
 
         if (!responseData || typeof responseData !== 'object' || !('list' in responseData)) {
@@ -143,7 +177,13 @@ export default function ListDetails() {
         ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
             {restaurants.map(restaurant => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+              <RestaurantCard 
+                key={restaurant.id} 
+                restaurant={{ 
+                  ...restaurant, 
+                  cuisine_types: restaurant.cuisine_types || [] 
+                }} 
+              />
             ))}
           </div>
         )}

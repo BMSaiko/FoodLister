@@ -3,10 +3,19 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { useSecureApiClient } from '@/hooks/useSecureApiClient';
+import { usePublicApiClient } from '@/hooks/usePublicApiClient';
 import { createClient } from '@/libs/supabase/client';
-import { useAuth } from '@/contexts';
 import Navbar from '@/components/layouts/Navbar';
 import { Review, ReviewFormData } from '@/libs/types';
+
+// Extend Review type to handle null profileImage
+interface ExtendedReview extends Review {
+  user: Review['user'] & {
+    profileImage: string | null | undefined;
+  };
+}
 import Image from 'next/image';
 import ReviewForm from '@/components/ui/ReviewForm';
 import Link from 'next/link';
@@ -24,12 +33,42 @@ import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlacehold
 import MenuCarousel from '@/components/ui/MenuCarousel';
 import RestaurantCarousel from '@/components/ui/RestaurantCarousel';
 
+interface Restaurant {
+  id: string;
+  name: string;
+  description?: string;
+  image_url?: string;
+  price_per_person?: number;
+  rating?: number;
+  location?: string;
+  source_url?: string;
+  creator?: string;
+  menu_url?: string;
+  menu_links?: string[];
+  menu_images?: string[];
+  phone_numbers?: string[];
+  visited: boolean;
+  created_at: string;
+  updated_at: string;
+  creator_id?: string;
+  creator_name?: string;
+  cuisine_types?: any[];
+  review_count?: number;
+  display_image_index?: number;
+  latitude?: number;
+  longitude?: number;
+  images?: string[];
+}
+
 export default function RestaurantDetails() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const { user, getAccessToken } = useAuth();
+  const { user } = useAuth();
+  const { get, post, patch, del } = useSecureApiClient();
+  const { get: getPublic } = usePublicApiClient();
+  const supabase = createClient();
 
-  const [restaurant, setRestaurant] = useState(null);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [visitData, setVisitData] = useState({ visited: false, visitCount: 0 });
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
@@ -41,8 +80,6 @@ export default function RestaurantDetails() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
-
-  const supabase = createClient();
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
@@ -113,23 +150,20 @@ export default function RestaurantDetails() {
           }
         }
 
-        // Fetch reviews for this restaurant
-        await fetchReviews();
+      // Fetch reviews for this restaurant
+      await fetchReviews();
 
-        // Fetch review count for this restaurant
-        const { count: reviewCount, error: countError } = await supabase
-          .from('reviews')
-          .select('*', { count: 'exact', head: true })
-          .eq('restaurant_id', id);
-
-        if (countError) {
-          console.error('Error fetching review count:', countError);
-        } else {
-          setReviewCount(reviewCount || 0);
-        }
+      // Fetch review count for this restaurant using public API
+      try {
+        const response = await getPublic(`/api/reviews?restaurant_id=${id}`);
+        const data = await response.json();
+        setReviewCount(data.reviews?.length || 0);
+      } catch (error) {
+        logError('Error fetching review count', error);
+      }
       }
     } catch (error) {
-      console.error('Error fetching restaurant details:', error);
+      logError('Error fetching restaurant details', error);
     } finally {
       setLoading(false);
     }
@@ -140,7 +174,7 @@ export default function RestaurantDetails() {
 
     setLoadingReviews(true);
     try {
-      const response = await fetch(`/api/reviews?restaurant_id=${id}`);
+      const response = await getPublic(`/api/reviews?restaurant_id=${id}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -160,14 +194,14 @@ export default function RestaurantDetails() {
 
         setReviews(processedReviews);
       } else {
-        console.error('Error fetching reviews:', data.error);
+        logError('Error fetching reviews', new Error(data.error || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      logError('Error fetching reviews', error);
     } finally {
       setLoadingReviews(false);
     }
-  }, [id, user, userProfile]);
+  }, [id, user, userProfile, getPublic]);
 
   // Helper function to sanitize and validate external URLs
   const sanitizeUrl = (urlString: string): string | null => {
@@ -247,26 +281,30 @@ export default function RestaurantDetails() {
     const fetchUserProfile = async () => {
       if (user?.id) {
         try {
-          const { data: profileData, error } = await supabase
-            .from('profiles')
-            .select('display_name, avatar_url')
-            .eq('user_id', user.id)
-            .single();
-
-          if (!error && profileData) {
+          const response = await get(`/api/profile`);
+          if (response.ok) {
+            const profileData = await response.json();
             setUserProfile({
-              display_name: (profileData as any).display_name || undefined,
-              avatar_url: (profileData as any).avatar_url || undefined
+              display_name: profileData.display_name || undefined,
+              avatar_url: profileData.avatar_url || undefined
             });
-          }
+        } else if (response.status === 401) {
+          // Handle unauthorized access gracefully
+          logWarn('User not authenticated for profile access');
+        }
         } catch (error) {
-          console.error('Error fetching user profile:', error);
+          logError('Error fetching user profile', error);
+          // Don't show error toast for authentication issues
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          if (errorMessage !== 'No authentication token found') {
+            logWarn('Non-authentication error occurred');
+          }
         }
       }
     };
 
     fetchUserProfile();
-  }, [user?.id]);
+  }, [user?.id, get]);
 
   // Fetch visit data for authenticated users
   useEffect(() => {
@@ -274,27 +312,16 @@ export default function RestaurantDetails() {
       if (!user) return;
 
       try {
-        const token = await getAccessToken();
-        if (!token) return;
-
-        const response = await fetch(`/api/restaurants/${id}/visits`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setVisitData({ visited: data.visited, visitCount: data.visitCount });
-        } else {
-          console.error('Failed to fetch visit data');
-        }
+        const response = await get(`/api/restaurants/${id}/visits`);
+        const data = await response.json();
+        setVisitData({ visited: data.visited, visitCount: data.visitCount });
       } catch (error) {
-        console.error('Error fetching visit data:', error);
+        logError('Error fetching visit data', error);
       }
     };
 
     fetchVisitData();
-  }, [user, id, getAccessToken]);
+  }, [user, id, get]);
 
   // Ensure visit count is updated when visited becomes true
   useEffect(() => {
@@ -302,26 +329,17 @@ export default function RestaurantDetails() {
       // If visited is true but visitCount is still 0, refetch the data
       const refetchVisitData = async () => {
         try {
-          const token = await getAccessToken();
-          if (!token) return;
-
-          const response = await fetch(`/api/restaurants/${id}/visits`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
-          }
+          const response = await get(`/api/restaurants/${id}/visits`);
+          const data = await response.json();
+          setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
         } catch (error) {
-          console.error('Error refetching visit data:', error);
+          logError('Error refetching visit data', error);
         }
       };
 
       refetchVisitData();
     }
-  }, [visitData.visited, visitData.visitCount, id, getAccessToken]);
+  }, [visitData.visited, visitData.visitCount, id, get]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -430,30 +448,13 @@ export default function RestaurantDetails() {
     }
   };
   
-  const handleToggleVisited = async (e) => {
+  const handleToggleVisited = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     setIsUpdating(true);
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('No access token available');
-      }
-
-      const response = await fetch(`/api/restaurants/${id}/visits`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action: 'toggle_visited' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update visit status');
-      }
-
+      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'toggle_visited' });
       const data = await response.json();
       setVisitData({ visited: data.visited, visitCount: data.visitCount });
 
@@ -474,7 +475,7 @@ export default function RestaurantDetails() {
         }
       );
     } catch (err) {
-      console.error('Erro ao atualizar status de visitado:', err);
+      logError('Erro ao atualizar status de visitado', err);
 
       // Show error toast
       toast.error('Erro ao atualizar status de visita. Tente novamente.', {
@@ -494,22 +495,7 @@ export default function RestaurantDetails() {
 
   const handleAddVisit = async () => {
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('No access token available');
-      }
-
-      const response = await fetch(`/api/restaurants/${id}/visits`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add visit');
-      }
-
+      const response = await post(`/api/restaurants/${id}/visits`);
       const data = await response.json();
       setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
 
@@ -525,7 +511,7 @@ export default function RestaurantDetails() {
         className: "text-sm sm:text-base"
       });
     } catch (err) {
-      console.error('Erro ao adicionar visita:', err);
+      logError('Erro ao adicionar visita', err);
 
       // Show error toast
       toast.error('Erro ao adicionar visita. Tente novamente.', {
@@ -543,25 +529,7 @@ export default function RestaurantDetails() {
 
   const handleRemoveVisit = async () => {
     try {
-      const token = await getAccessToken();
-      if (!token) {
-        throw new Error('No access token available');
-      }
-
-      const response = await fetch(`/api/restaurants/${id}/visits`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action: 'remove_visit' }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to remove visit');
-      }
-
+      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'remove_visit' });
       const data = await response.json();
       setVisitData(prev => ({ ...prev, visitCount: data.visitCount, visited: data.visited }));
 
@@ -577,7 +545,7 @@ export default function RestaurantDetails() {
         className: "text-sm sm:text-base"
       });
     } catch (err) {
-      console.error('Erro ao remover visita:', err);
+      logError('Erro ao remover visita', err);
 
       // Show error toast
       toast.error('Erro ao remover visita. Tente novamente.', {
@@ -596,7 +564,7 @@ export default function RestaurantDetails() {
 
 
   // Get color class based on price level
-  const getPriceColorClass = (level) => {
+  const getPriceColorClass = (level: number): string => {
     // Classes para os ícones - variação de cores mantendo legibilidade
     switch(level) {
       case 1: return 'text-amber-400';
@@ -608,7 +576,7 @@ export default function RestaurantDetails() {
   };
   
   // Classe para o texto do label - garantindo melhor legibilidade
-  const getPriceLabelClass = (level) => {
+  const getPriceLabelClass = (level: number): string => {
     switch(level) {
       case 1: return 'text-amber-400 font-bold';
       case 2: return 'text-amber-500 font-bold';
@@ -619,7 +587,7 @@ export default function RestaurantDetails() {
   };
 
   // Renderiza o nível de preço com ícones de Euro
-  const renderPriceLevel = (price) => {
+  const renderPriceLevel = (price: number): React.ReactNode => {
     const priceCategory = categorizePriceLevel(price);
     const priceColorClass = getPriceColorClass(priceCategory.level);
     
@@ -654,22 +622,22 @@ export default function RestaurantDetails() {
     );
   }
   
-  if (!restaurant) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
-          <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
-            Voltar para a página de restaurantes
-          </Link>
+    if (!restaurant) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <div className="container mx-auto px-4 py-8 text-center">
+            <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
+            <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
+              Voltar para a página de restaurantes
+            </Link>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
   // Função para detectar se um número é móvel ou fixo
-  const detectPhoneType = (phoneNumber) => {
+  const detectPhoneType = (phoneNumber: string): string => {
     // Limpa o número removendo espaços, hífens, parênteses
     const cleanNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
 
@@ -690,7 +658,7 @@ export default function RestaurantDetails() {
   };
 
   // Obtém a classe de estilo para a avaliação
-  const ratingClass = getRatingClass(restaurant.rating);
+  const ratingClass = getRatingClass(restaurant.rating || 0);
 
   // Handle review submission
   const handleReviewSubmitted = async (newReview: Review) => {
@@ -703,7 +671,7 @@ export default function RestaurantDetails() {
         ...newReview,
         user: {
           ...newReview.user,
-          profileImage: userProfile?.avatar_url || null
+          profileImage: userProfile?.avatar_url || undefined
         }
       };
       setReviews(prev => [reviewWithImage, ...prev]);
@@ -713,22 +681,17 @@ export default function RestaurantDetails() {
     setEditingReview(null);
 
     // Update restaurant rating after successful review submission/update
-    await updateRestaurantRating(id);
+    await updateRestaurantRating(id || '');
 
     // Fetch updated restaurant data to get the new rating and price_per_person
-    const { data: updatedRestaurant, error: fetchError } = await supabase
-      .from('restaurants')
-      .select('rating, price_per_person')
-      .eq('id', id)
-      .single();
-
-    if (!fetchError && updatedRestaurant && restaurant) {
-      // Update local restaurant state with new rating and price_per_person
-      setRestaurant({
-        ...(restaurant as any),
-        rating: (updatedRestaurant as any).rating,
-        price_per_person: (updatedRestaurant as any).price_per_person
-      });
+    try {
+      const response = await get(`/api/restaurants/${id}`);
+      const data = await response.json();
+      if (response.ok && data.restaurant) {
+        setRestaurant(data.restaurant);
+      }
+    } catch (error) {
+      logError('Error fetching updated restaurant data', error);
     }
 
     toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
@@ -746,43 +709,33 @@ export default function RestaurantDetails() {
     }
 
     try {
-      // Use Supabase client for authenticated request
-      const { error } = await supabase
-        .from('reviews')
-        .delete()
-        .eq('id', reviewId)
-        .eq('user_id', user.id); // Ensure user can only delete their own reviews
+      const response = await del(`/api/reviews/${reviewId}`);
+      
+      if (response.ok) {
+        // Update local state
+        setReviews(prev => prev.filter(review => review.id !== reviewId));
+        setReviewCount(prev => prev - 1);
 
-      if (error) {
-        console.error('Error deleting review:', error);
-        toast.error('Erro ao eliminar avaliação');
-        return;
-      }
-
-      // Update local state
-      setReviews(prev => prev.filter(review => review.id !== reviewId));
-      setReviewCount(prev => prev - 1);
-
-      // Update restaurant rating after successful review deletion
+    // Update restaurant rating after successful review deletion
+    if (id) {
       await updateRestaurantRating(id);
+    }
 
-      // Fetch updated restaurant data to get the new rating and price_per_person
-      const { data: updatedRestaurant, error: fetchError } = await supabase
-        .from('restaurants')
-        .select('rating, price_per_person')
-        .eq('id', id)
-        .single();
-
-      if (!fetchError && updatedRestaurant && restaurant) {
-        // Update local restaurant state with new rating and price_per_person
-        setRestaurant({
-          ...(restaurant as any),
-          rating: (updatedRestaurant as any).rating,
-          price_per_person: (updatedRestaurant as any).price_per_person
-        });
+    // Fetch updated restaurant data to get the new rating and price_per_person
+    try {
+      const response = await get(`/api/restaurants/${id}`);
+      const data = await response.json();
+      if (response.ok && data.restaurant) {
+        setRestaurant(data.restaurant);
       }
+    } catch (error) {
+      logError('Error fetching updated restaurant data', error);
+    }
 
-      toast.success('Avaliação eliminada com sucesso!');
+        toast.success('Avaliação eliminada com sucesso!');
+      } else {
+        throw new Error('Failed to delete review');
+      }
     } catch (error) {
       console.error('Error deleting review:', error);
       toast.error('Erro ao eliminar avaliação. Tente novamente.');
@@ -793,34 +746,31 @@ export default function RestaurantDetails() {
   const updateRestaurantRating = async (restaurantId: string) => {
     try {
       // Calculate average rating from all reviews for this restaurant
-      const { data: reviews, error: reviewsError } = await supabase
-        .from('reviews')
-        .select('rating')
-        .eq('restaurant_id', restaurantId);
-
-      if (reviewsError) {
-        console.error('Error fetching reviews for rating calculation:', reviewsError);
-        return;
-      }
-
+      const response = await get(`/api/reviews?restaurant_id=${restaurantId}`);
+      const data = await response.json();
+      
       let averageRating = 0;
-      if (reviews && reviews.length > 0) {
-        const totalRating = (reviews as any[]).reduce((sum, review: any) => sum + review.rating, 0);
-        averageRating = totalRating / reviews.length;
+      if (data.reviews && data.reviews.length > 0) {
+        const totalRating = data.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
+        averageRating = totalRating / data.reviews.length;
       }
       // If no reviews, rating should be 0
 
-      // Update the restaurant's rating
-      const { error: updateError } = await (supabase as any)
-        .from('restaurants')
-        .update({ rating: averageRating })
-        .eq('id', restaurantId);
-
-      if (updateError) {
-        console.error('Error updating restaurant rating:', updateError);
+      // Update the restaurant's rating via API
+      try {
+        const updateResponse = await patch(`/api/restaurants/${restaurantId}`, { rating: averageRating });
+        if (!updateResponse.ok) {
+          const errorText = await updateResponse.text();
+          console.error('Error updating restaurant rating via API:', errorText);
+          // Don't throw error, just log it - rating update is not critical for user experience
+        }
+      } catch (error) {
+        console.error('Error updating restaurant rating:', error);
+        // Don't throw error, just log it - rating update is not critical for user experience
       }
     } catch (error) {
       console.error('Error in updateRestaurantRating:', error);
+      // Don't throw error, just log it - rating update is not critical for user experience
     }
   };
   
@@ -900,18 +850,21 @@ export default function RestaurantDetails() {
 
               if (hasImages) {
                 // Process images: if display_image_index is valid, move that image to front
-                let processedImages = [...restaurant.images];
+                let processedImages = [...(restaurant.images || [])];
 
-                if (restaurant.display_image_index >= 0 &&
-                    restaurant.display_image_index < restaurant.images.length &&
+                if (restaurant.display_image_index !== undefined &&
+                    restaurant.display_image_index >= 0 &&
+                    restaurant.display_image_index < (restaurant.images?.length || 0) &&
                     restaurant.display_image_index !== 0) {
                   // Move display image to front
                   const displayImage = processedImages.splice(restaurant.display_image_index, 1)[0];
                   processedImages.unshift(displayImage);
                 }
 
-                // Convert Cloudinary URLs
-                const carouselImages = processedImages.map(img => convertCloudinaryUrl(img));
+                // Convert Cloudinary URLs and filter out any undefined/null values
+                const carouselImages = processedImages
+                  .map(img => convertCloudinaryUrl(img))
+                  .filter((url): url is string => typeof url === 'string' && url.length > 0) as string[];
 
                 return (
                   <RestaurantCarousel
@@ -921,7 +874,7 @@ export default function RestaurantDetails() {
                 );
               } else {
                 // Fallback to single image logic for backward compatibility
-                const imageUrl = convertCloudinaryUrl(restaurant.image_url);
+                const imageUrl = restaurant.image_url ? convertCloudinaryUrl(restaurant.image_url) : null;
                 const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
 
                 return (
@@ -1010,7 +963,7 @@ export default function RestaurantDetails() {
           <div className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{restaurant.name}</h1>
-              {visitData.visited && (
+              {restaurant.rating !== null && restaurant.rating !== undefined && (
                 <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
                   <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="currentColor" />
                   <span className="font-semibold text-base sm:text-lg">{(restaurant.rating || 0).toFixed(1)}</span>
@@ -1019,22 +972,22 @@ export default function RestaurantDetails() {
             </div>
             
             {/* Mostrar categorias culinárias */}
-            {cuisineTypes && cuisineTypes.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {cuisineTypes.map(type => (
-                  <span 
-                    key={type.id} 
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700"
-                  >
-                    <Tag className="h-4 w-4 mr-1.5 text-amber-500" />
-                    {type.name}
-                  </span>
-                ))}
-              </div>
-            )}
+              {cuisineTypes && cuisineTypes.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {cuisineTypes.map((type: any) => (
+                    <span 
+                      key={type.id} 
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700"
+                    >
+                      <Tag className="h-4 w-4 mr-1.5 text-amber-500" />
+                      {type.name}
+                    </span>
+                  ))}
+                </div>
+              )}
             
             {(() => {
-              const formattedDescription = formatDescription(restaurant.description);
+              const formattedDescription = formatDescription(restaurant.description || '');
               if (!formattedDescription || formattedDescription.length === 0) return null;
 
               if (formattedDescription.length === 1) {
@@ -1043,7 +996,7 @@ export default function RestaurantDetails() {
 
               return (
                 <div className="text-gray-600 mt-4 space-y-3">
-                  {formattedDescription.map((paragraph, index) => (
+                  {formattedDescription.map((paragraph: string, index: number) => (
                     <p key={index}>{paragraph}</p>
                   ))}
                 </div>
@@ -1099,12 +1052,12 @@ export default function RestaurantDetails() {
               {restaurant.source_url && (
                 <div 
                   className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
-                  onClick={() => window.open(restaurant.source_url, '_blank', 'noopener,noreferrer')}
+                  onClick={() => window.open(restaurant.source_url || '', '_blank', 'noopener,noreferrer')}
                 >
                   <Globe className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
                   <span className="flex-grow text-sm sm:text-base">Fonte Original</span>
                   <a 
-                    href={restaurant.source_url} 
+                    href={restaurant.source_url || ''} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm ml-2"
@@ -1122,7 +1075,7 @@ export default function RestaurantDetails() {
                     <Globe className="h-4 w-4 mr-2 text-amber-500" />
                     Links de Menus ({restaurant.menu_links.length})
                   </div>
-                  {restaurant.menu_links.map((link, index) => (
+                  {(restaurant.menu_links || []).map((link: string, index) => (
                     <div
                       key={index}
                       className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
@@ -1146,7 +1099,7 @@ export default function RestaurantDetails() {
                     Imagens do Menu ({restaurant.menu_images.length})
                   </div>
                   <MenuCarousel
-                    images={restaurant.menu_images.map(img => convertCloudinaryUrl(img))}
+                    images={(restaurant.menu_images || []).map((img: string) => convertCloudinaryUrl(img)).filter((url): url is string => typeof url === 'string' && url.length > 0) as string[]}
                     className="w-full"
                   />
                 </div>
@@ -1173,20 +1126,20 @@ export default function RestaurantDetails() {
             Listas que incluem este restaurante
           </h2>
           
-          {lists.length === 0 ? (
-            <p className="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base">Este restaurante não está em nenhuma lista.</p>
-          ) : (
-            <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
-              {lists.map(list => (
-                <Link key={list.id} href={`/lists/${list.id}`} className="block">
-                  <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[60px] sm:min-h-0">
-                    <h3 className="font-medium text-gray-800 text-sm sm:text-base">{list.name}</h3>
-                    <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
+              {lists.length === 0 ? (
+                <p className="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base">Este restaurante não está em nenhuma lista.</p>
+              ) : (
+                <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
+                  {lists.map((list: any) => (
+                    <Link key={list.id} href={`/lists/${list.id}`} className="block">
+                      <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[60px] sm:min-h-0">
+                        <h3 className="font-medium text-gray-800 text-sm sm:text-base">{list.name}</h3>
+                        <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
         </div>
 
         {/* Reviews Section */}
@@ -1220,7 +1173,7 @@ export default function RestaurantDetails() {
             {(showReviewForm || editingReview) && (
               <div className="mb-6 sm:mb-8">
                 <ReviewForm
-                  restaurantId={id}
+                  restaurantId={Array.isArray(id) ? id[0] : id}
                   onReviewSubmitted={handleReviewSubmitted}
                   onCancel={() => {
                     setShowReviewForm(false);
@@ -1360,7 +1313,7 @@ export default function RestaurantDetails() {
       <MapSelectorModal
         isOpen={isMapModalOpen}
         onClose={() => setIsMapModalOpen(false)}
-        location={restaurant.location}
+        location={restaurant.location || ''}
         latitude={restaurant.latitude}
         longitude={restaurant.longitude}
       />
@@ -1370,7 +1323,7 @@ export default function RestaurantDetails() {
         onClose={() => setIsScheduleModalOpen(false)}
         restaurantName={restaurant.name}
         restaurantLocation={restaurant.location || ''}
-        restaurantDescription={restaurant.description}
+        restaurantDescription={restaurant.description || ''}
       />
     </div>
   );

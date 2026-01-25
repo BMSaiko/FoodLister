@@ -150,15 +150,17 @@ export async function uploadToCloudinary(file: File): Promise<string> {
       console.error(`Tentativa ${attemptNumber} falhou:`, error);
 
       // Don't retry validation errors
-      if (error.message?.includes('O arquivo deve ser uma imagem') ||
-          error.message?.includes('10MB')) {
+      if (error instanceof Error && 
+          (error.message?.includes('O arquivo deve ser uma imagem') ||
+           error.message?.includes('10MB'))) {
         throw error;
       }
 
       // Retry on network errors
       if (attemptNumber < maxRetries &&
-          (error.name === 'AbortError' || // Timeout
-           error.name === 'TypeError' || // Network error
+          ((error instanceof Error && 
+           (error.name === 'AbortError' || // Timeout
+            error.name === 'TypeError')) || // Network error
            !navigator.onLine)) { // Offline
 
         const retryDelay = attemptNumber * 2000; // Progressive delay
@@ -167,10 +169,10 @@ export async function uploadToCloudinary(file: File): Promise<string> {
       }
 
       // Provide user-friendly error messages
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Upload demorou demais. Verifique sua conexão e tente novamente.');
       }
-      if (error.name === 'TypeError' || error.message?.includes('fetch')) {
+      if (error instanceof Error && (error.name === 'TypeError' || error.message?.includes('fetch'))) {
         throw new Error('Erro de conexão. Verifique se você está online e tente novamente.');
       }
       if (!navigator.onLine) {

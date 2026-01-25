@@ -100,8 +100,16 @@ export function useRestaurants(searchQuery: string | null, savedState?: SavedSta
   };
 
   useEffect(() => {
+    // Check if we have a search query from session storage (for page refreshes)
+    const sessionSearchQuery = sessionStorage.getItem('currentSearchQuery');
+    const shouldUseSessionSearch = searchQuery === null && sessionSearchQuery !== null;
+    
     // If we have saved state and it matches current search query, use it
     if (savedState && savedState.searchQuery === searchQuery) {
+      setRestaurants(savedState.restaurants);
+      setLoading(false);
+    } else if (shouldUseSessionSearch && savedState && savedState.searchQuery === sessionSearchQuery) {
+      // Use saved state if it matches the session search query
       setRestaurants(savedState.restaurants);
       setLoading(false);
     } else {

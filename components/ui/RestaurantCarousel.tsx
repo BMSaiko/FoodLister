@@ -2,17 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Pause, Play, ImageIcon } from 'lucide-react';
 
+interface RestaurantCarouselProps {
+  images?: string[];
+  className?: string;
+}
+
 /**
  * RestaurantCarousel - Beautiful, responsive carousel for restaurant images
  * Shows multiple restaurant images with modern design and mobile-first approach
  */
-export default function RestaurantCarousel({ images = [], className = '' }) {
+export default function RestaurantCarousel({ images = [], className = '' }: RestaurantCarouselProps) {
   const [startIndex, setStartIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
-  const [mobileIconShown, setMobileIconShown] = useState(null); // null or image index
+  const [mobileIconShown, setMobileIconShown] = useState<number | null>(null); // null or image index
 
   // Get number of visible images based on screen size
   const getVisibleCount = () => {
@@ -95,7 +100,7 @@ export default function RestaurantCarousel({ images = [], className = '' }) {
     setTimeout(() => setIsTransitioning(false), 400);
   }, [images.length, visibleCount, isTransitioning]);
 
-  const goToSet = useCallback((index) => {
+  const goToSet = useCallback((index: number) => {
     if (isTransitioning || index === startIndex) return;
     setIsTransitioning(true);
     setStartIndex(index);
@@ -107,7 +112,7 @@ export default function RestaurantCarousel({ images = [], className = '' }) {
   };
 
   // Modal functions
-  const openModal = useCallback((imageIndex) => {
+  const openModal = useCallback((imageIndex: number) => {
     setModalImageIndex(imageIndex);
     setIsModalOpen(true);
   }, []);
@@ -126,7 +131,7 @@ export default function RestaurantCarousel({ images = [], className = '' }) {
 
   // Keyboard navigation for modal
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (!isModalOpen) return;
 
       switch (e.key) {
@@ -168,7 +173,7 @@ export default function RestaurantCarousel({ images = [], className = '' }) {
             }`}
             onTouchStart={(e) => {
               const touch = e.touches[0];
-              e.currentTarget.dataset.touchStart = touch.clientX;
+              e.currentTarget.dataset.touchStart = touch.clientX.toString();
             }}
             onTouchEnd={(e) => {
               const touch = e.changedTouches[0];
@@ -395,9 +400,9 @@ export default function RestaurantCarousel({ images = [], className = '' }) {
                 {/* Touch overlay for swipe on mobile */}
                 <div
                   className="absolute inset-0 sm:hidden"
-                  onTouchStart={(e) => {
+                onTouchStart={(e) => {
                     const touch = e.touches[0];
-                    e.currentTarget.dataset.touchStart = touch.clientX;
+                    e.currentTarget.dataset.touchStart = touch.clientX.toString();
                   }}
                   onTouchEnd={(e) => {
                     const touch = e.changedTouches[0];

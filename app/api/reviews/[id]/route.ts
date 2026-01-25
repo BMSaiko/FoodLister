@@ -7,6 +7,11 @@ import { getServerClient } from '@/libs/supabase/server';
 async function updateRestaurantRating(restaurantId: string) {
   const supabase = getClient();
 
+  if (!supabase) {
+    console.error('Supabase client is not available');
+    return;
+  }
+
   try {
     // Calculate average rating from all reviews for this restaurant
     const { data: reviews, error: reviewsError } = await supabase
@@ -46,10 +51,9 @@ export async function GET(
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
-    const resolvedParams = await params;
-    const reviewId = resolvedParams.id;
+    const { id: reviewId } = await params;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('reviews')
       .select(`
         *,
@@ -78,31 +82,33 @@ export async function GET(
     let userProfileImage = null;
     let userEmail = null;
 
-    try {
-      // Get profile data
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('display_name, avatar_url')
-        .eq('user_id', (data as any).user.id)
-        .single();
+    if (supabase) {
+      try {
+        // Get profile data
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('display_name, avatar_url')
+          .eq('user_id', (data as any).user.id)
+          .single();
 
-      if (!profileError && profileData) {
-        userDisplayName = (profileData as any).display_name || null;
-        userProfileImage = (profileData as any).avatar_url || null;
+        if (!profileError && profileData) {
+          userDisplayName = (profileData as any).display_name || null;
+          userProfileImage = (profileData as any).avatar_url || null;
+        }
+
+        // Get user email
+        const { data: userData, error: userError } = await supabase
+          .from('auth.users')
+          .select('email')
+          .eq('id', (data as any).user.id)
+          .single();
+
+        if (!userError && userData) {
+          userEmail = (userData as any).email || null;
+        }
+      } catch (error) {
+        console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
       }
-
-      // Get user email
-      const { data: userData, error: userError } = await supabase
-        .from('auth.users')
-        .select('email')
-        .eq('id', (data as any).user.id)
-        .single();
-
-      if (!userError && userData) {
-        userEmail = (userData as any).email || null;
-      }
-    } catch (error) {
-      console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
     }
 
     // Create email name (part before @)
@@ -156,6 +162,10 @@ export async function PUT(
     }
 
     // Get current user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
@@ -207,31 +217,33 @@ export async function PUT(
     let userProfileImage = null;
     let userEmail = null;
 
-    try {
-      // Get profile data
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('display_name, avatar_url')
-        .eq('user_id', (data as any).user.id)
-        .single();
+    if (supabase) {
+      try {
+        // Get profile data
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('display_name, avatar_url')
+          .eq('user_id', (data as any).user.id)
+          .single();
 
-      if (!profileError && profileData) {
-        userDisplayName = (profileData as any).display_name || null;
-        userProfileImage = (profileData as any).avatar_url || null;
+        if (!profileError && profileData) {
+          userDisplayName = (profileData as any).display_name || null;
+          userProfileImage = (profileData as any).avatar_url || null;
+        }
+
+        // Get user email
+        const { data: userData, error: userError } = await supabase
+          .from('auth.users')
+          .select('email')
+          .eq('id', (data as any).user.id)
+          .single();
+
+        if (!userError && userData) {
+          userEmail = (userData as any).email || null;
+        }
+      } catch (error) {
+        console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
       }
-
-      // Get user email
-      const { data: userData, error: userError } = await supabase
-        .from('auth.users')
-        .select('email')
-        .eq('id', (data as any).user.id)
-        .single();
-
-      if (!userError && userData) {
-        userEmail = (userData as any).email || null;
-      }
-    } catch (error) {
-      console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
     }
 
     // Create email name (part before @)
@@ -265,6 +277,10 @@ export async function DELETE(
     const reviewId = resolvedParams.id;
 
     // Get current user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
@@ -296,7 +312,9 @@ export async function DELETE(
     }
 
     // Update restaurant rating after successful review deletion
-    await updateRestaurantRating((existingReview as any).restaurant_id);
+    if (supabase) {
+      await updateRestaurantRating((existingReview as any).restaurant_id);
+    }
 
     return NextResponse.json({ message: 'Review deleted successfully' });
   } catch (error) {

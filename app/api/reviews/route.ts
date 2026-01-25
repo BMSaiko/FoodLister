@@ -1,7 +1,7 @@
 // app/api/reviews/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -42,7 +42,7 @@ async function updateRestaurantRating(restaurantId: string) {
 export async function GET(request: NextRequest) {
   try {
     const response = NextResponse.next();
-    const supabase = await getServerClient(request, response);
+    const supabase = await getPublicServerClient();
     const { searchParams } = new URL(request.url);
     const restaurantId = searchParams.get('restaurant_id');
 
@@ -51,6 +51,10 @@ export async function GET(request: NextRequest) {
     }
 
     // First get the reviews
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: reviewsData, error: reviewsError } = await supabase
       .from('reviews')
       .select('*')
@@ -177,6 +181,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get current user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
