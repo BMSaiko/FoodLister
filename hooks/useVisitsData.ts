@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/index';
 interface VisitsData {
   [restaurantId: string]: {
     visited: boolean;
-    visitCount: number;
+    visit_count: number;
   };
 }
 
@@ -20,7 +20,7 @@ interface Restaurant {
 interface UseVisitsDataReturn {
   visitsData: VisitsData;
   loadingVisits: boolean;
-  handleVisitsDataUpdate: (restaurantId: string, newVisitsData: { visited: boolean; visitCount: number }) => void;
+  handleVisitsDataUpdate: (restaurantId: string, newVisitsData: { visited: boolean; visit_count: number }) => void;
 }
 
 export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDataReturn {
@@ -90,7 +90,7 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
           // Set default visits data on failure
           const defaultVisitsData: VisitsData = {};
           restaurantIds.forEach(id => {
-            defaultVisitsData[id] = { visited: false, visitCount: 0 };
+            defaultVisitsData[id] = { visited: false, visit_count: 0 };
           });
           setVisitsData(defaultVisitsData);
         }
@@ -99,7 +99,7 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
         // Set default visits data on error
         const defaultVisitsData: VisitsData = {};
         restaurants.forEach(restaurant => {
-          defaultVisitsData[restaurant.id] = { visited: false, visitCount: 0 };
+          defaultVisitsData[restaurant.id] = { visited: false, visit_count: 0 };
         });
         setVisitsData(defaultVisitsData);
       } finally {
@@ -169,7 +169,7 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
   }, [user, restaurants, getAccessToken, signOut]);
 
   // Function to update visits data when a card notifies a change
-  const handleVisitsDataUpdate = useCallback((restaurantId: string, newVisitsData: { visited: boolean; visitCount: number }) => {
+  const handleVisitsDataUpdate = useCallback((restaurantId: string, newVisitsData: { visited: boolean; visit_count: number }) => {
     setVisitsData(prev => ({
       ...prev,
       [restaurantId]: newVisitsData

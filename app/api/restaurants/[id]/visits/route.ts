@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedClient } from '@/libs/supabase/server';
+import { getServerClient } from '@/libs/supabase/server';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await getAuthenticatedClient(request);
+    const supabase = await getServerClient(request, undefined);
 
     // Get authenticated user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,9 +43,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await getAuthenticatedClient(request);
+    const supabase = await getServerClient(request, undefined);
 
     // Get authenticated user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -116,9 +124,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await getAuthenticatedClient(request);
+    const supabase = await getServerClient(request, undefined);
 
     // Get authenticated user
+    if (!supabase) {
+      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+    }
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

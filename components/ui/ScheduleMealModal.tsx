@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { X, Calendar, Clock, Users, Mail, UtensilsCrossed } from 'lucide-react';
-import { validateEmails } from '../../utils/formatters';
+import { validateEmails } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 
 type ScheduleMealModalProps = {

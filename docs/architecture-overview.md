@@ -396,6 +396,109 @@ async function uploadToCloudinary(file) {
 - **Rate Limiting**: Built-in Supabase rate limiting
 - **Caching**: HTTP caching and CDN caching
 
+## Menu System
+
+The FoodList application includes a comprehensive menu system allowing restaurants to have multiple external links and uploaded images.
+
+### Menu Fields in Restaurant Objects
+
+When retrieving restaurants, the following menu-related fields are included:
+
+- **`menu_links`**: Array of external URLs (max 5 links)
+- **`menu_images`**: Array of Cloudinary image URLs (max 10 images)
+- **`menu_url`**: Deprecated single URL field (for backward compatibility)
+
+### Creating Restaurants with Menus
+
+```javascript
+const { data, error } = await supabase
+  .from('restaurants')
+  .insert({
+    name: 'Restaurant Name',
+    description: 'Description',
+    // ... other fields
+    menu_links: ['https://menu.pdf', 'https://restaurant.com/menu'],
+    menu_images: ['https://cloudinary.com/image1.jpg', 'https://cloudinary.com/image2.png']
+  })
+  .select();
+```
+
+### Updating Menu Information
+
+```javascript
+// Add a new menu link
+const { data, error } = await supabase
+  .from('restaurants')
+  .update({
+    menu_links: existingLinks.concat('https://new-menu.pdf')
+  })
+  .eq('id', restaurantId);
+
+// Add a new menu image
+const { data, error } = await supabase
+  .from('restaurants')
+  .update({
+    menu_images: existingImages.concat('https://cloudinary.com/new-image.jpg')
+  })
+  .eq('id', restaurantId);
+```
+
+### Menu Validation Rules
+
+#### Menu Links
+- **Maximum**: 5 external links per restaurant
+- **Format**: Must be valid HTTP/HTTPS URLs
+- **Uniqueness**: Duplicate links within the same restaurant are not allowed
+- **Purpose**: PDFs, websites, menu pages
+
+#### Menu Images
+- **Maximum**: 10 uploaded images per restaurant
+- **Format**: Cloudinary URLs pointing to valid image files
+- **Size**: Individual images limited by Cloudinary upload limits
+- **Purpose**: Scanned menus, photos of menu boards
+
+### Menu Operations Examples
+
+#### Check Menu Limits
+```javascript
+const restaurant = await supabase
+  .from('restaurants')
+  .select('menu_links, menu_images')
+  .eq('id', restaurantId)
+  .single();
+
+const canAddLink = restaurant.menu_links.length < 5;
+const canAddImage = restaurant.menu_images.length < 10;
+```
+
+#### Remove Menu Items
+```javascript
+// Remove specific link
+const updatedLinks = restaurant.menu_links.filter(link => link !== linkToRemove);
+
+// Remove specific image
+const updatedImages = restaurant.menu_images.filter(img => img !== imageToRemove);
+
+await supabase
+  .from('restaurants')
+  .update({
+    menu_links: updatedLinks,
+    menu_images: updatedImages
+  })
+  .eq('id', restaurantId);
+```
+
+#### Bulk Menu Updates
+```javascript
+await supabase
+  .from('restaurants')
+  .update({
+    menu_links: ['https://new-menu.pdf'],
+    menu_images: ['https://cloudinary.com/image1.jpg', 'https://cloudinary.com/image2.jpg']
+  })
+  .eq('id', restaurantId);
+```
+
 ## Future Architecture Enhancements
 
 ### Potential Improvements

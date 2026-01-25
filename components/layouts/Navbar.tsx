@@ -10,16 +10,22 @@ import { Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
 
+// Define the profile data interface
+interface ProfileData {
+  display_name: string;
+  avatar_url: string;
+}
+
 const Navbar = ({ clearFilters = null }) => {
   const { user, signOut, loading } = useAuth();
   const { clearFilters: clearFiltersFromContext } = useFilters();
   const pathname = usePathname();
   const router = useRouter();
   const supabase = getClient();
-  const [activeSection, setActiveSection] = useState('restaurants');
+  const [activeSection, setActiveSection] = useState<'restaurants' | 'lists'>('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState(null);
+  const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
   
   // Fetch user profile data when user changes
   useEffect(() => {

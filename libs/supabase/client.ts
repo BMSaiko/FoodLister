@@ -173,6 +173,41 @@ export type Database = {
   };
 };
 
+// Cookie-based storage implementation for Supabase
+const getCookieBasedStorage = () => {
+  if (typeof window === 'undefined') {
+    // Server-side: we'll handle this in server functions only
+    return {
+      getItem: (key: string) => {
+        // For server-side, we'll need to pass cookies from the request
+        return null;
+      },
+      setItem: (key: string, value: string) => {
+        // For server-side, we'll need to pass response object
+      },
+      removeItem: (key: string) => {
+        // For server-side, we'll need to pass response object
+      }
+    };
+  } else {
+    // Client-side: use document.cookie
+    return {
+      getItem: (key: string) => {
+        const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
+        return match ? match[2] : null;
+      },
+      setItem: (key: string, value: string) => {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days
+        document.cookie = `${key}=${value};path=/;SameSite=Lax;Secure;expires=${expires.toUTCString()}`;
+      },
+      removeItem: (key: string) => {
+        document.cookie = `${key}=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      }
+    };
+  }
+};
+
 // Certifique-se de criar um arquivo .env.local com estas variáveis
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -193,13 +228,13 @@ export const getClient = () => {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
+        storage: getCookieBasedStorage(),
+        detectSessionInUrl: true,
       }
     });
   }
   return supabaseClient;
 };
-
-
 
 // Legacy function for backward compatibility
 export const createClient = () => {

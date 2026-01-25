@@ -11,8 +11,23 @@ import { getDescriptionPreview } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts';
 import RestaurantImagePlaceholder from './RestaurantImagePlaceholder';
+import { RestaurantWithDetails, VisitData } from '@/libs/types';
 
-const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadingVisits = false, onVisitsDataUpdate = null }) => {
+interface RestaurantCardProps {
+  restaurant: RestaurantWithDetails;
+  centered?: boolean;
+  visitsData?: VisitData | null;
+  loadingVisits?: boolean;
+  onVisitsDataUpdate?: (restaurantId: string, data: { visited: boolean; visit_count: number }) => void;
+}
+
+const RestaurantCard: React.FC<RestaurantCardProps> = ({ 
+  restaurant, 
+  centered = false, 
+  visitsData = null, 
+  loadingVisits = false, 
+  onVisitsDataUpdate = null 
+}) => {
   const { user, getAccessToken } = useAuth();
   const [visited, setVisited] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -27,7 +42,7 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
     }
   }, [visitsData, restaurant.id]);
 
-  const handleToggleVisited = async (e) => {
+  const handleToggleVisited = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -58,7 +73,7 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
       if (onVisitsDataUpdate) {
         onVisitsDataUpdate(restaurant.id, {
           visited: data.visited,
-          visitCount: data.visitCount
+          visit_count: data.visit_count
         });
       }
 
@@ -100,7 +115,8 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
   const getDisplayImage = () => {
     // If restaurant has images array and display_image_index is valid
     if (restaurant.images && restaurant.images.length > 0) {
-      if (restaurant.display_image_index >= 0 &&
+      if (restaurant.display_image_index !== undefined && 
+          restaurant.display_image_index >= 0 &&
           restaurant.display_image_index < restaurant.images.length) {
         // Use the specified display image
         return convertCloudinaryUrl(restaurant.images[restaurant.display_image_index]);
@@ -110,13 +126,13 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
       }
     }
     // Fallback to legacy image_url
-    return convertCloudinaryUrl(restaurant.image_url);
+    return convertCloudinaryUrl(restaurant.image_url || '');
   };
 
   const imageUrl = getDisplayImage();
-  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg';
+  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '';
   // Function to render prices with € icons
-  const renderPriceCategory = (price) => {
+  const renderPriceCategory = (price: number) => {
     if (price <= 10) return { label: 'Econômico', level: 1 };
     if (price <= 20) return { label: 'Moderado', level: 2 };
     if (price <= 50) return { label: 'Elevado', level: 3 };
@@ -124,7 +140,7 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
   };
 
   // Get color class based on price level
-  const getPriceColorClass = (level) => {
+  const getPriceColorClass = (level: number) => {
     // Classes para os ícones - variação de cores mantendo legibilidade
     switch(level) {
       case 1: return 'text-amber-400';
@@ -136,7 +152,7 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
   };
   
   // Classe para o texto do label - garantindo melhor legibilidade
-  const getPriceLabelClass = (level) => {
+  const getPriceLabelClass = (level: number) => {
     switch(level) {
       case 1: return 'text-amber-400 font-bold';
       case 2: return 'text-amber-500 font-bold';
@@ -146,24 +162,26 @@ const RestaurantCard = ({ restaurant, centered = false, visitsData = null, loadi
     }
   };
 
-  const priceCategory = renderPriceCategory(restaurant.price_per_person);
+  const priceCategory = renderPriceCategory(restaurant.price_per_person || 0);
   const priceColorClass = getPriceColorClass(priceCategory.level);
   
   // Style of rating based on value
-  const getRatingStyle = (rating) => {
+  const getRatingStyle = (rating: number) => {
     if (rating >= 4.5) return 'bg-green-100 text-green-700';
     if (rating >= 3.5) return 'bg-amber-100 text-amber-700';
     if (rating >= 2.5) return 'bg-yellow-100 text-yellow-700';
     return 'bg-red-100 text-red-700';
   };
   
-  const ratingStyle = getRatingStyle(restaurant.rating);
+  const ratingStyle = getRatingStyle(restaurant.rating || 0);
 
   const handleCardClick = () => {
     // Save restaurant ID for scroll targeting after navigation
-    sessionStorage.setItem('targetRestaurantId', restaurant.id);
+    if (restaurant.id) {
+      sessionStorage.setItem('targetRestaurantId', restaurant.id);
+    }
     // Also save scroll position as fallback
-    sessionStorage.setItem('restaurantsScrollPosition', window.scrollY.toString());
+    sessionStorage.setItem('restaurantsScrollPosition', String(window.scrollY));
   };
 
   return (

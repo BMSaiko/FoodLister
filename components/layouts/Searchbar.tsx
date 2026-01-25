@@ -5,12 +5,12 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, Loader2 } from 'lucide-react';
 
-const SearchBar = ({ searchType }) => {
+const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
   const [query, setQuery] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  const handleSearch = async (e) => {
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     if (!query.trim()) return;
@@ -31,15 +31,20 @@ const SearchBar = ({ searchType }) => {
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Handle Enter key press for mobile and desktop
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent default form submission to control the flow
-      handleSearch(e);
+      e.preventDefault(); // Prevent default form submission
+      e.stopPropagation(); // Stop event propagation
+      
+      // Only trigger search if there's a query
+      if (query.trim()) {
+        handleSearch(e as any);
+      }
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
 

@@ -3,10 +3,28 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
+import { useSecureApiClient } from '@/hooks/useSecureApiClient';
+import { AuthUser } from '@/libs/types';
 
-const FiltersContext = createContext();
+interface FiltersContextValue {
+  clearTrigger: number;
+  clearFilters: () => void;
+}
 
-export function FiltersProvider({ children }) {
+interface AuthContextValue {
+  user: AuthUser | null;
+  loading: boolean;
+  signUp: (email: string, password: string) => Promise<{ data: any; error: any }>;
+  signIn: (email: string, password: string) => Promise<{ data: any; error: any }>;
+  signOut: () => Promise<{ error: any }>;
+  resetPassword: (email: string) => Promise<{ error: any }>;
+  updatePassword: (newPassword: string) => Promise<{ error: any }>;
+  getAccessToken: () => Promise<string | null>;
+}
+
+const FiltersContext = createContext<FiltersContextValue | null>(null);
+
+export function FiltersProvider({ children }: { children: React.ReactNode }) {
   const [clearTrigger, setClearTrigger] = useState(0);
 
   const clearFilters = () => {
@@ -28,17 +46,17 @@ export function useFilters() {
   return context;
 }
 
-const AuthContext = createContext();
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasShownSignInToast, setHasShownSignInToast] = useState(false);
-  const previousUserRef = useRef(null);
+  const previousUserRef = useRef<AuthUser | null>(null);
   const supabase = getClient();
 
   useEffect(() => {
-    let subscription = null;
+    let subscription: any = null;
 
     const initializeAuth = async () => {
       // Get initial session first
@@ -79,7 +97,7 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const signUp = async (email, password) => {
+  const signUp = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -93,7 +111,7 @@ export function AuthProvider({ children }) {
         try {
           const emailPrefix = email.split('@')[0];
 
-          const { error: profileError } = await supabase
+          const { error: profileError } = await (supabase as any)
             .from('profiles')
             .insert({
               user_id: data.user.id,
@@ -106,12 +124,10 @@ export function AuthProvider({ children }) {
             });
 
           if (profileError && profileError.code !== '23505') { // Ignore duplicate key error
-            console.error('Error creating user profile:', profileError);
             // Don't throw here as the auth signup was successful
           } else {
           }
         } catch (profileCreateError) {
-          console.error('Error ensuring user profile exists:', profileCreateError);
           // Don't throw here as the auth signup was successful
         }
       }
@@ -122,12 +138,13 @@ export function AuthProvider({ children }) {
 
       return { data, error: null };
     } catch (error) {
-      toast.error(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(errorMessage);
       return { data: null, error };
     }
   };
 
-  const signIn = async (email, password) => {
+  const signIn = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -138,7 +155,8 @@ export function AuthProvider({ children }) {
 
       return { data, error: null };
     } catch (error) {
-      toast.error(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(errorMessage);
       return { data: null, error };
     }
   };
@@ -153,12 +171,13 @@ export function AuthProvider({ children }) {
       }
       return { error: null };
     } catch (error) {
-      toast.error(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(errorMessage);
       return { error };
     }
   };
 
-  const resetPassword = async (email) => {
+  const resetPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
@@ -169,12 +188,13 @@ export function AuthProvider({ children }) {
       toast.success('Email de redefinição enviado!');
       return { error: null };
     } catch (error) {
-      toast.error(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(errorMessage);
       return { error };
     }
   };
 
-  const updatePassword = async (newPassword) => {
+  const updatePassword = async (newPassword: string) => {
     try {
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
@@ -185,7 +205,8 @@ export function AuthProvider({ children }) {
       toast.success('Senha atualizada com sucesso!');
       return { error: null };
     } catch (error) {
-      toast.error(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(errorMessage);
       return { error };
     }
   };
@@ -196,12 +217,11 @@ export function AuthProvider({ children }) {
       const { data: { session } } = await supabase.auth.getSession();
       return session?.access_token || null;
     } catch (error) {
-      console.error('Error getting access token:', error);
       return null;
     }
   };
 
-  const value = {
+  const value: AuthContextValue = {
     user,
     loading,
     signUp,

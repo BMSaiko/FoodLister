@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { X, MapPin, Navigation, Globe } from 'lucide-react';
-import { logError } from '../../utils/logger';
+import { logError } from '@/utils/logger';
 
 interface MapSelectorModalProps {
   isOpen: boolean;
