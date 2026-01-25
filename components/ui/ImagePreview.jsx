@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { Image as ImageIcon, Upload, AlertCircle, CheckCircle, Loader } from 'lucide-react';
-import { convertCloudinaryUrl } from '../../utils/cloudinaryConverter';
-import { useImagePreview } from '../../hooks/useImagePreview';
+import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
+import { useImagePreview } from '@/hooks/useImagePreview';
 
 /**
  * ImagePreview component for displaying and editing image URLs

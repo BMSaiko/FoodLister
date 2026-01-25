@@ -4,35 +4,8 @@ import typescriptParser from "@typescript-eslint/parser";
 
 export default [
   {
-    files: ["**/*.{js,jsx}"],
-    languageOptions: {
-      ecmaVersion: 2022,
-      sourceType: "module",
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
-    rules: {
-      // React rules - off for Next.js 13+ (automatic JSX transform)
-      "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off",
-
-      // Variable usage - allow common patterns
-      "no-unused-vars": ["warn", {
-        argsIgnorePattern: "^_",
-        varsIgnorePattern: "^_",
-        ignoreRestSiblings: true,
-        caughtErrors: "none"
-      }],
-
-      // Console statements - warn instead of error for debugging
-      "no-console": "warn",
-    },
-  },
-  {
-    files: ["**/*.{ts,tsx}"],
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    ignores: [".next/**", "node_modules/**", "dist/**"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -48,6 +21,18 @@ export default [
       "@typescript-eslint": typescriptEslint,
     },
     rules: {
+      // React rules - off for Next.js 13+ (automatic JSX transform)
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+
+      // Variable usage - allow common patterns
+      "no-unused-vars": ["warn", {
+        argsIgnorePattern: "^_",
+        varsIgnorePattern: "^_",
+        ignoreRestSiblings: true,
+        caughtErrors: "none"
+      }],
+
       // TypeScript rules
       "@typescript-eslint/no-unused-vars": ["warn", {
         argsIgnorePattern: "^_",
@@ -57,6 +42,11 @@ export default [
       }],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-empty-interface": "off",
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+
+      // Console statements - warn instead of error for debugging
+      "no-console": "warn",
     },
   },
 ];

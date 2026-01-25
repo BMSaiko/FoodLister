@@ -1,5 +1,5 @@
 {
-  "name": "restaurante-app",
+  "name": "foodlist",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -35,6 +35,9 @@
     "@typescript-eslint/parser": "^8.53.1",
     "eslint": "9.39.2",
     "eslint-config-next": "16.1.2",
+    "eslint-plugin-next": "^0.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "tailwindcss": "^4.0.13",
     "typescript": "5.8.2"
   }

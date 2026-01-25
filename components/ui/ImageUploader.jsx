@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
-import { uploadToCloudinary } from '../../utils/cloudinaryConverter';
+import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
 
 /**
  * ImageUploader component using react-dropzone with Cloudinary API
