@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, User, ChefHat, Sparkles, Utensils, Star } from 'lucide-react';
 import { validatePassword } from '@/utils/passwordValidation';
 import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
+import { validateRedirectUrl } from '@/utils/authUtils';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -18,6 +19,13 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const router = useRouter();
+
+  // Helper function to validate and sanitize redirect URL
+  const getValidRedirectUrl = (url) => {
+    const validatedUrl = validateRedirectUrl(url, '/auth/signin?message=check-email');
+    // Add the verification message to the validated URL
+    return `${validatedUrl}?message=check-email`;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,8 +48,13 @@ export default function SignUpPage() {
     setIsLoading(false);
 
     if (!error) {
-      // Redirect to signin page or show verification message
-      router.push('/auth/signin?message=check-email');
+      // Get return URL from query parameter using window.location
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnTo = urlParams.get('returnTo');
+      const redirectUrl = getValidRedirectUrl(returnTo);
+      
+      // Redirect to the return URL with verification message
+      router.push(redirectUrl);
     }
   };
 

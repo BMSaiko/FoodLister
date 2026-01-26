@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, LogIn, ChefHat, Sparkles, Utensils } from 'lucide-react';
@@ -14,25 +14,26 @@ function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const message = searchParams.get('message');
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
     if (message === 'check-email') {
       toast.info('Verifique seu email e clique no link de confirmação antes de fazer login.');
     }
-  }, [searchParams]);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setIsLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { error, session, user } = await signIn(email, password);
 
     setIsLoading(false);
 
-    if (!error) {
+    // Only redirect if login was successful (session exists and no error)
+    if (!error && session && user) {
       // Check if toast was already shown in this session
       const toastShown = sessionStorage.getItem('loginToastShown');
       if (!toastShown) {
@@ -41,8 +42,21 @@ function SignInForm() {
         // Mark that toast was shown
         sessionStorage.setItem('loginToastShown', 'true');
       }
-      // Redirect to restaurants page
-      router.push('/restaurants');
+      
+      // Use router.back() to return to the previous page
+      // This is more reliable than using returnTo parameter
+      try {
+        // Check if there's history to go back to
+        if (window.history.length > 1) {
+          router.back();
+        } else {
+          // Fallback to restaurants page if no history
+          router.push('/restaurants');
+        }
+      } catch (redirectError) {
+        // Final fallback in case router.back() fails
+        router.push('/restaurants');
+      }
     }
   };
 

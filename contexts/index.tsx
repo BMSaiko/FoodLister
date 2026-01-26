@@ -153,11 +153,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
 
-      return { data, error: null };
+      // Return the complete session data for proper redirect handling
+      return { data, session: data.session, user: data.user, error: null };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       toast.error(errorMessage);
-      return { data: null, error };
+      return { data: null, session: null, user: null, error };
     }
   };
 
