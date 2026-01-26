@@ -211,14 +211,14 @@ export const useAuth = () => {
           user: data.session.user as AuthUser
         }));
         toast.success('Login realizado com sucesso!');
-        return { success: true };
+        return { success: true, session: data.session, user: data.session.user, error: null };
       }
 
-      return { success: false };
+      return { success: false, session: null, user: null, error: null };
     } catch (error) {
       logError('Error signing in', error);
       toast.error('Erro ao fazer login. Verifique suas credenciais.');
-      return { success: false, error };
+      return { success: false, session: null, user: null, error };
     }
   }, [supabase.auth]);
 
