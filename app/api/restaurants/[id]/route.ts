@@ -31,10 +31,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
 
-    // Fetch restaurant details
+    // Fetch restaurant details with features and dietary options
     const { data: restaurant, error: restaurantError } = await supabase
       .from('restaurants')
-      .select('*')
+      .select(`
+        *,
+        cuisine_types:restaurant_cuisine_types(
+          cuisine_type:cuisine_types(*)
+        ),
+        features:restaurant_restaurant_features(
+          feature:restaurant_features(*)
+        ),
+        dietary_options:restaurant_dietary_options_junction(
+          dietary_option:restaurant_dietary_options(*)
+        )
+      `)
       .eq('id', id)
       .single();
 

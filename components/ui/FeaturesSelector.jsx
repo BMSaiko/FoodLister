@@ -64,6 +64,7 @@ export default function FeaturesSelector({
                 <span className={`text-sm flex-grow truncate ${
                   selectedFeatures.includes(feature.id) ? 'text-white' : 'text-gray-700'
                 }`}>
+                  <span className="mr-2">{feature.icon || '🏷️'}</span>
                   {feature.name}
                 </span>
                 {selectedFeatures.includes(feature.id) ? (
@@ -94,6 +95,7 @@ export default function FeaturesSelector({
                 key={feature.id}
                 className="flex items-center bg-primary text-white px-2 py-0.5 rounded-full text-xs font-medium shadow-sm"
               >
+                <span className="mr-1">{feature.icon || '🏷️'}</span>
                 <span>{feature.name}</span>
                 <button
                   type="button"

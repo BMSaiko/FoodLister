@@ -266,6 +266,40 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             </div>
           )}
 
+          {/* Mostrar opções dietéticas se disponíveis */}
+          {restaurant.dietary_options && restaurant.dietary_options.length > 0 && (
+            <div className={`flex flex-wrap gap-1 mt-1 ${centered ? 'justify-center' : ''}`}>
+              {restaurant.dietary_options.slice(0, 3).map(option => (
+                <span key={option.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800">
+                  <span className="mr-1 text-sm">{option.icon || '🥗'}</span>
+                  {option.name}
+                </span>
+              ))}
+              {restaurant.dietary_options.length > 3 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
+                  +{restaurant.dietary_options.length - 3}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Mostrar recursos se disponíveis */}
+          {restaurant.features && restaurant.features.length > 0 && (
+            <div className={`flex flex-wrap gap-1 mt-1 ${centered ? 'justify-center' : ''}`}>
+              {restaurant.features.slice(0, 3).map(feature => (
+                <span key={feature.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800" title={feature.description}>
+                  <span className="mr-1 text-sm">{feature.icon || '⭐'}</span>
+                  {feature.name}
+                </span>
+              ))}
+              {restaurant.features.length > 3 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
+                  +{restaurant.features.length - 3}
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Display reviews and rating - always visible if there are reviews */}
           {restaurant.review_count !== undefined && restaurant.review_count > 0 && (
             <div className={`mt-3 p-2 bg-gray-50 rounded-lg border border-gray-100 ${centered ? 'text-center' : ''}`}>

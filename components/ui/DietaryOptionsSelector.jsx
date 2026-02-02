@@ -20,7 +20,7 @@ export default function DietaryOptionsSelector({
 
   const handleToggleDietaryOption = (dietaryOptionId) => {
     onToggleDietaryOption(dietaryOptionId);
-    // Clear search when selecting/deselecting an option
+    // Clear search when selecting/deselecting a dietary option
     setSearchQuery('');
   };
 
@@ -64,6 +64,7 @@ export default function DietaryOptionsSelector({
                 <span className={`text-sm flex-grow truncate ${
                   selectedDietaryOptions.includes(dietaryOption.id) ? 'text-white' : 'text-gray-700'
                 }`}>
+                  <span className="mr-2">{dietaryOption.icon || '🥗'}</span>
                   {dietaryOption.name}
                 </span>
                 {selectedDietaryOptions.includes(dietaryOption.id) ? (
@@ -94,6 +95,7 @@ export default function DietaryOptionsSelector({
                 key={dietaryOption.id}
                 className="flex items-center bg-primary text-white px-2 py-0.5 rounded-full text-xs font-medium shadow-sm"
               >
+                <span className="mr-1">{dietaryOption.icon || '🥗'}</span>
                 <span>{dietaryOption.name}</span>
                 <button
                   type="button"

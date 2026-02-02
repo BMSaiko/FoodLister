@@ -22,6 +22,9 @@ export interface Restaurant {
   creator_name?: string;
   latitude?: number;
   longitude?: number;
+  cuisine_types?: CuisineType[];
+  features?: RestaurantFeature[];
+  dietary_options?: DietaryOption[];
 }
 
 export interface CuisineType {

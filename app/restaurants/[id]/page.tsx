@@ -59,6 +59,8 @@ interface Restaurant {
   latitude?: number;
   longitude?: number;
   images?: string[];
+  dietary_options?: any[];
+  features?: any[];
 }
 
 export default function RestaurantDetails() {
@@ -93,63 +95,49 @@ export default function RestaurantDetails() {
     setLoading(true);
 
     try {
-      // Fetch restaurant details
-      const { data: restaurantData, error: restaurantError } = await supabase
-        .from('restaurants')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Fetch restaurant details using the updated API route that includes features and dietary options
+      const response = await getPublic(`/api/restaurants/${id}`);
+      const data = await response.json();
 
-      if (restaurantError) throw restaurantError;
-
-      if (restaurantData) {
-        setRestaurant(restaurantData as any);
-
-        // Fetch cuisine types for this restaurant
-        const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
-          .from('restaurant_cuisine_types')
-          .select('cuisine_type_id')
-          .eq('restaurant_id', id);
-
-        if (cuisineRelationsError) throw cuisineRelationsError;
-
-        if (cuisineRelations && cuisineRelations.length > 0) {
-          const cuisineTypeIds = (cuisineRelations as any[]).map((item: any) => item.cuisine_type_id);
-
-          const { data: cuisineTypeDetails, error: cuisineTypeError } = await supabase
-            .from('cuisine_types')
-            .select('*')
-            .in('id', cuisineTypeIds);
-
-          if (cuisineTypeError) throw cuisineTypeError;
-
-          if (cuisineTypeDetails) {
-            setCuisineTypes(cuisineTypeDetails);
-          }
+      if (response.ok && data.restaurant) {
+        setRestaurant(data.restaurant);
+        
+        // Extract cuisine types from the joined data
+        if (data.restaurant.cuisine_types) {
+          setCuisineTypes(data.restaurant.cuisine_types);
         }
+        
+        // Debug logs to check data structure
+        console.log('Restaurant data:', data.restaurant);
+        console.log('Cuisine types:', data.restaurant.cuisine_types);
+        console.log('Dietary options:', data.restaurant.dietary_options);
+        console.log('Features:', data.restaurant.features);
+      } else {
+        throw new Error(data.error || 'Failed to fetch restaurant details');
+      }
 
-        // Fetch lists containing this restaurant
-        const { data: listRelations, error: listRelationsError } = await supabase
-          .from('list_restaurants')
-          .select('list_id')
-          .eq('restaurant_id', id);
+      // Fetch lists containing this restaurant
+      const { data: listRelations, error: listRelationsError } = await supabase
+        .from('list_restaurants')
+        .select('list_id')
+        .eq('restaurant_id', id);
 
-        if (listRelationsError) throw listRelationsError;
+      if (listRelationsError) throw listRelationsError;
 
-        if (listRelations && listRelations.length > 0) {
-          const listIds = (listRelations as any[]).map((item: any) => item.list_id);
+      if (listRelations && listRelations.length > 0) {
+        const listIds = (listRelations as any[]).map((item: any) => item.list_id);
 
-          const { data: listDetails, error: listDetailsError } = await supabase
-            .from('lists')
-            .select('*')
-            .in('id', listIds);
+        const { data: listDetails, error: listDetailsError } = await supabase
+          .from('lists')
+          .select('*')
+          .in('id', listIds);
 
-          if (listDetailsError) throw listDetailsError;
+        if (listDetailsError) throw listDetailsError;
 
-          if (listDetails) {
-            setLists(listDetails);
-          }
+        if (listDetails) {
+          setLists(listDetails);
         }
+      }
 
       // Fetch reviews for this restaurant
       await fetchReviews();
@@ -161,7 +149,6 @@ export default function RestaurantDetails() {
         setReviewCount(data.reviews?.length || 0);
       } catch (error) {
         logError('Error fetching review count', error);
-      }
       }
     } catch (error) {
       logError('Error fetching restaurant details', error);
@@ -972,20 +959,111 @@ export default function RestaurantDetails() {
               )}
             </div>
             
-            {/* Mostrar categorias culinárias */}
-              {cuisineTypes && cuisineTypes.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {cuisineTypes.map((type: any) => (
-                    <span 
-                      key={type.id} 
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700"
-                    >
-                      <Tag className="h-4 w-4 mr-1.5 text-amber-500" />
-                      {type.name}
-                    </span>
-                  ))}
+            {/* Seção de Categorias - Culinária, Dietéticas e Recursos */}
+            {(cuisineTypes && cuisineTypes.length > 0) || 
+             (restaurant.dietary_options && restaurant.dietary_options.length > 0) || 
+             (restaurant.features && restaurant.features.length > 0) ? (
+              <div className="mt-4 bg-gradient-to-br from-white to-gray-50 rounded-xl p-4 sm:p-6 border border-gray-100 shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                  <Tag className="h-4 w-4 mr-2 text-amber-500" />
+                  Categorias & Características
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Culinária */}
+                  {cuisineTypes && cuisineTypes.length > 0 && (
+                    <div>
+                      <div className="flex items-center mb-2">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-800 mr-2">
+                          🍽️ Culinária
+                        </span>
+                        <span className="text-xs text-gray-500">Tipos de cozinha</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {cuisineTypes.map((type: any, index: number) => (
+                          <span 
+                            key={type.cuisine_type?.id || `cuisine-${index}`} 
+                            className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-gradient-to-r from-amber-50 to-orange-50 text-amber-800 border border-amber-200 hover:shadow-sm transition-all duration-200 hover:scale-105"
+                          >
+                            <Tag className="h-3 w-3 mr-2 text-amber-600" />
+                            {type.cuisine_type?.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Opções Dietéticas */}
+                  {restaurant.dietary_options && restaurant.dietary_options.length > 0 && (
+                    <div>
+                      <div className="flex items-center mb-2">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800 mr-2">
+                          🥗 Opções Dietéticas
+                        </span>
+                        <span className="text-xs text-gray-500">Restrições alimentares</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {restaurant.dietary_options.map((option: any, index: number) => (
+                          <div 
+                            key={option.dietary_option?.id || `dietary-${index}`} 
+                            className="flex items-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200 hover:shadow-md transition-all duration-200 hover:scale-105 hover:border-green-300"
+                            title={option.dietary_option?.description || option.dietary_option?.name}
+                          >
+                            <div className="flex-shrink-0 bg-white rounded-full p-1.5 shadow-sm mr-3">
+                              <span className="text-lg">{option.dietary_option?.icon || '🥗'}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-medium text-green-800">{option.dietary_option?.name}</span>
+                              {option.dietary_option?.description && (
+                                <p className="text-xs text-green-600 mt-1 italic line-clamp-2">{option.dietary_option.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recursos do Restaurante */}
+                  {restaurant.features && restaurant.features.length > 0 && (
+                    <div>
+                      <div className="flex items-center mb-2">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                          ⭐ Recursos Disponíveis
+                        </span>
+                        <span className="text-xs text-gray-500">Comodidades e serviços</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                        {restaurant.features.map((feature: any, index: number) => (
+                          <div 
+                            key={feature.feature?.id || `feature-${index}`} 
+                            className="flex items-center p-3 bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg border border-blue-200 hover:shadow-md transition-all duration-200 hover:scale-105 hover:border-blue-300 group"
+                            title={feature.feature?.description || feature.feature?.name}
+                          >
+                            <div className="flex-shrink-0 bg-white rounded-full p-1.5 shadow-sm mr-3 group-hover:scale-110 transition-transform duration-200">
+                              <span className="text-lg">{feature.feature?.icon || '⭐'}</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-medium text-blue-800">{feature.feature?.name}</span>
+                              {feature.feature?.description && (
+                                <p className="text-xs text-blue-600 mt-1 italic line-clamp-2">{feature.feature.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+            ) : (
+              <div className="mt-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 border border-gray-200">
+                <div className="flex items-center justify-center text-gray-500 text-sm">
+                  <Tag className="h-4 w-4 mr-2" />
+                  Este restaurante ainda não possui categorias ou características definidas
+                </div>
+              </div>
+            )}
             
             {(() => {
               const formattedDescription = formatDescription(restaurant.description || '');
