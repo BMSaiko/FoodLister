@@ -193,7 +193,9 @@ export default function EditRestaurant({ restaurantId }) {
       ...prev,
       name: data.name || prev.name,
       location: data.location || prev.location,
-      source_url: data.source_url || prev.source_url
+      source_url: data.source_url || prev.source_url,
+      latitude: data.latitude || prev.latitude,
+      longitude: data.longitude || prev.longitude
     }));
     setGoogleMapsModalOpen(false);
   };
@@ -319,7 +321,9 @@ export default function EditRestaurant({ restaurantId }) {
           source_url: formData.source_url,
           menu_links: formData.menu_links,
           menu_images: formData.menu_images,
-          phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers)
+          phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
+          latitude: formData.latitude || null,
+          longitude: formData.longitude || null
           // Não atualizamos o creator para preservar quem criou originalmente
         })
         .eq('id', restaurantId);

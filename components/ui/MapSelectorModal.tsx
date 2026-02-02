@@ -42,8 +42,8 @@ export default function MapSelectorModal({
     {
       name: 'Google Maps',
       icon: MapPin,
-      url: hasValidCoords && validLocation
-        ? `https://maps.google.com/?ll=${latitude},${longitude}&q=${encodedLocation}`
+      url: hasValidCoords
+        ? `https://maps.google.com/?ll=${latitude},${longitude}`
         : validLocation
         ? `https://maps.google.com/?q=${encodedLocation}`
         : 'https://maps.google.com/',
@@ -86,9 +86,9 @@ export default function MapSelectorModal({
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg max-w-sm w-full">
+      <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">Abrir localização em</h2>
           <button
             onClick={onClose}
@@ -100,14 +100,14 @@ export default function MapSelectorModal({
         </div>
 
         {/* Content */}
-        <div className="p-4">
-          <p className="text-sm text-gray-600 mb-4 text-center">
+        <div className="p-3 sm:p-4">
+          <p className="text-sm text-gray-600 mb-3 sm:mb-4 text-center">
             Escolha o aplicativo de mapas:
           </p>
 
           {/* Data validation warnings */}
           {(!validLocation || !hasValidCoords) && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 sm:mb-4">
               <div className="flex items-start gap-2">
                 <div className="text-yellow-600 text-sm">
                   {!validLocation && !hasValidCoords && (
@@ -124,25 +124,52 @@ export default function MapSelectorModal({
             </div>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {mapOptions.map((option) => {
               const Icon = option.icon;
               return (
                 <button
                   key={option.name}
                   onClick={() => handleOpenMap(option.url)}
-                  className={`w-full flex items-center justify-center px-4 py-3 rounded-lg transition-colors ${option.color} ${option.textColor} font-medium`}
+                  className={`w-full flex items-center justify-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${option.color} ${option.textColor} font-medium text-sm sm:text-base`}
                 >
-                  <Icon className="h-5 w-5 mr-3" />
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
                   {option.name}
                 </button>
               );
             })}
           </div>
 
-          <p className="text-xs text-gray-500 mt-4 text-center">
-            {location}
-          </p>
+          {/* Precise location display */}
+          <div className="mt-3 sm:mt-4 text-center">
+            {hasValidCoords && (
+              <div className="text-xs text-blue-600 font-mono bg-blue-50 rounded-lg p-2 border border-blue-100">
+                <div className="font-medium text-blue-800 mb-1">Coordenadas precisas:</div>
+                <div className="text-sm">{latitude.toFixed(6)}, {longitude.toFixed(6)}</div>
+              </div>
+            )}
+            {validLocation && (
+              <div className="text-xs text-gray-600 mt-2">
+                <div className="font-medium text-gray-700 mb-1">Localização:</div>
+                <div className="text-left max-w-xs mx-auto text-sm">{location}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Detailed address information when coordinates are available */}
+          {hasValidCoords && (
+            <div className="mt-3 sm:mt-4 text-center">
+              <div className="text-xs text-purple-600 bg-purple-50 rounded-lg p-2 border border-purple-100">
+                <div className="font-medium text-purple-800 mb-1">Endereço detalhado:</div>
+                <div className="text-sm">
+                  Clique em um aplicativo de mapas para obter informações completas de endereço
+                </div>
+                <div className="text-xs text-purple-700 mt-1">
+                  (Rua, número, bairro, cidade, código postal, estado, país)
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

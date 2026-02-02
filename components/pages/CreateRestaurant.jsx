@@ -122,7 +122,9 @@ export default function CreateRestaurant() {
       ...prev,
       name: data.name || prev.name,
       location: data.location || prev.location,
-      source_url: data.source_url || prev.source_url
+      source_url: data.source_url || prev.source_url,
+      latitude: data.latitude || prev.latitude,
+      longitude: data.longitude || prev.longitude
     }));
     setGoogleMapsModalOpen(false);
   };
@@ -252,52 +254,43 @@ export default function CreateRestaurant() {
       // Converter URL do Cloudinary se necessário
       const processedImageUrl = convertCloudinaryUrl(formData.image_url) || '/placeholder-restaurant.jpg';
       
-      // 1. Get user display name from profiles table or email
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('display_name')
-        .eq('user_id', user.id)
-        .single();
+      // Use the Next.js API route instead of direct Supabase calls
+      const response = await fetch('/api/restaurants', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          description: formData.description,
+          image_url: processedImageUrl,
+          images: formData.images,
+          display_image_index: formData.display_image_index,
+          location: formData.location || '',
+          source_url: formData.source_url || '',
+          menu_links: formData.menu_links,
+          menu_images: formData.menu_images,
+          phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
+          latitude: formData.latitude || null,
+          longitude: formData.longitude || null
+        })
+      });
 
-      const displayName = (!profileError && profileData?.display_name) ? profileData.display_name : user.email;
-
-      // 2. Criar o restaurante com creator_id e creator_name definidos explicitamente
-      const { data: restaurantData, error: restaurantError } = await supabase
-        .from('restaurants')
-        .insert([
-          {
-            name: formData.name,
-            description: formData.description,
-            image_url: processedImageUrl,
-            images: formData.images,
-            display_image_index: formData.display_image_index,
-            location: formData.location || '',
-            source_url: formData.source_url || '',
-            menu_links: formData.menu_links,
-            menu_images: formData.menu_images,
-            phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
-            creator_id: user.id,
-            creator_name: displayName
-          }
-        ])
-        .select();
-      
-      if (restaurantError) {
-        throw restaurantError;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create restaurant');
       }
+
+      const { restaurant } = await response.json();
       
-      // 2. Se houver tipos de cozinha selecionados, criar os relacionamentos
-      if (formData.selectedCuisineTypes.length > 0 && restaurantData && restaurantData[0]) {
-        const restaurantId = restaurantData[0].id;
-        
-        const cuisineRelations = formData.selectedCuisineTypes.map(cuisineTypeId => ({
-          restaurant_id: restaurantId,
-          cuisine_type_id: cuisineTypeId
-        }));
-        
+      // Create cuisine type relationships using direct Supabase call (since this is a separate operation)
+      if (formData.selectedCuisineTypes.length > 0 && restaurant) {
         const { error: relationError } = await supabase
           .from('restaurant_cuisine_types')
-          .insert(cuisineRelations);
+          .insert(formData.selectedCuisineTypes.map(cuisineTypeId => ({
+            restaurant_id: restaurant.id,
+            cuisine_type_id: cuisineTypeId
+          })));
         
         if (relationError) {
           console.error('Erro ao adicionar tipos de cozinha:', relationError);
@@ -307,7 +300,7 @@ export default function CreateRestaurant() {
       }
       
       // Show success message and redirect to the new restaurant's page
-      if (restaurantData && restaurantData[0]) {
+      if (restaurant) {
         toast.success('Restaurante criado com sucesso!', {
           position: "top-center",
           autoClose: 3000,
@@ -319,7 +312,7 @@ export default function CreateRestaurant() {
           className: "text-sm sm:text-base",
           bodyClassName: "text-sm sm:text-base"
         });
-        router.push(`/restaurants/${restaurantData[0].id}`);
+        router.push(`/restaurants/${restaurant.id}`);
       } else {
         toast.success('Restaurante criado com sucesso!', {
           position: "top-center",
