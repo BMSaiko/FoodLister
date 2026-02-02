@@ -14,6 +14,7 @@ import {
   Tag,
   Check,
   X as XIcon,
+  Search as SearchIcon,
   Users
 } from 'lucide-react';
 import { createClient } from '@/libs/supabase/client';
@@ -49,6 +50,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
   const [cuisineTypes, setCuisineTypes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [locationQuery, setLocationQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [filterPresets, setFilterPresets] = useState([]);
   const [showPresets, setShowPresets] = useState(false);
@@ -397,6 +399,47 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
       case 'cuisine':
         return (
           <div className="space-y-6">
+            {/* Search Bar for Cuisine Types */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <SearchIcon className="h-5 w-5" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Buscar tipos de culinária..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchQuery(value);
+                    
+                    // Clear existing timeout
+                    if (searchTimeoutRef.current) {
+                      clearTimeout(searchTimeoutRef.current);
+                    }
+                    
+                    // Set new timeout for debounced search
+                    searchTimeoutRef.current = setTimeout(() => {
+                      setFilters((prev: any) => ({ ...prev, cuisine_search: value }));
+                    }, 300);
+                  }}
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilters((prev: any) => ({ ...prev, cuisine_search: '' }));
+                    }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                  >
+                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {loading ? (
                 Array.from({ length: 8 }).map((_, index) => (
@@ -409,48 +452,54 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                   Nenhuma opção disponível
                 </div>
               ) : (
-                cuisineTypes.map((item) => {
-                  const isSelected = filters.cuisine_types?.includes(item.id);
-                  
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleMultiSelect('cuisine_types', item.id)}
-                      className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
-                        isSelected 
-                          ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
-                          : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
-                      }`}
-                    >
-                      {/* Animated background */}
-                      {isSelected && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
-                      )}
-                      
-                      <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
-                        isSelected 
-                          ? 'bg-white/80 shadow-lg' 
-                          : 'bg-white/60 group-hover:bg-white/80'
-                      }`}>
-                        <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
-                          <Utensils className="h-6 w-6" />
+                cuisineTypes
+                  .filter(item => {
+                    const searchValue = filters.cuisine_search?.toLowerCase() || '';
+                    if (!searchValue) return true;
+                    return item.name.toLowerCase().includes(searchValue);
+                  })
+                  .map((item) => {
+                    const isSelected = filters.cuisine_types?.includes(item.id);
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleMultiSelect('cuisine_types', item.id)}
+                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
+                          isSelected 
+                            ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
+                            : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
+                        }`}
+                      >
+                        {/* Animated background */}
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
+                        )}
+                        
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                          isSelected 
+                            ? 'bg-white/80 shadow-lg' 
+                            : 'bg-white/60 group-hover:bg-white/80'
+                        }`}>
+                          <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
+                            <Utensils className="h-6 w-6" />
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
-                        isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
-                      }`}>
-                        {item.name}
-                      </div>
-                      
-                      {isSelected && (
-                        <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                          <Check className="h-4 w-4 text-white" />
+                        
+                        <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
+                          isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
+                        }`}>
+                          {item.name}
                         </div>
-                      )}
-                    </button>
-                  );
-                })
+                        
+                        {isSelected && (
+                          <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                            <Check className="h-4 w-4 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })
               )}
             </div>
           </div>
@@ -459,6 +508,47 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
       case 'features':
         return (
           <div className="space-y-6">
+            {/* Search Bar for Features */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <SearchIcon className="h-5 w-5" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Buscar comodidades..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchQuery(value);
+                    
+                    // Clear existing timeout
+                    if (searchTimeoutRef.current) {
+                      clearTimeout(searchTimeoutRef.current);
+                    }
+                    
+                    // Set new timeout for debounced search
+                    searchTimeoutRef.current = setTimeout(() => {
+                      setFilters((prev: any) => ({ ...prev, features_search: value }));
+                    }, 300);
+                  }}
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilters((prev: any) => ({ ...prev, features_search: '' }));
+                    }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                  >
+                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {loading ? (
                 Array.from({ length: 8 }).map((_, index) => (
@@ -471,47 +561,53 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                   Nenhuma opção disponível
                 </div>
               ) : (
-                features.map((item) => {
-                  const isSelected = filters.features?.includes(item.id);
-                  
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleMultiSelect('features', item.id)}
-                      className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
-                        isSelected 
-                          ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
-                          : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
-                      }`}
-                    >
-                      {isSelected && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
-                      )}
-                      
-                      <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
-                        isSelected 
-                          ? 'bg-white/80 shadow-lg' 
-                          : 'bg-white/60 group-hover:bg-white/80'
-                      }`}>
-                        <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
-                          <Sparkles className="h-6 w-6" />
+                features
+                  .filter(item => {
+                    const searchValue = filters.features_search?.toLowerCase() || '';
+                    if (!searchValue) return true;
+                    return item.name.toLowerCase().includes(searchValue);
+                  })
+                  .map((item) => {
+                    const isSelected = filters.features?.includes(item.id);
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleMultiSelect('features', item.id)}
+                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
+                          isSelected 
+                            ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
+                            : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
+                        )}
+                        
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                          isSelected 
+                            ? 'bg-white/80 shadow-lg' 
+                            : 'bg-white/60 group-hover:bg-white/80'
+                        }`}>
+                          <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
+                            <Sparkles className="h-6 w-6" />
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
-                        isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
-                      }`}>
-                        {item.name}
-                      </div>
-                      
-                      {isSelected && (
-                        <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                          <Check className="h-4 w-4 text-white" />
+                        
+                        <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
+                          isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
+                        }`}>
+                          {item.name}
                         </div>
-                      )}
-                    </button>
-                  );
-                })
+                        
+                        {isSelected && (
+                          <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                            <Check className="h-4 w-4 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })
               )}
             </div>
           </div>
@@ -520,6 +616,47 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
       case 'dietary':
         return (
           <div className="space-y-6">
+            {/* Search Bar for Dietary Options */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <SearchIcon className="h-5 w-5" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Buscar opções dietéticas..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchQuery(value);
+                    
+                    // Clear existing timeout
+                    if (searchTimeoutRef.current) {
+                      clearTimeout(searchTimeoutRef.current);
+                    }
+                    
+                    // Set new timeout for debounced search
+                    searchTimeoutRef.current = setTimeout(() => {
+                      setFilters((prev: any) => ({ ...prev, dietary_search: value }));
+                    }, 300);
+                  }}
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilters((prev: any) => ({ ...prev, dietary_search: '' }));
+                    }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                  >
+                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {loading ? (
                 Array.from({ length: 8 }).map((_, index) => (
@@ -532,47 +669,53 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                   Nenhuma opção disponível
                 </div>
               ) : (
-                dietaryOptions.map((item) => {
-                  const isSelected = filters.dietary_options?.includes(item.id);
-                  
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleMultiSelect('dietary_options', item.id)}
-                      className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
-                        isSelected 
-                          ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
-                          : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
-                      }`}
-                    >
-                      {isSelected && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
-                      )}
-                      
-                      <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
-                        isSelected 
-                          ? 'bg-white/80 shadow-lg' 
-                          : 'bg-white/60 group-hover:bg-white/80'
-                      }`}>
-                        <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
-                          <Tag className="h-6 w-6" />
+                dietaryOptions
+                  .filter(item => {
+                    const searchValue = filters.dietary_search?.toLowerCase() || '';
+                    if (!searchValue) return true;
+                    return item.name.toLowerCase().includes(searchValue);
+                  })
+                  .map((item) => {
+                    const isSelected = filters.dietary_options?.includes(item.id);
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleMultiSelect('dietary_options', item.id)}
+                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
+                          isSelected 
+                            ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
+                            : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
+                        )}
+                        
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                          isSelected 
+                            ? 'bg-white/80 shadow-lg' 
+                            : 'bg-white/60 group-hover:bg-white/80'
+                        }`}>
+                          <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
+                            <Tag className="h-6 w-6" />
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
-                        isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
-                      }`}>
-                        {item.name}
-                      </div>
-                      
-                      {isSelected && (
-                        <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
-                          <Check className="h-4 w-4 text-white" />
+                        
+                        <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
+                          isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
+                        }`}>
+                          {item.name}
                         </div>
-                      )}
-                    </button>
-                  );
-                })
+                        
+                        {isSelected && (
+                          <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                            <Check className="h-4 w-4 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })
               )}
             </div>
           </div>
