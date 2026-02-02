@@ -8,6 +8,8 @@ import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Sparkles, Apple, Ma
 import Link from 'next/link';
 import RestaurantCard from './RestaurantCard';
 import { toast } from 'react-toastify';
+import RouletteFilters from './RouletteFilters';
+import { useFiltersLogic } from '@/hooks/useFiltersLogic';
 
 
 const RestaurantRoulette = () => {
@@ -23,12 +25,9 @@ const RestaurantRoulette = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Filtros
+  // Filtros - usando o sistema de filtros lógicos
   const [showFilters, setShowFilters] = useState(false);
-  const [filterNotVisited, setFilterNotVisited] = useState(false);
-  const [selectedCuisineTypes, setSelectedCuisineTypes] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Função para calcular innerRadius baseado no número de restaurantes
   const getInnerRadius = (totalRestaurants) => {
@@ -187,7 +186,10 @@ const RestaurantRoulette = () => {
     fetchVisitsData();
   }, [user, restaurants, getAccessToken]);
   
-  // Aplicar filtros e seleção de restaurantes
+  // Usar o sistema de filtros lógicos
+  const { filters, setFilters, filteredRestaurants: filteredRestaurantsFromLogic, activeFilters, clearFilters: clearFiltersLogic } = useFiltersLogic(restaurants, visitsData, user);
+  
+  // Atualizar filteredRestaurants com base na lógica de filtros
   useEffect(() => {
     let filtered = [...restaurants];
 
@@ -195,30 +197,13 @@ const RestaurantRoulette = () => {
     if (selectedRestaurantsForRoulette.length > 0) {
       filtered = selectedRestaurantsForRoulette;
     } else {
-      // Caso contrário, aplicar filtros normais
-      // Filtro de não visitados - apenas para usuários logados
-      if (filterNotVisited && user) {
-        filtered = filtered.filter(restaurant => {
-          const restaurantVisitsData = visitsData[restaurant.id];
-          const isVisited = restaurantVisitsData ? restaurantVisitsData.visited : false;
-          return !isVisited;
-        });
-      }
-
-      // Filtro de categorias
-      if (selectedCuisineTypes.length > 0) {
-        filtered = filtered.filter(restaurant => {
-          const restaurantCuisineIds = restaurant.cuisine_types.map(type => type.id);
-          return selectedCuisineTypes.some(cuisineId =>
-            restaurantCuisineIds.includes(cuisineId)
-          );
-        });
-      }
+      // Caso contrário, usar os filtros lógicos
+      filtered = filteredRestaurantsFromLogic;
     }
 
     setFilteredRestaurants(filtered);
     setSelectedRestaurant(null);
-  }, [restaurants, filterNotVisited, selectedCuisineTypes, selectedRestaurantsForRoulette, visitsData, user]);
+  }, [restaurants, filteredRestaurantsFromLogic, selectedRestaurantsForRoulette, visitsData, user]);
   
   const handleSpin = () => {
     if (filteredRestaurants.length === 0) {
@@ -241,21 +226,6 @@ const RestaurantRoulette = () => {
     }, 3000);
   };
   
-  const handleCuisineTypeToggle = (cuisineTypeId) => {
-    if (selectedCuisineTypes.includes(cuisineTypeId)) {
-      setSelectedCuisineTypes(selectedCuisineTypes.filter(id => id !== cuisineTypeId));
-    } else {
-      setSelectedCuisineTypes([...selectedCuisineTypes, cuisineTypeId]);
-    }
-  };
-  
-  const clearFilters = () => {
-    if (user) {
-      setFilterNotVisited(false);
-    }
-    setSelectedCuisineTypes([]);
-    setSearchQuery('');
-  };
 
   const handleToggleVisit = async (restaurantId) => {
     if (!user) {
@@ -326,10 +296,6 @@ const RestaurantRoulette = () => {
     }
   };
   
-  const filteredCuisineTypes = cuisineTypes.filter(type => 
-    type.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
   const availableCount = filteredRestaurants.length;
   const totalCount = restaurants.length;
   
@@ -350,89 +316,16 @@ const RestaurantRoulette = () => {
               <Plus className="h-4 w-4 mr-2" />
               Selecionar Restaurantes
             </button>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] font-medium"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filtros
-            </button>
           </div>
         </div>
         
-        {/* Painel de filtros */}
-        {showFilters && (
-          <div className="border-t border-gray-200 pt-4 mt-4">
-            <div className="space-y-4">
-              {/* Filtro de não visitados - apenas para usuários logados */}
-              {user && (
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="notVisitedFilter"
-                    checked={filterNotVisited}
-                    onChange={(e) => setFilterNotVisited(e.target.checked)}
-                    className="h-5 w-5 sm:h-4 sm:w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded flex-shrink-0"
-                  />
-                  <label htmlFor="notVisitedFilter" className="text-sm font-medium text-gray-700 cursor-pointer">
-                    Apenas restaurantes não visitados
-                  </label>
-                </div>
-              )}
-              
-              {/* Filtro de categorias */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Filtrar por Categoria
-                </label>
-                
-                <div className="relative mb-2">
-                  <input 
-                    type="text"
-                    placeholder="Buscar categorias..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-8 pr-2 py-2 sm:py-1 border border-gray-300 rounded text-base sm:text-sm min-h-[44px] sm:min-h-0"
-                  />
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                </div>
-                
-                <div className="max-h-36 sm:max-h-36 overflow-y-auto border border-gray-200 rounded p-2 bg-gray-50">
-                  {filteredCuisineTypes.length > 0 ? (
-                    <div className="space-y-2 sm:space-y-1">
-                      {filteredCuisineTypes.map(cuisineType => (
-                        <div key={cuisineType.id} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={`cuisine-${cuisineType.id}`}
-                            checked={selectedCuisineTypes.includes(cuisineType.id)}
-                            onChange={() => handleCuisineTypeToggle(cuisineType.id)}
-                            className="h-5 w-5 sm:h-4 sm:w-4 text-amber-500 focus:ring-amber-400 border-gray-300 rounded mr-2 flex-shrink-0"
-                          />
-                          <label htmlFor={`cuisine-${cuisineType.id}`} className="text-sm text-gray-700 cursor-pointer flex-1">
-                            {cuisineType.name}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-2 text-gray-500 text-sm">Nenhuma categoria encontrada</div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex justify-end pt-3 sm:pt-2 border-t border-gray-200">
-                <button 
-                  onClick={clearFilters}
-                  className="px-5 py-2.5 sm:px-4 sm:py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center justify-center min-h-[44px] font-medium"
-                >
-                  <X className="h-4 w-4 mr-1.5 sm:mr-1" />
-                  Limpar Filtros
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Filtros Tabbed */}
+        <RouletteFilters
+          filters={filters}
+          setFilters={setFilters}
+          clearFilters={clearFiltersLogic}
+          autoApply={true}
+        />
         
         {/* Estatísticas */}
         <div className="mt-4 pt-4 border-t border-gray-200">
