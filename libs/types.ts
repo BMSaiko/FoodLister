@@ -20,6 +20,8 @@ export interface Restaurant {
   updated_at: string;
   creator_id?: string;
   creator_name?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface CuisineType {
@@ -152,13 +154,53 @@ export interface RestaurantVisitsData {
 export interface RestaurantFilters {
   search?: string;
   cuisine_types?: string[];
+  features?: string[];
+  dietary_options?: string[];
   price_range?: {
     min?: number;
     max?: number;
   };
-  rating?: number;
+  rating_range?: {
+    min?: number;
+    max?: number;
+  };
+  location?: {
+    city?: string;
+    distance?: number; // in km
+    coordinates?: { lat: number; lng: number };
+  };
+  visit_count?: { min?: number; max?: number };
   visited?: boolean;
-  location?: string;
+  not_visited?: boolean;
+}
+
+// Restaurant feature types
+export interface RestaurantFeature {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  created_at: string;
+}
+
+// Dietary option types
+export interface DietaryOption {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  created_at: string;
+}
+
+// Enhanced restaurant with features and dietary options
+export interface RestaurantWithDetails extends Restaurant {
+  cuisine_types: CuisineType[];
+  features: RestaurantFeature[];
+  dietary_options: DietaryOption[];
+  reviews?: Review[];
+  review_count?: number;
+  images?: string[];
+  display_image_index?: number;
 }
 
 // Form validation types

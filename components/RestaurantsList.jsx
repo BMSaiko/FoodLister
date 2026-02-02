@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import RestaurantFilters from '@/components/ui/RestaurantFilters';
+import TabbedRestaurantFilters from '@/components/ui/TabbedRestaurantFilters';
 import { FiltersProvider, useAuth } from '@/contexts/index';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import { useVisitsData } from '@/hooks/useVisitsData';
@@ -95,7 +95,7 @@ function RestaurantsContent({ showHeader = true }) {
     <>
       <RestaurantsHeader searchQuery={searchQuery} showHeader={showHeader} />
 
-      <RestaurantFilters
+      <TabbedRestaurantFilters
         filters={filters}
         setFilters={setFilters}
         clearFilters={clearFilters}
