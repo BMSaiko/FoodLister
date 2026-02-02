@@ -557,6 +557,8 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       case 'visited':
                         newFilters.visited = true;
                         newFilters.not_visited = false;
+                        // Set default visit count range to show only visited restaurants
+                        newFilters.visit_count = { min: 1, max: 50 };
                         break;
                       case 'not_visited':
                         newFilters.visited = false;
@@ -583,13 +585,14 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                 
                 <DualRangeSlider
                   min={1}
-                  max={50}
+                  max={100}
                   step={1}
                   value={{
                     min: filters.visit_count?.min ?? 1,
-                    max: filters.visit_count?.max ?? 50
+                    max: filters.visit_count?.max ?? 100
                   }}
                   onChange={(value) => {
+                    console.log('Visit count range changed:', value);
                     setFilters((prev: any) => ({
                       ...prev,
                       visit_count: value
@@ -598,6 +601,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                   label="Número de Visitas"
                   unit="vezes"
                 />
+                
+                <div className="text-xs text-gray-500 bg-gray-50/50 px-3 py-2 rounded-lg border border-gray-200/60">
+                  <span className="font-medium">Exemplo:</span> Se definir min=5, apenas restaurantes com 5 ou mais visitas serão exibidos
+                </div>
               </div>
             )}
           </div>

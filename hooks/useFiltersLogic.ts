@@ -182,13 +182,43 @@ export function useFiltersLogic(
       if (user && filters.visit_count) {
         const { min, max } = filters.visit_count;
         const restaurantVisitsData = visitsData[restaurant.id];
-        const visitCount = restaurantVisitsData ? restaurantVisitsData.visit_count : 0;
+        const visitCount = restaurantVisitsData ? restaurantVisitsData.visitCount : 0;
         
-        if (min !== undefined && visitCount < min) {
-          return false;
-        }
-        if (max !== undefined && visitCount > max) {
-          return false;
+        // Apply visit count filtering based on current filter state
+        const shouldFilter = shouldApplyVisitCountFilter(filters, min, max);
+        
+        if (shouldFilter) {
+          const { effectiveMin, effectiveMax } = getVisitCountRange(filters, min, max);
+          
+          // Debug logging for all restaurants to see the filtering in action
+          console.log(`[FILTER] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount}`, {
+            visitCount,
+            effectiveMin,
+            effectiveMax,
+            shouldFilter,
+            willBeFiltered: (effectiveMin !== undefined && visitCount < effectiveMin) || 
+                           (effectiveMax !== undefined && visitCount > effectiveMax),
+            filters: {
+              visited: filters.visited,
+              not_visited: filters.not_visited,
+              min,
+              max
+            }
+          });
+          
+          // Apply the filtering
+          if (effectiveMin !== undefined && visitCount < effectiveMin) {
+            console.log(`[FILTER OUT] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount} < Min: ${effectiveMin}`);
+            return false;
+          }
+          if (effectiveMax !== undefined && visitCount > effectiveMax) {
+            console.log(`[FILTER OUT] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount} > Max: ${effectiveMax}`);
+            return false;
+          }
+          
+          console.log(`[FILTER IN] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount} (within range)`);
+        } else {
+          console.log(`[NO FILTER] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount}`);
         }
       }
 
@@ -230,6 +260,59 @@ export function useFiltersLogic(
     filteredRestaurants,
     activeFilters,
     clearFilters
+  };
+}
+
+// Helper function to determine if visit count filtering should be applied
+function shouldApplyVisitCountFilter(
+  filters: Filters,
+  min: number | undefined,
+  max: number | undefined
+): boolean {
+  // If "Apenas não visitados" is selected, always filter
+  if (filters.not_visited && !filters.visited) {
+    return true;
+  }
+  
+  // If "Apenas Visitados" is selected, always filter
+  if (filters.visited && !filters.not_visited) {
+    return true;
+  }
+  
+  // If both are selected or none are selected, check if custom range is set
+  const hasCustomRange = (min !== undefined && min !== 0) || (max !== undefined && max !== 100);
+  return hasCustomRange;
+}
+
+// Helper function to get the effective visit count range
+function getVisitCountRange(
+  filters: Filters,
+  min: number | undefined,
+  max: number | undefined
+) {
+  // If "Apenas não visitados" is selected, only show restaurants with 0 visits
+  if (filters.not_visited && !filters.visited) {
+    return {
+      effectiveMin: undefined,
+      effectiveMax: 0
+    };
+  }
+  
+  // If "Apenas Visitados" is selected without custom range, show restaurants with 1+ visits
+  if (filters.visited && !filters.not_visited) {
+    const hasCustomRange = (min !== undefined && min !== 0) || (max !== undefined && max !== 100);
+    if (!hasCustomRange) {
+      return {
+        effectiveMin: 1,
+        effectiveMax: undefined
+      };
+    }
+  }
+  
+  // Return the custom range if set
+  return {
+    effectiveMin: min,
+    effectiveMax: max
   };
 }
 
