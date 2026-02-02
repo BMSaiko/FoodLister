@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getPublicServerClient, getServerClient } from '@/libs/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  const response = NextResponse.next();
   try {
-    const supabase = await getServerClient(request, response);
+    const supabase = await getPublicServerClient();
     
     if (!supabase) {
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });

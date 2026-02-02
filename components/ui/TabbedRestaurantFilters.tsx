@@ -61,6 +61,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [focusedElement, setFocusedElement] = useState<string | null>(null);
 
+  const { user } = useAuth();
   const supabase = createClient();
 
   // Load features and dietary options
@@ -188,12 +189,13 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           onClick();
         } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
           e.preventDefault();
-          const tabs = ['search', 'location', 'price-rating', 'cuisine', 'features', 'dietary', 'visits'];
-          const currentIndex = tabs.indexOf(activeTab);
+          const availableTabs = getAvailableTabs();
+          const tabIds = availableTabs.map(tab => tab.id);
+          const currentIndex = tabIds.indexOf(activeTab);
           const nextIndex = e.key === 'ArrowRight' 
-            ? (currentIndex + 1) % tabs.length 
-            : (currentIndex - 1 + tabs.length) % tabs.length;
-          setActiveTab(tabs[nextIndex]);
+            ? (currentIndex + 1) % tabIds.length 
+            : (currentIndex - 1 + tabIds.length) % tabIds.length;
+          setActiveTab(tabIds[nextIndex]);
         }
       }}
       className={`flex items-center space-x-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
@@ -246,6 +248,36 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
       )}
     </button>
   );
+
+  // Get available tabs based on authentication status
+  const getAvailableTabs = () => {
+    const baseTabs = [
+      { id: 'search', title: 'Busca', icon: <SearchIcon className="h-4 w-4" /> },
+      { id: 'location', title: 'Localização', icon: <MapPin className="h-4 w-4" /> },
+      { id: 'price-rating', title: 'Preço & Avaliação', icon: <Star className="h-4 w-4" /> },
+      { id: 'cuisine', title: 'Culinária', icon: <Utensils className="h-4 w-4" /> },
+      { id: 'features', title: 'Comodidades', icon: <Sparkles className="h-4 w-4" /> },
+      { id: 'dietary', title: 'Dietas', icon: <Tag className="h-4 w-4" /> }
+    ];
+
+    // Add visits tab only if user is logged in
+    if (user) {
+      baseTabs.push({ id: 'visits', title: 'Visitas', icon: <Users className="h-4 w-4" /> });
+    }
+
+    return baseTabs;
+  };
+
+  // Handle tab state management when tabs change due to authentication
+  useEffect(() => {
+    const availableTabs = getAvailableTabs();
+    const availableTabIds = availableTabs.map(tab => tab.id);
+    
+    // If current active tab is not available, switch to the first available tab
+    if (!availableTabIds.includes(activeTab)) {
+      setActiveTab(availableTabIds[0] || 'search');
+    }
+  }, [user, activeTab]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -699,55 +731,16 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
         <div className="p-6" id="filter-content">
           {/* Tab Navigation */}
           <div className="flex flex-wrap gap-2 mb-6 border-b border-gray-200/60 pb-4">
-            <FilterTabButton
-              id="search"
-              title="Busca"
-              icon={<SearchIcon className="h-4 w-4" />}
-              isActive={activeTab === 'search'}
-              onClick={() => setActiveTab('search')}
-            />
-            <FilterTabButton
-              id="location"
-              title="Localização"
-              icon={<MapPin className="h-4 w-4" />}
-              isActive={activeTab === 'location'}
-              onClick={() => setActiveTab('location')}
-            />
-            <FilterTabButton
-              id="price-rating"
-              title="Preço & Avaliação"
-              icon={<Star className="h-4 w-4" />}
-              isActive={activeTab === 'price-rating'}
-              onClick={() => setActiveTab('price-rating')}
-            />
-            <FilterTabButton
-              id="cuisine"
-              title="Culinária"
-              icon={<Utensils className="h-4 w-4" />}
-              isActive={activeTab === 'cuisine'}
-              onClick={() => setActiveTab('cuisine')}
-            />
-            <FilterTabButton
-              id="features"
-              title="Comodidades"
-              icon={<Sparkles className="h-4 w-4" />}
-              isActive={activeTab === 'features'}
-              onClick={() => setActiveTab('features')}
-            />
-            <FilterTabButton
-              id="dietary"
-              title="Dietas"
-              icon={<Tag className="h-4 w-4" />}
-              isActive={activeTab === 'dietary'}
-              onClick={() => setActiveTab('dietary')}
-            />
-            <FilterTabButton
-              id="visits"
-              title="Visitas"
-              icon={<Users className="h-4 w-4" />}
-              isActive={activeTab === 'visits'}
-              onClick={() => setActiveTab('visits')}
-            />
+            {getAvailableTabs().map((tab) => (
+              <FilterTabButton
+                key={tab.id}
+                id={tab.id}
+                title={tab.title}
+                icon={tab.icon}
+                isActive={activeTab === tab.id}
+                onClick={() => setActiveTab(tab.id)}
+              />
+            ))}
           </div>
 
           {/* Tab Content */}
