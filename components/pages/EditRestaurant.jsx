@@ -11,6 +11,8 @@ import FormField from '@/components/ui/FormField';
 import FormSection from '@/components/ui/FormSection';
 import FormActions from '@/components/ui/FormActions';
 import CuisineSelector from '@/components/ui/CuisineSelector';
+import DietaryOptionsSelector from '@/components/ui/DietaryOptionsSelector';
+import FeaturesSelector from '@/components/ui/FeaturesSelector';
 import ImagePreview from '@/components/ui/ImagePreview';
 import ImageUploader from '@/components/ui/ImageUploader';
 import MenuManager from '@/components/ui/MenuManager';
@@ -67,6 +69,10 @@ export default function EditRestaurant({ restaurantId }) {
   const [saving, setSaving] = useState(false);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loadingCuisineTypes, setLoadingCuisineTypes] = useState(true);
+  const [dietaryOptions, setDietaryOptions] = useState([]);
+  const [loadingDietaryOptions, setLoadingDietaryOptions] = useState(true);
+  const [features, setFeatures] = useState([]);
+  const [loadingFeatures, setLoadingFeatures] = useState(true);
   const [googleMapsModalOpen, setGoogleMapsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -80,7 +86,9 @@ export default function EditRestaurant({ restaurantId }) {
     menu_images: [],
     phone_numbers: [],
     creator: '',
-    selectedCuisineTypes: []
+    selectedCuisineTypes: [],
+    selectedDietaryOptions: [],
+    selectedFeatures: []
   });
 
   const supabase = createClient();
@@ -103,20 +111,52 @@ export default function EditRestaurant({ restaurantId }) {
         if (restaurantError) throw restaurantError;
 
         // 2. Buscar tipos de cozinha relacionados
-        const { data: relationData, error: relationError } = await supabase
+        const { data: cuisineRelationData, error: cuisineRelationError } = await supabase
           .from('restaurant_cuisine_types')
           .select('cuisine_type_id')
           .eq('restaurant_id', restaurantId);
 
-        if (relationError) throw relationError;
+        if (cuisineRelationError) throw cuisineRelationError;
 
-        // 3. Buscar todos os tipos de cozinha disponíveis
+        // 3. Buscar opções dietéticas relacionadas
+        const { data: dietaryRelationData, error: dietaryRelationError } = await supabase
+          .from('restaurant_dietary_options_junction')
+          .select('dietary_option_id')
+          .eq('restaurant_id', restaurantId);
+
+        if (dietaryRelationError) throw dietaryRelationError;
+
+        // 4. Buscar características relacionadas
+        const { data: featureRelationData, error: featureRelationError } = await supabase
+          .from('restaurant_restaurant_features')
+          .select('feature_id')
+          .eq('restaurant_id', restaurantId);
+
+        if (featureRelationError) throw featureRelationError;
+
+        // 5. Buscar todos os tipos de cozinha disponíveis
         const { data: allCuisineTypes, error: cuisineTypesError } = await supabase
           .from('cuisine_types')
           .select('*')
           .order('name');
 
         if (cuisineTypesError) throw cuisineTypesError;
+
+        // 6. Buscar todas as opções dietéticas disponíveis
+        const { data: allDietaryOptions, error: dietaryOptionsError } = await supabase
+          .from('restaurant_dietary_options')
+          .select('*')
+          .order('name');
+
+        if (dietaryOptionsError) throw dietaryOptionsError;
+
+        // 7. Buscar todas as características disponíveis
+        const { data: allFeatures, error: featuresError } = await supabase
+          .from('restaurant_features')
+          .select('*')
+          .order('name');
+
+        if (featuresError) throw featuresError;
 
         // Atualizar estados
         if (restaurantData) {
@@ -132,11 +172,15 @@ export default function EditRestaurant({ restaurantId }) {
             menu_images: restaurantData.menu_images || [],
             phone_numbers: restaurantData.phone_numbers || [],
             creator: restaurantData.creator || 'Anônimo',
-            selectedCuisineTypes: relationData ? relationData.map(rel => rel.cuisine_type_id) : []
+            selectedCuisineTypes: cuisineRelationData ? cuisineRelationData.map(rel => rel.cuisine_type_id) : [],
+            selectedDietaryOptions: dietaryRelationData ? dietaryRelationData.map(rel => rel.dietary_option_id) : [],
+            selectedFeatures: featureRelationData ? featureRelationData.map(rel => rel.feature_id) : []
           });
         }
 
         setCuisineTypes(allCuisineTypes || []);
+        setDietaryOptions(allDietaryOptions || []);
+        setFeatures(allFeatures || []);
 
       } catch (err) {
         console.error('Error fetching restaurant data:', err);
@@ -154,11 +198,63 @@ export default function EditRestaurant({ restaurantId }) {
       } finally {
         setLoading(false);
         setLoadingCuisineTypes(false);
+        setLoadingDietaryOptions(false);
+        setLoadingFeatures(false);
       }
     }
 
     fetchRestaurantAndCategories();
   }, [restaurantId]);
+
+  // Carregar opções dietéticas do banco de dados
+  useEffect(() => {
+    async function fetchDietaryOptions() {
+      try {
+        setLoadingDietaryOptions(true);
+        const { data, error } = await supabase
+          .from('restaurant_dietary_options')
+          .select('*')
+          .order('name');
+          
+        if (error) {
+          console.error('Erro ao buscar opções dietéticas:', error);
+        } else {
+          setDietaryOptions(data || []);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar opções dietéticas:', err);
+      } finally {
+        setLoadingDietaryOptions(false);
+      }
+    }
+    
+    fetchDietaryOptions();
+  }, []);
+
+  // Carregar características do banco de dados
+  useEffect(() => {
+    async function fetchFeatures() {
+      try {
+        setLoadingFeatures(true);
+        const { data, error } = await supabase
+          .from('restaurant_features')
+          .select('*')
+          .order('name');
+          
+        if (error) {
+          console.error('Erro ao buscar características:', error);
+        } else {
+          setFeatures(data || []);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar características:', err);
+      } finally {
+        setLoadingFeatures(false);
+      }
+    }
+    
+    fetchFeatures();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -183,6 +279,46 @@ export default function EditRestaurant({ restaurantId }) {
         return {
           ...prev,
           selectedCuisineTypes: [...prev.selectedCuisineTypes, cuisineTypeId]
+        };
+      }
+    });
+  };
+
+  const toggleDietaryOption = (dietaryOptionId) => {
+    setFormData(prev => {
+      const isSelected = prev.selectedDietaryOptions.includes(dietaryOptionId);
+      
+      if (isSelected) {
+        // Remove a opção selecionada
+        return {
+          ...prev,
+          selectedDietaryOptions: prev.selectedDietaryOptions.filter(id => id !== dietaryOptionId)
+        };
+      } else {
+        // Adiciona a opção selecionada
+        return {
+          ...prev,
+          selectedDietaryOptions: [...prev.selectedDietaryOptions, dietaryOptionId]
+        };
+      }
+    });
+  };
+
+  const toggleFeature = (featureId) => {
+    setFormData(prev => {
+      const isSelected = prev.selectedFeatures.includes(featureId);
+      
+      if (isSelected) {
+        // Remove a característica selecionada
+        return {
+          ...prev,
+          selectedFeatures: prev.selectedFeatures.filter(id => id !== featureId)
+        };
+      } else {
+        // Adiciona a característica selecionada
+        return {
+          ...prev,
+          selectedFeatures: [...prev.selectedFeatures, featureId]
         };
       }
     });
@@ -359,6 +495,60 @@ export default function EditRestaurant({ restaurantId }) {
         }
       }
 
+      // 3. Atualizar opções dietéticas
+      // 3.1 Remover todas as relações existentes
+      const { error: dietaryDeleteError } = await supabase
+        .from('restaurant_dietary_options_junction')
+        .delete()
+        .eq('restaurant_id', restaurantId);
+
+      if (dietaryDeleteError) {
+        throw dietaryDeleteError;
+      }
+
+      // 3.2 Adicionar as novas relações selecionadas
+      if (formData.selectedDietaryOptions.length > 0) {
+        const dietaryRelations = formData.selectedDietaryOptions.map(dietaryOptionId => ({
+          restaurant_id: restaurantId,
+          dietary_option_id: dietaryOptionId
+        }));
+
+        const { error: dietaryInsertError } = await supabase
+          .from('restaurant_dietary_options_junction')
+          .insert(dietaryRelations);
+
+        if (dietaryInsertError) {
+          throw dietaryInsertError;
+        }
+      }
+
+      // 4. Atualizar características
+      // 4.1 Remover todas as relações existentes
+      const { error: featureDeleteError } = await supabase
+        .from('restaurant_restaurant_features')
+        .delete()
+        .eq('restaurant_id', restaurantId);
+
+      if (featureDeleteError) {
+        throw featureDeleteError;
+      }
+
+      // 4.2 Adicionar as novas relações selecionadas
+      if (formData.selectedFeatures.length > 0) {
+        const featureRelations = formData.selectedFeatures.map(featureId => ({
+          restaurant_id: restaurantId,
+          feature_id: featureId
+        }));
+
+        const { error: featureInsertError } = await supabase
+          .from('restaurant_restaurant_features')
+          .insert(featureRelations);
+
+        if (featureInsertError) {
+          throw featureInsertError;
+        }
+      }
+
       // Show success message and redirect back to the restaurant details page
       toast.success('Restaurante atualizado com sucesso!', {
         position: "top-center",
@@ -483,26 +673,46 @@ export default function EditRestaurant({ restaurantId }) {
                 </div>
               </FormSection>
 
-              {/* Categorias Culinárias */}
-              <FormSection title="Categorias Culinárias">
-                <CuisineSelector
-                  cuisineTypes={cuisineTypes}
-                  selectedCuisineTypes={formData.selectedCuisineTypes}
-                  onToggleCuisine={toggleCuisineType}
-                  loading={loadingCuisineTypes}
-                />
-              </FormSection>
+            {/* Categorias Culinárias */}
+            <FormSection title="Categorias Culinárias">
+              <CuisineSelector
+                cuisineTypes={cuisineTypes}
+                selectedCuisineTypes={formData.selectedCuisineTypes}
+                onToggleCuisine={toggleCuisineType}
+                loading={loadingCuisineTypes}
+              />
+            </FormSection>
 
-              {/* Imagens do Restaurante */}
-              <FormSection title="Imagens do Restaurante">
-                <RestaurantImageManager
-                  images={formData.images}
-                  displayImageIndex={formData.display_image_index}
-                  onImagesChange={handleRestaurantImagesChange}
-                  onDisplayImageIndexChange={handleDisplayImageIndexChange}
-                  disabled={saving}
-                />
-              </FormSection>
+            {/* Opções Dietéticas */}
+            <FormSection title="Opções Dietéticas">
+              <DietaryOptionsSelector
+                dietaryOptions={dietaryOptions}
+                selectedDietaryOptions={formData.selectedDietaryOptions}
+                onToggleDietaryOption={toggleDietaryOption}
+                loading={loadingDietaryOptions}
+              />
+            </FormSection>
+
+            {/* Características do Restaurante */}
+            <FormSection title="Características do Restaurante">
+              <FeaturesSelector
+                features={features}
+                selectedFeatures={formData.selectedFeatures}
+                onToggleFeature={toggleFeature}
+                loading={loadingFeatures}
+              />
+            </FormSection>
+
+            {/* Imagens do Restaurante */}
+            <FormSection title="Imagens do Restaurante">
+              <RestaurantImageManager
+                images={formData.images}
+                displayImageIndex={formData.display_image_index}
+                onImagesChange={handleRestaurantImagesChange}
+                onDisplayImageIndexChange={handleDisplayImageIndexChange}
+                disabled={saving}
+              />
+            </FormSection>
 
 
 
