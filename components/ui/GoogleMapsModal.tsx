@@ -2,8 +2,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap } from 'lucide-react';
-import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData } from '@/utils/googleMapsExtractor';
+import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation } from 'lucide-react';
+import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData, OSMService } from '@/utils/googleMapsExtractor';
 
 interface GoogleMapsModalProps {
   isOpen: boolean;
@@ -16,10 +16,13 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [extractedData, setExtractedData] = useState<GoogleMapsData | null>(null);
+  const [osmLoading, setOsmLoading] = useState(false);
+  const [osmAddress, setOsmAddress] = useState<string | null>(null);
 
-  const handleExtract = () => {
+  const handleExtract = async () => {
     setError('');
     setExtractedData(null);
+    setOsmAddress(null);
 
     if (!googleMapsUrl.trim()) {
       setError('Por favor, insira uma URL do Google Maps');
@@ -35,6 +38,27 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
     try {
       const data = extractGoogleMapsData(googleMapsUrl);
       setExtractedData(data);
+
+      // Se extrair coordenadas, buscar endereço via OSM
+      if (data.latitude && data.longitude) {
+        setOsmLoading(true);
+        try {
+          const address = await OSMService.getStreetAddress(data.latitude, data.longitude);
+          setOsmAddress(address);
+          if (address && !data.address) {
+            // Atualiza os dados com o endereço do OSM
+            setExtractedData(prev => ({
+              ...prev!,
+              address: address,
+              location: address
+            }));
+          }
+        } catch (osmError) {
+          console.error('Erro ao buscar endereço via OSM:', osmError);
+        } finally {
+          setOsmLoading(false);
+        }
+      }
 
       if (!data.name && !data.address && !data.latitude) {
         setError('Não foi possível extrair informações do link. Verifique se é um link válido do Google Maps.');
@@ -58,6 +82,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
     setGoogleMapsUrl('');
     setError('');
     setExtractedData(null);
+    setOsmAddress(null);
     onClose();
   };
 
@@ -65,9 +90,9 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-5 text-white">
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-5 text-white sticky top-0 z-10">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
@@ -224,11 +249,54 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                     </div>
                   )}
 
-                  {extractedData.address && (
+                  {extractedData.latitude && extractedData.longitude && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <Navigation className="h-4 w-4 text-blue-500" />
+                        Coordenadas GPS
+                      </label>
+                      <div className="bg-white border border-gray-200 rounded-lg p-3">
+                        <p className="text-gray-900 text-sm font-mono">
+                          {extractedData.latitude.toFixed(6)}, {extractedData.longitude.toFixed(6)}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">Latitude, Longitude</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {osmLoading && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <MapPinHouse className="h-4 w-4 text-purple-500" />
+                        Buscando endereço via OpenStreetMap...
+                      </label>
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2">
+                          <Loader className="h-4 w-4 animate-spin text-purple-600" />
+                          <span className="text-sm text-purple-700">Buscando endereço...</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {osmAddress && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                        <MapPinHouse className="h-4 w-4 text-purple-500" />
+                        Endereço Detalhado (OpenStreetMap)
+                      </label>
+                      <div className="bg-white border border-gray-200 rounded-lg p-3">
+                        <p className="text-gray-900 text-sm">{osmAddress}</p>
+                        <p className="text-xs text-gray-500 mt-1">Rua, número, bairro, cidade, código postal, estado, país</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {extractedData.address && !osmAddress && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-gray-500" />
-                        Endereço
+                        Endereço (Google Maps)
                       </label>
                       <div className="bg-white border border-gray-200 rounded-lg p-3">
                         <p className="text-gray-900 text-sm break-words">{extractedData.address}</p>
@@ -236,19 +304,6 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                     </div>
                   )}
 
-                  {extractedData.latitude && extractedData.longitude && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-500" />
-                        Coordenadas GPS
-                      </label>
-                      <div className="bg-white border border-gray-200 rounded-lg p-3">
-                        <p className="text-gray-900 text-sm font-mono">
-                          {extractedData.latitude}, {extractedData.longitude}
-                        </p>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {error && (
@@ -269,6 +324,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                     setExtractedData(null);
                     setGoogleMapsUrl('');
                     setError('');
+                    setOsmAddress(null);
                   }}
                   className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 font-medium transition-all"
                 >

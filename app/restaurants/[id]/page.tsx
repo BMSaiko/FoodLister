@@ -32,6 +32,7 @@ import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
 import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlaceholder';
 import MenuCarousel from '@/components/ui/MenuCarousel';
 import RestaurantCarousel from '@/components/ui/RestaurantCarousel';
+import { Navigation } from 'lucide-react';
 
 interface Restaurant {
   id: string;
