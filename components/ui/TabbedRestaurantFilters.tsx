@@ -20,10 +20,15 @@ import {
   Settings,
   Search as SearchIcon,
   SlidersHorizontal,
-  Filter as FilterIcon
+  Filter as FilterIcon,
+  Eye,
+  EyeOff,
+  Users
 } from 'lucide-react';
 import { createClient } from '@/libs/supabase/client';
 import { RestaurantFeature, DietaryOption } from '@/libs/types';
+import DualRangeSlider from './DualRangeSlider';
+import { useAuth } from '@/contexts/index';
 
 interface TabbedRestaurantFiltersProps {
   filters: any;
@@ -183,7 +188,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           onClick();
         } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
           e.preventDefault();
-          const tabs = ['search', 'location', 'price-rating', 'cuisine', 'features', 'dietary'];
+          const tabs = ['search', 'location', 'price-rating', 'cuisine', 'features', 'dietary', 'visits'];
           const currentIndex = tabs.indexOf(activeTab);
           const nextIndex = e.key === 'ArrowRight' 
             ? (currentIndex + 1) % tabs.length 
@@ -303,128 +308,44 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
 
       case 'price-rating':
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Price Range */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="block text-sm font-medium text-gray-700">Faixa de Preço</label>
-                <span className="text-sm text-gray-600">
-                  €{filters.price_range?.min ?? 0} - €{filters.price_range?.max ?? 100}
-                </span>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Mínimo</span>
-                  <span>Máximo</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={filters.price_range?.min ?? 0}
-                      onChange={(e) => {
-                        const newMin = parseInt(e.target.value);
-                        const currentMax = filters.price_range?.max ?? 100;
-                        // Ensure min doesn't exceed max
-                        const finalMin = newMin > currentMax ? currentMax : newMin;
-                        setFilters((prev: any) => ({
-                          ...prev,
-                          price_range: { ...prev.price_range, min: finalMin }
-                        }));
-                      }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                    />
-                    <div className="text-center text-xs text-gray-600 mt-1">€{filters.price_range?.min ?? 0}</div>
-                  </div>
-                  <div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      step="5"
-                      value={filters.price_range?.max ?? 100}
-                      onChange={(e) => {
-                        const newMax = parseInt(e.target.value);
-                        const currentMin = filters.price_range?.min ?? 0;
-                        // Ensure max doesn't go below min
-                        const finalMax = newMax < currentMin ? currentMin : newMax;
-                        setFilters((prev: any) => ({
-                          ...prev,
-                          price_range: { ...prev.price_range, max: finalMax }
-                        }));
-                      }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                    />
-                    <div className="text-center text-xs text-gray-600 mt-1">€{filters.price_range?.max ?? 100}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DualRangeSlider
+              min={0}
+              max={100}
+              step={5}
+              value={{
+                min: filters.price_range?.min ?? 0,
+                max: filters.price_range?.max ?? 100
+              }}
+              onChange={(value) => {
+                setFilters((prev: any) => ({
+                  ...prev,
+                  price_range: value
+                }));
+              }}
+              label="Faixa de Preço"
+              unit="€"
+            />
             
             {/* Rating Range */}
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="block text-sm font-medium text-gray-700">Faixa de Avaliação</label>
-                <span className="text-sm text-gray-600">
-                  {filters.rating_range?.min ?? 0}★ - {filters.rating_range?.max ?? 5}★
-                </span>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>Mínimo</span>
-                  <span>Máximo</span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="5"
-                      step="0.5"
-                      value={filters.rating_range?.min ?? 0}
-                      onChange={(e) => {
-                        const newMin = parseFloat(e.target.value);
-                        const currentMax = filters.rating_range?.max ?? 5;
-                        // Ensure min doesn't exceed max
-                        const finalMin = newMin > currentMax ? currentMax : newMin;
-                        setFilters((prev: any) => ({
-                          ...prev,
-                          rating_range: { ...prev.rating_range, min: finalMin }
-                        }));
-                      }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                    />
-                    <div className="text-center text-xs text-gray-600 mt-1">{filters.rating_range?.min ?? 0}★</div>
-                  </div>
-                  <div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="5"
-                      step="0.5"
-                      value={filters.rating_range?.max ?? 5}
-                      onChange={(e) => {
-                        const newMax = parseFloat(e.target.value);
-                        const currentMin = filters.rating_range?.min ?? 0;
-                        // Ensure max doesn't go below min
-                        const finalMax = newMax < currentMin ? currentMin : newMax;
-                        setFilters((prev: any) => ({
-                          ...prev,
-                          rating_range: { ...prev.rating_range, max: finalMax }
-                        }));
-                      }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                    />
-                    <div className="text-center text-xs text-gray-600 mt-1">{filters.rating_range?.max ?? 5}★</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DualRangeSlider
+              min={0}
+              max={5}
+              step={0.5}
+              value={{
+                min: filters.rating_range?.min ?? 0,
+                max: filters.rating_range?.max ?? 5
+              }}
+              onChange={(value) => {
+                setFilters((prev: any) => ({
+                  ...prev,
+                  rating_range: value
+                }));
+              }}
+              label="Faixa de Avaliação"
+              unit="★"
+            />
           </div>
         );
 
@@ -577,6 +498,79 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           </div>
         );
 
+      case 'visits':
+        return (
+          <div className="space-y-6">
+            {/* Visit Status Selection */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">Status de Visita</label>
+              
+              <select
+                value={
+                  filters.visited && filters.not_visited ? 'all' :
+                  filters.visited ? 'visited' :
+                  filters.not_visited ? 'not_visited' : 'all'
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFilters((prev: any) => {
+                    const newFilters = { ...prev };
+                    
+                    switch (value) {
+                      case 'all':
+                        newFilters.visited = false;
+                        newFilters.not_visited = false;
+                        newFilters.visit_count = { min: 0, max: 100 };
+                        break;
+                      case 'visited':
+                        newFilters.visited = true;
+                        newFilters.not_visited = false;
+                        break;
+                      case 'not_visited':
+                        newFilters.visited = false;
+                        newFilters.not_visited = true;
+                        newFilters.visit_count = { min: 0, max: 100 };
+                        break;
+                    }
+                    
+                    return newFilters;
+                  });
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white"
+              >
+                <option value="all">Todas as frequências</option>
+                <option value="visited">Apenas Visitados</option>
+                <option value="not_visited">Apenas não visitados</option>
+              </select>
+            </div>
+
+            {/* Visit Frequency (only if "Apenas Visitados" is selected and user is logged in) */}
+            {filters.visited && (
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-gray-700">Frequência de Visitas</label>
+                
+                <DualRangeSlider
+                  min={1}
+                  max={50}
+                  step={1}
+                  value={{
+                    min: filters.visit_count?.min ?? 1,
+                    max: filters.visit_count?.max ?? 50
+                  }}
+                  onChange={(value) => {
+                    setFilters((prev: any) => ({
+                      ...prev,
+                      visit_count: value
+                    }));
+                  }}
+                  label="Número de Visitas"
+                  unit="vezes"
+                />
+              </div>
+            )}
+          </div>
+        );
+
       default:
         return null;
     }
@@ -650,6 +644,24 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                 <FilterChip 
                   label={`Dietas: ${filters.dietary_options.length}`} 
                   onRemove={() => clearSpecificFilter('dietary')} 
+                />
+              )}
+              {filters.visited && (
+                <FilterChip 
+                  label="Visitados" 
+                  onRemove={() => clearSpecificFilter('visits')} 
+                />
+              )}
+              {filters.not_visited && (
+                <FilterChip 
+                  label="Não Visitados" 
+                  onRemove={() => clearSpecificFilter('visits')} 
+                />
+              )}
+              {(filters.visit_count?.min !== 1 || filters.visit_count?.max !== 50) && filters.visited && (
+                <FilterChip 
+                  label={`Visitas: ${filters.visit_count?.min ?? 1} - ${filters.visit_count?.max ?? 50} vezes`} 
+                  onRemove={() => clearSpecificFilter('visits')} 
                 />
               )}
             </div>
@@ -728,6 +740,13 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               icon={<Tag className="h-4 w-4" />}
               isActive={activeTab === 'dietary'}
               onClick={() => setActiveTab('dietary')}
+            />
+            <FilterTabButton
+              id="visits"
+              title="Visitas"
+              icon={<Users className="h-4 w-4" />}
+              isActive={activeTab === 'visits'}
+              onClick={() => setActiveTab('visits')}
             />
           </div>
 
