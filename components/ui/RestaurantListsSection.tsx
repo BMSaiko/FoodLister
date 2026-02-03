@@ -1,15 +1,18 @@
 import React from 'react';
 import { ListChecks } from 'lucide-react';
 import Link from 'next/link';
+import HorizontalImageList from './HorizontalImageList';
 
 interface RestaurantListsSectionProps {
   lists: any[];
   restaurantId: string;
+  menuImages?: string[];
 }
 
 export default function RestaurantListsSection({
   lists,
-  restaurantId
+  restaurantId,
+  menuImages
 }: RestaurantListsSectionProps) {
   
   if (!lists || lists.length === 0) {
@@ -39,6 +42,15 @@ export default function RestaurantListsSection({
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-4">
+      {/* Horizontal Image List */}
+      {menuImages && menuImages.length > 0 && (
+        <HorizontalImageList
+          images={menuImages}
+          title="Imagens do Menu"
+          className="mb-6"
+        />
+      )}
+      
       <div className="flex items-center mb-3 sm:mb-4">
         <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4">
           <ListChecks className="h-5 w-5 sm:h-6 w-6 text-amber-600" />

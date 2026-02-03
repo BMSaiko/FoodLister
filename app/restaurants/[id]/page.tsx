@@ -23,7 +23,6 @@ import RestaurantStickyNavbar from '@/components/ui/RestaurantStickyNavbar';
 // Import existing components
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
-import MenuCarousel from '@/components/ui/MenuCarousel';
 
 import Link from 'next/link';
 import { Share2, Calendar, Edit, MapPin, Globe, FileText, ImageIcon, Phone, Check, X, Plus, Star, Tag, User, Clock, ListChecks, Smartphone, Home, Euro } from 'lucide-react';
@@ -67,7 +66,7 @@ interface Restaurant {
 
 export default function RestaurantDetails() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
   const { user } = useAuth();
   const { get, post, patch, del } = useSecureApiClient();
   const { get: getPublic } = usePublicApiClient();
@@ -837,19 +836,20 @@ export default function RestaurantDetails() {
         />
 
         {/* Restaurant Info Section */}
-        <RestaurantInfoSection
+        {/*<RestaurantInfoSection
           location={restaurant.location || ''}
           sourceUrl={restaurant.source_url || ''}
           menuLinks={restaurant.menu_links || []}
           menuImages={restaurant.menu_images || []}
           phoneNumbers={restaurant.phone_numbers || []}
           onOpenMap={() => setIsMapModalOpen(true)}
-        />
+        />*/}
 
         {/* Restaurant Lists Section */}
         <RestaurantListsSection
           lists={lists}
           restaurantId={id}
+          menuImages={restaurant.menu_images || []}
         />
 
         {/* Restaurant Reviews Section */}
