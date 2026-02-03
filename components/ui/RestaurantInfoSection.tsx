@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, Globe, FileText, ImageIcon, Phone, Smartphone, Home } from 'lucide-react';
+import HorizontalImageList from './HorizontalImageList';
 
 interface RestaurantInfoSectionProps {
   location?: string;
@@ -174,30 +175,10 @@ export default function RestaurantInfoSection({
 
         {/* Menu Images */}
         {menuImages.length > 0 && (
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center text-gray-700 text-xs sm:text-sm font-medium">
-              <ImageIcon className="h-3 w-3 sm:h-4 w-4 mr-1 sm:mr-2 text-amber-500" />
-              Imagens do Menu ({menuImages.length})
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
-              {menuImages.map((image, index) => (
-                <div
-                  key={index}
-                  className="group relative aspect-square bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg sm:rounded-xl border border-amber-200 hover:border-amber-300 overflow-hidden transition-all duration-200 hover:shadow-lg cursor-pointer"
-                  onClick={() => window.open(image, '_blank', 'noopener,noreferrer')}
-                >
-                  <img
-                    src={image}
-                    alt={`Menu ${index + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                  />
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                    <span className="text-white text-xs font-medium bg-black/50 px-1 sm:px-2 py-0.5 rounded">Ver</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <HorizontalImageList
+            images={menuImages}
+            title="Imagens do Menu"
+          />
         )}
       </div>
     </div>

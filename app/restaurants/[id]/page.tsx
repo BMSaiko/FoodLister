@@ -836,20 +836,13 @@ export default function RestaurantDetails() {
         />
 
         {/* Restaurant Info Section */}
-        {/*<RestaurantInfoSection
+        <RestaurantInfoSection
           location={restaurant.location || ''}
           sourceUrl={restaurant.source_url || ''}
           menuLinks={restaurant.menu_links || []}
           menuImages={restaurant.menu_images || []}
           phoneNumbers={restaurant.phone_numbers || []}
           onOpenMap={() => setIsMapModalOpen(true)}
-        />*/}
-
-        {/* Restaurant Lists Section */}
-        <RestaurantListsSection
-          lists={lists}
-          restaurantId={id}
-          menuImages={restaurant.menu_images || []}
         />
 
         {/* Restaurant Reviews Section */}

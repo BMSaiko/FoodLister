@@ -1,16 +1,23 @@
 import React from 'react';
 import { Tag } from 'lucide-react';
+import RestaurantListsSection from './RestaurantListsSection';
 
 interface RestaurantCategoriesSectionProps {
   cuisineTypes?: any[];
   dietaryOptions?: any[];
   features?: any[];
+  lists?: any[];
+  restaurantId?: string;
+  menuImages?: string[];
 }
 
 export default function RestaurantCategoriesSection({
   cuisineTypes = [],
   dietaryOptions = [],
-  features = []
+  features = [],
+  lists = [],
+  restaurantId,
+  menuImages = []
 }: RestaurantCategoriesSectionProps) {
   
   // Check if we have any categories to display
@@ -122,6 +129,7 @@ export default function RestaurantCategoriesSection({
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
