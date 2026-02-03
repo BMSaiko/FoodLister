@@ -480,7 +480,7 @@ const RestaurantRoulette = () => {
               preserveAspectRatio="xMidYMid meet"
               style={{
                 transform: `rotate(${rotation}deg)`,
-                transition: spinning ? 'transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99)' : 'none',
+                transition: spinning ? 'transform 3s' : 'none',
               }}
             >
               <defs>

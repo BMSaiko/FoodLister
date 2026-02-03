@@ -54,7 +54,7 @@ export default function CuisineSelector({
             filteredCuisineTypes.map(cuisineType => (
               <div
                 key={cuisineType.id}
-                className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-all ${
                   selectedCuisineTypes.includes(cuisineType.id)
                     ? 'bg-primary border border-primary text-white shadow-sm'
                     : 'bg-white border border-gray-200 hover:bg-gray-100 hover:border-gray-300'

@@ -54,7 +54,7 @@ export default function DietaryOptionsSelector({
             filteredDietaryOptions.map(dietaryOption => (
               <div
                 key={dietaryOption.id}
-                className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-all ${
                   selectedDietaryOptions.includes(dietaryOption.id)
                     ? 'bg-primary border border-primary text-white shadow-sm'
                     : 'bg-white border border-gray-200 hover:bg-gray-100 hover:border-gray-300'

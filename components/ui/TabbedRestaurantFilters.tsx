@@ -188,7 +188,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           setActiveTab(tabIds[nextIndex]);
         }
       }}
-      className={`group relative flex items-center space-x-2 sm:space-x-4 px-3 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 transform hover:-translate-y-1 min-h-[44px] min-w-[140px] ${
+              className={`group relative flex items-center space-x-2 sm:space-x-4 px-3 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold min-h-[44px] min-w-[140px] ${
         isActive
           ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 ring-2 ring-amber-300/50'
           : 'text-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-amber-50 hover:to-orange-50 hover:text-amber-700 border border-gray-200/60 hover:border-amber-300/60 shadow-sm hover:shadow-lg'
@@ -386,7 +386,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
 
       case 'location':
         return (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
@@ -404,35 +404,13 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                   <button
                     onClick={() => {
                       setLocationQuery('');
-                      setFilters((prev: any) => ({ ...prev, location: { city: '', distance: 50 } }));
+                      setFilters((prev: any) => ({ ...prev, location: { city: '' } }));
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                   >
                     <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   </button>
                 )}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <label className="block text-lg font-semibold text-gray-800">Distância máxima</label>
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
-                <div className="relative p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200/60">
-                  <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={filters.location?.distance || 50}
-                    onChange={(e) => handleRangeChange('location.distance', parseInt(e.target.value))}
-                    className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500 hover:accent-orange-500 transition-colors duration-200"
-                  />
-                  <div className="flex justify-between text-sm text-gray-600 mt-3">
-                    <span className="font-medium">1 km</span>
-                    <span className="font-medium text-amber-600">{filters.location?.distance || 50} km</span>
-                    <span className="font-medium">100 km</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -556,7 +534,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       <button
                         key={item.id}
                         onClick={() => handleMultiSelect('cuisine_types', item.id)}
-                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 ${
+                        className={`group relative p-6 rounded-xl border-2 ${
                           isSelected 
                             ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
                             : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
@@ -665,7 +643,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       <button
                         key={item.id}
                         onClick={() => handleMultiSelect('features', item.id)}
-                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 ${
+                        className={`group relative p-6 rounded-xl border-2 ${
                           isSelected 
                             ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
                             : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
@@ -773,7 +751,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       <button
                         key={item.id}
                         onClick={() => handleMultiSelect('dietary_options', item.id)}
-                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 ${
+                        className={`group relative p-6 rounded-xl border-2 ${
                           isSelected 
                             ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
                             : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
@@ -903,7 +881,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
       setFilters((prev: any) => ({ ...prev, search: '' }));
       setSearchQuery('');
     } else if (field === 'location') {
-      setFilters((prev: any) => ({ ...prev, location: { city: '', distance: 50 } }));
+      setFilters((prev: any) => ({ ...prev, location: { city: '' } }));
       setLocationQuery('');
     } else if (field === 'price') {
       setFilters((prev: any) => ({ ...prev, price_range: { min: 0, max: 100 } }));

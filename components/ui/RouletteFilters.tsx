@@ -147,15 +147,15 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
 
   // Enhanced FilterChip with performance optimizations
   const FilterChip: React.FC<{ label: string; onRemove: () => void }> = React.memo(({ label, onRemove }) => (
-    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 border border-amber-200/80 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer group">
-      <span className="mr-2 w-2 h-2 bg-amber-400 rounded-full group-hover:bg-amber-500 transition-colors duration-200"></span>
+    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 border border-amber-200/80 shadow-sm cursor-pointer group">
+      <span className="mr-2 w-2 h-2 bg-amber-400 rounded-full"></span>
       <span className="font-medium">{label}</span>
       <button
         onClick={onRemove}
-        className="ml-2 p-1 rounded-full hover:bg-amber-200/50 transition-colors duration-200"
+        className="ml-2 p-1 rounded-full hover:bg-amber-200/50"
         aria-label="Remover filtro"
       >
-        <XIcon className="h-4 w-4 text-amber-600 group-hover:text-amber-700" />
+        <XIcon className="h-4 w-4 text-amber-600" />
       </button>
     </span>
   ));
@@ -185,7 +185,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
           setActiveTab(tabIds[nextIndex]);
         }
       }}
-      className={`group relative flex items-center space-x-2 sm:space-x-4 px-3 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 transform hover:-translate-y-1 min-h-[44px] min-w-[140px] ${
+              className={`group relative flex items-center space-x-2 sm:space-x-4 px-3 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold min-h-[44px] min-w-[140px] ${
         isActive
           ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 ring-2 ring-amber-300/50'
           : 'text-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-amber-50 hover:to-orange-50 hover:text-amber-700 border border-gray-200/60 hover:border-amber-300/60 shadow-sm hover:shadow-lg'
@@ -200,7 +200,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
         <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
       )}
       
-      <div className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 ${
+      <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${
         isActive
           ? 'bg-white/20 shadow-lg'
           : 'bg-white/60 group-hover:bg-white/80'
@@ -295,7 +295,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
     switch (activeTab) {
       case 'location':
         return (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
@@ -307,41 +307,19 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                   placeholder="Cidade, bairro ou ponto de referência..."
                   value={locationQuery}
                   onChange={handleLocationChange}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm touch-auto"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 shadow-sm touch-auto"
                 />
                 {locationQuery && (
                   <button
                     onClick={() => {
                       setLocationQuery('');
-                      setFilters((prev: any) => ({ ...prev, location: { city: '', distance: 50 } }));
+                      setFilters((prev: any) => ({ ...prev, location: { city: '' } }));
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
                   >
                     <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   </button>
                 )}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <label className="block text-lg font-semibold text-gray-800">Distância máxima</label>
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
-                <div className="relative p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200/60">
-                  <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={filters.location?.distance || 50}
-                    onChange={(e) => handleRangeChange('location.distance', parseInt(e.target.value))}
-                    className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500 hover:accent-orange-500 transition-colors duration-200"
-                  />
-                  <div className="flex justify-between text-sm text-gray-600 mt-3">
-                    <span className="font-medium">1 km</span>
-                    <span className="font-medium text-amber-600">{filters.location?.distance || 50} km</span>
-                    <span className="font-medium">100 km</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -424,7 +402,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                       setFilters((prev: any) => ({ ...prev, cuisine_search: value }));
                     }, 300);
                   }}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -465,7 +443,8 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                       <button
                         key={item.id}
                         onClick={() => handleMultiSelect('cuisine_types', item.id)}
-                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
+                        className={`group relative p-6 rounded-xl border-2 ${
+
                           isSelected 
                             ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
                             : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
@@ -476,7 +455,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                           <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
                         )}
                         
-                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto ${
                           isSelected 
                             ? 'bg-white/80 shadow-lg' 
                             : 'bg-white/60 group-hover:bg-white/80'
@@ -533,7 +512,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                       setFilters((prev: any) => ({ ...prev, features_search: value }));
                     }, 300);
                   }}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -574,7 +553,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                       <button
                         key={item.id}
                         onClick={() => handleMultiSelect('features', item.id)}
-                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
+                        className={`group relative p-6 rounded-xl border-2 ${
                           isSelected 
                             ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
                             : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
@@ -584,7 +563,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                           <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
                         )}
                         
-                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto ${
                           isSelected 
                             ? 'bg-white/80 shadow-lg' 
                             : 'bg-white/60 group-hover:bg-white/80'
@@ -641,7 +620,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                       setFilters((prev: any) => ({ ...prev, dietary_search: value }));
                     }, 300);
                   }}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -682,7 +661,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                       <button
                         key={item.id}
                         onClick={() => handleMultiSelect('dietary_options', item.id)}
-                        className={`group relative p-6 rounded-xl border-2 transition-all duration-300 transform hover:-translate-y-2 touch-manipulation ${
+                        className={`group relative p-6 rounded-xl border-2 ${
                           isSelected 
                             ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
                             : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
@@ -692,7 +671,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                           <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
                         )}
                         
-                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto ${
                           isSelected 
                             ? 'bg-white/80 shadow-lg' 
                             : 'bg-white/60 group-hover:bg-white/80'
@@ -760,7 +739,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                       return newFilters;
                     });
                   }}
-                  className="w-full px-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full px-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 shadow-sm"
                 >
                   <option value="all">Todas as frequências</option>
                   <option value="visited">Apenas Visitados</option>
@@ -809,7 +788,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
   // Enhanced clear specific filter
   const clearSpecificFilter = useCallback((field: string) => {
     if (field === 'location') {
-      setFilters((prev: any) => ({ ...prev, location: { city: '', distance: 50 } }));
+      setFilters((prev: any) => ({ ...prev, location: { city: '' } }));
       setLocationQuery('');
     } else if (field === 'price') {
       setFilters((prev: any) => ({ ...prev, price_range: { min: 0, max: 100 } }));

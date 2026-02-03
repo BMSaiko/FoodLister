@@ -186,7 +186,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
   return (
     <Link href={`/restaurants/${restaurant.id}`} className={centered ? "block w-full" : ""} onClick={handleCardClick}>
-      <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : ''}`}>
+      <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : ''}`}>
         <div className={`relative h-40 sm:h-48 w-full min-h-[160px] sm:min-h-[192px] ${centered ? 'min-w-full' : ''}`}>
           {hasImage ? (
             <Image
@@ -211,7 +211,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             <button
               onClick={handleToggleVisited}
               disabled={isUpdating || loadingVisits}
-              className={`absolute top-3 right-3 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`absolute top-3 right-3 px-3 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
                 loadingVisits
                   ? 'bg-gray-200 text-gray-400 animate-pulse'
                   : visited
