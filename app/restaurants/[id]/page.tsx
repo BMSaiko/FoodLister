@@ -22,8 +22,8 @@ import RestaurantStickyNavbar from '@/components/ui/RestaurantStickyNavbar';
 import ScrollToTopButton from '@/components/ui/ScrollToTopButton';
 
 // Import existing components
-import MapSelectorModal from '@/components/ui/MapSelectorModal';
 import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
+import { useModal } from '@/contexts/ModalContext';
 
 import Link from 'next/link';
 import { Share2, Calendar, Edit, MapPin, Globe, FileText, ImageIcon, Phone, Check, X, Plus, Star, Tag, User, Clock, ListChecks, Smartphone, Home, Euro } from 'lucide-react';
@@ -85,7 +85,7 @@ export default function RestaurantDetails() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -108,12 +108,6 @@ export default function RestaurantDetails() {
         if (data.restaurant.cuisine_types) {
           setCuisineTypes(data.restaurant.cuisine_types);
         }
-        
-        // Debug logs to check data structure
-        console.log('Restaurant data:', data.restaurant);
-        console.log('Cuisine types:', data.restaurant.cuisine_types);
-        console.log('Dietary options:', data.restaurant.dietary_options);
-        console.log('Features:', data.restaurant.features);
       } else {
         throw new Error(data.error || 'Failed to fetch restaurant details');
       }
@@ -843,7 +837,8 @@ export default function RestaurantDetails() {
           menuLinks={restaurant.menu_links || []}
           menuImages={restaurant.menu_images || []}
           phoneNumbers={restaurant.phone_numbers || []}
-          onOpenMap={() => setIsMapModalOpen(true)}
+          latitude={restaurant.latitude}
+          longitude={restaurant.longitude}
         />
 
         {/* Restaurant Reviews Section */}
@@ -859,14 +854,6 @@ export default function RestaurantDetails() {
           onDeleteReview={handleDeleteReview}
         />
       </div>
-
-      <MapSelectorModal
-        isOpen={isMapModalOpen}
-        onClose={() => setIsMapModalOpen(false)}
-        location={restaurant.location || ''}
-        latitude={restaurant.latitude}
-        longitude={restaurant.longitude}
-      />
 
       <ScheduleMealModal
         isOpen={isScheduleModalOpen}

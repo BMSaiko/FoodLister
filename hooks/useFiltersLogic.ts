@@ -190,35 +190,15 @@ export function useFiltersLogic(
         if (shouldFilter) {
           const { effectiveMin, effectiveMax } = getVisitCountRange(filters, min, max);
           
-          // Debug logging for all restaurants to see the filtering in action
-          console.log(`[FILTER] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount}`, {
-            visitCount,
-            effectiveMin,
-            effectiveMax,
-            shouldFilter,
-            willBeFiltered: (effectiveMin !== undefined && visitCount < effectiveMin) || 
-                           (effectiveMax !== undefined && visitCount > effectiveMax),
-            filters: {
-              visited: filters.visited,
-              not_visited: filters.not_visited,
-              min,
-              max
-            }
-          });
-          
           // Apply the filtering
           if (effectiveMin !== undefined && visitCount < effectiveMin) {
-            console.log(`[FILTER OUT] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount} < Min: ${effectiveMin}`);
             return false;
           }
           if (effectiveMax !== undefined && visitCount > effectiveMax) {
-            console.log(`[FILTER OUT] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount} > Max: ${effectiveMax}`);
             return false;
           }
           
-          console.log(`[FILTER IN] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount} (within range)`);
         } else {
-          console.log(`[NO FILTER] Restaurant ID: ${restaurant.id} | Name: ${restaurant.name} | User VisitCount: ${visitCount}`);
         }
       }
 

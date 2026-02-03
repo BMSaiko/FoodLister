@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, Globe, FileText, ImageIcon, Phone, Smartphone, Home } from 'lucide-react';
 import HorizontalImageList from './HorizontalImageList';
+import { useModal } from '@/contexts/ModalContext';
 
 interface RestaurantInfoSectionProps {
   location?: string;
@@ -8,7 +9,8 @@ interface RestaurantInfoSectionProps {
   menuLinks?: string[];
   menuImages?: string[];
   phoneNumbers?: string[];
-  onOpenMap?: () => void;
+  latitude?: number;
+  longitude?: number;
 }
 
 // Helper function to detect if a number is mobile or fixed
@@ -38,8 +40,11 @@ export default function RestaurantInfoSection({
   menuLinks = [],
   menuImages = [],
   phoneNumbers = [],
-  onOpenMap
+  latitude,
+  longitude
 }: RestaurantInfoSectionProps) {
+  
+  const { openMapModal } = useModal();
   
   // Check if we have any information to display
   const hasInfo = location || sourceUrl || menuLinks.length > 0 || menuImages.length > 0 || phoneNumbers.length > 0;
@@ -60,7 +65,7 @@ export default function RestaurantInfoSection({
         {location && (
           <div
             className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl border border-blue-200 hover:bg-blue-100 active:bg-blue-200 transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
-            onClick={onOpenMap}
+            onClick={() => openMapModal({ location, latitude, longitude })}
           >
             <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-4">
               <MapPin className="h-4 w-4 sm:h-5 w-5 text-blue-600" />

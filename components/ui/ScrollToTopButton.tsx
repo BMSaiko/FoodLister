@@ -19,7 +19,6 @@ export default function ScrollToTopButton({
   useEffect(() => {
     // Component mounted log
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      console.log('ScrollToTopButton: Component mounted');
     }
 
     // Check initial mobile state
@@ -35,7 +34,6 @@ export default function ScrollToTopButton({
       
       // Debug logging
       if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-        console.log('ScrollToTopButton: scrollTop:', scrollTop, 'threshold:', scrollThreshold, 'isVisible:', isVisibleNow);
       }
     };
 

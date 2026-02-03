@@ -48,7 +48,6 @@ self.onmessage = function(e) {
   
   // Log performance stats periodically
   if (searchCount % 10 === 0) {
-    console.log(`Worker Search Stats: ${searchCount} searches, avg: ${(totalTime / searchCount).toFixed(2)}ms`);
   }
   
   self.postMessage({ 
