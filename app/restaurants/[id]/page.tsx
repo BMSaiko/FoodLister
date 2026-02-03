@@ -19,6 +19,7 @@ import RestaurantReviewsSection from '@/components/ui/RestaurantReviewsSection';
 import RestaurantListsSection from '@/components/ui/RestaurantListsSection';
 import ContactInfoCard from '@/components/ui/ContactInfoCard';
 import RestaurantStickyNavbar from '@/components/ui/RestaurantStickyNavbar';
+import ScrollToTopButton from '@/components/ui/ScrollToTopButton';
 
 // Import existing components
 import MapSelectorModal from '@/components/ui/MapSelectorModal';
@@ -874,6 +875,9 @@ export default function RestaurantDetails() {
         restaurantLocation={restaurant?.location || ''}
         restaurantDescription={restaurant?.description || ''}
       />
+
+      {/* ScrollToTopButton - only appears on desktop */}
+      <ScrollToTopButton />
     </div>
   );
 }
