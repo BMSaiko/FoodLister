@@ -1,7 +1,7 @@
 // app/api/restaurants/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 
 // Valida se as coordenadas são válidas
 function isValidCoordinates(latitude: number, longitude: number): boolean {
@@ -19,14 +19,15 @@ function isValidCoordinates(latitude: number, longitude: number): boolean {
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const response = NextResponse.next();
-    const supabase = await getServerClient(request, response);
     const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ error: 'Restaurant ID is required' }, { status: 400 });
     }
 
+    // Use public client for unauthenticated access to restaurant details
+    const supabase = await getPublicServerClient();
+    
     if (!supabase) {
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }

@@ -2,8 +2,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation } from 'lucide-react';
+import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation, User } from 'lucide-react';
 import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData, OSMService } from '@/utils/googleMapsExtractor';
+import { useAuth } from '@/contexts';
 
 interface GoogleMapsModalProps {
   isOpen: boolean;
