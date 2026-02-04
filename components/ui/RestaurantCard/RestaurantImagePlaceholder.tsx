@@ -18,7 +18,12 @@ const RestaurantImagePlaceholder: React.FC<RestaurantImagePlaceholderProps> = ({
   className = ""
 }) => {
   return (
-    <div className={`absolute inset-0 bg-gradient-to-br from-amber-100 via-amber-50 to-amber-200 flex items-center justify-center ${className}`}>
+    <div className={`absolute inset-0 bg-gradient-to-br from-amber-100 via-amber-50 to-amber-200 flex items-center justify-center ${className}`} style={{
+      minHeight: '100%',
+      minWidth: '100%',
+      maxWidth: '360px',
+      width: '100%'
+    }}>
       <div className="text-center text-amber-600">
         <ImageIcon className={`${iconSize} mx-auto mb-2 opacity-50`} />
         {showText && <p className={`${textSize} font-medium opacity-75`}>Imagem indisponível</p>}

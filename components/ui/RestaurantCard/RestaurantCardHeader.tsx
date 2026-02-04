@@ -90,7 +90,7 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   const ratingStyle = getRatingStyle(restaurant.rating || 0);
 
   return (
-    <div className="relative h-56 sm:h-72 w-full min-h-[224px] sm:min-h-[288px]">
+    <div className="relative h-72 sm:h-80 lg:h-96 w-full min-w-[280px] max-w-[380px] sm:max-w-[500px] lg:max-w-[600px] min-h-[288px] sm:min-h-[320px] lg:min-h-[384px] aspect-[4/3] sm:aspect-[16/9]">
       {hasImage ? (
         <Image
           src={imageUrl}

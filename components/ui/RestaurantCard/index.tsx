@@ -123,7 +123,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
   return (
     <Link href={`/restaurants/${restaurant.id}`} className={centered ? "block w-full" : ""} onClick={handleCardClick}>
-      <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : ''}`}>
+      <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : 'min-w-[280px] max-w-[365px] sm:max-w-[500px] lg:max-w-[600px]'}`}>
         {/* Header with Image and Actions */}
         <div className="relative">
           <RestaurantCardHeader restaurant={restaurant} centered={centered} />
