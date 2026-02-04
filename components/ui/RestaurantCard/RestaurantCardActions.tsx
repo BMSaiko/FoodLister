@@ -29,22 +29,26 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
   onToggleVisited,
   onVisitsDataUpdate 
 }) => {
+  const { user } = useAuth();
   const { openMapModal } = useModal();
 
   const handleOpenMapModal = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    openMapModal({
-      location: restaurant.location || '',
-      latitude: restaurant.latitude,
-      longitude: restaurant.longitude
-    });
+    // Only open map modal if location data is available
+    if (restaurant.location || (restaurant.latitude && restaurant.longitude)) {
+      openMapModal({
+        location: restaurant.location || '',
+        latitude: restaurant.latitude,
+        longitude: restaurant.longitude
+      });
+    }
   };
 
   return (
     <div className="absolute top-3 right-3 flex flex-col gap-2">
-      {/* Map Button */}
+      {/* Map Button - Available for all users */}
       {restaurant.location && (
         <button
           onClick={handleOpenMapModal}
@@ -57,41 +61,43 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
       )}
 
       {/* Switch Button for visited/not visited status - only for authenticated users */}
-      <button
-        onClick={onToggleVisited}
-        disabled={isUpdating || loadingVisits}
-        className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-          loadingVisits
-            ? 'bg-gray-200 text-gray-400 animate-pulse'
-            : visited
-            ? 'bg-green-500 text-white hover:bg-green-600'
-            : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-        }`}
-        title={
-          loadingVisits
-            ? 'Carregando status de visita...'
-            : visited
-            ? 'Clique para marcar como não visitado'
-            : 'Clique para marcar como visitado'
-        }
-      >
-        {loadingVisits ? (
-          <>
-            <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
-            <span className="text-xs font-medium hidden sm:inline">Carregando</span>
-          </>
-        ) : visited ? (
-          <>
-            <Check className="h-4 w-4" />
-            <span className="text-xs font-medium hidden sm:inline">Visitado</span>
-          </>
-        ) : (
-          <>
-            <X className="h-4 w-4" />
-            <span className="text-xs font-medium hidden sm:inline">Não visitado</span>
-          </>
-        )}
-      </button>
+      {user && (
+        <button
+          onClick={onToggleVisited}
+          disabled={isUpdating || loadingVisits}
+          className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+            loadingVisits
+              ? 'bg-gray-200 text-gray-400 animate-pulse'
+              : visited
+              ? 'bg-green-500 text-white hover:bg-green-600'
+              : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+          }`}
+          title={
+            loadingVisits
+              ? 'Carregando status de visita...'
+              : visited
+              ? 'Clique para marcar como não visitado'
+              : 'Clique para marcar como visitado'
+          }
+        >
+          {loadingVisits ? (
+            <>
+              <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
+              <span className="text-xs font-medium hidden sm:inline">Carregando</span>
+            </>
+          ) : visited ? (
+            <>
+              <Check className="h-4 w-4" />
+              <span className="text-xs font-medium hidden sm:inline">Visitado</span>
+            </>
+          ) : (
+            <>
+              <X className="h-4 w-4" />
+              <span className="text-xs font-medium hidden sm:inline">Não visitado</span>
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 };

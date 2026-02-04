@@ -127,16 +127,14 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         {/* Header with Image and Actions */}
         <div className="relative">
           <RestaurantCardHeader restaurant={restaurant} centered={centered} />
-          {user && (
-            <RestaurantCardActions
-              restaurant={restaurant}
-              visited={visited}
-              isUpdating={isUpdating}
-              loadingVisits={loadingVisits}
-              onToggleVisited={handleToggleVisited}
-              onVisitsDataUpdate={onVisitsDataUpdate || undefined}
-            />
-          )}
+          <RestaurantCardActions
+            restaurant={restaurant}
+            visited={visited}
+            isUpdating={isUpdating}
+            loadingVisits={loadingVisits}
+            onToggleVisited={handleToggleVisited}
+            onVisitsDataUpdate={onVisitsDataUpdate || undefined}
+          />
         </div>
 
         {/* Content Area */}
