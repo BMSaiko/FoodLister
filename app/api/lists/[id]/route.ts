@@ -14,13 +14,23 @@ export async function GET(
       return NextResponse.json({ error: 'List ID is required' }, { status: 400 });
     }
 
-    // Single optimized query that gets list with all its restaurants
+    // Single optimized query that gets list with all its restaurants including relationships
     const { data, error } = await supabase
       .from('lists')
       .select(`
         *,
         list_restaurants(
-          restaurants(*)
+          restaurants(*,
+            restaurant_features(
+              features(*)
+            ),
+            restaurant_dietary_options(
+              dietary_options(*)
+            ),
+            restaurant_cuisine_types(
+              cuisine_types(*)
+            )
+          )
         )
       `)
       .eq('id', id)

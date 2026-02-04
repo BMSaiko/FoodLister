@@ -8,6 +8,14 @@ export default function FormActions({
   loading = false,
   disabled = false,
   className = ''
+}: {
+  onCancel: () => void;
+  onSubmit: () => void;
+  submitText?: string;
+  cancelText?: string;
+  loading?: boolean;
+  disabled?: boolean;
+  className?: string;
 }) {
   return (
     <div className={`flex flex-col sm:flex-row sm:justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200 ${className}`}>

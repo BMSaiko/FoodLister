@@ -2,16 +2,16 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import RestaurantFilters from '@/components/ui/RestaurantFilters';
+import TabbedRestaurantFilters from '@/components/ui/Filters/TabbedRestaurantFilters';
 import { FiltersProvider, useAuth } from '@/contexts/index';
 import { useRestaurants } from '@/hooks/useRestaurants';
 import { useVisitsData } from '@/hooks/useVisitsData';
 import { useFiltersLogic } from '@/hooks/useFiltersLogic';
 
-import { RestaurantsHeader } from '@/components/ui/RestaurantsHeader';
+import { RestaurantsHeader } from '@/components/ui/RestaurantList/RestaurantsHeader';
 import { RestaurantGrid } from '@/components/ui/RestaurantGrid';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { FilterStats } from '@/components/ui/FilterStats';
+import { EmptyState } from '@/components/ui/common/EmptyState';
+import { FilterStats } from '@/components/ui/Filters/FilterStats';
 
 // Component para mostrar loading
 function RestaurantsLoading() {
@@ -95,7 +95,7 @@ function RestaurantsContent({ showHeader = true }) {
     <>
       <RestaurantsHeader searchQuery={searchQuery} showHeader={showHeader} />
 
-      <RestaurantFilters
+      <TabbedRestaurantFilters
         filters={filters}
         setFilters={setFilters}
         clearFilters={clearFilters}

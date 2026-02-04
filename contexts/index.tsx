@@ -5,6 +5,7 @@ import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 import { AuthUser } from '@/libs/types';
+import { ModalProvider, useModal } from './ModalContext';
 
 interface FiltersContextValue {
   clearTrigger: number;

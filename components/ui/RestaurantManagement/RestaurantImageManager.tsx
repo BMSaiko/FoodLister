@@ -13,6 +13,12 @@ export default function RestaurantImageManager({
   onImagesChange,
   onDisplayImageIndexChange,
   disabled = false
+}: {
+  images?: string[];
+  displayImageIndex?: number;
+  onImagesChange: (images: string[]) => void;
+  onDisplayImageIndexChange: (index: number) => void;
+  disabled?: boolean;
 }) {
   // Create stable refs for callbacks to prevent dependency array changes
   const onImagesChangeRef = useRef(onImagesChange);
@@ -52,7 +58,7 @@ export default function RestaurantImageManager({
   }, [selectedDisplayIndex]);
 
   // Add an image (using local state, following MenuManager exact pattern)
-  const handleImageUploaded = (imageUrl) => {
+  const handleImageUploaded = (imageUrl: string) => {
     if (localImages.length >= 10) {
       return; // Safety check
     }
@@ -67,7 +73,7 @@ export default function RestaurantImageManager({
   };
 
   // Remove an image
-  const handleRemoveImage = (index) => {
+  const handleRemoveImage = (index: number) => {
     const newImages = localImages.filter((_, i) => i !== index);
     setLocalImages(newImages);
 
@@ -86,12 +92,12 @@ export default function RestaurantImageManager({
   };
 
   // Set display image
-  const handleSetDisplayImage = (index) => {
+  const handleSetDisplayImage = (index: number) => {
     setSelectedDisplayIndex(index);
   };
 
   // Move image up in order (for better UX when ordering)
-  const handleMoveUp = (index) => {
+  const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newImages = [...localImages];
     [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
@@ -106,7 +112,7 @@ export default function RestaurantImageManager({
   };
 
   // Move image down in order
-  const handleMoveDown = (index) => {
+  const handleMoveDown = (index: number) => {
     if (index === localImages.length - 1) return;
     const newImages = [...localImages];
     [newImages[index + 1], newImages[index]] = [newImages[index], newImages[index + 1]];

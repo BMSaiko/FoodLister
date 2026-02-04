@@ -1,13 +1,18 @@
 import React from 'react';
 import { Check, X } from 'lucide-react';
 
-export default function PasswordStrengthIndicator({ password, className = '' }) {
+interface PasswordStrengthIndicatorProps {
+  password: string;
+  className?: string;
+}
+
+export default function PasswordStrengthIndicator({ password, className = '' }: PasswordStrengthIndicatorProps) {
   const requirements = [
-    { key: 'minLength', label: 'Pelo menos 8 caracteres', test: (pwd) => pwd.length >= 8 },
-    { key: 'hasUppercase', label: 'Uma letra maiúscula (A-Z)', test: (pwd) => /[A-Z]/.test(pwd) },
-    { key: 'hasLowercase', label: 'Uma letra minúscula (a-z)', test: (pwd) => /[a-z]/.test(pwd) },
-    { key: 'hasNumber', label: 'Um número (0-9)', test: (pwd) => /\d/.test(pwd) },
-    { key: 'hasSpecialChar', label: 'Um caractere especial (!@#$%^&*)', test: (pwd) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd) }
+    { key: 'minLength', label: 'Pelo menos 8 caracteres', test: (pwd: string) => pwd.length >= 8 },
+    { key: 'hasUppercase', label: 'Uma letra maiúscula (A-Z)', test: (pwd: string) => /[A-Z]/.test(pwd) },
+    { key: 'hasLowercase', label: 'Uma letra minúscula (a-z)', test: (pwd: string) => /[a-z]/.test(pwd) },
+    { key: 'hasNumber', label: 'Um número (0-9)', test: (pwd: string) => /\d/.test(pwd) },
+    { key: 'hasSpecialChar', label: 'Um caractere especial (!@#$%^&*)', test: (pwd: string) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd) }
   ];
 
   const getStrengthColor = () => {

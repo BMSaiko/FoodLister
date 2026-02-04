@@ -8,31 +8,33 @@ import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 import { usePublicApiClient } from '@/hooks/usePublicApiClient';
 import { createClient } from '@/libs/supabase/client';
 import Navbar from '@/components/layouts/Navbar';
-import { Review, ReviewFormData } from '@/libs/types';
+import { Review } from '@/libs/types';
 
-// Extend Review type to handle null profileImage
-interface ExtendedReview extends Review {
-  user: Review['user'] & {
-    profileImage: string | null | undefined;
-  };
-}
-import Image from 'next/image';
-import ReviewForm from '@/components/ui/ReviewForm';
+// Import new components
+import RestaurantHeader from '@/components/ui/RestaurantDetails/RestaurantHeader';
+import RestaurantImagesSection from '@/components/ui/RestaurantDetails/RestaurantImagesSection';
+import RestaurantCategoriesSection from '@/components/ui/RestaurantDetails/RestaurantCategoriesSection';
+import RestaurantInfoSection from '@/components/ui/RestaurantDetails/RestaurantInfoSection';
+import RestaurantReviewsSection from '@/components/ui/RestaurantDetails/RestaurantReviewsSection';
+import RestaurantListsSection from '@/components/ui/RestaurantDetails/RestaurantListsSection';
+import ContactInfoCard from '@/components/ui/RestaurantDetails/ContactInfoCard';
+import RestaurantStickyNavbar from '@/components/ui/RestaurantDetails/RestaurantStickyNavbar';
+import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
+
+// Import existing components
+import ScheduleMealModal from '@/components/ui/RestaurantDetails/ScheduleMealModal';
+import { useModal } from '@/contexts/ModalContext';
+
 import Link from 'next/link';
-import {
-  Star, ListChecks, Edit, MapPin, Globe,
-  FileText, Check, X, User, Euro, Tag, Clock, Share2, Calendar, Phone, Smartphone, Home, Plus, Image as ImageIcon
-} from 'lucide-react';
-import { formatPrice, categorizePriceLevel, getRatingClass, formatDate, formatDescription } from '@/utils/formatters';
+import { Share2, Calendar, Edit, MapPin, Globe, FileText, ImageIcon, Phone, Check, X, Plus, Star, Tag, User, Clock, ListChecks, Smartphone, Home, Euro } from 'lucide-react';
+import { formatDescription, categorizePriceLevel, getRatingClass, formatDate, formatPrice } from '@/utils/formatters';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { logError, logWarn, logInfo } from '@/utils/logger';
 import { toast } from 'react-toastify';
-import MapSelectorModal from '@/components/ui/MapSelectorModal';
-import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
-import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlaceholder';
-import MenuCarousel from '@/components/ui/MenuCarousel';
-import RestaurantCarousel from '@/components/ui/RestaurantCarousel';
-import { Navigation } from 'lucide-react';
+import Image from 'next/image';
+import RestaurantCarousel from '@/components/ui/RestaurantList/RestaurantCarousel';
+import RestaurantImagePlaceholder from '@/components/ui/RestaurantManagement/RestaurantImagePlaceholder';
+import ReviewForm from '@/components/ui/Forms/ReviewForm';
 
 interface Restaurant {
   id: string;
@@ -59,11 +61,13 @@ interface Restaurant {
   latitude?: number;
   longitude?: number;
   images?: string[];
+  dietary_options?: any[];
+  features?: any[];
 }
 
 export default function RestaurantDetails() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
   const { user } = useAuth();
   const { get, post, patch, del } = useSecureApiClient();
   const { get: getPublic } = usePublicApiClient();
@@ -81,7 +85,7 @@ export default function RestaurantDetails() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
-  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -93,63 +97,43 @@ export default function RestaurantDetails() {
     setLoading(true);
 
     try {
-      // Fetch restaurant details
-      const { data: restaurantData, error: restaurantError } = await supabase
-        .from('restaurants')
-        .select('*')
-        .eq('id', id)
-        .single();
+      // Fetch restaurant details using the updated API route that includes features and dietary options
+      const response = await getPublic(`/api/restaurants/${id}`);
+      const data = await response.json();
 
-      if (restaurantError) throw restaurantError;
-
-      if (restaurantData) {
-        setRestaurant(restaurantData as any);
-
-        // Fetch cuisine types for this restaurant
-        const { data: cuisineRelations, error: cuisineRelationsError } = await supabase
-          .from('restaurant_cuisine_types')
-          .select('cuisine_type_id')
-          .eq('restaurant_id', id);
-
-        if (cuisineRelationsError) throw cuisineRelationsError;
-
-        if (cuisineRelations && cuisineRelations.length > 0) {
-          const cuisineTypeIds = (cuisineRelations as any[]).map((item: any) => item.cuisine_type_id);
-
-          const { data: cuisineTypeDetails, error: cuisineTypeError } = await supabase
-            .from('cuisine_types')
-            .select('*')
-            .in('id', cuisineTypeIds);
-
-          if (cuisineTypeError) throw cuisineTypeError;
-
-          if (cuisineTypeDetails) {
-            setCuisineTypes(cuisineTypeDetails);
-          }
+      if (response.ok && data.restaurant) {
+        setRestaurant(data.restaurant);
+        
+        // Extract cuisine types from the joined data
+        if (data.restaurant.cuisine_types) {
+          setCuisineTypes(data.restaurant.cuisine_types);
         }
+      } else {
+        throw new Error(data.error || 'Failed to fetch restaurant details');
+      }
 
-        // Fetch lists containing this restaurant
-        const { data: listRelations, error: listRelationsError } = await supabase
-          .from('list_restaurants')
-          .select('list_id')
-          .eq('restaurant_id', id);
+      // Fetch lists containing this restaurant
+      const { data: listRelations, error: listRelationsError } = await supabase
+        .from('list_restaurants')
+        .select('list_id')
+        .eq('restaurant_id', id);
 
-        if (listRelationsError) throw listRelationsError;
+      if (listRelationsError) throw listRelationsError;
 
-        if (listRelations && listRelations.length > 0) {
-          const listIds = (listRelations as any[]).map((item: any) => item.list_id);
+      if (listRelations && listRelations.length > 0) {
+        const listIds = (listRelations as any[]).map((item: any) => item.list_id);
 
-          const { data: listDetails, error: listDetailsError } = await supabase
-            .from('lists')
-            .select('*')
-            .in('id', listIds);
+        const { data: listDetails, error: listDetailsError } = await supabase
+          .from('lists')
+          .select('*')
+          .in('id', listIds);
 
-          if (listDetailsError) throw listDetailsError;
+        if (listDetailsError) throw listDetailsError;
 
-          if (listDetails) {
-            setLists(listDetails);
-          }
+        if (listDetails) {
+          setLists(listDetails);
         }
+      }
 
       // Fetch reviews for this restaurant
       await fetchReviews();
@@ -161,7 +145,6 @@ export default function RestaurantDetails() {
         setReviewCount(data.reviews?.length || 0);
       } catch (error) {
         logError('Error fetching review count', error);
-      }
       }
     } catch (error) {
       logError('Error fetching restaurant details', error);
@@ -449,10 +432,7 @@ export default function RestaurantDetails() {
     }
   };
   
-  const handleToggleVisited = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  const handleToggleVisited = async () => {
     setIsUpdating(true);
     try {
       const response = await patch(`/api/restaurants/${id}/visits`, { action: 'toggle_visited' });
@@ -804,528 +784,87 @@ export default function RestaurantDetails() {
         </div>
       )}
 
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        <div className="flex justify-end mb-4 sm:mb-6">
-          <div className="flex w-full sm:w-auto gap-2">
-            <button
-              type="button"
-              onClick={handleShareClick}
-              disabled={!shareUrl || shareUrl.trim() === ''}
-              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-white text-gray-700 border border-gray-200 rounded-md hover:bg-gray-50 active:bg-gray-100 transition-colors text-sm sm:text-base min-h-[44px] sm:min-h-0 w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
-              aria-label="Compartilhar"
-              title={!shareUrl || shareUrl.trim() === '' ? 'Compartilhamento não disponível' : 'Compartilhar'}
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Compartilhar</span>
-              <span className="sm:hidden">Compartilhar</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsScheduleModalOpen(true)}
-              className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 active:bg-blue-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
-              aria-label="Agendar refeição"
-              title="Agendar refeição"
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Agendar Refeição</span>
-              <span className="sm:hidden">Agendar</span>
-            </button>
-            {user && restaurant?.creator_id === user.id && (
-              <Link
-                href={`/restaurants/${id}/edit`}
-                className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
-              >
-                <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
-                <span className="text-sm sm:text-base">Editar</span>
-              </Link>
-            )}
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 sm:mb-8">
-          {/* Restaurant Images Carousel */}
-          <div className="relative">
-            {(() => {
-              // Check if restaurant has images array with content
-              const hasImages = restaurant.images && restaurant.images.length > 0;
-
-              if (hasImages) {
-                // Process images: if display_image_index is valid, move that image to front
-                let processedImages = [...(restaurant.images || [])];
-
-                if (restaurant.display_image_index !== undefined &&
-                    restaurant.display_image_index >= 0 &&
-                    restaurant.display_image_index < (restaurant.images?.length || 0) &&
-                    restaurant.display_image_index !== 0) {
-                  // Move display image to front
-                  const displayImage = processedImages.splice(restaurant.display_image_index, 1)[0];
-                  processedImages.unshift(displayImage);
-                }
-
-                // Convert Cloudinary URLs and filter out any undefined/null values
-                const carouselImages = processedImages
-                  .map(img => convertCloudinaryUrl(img))
-                  .filter((url): url is string => typeof url === 'string' && url.length > 0) as string[];
-
-                return (
-                  <RestaurantCarousel
-                    images={carouselImages}
-                    className="w-full"
-                  />
-                );
-              } else {
-                // Fallback to single image logic for backward compatibility
-                const imageUrl = restaurant.image_url ? convertCloudinaryUrl(restaurant.image_url) : null;
-                const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && restaurant.image_url;
-
-                return (
-                  <div className="relative h-48 sm:h-56 md:h-[24rem] lg:h-[28rem] w-full">
-                    {hasImage ? (
-                      <Image
-                        src={imageUrl}
-                        alt={restaurant.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 90vw, 1200px"
-                        priority
-                      />
-                    ) : (
-                      <RestaurantImagePlaceholder
-                        iconSize="80"
-                        textSize="text-lg"
-                        showText={true}
-                      />
-                    )}
-                  </div>
-                );
-              }
-            })()}
-
-            {/* Visit controls for authenticated users - positioned over carousel */}
-            {user && (
-              <>
-                {/* Badge com Switch Button */}
-                <button
-                  onClick={handleToggleVisited}
-                  disabled={isUpdating}
-                  className={`absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all duration-200 cursor-pointer hover:shadow-md shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-                    visitData.visited
-                      ? 'bg-green-500 text-white hover:bg-green-600'
-                      : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-                  }`}
-                  title={visitData.visited ? 'Clique para marcar como não visitado' : 'Clique para marcar como visitado'}
-                >
-                  {visitData.visited ? (
-                    <>
-                      <Check className="h-4 w-4" />
-                      <span className="text-sm font-medium">Visitado</span>
-                    </>
-                  ) : (
-                    <>
-                      <X className="h-4 w-4" />
-                      <span className="text-sm font-medium">Não visitado</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Visit counter and +1/-1 buttons - positioned below the toggle button */}
-                {visitData.visited && (
-                  <div className="absolute top-16 right-2 sm:right-4 z-10 bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-lg border border-gray-200/50 px-2.5 py-2 sm:px-3.5 sm:py-2.5 flex items-center gap-2 sm:gap-2.5 backdrop-blur-sm">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse"></div>
-                      <span className="text-xs sm:text-sm font-semibold text-gray-800">Visitas</span>
-                    </div>
-                    <div className="flex items-center bg-amber-50 rounded-lg px-2 py-0.5">
-                      <span className="text-xs sm:text-sm font-bold text-amber-700 tabular-nums">{visitData.visitCount}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={handleRemoveVisit}
-                        disabled={visitData.visitCount <= 0}
-                        className="group flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-red-500 shadow-sm hover:shadow-md transform hover:scale-110 active:scale-95"
-                        title="Remover -1 visita"
-                      >
-                        <X className="h-2.5 w-2.5 sm:h-3 sm:w-3 group-hover:rotate-90 transition-transform duration-200" />
-                      </button>
-                      <button
-                        onClick={handleAddVisit}
-                        className="group flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-full transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-110 active:scale-95"
-                        title="Adicionar +1 visita"
-                      >
-                        <Plus className="h-2.5 w-2.5 sm:h-3 sm:w-3 group-hover:rotate-180 transition-transform duration-200" />
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-          
-          <div className="p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{restaurant.name}</h1>
-              {restaurant.rating !== null && restaurant.rating !== undefined && (
-                <div className={`flex items-center ${ratingClass} px-3 py-2 rounded self-start`}>
-                  <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="currentColor" />
-                  <span className="font-semibold text-base sm:text-lg">{(restaurant.rating || 0).toFixed(1)}</span>
-                </div>
-              )}
-            </div>
-            
-            {/* Mostrar categorias culinárias */}
-              {cuisineTypes && cuisineTypes.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {cuisineTypes.map((type: any) => (
-                    <span 
-                      key={type.id} 
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700"
-                    >
-                      <Tag className="h-4 w-4 mr-1.5 text-amber-500" />
-                      {type.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            
-            {(() => {
-              const formattedDescription = formatDescription(restaurant.description || '');
-              if (!formattedDescription || formattedDescription.length === 0) return null;
-
-              if (formattedDescription.length === 1) {
-                return <p className="text-gray-600 mt-4">{formattedDescription[0]}</p>;
-              }
-
-              return (
-                <div className="text-gray-600 mt-4 space-y-3">
-                  {formattedDescription.map((paragraph: string, index: number) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
-                </div>
-              );
-            })()}
-            
-            {/* Informações de preço mais destacadas - apenas se visitado e houver preço positivo definido */}
-            {visitData.visited && restaurant.price_per_person && restaurant.price_per_person > 0 && renderPriceLevel(restaurant.price_per_person)}
-            
-            {/* Campos adicionais agora com cards estilizados */}
-            <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
-              {restaurant.location && (
-                <div
-                  className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
-                  onClick={() => setIsMapModalOpen(true)}
-                >
-                  <MapPin className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
-                  <span className="flex-grow text-sm sm:text-base">{restaurant.location}</span>
-                  <span className="text-xs sm:text-sm text-amber-600 ml-2">Abrir no mapa</span>
-                </div>
-              )}
-
-              {restaurant.phone_numbers && restaurant.phone_numbers.length > 0 && (
-                <div className="flex items-start text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0">
-                  <Phone className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0 mt-0.5" />
-                  <div className="flex-grow">
-                    <div className="text-sm sm:text-base font-medium mb-2">Telefones para contato</div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {restaurant.phone_numbers.map((phone, index) => {
-                        const phoneType = detectPhoneType(phone);
-                        const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
-
-                        return (
-                          <div
-                            key={index}
-                            className="flex items-center p-2 bg-white rounded-md border border-gray-200 hover:border-amber-300 transition-colors"
-                          >
-                            <PhoneIcon className="h-4 w-4 mr-2 text-amber-500" />
-                            <a
-                              href={`tel:${phone}`}
-                              className="text-sm text-amber-600 hover:text-amber-800 hover:underline flex-1"
-                            >
-                              {phone}
-                            </a>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {restaurant.source_url && (
-                <div 
-                  className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
-                  onClick={() => window.open(restaurant.source_url || '', '_blank', 'noopener,noreferrer')}
-                >
-                  <Globe className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
-                  <span className="flex-grow text-sm sm:text-base">Fonte Original</span>
-                  <a 
-                    href={restaurant.source_url || ''} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm ml-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Visitar site
-                  </a>
-                </div>
-              )}
-
-              {/* Menu Links */}
-              {restaurant.menu_links && restaurant.menu_links.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center text-gray-700 text-sm font-medium mb-2">
-                    <Globe className="h-4 w-4 mr-2 text-amber-500" />
-                    Links de Menus ({restaurant.menu_links.length})
-                  </div>
-                  {(restaurant.menu_links || []).map((link: string, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center text-gray-700 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer min-h-[56px] sm:min-h-0"
-                      onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}
-                    >
-                      <FileText className="h-5 w-5 mr-3 text-amber-500 flex-shrink-0" />
-                      <span className="flex-grow text-sm sm:text-base truncate">{link}</span>
-                      <span className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm ml-2">
-                        Ver menu
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Menu Images Carousel */}
-              {restaurant.menu_images && restaurant.menu_images.length > 0 && (
-                <div className="space-y-3">
-                  <div className="flex items-center text-gray-700 text-sm font-medium">
-                    <ImageIcon className="h-4 w-4 mr-2 text-amber-500" />
-                    Imagens do Menu ({restaurant.menu_images.length})
-                  </div>
-                  <MenuCarousel
-                    images={(restaurant.menu_images || []).map((img: string) => convertCloudinaryUrl(img)).filter((url): url is string => typeof url === 'string' && url.length > 0) as string[]}
-                    className="w-full"
-                  />
-                </div>
-              )}
-            </div>
-            {/* Informações do criador */}
-            <div className="mt-3 text-sm flex items-center text-gray-500">
-              <User className="h-4 w-4 mr-1" />
-              Adicionado por: {restaurant.creator_name || 'Anônimo'}
-            </div>
-            {/* Data de adição */}
-            {restaurant.created_at && (
-              <div className="mt-3 text-sm flex items-center text-gray-500">
-                <Clock className="h-4 w-4 mr-1" />
-                Adicionado em: {formatDate(restaurant.created_at)}
-              </div>
-            )}
-          </div>
-        </div>
-        
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
-            <ListChecks className="h-5 w-5 mr-2 text-amber-500" />
-            Listas que incluem este restaurante
-          </h2>
-          
-              {lists.length === 0 ? (
-                <p className="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base">Este restaurante não está em nenhuma lista.</p>
-              ) : (
-                <div className="mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
-                  {lists.map((list: any) => (
-                    <Link key={list.id} href={`/lists/${list.id}`} className="block">
-                      <div className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors min-h-[60px] sm:min-h-0">
-                        <h3 className="font-medium text-gray-800 text-sm sm:text-base">{list.name}</h3>
-                        <p className="text-gray-600 text-xs sm:text-sm mt-1 line-clamp-2">{list.description}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-        </div>
-
-        {/* Reviews Section */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-              <div className="flex items-center">
-                <div className="bg-amber-500 rounded-full p-2 mr-3">
-                  <Star className="h-5 w-5 text-white fill-current" />
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-xl font-bold text-gray-800">
-                    Avaliações
-                  </h2>
-                  <p className="text-sm text-gray-600">{reviewCount} avaliação{reviewCount !== 1 ? 'ões' : ''}</p>
-                </div>
-              </div>
-              {user && !showReviewForm && (
-                <button
-                  onClick={() => setShowReviewForm(true)}
-                  className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-all duration-200 shadow-md hover:shadow-lg text-sm sm:text-base font-medium min-h-[44px] sm:min-h-0"
-                >
-                  <Star className="h-4 w-4 mr-2 fill-current" />
-                  Avaliar Restaurante
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="p-4 sm:p-6">
-            {(showReviewForm || editingReview) && (
-              <div className="mb-6 sm:mb-8">
-                <ReviewForm
-                  restaurantId={Array.isArray(id) ? id[0] : id}
-                  onReviewSubmitted={handleReviewSubmitted}
-                  onCancel={() => {
-                    setShowReviewForm(false);
-                    setEditingReview(null);
-                  }}
-                  initialReview={editingReview}
-                />
-              </div>
-            )}
-
-            {loadingReviews ? (
-              <div className="space-y-4 sm:space-y-6">
-                <div className="animate-pulse">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-                    <div className="h-4 bg-gray-200 rounded w-24"></div>
-                  </div>
-                  <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                </div>
-                <div className="animate-pulse">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-                    <div className="h-4 bg-gray-200 rounded w-20"></div>
-                  </div>
-                  <div className="h-4 bg-gray-200 rounded w-full"></div>
-                </div>
-              </div>
-            ) : reviews.length === 0 ? (
-              <div className="text-center py-12 sm:py-16">
-                <div className="bg-amber-50 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-                  <Star className="h-10 w-10 text-amber-400" />
-                </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">
-                  Nenhuma avaliação ainda
-                </h3>
-                <p className="text-gray-500 text-sm sm:text-base mb-4 max-w-sm mx-auto">
-                  Este restaurante ainda não foi avaliado. Seja o primeiro a compartilhar sua experiência!
-                </p>
-                {user && !showReviewForm && (
-                  <button
-                    onClick={() => setShowReviewForm(true)}
-                    className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
-                  >
-                    <Star className="h-5 w-5 mr-2 fill-current" />
-                    Fazer primeira avaliação
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4 sm:space-y-6">
-                {reviews.map(review => (
-                  <div key={review.id} className="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-100 hover:shadow-md transition-all duration-200">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-0">
-                      <div className="flex items-start sm:items-center gap-3">
-                        <div className="flex-shrink-0">
-                          {review.user.profileImage ? (
-                            <img
-                              src={review.user.profileImage}
-                              alt={`${review.user.name}'s profile`}
-                              className="w-10 h-10 rounded-full object-cover border-2 border-gray-200"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
-                              <span className="text-amber-600 font-semibold text-sm">
-                                {review.user.name.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <span className="font-semibold text-gray-800 text-sm sm:text-base">
-                              {review.user.name}
-                            </span>
-                            <div className="flex items-center gap-1">
-                              {Array(5).fill(0).map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 sm:h-5 sm:w-5 ${
-                                    i < review.rating
-                                      ? 'text-amber-400 fill-current'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
-                              <span className="text-xs sm:text-sm text-gray-600 ml-1 font-medium">
-                                {review.rating}/5
-                              </span>
-                            </div>
-                          </div>
-                          {review.comment && (
-                            <p className="text-gray-700 text-sm sm:text-base leading-relaxed mt-2">
-                              {review.comment}
-                            </p>
-                          )}
-                          {review.amount_spent && review.amount_spent > 0 && (
-                            <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
-                              <Euro className="h-4 w-4 text-amber-500" />
-                              <span>Valor gasto: <span className="font-semibold text-amber-600">{formatPrice(review.amount_spent)}</span></span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between sm:justify-end gap-2 sm:flex-shrink-0">
-                        <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-md border">
-                          {formatDate(review.created_at)}
-                        </span>
-                        {user && review.user_id === user.id && (
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => setEditingReview(review)}
-                              className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200 touch-feedback"
-                              title="Editar avaliação"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteReview(review.id)}
-                              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 touch-feedback"
-                              title="Eliminar avaliação"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <MapSelectorModal
-        isOpen={isMapModalOpen}
-        onClose={() => setIsMapModalOpen(false)}
-        location={restaurant.location || ''}
-        latitude={restaurant.latitude}
-        longitude={restaurant.longitude}
+      {/* Sticky Navbar for Mobile */}
+      <RestaurantStickyNavbar
+        visited={visitData.visited}
+        visitCount={visitData.visitCount}
+        onShare={handleShareClick}
+        onSchedule={() => setIsScheduleModalOpen(true)}
+        onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
+        onToggleVisited={handleToggleVisited}
+        onAddVisit={handleAddVisit}
+        onRemoveVisit={handleRemoveVisit}
+        isUpdating={isUpdating}
+        loadingVisits={false}
+        user={user}
+        restaurant={restaurant}
       />
+
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+        {/* Restaurant Header */}
+        <RestaurantHeader
+          restaurant={restaurant}
+          onShare={handleShareClick}
+          onSchedule={() => setIsScheduleModalOpen(true)}
+          onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
+          user={user}
+          showActions={true}
+          visited={visitData.visited}
+          visitCount={visitData.visitCount}
+          onToggleVisited={handleToggleVisited}
+          onAddVisit={handleAddVisit}
+          onRemoveVisit={handleRemoveVisit}
+          isUpdating={isUpdating}
+          loadingVisits={false}
+        />
+
+        {/* Restaurant Images Section */}
+        <RestaurantImagesSection
+          restaurant={restaurant}
+        />
+
+        {/* Restaurant Categories Section */}
+        <RestaurantCategoriesSection
+          cuisineTypes={cuisineTypes}
+          dietaryOptions={restaurant.dietary_options || []}
+          features={restaurant.features || []}
+        />
+
+        {/* Restaurant Info Section */}
+        <RestaurantInfoSection
+          location={restaurant.location || ''}
+          sourceUrl={restaurant.source_url || ''}
+          menuLinks={restaurant.menu_links || []}
+          menuImages={restaurant.menu_images || []}
+          phoneNumbers={restaurant.phone_numbers || []}
+          latitude={restaurant.latitude}
+          longitude={restaurant.longitude}
+        />
+
+        {/* Restaurant Reviews Section */}
+        <RestaurantReviewsSection
+          restaurantId={id}
+          reviews={reviews}
+          reviewCount={reviewCount}
+          user={user}
+          userProfile={userProfile}
+          loading={loadingReviews}
+          onReviewSubmitted={handleReviewSubmitted}
+          onEditReview={handleEditReview}
+          onDeleteReview={handleDeleteReview}
+        />
+      </div>
 
       <ScheduleMealModal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
-        restaurantName={restaurant.name}
-        restaurantLocation={restaurant.location || ''}
-        restaurantDescription={restaurant.description || ''}
+        restaurantName={restaurant?.name || ''}
+        restaurantLocation={restaurant?.location || ''}
+        restaurantDescription={restaurant?.description || ''}
       />
+
+      {/* ScrollToTopButton - only appears on desktop */}
+      <ScrollToTopButton />
     </div>
   );
 }
