@@ -35,8 +35,15 @@ export default function ImageUploader({
     multipleProgress: null // { current: number, total: number }
   });
 
-  // Detect mobile device
-  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  // Detect mobile device - initialize as undefined to avoid SSR mismatch
+  const [isMobile, setIsMobile] = useState(undefined);
+
+  // Detect mobile device only on client side to prevent hydration mismatch
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+    const mobileRegex = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+    setIsMobile(mobileRegex.test(userAgent));
+  }, []);
 
   /**
    * Handle file drop/upload
@@ -149,11 +156,11 @@ export default function ImageUploader({
     multiple: true,
     maxFiles: maxFiles,
     disabled: disabled || uploadState.isUploading,
-    // Add camera support for mobile
-    ...(isMobile && {
+    // Add camera support for mobile - only apply when isMobile is true
+    ...(isMobile === true ? {
       // This helps mobile browsers prioritize camera
       capture: 'environment' // Use back camera by default
-    })
+    } : {})
   });
 
   /**
@@ -195,7 +202,7 @@ export default function ImageUploader({
         className={`
           w-full px-6 py-4 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
           ${isDragActive ? 'border-primary bg-primary/10 scale-105' : 'border-gray-300 hover:border-primary hover:bg-primary/5'}
-          ${isMobile ? 'active:scale-95' : ''}
+          ${isMobile === true ? 'active:scale-95' : ''}
           ${disabled || uploadState.isUploading ? 'opacity-50 cursor-not-allowed' : ''}
           focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary
         `}
@@ -206,9 +213,12 @@ export default function ImageUploader({
           <div className="mx-auto mb-3 flex items-center justify-center w-16 h-16 rounded-full bg-gray-100">
             {uploadState.isUploading ? (
               <Loader className="h-8 w-8 text-primary animate-spin" />
-            ) : isMobile ? (
+            ) : isMobile === true ? (
               <Camera className="h-8 w-8 text-gray-600" />
+            ) : isMobile === false ? (
+              <ImageIcon className="h-8 w-8 text-gray-600" />
             ) : (
+              // During hydration, render a placeholder that matches both states
               <ImageIcon className="h-8 w-8 text-gray-600" />
             )}
           </div>
@@ -220,17 +230,17 @@ export default function ImageUploader({
             ) : (
               <>
                 <p className="text-lg font-medium text-gray-700">
-                  {isDragActive ? 'Solte a imagem aqui' : isMobile ? 'Tirar Foto ou Selecionar' : 'Arraste uma imagem ou clique'}
+                  {isDragActive ? 'Solte a imagem aqui' : isMobile === true ? 'Tirar Foto ou Selecionar' : 'Arraste uma imagem ou clique'}
                 </p>
                 <p className="text-sm text-gray-500">
                   JPG, PNG, GIF, WebP, HEIC até 10MB (máximo {maxFiles} arquivos)
                 </p>
-                {isMobile && (
+                {isMobile === true && (
                   <p className="text-xs text-blue-600 font-medium mt-2">
                     📱 Câmera integrada
                   </p>
                 )}
-                {!isMobile && (
+                {isMobile === false && (
                   <p className="text-xs text-gray-400 mt-2">
                     ou clique para selecionar
                   </p>
