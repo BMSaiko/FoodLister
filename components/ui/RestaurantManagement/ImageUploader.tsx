@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, FileRejection } from 'react-dropzone';
 import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
 
@@ -12,9 +12,21 @@ export default function ImageUploader({
   className = '',
   disabled = false,
   maxFiles = 10
+}: {
+  onImageUploaded: (url: string) => void;
+  className?: string;
+  disabled?: boolean;
+  maxFiles?: number;
 }) {
   // State for upload process
-  const [uploadState, setUploadState] = useState({
+  const [uploadState, setUploadState] = useState<{
+    isUploading: boolean;
+    error: string | null;
+    success: boolean;
+    uploadedUrl: string | null;
+    uploadProgress: number | null;
+    multipleProgress: { current: number; total: number } | null;
+  }>({
     isUploading: false,
     error: null,
     success: false,
@@ -24,7 +36,7 @@ export default function ImageUploader({
   });
 
   // Detect mobile device - initialize as undefined to avoid SSR mismatch
-  const [isMobile, setIsMobile] = useState(undefined);
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
 
   // Detect mobile device only on client side to prevent hydration mismatch
   useEffect(() => {
@@ -36,7 +48,7 @@ export default function ImageUploader({
   /**
    * Handle file drop/upload
    */
-  const onDrop = useCallback(async (acceptedFiles, rejectedFiles) => {
+  const onDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     // Handle rejected files
     if (rejectedFiles.length > 0) {
       const rejection = rejectedFiles[0];
@@ -55,7 +67,9 @@ export default function ImageUploader({
         isUploading: false,
         error: errorMessage,
         success: false,
-        uploadedUrl: null
+        uploadedUrl: null,
+        uploadProgress: null,
+        multipleProgress: null
       });
       return;
     }
@@ -71,6 +85,7 @@ export default function ImageUploader({
       error: null,
       success: false,
       uploadedUrl: null,
+      uploadProgress: null,
       multipleProgress: { current: 0, total: acceptedFiles.length }
     });
 
@@ -94,7 +109,8 @@ export default function ImageUploader({
 
       } catch (error) {
         console.error(`❌ Upload ${i + 1}/${acceptedFiles.length} failed:`, error);
-        uploadErrors.push(`Imagem ${i + 1}: ${error.message || 'Erro no upload'}`);
+        const errorMessage = error instanceof Error ? error.message : 'Erro no upload';
+        uploadErrors.push(`Imagem ${i + 1}: ${errorMessage}`);
       }
     }
 
@@ -106,6 +122,7 @@ export default function ImageUploader({
         error: null,
         success: true,
         uploadedUrl: null,
+        uploadProgress: null,
         multipleProgress: null
       });
 
@@ -123,6 +140,7 @@ export default function ImageUploader({
         error: uploadErrors.join('; '),
         success: false,
         uploadedUrl: null,
+        uploadProgress: null,
         multipleProgress: null
       });
     }
@@ -164,7 +182,9 @@ export default function ImageUploader({
       isUploading: false,
       error: null,
       success: false,
-      uploadedUrl: null
+      uploadedUrl: null,
+      uploadProgress: null,
+      multipleProgress: null
     });
   };
 

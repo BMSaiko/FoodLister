@@ -1,7 +1,7 @@
 // app/restaurants/page.js
 import Navbar from '@/components/layouts/Navbar';
 import RestaurantsList from '@/components/RestaurantsList';
-import RouletteBanner from '@/components/ui/RouletteBanner';
+import RouletteBanner from '@/components/ui/RestaurantList/RouletteBanner';
 
 export default function RestaurantsPage() {
   return (

@@ -176,6 +176,7 @@ body {
   height: 100%;
 }
 
+/* Legacy card styles - keeping for backward compatibility but not used by restaurant cards */
 .card-image-container {
   height: 200px;
   position: relative;
@@ -185,6 +186,11 @@ body {
   .card-image-container {
     height: 180px;
   }
+}
+
+/* Restaurant card specific styles - these override any generic card styles */
+.restaurant-card-image {
+  /* This class is not used but kept for potential future use */
 }
 
 /* Ajustes para páginas de detalhes */

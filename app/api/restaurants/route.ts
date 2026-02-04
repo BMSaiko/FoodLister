@@ -70,6 +70,12 @@ export async function GET(request: NextRequest) {
         cuisine_types:restaurant_cuisine_types(
           cuisine_type:cuisine_types(*)
         ),
+        features:restaurant_restaurant_features(
+          feature:restaurant_features(*)
+        ),
+        dietary_options:restaurant_dietary_options_junction(
+          dietary_option:restaurant_dietary_options(*)
+        ),
         reviews:reviews(count)
       `, { count: 'exact' })
       .order('rating', { ascending: false })
@@ -92,6 +98,12 @@ export async function GET(request: NextRequest) {
       ...restaurant,
       cuisine_types: restaurant.cuisine_types
         ? restaurant.cuisine_types.map((relation: any) => relation.cuisine_type)
+        : [],
+      features: restaurant.features
+        ? restaurant.features.map((relation: any) => relation.feature)
+        : [],
+      dietary_options: restaurant.dietary_options
+        ? restaurant.dietary_options.map((relation: any) => relation.dietary_option)
         : [],
       review_count: restaurant.reviews?.[0]?.count || 0
     }));

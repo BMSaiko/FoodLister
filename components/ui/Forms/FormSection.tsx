@@ -6,6 +6,12 @@ export default function FormSection({
   className = '',
   titleClassName = '',
   contentClassName = ''
+}: {
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+  titleClassName?: string;
+  contentClassName?: string;
 }) {
   return (
     <div className={`mb-8 ${className}`}>

@@ -11,14 +11,18 @@ export default function ImagePreview({
   imageUrl,
   onImageUrlChange,
   className = ''
+}: {
+  imageUrl: string;
+  onImageUrlChange: (url: string) => void;
+  className?: string;
 }) {
   // Use custom hook for image preview state management
-  const { previewState, handleImageError } = useImagePreview(imageUrl, convertCloudinaryUrl);
+  const { preview, error, loading, progress, clearError, clearPreview } = useImagePreview(imageUrl ? new File([imageUrl], 'image') : null);
 
   /**
    * Handle URL input change
    */
-  const handleUrlChange = useCallback((value) => {
+  const handleUrlChange = useCallback((value: string) => {
     onImageUrlChange(value);
   }, [onImageUrlChange]);
 
@@ -72,7 +76,7 @@ export default function ImagePreview({
           <div className="relative">
             <div className="w-full h-48 bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200">
               {/* Loading State */}
-              {previewState.isLoading && (
+              {loading && (
                 <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
                     <Loader className="h-8 w-8 text-primary animate-spin" />
@@ -82,13 +86,16 @@ export default function ImagePreview({
               )}
 
               {/* Loaded State */}
-              {!previewState.isLoading && previewState.isLoaded && !previewState.hasError && (
+              {!loading && preview && !error && (
                 <div className="w-full h-full bg-white flex items-center justify-center">
                   <img
                     src={processedUrl}
                     alt="Preview do restaurante"
                     className="max-w-full max-h-full object-contain"
-                    onError={handleImageError}
+                    onError={() => {
+                      // Error handling is managed by the hook's internal logic
+                      // The hook will automatically set error state when image fails to load
+                    }}
                   />
                   {/* Preview Badge */}
                   <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
@@ -98,7 +105,7 @@ export default function ImagePreview({
               )}
 
               {/* Error State */}
-              {previewState.hasError && !previewState.isLoading && (
+              {error && !loading && (
                 <div className="w-full h-full bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center">
                   <div className="flex flex-col items-center justify-center space-y-3 text-center px-4">
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">

@@ -29,8 +29,10 @@ interface Restaurant {
   updated_at: string;
   creator_id?: string;
   creator_name?: string;
-  cuisine_types?: any[];
+  cuisine_types: any[];
   review_count?: number;
+  features: any[];
+  dietary_options: any[];
 }
 
 interface List {
@@ -83,8 +85,16 @@ export default function ListDetails() {
           throw new Error('Invalid response structure: list data is not an object');
         }
 
+        // Transform restaurant data to match RestaurantWithDetails type
+        const transformedRestaurants = (listData.restaurants || []).map((restaurant: any) => ({
+          ...restaurant,
+          features: restaurant.restaurant_features?.map((rf: any) => rf.features) || [],
+          dietary_options: restaurant.restaurant_dietary_options?.map((rdo: any) => rdo.dietary_options) || [],
+          cuisine_types: restaurant.restaurant_cuisine_types?.map((rct: any) => rct.cuisine_types) || []
+        }));
+
         setList(listData);
-        setRestaurants(listData.restaurants || []);
+        setRestaurants(transformedRestaurants);
       } catch (error) {
         console.error('Error fetching list details:', error);
         setList(null);
@@ -179,10 +189,7 @@ export default function ListDetails() {
             {restaurants.map(restaurant => (
               <RestaurantCard 
                 key={restaurant.id} 
-                restaurant={{ 
-                  ...restaurant, 
-                  cuisine_types: restaurant.cuisine_types || [] 
-                }} 
+                restaurant={restaurant} 
               />
             ))}
           </div>

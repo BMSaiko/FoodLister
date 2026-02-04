@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, User, ChefHat, Sparkles, Utensils, Star } from 'lucide-react';
 import { validatePassword } from '@/utils/passwordValidation';
-import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
+import PasswordStrengthIndicator from '@/components/ui/Forms/PasswordStrengthIndicator';
 import { validateRedirectUrl } from '@/utils/authUtils';
 
 export default function SignUpPage() {

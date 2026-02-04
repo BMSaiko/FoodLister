@@ -7,7 +7,7 @@ import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, Key } from 'lucide-react';
 import { validatePassword } from '@/utils/passwordValidation';
-import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
+import PasswordStrengthIndicator from '@/components/ui/Forms/PasswordStrengthIndicator';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
