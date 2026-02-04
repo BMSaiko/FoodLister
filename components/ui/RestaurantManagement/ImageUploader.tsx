@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
 import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
@@ -36,7 +36,7 @@ export default function ImageUploader({
   });
 
   // Detect mobile device - initialize as undefined to avoid SSR mismatch
-  const [isMobile, setIsMobile] = useState(undefined);
+  const [isMobile, setIsMobile] = useState<boolean | undefined>(undefined);
 
   // Detect mobile device only on client side to prevent hydration mismatch
   useEffect(() => {
