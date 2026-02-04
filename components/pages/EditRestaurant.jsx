@@ -22,6 +22,7 @@ import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartph
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
+import { MultiplePhoneInput } from '@/components/ui/Forms/PhoneInput';
 import { toast } from 'react-toastify';
 
 // Componente de proteção de autenticação
@@ -733,60 +734,19 @@ export default function EditRestaurant({ restaurantId }) {
                   />
 
                   {/* Números de Telefone */}
-                  <div className="space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <label className="block text-sm font-medium text-gray-700 flex items-center">
-                        <Phone className="h-4 w-4 mr-2 text-amber-500" />
-                        Números de Telefone
-                      </label>
-                      <button
-                        type="button"
-                        onClick={addPhoneNumber}
-                        className="flex items-center justify-center px-4 py-2 text-sm bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 transition-all duration-200 shadow-sm hover:shadow-md min-h-[44px] w-full sm:w-auto"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Adicionar Telefone
-                      </button>
-                    </div>
-
-                    {formData.phone_numbers.length === 0 ? (
-                      <div className="text-center py-6 px-4 bg-amber-50 rounded-lg border-2 border-dashed border-amber-200">
-                        <Phone className="h-8 w-8 mx-auto text-amber-400 mb-2" />
-                        <p className="text-sm text-amber-700 font-medium">Nenhum telefone adicionado</p>
-                        <p className="text-xs text-amber-600 mt-1">Clique em "Adicionar Telefone" para incluir contatos</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {formData.phone_numbers.map((phone, index) => {
-                          const phoneType = detectPhoneType(phone);
-                          const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
-
-                          return (
-                            <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-amber-300 transition-colors">
-                              <div className="flex-shrink-0">
-                                <PhoneIcon className="h-5 w-5 text-amber-500" />
-                              </div>
-                              <input
-                                type="tel"
-                                value={phone}
-                                onChange={(e) => updatePhoneNumber(index, e.target.value)}
-                                placeholder="Ex: +351 912 345 678"
-                                className="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all text-sm"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => removePhoneNumber(index)}
-                                className="flex items-center justify-center p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-all duration-200 min-h-[44px] min-w-[44px]"
-                                title="Remover telefone"
-                              >
-                                <X className="h-5 w-5" />
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                  <MultiplePhoneInput
+                    values={formData.phone_numbers}
+                    onChange={(values) => setFormData(prev => ({ ...prev, phone_numbers: values }))}
+                    label="Números de Telefone"
+                    helperText="Selecione o país e digite o número no formato internacional"
+                    error=""
+                    required={false}
+                    disabled={saving}
+                    className=""
+                    inputClassName="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all text-sm"
+                    labelClassName=""
+                    maxPhones={5}
+                  />
 
                   <FormField
                     label="Fonte"
