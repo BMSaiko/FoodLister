@@ -49,9 +49,11 @@ export default function PhoneInputField({
   }, [value, country, onCountryChange]);
 
   // Handle country change
-  const handleCountryChange = (newCountry: string) => {
+  const handleCountryChange = (newCountry: string | undefined) => {
     setCountry(newCountry);
-    onCountryChange?.(newCountry);
+    if (newCountry) {
+      onCountryChange?.(newCountry);
+    }
   };
 
   // Handle phone number change
