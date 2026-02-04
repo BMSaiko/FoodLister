@@ -61,7 +61,7 @@ export default function RestaurantInfoSection({
       </h3>
       
       <div className="space-y-3 sm:space-y-4">
-        {/* Location */}
+        {/* Location - Available for all users */}
         {location && (
           <div
             className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl border border-blue-200 hover:bg-blue-100 active:bg-blue-200 transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
