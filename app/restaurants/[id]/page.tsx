@@ -11,18 +11,18 @@ import Navbar from '@/components/layouts/Navbar';
 import { Review } from '@/libs/types';
 
 // Import new components
-import RestaurantHeader from '@/components/ui/RestaurantHeader';
-import RestaurantImagesSection from '@/components/ui/RestaurantImagesSection';
-import RestaurantCategoriesSection from '@/components/ui/RestaurantCategoriesSection';
-import RestaurantInfoSection from '@/components/ui/RestaurantInfoSection';
-import RestaurantReviewsSection from '@/components/ui/RestaurantReviewsSection';
-import RestaurantListsSection from '@/components/ui/RestaurantListsSection';
-import ContactInfoCard from '@/components/ui/ContactInfoCard';
-import RestaurantStickyNavbar from '@/components/ui/RestaurantStickyNavbar';
-import ScrollToTopButton from '@/components/ui/ScrollToTopButton';
+import RestaurantHeader from '@/components/ui/RestaurantDetails/RestaurantHeader';
+import RestaurantImagesSection from '@/components/ui/RestaurantDetails/RestaurantImagesSection';
+import RestaurantCategoriesSection from '@/components/ui/RestaurantDetails/RestaurantCategoriesSection';
+import RestaurantInfoSection from '@/components/ui/RestaurantDetails/RestaurantInfoSection';
+import RestaurantReviewsSection from '@/components/ui/RestaurantDetails/RestaurantReviewsSection';
+import RestaurantListsSection from '@/components/ui/RestaurantDetails/RestaurantListsSection';
+import ContactInfoCard from '@/components/ui/RestaurantDetails/ContactInfoCard';
+import RestaurantStickyNavbar from '@/components/ui/RestaurantDetails/RestaurantStickyNavbar';
+import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
 
 // Import existing components
-import ScheduleMealModal from '@/components/ui/ScheduleMealModal';
+import ScheduleMealModal from '@/components/ui/RestaurantDetails/ScheduleMealModal';
 import { useModal } from '@/contexts/ModalContext';
 
 import Link from 'next/link';
@@ -32,9 +32,9 @@ import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { logError, logWarn, logInfo } from '@/utils/logger';
 import { toast } from 'react-toastify';
 import Image from 'next/image';
-import RestaurantCarousel from '@/components/ui/RestaurantCarousel';
-import RestaurantImagePlaceholder from '@/components/ui/RestaurantImagePlaceholder';
-import ReviewForm from '@/components/ui/ReviewForm';
+import RestaurantCarousel from '@/components/ui/RestaurantList/RestaurantCarousel';
+import RestaurantImagePlaceholder from '@/components/ui/RestaurantManagement/RestaurantImagePlaceholder';
+import ReviewForm from '@/components/ui/Forms/ReviewForm';
 
 interface Restaurant {
   id: string;

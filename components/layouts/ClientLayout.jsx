@@ -6,7 +6,7 @@ import { AuthProvider, FiltersProvider } from "@/contexts";
 import { ModalProvider } from "@/contexts/ModalContext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import MapSelectorModal from '@/components/ui/MapSelectorModal';
+import MapSelectorModal from '@/components/ui/RestaurantManagement/MapSelectorModal';
 
 export default function ClientLayout({ children }) {
   return (

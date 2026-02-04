@@ -1,4 +1,4 @@
-// components/ui/RestaurantRoulette.jsx
+// components/ui/RestaurantRoulette.tsx
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -6,31 +6,43 @@ import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
 import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Sparkles, Apple, MapPin, Coffee, Wine, Utensils, Save, Clock, TrendingUp, Target, Zap, Star, Shield, Heart, ShieldCheck, Users, Calendar, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import RestaurantCard from './RestaurantCard';
+import RestaurantCard from '../RestaurantCard';
 import { toast } from 'react-toastify';
-import RouletteFilters from './RouletteFilters';
+import RouletteFilters from '../Filters/RouletteFilters';
 import { useFiltersLogic } from '@/hooks/useFiltersLogic';
+import type { RestaurantWithDetails, RestaurantVisitsData } from '@/libs/types';
 
+interface FilterPreset {
+  name: string;
+  filters: any;
+  timestamp: number;
+}
+
+interface SpinHistoryEntry {
+  restaurant: RestaurantWithDetails;
+  timestamp: number;
+  filters: any;
+}
 
 const RestaurantRoulette = () => {
   const { user, getAccessToken } = useAuth();
-  const [restaurants, setRestaurants] = useState([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
-  const [visitsData, setVisitsData] = useState({});
+  const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantWithDetails[]>([]);
+  const [visitsData, setVisitsData] = useState<RestaurantVisitsData>({});
   const [loading, setLoading] = useState(true);
   const [loadingVisits, setLoadingVisits] = useState(false);
   const [spinning, setSpinning] = useState(false);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<RestaurantWithDetails | null>(null);
   const [rotation, setRotation] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   // Filtros - usando o sistema de filtros lógicos
   const [showFilters, setShowFilters] = useState(false);
-  const [cuisineTypes, setCuisineTypes] = useState([]);
+  const [cuisineTypes, setCuisineTypes] = useState<any[]>([]);
 
-  // Função para calcular innerRadius baseado no número de restaurantes
-  const getInnerRadius = (totalRestaurants) => {
+  // Função para calcular innerRadius baseado no número de restaurantes      
+  const getInnerRadius = (totalRestaurants: number) => {
     if (totalRestaurants <= 10) return 70;
     if (totalRestaurants <= 20) return 60;
     if (totalRestaurants <= 30) return 50;
@@ -41,15 +53,15 @@ const RestaurantRoulette = () => {
   // Seleção de restaurantes para roleta
   const [showRestaurantSelector, setShowRestaurantSelector] = useState(false);
   const [restaurantSearchQuery, setRestaurantSearchQuery] = useState('');
-  const [selectedRestaurantsForRoulette, setSelectedRestaurantsForRoulette] = useState([]);
+  const [selectedRestaurantsForRoulette, setSelectedRestaurantsForRoulette] = useState<RestaurantWithDetails[]>([]);
   const [displayLimit, setDisplayLimit] = useState(50);
-  const resultRef = useRef(null);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   // Advanced features
-  const [filterPresets, setFilterPresets] = useState([]);
+  const [filterPresets, setFilterPresets] = useState<FilterPreset[]>([]);
   const [showPresets, setShowPresets] = useState(false);
-  const [lastSpinResult, setLastSpinResult] = useState(null);
-  const [spinHistory, setSpinHistory] = useState([]);
+  const [lastSpinResult, setLastSpinResult] = useState<RestaurantWithDetails | null>(null);
+  const [spinHistory, setSpinHistory] = useState<SpinHistoryEntry[]>([]);
   const [showSpinHistory, setShowSpinHistory] = useState(false);
 
   // Scroll to result when restaurant is selected
@@ -57,10 +69,12 @@ const RestaurantRoulette = () => {
     if (selectedRestaurant && resultRef.current) {
       // Small delay to ensure DOM is updated
       setTimeout(() => {
-        resultRef.current.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+        if (resultRef.current) {
+          resultRef.current.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
       }, 100);
     }
   }, [selectedRestaurant]);
@@ -120,10 +134,10 @@ const RestaurantRoulette = () => {
         if (cuisineError) throw cuisineError;
 
         // Processar dados dos restaurantes
-        const processedRestaurants = restaurantsData.map(restaurant => ({
+        const processedRestaurants = restaurantsData.map((restaurant: any) => ({
           ...restaurant,
           cuisine_types: restaurant.cuisine_types
-            ? restaurant.cuisine_types.map(rel => rel.cuisine_type)
+            ? restaurant.cuisine_types.map((rel: any) => rel.cuisine_type)
             : []
         }));
 
@@ -170,8 +184,8 @@ const RestaurantRoulette = () => {
           setVisitsData(data);
         } else {
           console.error('Failed to fetch visits data for roulette, status:', response.status);
-          // Set default visits data on failure
-          const defaultVisitsData = {};
+        // Set default visits data on failure
+          const defaultVisitsData: RestaurantVisitsData = {};
           restaurantIds.forEach(id => {
             defaultVisitsData[id] = { visited: false, visitCount: 0 };
           });
@@ -180,7 +194,7 @@ const RestaurantRoulette = () => {
       } catch (error) {
         console.error('Error fetching visits data for roulette:', error);
         // Set default visits data on error
-        const defaultVisitsData = {};
+        const defaultVisitsData: RestaurantVisitsData = {};
         restaurants.forEach(restaurant => {
           defaultVisitsData[restaurant.id] = { visited: false, visitCount: 0 };
         });
@@ -234,7 +248,7 @@ const RestaurantRoulette = () => {
   };
   
 
-  const handleToggleVisit = async (restaurantId) => {
+  const handleToggleVisit = async (restaurantId: string) => {
     if (!user) {
       return;
     }
@@ -266,7 +280,7 @@ const RestaurantRoulette = () => {
         ...prev,
         [restaurantId]: {
           visited: data.visited,
-          visitCount: data.visitCount
+          visitCount: data.visit_count
         }
       }));
 
@@ -307,8 +321,8 @@ const RestaurantRoulette = () => {
   const totalCount = restaurants.length;
   
   // Advanced features handlers
-  const saveFilterPreset = useCallback((name) => {
-    const preset = {
+  const saveFilterPreset = useCallback((name: string) => {
+    const preset: FilterPreset = {
       name,
       filters,
       timestamp: Date.now()
@@ -326,7 +340,7 @@ const RestaurantRoulette = () => {
     });
   }, [filters]);
 
-  const loadFilterPreset = useCallback((preset) => {
+  const loadFilterPreset = useCallback((preset: FilterPreset) => {
     setFilters(preset.filters);
     setShowPresets(false);
     
@@ -337,9 +351,9 @@ const RestaurantRoulette = () => {
     });
   }, [setFilters]);
 
-  const deleteFilterPreset = useCallback((presetName) => {
+  const deleteFilterPreset = useCallback((presetName: string) => {
     const savedPresets = JSON.parse(localStorage.getItem('rouletteFilterPresets') || '[]');
-    const updatedPresets = savedPresets.filter(p => p.name !== presetName);
+    const updatedPresets = savedPresets.filter((p: FilterPreset) => p.name !== presetName);
     localStorage.setItem('rouletteFilterPresets', JSON.stringify(updatedPresets));
     setFilterPresets(updatedPresets);
     
@@ -362,8 +376,8 @@ const RestaurantRoulette = () => {
     });
   }, []);
 
-  const addToSpinHistory = useCallback((restaurant) => {
-    const newEntry = {
+  const addToSpinHistory = useCallback((restaurant: RestaurantWithDetails) => {
+    const newEntry: SpinHistoryEntry = {
       restaurant,
       timestamp: Date.now(),
       filters: { ...filters }
@@ -676,7 +690,10 @@ const RestaurantRoulette = () => {
                 onVisitsDataUpdate={(restaurantId, newVisitsData) => {
                   setVisitsData(prev => ({
                     ...prev,
-                    [restaurantId]: newVisitsData
+                    [restaurantId]: {
+                      visited: newVisitsData.visited,
+                      visitCount: newVisitsData.visit_count
+                    }
                   }));
                 }}
               />

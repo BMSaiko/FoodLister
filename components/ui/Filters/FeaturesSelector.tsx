@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Tag, Search, Check, Plus, X } from 'lucide-react';
+import type { RestaurantFeature } from '@/libs/types';
 
 export default function FeaturesSelector({
   features,
@@ -7,6 +8,12 @@ export default function FeaturesSelector({
   onToggleFeature,
   loading = false,
   className = ''
+}: {
+  features: RestaurantFeature[];
+  selectedFeatures: string[];
+  onToggleFeature: (featureId: string) => void;
+  loading?: boolean;
+  className?: string;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -18,7 +25,7 @@ export default function FeaturesSelector({
     selectedFeatures.includes(feature.id)
   );
 
-  const handleToggleFeature = (featureId) => {
+  const handleToggleFeature = (featureId: string) => {
     onToggleFeature(featureId);
     // Clear search when selecting/deselecting a feature
     setSearchQuery('');

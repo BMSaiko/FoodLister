@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
-import RestaurantCarousel from './RestaurantCarousel';
-import RestaurantImagePlaceholder from './RestaurantImagePlaceholder';
+import RestaurantCarousel from '../RestaurantList/RestaurantCarousel';
+import RestaurantImagePlaceholder from '../RestaurantCard/RestaurantImagePlaceholder';
 
 interface RestaurantImagesSectionProps {
   restaurant: {

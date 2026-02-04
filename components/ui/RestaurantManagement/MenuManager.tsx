@@ -13,6 +13,12 @@ export default function MenuManager({
   onMenuLinksChange,
   onMenuImagesChange,
   disabled = false
+}: {
+  menuLinks?: string[];
+  menuImages?: string[];
+  onMenuLinksChange: (links: string[]) => void;
+  onMenuImagesChange: (images: string[]) => void;
+  disabled?: boolean;
 }) {
   // Local state for managing images (simplified approach)
   const [localImages, setLocalImages] = useState(Array.isArray(menuImages) ? menuImages : []);
@@ -38,7 +44,7 @@ export default function MenuManager({
   const [linkError, setLinkError] = useState('');
 
   // Validate URL format
-  const validateUrl = (url) => {
+  const validateUrl = (url: string) => {
     if (!url || url.trim() === '') return true;
     try {
       const parsedUrl = new URL(url);
@@ -78,13 +84,13 @@ export default function MenuManager({
   };
 
   // Remove a link
-  const handleRemoveLink = (index) => {
+  const handleRemoveLink = (index: number) => {
     const newLinks = safeMenuLinks.filter((_, i) => i !== index);
     onMenuLinksChange(newLinks);
   };
 
   // Add an image (using local state)
-  const handleImageUploaded = (imageUrl) => {
+  const handleImageUploaded = (imageUrl: string) => {
     if (localImages.length >= 10) {
       return; // Safety check
     }
@@ -92,12 +98,12 @@ export default function MenuManager({
   };
 
   // Remove an image
-  const handleRemoveImage = (index) => {
+  const handleRemoveImage = (index: number) => {
     setLocalImages(prev => prev.filter((_, i) => i !== index));
   };
 
   // Handle Enter key in link input
-  const handleLinkKeyPress = (e) => {
+  const handleLinkKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddLink();
@@ -154,7 +160,7 @@ export default function MenuManager({
                 <input
                   type="url"
                   value={linkInput}
-                  onChange={(e) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setLinkInput(e.target.value);
                     if (linkError) setLinkError('');
                   }}

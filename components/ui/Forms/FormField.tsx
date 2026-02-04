@@ -1,5 +1,23 @@
 import React from 'react';
 
+interface FormFieldProps {
+  label?: string;
+  name: string;
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'textarea';
+  value?: string | number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  placeholder?: string;
+  required?: boolean;
+  children?: React.ReactNode;
+  className?: string;
+  labelClassName?: string;
+  inputClassName?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  helperText?: string;
+  error?: string;
+  [key: string]: any;
+}
+
 export default function FormField({
   label,
   name,
@@ -16,7 +34,7 @@ export default function FormField({
   helperText,
   error,
   ...props
-}) {
+}: FormFieldProps) {
   const inputId = name;
 
   const hasInlineChildren = children && React.isValidElement(children) && !Array.isArray(children);

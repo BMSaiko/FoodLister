@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { ChefHat, Apple, MapPin, Coffee, Wine, Utensils } from 'lucide-react';
 import Navbar from '@/components/layouts/Navbar';
-import RestaurantRoulette from '@/components/ui/RestaurantRoulette';
+import RestaurantRoulette from '@/components/ui/RestaurantList/RestaurantRoulette';
 
 
 export default function RoulettePage() {

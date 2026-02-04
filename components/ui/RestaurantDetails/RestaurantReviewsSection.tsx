@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Star, Edit, X, User, Euro } from 'lucide-react';
-import ReviewForm from './ReviewForm';
+import ReviewForm from '../Forms/ReviewForm';
 import { Review } from '@/libs/types';
 import { formatDate, formatPrice } from '@/utils/formatters';
 import { toast } from 'react-toastify';

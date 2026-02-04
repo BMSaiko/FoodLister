@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
 import { Tag, Search, Check, Plus, X } from 'lucide-react';
+import type { DietaryOption } from '@/libs/types';
+
+interface DietaryOptionsSelectorProps {
+  dietaryOptions: DietaryOption[];
+  selectedDietaryOptions: string[];
+  onToggleDietaryOption: (dietaryOptionId: string) => void;
+  loading?: boolean;
+  className?: string;
+}
 
 export default function DietaryOptionsSelector({
   dietaryOptions,
@@ -7,7 +16,7 @@ export default function DietaryOptionsSelector({
   onToggleDietaryOption,
   loading = false,
   className = ''
-}) {
+}: DietaryOptionsSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredDietaryOptions = dietaryOptions.filter(option =>
@@ -18,7 +27,7 @@ export default function DietaryOptionsSelector({
     selectedDietaryOptions.includes(option.id)
   );
 
-  const handleToggleDietaryOption = (dietaryOptionId) => {
+  const handleToggleDietaryOption = (dietaryOptionId: string) => {
     onToggleDietaryOption(dietaryOptionId);
     // Clear search when selecting/deselecting a dietary option
     setSearchQuery('');

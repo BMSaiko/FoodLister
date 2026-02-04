@@ -42,7 +42,12 @@ const PerformanceDashboard = () => {
     accessibilityScore: 0
   });
 
-  const [historicalData, setHistoricalData] = useState([]);
+  const [historicalData, setHistoricalData] = useState<Array<{
+    time: string;
+    renderTime: number;
+    filterTime: number;
+    fps: number;
+  }>>([]);
   const [activeTab, setActiveTab] = useState('overview');
 
   // Simulate performance metrics
@@ -122,13 +127,13 @@ const PerformanceDashboard = () => {
     { name: 'ARIA Labels', status: 'excellent', score: 100 }
   ];
 
-  const getScoreColor = (score) => {
+  const getScoreColor = (score: number): string => {
     if (score >= 95) return '#10B981';
     if (score >= 85) return '#F59E0B';
     return '#EF4444';
   };
 
-  const getScoreStatus = (score) => {
+  const getScoreStatus = (score: number): string => {
     if (score >= 95) return 'excellent';
     if (score >= 85) return 'good';
     return 'needs-improvement';
@@ -351,6 +356,7 @@ const PerformanceDashboard = () => {
                     <PieChart>
                       <Pie
                         data={[{ value: metrics.accessibilityScore }, { value: 100 - metrics.accessibilityScore }]}
+                        dataKey="value"
                         cx="50%"
                         cy="50%"
                         innerRadius={25}
