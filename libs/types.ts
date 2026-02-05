@@ -50,6 +50,31 @@ export interface User {
   id: string;
   name: string;
   profileImage?: string;
+  userIdCode?: string;
+  location?: string;
+  bio?: string;
+  publicProfile?: boolean;
+  totalRestaurantsVisited?: number;
+  totalReviews?: number;
+  totalLists?: number;
+}
+
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  user_id_code: string;
+  display_name: string;
+  bio?: string;
+  avatar_url?: string;
+  website?: string;
+  location?: string;
+  phone_number?: string;
+  public_profile: boolean;
+  total_restaurants_visited: number;
+  total_reviews: number;
+  total_lists: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Review {
@@ -227,6 +252,40 @@ export interface ReviewFormProps {
   onCancel?: () => void;
   isEditing?: boolean;
   initialReview?: Review;
+}
+
+export interface UserProfileCardProps {
+  user: User;
+  showStats?: boolean;
+  className?: string;
+  onClick?: () => void;
+}
+
+export interface UserSearchFilters {
+  search?: string;
+  location?: string;
+  minReviews?: number;
+  maxReviews?: number;
+  minLists?: number;
+  maxLists?: number;
+  joinedAfter?: string;
+  joinedBefore?: string;
+  publicProfile?: boolean;
+}
+
+export interface UserSearchResult {
+  user: User;
+  relevance?: number;
+}
+
+export interface UserStats {
+  total_restaurants_visited: number;
+  total_reviews: number;
+  total_lists: number;
+  total_followers?: number;
+  total_following?: number;
+  joined_date: string;
+  last_activity?: string;
 }
 
 // Hook return types

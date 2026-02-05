@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
-import { Database } from '@/libs/supabase/client';
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,12 +39,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         id: null,
         user_id: user.id,
+        user_id_code: null,
         display_name: user.user_metadata?.display_name || user.user_metadata?.name || user.user_metadata?.full_name || '',
         bio: user.user_metadata?.bio || user.user_metadata?.description || '',
         avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.profile_image || '',
         website: null,
         location: null,
         phone_number: user.user_metadata?.phone_number || user.user_metadata?.phone || '',
+        public_profile: true,
+        total_restaurants_visited: 0,
+        total_reviews: 0,
+        total_lists: 0,
         created_at: user.created_at,
         updated_at: user.created_at
       });
@@ -54,18 +58,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       id: profile.id,
       user_id: profile.user_id,
+      user_id_code: profile.user_id_code,
       display_name: profile.display_name,
       bio: profile.bio,
       avatar_url: profile.avatar_url,
       website: profile.website,
       location: profile.location,
       phone_number: profile.phone_number,
+      public_profile: profile.public_profile,
+      total_restaurants_visited: profile.total_restaurants_visited || 0,
+      total_reviews: profile.total_reviews || 0,
+      total_lists: profile.total_lists || 0,
       created_at: profile.created_at,
-      updated_at: profile.updated_at
+      updated_at: profile.updated_at,
+      joinedDate: profile.created_at
     });
 
   } catch (error) {
-    console.error('Error in profile GET:', error);
+    console.error('Error in settings profile GET:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -113,6 +123,14 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Validate public_profile field if provided
+    if (body.public_profile !== undefined && typeof body.public_profile !== 'boolean') {
+      return NextResponse.json(
+        { error: 'Public profile must be a boolean value' },
+        { status: 400 }
+      );
+    }
+
     // Check if profile exists
     const { data: existingProfile, error: checkError } = await supabase
       .from('profiles')
@@ -139,7 +157,8 @@ export async function PUT(request: NextRequest) {
           avatar_url: body.avatar_url || null,
           phone_number: body.phone_number || null,
           website: body.website || null,
-          location: body.location || null
+          location: body.location || null,
+          public_profile: body.public_profile !== undefined ? body.public_profile : true
         })
         .select()
         .single();
@@ -157,6 +176,7 @@ export async function PUT(request: NextRequest) {
           phone_number: body.phone_number || null,
           website: body.website || null,
           location: body.location || null,
+          public_profile: body.public_profile !== undefined ? body.public_profile : existingProfile.public_profile,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id)
@@ -176,29 +196,19 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update creator_name in restaurants where user is the creator
-    const { error: restaurantsError } = await supabase
+    await supabase
       .from('restaurants')
       .update({ creator_name: body.display_name })
       .eq('creator_id', user.id);
 
-    if (restaurantsError) {
-      console.error('Error updating restaurant creator names:', restaurantsError);
-      // Don't return error as profile was updated successfully
-    }
-
     // Update creator_name in lists where user is the creator
-    const { error: listsError } = await supabase
+    await supabase
       .from('lists')
       .update({ creator_name: body.display_name })
       .eq('creator_id', user.id);
 
-    if (listsError) {
-      console.error('Error updating list creator names:', listsError);
-      // Don't return error as profile was updated successfully
-    }
-
     // Update user metadata for consistency
-    const { error: metadataError } = await supabase.auth.updateUser({
+    await supabase.auth.updateUser({
       data: {
         display_name: body.display_name,
         phone_number: body.phone_number,
@@ -207,29 +217,29 @@ export async function PUT(request: NextRequest) {
       }
     });
 
-    if (metadataError) {
-      console.error('Error updating metadata:', metadataError);
-      // Don't return error as profile was updated successfully
-    }
-
     return NextResponse.json({
       message: 'Profile updated successfully',
       profile: {
         id: profileData.id,
         user_id: profileData.user_id,
+        user_id_code: profileData.user_id_code,
         display_name: profileData.display_name,
         bio: profileData.bio,
         avatar_url: profileData.avatar_url,
         website: profileData.website,
         location: profileData.location,
         phone_number: profileData.phone_number,
+        public_profile: profileData.public_profile,
+        total_restaurants_visited: profileData.total_restaurants_visited || 0,
+        total_reviews: profileData.total_reviews || 0,
+        total_lists: profileData.total_lists || 0,
         created_at: profileData.created_at,
         updated_at: profileData.updated_at
       }
     });
 
   } catch (error) {
-    console.error('Error in profile PUT:', error);
+    console.error('Error in settings profile PUT:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

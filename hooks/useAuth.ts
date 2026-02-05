@@ -104,11 +104,14 @@ export const useAuth = () => {
         // Get current session
         const { data: { session }, error } = await supabase.auth.getSession();
         
+        console.log('🔍 Debug: getSession result - session:', session ? 'exists' : 'null', 'error:', error);
+        
         if (error) {
           throw error;
         }
         
         if (session) {
+          console.log('✅ Debug: Session found, user:', session.user?.id);
           setAuthState(prev => ({
             ...prev,
             session,
@@ -116,10 +119,11 @@ export const useAuth = () => {
             loading: false
           }));
         } else {
+          console.log('❌ Debug: No session found');
           setAuthState(prev => ({ ...prev, loading: false }));
         }
       } catch (error) {
-        logError('Error initializing auth', error);
+        console.error('Error initializing auth:', error);
         setAuthState(prev => ({ ...prev, loading: false }));
       }
     };

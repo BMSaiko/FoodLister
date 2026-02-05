@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 import { AuthUser } from '@/libs/types';
 import { ModalProvider, useModal } from './ModalContext';
+import { authLogger } from '@/utils/authLogger';
 
 interface FiltersContextValue {
   clearTrigger: number;
@@ -65,6 +66,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const initialUser = session?.user ?? null;
       setUser(initialUser);
       previousUserRef.current = initialUser;
+      
+      // Log session initialization for debugging
+      authLogger.log({
+        type: 'session_start',
+        timestamp: Date.now(),
+        details: {
+          hasSession: !!session,
+          hasUser: !!initialUser,
+          userId: initialUser?.id || undefined,
+          sessionExpiresAt: session?.expires_at || undefined
+        },
+        userId: initialUser?.id || undefined
+      });
+
       // If user is already signed in on page load, mark toast as shown
       if (initialUser !== null) {
         setHasShownSignInToast(true);
@@ -78,6 +93,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(newUser);
           previousUserRef.current = newUser;
           setLoading(false);
+
+          // Log auth state changes for debugging
+          authLogger.log({
+            type: event === 'SIGNED_OUT' ? 'session_expired' : 'session_refresh',
+            timestamp: Date.now(),
+            details: {
+              event,
+              hasSession: !!session,
+              hasUser: !!newUser,
+              userId: newUser?.id || undefined,
+              sessionExpiresAt: session?.expires_at || undefined
+            },
+            userId: newUser?.id || undefined
+          });
 
           if (event === 'SIGNED_OUT') {
             toast.info('Você foi desconectado');

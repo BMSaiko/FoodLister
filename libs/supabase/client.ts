@@ -173,7 +173,7 @@ export type Database = {
   };
 };
 
-// Cookie-based storage implementation for Supabase
+// Cookie-based storage implementation for Supabase with fallback
 const getCookieBasedStorage = () => {
   if (typeof window === 'undefined') {
     // Server-side: we'll handle this in server functions only
@@ -190,19 +190,69 @@ const getCookieBasedStorage = () => {
       }
     };
   } else {
-    // Client-side: use document.cookie
+    // Client-side: use document.cookie with improved error handling and fallback
+    const storageKey = 'supabase-auth-token';
+    
     return {
       getItem: (key: string) => {
-        const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
-        return match ? match[2] : null;
+        try {
+          // First try to get from cookies
+          const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
+          const cookieValue = match ? match[2] : null;
+          
+          if (cookieValue) {
+            try {
+              return decodeURIComponent(cookieValue);
+            } catch (decodeError) {
+              console.warn(`Error decoding cookie ${key}:`, decodeError);
+              return null;
+            }
+          }
+          
+          // Fallback to localStorage if cookie is not available
+          const localStorageValue = localStorage.getItem(key);
+          if (localStorageValue) {
+            console.log(`Cookie ${key} not found, using localStorage fallback`);
+            return localStorageValue;
+          }
+          
+          return null;
+        } catch (error) {
+          console.warn(`Error reading storage for ${key}:`, error);
+          return null;
+        }
       },
       setItem: (key: string, value: string) => {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days
-        document.cookie = `${key}=${value};path=/;SameSite=Lax;Secure;expires=${expires.toUTCString()}`;
+        try {
+          const expires = new Date();
+          expires.setTime(expires.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days
+          
+          // Try to set cookie with more permissive settings
+          try {
+            document.cookie = `${key}=${encodeURIComponent(value)};path=/;SameSite=None;Secure;expires=${expires.toUTCString()}`;
+            console.log(`Cookie ${key} set successfully`);
+          } catch (cookieError) {
+            console.warn(`Failed to set cookie ${key}, falling back to localStorage:`, cookieError);
+            // Fallback to localStorage
+            localStorage.setItem(key, value);
+            console.log(`Storage ${key} set in localStorage as fallback`);
+          }
+        } catch (error) {
+          console.warn(`Error setting storage for ${key}:`, error);
+        }
       },
       removeItem: (key: string) => {
-        document.cookie = `${key}=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+        try {
+          // Remove from cookies
+          document.cookie = `${key}=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+          
+          // Also remove from localStorage fallback
+          localStorage.removeItem(key);
+          
+          console.log(`Storage ${key} removed from both cookie and localStorage`);
+        } catch (error) {
+          console.warn(`Error removing storage for ${key}:`, error);
+        }
       }
     };
   }

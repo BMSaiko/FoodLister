@@ -14,6 +14,7 @@ import { getClient } from '@/libs/supabase/client';
 interface ProfileData {
   display_name: string;
   avatar_url: string;
+  user_id_code: string;
 }
 
 const Navbar = ({ clearFilters = null }) => {
@@ -34,7 +35,7 @@ const Navbar = ({ clearFilters = null }) => {
         try {
           const { data: profileData, error } = await supabase
             .from('profiles')
-            .select('display_name, avatar_url')
+            .select('display_name, avatar_url, user_id_code')
             .eq('user_id', user.id)
             .single();
 
@@ -192,7 +193,25 @@ const Navbar = ({ clearFilters = null }) => {
                       {/* Menu Options */}
                       <div className="py-2">
                         <Link
-                          href="/profile"
+                          href={`/users/${userProfile?.user_id_code || user.id}`}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-4 px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <User className="h-4 w-4 text-amber-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium">Meu Perfil</p>
+                            {userProfile?.user_id_code && (
+                              <p className="text-xs text-gray-500 truncate">
+                                #{userProfile.user_id_code}
+                              </p>
+                            )}
+                          </div>
+                        </Link>
+
+                        <Link
+                          href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-4 px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
                         >
@@ -313,7 +332,18 @@ const Navbar = ({ clearFilters = null }) => {
                       {/* Menu Options */}
                       <div className="py-2">
                         <Link
-                          href="/profile"
+                          href={`/users/${userProfile?.user_id_code || user.id}`}
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center justify-center w-full px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                          title="Meu Perfil"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <User className="h-5 w-5 text-amber-600" />
+                          </div>
+                        </Link>
+
+                        <Link
+                          href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center justify-center w-full px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
                           title="Configurações"

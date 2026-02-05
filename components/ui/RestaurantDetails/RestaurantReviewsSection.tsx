@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Edit, X, User, Euro } from 'lucide-react';
 import ReviewForm from '../Forms/ReviewForm';
 import { Review } from '@/libs/types';
 import { formatDate, formatPrice } from '@/utils/formatters';
 import { toast } from 'react-toastify';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 
 interface RestaurantReviewsSectionProps {
   restaurantId: string;
@@ -166,9 +169,12 @@ export default function RestaurantReviewsSection({
                           )}
                         </div>
                         <div>
-                          <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                          <Link 
+                            href={`/users/${review.user.userIdCode || review.user.id}`}
+                            className="font-semibold text-gray-800 text-sm sm:text-base hover:text-amber-600 transition-colors"
+                          >
                             {review.user.name}
-                          </span>
+                          </Link>
                           <div className="flex items-center gap-1 sm:gap-2 mt-1">
                             {Array(5).fill(0).map((_, i) => (
                               <Star

@@ -36,8 +36,19 @@ export const getServerClient = async (request?: NextRequest, response?: NextResp
   // Validate session and return authenticated client
   const { data: { session }, error } = await supabase.auth.getSession();
   
-  if (error || !session) {
+  if (error) {
+    console.error('Error getting session in getServerClient:', error);
     // Return null instead of throwing error for unauthenticated requests
+    return null;
+  }
+  
+  if (!session) {
+    return null;
+  }
+  
+  // Check if session is expired
+  if (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000)) {
+    console.warn('Session expired in getServerClient');
     return null;
   }
   

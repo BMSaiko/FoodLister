@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff, Mail, Lock, LogIn, ChefHat, Sparkles, Utensils } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, LogIn, ChefHat, Sparkles, Utensils, AlertCircle } from 'lucide-react';
+import { authLogger } from '@/utils/authLogger';
 
 function SignInForm() {
   const [email, setEmail] = useState('');
@@ -28,12 +29,37 @@ function SignInForm() {
 
     setIsLoading(true);
 
-    const { error, session, user } = await signIn(email, password);
+    try {
+      const { error, session, user } = await signIn(email, password);
 
-    setIsLoading(false);
+      // Log the sign-in attempt for debugging
+      authLogger.log({
+        type: 'session_start',
+        timestamp: Date.now(),
+        details: {
+          email: email,
+          hasSession: !!session,
+          hasUser: !!user,
+          hasError: !!error,
+          error: error?.message || null
+        },
+        userId: user?.id || null
+      });
 
-    // Only redirect if login was successful (session exists and no error)
-    if (!error && session && user) {
+      if (error) {
+        console.error('Sign-in error:', error);
+        toast.error(`Erro ao fazer login: ${error.message || 'Tente novamente'}`);
+        return;
+      }
+
+      if (!session || !user) {
+        console.error('Sign-in failed: no session or user');
+        toast.error('Falha na autenticação. Por favor, tente novamente.');
+        return;
+      }
+
+      setIsLoading(false);
+
       // Check if toast was already shown in this session
       const toastShown = sessionStorage.getItem('loginToastShown');
       if (!toastShown) {
@@ -54,9 +80,14 @@ function SignInForm() {
           router.push('/restaurants');
         }
       } catch (redirectError) {
+        console.error('Redirect error:', redirectError);
         // Final fallback in case router.back() fails
         router.push('/restaurants');
       }
+    } catch (signUpError) {
+      console.error('Sign-in exception:', signUpError);
+      toast.error('Erro inesperado. Por favor, tente novamente.');
+      setIsLoading(false);
     }
   };
 

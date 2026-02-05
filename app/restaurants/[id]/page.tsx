@@ -265,7 +265,7 @@ export default function RestaurantDetails() {
     const fetchUserProfile = async () => {
       if (user?.id) {
         try {
-          const response = await get(`/api/profile`);
+          const response = await get(`/api/users/me`);
           if (response.ok) {
             const profileData = await response.json();
             setUserProfile({

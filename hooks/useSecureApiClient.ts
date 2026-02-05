@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
@@ -8,10 +8,55 @@ interface SecureApiCallOptions extends RequestInit {
 
 export const useSecureApiClient = () => {
   const router = useRouter();
+  
+  // Circuit breaker state
+  const [circuitState, setCircuitState] = useState<'CLOSED' | 'OPEN' | 'HALF_OPEN'>('CLOSED');
+  const [failureCount, setFailureCount] = useState(0);
+  const [lastFailureTime, setLastFailureTime] = useState(0);
+  const CIRCUIT_BREAKER_FAILURE_THRESHOLD = 5;
+  const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
+
+  const checkCircuitBreaker = useCallback(() => {
+    const now = Date.now();
+    
+    if (circuitState === 'OPEN') {
+      if (now - lastFailureTime > CIRCUIT_BREAKER_TIMEOUT) {
+        setCircuitState('HALF_OPEN');
+        setFailureCount(0);
+        return true;
+      }
+      return false;
+    }
+    
+    if (circuitState === 'HALF_OPEN' && failureCount >= CIRCUIT_BREAKER_FAILURE_THRESHOLD) {
+      setCircuitState('OPEN');
+      setLastFailureTime(now);
+      return false;
+    }
+    
+    return true;
+  }, [circuitState, lastFailureTime, failureCount]);
+
+  const recordFailure = useCallback(() => {
+    setFailureCount(prev => prev + 1);
+    setLastFailureTime(Date.now());
+    
+    if (failureCount + 1 >= CIRCUIT_BREAKER_FAILURE_THRESHOLD) {
+      setCircuitState('OPEN');
+    }
+  }, [failureCount]);
+
+  const recordSuccess = useCallback(() => {
+    if (circuitState === 'HALF_OPEN') {
+      setCircuitState('CLOSED');
+      setFailureCount(0);
+    }
+  }, [circuitState]);
 
   const secureApiCall = useCallback(async (
     endpoint: string, 
-    options: SecureApiCallOptions = {}
+    options: SecureApiCallOptions = {},
+    retryCount: number = 0
   ): Promise<Response> => {
     const {
       timeout = 10000,
@@ -20,38 +65,39 @@ export const useSecureApiClient = () => {
     } = options;
 
     try {
-      // Get session from cookies - try multiple possible cookie names
-      const getSessionFromCookies = () => {
-        // Try different possible cookie names for Supabase tokens
-        const cookieNames = [
-          'sb-access-token',
-          'sb_refresh_token',
-          'sb-access-token-local',
-          'sb_refresh_token-local',
-          'sb-access-token-localhost',
-          'sb_refresh_token-localhost'
-        ];
-
-        for (const cookieName of cookieNames) {
-          const match = document.cookie.match(new RegExp(`(^| )${cookieName}=([^;]+)`));
-          if (match) {
-            return match[2];
-          }
-        }
-        return null;
-      };
-
-      let accessToken = getSessionFromCookies();
+      // Get session from Supabase auth API - this is the most reliable method in Next.js 15
+      let accessToken = null;
       
-      // If no token found in cookies, try to get from Supabase client
-      if (!accessToken) {
-        try {
-          const sessionData = await fetch('/api/auth/session').then(r => r.json());
+      try {
+        const sessionResponse = await fetch('/api/auth/session', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include' // Important for cookies
+        });
+        
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
           if (sessionData?.access_token) {
             accessToken = sessionData.access_token;
           }
+        }
+      } catch (error) {
+        console.warn('Could not get session from auth API:', error);
+      }
+
+      // If still no token, try to get from localStorage as fallback
+      if (!accessToken) {
+        try {
+          if (typeof window !== 'undefined') {
+            const storedSession = localStorage.getItem('sb-access-token');
+            if (storedSession) {
+              accessToken = storedSession;
+            }
+          }
         } catch (error) {
-          console.warn('Could not get session from API:', error);
+          console.warn('Could not get token from localStorage:', error);
         }
       }
 
@@ -97,7 +143,17 @@ export const useSecureApiClient = () => {
     } catch (error) {
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          throw new Error('Request timeout');
+          // Implement retry logic with exponential backoff for timeout errors
+          if (retryCount < 2) { // Max 2 retries
+            const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s
+            console.log(`Request timeout, retrying in ${delay}ms (attempt ${retryCount + 1}/2)`);
+            
+            await new Promise(resolve => setTimeout(resolve, delay));
+            
+            return secureApiCall(endpoint, options, retryCount + 1);
+          }
+          
+          throw new Error('Request timeout after retries');
         }
         throw error;
       }
