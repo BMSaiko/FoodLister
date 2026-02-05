@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useApiClient } from './useApiClient';
+import { useApiClient } from '../auth/useApiClient';
 import { toast } from 'react-toastify';
 
 // Tipos para melhor integração

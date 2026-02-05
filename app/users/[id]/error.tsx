@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, Home, RefreshCw, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 
 const UserErrorPage = ({ error, reset }: { error: Error; reset: () => void }) => {
   const router = useRouter();

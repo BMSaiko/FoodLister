@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
-import { useSettings } from '@/hooks/useSettings';
-import { useProfileForm } from '@/hooks/useProfileForm';
-import { useProfileActions } from '@/hooks/useProfileActions';
+import { useSettings } from '@/hooks/data/useSettings';
+import { useProfileForm } from '@/hooks/forms/useProfileForm';
+import { useProfileActions } from '@/hooks/forms/useProfileActions';
 import { toast } from 'react-toastify';
 import { 
   Mail, 
@@ -21,14 +21,12 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
-  User
+  User,
+  Phone
 } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/layouts/Navbar';
-import PhoneInputField from '@/components/ui/Forms/PhoneInput';
-import FormField from '@/components/ui/Forms/FormField';
-import FormSection from '@/components/ui/Forms/FormSection';
-import UserProfileHeader from '@/components/ui/UserProfileHeader';
+import Navbar from '@/components/ui/navigation/Navbar';
+import UserProfileHeader from '@/components/ui/profile/UserProfileHeader';
 
 interface FormErrors {
   display_name?: string;
@@ -360,20 +358,20 @@ const ProfileSettingsPage = () => {
               </div>
 
               {/* Phone Number */}
-              <PhoneInputField
-                value={profile.phoneNumber || ''}
-                onChange={(value) => handleInputChange('phoneNumber', value)}
-                label="Número de Telefone"
-                helperText="Selecione o país e digite o número no formato internacional"
-                error=""
-                required={false}
-                disabled={false}
-                className=""
-                inputClassName={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${
-                  formErrors.display_name ? 'border-red-500' : 'border-gray-300'
-                }`}
-                labelClassName=""
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <Phone className="h-4 w-4 inline mr-2 text-amber-500" />
+                  Número de Telefone
+                </label>
+                <input
+                  type="tel"
+                  value={profile.phoneNumber || ''}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+                  placeholder="+351 912 345 678"
+                />
+                <p className="text-xs text-gray-500 mt-1">Número de telefone para contato</p>
+              </div>
 
               {/* Location */}
               <div>

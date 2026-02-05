@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useSecureApiClient } from '@/hooks/useSecureApiClient';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { toast } from 'react-toastify';
 import { 
   Search, 
@@ -29,7 +29,7 @@ import {
   Loader2
 } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 
 interface UserSearchResult {
   id: string;

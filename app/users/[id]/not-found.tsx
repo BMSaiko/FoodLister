@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Shield, Lock, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 
 const ProfileNotFoundPage = () => {
   const router = useRouter();

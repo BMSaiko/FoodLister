@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
 import { ArrowLeft, Plus, X, Search } from 'lucide-react';
 import { toast } from 'react-toastify';

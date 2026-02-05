@@ -7,7 +7,6 @@ import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff, Mail, Lock, Key } from 'lucide-react';
 import { validatePassword } from '@/utils/passwordValidation';
-import PasswordStrengthIndicator from '@/components/ui/Forms/PasswordStrengthIndicator';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
@@ -269,7 +268,6 @@ export default function ResetPasswordPage() {
                     </button>
                   </div>
                 </div>
-                <PasswordStrengthIndicator password={password} />
               </div>
               <div>
                 <label htmlFor="confirmPassword" className="sr-only">

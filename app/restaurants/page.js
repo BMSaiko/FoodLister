@@ -1,5 +1,5 @@
 // app/restaurants/page.js
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import RestaurantsList from '@/components/RestaurantsList';
 import RouletteBanner from '@/components/ui/RestaurantList/RouletteBanner';
 

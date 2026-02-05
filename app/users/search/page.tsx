@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { 
@@ -28,7 +28,7 @@ import {
   Loader2
 } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import SearchParamsWrapper from './SearchParamsWrapper';
 import UserSearchContent from './UserSearchContent';
 

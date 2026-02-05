@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter, useParams } from 'next/navigation';
-import { useUserData } from '@/hooks/useUserData';
-import { useProfileActions } from '@/hooks/useProfileActions';
+import { useUserData } from '@/hooks/data/useUserData';
+import { useProfileActions } from '@/hooks/forms/useProfileActions';
 import { toast } from 'react-toastify';
 import { 
   Star, 
@@ -24,12 +24,12 @@ import {
   Users
 } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/layouts/Navbar';
-import UserProfileHeader from '@/components/ui/UserProfileHeader';
-import ProfileTabs from '@/components/ui/ProfileTabs';
-import UserReviewsSection from '@/components/ui/UserReviewsSection';
-import UserListsSection from '@/components/ui/UserListsSection';
-import UserRestaurantsSection from '@/components/ui/UserRestaurantsSection';
+import Navbar from '@/components/ui/navigation/Navbar';
+import UserProfileHeader from '@/components/ui/profile/UserProfileHeader';
+import ProfileTabs from '@/components/ui/profile/ProfileTabs';
+import UserReviewsSection from '@/components/ui/profile/sections/UserReviewsSection';
+import UserListsSection from '@/components/ui/profile/sections/UserListsSection';
+import UserRestaurantsSection from '@/components/ui/profile/sections/UserRestaurantsSection';
 
 interface UserProfile {
   id: string;

@@ -3,11 +3,11 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useSecureApiClient } from '@/hooks/useSecureApiClient';
-import { usePublicApiClient } from '@/hooks/usePublicApiClient';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
+import { usePublicApiClient } from '@/hooks/auth/usePublicApiClient';
 import { createClient } from '@/libs/supabase/client';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import { Review } from '@/libs/types';
 
 // Import new components
@@ -34,7 +34,6 @@ import { toast } from 'react-toastify';
 import Image from 'next/image';
 import RestaurantCarousel from '@/components/ui/RestaurantList/RestaurantCarousel';
 import RestaurantImagePlaceholder from '@/components/ui/RestaurantManagement/RestaurantImagePlaceholder';
-import ReviewForm from '@/components/ui/Forms/ReviewForm';
 
 interface Restaurant {
   id: string;
@@ -82,8 +81,6 @@ export default function RestaurantDetails() {
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
   const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
@@ -643,25 +640,18 @@ export default function RestaurantDetails() {
 
   // Handle review submission
   const handleReviewSubmitted = async (newReview: Review) => {
-    if (editingReview) {
-      // Update existing review - refetch reviews to ensure profile image is updated
-      await fetchReviews();
-    } else {
-      // Add new review - inject current user's profile image
-      const reviewWithImage = {
-        ...newReview,
-        user: {
-          ...newReview.user,
-          profileImage: userProfile?.avatar_url || undefined
-        }
-      };
-      setReviews(prev => [reviewWithImage, ...prev]);
-      setReviewCount(prev => prev + 1);
-    }
-    setShowReviewForm(false);
-    setEditingReview(null);
+    // Add new review - inject current user's profile image
+    const reviewWithImage = {
+      ...newReview,
+      user: {
+        ...newReview.user,
+        profileImage: userProfile?.avatar_url || undefined
+      }
+    };
+    setReviews(prev => [reviewWithImage, ...prev]);
+    setReviewCount(prev => prev + 1);
 
-    // Update restaurant rating after successful review submission/update
+    // Update restaurant rating after successful review submission
     await updateRestaurantRating(id || '');
 
     // Fetch updated restaurant data to get the new rating and price_per_person
@@ -675,12 +665,13 @@ export default function RestaurantDetails() {
       logError('Error fetching updated restaurant data', error);
     }
 
-    toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
+    toast.success('Avaliação enviada com sucesso!');
   };
 
-  // Handle review edit
+  // Handle review edit - this is handled by RestaurantReviewsSection component
   const handleEditReview = (review: Review) => {
-    setEditingReview(review);
+    // The RestaurantReviewsSection component handles the edit functionality internally
+    // No additional action needed here
   };
 
   // Handle review deletion

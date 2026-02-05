@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Utensils, Clock, MessageCircle, MapPin, Euro } from 'lucide-react';
 import Link from 'next/link';
-import { useSecureApiClient } from '@/hooks/useSecureApiClient';
+import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { formatDate } from '@/utils/formatters';
 
 interface UserReviewsSectionProps {

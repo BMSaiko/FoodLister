@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { ChefHat, Apple, MapPin, Coffee, Wine, Utensils } from 'lucide-react';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import RestaurantRoulette from '@/components/ui/RestaurantList/RestaurantRoulette';
 
 

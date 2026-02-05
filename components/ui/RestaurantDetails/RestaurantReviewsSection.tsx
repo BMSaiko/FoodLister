@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Star, Edit, X, User, Euro } from 'lucide-react';
-import ReviewForm from '../Forms/ReviewForm';
 import { Review } from '@/libs/types';
 import { formatDate, formatPrice } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useSecureApiClient } from '@/hooks/useSecureApiClient';
 
 interface RestaurantReviewsSectionProps {
   restaurantId: string;
@@ -91,15 +89,9 @@ export default function RestaurantReviewsSection({
         {/* Review Form */}
         {(showReviewForm || editingReview) && (
           <div className="mb-6">
-            <ReviewForm
-              restaurantId={restaurantId}
-              onReviewSubmitted={handleReviewSubmitted}
-              onCancel={() => {
-                setShowReviewForm(false);
-                setEditingReview(null);
-              }}
-              initialReview={editingReview}
-            />
+            <div className="bg-white rounded-lg p-4 border border-gray-200">
+              <p className="text-gray-600 text-sm">Formulário de avaliação não disponível</p>
+            </div>
           </div>
         )}
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUserDataV2 } from '../hooks/useUserDataV2';
+import { useUserDataV2 } from '../hooks/data/useUserDataV2';
 
 interface UserProfileExampleProps {
   userId: string;

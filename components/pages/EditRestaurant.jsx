@@ -5,11 +5,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import GoogleMapsModal from '@/components/ui/RestaurantDetails/GoogleMapsModal';
-import FormField from '@/components/ui/Forms/FormField';
-import FormSection from '@/components/ui/Forms/FormSection';
-import FormActions from '@/components/ui/Forms/FormActions';
 import CuisineSelector from '@/components/ui/Filters/CuisineSelector';
 import DietaryOptionsSelector from '@/components/ui/Filters/DietaryOptionsSelector';
 import FeaturesSelector from '@/components/ui/Filters/FeaturesSelector';
@@ -22,8 +19,11 @@ import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartph
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
-import { MultiplePhoneInput } from '@/components/ui/Forms/PhoneInput';
 import { toast } from 'react-toastify';
+import FormSection from '@/components/ui/common/FormSection';
+import FormField from '@/components/ui/common/FormField';
+import MultiplePhoneInput from '@/components/ui/common/MultiplePhoneInput';
+import FormActions from '@/components/ui/common/FormActions';
 
 // Componente de proteção de autenticação
 function AuthGuard({ children }) {

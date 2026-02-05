@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-import { logError } from '../utils/logger';
+import { logError } from '../../utils/logger';
 
 export function useImagePreview(file, maxSize = 5 * 1024 * 1024) {
   const [preview, setPreview] = useState(null);

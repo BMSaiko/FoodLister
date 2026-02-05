@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
-import { useSecureApiClient } from '@/hooks/useSecureApiClient';
+import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { AuthUser } from '@/libs/types';
 import { ModalProvider, useModal } from './ModalContext';
 import { authLogger } from '@/utils/authLogger';

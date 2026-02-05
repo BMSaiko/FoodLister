@@ -9,7 +9,7 @@ import Link from 'next/link';
 import RestaurantCard from '../RestaurantCard';
 import { toast } from 'react-toastify';
 import RouletteFilters from '../Filters/RouletteFilters';
-import { useFiltersLogic } from '@/hooks/useFiltersLogic';
+import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import type { RestaurantWithDetails, RestaurantVisitsData } from '@/libs/types';
 
 interface FilterPreset {
@@ -208,7 +208,7 @@ const RestaurantRoulette = () => {
   }, [user, restaurants, getAccessToken]);
   
   // Usar o sistema de filtros lógicos
-  const { filters, setFilters, filteredRestaurants: filteredRestaurantsFromLogic, activeFilters, clearFilters: clearFiltersLogic } = useFiltersLogic(restaurants, visitsData, user);
+  const { filters, setFilters, filteredRestaurants: filteredRestaurantsFromLogic, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
   
   // Atualizar filteredRestaurants com base na lógica de filtros
   useEffect(() => {
@@ -447,7 +447,7 @@ const RestaurantRoulette = () => {
         <RouletteFilters
           filters={filters}
           setFilters={setFilters}
-          clearFilters={clearFiltersLogic}
+          clearFilters={clearFilters}
           autoApply={true}
         />
         
