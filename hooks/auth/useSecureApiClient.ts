@@ -146,7 +146,6 @@ export const useSecureApiClient = () => {
           // Implement retry logic with exponential backoff for timeout errors
           if (retryCount < 2) { // Max 2 retries
             const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s
-            console.log(`Request timeout, retrying in ${delay}ms (attempt ${retryCount + 1}/2)`);
             
             await new Promise(resolve => setTimeout(resolve, delay));
             

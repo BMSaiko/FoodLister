@@ -41,8 +41,6 @@ export async function GET(request: NextRequest) {
       'OWNER'
     );
 
-    console.log('🔍 Debug API: getUserProfileData returned:', profileData);
-
     if (!profileData) {
       return NextResponse.json(
         { error: 'Profile not found' },

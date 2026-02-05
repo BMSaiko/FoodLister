@@ -60,7 +60,6 @@ export async function ensureUserProfileExists(
       return false;
     }
 
-    console.log(`Profile created successfully for user ${userId} with code ${userCode}`);
     return true;
 
   } catch (error) {
@@ -203,26 +202,6 @@ export async function getUserProfileData(
     if (error || !profile) {
       return null;
     }
-
-    // Debug logging to trace what getUserProfileData is returning
-    console.log('🔍 Debug auth.ts: Raw profile data from database:', profile);
-    console.log('🔍 Debug auth.ts: getUserProfileData returning:', {
-      user_id: profile.user_id,
-      user_id_code: profile.user_id_code,
-      display_name: profile.display_name,
-      avatar_url: profile.avatar_url,
-      location: profile.location,
-      bio: profile.bio,
-      website: profile.website,
-      phone_number: profile.phone_number,
-      public_profile: profile.public_profile,
-      created_at: profile.created_at,
-      updated_at: profile.updated_at,
-      total_restaurants_visited: profile.total_restaurants_visited,
-      total_reviews: profile.total_reviews,
-      total_lists: profile.total_lists,
-      total_restaurants_added: profile.total_restaurants_added
-    });
 
     return {
       user_id: profile.user_id,

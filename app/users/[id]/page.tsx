@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useRouter, useParams } from 'next/navigation';
 import { useUserData } from '@/hooks/data/useUserData';
 import { useProfileActions } from '@/hooks/forms/useProfileActions';
+import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';
 import { toast } from 'react-toastify';
 import { 
   Star, 
@@ -83,15 +84,11 @@ const UserProfilePage = () => {
 
   // Handle special case for "settings" URL - redirect to user's own profile settings
   useEffect(() => {
-    console.log('🔍 Debug: Checking for special URL - userId:', userId);
     if (userId === 'settings') {
-      console.log('🔍 Debug: Detected settings URL, handling redirect');
       if (!authLoading) {
         if (user) {
-          console.log('✅ Debug: User authenticated, redirecting to settings page');
           router.push('/users/settings');
         } else {
-          console.log('🔒 Debug: User not authenticated, redirecting to signin');
           router.push('/auth/signin');
         }
       }
@@ -130,16 +127,13 @@ const UserProfilePage = () => {
 
   // Redirect if not authenticated
   useEffect(() => {
-    console.log('🔍 Debug: Auth state changed - user:', user ? user.id : 'null', 'authLoading:', authLoading);
     if (!authLoading && !user) {
-      console.log('❌ Debug: No user authenticated, redirecting to signin');
       router.push('/auth/signin');
     }
   }, [user, authLoading, router]);
 
   // Check if user is trying to access their own profile
   const isOwnProfile = user && userId === user.id;
-  console.log('🔍 Debug: isOwnProfile check - user:', user ? user.id : 'null', 'userId:', userId, 'isOwnProfile:', isOwnProfile);
 
   // Enhanced error validation
   const shouldShowNotFoundError = () => {
@@ -152,9 +146,7 @@ const UserProfilePage = () => {
                           error.includes('authentication') ||
                           error.includes('401') ||
                           error.includes('403');
-      
-      console.log('🔍 Debug: Error validation - error:', error, 'isNotFoundError:', isNotFoundError, 'isAuthError:', isAuthError);
-      
+            
       return isNotFoundError || (!isAuthError && !loading);
     }
     return false;
@@ -185,7 +177,6 @@ const UserProfilePage = () => {
           url: `${window.location.origin}/users/${userId}`,
         });
       } catch (error) {
-        console.log('Sharing failed:', error);
       }
     } else {
       handleCopyProfileLink();
@@ -254,10 +245,14 @@ const UserProfilePage = () => {
   // Update privacy status after toggle
   const [privacyStatus, setPrivacyStatus] = useState(getPrivacyStatus());
 
-  console.log('🔍 Debug: Render check - authLoading:', authLoading, 'loading:', loading, 'profile:', profile ? 'exists' : 'null', 'error:', error);
+  // Smart back navigation
+  const { navigateBack } = useSmartBackNavigation({
+    fallbackRoute: '/restaurants',
+    userContext: user ? 'authenticated' : 'anonymous'
+  });
+
 
   if (authLoading || loading) {
-    console.log('🔄 Debug: Still loading, showing loading screen');
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
         <div className="text-center" role="status" aria-live="polite">
@@ -269,11 +264,9 @@ const UserProfilePage = () => {
   }
 
   if (!profile) {
-    console.log('❌ Debug: No profile found, showing error - error:', error);
     
     // Use the enhanced error validation
     if (shouldShowNotFoundError()) {
-      console.log('🔒 Debug: Should show not found error');
       // If user is trying to access their own profile but it shows as private,
       // this shouldn't happen - they should always be able to access their own profile
       if (isOwnProfile) {
@@ -320,7 +313,6 @@ const UserProfilePage = () => {
     }
     
     // For other errors (network, auth, etc.), show a generic error message
-    console.log('❌ Debug: Generic error, showing not found message');
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
         <div className="text-center">
@@ -340,14 +332,6 @@ const UserProfilePage = () => {
 
   // Add null safety check for stats property with better error handling
   if (!profile.stats) {
-    console.log('❌ Debug: Profile exists but stats is missing - profile:', {
-      id: profile.id,
-      userIdCode: profile.userIdCode,
-      name: profile.name,
-      hasStats: !!profile.stats,
-      profileKeys: Object.keys(profile),
-      profileStructure: JSON.stringify(profile, null, 2)
-    });
     
     // Try to create stats object from available data as fallback
     const fallbackStats = {
@@ -357,9 +341,7 @@ const UserProfilePage = () => {
       totalRestaurantsAdded: 0, // Will be fetched separately
       joinedDate: profile.created_at
     };
-    
-    console.log('🔧 Debug: Creating fallback stats:', fallbackStats);
-    
+        
     // Update the profile with fallback stats
     const profileWithFallbackStats = {
       ...profile,
@@ -411,7 +393,7 @@ const UserProfilePage = () => {
         <div className={`mb-6 transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
           <div className="flex items-center justify-between mb-4">
             <button
-              onClick={() => router.back()}
+              onClick={navigateBack}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />

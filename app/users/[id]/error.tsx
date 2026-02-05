@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation';
 import { AlertTriangle, Home, RefreshCw, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
+import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';
 
 const UserErrorPage = ({ error, reset }: { error: Error; reset: () => void }) => {
   const router = useRouter();
 
-  const handleGoBack = () => {
-    router.back();
-  };
+  // Smart back navigation
+  const { navigateBack } = useSmartBackNavigation({
+    fallbackRoute: '/restaurants',
+    userContext: 'anonymous'
+  });
 
   const handleRefresh = () => {
     reset();
@@ -19,6 +22,10 @@ const UserErrorPage = ({ error, reset }: { error: Error; reset: () => void }) =>
 
   const handleGoHome = () => {
     router.push('/');
+  };
+
+  const handleGoBack = () => {
+    navigateBack();
   };
 
   return (

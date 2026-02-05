@@ -29,7 +29,6 @@ export default function AuthDebugPage() {
         console.error('Session error:', error);
       } else {
         setSession(session);
-        console.log('Current session:', session);
       }
     } catch (err) {
       setError(`Unexpected error: ${err}`);
@@ -53,7 +52,6 @@ export default function AuthDebugPage() {
         console.error('Refresh error:', error);
       } else {
         setSession(data.session);
-        console.log('Session refreshed:', data.session);
         updateAuthHistory();
       }
     } catch (err) {
@@ -71,7 +69,6 @@ export default function AuthDebugPage() {
         console.error('Sign out error:', error);
       } else {
         setSession(null);
-        console.log('Signed out successfully');
         updateAuthHistory();
       }
     } catch (err) {
@@ -94,7 +91,6 @@ export default function AuthDebugPage() {
     // Clear sessionStorage
     sessionStorage.clear();
     
-    console.log('Auth data cleared');
     updateAuthHistory();
   };
 

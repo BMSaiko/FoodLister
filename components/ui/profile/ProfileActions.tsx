@@ -38,7 +38,6 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
           url: `${window.location.origin}/users/${profile.id}`,
         });
       } catch (error) {
-        console.log('Sharing failed:', error);
       }
     } else {
       handleCopyProfileLink();

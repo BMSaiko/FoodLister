@@ -3,6 +3,17 @@ import { Star, Utensils, Clock, MapPin, Euro, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { formatDate } from '@/utils/formatters';
+import { 
+  ProfileCard, 
+  RatingBadge, 
+  PriceLevelBadge, 
+  LocationBadge, 
+  CuisineBadge, 
+  DateBadge,
+  TouchButton,
+  SkeletonLoader,
+  EmptyState 
+} from '../shared';
 
 interface UserRestaurantsSectionProps {
   userId: string;
@@ -31,16 +42,16 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
 }) => {
   const [restaurants, setRestaurants] = useState(initialRestaurants);
   const [total, setTotal] = useState(initialTotal);
-  const [loading, setLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialRestaurants.length < initialTotal);
 
   const { get } = useSecureApiClient();
 
   const loadMoreRestaurants = async () => {
-    if (loading || !hasMore) return;
+    if (isLoadingMore || !hasMore) return;
 
-    setLoading(true);
+    setIsLoadingMore(true);
     try {
       const response = await get(`/api/users/${userId}/restaurants?page=${page + 1}&limit=10`);
       const data = await response.json();
@@ -54,40 +65,38 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
     } catch (error) {
       console.error('Error loading more restaurants:', error);
     } finally {
-      setLoading(false);
+      setIsLoadingMore(false);
     }
-  };
-
-  const formatPriceLevel = (priceLevel?: number) => {
-    if (!priceLevel) return null;
-    return '$'.repeat(priceLevel);
   };
 
   if (restaurants.length === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-          <Utensils className="h-8 w-8 text-gray-400" />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Nenhum restaurante encontrado</h3>
-        <p className="text-gray-600">
-          {isOwnProfile 
-            ? 'Você ainda não adicionou nenhum restaurante. Comece a explorar e adicionar seus restaurantes favoritos!'
-            : 'Este usuário ainda não adicionou nenhum restaurante.'
-          }
-        </p>
-      </div>
+      <EmptyState
+        icon={<Utensils className="h-8 w-8 text-gray-400" />}
+        title="Nenhum restaurante encontrado"
+        description={isOwnProfile 
+          ? 'Você ainda não adicionou nenhum restaurante. Comece a explorar e adicionar seus restaurantes favoritos!'
+          : 'Este usuário ainda não adicionou nenhum restaurante.'
+        }
+        action={isOwnProfile ? {
+          label: 'Explorar restaurantes',
+          onClick: () => window.location.href = '/restaurants',
+          icon: <Utensils className="h-4 w-4" />
+        } : undefined}
+      />
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
         {restaurants.map((restaurant) => (
-          <Link
+          <ProfileCard
             key={restaurant.id}
+            className="touch-space"
             href={`/restaurants/${restaurant.id}`}
-            className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md hover:shadow-amber-100/50 transition-all duration-200 group hover:-translate-y-1"
+            hoverEffect={true}
+            touchTarget={true}
           >
             {/* Restaurant Header */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
@@ -97,49 +106,35 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
                     {restaurant.name}
                   </h3>
                   {restaurant.rating && (
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-amber-500 fill-current" />
-                      <span className="text-sm font-semibold text-gray-700">{restaurant.rating.toFixed(1)}</span>
-                    </div>
+                    <RatingBadge rating={restaurant.rating} type="restaurant" />
                   )}
-                  {restaurant.priceLevel && (
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="h-4 w-4 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700">{formatPriceLevel(restaurant.priceLevel)}</span>
-                    </div>
-                  )}
+                  <PriceLevelBadge priceLevel={restaurant.priceLevel} />
                 </div>
                 
                 {restaurant.description && (
-                  <p className="text-gray-700 text-sm line-clamp-2 mb-3">{restaurant.description}</p>
+                  <p className="text-gray-700 text-sm line-clamp-2 mb-3 ios-safe-padding-bottom">
+                    {restaurant.description}
+                  </p>
                 )}
                 
                 <div className="flex flex-wrap gap-2">
                   {restaurant.location && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-blue-100 text-blue-700">
-                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {restaurant.location}
-                    </span>
+                    <LocationBadge location={restaurant.location} />
                   )}
                   {restaurant.cuisineTypes.length > 0 && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-orange-100 text-orange-700">
-                      <Utensils className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                      {restaurant.cuisineTypes[0]}
-                    </span>
+                    <CuisineBadge cuisineType={restaurant.cuisineTypes[0]} />
                   )}
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-green-100 text-green-700">
-                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    Adicionado em {formatDate(restaurant.createdAt)}
-                  </span>
+                  <DateBadge date={restaurant.createdAt} prefix="Adicionado em" />
                 </div>
               </div>
               
               {restaurant.imageUrl && (
-                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 touch-target">
                   <img
                     src={restaurant.imageUrl}
                     alt={restaurant.name}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
               )}
@@ -163,36 +158,30 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
                 </span>
               )}
             </div>
-          </Link>
+          </ProfileCard>
         ))}
       </div>
 
       {/* Load More Button */}
       {hasMore && (
         <div className="flex justify-center pt-6">
-          <button
+          <TouchButton
             onClick={loadMoreRestaurants}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg min-h-[48px] min-w-[180px]"
+            loading={isLoadingMore}
+            variant="primary"
+            size="md"
+            disabled={isLoadingMore}
+            icon={isLoadingMore ? undefined : <Utensils className="h-4 w-4" />}
+            fullWidth={false}
           >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Carregando...
-              </>
-            ) : (
-              <>
-                <Utensils className="h-4 w-4" />
-                Carregar mais restaurantes
-              </>
-            )}
-          </button>
+            {isLoadingMore ? 'Carregando...' : 'Carregar mais restaurantes'}
+          </TouchButton>
         </div>
       )}
 
       {/* Total Count */}
       {total > restaurants.length && (
-        <div className="text-center text-gray-500 text-sm">
+        <div className="text-center text-gray-500 text-sm ios-safe-padding-top">
           Mostrando {restaurants.length} de {total} restaurantes
         </div>
       )}

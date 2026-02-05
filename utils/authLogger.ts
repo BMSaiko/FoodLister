@@ -34,19 +34,14 @@ class AuthLogger {
     
     switch (event.type) {
       case 'session_start':
-        console.log(`🟢 ${message}`, event.details);
         break;
       case 'session_refresh':
-        console.log(`🔄 ${message}`, event.details);
         break;
       case 'session_expired':
-        console.warn(`🔴 ${message}`, event.details);
         break;
       case 'token_error':
-        console.error(`❌ ${message}`, event.details);
         break;
       case 'auth_error':
-        console.error(`💥 ${message}`, event.details);
         break;
     }
   }

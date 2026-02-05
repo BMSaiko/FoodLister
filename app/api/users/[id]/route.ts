@@ -64,8 +64,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       accessLevel as 'OWNER' | 'PUBLIC' | 'PRIVATE'
     );
 
-    console.log('🔍 Debug API: getUserProfileData returned:', profileData);
-
     if (!profileData) {
       return NextResponse.json(
         { error: 'User not found' },
@@ -75,8 +73,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // 3. Buscar dados adicionais baseados no nível de acesso
     const [reviewsData, listsData] = await Promise.all([
-      getUserReviewsData(supabase, targetUserId, accessLevel as 'OWNER' | 'PUBLIC' | 'PRIVATE', 1, 10),
-      getUserListsData(supabase, targetUserId, accessLevel as 'OWNER' | 'PUBLIC' | 'PRIVATE', 1, 10)
+      getUserReviewsData(supabase, targetUserId, accessLevel as 'OWNER' | 'PUBLIC' | 'PRIVATE', 1, 12),
+      getUserListsData(supabase, targetUserId, accessLevel as 'OWNER' | 'PUBLIC' | 'PRIVATE', 1, 12)
     ]);
 
     // 4. Contagem de restaurantes criados (sempre público)
@@ -110,29 +108,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       accessLevel,
       isOwnProfile: accessLevel === 'OWNER'
     };
-
-    // Debug logging to trace the data structure
-    console.log('🔍 Debug API: Final userProfile structure:', {
-      id: userProfile.id,
-      userIdCode: userProfile.userIdCode,
-      name: userProfile.name,
-      profileImage: userProfile.profileImage,
-      phoneNumber: userProfile.phoneNumber,
-      publicProfile: userProfile.publicProfile,
-      createdAt: userProfile.createdAt,
-      updatedAt: userProfile.updatedAt,
-      stats: userProfile.stats,
-      hasStats: !!userProfile.stats,
-      statsDetails: userProfile.stats ? {
-        totalRestaurantsVisited: userProfile.stats.totalRestaurantsVisited,
-        totalReviews: userProfile.stats.totalReviews,
-        totalLists: userProfile.stats.totalLists,
-        totalRestaurantsAdded: userProfile.stats.totalRestaurantsAdded,
-        joinedDate: userProfile.stats.joinedDate
-      } : null,
-      recentReviewsCount: userProfile.recentReviews?.length || 0,
-      recentListsCount: userProfile.recentLists?.length || 0
-    });
 
     return NextResponse.json(userProfile);
 

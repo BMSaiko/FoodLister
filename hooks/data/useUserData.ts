@@ -48,38 +48,11 @@ export const useUserData = (options: UseUserDataOptions) => {
     try {
       setUserData(prev => ({ ...prev, loading: true, error: null }));
       
-      console.log('🔍 Debug: Fetching profile for userId:', userId);
       const response = await get(`/api/users/${userId}`);
-      console.log('🔍 Debug: API response status:', response.status);
       
       const profileData = await response.json();
-      console.log('🔍 Debug: API response data:', profileData);
 
       if (response.ok) {
-        console.log('✅ Debug: Profile fetched successfully');
-        
-        // API already returns data in camelCase format, no transformation needed
-        console.log('🔍 Debug useUserData: API response profileData:', {
-          id: profileData.id,
-          userIdCode: profileData.userIdCode,
-          name: profileData.name,
-          profileImage: profileData.profileImage,
-          phoneNumber: profileData.phoneNumber,
-          publicProfile: profileData.publicProfile,
-          createdAt: profileData.createdAt,
-          updatedAt: profileData.updatedAt,
-          hasStats: !!profileData.stats,
-          stats: profileData.stats,
-          statsDetails: profileData.stats ? {
-            totalRestaurantsVisited: profileData.stats.totalRestaurantsVisited,
-            totalReviews: profileData.stats.totalReviews,
-            totalLists: profileData.stats.totalLists,
-            totalRestaurantsAdded: profileData.stats.totalRestaurantsAdded,
-            joinedDate: profileData.stats.joinedDate
-          } : null,
-          recentReviewsCount: profileData.recentReviews?.length || 0,
-          recentListsCount: profileData.recentLists?.length || 0
-        });
 
         setUserData(prev => ({
           ...prev,
@@ -119,8 +92,6 @@ export const useUserData = (options: UseUserDataOptions) => {
           errorType = 'client_error';
           errorMessage = profileData.error || 'Invalid request';
         }
-
-        console.log(`❌ Debug: ${errorType} error - status: ${response.status}, message: ${errorMessage}`);
         
         setUserData(prev => ({
           ...prev,
@@ -270,7 +241,6 @@ export const useUserData = (options: UseUserDataOptions) => {
     if (!userId) return;
 
     try {
-      console.log('🔍 Debug: loadData called for userId:', userId);
       
       // Check cache first
       const cachedProfile = getCachedProfile(userId);
@@ -278,7 +248,6 @@ export const useUserData = (options: UseUserDataOptions) => {
       const cachedLists = getCachedLists(userId);
       
       if (cachedProfile) {
-        console.log('🔍 Debug: Using cached profile data');
         // Use cached data but set loading to true for background refresh
         setUserData(prev => ({
           ...prev,
@@ -291,32 +260,25 @@ export const useUserData = (options: UseUserDataOptions) => {
 
         // Background refresh
         try {
-          console.log('🔍 Debug: Starting background refresh for userId:', userId);
           
           await Promise.all([
             fetchUserProfile().catch(error => {
-              console.log('🔍 Debug: Profile refresh failed for userId:', userId, 'Error:', error.message);
               return null;
             }),
             enableReviews ? fetchUserReviews().catch(error => {
-              console.log('🔍 Debug: Reviews refresh failed for userId:', userId, 'Error:', error.message);
               return [];
             }) : Promise.resolve(),
             enableLists ? fetchUserLists().catch(error => {
-              console.log('🔍 Debug: Lists refresh failed for userId:', userId, 'Error:', error.message);
               return [];
             }) : Promise.resolve()
           ]);
           
-          console.log('🔍 Debug: Background refresh completed for userId:', userId);
           setUserData(prev => ({ ...prev, loading: false }));
           
         } catch (refreshError) {
-          console.log('🔍 Debug: Background refresh failed for userId:', userId, 'Error:', refreshError);
           setUserData(prev => ({ ...prev, loading: false }));
         }
       } else {
-        console.log('🔍 Debug: No cached data found, fetching from API');
         // No cache, fetch all data
         setUserData(prev => ({ ...prev, loading: true, error: null }));
         
@@ -428,7 +390,6 @@ export const useUserData = (options: UseUserDataOptions) => {
 
   // Debug: Track hook calls
   useEffect(() => {
-    console.log('🔍 Debug: useUserData hook initialized for userId:', userId, 'autoFetch:', autoFetch);
   }, [userId, autoFetch]);
 
   // Cache helper functions

@@ -273,7 +273,16 @@ const ProfileSettingsPage = () => {
               <h1 className="text-2xl font-bold text-gray-800">Configurações da Conta</h1>
               <p className="text-gray-600">Gerencie suas informações pessoais</p>
             </div>
-            {/* Ver Perfil Público button moved to mobile sticky navbar */}
+            {/* Ver Perfil Público button - Desktop Only */}
+            <div className="hidden md:block">
+              <Link 
+                href={`/users/${profile.userIdCode}`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Eye className="h-4 w-4" />
+                <span className="font-medium">Ver Perfil Público</span>
+              </Link>
+            </div>
           </div>
         </div>
 

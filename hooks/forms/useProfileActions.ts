@@ -35,7 +35,6 @@ export const useProfileActions = (options: ProfileActionsOptions): ProfileAction
           url: `${window.location.origin}/users/${profileId}`,
         });
       } catch (error) {
-        console.log('Sharing failed:', error);
         handleCopyProfileLink(profileId, profileName);
       }
     } else {

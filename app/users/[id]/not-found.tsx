@@ -5,16 +5,23 @@ import { useRouter } from 'next/navigation';
 import { Shield, Lock, User, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
+import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';
 
 const ProfileNotFoundPage = () => {
   const router = useRouter();
 
-  const handleGoBack = () => {
-    router.back();
-  };
+  // Smart back navigation
+  const { navigateBack } = useSmartBackNavigation({
+    fallbackRoute: '/restaurants',
+    userContext: 'anonymous'
+  });
 
   const handleGoHome = () => {
     router.push('/');
+  };
+
+  const handleGoBack = () => {
+    navigateBack();
   };
 
   return (

@@ -212,7 +212,6 @@ const getCookieBasedStorage = () => {
           // Fallback to localStorage if cookie is not available
           const localStorageValue = localStorage.getItem(key);
           if (localStorageValue) {
-            console.log(`Cookie ${key} not found, using localStorage fallback`);
             return localStorageValue;
           }
           
@@ -230,12 +229,10 @@ const getCookieBasedStorage = () => {
           // Try to set cookie with more permissive settings
           try {
             document.cookie = `${key}=${encodeURIComponent(value)};path=/;SameSite=None;Secure;expires=${expires.toUTCString()}`;
-            console.log(`Cookie ${key} set successfully`);
           } catch (cookieError) {
             console.warn(`Failed to set cookie ${key}, falling back to localStorage:`, cookieError);
             // Fallback to localStorage
             localStorage.setItem(key, value);
-            console.log(`Storage ${key} set in localStorage as fallback`);
           }
         } catch (error) {
           console.warn(`Error setting storage for ${key}:`, error);
@@ -249,7 +246,6 @@ const getCookieBasedStorage = () => {
           // Also remove from localStorage fallback
           localStorage.removeItem(key);
           
-          console.log(`Storage ${key} removed from both cookie and localStorage`);
         } catch (error) {
           console.warn(`Error removing storage for ${key}:`, error);
         }

@@ -3,6 +3,15 @@ import { Star, Utensils, Clock, MessageCircle, MapPin, Euro } from 'lucide-react
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { formatDate } from '@/utils/formatters';
+import { 
+  ProfileCard, 
+  RatingBadge, 
+  AmountBadge, 
+  DateBadge,
+  TouchButton,
+  SkeletonLoader,
+  EmptyState 
+} from '../shared/index';
 
 interface UserReviewsSectionProps {
   userId: string;
@@ -34,13 +43,14 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialReviews.length < initialTotal);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const { get } = useSecureApiClient();
 
   const loadMoreReviews = async () => {
-    if (loading || !hasMore) return;
+    if (isLoadingMore || !hasMore) return;
 
-    setLoading(true);
+    setIsLoadingMore(true);
     try {
       const response = await get(`/api/users/${userId}/reviews?page=${page + 1}&limit=10`);
       const data = await response.json();
@@ -54,7 +64,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
     } catch (error) {
       console.error('Error loading more reviews:', error);
     } finally {
-      setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
@@ -68,114 +78,110 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-          <Star className="h-8 w-8 text-gray-400" />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Nenhuma avaliação encontrada</h3>
-        <p className="text-gray-600">
-          {isOwnProfile 
-            ? 'Você ainda não avaliou nenhum restaurante. Comece a explorar e compartilhar suas experiências!'
-            : 'Este usuário ainda não avaliou nenhum restaurante.'
-          }
-        </p>
-      </div>
+      <EmptyState
+        icon={<Star className="h-8 w-8 text-gray-400" />}
+        title="Nenhuma avaliação encontrada"
+        description={isOwnProfile 
+          ? 'Você ainda não avaliou nenhum restaurante. Comece a explorar e compartilhar suas experiências!'
+          : 'Este usuário ainda não avaliou nenhum restaurante.'
+        }
+        action={isOwnProfile ? {
+          label: 'Explorar restaurantes',
+          onClick: () => window.location.href = '/restaurants',
+          icon: <Utensils className="h-4 w-4" />
+        } : undefined}
+      />
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
         {reviews.map((review) => (
-          <div
+          <ProfileCard
             key={review.id}
-            className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md transition-all duration-200 group"
+            className="touch-space"
+            hoverEffect={true}
+            touchTarget={true}
           >
             {/* Restaurant Header */}
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
               <div className="flex-1">
                 <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-amber-500 fill-current" />
-                    <span className="font-semibold">{review.rating}/5</span>
-                  </div>
+                  <RatingBadge rating={review.rating} type="review" />
                   {review.restaurant.rating && (
                     <div className="flex items-center gap-1">
                       <Utensils className="h-4 w-4 text-orange-500" />
-                      <span>Nota média: {review.restaurant.rating.toFixed(1)}</span>
+                      <span className="text-sm">Nota média: {review.restaurant.rating.toFixed(1)}</span>
                     </div>
                   )}
                 </div>
               </div>
               
               {review.restaurant.imageUrl && (
-                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 touch-target">
                   <img
                     src={review.restaurant.imageUrl}
                     alt={review.restaurant.name}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
               )}
             </div>
 
+            {/* Restaurant Name */}
+            <div className="mb-3">
+              <h4 className="text-lg font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">
+                {review.restaurant.name}
+              </h4>
+            </div>
+
             {/* Review Content */}
             {review.comment && (
-              <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mb-4">
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{review.comment}</p>
+              <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mb-4 ios-safe-padding-bottom">
+                <p className="text-gray-700 leading-relaxed text-sm sm:text-base line-clamp-4">
+                  {review.comment}
+                </p>
               </div>
             )}
 
             {/* Review Footer */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
               <div className="flex flex-wrap gap-2 sm:gap-4">
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{formatDate(review.createdAt)}</span>
-                </div>
-                {review.amountSpent && (
-                  <div className="flex items-center gap-1">
-                    <Euro className="h-4 w-4" />
-                    <span>{formatAmount(review.amountSpent)}</span>
-                  </div>
-                )}
+                <DateBadge date={review.createdAt} prefix="Avaliado em" />
+                <AmountBadge amount={review.amountSpent} />
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
                 <MessageCircle className="h-4 w-4" />
                 <span>Avaliação</span>
               </div>
             </div>
-          </div>
+          </ProfileCard>
         ))}
       </div>
 
       {/* Load More Button */}
       {hasMore && (
         <div className="flex justify-center pt-6">
-          <button
+          <TouchButton
             onClick={loadMoreReviews}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg min-h-[48px] min-w-[180px]"
+            loading={isLoadingMore}
+            variant="primary"
+            size="md"
+            disabled={isLoadingMore}
+            icon={isLoadingMore ? undefined : <Star className="h-4 w-4" />}
+            fullWidth={false}
           >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Carregando...
-              </>
-            ) : (
-              <>
-                <Star className="h-4 w-4" />
-                Carregar mais avaliações
-              </>
-            )}
-          </button>
+            {isLoadingMore ? 'Carregando...' : 'Carregar mais avaliações'}
+          </TouchButton>
         </div>
       )}
 
       {/* Total Count */}
       {total > reviews.length && (
-        <div className="text-center text-gray-500 text-sm">
+        <div className="text-center text-gray-500 text-sm ios-safe-padding-top">
           Mostrando {reviews.length} de {total} avaliações
         </div>
       )}

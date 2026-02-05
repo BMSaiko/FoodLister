@@ -272,7 +272,6 @@ export const useUserDataV2 = (options: UseUserDataOptions) => {
 
   // Debug: Track hook calls
   useEffect(() => {
-    console.log('🔍 Debug: useUserDataV2 hook initialized for userId:', userId, 'autoFetch:', autoFetch);
   }, [userId, autoFetch]);
 
   return {
