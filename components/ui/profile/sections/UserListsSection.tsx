@@ -71,16 +71,16 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {lists.map((list) => (
           <Link
             key={list.id}
             href={`/lists/${list.id}`}
-            className="block bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 hover:shadow-md hover:shadow-amber-100/50 transition-all duration-200 group hover:-translate-y-1"
+            className="block bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md hover:shadow-amber-100/50 transition-all duration-200 group hover:-translate-y-1"
           >
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="bg-amber-500 text-white p-2 rounded-lg">
                     <List className="h-5 w-5" />
                   </div>
@@ -95,7 +95,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
                   </p>
                 )}
                 
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
                     <Utensils className="h-4 w-4 text-amber-600" />
                     <span>{list.restaurantCount} restaurantes</span>
@@ -113,7 +113,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
             </div>
 
             {/* Restaurant Count Badge */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 items-start sm:items-center justify-between">
               <div className="bg-white rounded-lg px-3 py-1 border border-gray-200">
                 <span className="text-sm font-medium text-gray-700">
                   {list.restaurantCount} restaurantes
@@ -134,7 +134,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
           <button
             onClick={loadMoreLists}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg min-h-[48px] min-w-[180px]"
           >
             {loading ? (
               <>

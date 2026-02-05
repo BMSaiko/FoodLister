@@ -7,7 +7,7 @@ import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
 import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
-import { ArrowLeft, Plus, X, Search } from 'lucide-react';
+import { ArrowLeft, Plus, X, Search, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 export default function CreateList() {
@@ -324,14 +324,25 @@ export default function CreateList() {
                 onClick={() => router.push('/lists')}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 mr-4 hover:bg-gray-50"
               >
-                Cancelar
+                <span className="hidden sm:inline">Cancelar</span>
+                <span className="sm:hidden">X</span>
               </button>
               <button
                 type="submit"
                 className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                 disabled={loading}
               >
-                {loading ? 'Salvando...' : 'Criar Lista'}
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    <span className="hidden sm:inline">Salvando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">Criar Lista</span>
+                  </>
+                )}
               </button>
             </div>
           </form>

@@ -82,17 +82,17 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {restaurants.map((restaurant) => (
           <Link
             key={restaurant.id}
             href={`/restaurants/${restaurant.id}`}
-            className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 hover:shadow-md hover:shadow-amber-100/50 transition-all duration-200 group hover:-translate-y-1"
+            className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md hover:shadow-amber-100/50 transition-all duration-200 group hover:-translate-y-1"
           >
             {/* Restaurant Header */}
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
               <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex flex-wrap gap-2 sm:gap-3 mb-3">
                   <h3 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
                     {restaurant.name}
                   </h3>
@@ -116,19 +116,19 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
                 
                 <div className="flex flex-wrap gap-2">
                   {restaurant.location && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-700">
-                      <MapPin className="h-3 w-3 mr-1" />
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-blue-100 text-blue-700">
+                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                       {restaurant.location}
                     </span>
                   )}
                   {restaurant.cuisineTypes.length > 0 && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-700">
-                      <Utensils className="h-3 w-3 mr-1" />
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-orange-100 text-orange-700">
+                      <Utensils className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                       {restaurant.cuisineTypes[0]}
                     </span>
                   )}
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
-                    <Clock className="h-3 w-3 mr-1" />
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-green-100 text-green-700">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                     Adicionado em {formatDate(restaurant.createdAt)}
                   </span>
                 </div>
@@ -148,17 +148,17 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
             {/* Restaurant Details */}
             <div className="flex flex-wrap gap-2">
               {restaurant.cuisineTypes.length > 0 && (
-                <span className="px-2 py-1 bg-white rounded-full text-xs text-gray-600 border border-gray-200">
+                <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
                   Tipos: {restaurant.cuisineTypes.join(', ')}
                 </span>
               )}
               {restaurant.dietaryOptions.length > 0 && (
-                <span className="px-2 py-1 bg-white rounded-full text-xs text-gray-600 border border-gray-200">
+                <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
                   Opções: {restaurant.dietaryOptions.join(', ')}
                 </span>
               )}
               {restaurant.features.length > 0 && (
-                <span className="px-2 py-1 bg-white rounded-full text-xs text-gray-600 border border-gray-200">
+                <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
                   Recursos: {restaurant.features.join(', ')}
                 </span>
               )}
@@ -173,7 +173,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
           <button
             onClick={loadMoreRestaurants}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg min-h-[48px] min-w-[180px]"
           >
             {loading ? (
               <>

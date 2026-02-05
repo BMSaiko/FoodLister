@@ -85,16 +85,16 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {reviews.map((review) => (
           <div
             key={review.id}
-            className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-200 group"
+            className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md transition-all duration-200 group"
           >
             {/* Restaurant Header */}
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
               <div className="flex-1">
-                <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-amber-500 fill-current" />
                     <span className="font-semibold">{review.rating}/5</span>
@@ -121,14 +121,14 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 
             {/* Review Content */}
             {review.comment && (
-              <div className="bg-white rounded-lg p-4 border border-gray-200 mb-4">
-                <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+              <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mb-4">
+                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{review.comment}</p>
               </div>
             )}
 
             {/* Review Footer */}
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
+              <div className="flex flex-wrap gap-2 sm:gap-4">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
                   <span>{formatDate(review.createdAt)}</span>
@@ -156,7 +156,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
           <button
             onClick={loadMoreReviews}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 px-4 sm:px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg min-h-[48px] min-w-[180px]"
           >
             {loading ? (
               <>

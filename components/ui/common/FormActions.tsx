@@ -22,7 +22,8 @@ export default function FormActions({
         onClick={onCancel}
         className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all"
       >
-        {cancelText}
+        <span className="hidden sm:inline">{cancelText}</span>
+        <span className="sm:hidden">X</span>
       </button>
       
       <button
@@ -34,10 +35,12 @@ export default function FormActions({
         {loading ? (
           <div className="flex items-center gap-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>Salvando...</span>
+            <span className="hidden sm:inline">Salvando...</span>
           </div>
         ) : (
-          submitText
+          <>
+            <span className="hidden sm:inline">{submitText}</span>
+          </>
         )}
       </button>
     </div>

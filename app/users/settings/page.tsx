@@ -27,6 +27,8 @@ import {
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import UserProfileHeader from '@/components/ui/profile/UserProfileHeader';
+import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
+import SettingsStickyNavbar from '@/components/ui/navigation/SettingsStickyNavbar';
 
 interface FormErrors {
   display_name?: string;
@@ -193,6 +195,16 @@ const ProfileSettingsPage = () => {
     }
   };
 
+  const handleSave = async () => {
+    // Create a mock form event for the handleSubmit function
+    const mockEvent = {
+      preventDefault: () => {},
+      target: { submit: () => {} }
+    } as unknown as React.FormEvent;
+    
+    await handleSubmit(mockEvent);
+  };
+
   const handleCancel = () => {
     router.back();
   };
@@ -255,29 +267,21 @@ const ProfileSettingsPage = () => {
 
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-6" id="settings-header">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">Configurações da Conta</h1>
               <p className="text-gray-600">Gerencie suas informações pessoais</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Link 
-                href={`/users/${profile.userIdCode}`}
-                className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                <Eye className="h-4 w-4" />
-                <span>Ver Perfil Público</span>
-              </Link>
-            </div>
+            {/* Ver Perfil Público button moved to mobile sticky navbar */}
           </div>
         </div>
 
         {/* Profile Header */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
-          <div className="flex items-center gap-6">
-              <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 shadow-xl flex items-center justify-center overflow-hidden ring-4 ring-white">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="lg:w-32 lg:h-32 w-24 h-24 relative flex-shrink-0">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-amber-400 to-orange-400 shadow-xl flex items-center justify-center overflow-hidden ring-4 ring-white">
                 {profile.profileImage ? (
                   <img
                     src={profile.profileImage}
@@ -285,7 +289,7 @@ const ProfileSettingsPage = () => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <User className="h-12 w-12 text-white opacity-80" />
+                  <User className="h-12 w-12 sm:h-16 sm:w-16 text-white opacity-80" />
                 )}
               </div>
               <label className="absolute bottom-0 right-0 bg-amber-500 hover:bg-amber-600 text-white p-2 rounded-full cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-110">
@@ -299,16 +303,16 @@ const ProfileSettingsPage = () => {
               </label>
             </div>
             
-              <div className="flex-1">
-              <h2 className="text-xl font-bold text-gray-900">{profile.name}</h2>
-              <p className="text-gray-600 mt-1">{user.email}</p>
-              <div className="flex items-center gap-4 mt-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-amber-100 text-amber-800">
-                  <User className="h-4 w-4 mr-2" />
+            <div className="flex-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{profile.name}</h2>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">{user.email}</p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm bg-amber-100 text-amber-800">
+                  <User className="h-4 w-4 mr-1.5" />
                   {profile.userIdCode}
                 </span>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                  <CheckCircle className="h-4 w-4 mr-2" />
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                  <CheckCircle className="h-4 w-4 mr-1.5" />
                   Verificado
                 </span>
               </div>
@@ -317,12 +321,12 @@ const ProfileSettingsPage = () => {
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Display Name */}
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <User className="h-4 w-4 inline mr-2 text-amber-500" />
                   Nome de Exibição <span className="text-red-500">*</span>
@@ -331,7 +335,7 @@ const ProfileSettingsPage = () => {
                   type="text"
                   value={profile.name || ''}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${
+                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${
                     formErrors.display_name ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Seu nome de exibição"
@@ -352,9 +356,9 @@ const ProfileSettingsPage = () => {
                   type="email"
                   value={user.email || ''}
                   readOnly
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                  className="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                 />
-                <p className="text-xs text-gray-500 mt-1">O email não pode ser alterado</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">O email não pode ser alterado</p>
               </div>
 
               {/* Phone Number */}
@@ -367,10 +371,10 @@ const ProfileSettingsPage = () => {
                   type="tel"
                   value={profile.phoneNumber || ''}
                   onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
                   placeholder="+351 912 345 678"
                 />
-                <p className="text-xs text-gray-500 mt-1">Número de telefone para contato</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">Número de telefone para contato</p>
               </div>
 
               {/* Location */}
@@ -383,10 +387,10 @@ const ProfileSettingsPage = () => {
                   type="text"
                   value={profile.location || ''}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
                   placeholder="Lisboa, Portugal"
                 />
-                <p className="text-xs text-gray-500 mt-1">Sua localização para recomendações personalizadas</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">Sua localização para recomendações personalizadas</p>
               </div>
 
               {/* Website */}
@@ -399,7 +403,7 @@ const ProfileSettingsPage = () => {
                   type="url"
                   value={profile.website || ''}
                   onChange={(e) => handleInputChange('website', e.target.value)}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${
+                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${
                     formErrors.website ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="https://seusite.com"
@@ -407,7 +411,7 @@ const ProfileSettingsPage = () => {
                 {formErrors.website && (
                   <p className="text-red-500 text-sm mt-1">{formErrors.website}</p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">Seu site pessoal ou blog gastronômico</p>
+                <p className="text-xs sm:text-sm text-gray-500 mt-2">Seu site pessoal ou blog gastronômico</p>
               </div>
 
               {/* Description */}
@@ -420,15 +424,15 @@ const ProfileSettingsPage = () => {
                   value={profile.bio || ''}
                   onChange={(e) => handleInputChange('bio', e.target.value)}
                   rows={4}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors resize-none ${
+                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors resize-none ${
                     formErrors.bio ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Conte um pouco sobre você, seus gostos culinários, etc..."
                   maxLength={500}
                 />
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-xs text-gray-500">Compartilhe informações sobre seus gostos culinários</p>
-                  <span className="text-xs text-gray-400">{(profile.bio || '').length}/500</span>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-2">
+                  <p className="text-xs sm:text-sm text-gray-500">Compartilhe informações sobre seus gostos culinários</p>
+                  <span className="text-xs sm:text-sm text-gray-400">{(profile.bio || '').length}/500</span>
                 </div>
                 {formErrors.bio && (
                   <p className="text-red-500 text-sm mt-1">{formErrors.bio}</p>
@@ -439,24 +443,26 @@ const ProfileSettingsPage = () => {
             {/* Privacy Settings */}
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Privacidade</h3>
-              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-amber-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">Privacidade do Perfil</p>
-                    <p className="text-sm text-gray-600">
-                      {profile.publicProfile 
-                        ? 'Seu perfil está público. Outros usuários podem encontrar e visualizar seu perfil.'
-                        : 'Seu perfil está privado. Apenas você pode visualizar seu perfil.'
-                      }
-                    </p>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Shield className="h-5 w-5 text-amber-600" />
+                    <div>
+                      <p className="font-medium text-gray-900">Privacidade do Perfil</p>
+                    </div>
                   </div>
+                  <p className="text-sm text-gray-600">
+                    {profile.publicProfile 
+                      ? 'Seu perfil está público. Outros usuários podem encontrar e visualizar seu perfil.'
+                      : 'Seu perfil está privado. Apenas você pode visualizar seu perfil.'
+                    }
+                  </p>
                 </div>
                 <button
                   type="button"
                   onClick={handlePrivacyToggle}
                   disabled={isSubmitting}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors min-w-[140px] ${
                     profile.publicProfile 
                       ? 'bg-red-100 text-red-700 hover:bg-red-200'
                       : 'bg-green-100 text-green-700 hover:bg-green-200'
@@ -467,39 +473,54 @@ const ProfileSettingsPage = () => {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-4 pt-6 border-t border-gray-200">
+            {/* Actions - Desktop Only */}
+            <div className="hidden md:flex flex-wrap gap-3 mt-6">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg transition-colors font-medium"
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  isSubmitting
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+                }`}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Salvando...
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span className="hidden sm:inline">Salvando...</span>
                   </>
                 ) : (
                   <>
                     <Save className="h-4 w-4" />
-                    Salvar Alterações
+                    <span className="hidden sm:inline">Salvar Alterações</span>
                   </>
                 )}
               </button>
-              
+
               <button
                 type="button"
                 onClick={handleCancel}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 text-gray-700 px-6 py-3 rounded-lg transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all duration-200"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Cancelar
+                <span className="hidden sm:inline">Cancelar</span>
               </button>
             </div>
           </form>
         </div>
       </div>
+      
+      {/* Desktop Scroll to Top Button */}
+      <ScrollToTopButton />
+      
+      {/* Mobile Sticky Navbar */}
+      <SettingsStickyNavbar 
+        onSave={handleSave}
+        onCancel={handleCancel}
+        isSubmitting={isSubmitting}
+        profile={profile}
+      />
     </div>
   );
 };

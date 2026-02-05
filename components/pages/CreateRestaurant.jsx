@@ -15,7 +15,7 @@ import ImageUploader from '@/components/ui/RestaurantManagement/ImageUploader';
 import MenuManager from '@/components/ui/RestaurantManagement/MenuManager';
 import RestaurantImageManager from '@/components/ui/RestaurantManagement/RestaurantImageManager';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home, Lock } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home, Lock, Save } from 'lucide-react';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
@@ -643,12 +643,37 @@ export default function CreateRestaurant() {
             </FormSection>
 
             {/* Ações */}
-            <FormActions
-              onCancel={() => router.push('/restaurants')}
-              onSubmit={handleSubmit}
-              submitText="Salvar Restaurante"
-              loading={loading}
-            />
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => router.push('/restaurants')}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <span className="hidden sm:inline">Cancelar</span>
+                <span className="sm:hidden">X</span>
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  loading
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <span className="hidden sm:inline">Salvando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-5 w-5 mr-2" />
+                    <span className="hidden sm:inline">Salvar Restaurante</span>
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

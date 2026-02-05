@@ -262,7 +262,7 @@ const Navbar = ({ clearFilters = null }) => {
             <span className="whitespace-nowrap">FoodLister</span>
           </Link>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             {!user && !loading && (
               <Link href="/auth/signin">
                 <button className="flex items-center justify-center bg-amber-500 text-white px-3 py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] min-w-[44px] text-sm font-medium">
