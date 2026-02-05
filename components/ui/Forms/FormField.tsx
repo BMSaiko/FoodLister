@@ -15,6 +15,8 @@ interface FormFieldProps {
   icon?: React.ComponentType<{ className?: string }>;
   helperText?: string;
   error?: string;
+  maxLength?: number;
+  disabled?: boolean;
   [key: string]: any;
 }
 
@@ -33,6 +35,8 @@ export default function FormField({
   icon: Icon,
   helperText,
   error,
+  maxLength,
+  disabled = false,
   ...props
 }: FormFieldProps) {
   const inputId = name;
@@ -63,7 +67,11 @@ export default function FormField({
                 onChange={onChange}
                 placeholder={placeholder}
                 required={required}
-                className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-vertical ${inputClassName}`}
+                maxLength={maxLength}
+                disabled={disabled}
+                className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-vertical ${inputClassName} ${
+                  disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+                }`}
                 {...props}
               />
             ) : (
@@ -75,7 +83,11 @@ export default function FormField({
                 onChange={onChange}
                 placeholder={placeholder}
                 required={required}
-                className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${inputClassName}`}
+                maxLength={maxLength}
+                disabled={disabled}
+                className={`flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${inputClassName} ${
+                  disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+                }`}
                 {...props}
               />
             )}
@@ -91,7 +103,11 @@ export default function FormField({
                 onChange={onChange}
                 placeholder={placeholder}
                 required={required}
-                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-vertical ${inputClassName}`}
+                maxLength={maxLength}
+                disabled={disabled}
+                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-vertical ${inputClassName} ${
+                  disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+                }`}
                 {...props}
               />
             ) : (
@@ -103,7 +119,11 @@ export default function FormField({
                 onChange={onChange}
                 placeholder={placeholder}
                 required={required}
-                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${inputClassName}`}
+                maxLength={maxLength}
+                disabled={disabled}
+                className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors ${inputClassName} ${
+                  disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+                }`}
                 {...props}
               />
             )}
@@ -112,13 +132,17 @@ export default function FormField({
         )}
       </div>
 
-      {helperText && !error && (
-        <p className="text-sm text-gray-500 mt-1">{helperText}</p>
-      )}
-
-      {error && (
-        <p className="text-sm text-red-600 mt-1">{error}</p>
-      )}
+      <div className="flex justify-between items-center mt-1">
+        {helperText && !error && (
+          <p className="text-sm text-gray-500">{helperText}</p>
+        )}
+        {error && (
+          <p className="text-sm text-red-600">{error}</p>
+        )}
+        {maxLength && typeof value === 'string' && (
+          <span className="text-xs text-gray-400 ml-auto">{value.length}/{maxLength}</span>
+        )}
+      </div>
     </div>
   );
 }

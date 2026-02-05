@@ -4,35 +4,29 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter, useParams } from 'next/navigation';
 import { useUserData } from '@/hooks/useUserData';
+import { useProfileActions } from '@/hooks/useProfileActions';
 import { toast } from 'react-toastify';
 import { 
-  User, 
-  MapPin, 
-  Globe, 
-  Mail, 
-  Calendar, 
   Star, 
-  Utensils, 
   List, 
-  Search, 
-  Users, 
-  Eye, 
-  EyeOff, 
-  Edit, 
-  ArrowLeft, 
-  Copy, 
-  Share2,
-  ChevronDown,
-  ChevronUp,
+  Utensils, 
   Clock,
-  MessageCircle,
-  Camera,
-  Shield,
-  CheckCircle,
-  XCircle
+  Edit,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  User,
+  MapPin,
+  Globe,
+  Calendar,
+  Copy,
+  Share2,
+  Users
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/layouts/Navbar';
+import UserProfileHeader from '@/components/ui/UserProfileHeader';
+import ProfileTabs from '@/components/ui/ProfileTabs';
 import UserReviewsSection from '@/components/ui/UserReviewsSection';
 import UserListsSection from '@/components/ui/UserListsSection';
 import UserRestaurantsSection from '@/components/ui/UserRestaurantsSection';

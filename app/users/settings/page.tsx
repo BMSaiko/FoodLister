@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useSettings } from '@/hooks/useSettings';
+import { useProfileForm } from '@/hooks/useProfileForm';
+import { useProfileActions } from '@/hooks/useProfileActions';
 import { toast } from 'react-toastify';
 import { 
-  User, 
   Mail, 
-  Phone, 
   Globe, 
   MapPin, 
   FileText, 
@@ -20,11 +20,15 @@ import {
   Shield, 
   AlertCircle,
   CheckCircle,
-  Loader2
+  Loader2,
+  User
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/layouts/Navbar';
 import PhoneInputField from '@/components/ui/Forms/PhoneInput';
+import FormField from '@/components/ui/Forms/FormField';
+import FormSection from '@/components/ui/Forms/FormSection';
+import UserProfileHeader from '@/components/ui/UserProfileHeader';
 
 interface FormErrors {
   display_name?: string;
