@@ -19,9 +19,9 @@ interface ReviewCardActionsProps {
     };
   };
   isOwnReview: boolean;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onShare?: () => void;
+  onEdit?: (e: React.MouseEvent) => void;
+  onDelete?: (e: React.MouseEvent) => void;
+  onShare?: (e: React.MouseEvent) => void;
   className?: string;
 }
 
@@ -78,7 +78,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
       }
       
       if (onShare) {
-        onShare();
+        onShare(e);
       }
     } catch (error) {
       toast.error('Erro ao compartilhar avaliação');
@@ -98,7 +98,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
     );
     
     if (confirmDelete) {
-      onDelete();
+      onDelete(e);
     }
   };
 
@@ -107,7 +107,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
     e.stopPropagation();
     
     if (onEdit) {
-      onEdit();
+      onEdit(e);
     }
   };
 

@@ -44,6 +44,66 @@ async function updateRestaurantRating(restaurantId: string) {
   }
 }
 
+// Helper function to get user profile data consistently
+async function getUserProfileData(supabase: any, userId: string) {
+  if (!supabase) {
+    return { displayName: null, avatarUrl: null, email: null };
+  }
+
+  try {
+    // Get profile data
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('display_name, avatar_url')
+      .eq('user_id', userId)
+      .single();
+
+    // Get user email
+    const { data: userData, error: userError } = await supabase
+      .from('auth.users')
+      .select('email')
+      .eq('id', userId)
+      .single();
+
+    const displayName = (!profileError && (profileData as any)?.display_name) 
+      ? (profileData as any).display_name 
+      : null;
+    
+    const avatarUrl = (!profileError && (profileData as any)?.avatar_url) 
+      ? (profileData as any).avatar_url 
+      : null;
+    
+    const email = (!userError && (userData as any)?.email) 
+      ? (userData as any).email 
+      : null;
+
+    return { displayName, avatarUrl, email };
+  } catch (error) {
+    console.error(`Error fetching profile for user ${userId}:`, error);
+    return { displayName: null, avatarUrl: null, email: null };
+  }
+}
+
+// Helper function to transform review data with consistent user information
+function transformReviewData(review: any, userProfile: { displayName: string | null; avatarUrl: string | null; email: string | null }) {
+  // Check if review is null or undefined
+  if (!review) {
+    throw new Error('Review data is null or undefined');
+  }
+
+  const { displayName, avatarUrl, email } = userProfile;
+  const emailName = email ? email.split('@')[0] : null;
+
+  return {
+    ...review,
+    user: {
+      id: review.user_id,
+      name: displayName || review.user_name || emailName || 'Anonymous User',
+      profileImage: avatarUrl
+    }
+  };
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -57,10 +117,6 @@ export async function GET(
       .from('reviews')
       .select(`
         *,
-        user:user_id (
-          id,
-          raw_user_meta_data
-        ),
         restaurant:restaurant_id (
           id,
           name
@@ -77,52 +133,16 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch review' }, { status: 500 });
     }
 
-    // Get user profile data and email from database
-    let userDisplayName = null;
-    let userProfileImage = null;
-    let userEmail = null;
-
-    if (supabase) {
-      try {
-        // Get profile data
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('display_name, avatar_url')
-          .eq('user_id', (data as any).user.id)
-          .single();
-
-        if (!profileError && profileData) {
-          userDisplayName = (profileData as any).display_name || null;
-          userProfileImage = (profileData as any).avatar_url || null;
-        }
-
-        // Get user email
-        const { data: userData, error: userError } = await supabase
-          .from('auth.users')
-          .select('email')
-          .eq('id', (data as any).user.id)
-          .single();
-
-        if (!userError && userData) {
-          userEmail = (userData as any).email || null;
-        }
-      } catch (error) {
-        console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
-      }
+    // Check if data is null
+    if (!data) {
+      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
     }
 
-    // Create email name (part before @)
-    const emailName = userEmail ? userEmail.split('@')[0] : null;
-
-    // Transform user data using display_name from profiles table with email fallback
-    const processedData = {
-      ...(data as any),
-      user: {
-        id: (data as any).user.id,
-        name: userDisplayName || (data as any).user_name || emailName,
-        profileImage: userProfileImage
-      }
-    };
+    // Get user profile data consistently using the review's user_id
+    const userProfile = await getUserProfileData(supabase, (data as any).user_id);
+    
+    // Transform review data with consistent user information
+    const processedData = transformReviewData(data as any, userProfile);
 
     return NextResponse.json({ review: processedData });
   } catch (error) {
@@ -195,13 +215,7 @@ export async function PUT(
       })
       .eq('id', reviewId)
       .eq('user_id', user.id)
-      .select(`
-        *,
-        user:user_id (
-          id,
-          raw_user_meta_data
-        )
-      `)
+      .select('*')
       .single();
 
     if (error) {
@@ -209,57 +223,26 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update review' }, { status: 500 });
     }
 
+    // Check if the update was successful and data is not null
+    if (!data) {
+      console.error('Review update returned null data');
+      return NextResponse.json({ error: 'Failed to update review - no data returned' }, { status: 500 });
+    }
+
     // Update restaurant rating after successful review update
     await updateRestaurantRating((existingReview as any).restaurant_id);
 
-    // Get user profile data and email from database
-    let userDisplayName = null;
-    let userProfileImage = null;
-    let userEmail = null;
+    // Get user profile data consistently using the authenticated user's ID
+    const userProfile = await getUserProfileData(supabase, user.id);
+    
+    // Transform review data with consistent user information
+    const processedData = transformReviewData(data as any, userProfile);
 
-    if (supabase) {
-      try {
-        // Get profile data
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('display_name, avatar_url')
-          .eq('user_id', (data as any).user.id)
-          .single();
-
-        if (!profileError && profileData) {
-          userDisplayName = (profileData as any).display_name || null;
-          userProfileImage = (profileData as any).avatar_url || null;
-        }
-
-        // Get user email
-        const { data: userData, error: userError } = await supabase
-          .from('auth.users')
-          .select('email')
-          .eq('id', (data as any).user.id)
-          .single();
-
-        if (!userError && userData) {
-          userEmail = (userData as any).email || null;
-        }
-      } catch (error) {
-        console.error(`Error fetching profile for user ${(data as any).user.id}:`, error);
-      }
-    }
-
-    // Create email name (part before @)
-    const emailName = userEmail ? userEmail.split('@')[0] : null;
-
-    // Transform user data using display_name from profiles table with email fallback
-    const processedData = {
-      ...(data as any),
-      user: {
-        id: (data as any).user.id,
-        name: userDisplayName || (data as any).user_name || emailName || 'Anonymous User',
-        profileImage: userProfileImage
-      }
-    };
-
-    return NextResponse.json({ review: processedData });
+    // Return the updated review with fresh data
+    return NextResponse.json({ 
+      review: processedData,
+      message: 'Review updated successfully'
+    });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

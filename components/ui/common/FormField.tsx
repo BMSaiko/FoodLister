@@ -4,7 +4,7 @@ import { LucideIcon } from 'lucide-react';
 interface FormFieldProps {
   label: string;
   name: string;
-  type: 'text' | 'textarea' | 'url' | 'email';
+  type: 'text' | 'textarea' | 'url' | 'email' | 'number';
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   required?: boolean;

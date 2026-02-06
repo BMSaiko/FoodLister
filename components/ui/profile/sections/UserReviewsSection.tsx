@@ -13,9 +13,8 @@ import {
   EmptyState 
 } from '../shared/index';
 import { toast } from 'react-toastify';
-import ReviewCardHeader from './ReviewCardHeader';
-import ReviewCardFooter from './ReviewCardFooter';
-import ReviewCardActions from './ReviewCardActions';
+import ReviewCard from './ReviewCard';
+import { useUserCache } from '@/hooks/data/useUserCache';
 
 interface UserReviewsSectionProps {
   userId: string;
@@ -56,7 +55,8 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
     amountSpent: 0
   });
 
-  const { get } = useSecureApiClient();
+  const { get, put, del } = useSecureApiClient();
+  const { invalidateCache } = useUserCache();
 
   const loadMoreReviews = async () => {
     if (isLoadingMore || !hasMore) return;
@@ -104,7 +104,6 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 
   const handleSaveEdit = async (reviewId: string) => {
     try {
-      const { put } = useSecureApiClient();
       const response = await put(`/api/reviews/${reviewId}`, {
         rating: editingData.rating,
         comment: editingData.comment,
@@ -112,13 +111,25 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
       });
 
       if (response.ok) {
-        // Update the review in the list
+        // Update the review in the list with all fields including amount_spent
         setReviews(prev => prev.map(review => 
           review.id === reviewId 
-            ? { ...review, rating: editingData.rating, comment: editingData.comment, amount_spent: editingData.amountSpent }
+            ? { 
+                ...review, 
+                rating: editingData.rating, 
+                comment: editingData.comment, 
+                amount_spent: editingData.amountSpent,
+                amountSpent: editingData.amountSpent, // Add camelCase version for ReviewCard
+                // Ensure the updated_at timestamp is also updated
+                updated_at: new Date().toISOString()
+              }
             : review
         ));
         setEditingReviewId(null);
+        
+        // Invalidate cache to ensure fresh data is loaded on next fetch
+        invalidateCache(userId);
+        
         toast.success('Avaliação atualizada com sucesso!');
       } else {
         throw new Error('Failed to update review');
@@ -144,13 +155,16 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
     }
 
     try {
-      const { post } = useSecureApiClient();
-      const response = await post(`/api/reviews/${reviewId}`, { _method: 'DELETE' });
+      const response = await del(`/api/reviews/${reviewId}`);
       
       if (response.ok) {
         // Remove the review from the list
         setReviews(prev => prev.filter(review => review.id !== reviewId));
         setTotal(prev => prev - 1);
+        
+        // Invalidate cache to ensure fresh data is loaded on next fetch
+        invalidateCache(userId);
+        
         toast.success('Avaliação excluída com sucesso!');
       } else {
         throw new Error('Failed to delete review');
@@ -204,114 +218,27 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
         {reviews.map((review) => (
-          <ProfileCard
+          <ReviewCard
             key={review.id}
-            className="touch-space relative"
-            href={`/restaurants/${review.restaurant.id}?review=${review.id}`}
-            hoverEffect={true}
-            touchTarget={editingReviewId !== review.id}
-          >
-            {/* Review Header with Restaurant Image */}
-            <ReviewCardHeader review={review} />
-            
-            {/* Review Actions - positioned over the image */}
-            <ReviewCardActions
-              review={review}
-              isOwnReview={isOwnProfile}
-              onEdit={() => handleEditReview(review)}
-              onDelete={() => handleDeleteReview(review.id)}
-              onShare={() => handleShareReview(review)}
-            />
-
-            {/* Content Area */}
-            <div className="p-4 flex-grow">
-              {editingReviewId === review.id ? (
-                // Edit Mode - Not clickable for redirection
-                <div className="space-y-4 touch-space" onClick={(e) => e.stopPropagation()}>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Avaliação
-                    </label>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          onClick={() => setEditingData(prev => ({ ...prev, rating: star }))}
-                          className="text-2xl transition-colors"
-                        >
-                          <Star
-                            className={`h-6 w-6 ${
-                              star <= editingData.rating
-                                ? 'text-amber-400 fill-current'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                        </button>
-                      ))}
-                      <span className="ml-2 text-sm text-gray-600 font-medium">
-                        {editingData.rating}/5
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Comentário
-                    </label>
-                    <textarea
-                      value={editingData.comment}
-                      onChange={(e) => setEditingData(prev => ({ ...prev, comment: e.target.value }))}
-                      rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
-                      placeholder="Descreva sua experiência..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Valor Gasto (EUR)
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2 text-gray-500">€</span>
-                      <input
-                        type="number"
-                        value={editingData.amountSpent || ''}
-                        onChange={(e) => setEditingData(prev => ({ ...prev, amountSpent: parseFloat(e.target.value) || 0 }))}
-                        step="0.01"
-                        min="0"
-                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 justify-end">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancelEdit();
-                      }}
-                      className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSaveEdit(review.id);
-                      }}
-                      className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
-                    >
-                      Salvar
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                // View Mode - Clickable for redirection
-                <ReviewCardFooter review={review} />
-              )}
-            </div>
-          </ProfileCard>
+            review={review}
+            isOwnReview={isOwnProfile}
+            onEdit={() => handleEditReview(review)}
+            onDelete={() => handleDeleteReview(review.id)}
+            onShare={() => handleShareReview(review)}
+            editingReviewId={editingReviewId}
+            editingData={editingData}
+            onEditChange={(field, value) => {
+              setEditingData(prev => ({ ...prev, [field]: value }));
+            }}
+            onSaveEdit={(e) => {
+              e.stopPropagation();
+              handleSaveEdit(review.id);
+            }}
+            onCancelEdit={(e) => {
+              e.stopPropagation();
+              handleCancelEdit();
+            }}
+          />
         ))}
       </div>
 

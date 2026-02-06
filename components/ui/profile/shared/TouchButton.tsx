@@ -2,7 +2,7 @@ import React from 'react';
 
 interface TouchButtonProps {
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;

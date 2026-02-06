@@ -5,6 +5,7 @@ import { formatDate, formatPrice } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ReviewForm from './ReviewForm';
 
 interface RestaurantReviewsSectionProps {
   restaurantId: string;
@@ -91,11 +92,16 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
       <div className="p-4 sm:p-6">
         {/* Review Form */}
         {(showReviewForm || editingReview) && (
-          <div className="mb-6">
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <p className="text-gray-600 text-sm">Formulário de avaliação não disponível</p>
-            </div>
-          </div>
+          <ReviewForm
+            restaurantId={restaurantId}
+            onReviewSubmitted={handleReviewSubmitted}
+            onCancel={() => {
+              setShowReviewForm(false);
+              setEditingReview(null);
+            }}
+            isEditing={!!editingReview}
+            initialReview={editingReview || undefined}
+          />
         )}
 
         {/* Loading State */}
