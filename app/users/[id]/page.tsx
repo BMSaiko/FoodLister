@@ -31,6 +31,7 @@ import ProfileTabs from '@/components/ui/profile/ProfileTabs';
 import UserReviewsSection from '@/components/ui/profile/sections/UserReviewsSection';
 import UserListsSection from '@/components/ui/profile/sections/UserListsSection';
 import UserRestaurantsSection from '@/components/ui/profile/sections/UserRestaurantsSection';
+import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
 
 interface UserProfile {
   id: string;
@@ -707,6 +708,9 @@ const UserProfilePage = () => {
           </div>
         </div>
       </div>
+      
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
     </div>
   );
 };

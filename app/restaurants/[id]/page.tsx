@@ -1,8 +1,8 @@
 // app/restaurants/[id]/page.tsx
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { usePublicApiClient } from '@/hooks/auth/usePublicApiClient';
@@ -66,7 +66,9 @@ interface Restaurant {
 
 export default function RestaurantDetails() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
+  const reviewId = searchParams?.get('review');
   const { user } = useAuth();
   const { get, post, patch, del } = useSecureApiClient();
   const { get: getPublic } = usePublicApiClient();
@@ -86,6 +88,8 @@ export default function RestaurantDetails() {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [allDataLoaded, setAllDataLoaded] = useState(false);
+  const reviewsSectionRef = useRef<HTMLDivElement>(null);
 
   // Memoize functions to prevent infinite re-renders
   const fetchRestaurantDetails = useCallback(async () => {
@@ -336,6 +340,37 @@ export default function RestaurantDetails() {
 
     fetchRestaurantDetails();
   }, [id, fetchRestaurantDetails]);
+
+  // Handle scroll to review when reviewId is present
+  useEffect(() => {
+    if (reviewId && allDataLoaded && reviewsSectionRef.current) {
+      // Find the review element by ID
+      const reviewElement = document.getElementById(`review-${reviewId}`);
+      if (reviewElement) {
+        // Scroll to the review with smooth animation
+        reviewElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add a temporary highlight effect
+        reviewElement.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        setTimeout(() => {
+          reviewElement.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        }, 3000);
+      }
+    }
+  }, [reviewId, allDataLoaded]);
+
+  // Track when all data is loaded
+  useEffect(() => {
+    if (!loading && !loadingReviews && restaurant && reviews.length >= 0) {
+      setAllDataLoaded(true);
+    } else {
+      setAllDataLoaded(false);
+    }
+  }, [loading, loadingReviews, restaurant, reviews.length]);
 
 
 
@@ -834,6 +869,7 @@ export default function RestaurantDetails() {
 
         {/* Restaurant Reviews Section */}
         <RestaurantReviewsSection
+          ref={reviewsSectionRef}
           restaurantId={id}
           reviews={reviews}
           reviewCount={reviewCount}

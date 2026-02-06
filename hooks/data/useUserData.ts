@@ -124,7 +124,7 @@ export const useUserData = (options: UseUserDataOptions) => {
     if (!userId || !enableReviews) return;
 
     try {
-      const response = await get(`/api/users/${userId}/reviews?page=1&limit=10`);
+      const response = await get(`/api/users/${userId}/reviews?page=1&limit=12`);
       const reviewsData = await response.json();
 
       if (response.ok) {
@@ -160,7 +160,7 @@ export const useUserData = (options: UseUserDataOptions) => {
     if (!userId || !enableLists) return;
 
     try {
-      const response = await get(`/api/users/${userId}/lists?page=1&limit=10`);
+      const response = await get(`/api/users/${userId}/lists?page=1&limit=12`);
       const listsData = await response.json();
 
       if (response.ok) {
@@ -198,7 +198,7 @@ export const useUserData = (options: UseUserDataOptions) => {
     try {
       setUserData(prev => ({ ...prev, loading: true }));
       
-      const response = await get(`/api/users/${userId}/restaurants?page=1&limit=10`);
+      const response = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
       const restaurantsData = await response.json();
 
       if (response.ok) {

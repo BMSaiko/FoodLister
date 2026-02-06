@@ -53,11 +53,16 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
 
     setIsLoadingMore(true);
     try {
-      const response = await get(`/api/users/${userId}/restaurants?page=${page + 1}&limit=10`);
+      const response = await get(`/api/users/${userId}/restaurants?page=${page + 1}&limit=12`);
       const data = await response.json();
 
       if (response.ok) {
-        setRestaurants(prev => [...prev, ...data.data]);
+        // Filter out any duplicate restaurants by ID to prevent React key conflicts
+        const newRestaurants = data.data.filter((newRestaurant: any) => 
+          !restaurants.some(existingRestaurant => existingRestaurant.id === newRestaurant.id)
+        );
+        
+        setRestaurants(prev => [...prev, ...newRestaurants]);
         setTotal(data.total);
         setPage(data.page);
         setHasMore(data.hasMore);
@@ -98,65 +103,72 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
             hoverEffect={true}
             touchTarget={true}
           >
-            {/* Restaurant Header */}
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
-              <div className="flex-1">
-                <div className="flex flex-wrap gap-2 sm:gap-3 mb-3">
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
-                    {restaurant.name}
-                  </h3>
-                  {restaurant.rating && (
-                    <RatingBadge rating={restaurant.rating} type="restaurant" />
-                  )}
-                  <PriceLevelBadge priceLevel={restaurant.priceLevel} />
+            {/* Restaurant Header with Image */}
+            <div className="relative h-48 sm:h-56 lg:h-64 w-full rounded-t-xl overflow-hidden">
+              {restaurant.imageUrl ? (
+                <img
+                  src={restaurant.imageUrl}
+                  alt={restaurant.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                  <Utensils className="h-12 w-12 text-gray-400" />
                 </div>
-                
-                {restaurant.description && (
-                  <p className="text-gray-700 text-sm line-clamp-2 mb-3 ios-safe-padding-bottom">
-                    {restaurant.description}
-                  </p>
-                )}
-                
-                <div className="flex flex-wrap gap-2">
-                  {restaurant.location && (
-                    <LocationBadge location={restaurant.location} />
-                  )}
-                  {restaurant.cuisineTypes.length > 0 && (
-                    <CuisineBadge cuisineType={restaurant.cuisineTypes[0]} />
-                  )}
-                  <DateBadge date={restaurant.createdAt} prefix="Adicionado em" />
-                </div>
-              </div>
+              )}
               
-              {restaurant.imageUrl && (
-                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 touch-target">
-                  <img
-                    src={restaurant.imageUrl}
-                    alt={restaurant.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+              {/* Rating Badge Overlay */}
+              {restaurant.rating && (
+                <div className="absolute top-3 left-3 px-2 py-1 rounded bg-white/90 backdrop-blur-sm shadow-sm">
+                  <RatingBadge rating={restaurant.rating} type="restaurant" />
                 </div>
               )}
             </div>
 
-            {/* Restaurant Details */}
-            <div className="flex flex-wrap gap-2">
-              {restaurant.cuisineTypes.length > 0 && (
-                <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
-                  Tipos: {restaurant.cuisineTypes.join(', ')}
-                </span>
+            {/* Content Area */}
+            <div className="p-4 flex-grow">
+              <div className="flex flex-wrap gap-2 sm:gap-3 mb-3">
+                <h3 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
+                  {restaurant.name}
+                </h3>
+                <PriceLevelBadge priceLevel={restaurant.priceLevel} />
+              </div>
+              
+              {restaurant.description && (
+                <p className="text-gray-700 text-sm line-clamp-3 mb-4">
+                  {restaurant.description}
+                </p>
               )}
-              {restaurant.dietaryOptions.length > 0 && (
-                <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
-                  Opções: {restaurant.dietaryOptions.join(', ')}
-                </span>
-              )}
-              {restaurant.features.length > 0 && (
-                <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
-                  Recursos: {restaurant.features.join(', ')}
-                </span>
-              )}
+              
+              <div className="flex flex-wrap gap-2">
+                {restaurant.location && (
+                  <LocationBadge location={restaurant.location} />
+                )}
+                {restaurant.cuisineTypes.length > 0 && (
+                  <CuisineBadge cuisineType={restaurant.cuisineTypes[0]} />
+                )}
+                <DateBadge date={restaurant.createdAt} prefix="Adicionado em" />
+              </div>
+
+              {/* Restaurant Details */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                {restaurant.cuisineTypes.length > 0 && (
+                  <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
+                    Tipos: {restaurant.cuisineTypes.join(', ')}
+                  </span>
+                )}
+                {restaurant.dietaryOptions.length > 0 && (
+                  <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
+                    Opções: {restaurant.dietaryOptions.join(', ')}
+                  </span>
+                )}
+                {restaurant.features.length > 0 && (
+                  <span className="px-2 py-1 bg-white rounded-full text-xs sm:text-sm text-gray-600 border border-gray-200">
+                    Recursos: {restaurant.features.join(', ')}
+                  </span>
+                )}
+              </div>
             </div>
           </ProfileCard>
         ))}

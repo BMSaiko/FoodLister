@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Star, Utensils, Clock, MessageCircle, MapPin, Euro } from 'lucide-react';
+import { Star, Utensils, Clock, MessageCircle, MapPin, Euro, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { formatDate } from '@/utils/formatters';
@@ -12,6 +12,10 @@ import {
   SkeletonLoader,
   EmptyState 
 } from '../shared/index';
+import { toast } from 'react-toastify';
+import ReviewCardHeader from './ReviewCardHeader';
+import ReviewCardFooter from './ReviewCardFooter';
+import ReviewCardActions from './ReviewCardActions';
 
 interface UserReviewsSectionProps {
   userId: string;
@@ -26,6 +30,7 @@ interface UserReviewsSectionProps {
       name: string;
       imageUrl?: string;
       rating?: number;
+      location?: string;
     };
   }>;
   initialTotal: number;
@@ -44,6 +49,12 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialReviews.length < initialTotal);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState({
+    rating: 0,
+    comment: '',
+    amountSpent: 0
+  });
 
   const { get } = useSecureApiClient();
 
@@ -52,11 +63,16 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 
     setIsLoadingMore(true);
     try {
-      const response = await get(`/api/users/${userId}/reviews?page=${page + 1}&limit=10`);
+      const response = await get(`/api/users/${userId}/reviews?page=${page + 1}&limit=12`);
       const data = await response.json();
 
       if (response.ok) {
-        setReviews(prev => [...prev, ...data.data]);
+        // Filter out any duplicate reviews by ID to prevent React key conflicts
+        const newReviews = data.data.filter((newReview: any) => 
+          !reviews.some(existingReview => existingReview.id === newReview.id)
+        );
+        
+        setReviews(prev => [...prev, ...newReviews]);
         setTotal(data.total);
         setPage(data.page);
         setHasMore(data.hasMore);
@@ -74,6 +90,96 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
       style: 'currency',
       currency: 'EUR'
     }).format(amount);
+  };
+
+  const handleEditReview = (review: any) => {
+    // Set the review to editing mode
+    setEditingReviewId(review.id);
+    setEditingData({
+      rating: review.rating,
+      comment: review.comment || '',
+      amountSpent: review.amount_spent || 0
+    });
+  };
+
+  const handleSaveEdit = async (reviewId: string) => {
+    try {
+      const { put } = useSecureApiClient();
+      const response = await put(`/api/reviews/${reviewId}`, {
+        rating: editingData.rating,
+        comment: editingData.comment,
+        amount_spent: editingData.amountSpent
+      });
+
+      if (response.ok) {
+        // Update the review in the list
+        setReviews(prev => prev.map(review => 
+          review.id === reviewId 
+            ? { ...review, rating: editingData.rating, comment: editingData.comment, amount_spent: editingData.amountSpent }
+            : review
+        ));
+        setEditingReviewId(null);
+        toast.success('Avaliação atualizada com sucesso!');
+      } else {
+        throw new Error('Failed to update review');
+      }
+    } catch (error) {
+      console.error('Error updating review:', error);
+      toast.error('Erro ao atualizar avaliação. Tente novamente.');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setEditingData({
+      rating: 0,
+      comment: '',
+      amountSpent: 0
+    });
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta avaliação? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    try {
+      const { post } = useSecureApiClient();
+      const response = await post(`/api/reviews/${reviewId}`, { _method: 'DELETE' });
+      
+      if (response.ok) {
+        // Remove the review from the list
+        setReviews(prev => prev.filter(review => review.id !== reviewId));
+        setTotal(prev => prev - 1);
+        toast.success('Avaliação excluída com sucesso!');
+      } else {
+        throw new Error('Failed to delete review');
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      toast.error('Erro ao excluir avaliação. Tente novamente.');
+    }
+  };
+
+  const handleShareReview = (review: any) => {
+    const reviewUrl = `${window.location.origin}/restaurants/${review.restaurant.id}?review=${review.id}`;
+    
+    if (navigator.share && !navigator.userAgent.includes('Firefox')) {
+      navigator.share({
+        title: `Avaliação de ${review.restaurant.name} - FoodList`,
+        text: `Confira minha avaliação deste restaurante no FoodList!`,
+        url: reviewUrl,
+      }).catch(() => {
+        // Fallback to clipboard if share fails
+        navigator.clipboard.writeText(reviewUrl).then(() => {
+          toast.success('Link da avaliação copiado!');
+        });
+      });
+    } else {
+      navigator.clipboard.writeText(reviewUrl).then(() => {
+        toast.success('Link da avaliação copiado!');
+      });
+    }
   };
 
   if (reviews.length === 0) {
@@ -100,63 +206,110 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
         {reviews.map((review) => (
           <ProfileCard
             key={review.id}
-            className="touch-space"
+            className="touch-space relative"
+            href={`/restaurants/${review.restaurant.id}?review=${review.id}`}
             hoverEffect={true}
-            touchTarget={true}
+            touchTarget={editingReviewId !== review.id}
           >
-            {/* Restaurant Header */}
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
-              <div className="flex-1">
-                <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
-                  <RatingBadge rating={review.rating} type="review" />
-                  {review.restaurant.rating && (
-                    <div className="flex items-center gap-1">
-                      <Utensils className="h-4 w-4 text-orange-500" />
-                      <span className="text-sm">Nota média: {review.restaurant.rating.toFixed(1)}</span>
+            {/* Review Header with Restaurant Image */}
+            <ReviewCardHeader review={review} />
+            
+            {/* Review Actions - positioned over the image */}
+            <ReviewCardActions
+              review={review}
+              isOwnReview={isOwnProfile}
+              onEdit={() => handleEditReview(review)}
+              onDelete={() => handleDeleteReview(review.id)}
+              onShare={() => handleShareReview(review)}
+            />
+
+            {/* Content Area */}
+            <div className="p-4 flex-grow">
+              {editingReviewId === review.id ? (
+                // Edit Mode - Not clickable for redirection
+                <div className="space-y-4 touch-space" onClick={(e) => e.stopPropagation()}>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Avaliação
+                    </label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => setEditingData(prev => ({ ...prev, rating: star }))}
+                          className="text-2xl transition-colors"
+                        >
+                          <Star
+                            className={`h-6 w-6 ${
+                              star <= editingData.rating
+                                ? 'text-amber-400 fill-current'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        </button>
+                      ))}
+                      <span className="ml-2 text-sm text-gray-600 font-medium">
+                        {editingData.rating}/5
+                      </span>
                     </div>
-                  )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Comentário
+                    </label>
+                    <textarea
+                      value={editingData.comment}
+                      onChange={(e) => setEditingData(prev => ({ ...prev, comment: e.target.value }))}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                      placeholder="Descreva sua experiência..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Valor Gasto (EUR)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-gray-500">€</span>
+                      <input
+                        type="number"
+                        value={editingData.amountSpent || ''}
+                        onChange={(e) => setEditingData(prev => ({ ...prev, amountSpent: parseFloat(e.target.value) || 0 }))}
+                        step="0.01"
+                        min="0"
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancelEdit();
+                      }}
+                      className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSaveEdit(review.id);
+                      }}
+                      className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
+                    >
+                      Salvar
+                    </button>
+                  </div>
                 </div>
-              </div>
-              
-              {review.restaurant.imageUrl && (
-                <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 touch-target">
-                  <img
-                    src={review.restaurant.imageUrl}
-                    alt={review.restaurant.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
+              ) : (
+                // View Mode - Clickable for redirection
+                <ReviewCardFooter review={review} />
               )}
-            </div>
-
-            {/* Restaurant Name */}
-            <div className="mb-3">
-              <h4 className="text-lg font-semibold text-gray-900 group-hover:text-amber-600 transition-colors">
-                {review.restaurant.name}
-              </h4>
-            </div>
-
-            {/* Review Content */}
-            {review.comment && (
-              <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mb-4 ios-safe-padding-bottom">
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base line-clamp-4">
-                  {review.comment}
-                </p>
-              </div>
-            )}
-
-            {/* Review Footer */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
-              <div className="flex flex-wrap gap-2 sm:gap-4">
-                <DateBadge date={review.createdAt} prefix="Avaliado em" />
-                <AmountBadge amount={review.amountSpent} />
-              </div>
-              
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <MessageCircle className="h-4 w-4" />
-                <span>Avaliação</span>
-              </div>
             </div>
           </ProfileCard>
         ))}

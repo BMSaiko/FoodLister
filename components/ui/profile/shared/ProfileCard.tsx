@@ -20,9 +20,9 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   touchTarget = false
 }) => {
   const baseClasses = `
-    bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 sm:p-6 border border-gray-200
+    bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg
     transition-all duration-200 group
-    ${hoverEffect ? 'hover:shadow-md hover:shadow-amber-100/50 hover:-translate-y-1' : ''}
+    ${hoverEffect ? 'hover:-translate-y-1' : ''}
     ${touchTarget ? 'min-h-[60px] min-w-[60px]' : ''}
   `;
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Star, Edit, X, User, Euro } from 'lucide-react';
 import { Review } from '@/libs/types';
 import { formatDate, formatPrice } from '@/utils/formatters';
@@ -18,17 +18,20 @@ interface RestaurantReviewsSectionProps {
   onDeleteReview: (reviewId: string) => void;
 }
 
-export default function RestaurantReviewsSection({
-  restaurantId,
-  reviews,
-  reviewCount,
-  user,
-  userProfile,
-  loading = false,
-  onReviewSubmitted,
-  onEditReview,
-  onDeleteReview
-}: RestaurantReviewsSectionProps) {
+const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSectionProps>((
+  {
+    restaurantId,
+    reviews,
+    reviewCount,
+    user,
+    userProfile,
+    loading = false,
+    onReviewSubmitted,
+    onEditReview,
+    onDeleteReview
+  },
+  ref
+) => {
   
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
@@ -58,7 +61,7 @@ export default function RestaurantReviewsSection({
   };
 
   return (
-    <div id="restaurant-reviews" className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-4">
+    <div ref={ref} id="restaurant-reviews" className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-4">
       {/* Section Header */}
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
@@ -138,6 +141,7 @@ export default function RestaurantReviewsSection({
             {reviews.map(review => (
               <div 
                 key={review.id} 
+                id={`review-${review.id}`}
                 className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md transition-all duration-200 group"
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 sm:gap-4">
@@ -161,12 +165,12 @@ export default function RestaurantReviewsSection({
                           )}
                         </div>
                         <div>
-                          <Link 
-                            href={`/users/${review.user.userIdCode || review.user.id}`}
-                            className="font-semibold text-gray-800 text-sm sm:text-base hover:text-amber-600 transition-colors"
-                          >
-                            {review.user.name}
-                          </Link>
+                        <Link 
+                          href={`/users/${review.user.userIdCode}`}
+                          className="font-semibold text-gray-800 text-sm sm:text-base hover:text-amber-600 transition-colors"
+                        >
+                          {review.user.name}
+                        </Link>
                           <div className="flex items-center gap-1 sm:gap-2 mt-1">
                             {Array(5).fill(0).map((_, i) => (
                               <Star
@@ -241,4 +245,8 @@ export default function RestaurantReviewsSection({
       </div>
     </div>
   );
-}
+});
+
+RestaurantReviewsSection.displayName = 'RestaurantReviewsSection';
+
+export default RestaurantReviewsSection;

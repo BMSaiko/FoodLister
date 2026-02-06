@@ -15,3 +15,4 @@ export { default as CuisineSelector } from './ui/Filters/CuisineSelector';
 export { default as DietaryOptionsSelector } from './ui/Filters/DietaryOptionsSelector';
 export { default as DualRangeSlider } from './ui/Filters/DualRangeSlider';
 export { default as FeaturesSelector } from './ui/Filters/FeaturesSelector';
+export { default as ReviewCardActions } from './ui/profile/sections/ReviewCardActions';

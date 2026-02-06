@@ -45,11 +45,16 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
 
     setIsLoadingMore(true);
     try {
-      const response = await get(`/api/users/${userId}/lists?page=${page + 1}&limit=10`);
+      const response = await get(`/api/users/${userId}/lists?page=${page + 1}&limit=12`);
       const data = await response.json();
 
       if (response.ok) {
-        setLists(prev => [...prev, ...data.data]);
+        // Filter out any duplicate lists by ID to prevent React key conflicts
+        const newLists = data.data.filter((newList: any) => 
+          !lists.some(existingList => existingList.id === newList.id)
+        );
+        
+        setLists(prev => [...prev, ...newLists]);
         setTotal(data.total);
         setPage(data.page);
         setHasMore(data.hasMore);
@@ -90,37 +95,39 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
             hoverEffect={true}
             touchTarget={true}
           >
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <ListIconBadge count={list.restaurantCount} />
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
-                    {list.name}
-                  </h3>
-                </div>
-                
-                {list.description && (
-                  <p className="text-gray-700 text-sm line-clamp-3 mb-3 ios-safe-padding-bottom">
-                    {list.description}
-                  </p>
-                )}
-                
-                <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
-                  <RestaurantCountBadge count={list.restaurantCount} />
-                  <DateBadge date={list.createdAt} prefix="Criada em" />
-                </div>
-              </div>
-              
-              <div className="flex items-center touch-target">
-                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-amber-600 transition-colors" />
+            {/* List Header with Icon */}
+            <div className="relative h-48 sm:h-56 lg:h-64 w-full rounded-t-xl overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100">
+              <div className="w-full h-full flex items-center justify-center">
+                <ListIconBadge count={list.restaurantCount} />
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between">
-              <RestaurantCountBadge count={list.restaurantCount} />
-              <div className="text-sm text-gray-500">
-                Ver lista completa
+            {/* Content Area */}
+            <div className="p-4 flex-grow">
+              <div className="flex items-center gap-3 mb-3">
+                <h3 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
+                  {list.name}
+                </h3>
+              </div>
+              
+              {list.description && (
+                <p className="text-gray-700 text-sm line-clamp-3 mb-4">
+                  {list.description}
+                </p>
+              )}
+              
+              <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
+                <RestaurantCountBadge count={list.restaurantCount} />
+                <DateBadge date={list.createdAt} prefix="Criada em" />
+              </div>
+
+              {/* Footer */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between mt-4">
+                <RestaurantCountBadge count={list.restaurantCount} />
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <span>Ver lista completa</span>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </div>
               </div>
             </div>
           </ProfileCard>

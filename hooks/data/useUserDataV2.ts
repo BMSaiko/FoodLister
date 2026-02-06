@@ -137,7 +137,7 @@ export const useUserDataV2 = (options: UseUserDataOptions) => {
       // Buscar avaliações se habilitado
       if (enableReviews) {
         requests.push(
-          get(`/api/users/${userId}/reviews?page=1&limit=10`)
+          get(`/api/users/${userId}/reviews?page=1&limit=12`)
             .then(res => res.json())
             .then(data => ({ type: 'reviews', data: data.data || [] }))
         );
@@ -146,7 +146,7 @@ export const useUserDataV2 = (options: UseUserDataOptions) => {
       // Buscar listas se habilitado
       if (enableLists) {
         requests.push(
-          get(`/api/users/${userId}/lists?page=1&limit=10`)
+          get(`/api/users/${userId}/lists?page=1&limit=12`)
             .then(res => res.json())
             .then(data => ({ type: 'lists', data: data.data || [] }))
         );
@@ -155,7 +155,7 @@ export const useUserDataV2 = (options: UseUserDataOptions) => {
       // Buscar restaurantes se habilitado
       if (enableRestaurants) {
         requests.push(
-          get(`/api/users/${userId}/restaurants?page=1&limit=10`)
+          get(`/api/users/${userId}/restaurants?page=1&limit=12`)
             .then(res => res.json())
             .then(data => ({ type: 'restaurants', data: data.data || [] }))
         );
@@ -205,7 +205,7 @@ export const useUserDataV2 = (options: UseUserDataOptions) => {
     if (!userId || !enableReviews) return;
     
     try {
-      const response = await get(`/api/users/${userId}/reviews?page=1&limit=10`);
+      const response = await get(`/api/users/${userId}/reviews?page=1&limit=12`);
       const data = await response.json();
       
       if (response.ok) {
@@ -226,7 +226,7 @@ export const useUserDataV2 = (options: UseUserDataOptions) => {
     if (!userId || !enableLists) return;
     
     try {
-      const response = await get(`/api/users/${userId}/lists?page=1&limit=10`);
+      const response = await get(`/api/users/${userId}/lists?page=1&limit=12`);
       const data = await response.json();
       
       if (response.ok) {
@@ -247,7 +247,7 @@ export const useUserDataV2 = (options: UseUserDataOptions) => {
     if (!userId || !enableRestaurants) return;
     
     try {
-      const response = await get(`/api/users/${userId}/restaurants?page=1&limit=10`);
+      const response = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
       const data = await response.json();
       
       if (response.ok) {

@@ -51,6 +51,7 @@ export interface User {
   name: string;
   profileImage?: string;
   userIdCode?: string;
+  user_id_code?: string;
   location?: string;
   bio?: string;
   publicProfile?: boolean;
