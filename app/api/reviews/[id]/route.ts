@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 import { getServerClient } from '@/libs/supabase/server';
+import { ensureUserProfileExists } from '@/libs/auth';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -47,14 +48,14 @@ async function updateRestaurantRating(restaurantId: string) {
 // Helper function to get user profile data consistently
 async function getUserProfileData(supabase: any, userId: string) {
   if (!supabase) {
-    return { displayName: null, avatarUrl: null, email: null };
+    return { displayName: null, avatarUrl: null, email: null, userIdCode: null };
   }
 
   try {
-    // Get profile data
+    // Get profile data including user_id_code
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('display_name, avatar_url')
+      .select('display_name, avatar_url, user_id_code')
       .eq('user_id', userId)
       .single();
 
@@ -76,22 +77,26 @@ async function getUserProfileData(supabase: any, userId: string) {
     const email = (!userError && (userData as any)?.email) 
       ? (userData as any).email 
       : null;
+    
+    const userIdCode = (!profileError && (profileData as any)?.user_id_code) 
+      ? (profileData as any).user_id_code 
+      : null;
 
-    return { displayName, avatarUrl, email };
+    return { displayName, avatarUrl, email, userIdCode };
   } catch (error) {
     console.error(`Error fetching profile for user ${userId}:`, error);
-    return { displayName: null, avatarUrl: null, email: null };
+    return { displayName: null, avatarUrl: null, email: null, userIdCode: null };
   }
 }
 
 // Helper function to transform review data with consistent user information
-function transformReviewData(review: any, userProfile: { displayName: string | null; avatarUrl: string | null; email: string | null }) {
+function transformReviewData(review: any, userProfile: { displayName: string | null; avatarUrl: string | null; email: string | null; userIdCode: string | null }) {
   // Check if review is null or undefined
   if (!review) {
     throw new Error('Review data is null or undefined');
   }
 
-  const { displayName, avatarUrl, email } = userProfile;
+  const { displayName, avatarUrl, email, userIdCode } = userProfile;
   const emailName = email ? email.split('@')[0] : null;
 
   return {
@@ -99,7 +104,8 @@ function transformReviewData(review: any, userProfile: { displayName: string | n
     user: {
       id: review.user_id,
       name: displayName || review.user_name || emailName || 'Anonymous User',
-      profileImage: avatarUrl
+      profileImage: avatarUrl,
+      userIdCode: userIdCode
     }
   };
 }
@@ -136,6 +142,25 @@ export async function GET(
     // Check if data is null
     if (!data) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 });
+    }
+
+    // Ensure profile exists for the user who wrote this review
+    if (supabase) {
+      try {
+        // Get user email for profile creation
+        const { data: userData, error: userError } = await supabase
+          .from('auth.users')
+          .select('email')
+          .eq('id', (data as any).user_id)
+          .single();
+
+        const userEmail = (!userError && (userData as any)?.email) ? (userData as any).email : null;
+        
+        // Ensure profile exists for this user
+        await ensureUserProfileExists(supabase, (data as any).user_id, userEmail);
+      } catch (error) {
+        console.error(`Error ensuring profile exists for user ${(data as any).user_id}:`, error);
+      }
     }
 
     // Get user profile data consistently using the review's user_id
@@ -231,6 +256,25 @@ export async function PUT(
 
     // Update restaurant rating after successful review update
     await updateRestaurantRating((existingReview as any).restaurant_id);
+
+    // Ensure profile exists for the authenticated user
+    if (supabase) {
+      try {
+        // Get user email for profile creation
+        const { data: userData, error: userError } = await supabase
+          .from('auth.users')
+          .select('email')
+          .eq('id', user.id)
+          .single();
+
+        const userEmail = (!userError && (userData as any)?.email) ? (userData as any).email : null;
+        
+        // Ensure profile exists for this user
+        await ensureUserProfileExists(supabase, user.id, userEmail);
+      } catch (error) {
+        console.error(`Error ensuring profile exists for user ${user.id}:`, error);
+      }
+    }
 
     // Get user profile data consistently using the authenticated user's ID
     const userProfile = await getUserProfileData(supabase, user.id);

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { ensureUserProfileExists } from '@/libs/auth';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -87,15 +88,37 @@ export async function GET(request: NextRequest) {
     const userEmails = new Map();
 
     if (userIds.length > 0) {
-      // Get profile data using the secure function
-      const { data: profilesData, error: profilesError } = await (supabase as any)
-        .rpc('get_user_profiles', { user_ids: userIds });
+      // Ensure profiles exist for all users who have reviews
+      for (const userId of userIds) {
+        try {
+          // Get user email for profile creation
+          const { data: userData, error: userError } = await supabase
+            .from('auth.users')
+            .select('email')
+            .eq('id', userId)
+            .single();
+
+          const userEmail = (!userError && (userData as any)?.email) ? (userData as any).email : null;
+          
+          // Ensure profile exists for this user
+          await ensureUserProfileExists(supabase, userId, userEmail);
+        } catch (error) {
+          console.error(`Error ensuring profile exists for user ${userId}:`, error);
+        }
+      }
+
+      // Get profile data including user_id_code
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url, user_id_code')
+        .in('user_id', userIds);
 
       if (!profilesError && profilesData) {
         profilesData.forEach((profile: any) => {
           userProfiles.set(profile.user_id, {
             displayName: profile.display_name || null,
-            avatarUrl: profile.avatar_url || null
+            avatarUrl: profile.avatar_url || null,
+            userIdCode: profile.user_id_code || null
           });
         });
       }
@@ -112,15 +135,13 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      // Note: Profiles should be created automatically via Supabase Auth hooks
-      // No manual profile creation needed here to avoid conflicts
-
       // Ensure all users have an entry in the maps
       userIds.forEach(userId => {
         if (!userProfiles.has(userId)) {
           userProfiles.set(userId, {
             displayName: null,
-            avatarUrl: null
+            avatarUrl: null,
+            userIdCode: null
           });
         }
         if (!userEmails.has(userId)) {
@@ -131,7 +152,7 @@ export async function GET(request: NextRequest) {
 
     // Transform user data consistently across all endpoints
     const processedData = reviewsData.map((review: any) => {
-      const profile = userProfiles.get(review.user_id) || { displayName: null, avatarUrl: null };
+      const profile = userProfiles.get(review.user_id) || { displayName: null, avatarUrl: null, userIdCode: null };
       const email = userEmails.get(review.user_id);
       const emailName = email ? email.split('@')[0] : null;
 
@@ -140,7 +161,8 @@ export async function GET(request: NextRequest) {
         user: {
           id: review.user_id,
           name: profile.displayName || review.user_name || emailName || 'Anonymous User',
-          profileImage: profile.avatarUrl || null
+          profileImage: profile.avatarUrl || null,
+          userIdCode: profile.userIdCode || null
         }
       };
     });
@@ -211,15 +233,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user's profile data from profiles table
+    // Get user's profile data from profiles table including user_id_code
     const { data: userProfile, error: profileError } = await supabase
       .from('profiles')
-      .select('display_name, avatar_url')
+      .select('display_name, avatar_url, user_id_code')
       .eq('user_id', user.id)
       .single();
 
     const userDisplayName = (!profileError && (userProfile as any)?.display_name) ? (userProfile as any).display_name : (user.email?.split('@')[0] || 'Anonymous User');
     const userProfileImage = (!profileError && (userProfile as any)?.avatar_url) ? (userProfile as any).avatar_url : null;
+    const userUserIdCode = (!profileError && (userProfile as any)?.user_id_code) ? (userProfile as any).user_id_code : null;
 
     // Create the review
     const { data, error } = await (supabase as any)
@@ -249,7 +272,8 @@ export async function POST(request: NextRequest) {
       user: {
         id: user.id,
         name: userDisplayName,
-        profileImage: userProfileImage
+        profileImage: userProfileImage,
+        userIdCode: userUserIdCode
       }
     };
 
