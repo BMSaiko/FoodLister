@@ -43,7 +43,7 @@ async function updateRestaurantRating(restaurantId: string) {
 export async function GET(request: NextRequest) {
   try {
     const response = NextResponse.next();
-    const supabase = await getPublicServerClient();
+    const supabase = await getServerClient(request, response);
     const { searchParams } = new URL(request.url);
     const restaurantId = searchParams.get('restaurant_id');
 
@@ -88,10 +88,13 @@ export async function GET(request: NextRequest) {
     const userEmails = new Map();
 
     if (userIds.length > 0) {
+      // Use public client for reading public data, but need authenticated client for auth.users
+      const publicSupabase = await getPublicServerClient();
+      
       // Ensure profiles exist for all users who have reviews
       for (const userId of userIds) {
         try {
-          // Get user email for profile creation
+          // Get user email for profile creation - this requires authenticated access
           const { data: userData, error: userError } = await supabase
             .from('auth.users')
             .select('email')

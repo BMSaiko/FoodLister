@@ -9,6 +9,12 @@ export async function ensureUserProfileExists(
   userEmail?: string
 ): Promise<boolean> {
   try {
+    // Validate inputs
+    if (!userId) {
+      console.error('ensureUserProfileExists: userId is required');
+      return false;
+    }
+
     // Verificar se o perfil já existe
     const { data: existingProfile, error: checkError } = await supabase
       .from('profiles')
@@ -23,6 +29,7 @@ export async function ensureUserProfileExists(
 
     // Se o perfil já existe, não precisamos criar
     if (existingProfile) {
+      console.log(`Profile already exists for user ${userId}`);
       return true;
     }
 
@@ -42,25 +49,67 @@ export async function ensureUserProfileExists(
 
     const userCode = `FL${nextNumber.toString().padStart(6, '0')}`;
 
-    // Criar o perfil
-    const { error: insertError } = await supabase
-      .from('profiles')
-      .insert({
-        user_id: userId,
-        user_id_code: userCode,
-        display_name: userEmail ? userEmail.split('@')[0] : 'Usuário',
-        bio: 'Bem-vindo ao FoodList! Comece a explorar restaurantes e compartilhar suas experiências.',
-        public_profile: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+    // Criar o perfil usando service_role para contornar RLS policies
+    // Primeiro, vamos tentar obter o token service_role
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (serviceRoleKey) {
+      console.log(`Creating profile for user ${userId} using service role`);
+      // Criar cliente com service_role para operações administrativas
+      const { createClient } = await import('@supabase/supabase-js');
+      const serviceSupabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceRoleKey
+      );
 
-    if (insertError) {
-      console.error('Error creating user profile:', insertError);
-      return false;
+      const { error: insertError } = await serviceSupabase
+        .from('profiles')
+        .insert({
+          user_id: userId,
+          user_id_code: userCode,
+          display_name: userEmail ? userEmail.split('@')[0] : 'Usuário',
+          bio: 'Bem-vindo ao FoodList! Comece a explorar restaurantes e compartilhar suas experiências.',
+          public_profile: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        console.error('Error creating user profile with service role:', insertError);
+        return false;
+      }
+
+      console.log(`Successfully created profile for user ${userId} using service role`);
+      return true;
+    } else {
+      // Fallback: tentar criar com o cliente atual (pode falhar se não houver autenticação)
+      console.warn('SUPABASE_SERVICE_ROLE_KEY not found, attempting profile creation with current client');
+      
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          user_id: userId,
+          user_id_code: userCode,
+          display_name: userEmail ? userEmail.split('@')[0] : 'Usuário',
+          bio: 'Bem-vindo ao FoodList! Comece a explorar restaurantes e compartilhar suas experiências.',
+          public_profile: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        console.error('Error creating user profile:', insertError);
+        // Se for erro de RLS, registrar mas não falhar completamente
+        if (insertError.code === '42501') {
+          console.warn('Profile creation blocked by RLS policy - this is expected for unauthenticated contexts');
+          return false;
+        }
+        return false;
+      }
+
+      console.log(`Successfully created profile for user ${userId} using current client`);
+      return true;
     }
-
-    return true;
 
   } catch (error) {
     console.error('Error ensuring user profile exists:', error);
