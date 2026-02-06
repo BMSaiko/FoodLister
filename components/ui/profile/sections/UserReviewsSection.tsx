@@ -217,9 +217,9 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-        {reviews.map((review) => (
+        {reviews.map((review, index) => (
           <ReviewCard
-            key={review.id}
+            key={`${review.id}-${index}`}
             review={review}
             isOwnReview={isOwnProfile}
             onEdit={() => handleEditReview(review)}

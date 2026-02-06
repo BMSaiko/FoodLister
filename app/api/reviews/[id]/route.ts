@@ -186,6 +186,13 @@ export async function PUT(
     const resolvedParams = await params;
     const reviewId = resolvedParams.id;
     const body = await request.json();
+    
+    console.log('PUT review request:', {
+      reviewId,
+      body,
+      timestamp: new Date().toISOString()
+    });
+
     const { rating, comment, amount_spent } = body;
 
     if (!rating) {
@@ -199,7 +206,7 @@ export async function PUT(
       );
     }
 
-    if (amount_spent !== undefined && (amount_spent <= 0 || isNaN(amount_spent))) {
+    if (amount_spent !== undefined && amount_spent !== null && (amount_spent <= 0 || isNaN(amount_spent))) {
       return NextResponse.json(
         { error: 'Amount spent must be greater than 0' },
         { status: 400 }
@@ -254,6 +261,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update review - no data returned' }, { status: 500 });
     }
 
+    console.log('Review successfully updated:', {
+      reviewId,
+      updatedFields: { rating, comment, amount_spent },
+      updatedData: data,
+      timestamp: new Date().toISOString()
+    });
+
     // Update restaurant rating after successful review update
     await updateRestaurantRating((existingReview as any).restaurant_id);
 
@@ -276,11 +290,11 @@ export async function PUT(
       }
     }
 
-    // Get user profile data consistently using the authenticated user's ID
-    const userProfile = await getUserProfileData(supabase, user.id);
+    // Get user profile data for the review's user (not necessarily the authenticated user)
+    const reviewUserProfile = await getUserProfileData(supabase, (data as any).user_id);
     
     // Transform review data with consistent user information
-    const processedData = transformReviewData(data as any, userProfile);
+    const processedData = transformReviewData(data as any, reviewUserProfile);
 
     // Return the updated review with fresh data
     return NextResponse.json({ 

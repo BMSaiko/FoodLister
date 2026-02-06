@@ -1,23 +1,70 @@
 -- Migration: Add user authentication support
 -- This migration adds user authentication fields and updates RLS policies
 
--- Add user authentication columns to restaurants table
-ALTER TABLE restaurants
-ADD COLUMN creator_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-ADD COLUMN creator_name TEXT;
+-- Add user authentication columns to restaurants table (only if they don't exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'restaurants' AND column_name = 'creator_id'
+  ) THEN
+    ALTER TABLE restaurants ADD COLUMN creator_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'restaurants' AND column_name = 'creator_name'
+  ) THEN
+    ALTER TABLE restaurants ADD COLUMN creator_name TEXT;
+  END IF;
+END $$;
 
--- Add user authentication columns to lists table
-ALTER TABLE lists
-ADD COLUMN creator_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-ADD COLUMN creator_name TEXT;
+-- Add user authentication columns to lists table (only if they don't exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'lists' AND column_name = 'creator_id'
+  ) THEN
+    ALTER TABLE lists ADD COLUMN creator_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'lists' AND column_name = 'creator_name'
+  ) THEN
+    ALTER TABLE lists ADD COLUMN creator_name TEXT;
+  END IF;
+END $$;
 
 -- Update existing records to set creator_name from creator field (if exists)
 UPDATE restaurants SET creator_name = creator WHERE creator IS NOT NULL AND creator_name IS NULL;
 UPDATE lists SET creator_name = creator WHERE creator IS NOT NULL AND creator_name IS NULL;
 
--- Create indexes for performance
-CREATE INDEX idx_restaurants_creator_id ON restaurants(creator_id);
-CREATE INDEX idx_lists_creator_id ON lists(creator_id);
+-- Create indexes for performance (only if they don't exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE c.relkind = 'i'
+      AND c.relname = 'idx_restaurants_creator_id'
+      AND n.nspname = 'public'
+  ) THEN
+    CREATE INDEX idx_restaurants_creator_id ON public.restaurants (creator_id);
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE c.relkind = 'i'
+      AND c.relname = 'idx_lists_creator_id'
+      AND n.nspname = 'public'
+  ) THEN
+    CREATE INDEX idx_lists_creator_id ON public.lists (creator_id);
+  END IF;
+END
+$$;
 
 -- Enable Row Level Security (RLS) on tables
 ALTER TABLE restaurants ENABLE ROW LEVEL SECURITY;
@@ -36,38 +83,66 @@ DROP POLICY IF EXISTS "Allow insert access to lists" ON lists;
 DROP POLICY IF EXISTS "Allow update access to own lists" ON lists;
 DROP POLICY IF EXISTS "Allow delete access to own lists" ON lists;
 
--- Create new RLS policies for restaurants
-CREATE POLICY "restaurants_select_policy" ON restaurants
-FOR SELECT USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+-- Create new RLS policies for restaurants (only if they don't exist)
+DO $$
+BEGIN
+  -- Drop existing policies if they exist
+  DROP POLICY IF EXISTS "restaurants_select_policy" ON restaurants;
+  DROP POLICY IF EXISTS "restaurants_insert_policy" ON restaurants;
+  DROP POLICY IF EXISTS "restaurants_update_policy" ON restaurants;
+  DROP POLICY IF EXISTS "restaurants_delete_policy" ON restaurants;
 
-CREATE POLICY "restaurants_insert_policy" ON restaurants
-FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+  -- Create new RLS policies for restaurants
+  CREATE POLICY "restaurants_select_policy" ON restaurants
+  FOR SELECT USING (auth.role() = 'authenticated');
 
-CREATE POLICY "restaurants_update_policy" ON restaurants
-FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+  CREATE POLICY "restaurants_insert_policy" ON restaurants
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = creator_id);
 
-CREATE POLICY "restaurants_delete_policy" ON restaurants
-FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+  CREATE POLICY "restaurants_update_policy" ON restaurants
+  FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
 
--- Create new RLS policies for lists
-CREATE POLICY "lists_select_policy" ON lists
-FOR SELECT USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+  CREATE POLICY "restaurants_delete_policy" ON restaurants
+  FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+END $$;
 
-CREATE POLICY "lists_insert_policy" ON lists
-FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+-- Create new RLS policies for lists (only if they don't exist)
+DO $$
+BEGIN
+  -- Drop existing policies if they exist
+  DROP POLICY IF EXISTS "lists_select_policy" ON lists;
+  DROP POLICY IF EXISTS "lists_insert_policy" ON lists;
+  DROP POLICY IF EXISTS "lists_update_policy" ON lists;
+  DROP POLICY IF EXISTS "lists_delete_policy" ON lists;
 
-CREATE POLICY "lists_update_policy" ON lists
-FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+  -- Create new RLS policies for lists
+  CREATE POLICY "lists_select_policy" ON lists
+  FOR SELECT USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
 
-CREATE POLICY "lists_delete_policy" ON lists
-FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+  CREATE POLICY "lists_insert_policy" ON lists
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+
+  CREATE POLICY "lists_update_policy" ON lists
+  FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+
+  CREATE POLICY "lists_delete_policy" ON lists
+  FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = creator_id);
+END $$;
 
 -- Create RLS policies for junction tables (allow access to authenticated users)
-CREATE POLICY "restaurant_cuisine_types_policy" ON restaurant_cuisine_types
-FOR ALL USING (auth.role() = 'authenticated');
+DO $$
+BEGIN
+  -- Drop existing policies if they exist
+  DROP POLICY IF EXISTS "restaurant_cuisine_types_policy" ON restaurant_cuisine_types;
+  DROP POLICY IF EXISTS "list_restaurants_policy" ON list_restaurants;
 
-CREATE POLICY "list_restaurants_policy" ON list_restaurants
-FOR ALL USING (auth.role() = 'authenticated');
+  -- Create RLS policies for junction tables (allow access to authenticated users)
+  CREATE POLICY "restaurant_cuisine_types_policy" ON restaurant_cuisine_types
+  FOR ALL USING (auth.role() = 'authenticated');
+
+  CREATE POLICY "list_restaurants_policy" ON list_restaurants
+  FOR ALL USING (auth.role() = 'authenticated');
+END $$;
 
 -- Create function to automatically set creator_id and creator_name on insert
 CREATE OR REPLACE FUNCTION set_creator_fields()
@@ -90,14 +165,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create triggers to automatically set creator fields
-CREATE TRIGGER set_restaurant_creator_fields
-  BEFORE INSERT ON restaurants
-  FOR EACH ROW EXECUTE FUNCTION set_creator_fields();
+-- Create triggers to automatically set creator fields (only if they don't exist)
+DO $$
+BEGIN
+  -- Drop existing triggers if they exist
+  DROP TRIGGER IF EXISTS set_restaurant_creator_fields ON restaurants;
+  DROP TRIGGER IF EXISTS set_list_creator_fields ON lists;
 
-CREATE TRIGGER set_list_creator_fields
-  BEFORE INSERT ON lists
-  FOR EACH ROW EXECUTE FUNCTION set_creator_fields();
+  -- Create triggers to automatically set creator fields
+  CREATE TRIGGER set_restaurant_creator_fields
+    BEFORE INSERT ON restaurants
+    FOR EACH ROW EXECUTE FUNCTION set_creator_fields();
+
+  CREATE TRIGGER set_list_creator_fields
+    BEFORE INSERT ON lists
+    FOR EACH ROW EXECUTE FUNCTION set_creator_fields();
+END $$;
 
 -- Add comments for documentation
 COMMENT ON COLUMN restaurants.creator_id IS 'UUID of the authenticated user who created this restaurant';

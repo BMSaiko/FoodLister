@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, { useState, useEffect, forwardRef, useRef } from 'react';
 import { Star, Edit, X, User, Euro } from 'lucide-react';
 import { Review } from '@/libs/types';
 import { formatDate, formatPrice } from '@/utils/formatters';
@@ -17,6 +17,7 @@ interface RestaurantReviewsSectionProps {
   onReviewSubmitted: (newReview: Review) => void;
   onEditReview: (review: Review) => void;
   onDeleteReview: (reviewId: string) => void;
+  onScrollToForm?: () => void;
 }
 
 const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSectionProps>((
@@ -29,13 +30,37 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
     loading = false,
     onReviewSubmitted,
     onEditReview,
-    onDeleteReview
+    onDeleteReview,
+    onScrollToForm
   },
   ref
 ) => {
   
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const reviewFormRef = useRef<HTMLDivElement>(null);
+
+  // Trigger scroll to form when editing starts
+  useEffect(() => {
+    if (editingReview && reviewFormRef.current) {
+      // Scroll to the review form with smooth animation
+      try {
+        reviewFormRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add a subtle highlight effect
+        reviewFormRef.current.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        setTimeout(() => {
+          reviewFormRef.current?.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        }, 3000);
+      } catch (error) {
+        console.warn('Scroll to form failed:', error);
+      }
+    }
+  }, [editingReview]);
 
   const handleReviewSubmitted = (newReview: Review) => {
     onReviewSubmitted(newReview);
@@ -92,16 +117,18 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
       <div className="p-4 sm:p-6">
         {/* Review Form */}
         {(showReviewForm || editingReview) && (
-          <ReviewForm
-            restaurantId={restaurantId}
-            onReviewSubmitted={handleReviewSubmitted}
-            onCancel={() => {
-              setShowReviewForm(false);
-              setEditingReview(null);
-            }}
-            isEditing={!!editingReview}
-            initialReview={editingReview || undefined}
-          />
+          <div ref={reviewFormRef} className="mb-6">
+            <ReviewForm
+              restaurantId={restaurantId}
+              onReviewSubmitted={handleReviewSubmitted}
+              onCancel={() => {
+                setShowReviewForm(false);
+                setEditingReview(null);
+              }}
+              isEditing={!!editingReview}
+              initialReview={editingReview || undefined}
+            />
+          </div>
         )}
 
         {/* Loading State */}
@@ -144,9 +171,9 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
         ) : (
           /* Reviews List */
           <div className="space-y-4 sm:space-y-6">
-            {reviews.map(review => (
+            {reviews.map((review, index) => (
               <div 
-                key={review.id} 
+                key={`${review.id}-${index}`} 
                 id={`review-${review.id}`}
                 className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md transition-all duration-200 group"
               >

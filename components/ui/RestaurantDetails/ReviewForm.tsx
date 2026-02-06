@@ -68,7 +68,7 @@ export default function ReviewForm({
       newErrors.rating = 'Por favor, selecione uma classificação de 1 a 5 estrelas';
     }
 
-    if (formData.amount_spent !== undefined && (formData.amount_spent <= 0 || isNaN(formData.amount_spent))) {
+    if (formData.amount_spent !== undefined && formData.amount_spent !== null && (formData.amount_spent <= 0 || isNaN(formData.amount_spent))) {
       newErrors.amount_spent = 'O valor gasto deve ser maior que 0';
     }
 
@@ -92,17 +92,34 @@ export default function ReviewForm({
       
       const method = isEditing ? 'PUT' : 'POST';
       
+      // For PUT requests (editing), don't send restaurant_id since it's already in the URL
+      const requestBody = isEditing 
+        ? {
+            rating: formData.rating,
+            comment: formData.comment || null,
+            amount_spent: formData.amount_spent || null
+          }
+        : {
+            restaurant_id: restaurantId,
+            rating: formData.rating,
+            comment: formData.comment || null,
+            amount_spent: formData.amount_spent || null
+          };
+      
+      console.log('Review form submission:', {
+        method,
+        endpoint,
+        requestBody,
+        isEditing,
+        initialReviewId: initialReview?.id
+      });
+      
       const response = await fetch(endpoint, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          restaurant_id: restaurantId,
-          rating: formData.rating,
-          comment: formData.comment || null,
-          amount_spent: formData.amount_spent || null
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {

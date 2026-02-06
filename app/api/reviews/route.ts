@@ -198,7 +198,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (amount_spent !== undefined && (amount_spent <= 0 || isNaN(amount_spent))) {
+    if (amount_spent !== undefined && amount_spent !== null && (amount_spent <= 0 || isNaN(amount_spent))) {
       return NextResponse.json(
         { error: 'Amount spent must be greater than 0' },
         { status: 400 }

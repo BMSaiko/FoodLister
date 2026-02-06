@@ -90,6 +90,7 @@ export default function RestaurantDetails() {
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [allDataLoaded, setAllDataLoaded] = useState(false);
   const reviewsSectionRef = useRef<HTMLDivElement>(null);
+  const reviewFormRef = useRef<HTMLDivElement>(null);
 
   // Memoize functions to prevent infinite re-renders
   const fetchRestaurantDetails = useCallback(async () => {
@@ -673,18 +674,31 @@ export default function RestaurantDetails() {
   // Obtém a classe de estilo para a avaliação
   const ratingClass = getRatingClass(restaurant.rating || 0);
 
-  // Handle review submission
+  // Handle review submission (both create and edit)
   const handleReviewSubmitted = async (newReview: Review) => {
-    // Add new review - inject current user's profile image
-    const reviewWithImage = {
-      ...newReview,
-      user: {
-        ...newReview.user,
-        profileImage: userProfile?.avatar_url || undefined
+    // Use the review data as-is from the API response (which now includes user profile data)
+    const reviewWithUserData = newReview;
+
+    // Check if this is an edit (review already exists) or a new review
+    setReviews(prev => {
+      const existingReviewIndex = prev.findIndex(review => review.id === newReview.id);
+      
+      if (existingReviewIndex !== -1) {
+        // This is an edit - update the existing review
+        const updatedReviews = [...prev];
+        updatedReviews[existingReviewIndex] = reviewWithUserData;
+        return updatedReviews;
+      } else {
+        // This is a new review - add to the beginning
+        return [reviewWithUserData, ...prev];
       }
-    };
-    setReviews(prev => [reviewWithImage, ...prev]);
-    setReviewCount(prev => prev + 1);
+    });
+
+    // Only increment review count for new reviews, not edits
+    const existingReviewIndex = reviews.findIndex(review => review.id === newReview.id);
+    if (existingReviewIndex === -1) {
+      setReviewCount(prev => prev + 1);
+    }
 
     // Update restaurant rating after successful review submission
     await updateRestaurantRating(id || '');
@@ -752,28 +766,19 @@ export default function RestaurantDetails() {
   // Helper function to update restaurant rating based on reviews
   const updateRestaurantRating = async (restaurantId: string) => {
     try {
-      // Calculate average rating from all reviews for this restaurant
-      const response = await get(`/api/reviews?restaurant_id=${restaurantId}`);
-      const data = await response.json();
+      // Use the new rating-specific endpoint that doesn't require restaurant ownership
+      const response = await post(`/api/restaurants/${restaurantId}/rating`, {});
       
-      let averageRating = 0;
-      if (data.reviews && data.reviews.length > 0) {
-        const totalRating = data.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
-        averageRating = totalRating / data.reviews.length;
-      }
-      // If no reviews, rating should be 0
-
-      // Update the restaurant's rating via API
-      try {
-        const updateResponse = await patch(`/api/restaurants/${restaurantId}`, { rating: averageRating });
-        if (!updateResponse.ok) {
-          const errorText = await updateResponse.text();
-          console.error('Error updating restaurant rating via API:', errorText);
-          // Don't throw error, just log it - rating update is not critical for user experience
-        }
-      } catch (error) {
-        console.error('Error updating restaurant rating:', error);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error updating restaurant rating:', errorText);
         // Don't throw error, just log it - rating update is not critical for user experience
+      } else {
+        const data = await response.json();
+        // Update local restaurant state with new rating
+        if (data.restaurant) {
+          setRestaurant(prev => prev ? { ...prev, rating: data.restaurant.rating } : null);
+        }
       }
     } catch (error) {
       console.error('Error in updateRestaurantRating:', error);
@@ -879,6 +884,15 @@ export default function RestaurantDetails() {
           onReviewSubmitted={handleReviewSubmitted}
           onEditReview={handleEditReview}
           onDeleteReview={handleDeleteReview}
+          onScrollToForm={() => {
+            if (reviewFormRef.current) {
+              reviewFormRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'nearest'
+              });
+            }
+          }}
         />
       </div>
 
