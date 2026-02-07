@@ -50,15 +50,15 @@ const ReviewCardHeader: React.FC<ReviewCardHeaderProps> = ({
 
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {
-    if (rating >= 4.5) return 'bg-green-100 text-green-700';
-    if (rating >= 3.5) return 'bg-amber-100 text-amber-700';
-    if (rating >= 2.5) return 'bg-yellow-100 text-yellow-700';
-    return 'bg-red-100 text-red-700';
+    if (rating >= 4.5) return 'bg-green-50 text-green-700';
+    if (rating >= 3.5) return 'bg-amber-50 text-amber-700';
+    if (rating >= 2.5) return 'bg-yellow-50 text-yellow-700';
+    return 'bg-red-50 text-red-700';
   };
   
   // Use restaurant's actual rating for the header, fallback to review rating if not available
   const restaurantRating = review.restaurant.rating ?? review.rating;
-  const ratingStyle = getRatingStyle(restaurantRating || 0);
+  const ratingStyle = getRatingStyle(restaurantRating ?? 0);
 
   return (
     <div className="relative h-72 sm:h-80 lg:h-96 w-full min-w-[280px] max-w-[380px] sm:max-w-[500px] lg:max-w-[600px] min-h-[288px] sm:min-h-[320px] lg:min-h-[384px] aspect-[4/3] sm:aspect-[16/9]">
@@ -83,10 +83,10 @@ const ReviewCardHeader: React.FC<ReviewCardHeaderProps> = ({
       )}
 
       {/* Restaurant Rating Badge - shows the restaurant's actual rating */}
-      <div className={`absolute top-3 left-3 px-2 py-1 rounded ${ratingStyle}`}>
+      <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${ratingStyle || 'bg-gray-50 text-gray-700'}`}>
         <div className="flex items-center gap-1">
           <Star className="h-3 w-3" fill="currentColor" />
-          <span className="font-semibold text-xs">{restaurantRating.toFixed(1)}/5</span>
+          <span className="font-semibold text-xs">{(restaurantRating ?? 0).toFixed(1)}/5</span>
         </div>
       </div>
 

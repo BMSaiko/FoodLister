@@ -89,6 +89,14 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
     }
   };
 
+  // Style of rating based on value
+  const getRatingStyle = (rating: number) => {
+    if (rating >= 4.5) return 'bg-green-50 text-green-700';
+    if (rating >= 3.5) return 'bg-amber-50 text-amber-700';
+    if (rating >= 2.5) return 'bg-yellow-50 text-yellow-700';
+    return 'bg-red-50 text-red-700';
+  };
+
   const handleCardClick = (e: React.MouseEvent) => {
     // Don't navigate if we're in edit mode or if clicking on interactive elements
     if (isEditing) return;
@@ -157,10 +165,10 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         )}
 
         {/* Restaurant Rating Badge */}
-        <div className={`absolute top-3 left-3 px-2 py-1 rounded ${getPriceLabelClass(categorizePriceLevel(review.restaurant.rating || 0).level)}`}>
+        <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(review.restaurant.rating ?? review.rating)}`}>
           <div className="flex items-center gap-1">
             <Star className="h-3 w-3" fill="currentColor" />
-            <span className="font-semibold text-xs">{(review.restaurant.rating || review.rating).toFixed(1)}/5</span>
+            <span className="font-semibold text-xs">{(review.restaurant.rating ?? review.rating).toFixed(1)}/5</span>
           </div>
         </div>
 

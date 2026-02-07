@@ -52,6 +52,14 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
     }
   };
 
+  // Style of rating based on value
+  const getRatingStyle = (rating: number) => {
+    if (rating >= 4.5) return 'bg-green-50 text-green-700 border-green-200';
+    if (rating >= 3.5) return 'bg-amber-50 text-amber-700 border-amber-200';
+    if (rating >= 2.5) return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    return 'bg-red-50 text-red-700 border-red-200';
+  };
+
   return (
     <div className={`${centered ? 'text-center' : ''}`}>
 
@@ -59,26 +67,26 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
       {/* Review Footer */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
         <div className="flex flex-wrap gap-2 sm:gap-4">
-          <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 text-amber-500 fill-current" />
+          <div className={`flex items-center gap-1 px-2 py-1 rounded ${getRatingStyle(review.rating)}`}>
+            <Star className="h-4 w-4 fill-current" />
             <span className="font-semibold text-sm">{review.rating.toFixed(1)}/5</span>
           </div>
           {review.amountSpent && (
-            <div className="flex items-center gap-2">
-              <span className={`font-semibold ${getPriceColorClass(categorizePriceLevel(review.amountSpent).level)}`}>
+            <div className={`flex items-center gap-2 px-2 py-1 rounded border ${getPriceColorClass(categorizePriceLevel(review.amountSpent).level)}`}>
+              <span className="font-semibold">
                 {new Intl.NumberFormat('pt-PT', {
                   style: 'currency',
                   currency: 'EUR'
                 }).format(review.amountSpent)}
               </span>
               {/* Price Category Label */}
-              <span className={`text-xs ${getPriceLabelClass(categorizePriceLevel(review.amountSpent).level)}`}>
+              <span className="text-xs font-medium">
                 {categorizePriceLevel(review.amountSpent).label}
               </span>
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 px-2 py-1 rounded border border-gray-200">
           <Clock className="h-4 w-4" />
           <span>{new Date(review.createdAt).toLocaleDateString('pt-PT')}</span>
         </div>
