@@ -281,39 +281,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         ) : (
           // View Mode - Clickable for redirection
           <div>
-            {/* Review Content */}
-            {review.comment && (
-              <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mb-4">
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base line-clamp-3">
-                  {review.comment}
-                </p>
-              </div>
-            )}
-
-            {/* Review Footer */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
-              <div className="flex flex-wrap gap-2 sm:gap-4">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-amber-500 fill-current" />
-                  <span className="font-semibold text-sm">{review.rating.toFixed(1)}/5</span>
-                </div>
-                {review.amountSpent && (
-                  <div className="flex items-center gap-2">
-                    <span className={`font-semibold ${getPriceColorClass(categorizePriceLevel(review.amountSpent).level)}`}>
-                      {formatAmount(review.amountSpent)}
-                    </span>
-                    {/* Price Category Label */}
-                    <span className={`text-xs ${getPriceLabelClass(categorizePriceLevel(review.amountSpent).level)}`}>
-                      {categorizePriceLevel(review.amountSpent).label}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{formatDate(review.createdAt)}</span>
-              </div>
-            </div>
+            {/* Review Footer - Positioned above the comment */}
+            <ReviewCardFooter 
+              review={review} 
+              centered={false}
+            />
           </div>
         )}
       </div>

@@ -54,14 +54,7 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
 
   return (
     <div className={`${centered ? 'text-center' : ''}`}>
-      {/* Review Content */}
-      {review.comment && (
-        <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mb-4">
-          <p className="text-gray-700 leading-relaxed text-sm sm:text-base line-clamp-3">
-            {review.comment}
-          </p>
-        </div>
-      )}
+
 
       {/* Review Footer */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
@@ -90,6 +83,14 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
           <span>{new Date(review.createdAt).toLocaleDateString('pt-PT')}</span>
         </div>
       </div>
+      {/* Review Content */}
+      {review.comment && (
+        <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mt-4 mb-4">
+          <p className="text-gray-700 leading-relaxed text-sm sm:text-base line-clamp-3">
+            {review.comment}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
