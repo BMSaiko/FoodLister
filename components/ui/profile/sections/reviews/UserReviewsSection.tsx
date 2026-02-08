@@ -11,7 +11,7 @@ import {
   TouchButton,
   SkeletonLoader,
   EmptyState 
-} from '../shared/index';
+} from '../shared';
 import { toast } from 'react-toastify';
 import ReviewCard from './ReviewCard';
 import { useUserCache } from '@/hooks/data/useUserCache';

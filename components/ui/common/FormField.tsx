@@ -5,7 +5,7 @@ interface FormFieldProps {
   label: string;
   name: string;
   type: 'text' | 'textarea' | 'url' | 'email' | 'number';
-  value: string;
+  value: string | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   required?: boolean;
   placeholder?: string;
@@ -30,7 +30,7 @@ export default function FormField({
 }: FormFieldProps) {
   const inputProps = {
     name,
-    value,
+    value: value ?? '',
     onChange,
     required,
     placeholder,

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
 import Navbar from '@/components/ui/navigation/Navbar';
@@ -65,9 +65,27 @@ function AuthGuard({ children }) {
 
 export default function EditRestaurant({ restaurantId }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Function to determine back URL based on source parameters
+  const getBackUrl = () => {
+    const source = searchParams.get('source');
+    const userId = searchParams.get('userId');
+    const tab = searchParams.get('tab');
+
+    if (source === 'profile' && userId) {
+      // Navigate back to user profile with specific tab and restaurant ID
+      const profileUrl = `/users/${userId}`;
+      const baseUrl = tab ? `${profileUrl}?tab=${tab}` : profileUrl;
+      return restaurantId ? `${baseUrl}&restaurantId=${restaurantId}` : baseUrl;
+    }
+    
+    // Default back to restaurant details
+    return `/restaurants/${restaurantId}`;
+  };
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [loadingCuisineTypes, setLoadingCuisineTypes] = useState(true);
   const [dietaryOptions, setDietaryOptions] = useState([]);
@@ -550,7 +568,7 @@ export default function EditRestaurant({ restaurantId }) {
         }
       }
 
-      // Show success message and redirect back to the restaurant details page
+      // Show success message and redirect back based on source
       toast.success('Restaurante atualizado com sucesso!', {
         position: "top-center",
         autoClose: 3000,
@@ -562,7 +580,7 @@ export default function EditRestaurant({ restaurantId }) {
         className: "text-sm sm:text-base",
         bodyClassName: "text-sm sm:text-base"
       });
-      router.push(`/restaurants/${restaurantId}`);
+      router.push(getBackUrl());
     } catch (err) {
       console.error('Error updating restaurant:', err);
 
@@ -627,9 +645,9 @@ export default function EditRestaurant({ restaurantId }) {
         />
 
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          <Link href={`/restaurants/${restaurantId}`} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
+          <Link href={getBackUrl()} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar para Detalhes do Restaurante
+            {searchParams.get('source') === 'profile' ? 'Voltar para Perfil do Usuário' : 'Voltar para Detalhes do Restaurante'}
           </Link>
 
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
@@ -780,7 +798,7 @@ export default function EditRestaurant({ restaurantId }) {
 
               {/* Ações */}
               <FormActions
-                onCancel={() => router.push(`/restaurants/${restaurantId}`)}
+                onCancel={() => router.push(getBackUrl())}
                 onSubmit={handleSubmit}
                 submitText="Salvar Alterações"
                 loading={saving}

@@ -25,7 +25,7 @@ export const useUserData = (options: UseUserDataOptions) => {
     userId,
     enableReviews = true,
     enableLists = true,
-    enableRestaurants = false, // Only fetch when needed
+    enableRestaurants = true, // Enable restaurant loading by default
     autoFetch = true,
     cacheTTL = 5 * 60 * 1000 // 5 minutes default
   } = options;
@@ -193,7 +193,7 @@ export const useUserData = (options: UseUserDataOptions) => {
 
   // Fetch user restaurants
   const fetchUserRestaurants = useCallback(async () => {
-    if (!userId || !enableRestaurants) return;
+    if (!userId) return;
 
     try {
       setUserData(prev => ({ ...prev, loading: true }));
@@ -208,17 +208,17 @@ export const useUserData = (options: UseUserDataOptions) => {
           loading: false
         }));
 
-      // Simple caching for restaurants
-      try {
-        const cacheKey = `user_restaurants_${userId}`;
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: restaurantsData.data || [],
-          timestamp: Date.now(),
-          ttl: cacheTTL
-        }));
-      } catch (error) {
-        console.warn('Could not cache restaurants data:', error);
-      }
+        // Simple caching for restaurants
+        try {
+          const cacheKey = `user_restaurants_${userId}`;
+          localStorage.setItem(cacheKey, JSON.stringify({
+            data: restaurantsData.data || [],
+            timestamp: Date.now(),
+            ttl: cacheTTL
+          }));
+        } catch (error) {
+          console.warn('Could not cache restaurants data:', error);
+        }
 
         return restaurantsData.data || [];
       } else {
@@ -234,7 +234,7 @@ export const useUserData = (options: UseUserDataOptions) => {
       }));
       throw error;
     }
-  }, [userId, get, enableRestaurants, cacheTTL]);
+  }, [userId, get, cacheTTL]);
 
   // Load data with simple caching
   const loadData = useCallback(async () => {
@@ -370,7 +370,7 @@ export const useUserData = (options: UseUserDataOptions) => {
   }, [userId, enableLists, fetchUserLists]);
 
   const refreshRestaurants = useCallback(async () => {
-    if (!userId || !enableRestaurants) return;
+    if (!userId) return;
     
     try {
       await fetchUserRestaurants();
@@ -379,7 +379,7 @@ export const useUserData = (options: UseUserDataOptions) => {
       console.error('Error refreshing restaurants:', error);
       toast.error('Erro ao atualizar restaurantes');
     }
-  }, [userId, enableRestaurants, fetchUserRestaurants]);
+  }, [userId, fetchUserRestaurants]);
 
   // Initialize data loading
   useEffect(() => {

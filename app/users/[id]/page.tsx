@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useUserData } from '@/hooks/data/useUserData';
 import { useProfileActions } from '@/hooks/forms/useProfileActions';
 import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';
@@ -28,9 +28,9 @@ import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import UserProfileHeader from '@/components/ui/profile/UserProfileHeader';
 import ProfileTabs from '@/components/ui/profile/ProfileTabs';
-import UserReviewsSection from '@/components/ui/profile/sections/UserReviewsSection';
-import UserListsSection from '@/components/ui/profile/sections/UserListsSection';
-import UserRestaurantsSection from '@/components/ui/profile/sections/UserRestaurantsSection';
+import UserReviewsSection from '@/components/ui/profile/sections/reviews/UserReviewsSection';
+import UserListsSection from '@/components/ui/profile/sections/lists/UserListsSection';
+import UserRestaurantsSection from '@/components/ui/profile/sections/restaurants/UserRestaurantsSection';
 import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
 
 interface UserProfile {
@@ -100,6 +100,9 @@ const UserProfilePage = () => {
   const [activeTab, setActiveTab] = useState<'reviews' | 'lists' | 'restaurants' | 'activity'>('reviews');
   const [copySuccess, setCopySuccess] = useState(false);
   const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
+  
+  // Get URL parameters
+  const searchParams = useSearchParams();
 
   // Use the new caching hook
   const {
@@ -116,15 +119,33 @@ const UserProfilePage = () => {
     userId,
     enableReviews: true,
     enableLists: true,
-    enableRestaurants: activeTab === 'restaurants',
+    enableRestaurants: true, // Always enable to ensure fetchUserRestaurants works
     autoFetch: true,
     cacheTTL: 5 * 60 * 1000 // 5 minutes cache
   });
+
+  // Debug logging to track data flow from hook to component
+  useEffect(() => {
+    console.log('UserProfilePage - useUserData data:', {
+      profile: profile ? { id: profile.id, name: profile.name } : null,
+      restaurants: restaurants.length,
+      loading,
+      error
+    });
+  }, [profile, restaurants, loading, error]);
 
   // Initialize animations
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Set initial active tab based on URL parameter
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['reviews', 'lists', 'restaurants', 'activity'].includes(tabParam)) {
+      setActiveTab(tabParam as 'reviews' | 'lists' | 'restaurants' | 'activity');
+    }
+  }, [searchParams]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -159,6 +180,29 @@ const UserProfilePage = () => {
       fetchUserRestaurants();
     }
   }, [activeTab, profile, fetchUserRestaurants]);
+
+  // Load restaurants immediately if restaurants tab is set in URL on initial load
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'restaurants' && profile) {
+      fetchUserRestaurants();
+    }
+  }, [profile, fetchUserRestaurants, searchParams]);
+
+  // Load restaurants data immediately when component mounts if restaurants tab is active
+  useEffect(() => {
+    if (activeTab === 'restaurants' && profile && restaurants.length === 0) {
+      fetchUserRestaurants();
+    }
+  }, [activeTab, profile, restaurants.length, fetchUserRestaurants]);
+
+  // Force reload restaurants when switching to restaurants tab
+  const handleTabChange = (tabKey: string) => {
+    setActiveTab(tabKey as any);
+    if (tabKey === 'restaurants' && profile) {
+      fetchUserRestaurants();
+    }
+  };
 
   const handleCopyProfileLink = () => {
     const profileUrl = `${window.location.origin}/users/${userId}`;
@@ -253,7 +297,7 @@ const UserProfilePage = () => {
   });
 
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
         <div className="text-center" role="status" aria-live="polite">
@@ -564,7 +608,7 @@ const UserProfilePage = () => {
               ].map((tab) => (
                 <button
                   key={tab.key}
-                  onClick={() => setActiveTab(tab.key as any)}
+                  onClick={() => handleTabChange(tab.key)}
                   className={`flex items-center gap-3 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === tab.key
                       ? 'border-amber-500 text-amber-600 bg-amber-50'
@@ -607,6 +651,8 @@ const UserProfilePage = () => {
                 initialRestaurants={restaurants}
                 initialTotal={profile.stats?.totalRestaurantsAdded ?? 0}
                 isOwnProfile={profile.isOwnProfile}
+                isLoading={loading}
+                error={error}
               />
             )}
 
