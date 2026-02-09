@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
+import ProfileStickyNavbar from '@/components/ui/navigation/ProfileStickyNavbar';
 import UserProfileHeader from '@/components/ui/profile/UserProfileHeader';
 import ProfileTabs from '@/components/ui/profile/ProfileTabs';
 import UserReviewsSection from '@/components/ui/profile/sections/reviews/UserReviewsSection';
@@ -768,6 +769,15 @@ const UserProfilePage = () => {
       
       {/* Scroll to Top Button */}
       <ScrollToTopButton />
+      
+      {/* Profile Sticky Navbar - Mobile only */}
+      <ProfileStickyNavbar
+        onShare={handleShareProfile}
+        onCopyLink={handleCopyProfileLink}
+        onEdit={() => router.push('/users/settings')}
+        isOwnProfile={isOwnProfile || false}
+        profile={profile}
+      />
     </div>
   );
 };
