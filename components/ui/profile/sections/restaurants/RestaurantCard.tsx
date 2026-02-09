@@ -105,6 +105,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     }
   };
 
+  // Ensure we have a valid key for React rendering
+  const renderKey = restaurant.id || `restaurant-${Math.random().toString(36).substr(2, 9)}`;
+  
   return (
     <div 
       className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 group ${className}`}
@@ -113,6 +116,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       onKeyDown={handleKeyDown}
       aria-label={`Restaurante ${restaurant.name}`}
       data-restaurant-id={dataRestaurantId}
+      key={renderKey}
     >
       {/* Restaurant Image Section - Clickable for navigation */}
       <div 

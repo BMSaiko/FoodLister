@@ -122,6 +122,7 @@ CREATE TABLE public.restaurants (
   menu_images ARRAY DEFAULT '{}'::text[] CHECK (array_length(menu_images, 1) <= 10),
   latitude numeric CHECK (latitude IS NULL OR latitude >= '-90'::integer::numeric AND latitude <= 90::numeric),
   longitude numeric CHECK (longitude IS NULL OR longitude >= '-180'::integer::numeric AND longitude <= 180::numeric),
+  review_count integer DEFAULT 0,
   CONSTRAINT restaurants_pkey PRIMARY KEY (id),
   CONSTRAINT restaurants_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES auth.users(id)
 );

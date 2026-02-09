@@ -43,7 +43,7 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   };
 
   const imageUrl = getDisplayImage();
-  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '';
+  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '' && !imageUrl.startsWith('data:image/svg+xml');
 
   // Function to categorize price level
   const categorizePriceLevel = (price: number) => {

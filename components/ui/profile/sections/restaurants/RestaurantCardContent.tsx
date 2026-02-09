@@ -89,13 +89,13 @@ const RestaurantCardContent: React.FC<RestaurantCardContentProps> = ({
           )}
           
           {/* Price Level Badge */}
-          {restaurant.priceLevel && (
+          {restaurant.priceLevel && restaurant.priceLevel > 0 && (
             <div className={`flex items-center gap-2 px-2.5 py-1.5 rounded-full border border-amber-300 ${getPriceColorClass(restaurant.priceLevel)}`}>
               <span className="text-xs font-medium">
                 {categorizePriceLevel(restaurant.priceLevel).label}
               </span>
               <div className="flex gap-0.5">
-                {[...Array(restaurant.priceLevel)].map((_, i) => (
+                {[...Array(Math.max(1, Math.min(4, restaurant.priceLevel)))].map((_, i) => (
                   <DollarSign key={i} className="h-2.5 w-2.5 opacity-80" />
                 ))}
               </div>

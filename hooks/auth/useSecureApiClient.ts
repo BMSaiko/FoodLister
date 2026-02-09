@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
@@ -15,6 +15,11 @@ export const useSecureApiClient = () => {
   const [lastFailureTime, setLastFailureTime] = useState(0);
   const CIRCUIT_BREAKER_FAILURE_THRESHOLD = 5;
   const CIRCUIT_BREAKER_TIMEOUT = 30000; // 30 seconds
+  
+  // Token caching to prevent repeated session API calls
+  const tokenCache = useRef<{ token: string; timestamp: number } | null>(null);
+  const TOKEN_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  const sessionRequestPromise = useRef<Promise<string | null> | null>(null);
 
   const checkCircuitBreaker = useCallback(() => {
     const now = Date.now();
@@ -53,6 +58,68 @@ export const useSecureApiClient = () => {
     }
   }, [circuitState]);
 
+  // Get access token with caching to prevent repeated session API calls
+  const getAccessToken = useCallback(async (): Promise<string | null> => {
+    const now = Date.now();
+    
+    // Check cache first
+    if (tokenCache.current && (now - tokenCache.current.timestamp) < TOKEN_CACHE_DURATION) {
+      return tokenCache.current.token;
+    }
+    
+    // If there's already a session request in progress, wait for it
+    if (sessionRequestPromise.current) {
+      return sessionRequestPromise.current;
+    }
+    
+    // Make new session request
+    sessionRequestPromise.current = (async () => {
+      try {
+        const sessionResponse = await fetch('/api/auth/session', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+        
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          if (sessionData?.access_token) {
+            // Cache the token
+            tokenCache.current = {
+              token: sessionData.access_token,
+              timestamp: now
+            };
+            return sessionData.access_token;
+          }
+        }
+        
+        // Fallback to localStorage
+        if (typeof window !== 'undefined') {
+          const storedSession = localStorage.getItem('sb-access-token');
+          if (storedSession) {
+            tokenCache.current = {
+              token: storedSession,
+              timestamp: now
+            };
+            return storedSession;
+          }
+        }
+        
+        return null;
+      } catch (error) {
+        console.warn('Could not get session from auth API:', error);
+        return null;
+      } finally {
+        // Clear the promise reference
+        sessionRequestPromise.current = null;
+      }
+    })();
+    
+    return sessionRequestPromise.current;
+  }, []);
+
   const secureApiCall = useCallback(async (
     endpoint: string, 
     options: SecureApiCallOptions = {},
@@ -65,43 +132,10 @@ export const useSecureApiClient = () => {
     } = options;
 
     try {
-      // Get session from Supabase auth API - this is the most reliable method in Next.js 15
-      let accessToken = null;
+      // Get access token with caching
+      const accessToken = await getAccessToken();
       
-      try {
-        const sessionResponse = await fetch('/api/auth/session', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include' // Important for cookies
-        });
-        
-        if (sessionResponse.ok) {
-          const sessionData = await sessionResponse.json();
-          if (sessionData?.access_token) {
-            accessToken = sessionData.access_token;
-          }
-        }
-      } catch (error) {
-        console.warn('Could not get session from auth API:', error);
-      }
-
-      // If still no token, try to get from localStorage as fallback
-      if (!accessToken) {
-        try {
-          if (typeof window !== 'undefined') {
-            const storedSession = localStorage.getItem('sb-access-token');
-            if (storedSession) {
-              accessToken = storedSession;
-            }
-          }
-        } catch (error) {
-          console.warn('Could not get token from localStorage:', error);
-        }
-      }
-
-      // If still no token, throw error
+      // If no token, throw error
       if (!accessToken) {
         throw new Error('No authentication token found');
       }

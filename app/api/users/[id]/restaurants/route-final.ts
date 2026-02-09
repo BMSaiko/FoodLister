@@ -11,7 +11,6 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '12');
     const cursor = url.searchParams.get('cursor'); // For cursor-based pagination
-    const loadAll = url.searchParams.get('loadAll') === 'true'; // Load all restaurants at once
 
     // Check if the ID is a user_id_code (format FL000001) or a UUID
     const isUserCode = /^[A-Z]{2}\d{6}$/.test(userId);
@@ -48,58 +47,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
 
     // Use optimized database function for best performance
     let result;
-    let total = 0;
-    let hasMore = false;
-    let nextPage = null;
-    let nextCursor = null;
-
-    if (loadAll) {
-      // Load all restaurants at once using the optimized view
-      const { data, error } = await supabase
-        .from('restaurant_data_view')
-        .select(`
-          id,
-          name,
-          description,
-          image_url,
-          price_per_person,
-          rating,
-          location,
-          source_url,
-          creator,
-          menu_url,
-          visited,
-          phone_numbers,
-          creator_id,
-          creator_name,
-          created_at,
-          images,
-          display_image_index,
-          menu_links,
-          menu_images,
-          latitude,
-          longitude,
-          cuisine_types,
-          dietary_options,
-          features
-        `)
-        .eq('creator_id', targetUserId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching all user restaurants:', error);
-        return NextResponse.json(
-          { error: 'Failed to fetch user restaurants' },
-          { status: 500 }
-        );
-      }
-
-      result = data || [];
-      total = result.length;
-      hasMore = false;
-      nextPage = null;
-      nextCursor = null;
-    } else if (cursor) {
+    if (cursor) {
       // Cursor-based pagination using the optimized function
       const { data, error } = await supabase
         .rpc('get_user_restaurants_paginated', {
@@ -117,13 +65,6 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       }
 
       result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
     } else {
       // Standard pagination using the optimized function
       const { data, error } = await supabase
@@ -142,13 +83,6 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       }
 
       result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
     }
 
     if (!result || result.length === 0) {
@@ -168,6 +102,13 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       });
     }
 
+    // Extract pagination info from the first row (since it's the same for all rows in the result)
+    const firstRow = result[0];
+    const total = firstRow.total_count || 0;
+    const nextCursor = firstRow.next_cursor || null;
+    const hasMore = nextCursor !== null;
+    const nextPage = hasMore ? page + 1 : null;
+
     // Transform the result to match the expected API response format
     const restaurants = result.map((row: any) => ({
       id: row.id,
@@ -185,7 +126,6 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       creatorId: row.creator_id,
       creatorName: row.creator_name,
       createdAt: row.created_at,
-      updatedAt: row.updated_at,
       images: row.images,
       displayImageIndex: row.display_image_index,
       menuLinks: row.menu_links,
@@ -258,7 +198,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '12');
     const cursor = url.searchParams.get('cursor'); // For cursor-based pagination
-    const loadAll = url.searchParams.get('loadAll') === 'true'; // Load all restaurants at once
 
     // Check if the ID is a user_id_code (format FL000001) or a UUID
     const isUserCode = /^[A-Z]{2}\d{6}$/.test(userId);
@@ -301,58 +240,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Use optimized database function for best performance
     let result;
-    let total = 0;
-    let hasMore = false;
-    let nextPage = null;
-    let nextCursor = null;
-
-    if (loadAll) {
-      // Load all restaurants at once using the optimized view
-      const { data, error } = await supabase
-        .from('restaurant_data_view')
-        .select(`
-          id,
-          name,
-          description,
-          image_url,
-          price_per_person,
-          rating,
-          location,
-          source_url,
-          creator,
-          menu_url,
-          visited,
-          phone_numbers,
-          creator_id,
-          creator_name,
-          created_at,
-          images,
-          display_image_index,
-          menu_links,
-          menu_images,
-          latitude,
-          longitude,
-          cuisine_types,
-          dietary_options,
-          features
-        `)
-        .eq('creator_id', targetUserId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching all user restaurants:', error);
-        return NextResponse.json(
-          { error: 'Failed to fetch user restaurants' },
-          { status: 500 }
-        );
-      }
-
-      result = data || [];
-      total = result.length;
-      hasMore = false;
-      nextPage = null;
-      nextCursor = null;
-    } else if (cursor) {
+    if (cursor) {
       // Cursor-based pagination using the optimized function
       const { data, error } = await supabase
         .rpc('get_user_restaurants_paginated', {
@@ -370,13 +258,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       }
 
       result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
     } else {
       // Standard pagination using the optimized function
       const { data, error } = await supabase
@@ -395,13 +276,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       }
 
       result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
     }
 
     if (!result || result.length === 0) {
@@ -421,6 +295,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       });
     }
 
+    // Extract pagination info from the first row (since it's the same for all rows in the result)
+    const firstRow = result[0];
+    const total = firstRow.total_count || 0;
+    const nextCursor = firstRow.next_cursor || null;
+    const hasMore = nextCursor !== null;
+    const nextPage = hasMore ? page + 1 : null;
+
     // Transform the result to match the expected API response format
     const restaurants = result.map((row: any) => ({
       id: row.id,
@@ -438,7 +319,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       creatorId: row.creator_id,
       creatorName: row.creator_name,
       createdAt: row.created_at,
-      updatedAt: row.updated_at,
       images: row.images,
       displayImageIndex: row.display_image_index,
       menuLinks: row.menu_links,

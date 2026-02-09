@@ -15,7 +15,9 @@ import {
   EmptyState 
 } from '../shared';
 import RestaurantCard from './RestaurantCard';
+import RestaurantSkeletonLoader from './RestaurantSkeletonLoader';
 import { useUserCache } from '@/hooks/data/useUserCache';
+import { useScrollLock } from '@/utils/scrollLock';
 
 interface UserRestaurantsSectionProps {
   userId: string;
@@ -35,6 +37,12 @@ interface UserRestaurantsSectionProps {
   initialTotal: number;
   isOwnProfile: boolean;
   isLoading?: boolean;
+  loadingStates?: {
+    profile: boolean;
+    reviews: boolean;
+    lists: boolean;
+    restaurants: boolean;
+  };
   error?: string | null;
 }
 
@@ -44,6 +52,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   initialTotal,
   isOwnProfile,
   isLoading: hookIsLoading,
+  loadingStates,
   error: hookError
 }) => {
   const [restaurants, setRestaurants] = useState(initialRestaurants);
@@ -52,7 +61,12 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialRestaurants.length < initialTotal);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [isLoadingAll, setIsLoadingAll] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasFetchedRestaurants = useRef(false);
+
+  // Scroll lock: prevent scrolling while loading all restaurants
+  useScrollLock(isLoadingAll);
 
   // Initialize with initialRestaurants when component mounts or props change
   useEffect(() => {
@@ -61,6 +75,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       setTotal(initialTotal);
       setHasMore(initialRestaurants.length < initialTotal);
       setHasInitialized(true);
+      hasFetchedRestaurants.current = true;
       console.log('UserRestaurantsSection - Initialized with initial data:', {
         restaurants: initialRestaurants.length,
         total: initialTotal,
@@ -78,13 +93,27 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
     }
   }, [initialRestaurants, initialTotal, hasInitialized]);
 
+  // Auto-load all restaurants when component mounts and no data is available
+  useEffect(() => {
+    // Check if we're on the restaurants tab and need to load data
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    const isRestaurantsTab = tab === 'restaurants';
+    
+    if (isRestaurantsTab && !hasInitialized && restaurants.length === 0 && !hookIsLoading) {
+      console.log('UserRestaurantsSection - Auto-loading all restaurants on mount');
+      loadAllRestaurants();
+    }
+  }, [hasInitialized, restaurants.length, hookIsLoading]);
+
   // Sync state with hook data when hook loading completes and we have data
   useEffect(() => {
-    if (hookIsLoading === false && initialRestaurants.length > 0 && !hasInitialized) {
+    if (hookIsLoading === false && initialRestaurants.length > 0 && !hasInitialized && !hasFetchedRestaurants.current) {
       setRestaurants(initialRestaurants);
       setTotal(initialTotal);
       setHasMore(initialRestaurants.length < initialTotal);
       setHasInitialized(true);
+      hasFetchedRestaurants.current = true;
       console.log('UserRestaurantsSection - Synced with hook data after loading:', {
         restaurants: initialRestaurants.length,
         total: initialTotal
@@ -119,16 +148,133 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
     if (!containerRef.current) return;
 
     // Wait for DOM to be ready and then scroll
-    setTimeout(() => {
+    const scrollToElement = () => {
       const restaurantElement = containerRef.current?.querySelector(`[data-restaurant-id="${restaurantId}"]`);
       if (restaurantElement) {
         restaurantElement.scrollIntoView({
           behavior: 'smooth',
           block: 'center'
         });
+        // Add a temporary highlight effect
+        restaurantElement.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        setTimeout(() => {
+          restaurantElement.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        }, 3000);
+        return true;
       }
+      return false;
+    };
+
+    // Try to scroll immediately
+    if (scrollToElement()) return;
+
+    // If element not found, wait a bit and try again
+    setTimeout(() => {
+      if (scrollToElement()) return;
+      
+      // If still not found, wait longer (for lazy loading or dynamic content)
+      setTimeout(() => {
+        scrollToElement();
+      }, 500);
     }, 100);
   }, []);
+
+  // Load all restaurants at once - this is now the default behavior
+  const loadAllRestaurants = useCallback(async () => {
+    if (isLoadingAll || hookIsLoading) return;
+
+    setIsLoadingAll(true);
+    try {
+      const response = await get(`/api/users/${userId}/restaurants?loadAll=true`);
+      const data = await response.json();
+
+      if (!response.ok || !data.data || !Array.isArray(data.data)) {
+        throw new Error(data.error || 'Failed to fetch user restaurants');
+      }
+
+      // Remove duplicates by ID (though the API should not return duplicates)
+      const uniqueRestaurants = data.data.filter((restaurant: any, index: number, arr: any[]) => {
+        if (!restaurant || !restaurant.id) {
+          console.warn('Skipping restaurant without valid ID:', restaurant);
+          return false;
+        }
+        
+        const firstIndex = arr.findIndex(r => r.id === restaurant.id);
+        return index === firstIndex;
+      });
+
+      setRestaurants(uniqueRestaurants);
+      setTotal(data.total || uniqueRestaurants.length);
+      setPage(1);
+      setHasMore(false);
+      setHasInitialized(true);
+      hasFetchedRestaurants.current = true;
+
+      console.log('UserRestaurantsSection - Loaded all restaurants:', {
+        restaurants: uniqueRestaurants.length,
+        total: data.total || uniqueRestaurants.length
+      });
+
+    } catch (error) {
+      console.error('Error loading all restaurants:', error);
+      // Fallback to loading first page if bulk load fails
+      try {
+        const fallbackResponse = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
+        const fallbackData = await fallbackResponse.json();
+        if (fallbackResponse.ok && fallbackData.data) {
+          setRestaurants(fallbackData.data);
+          setTotal(fallbackData.total || fallbackData.data.length);
+          setHasMore(fallbackData.hasMore || false);
+          setHasInitialized(true);
+          hasFetchedRestaurants.current = true;
+        }
+      } catch (fallbackError) {
+        console.error('Fallback loading also failed:', fallbackError);
+      }
+    } finally {
+      setIsLoadingAll(false);
+    }
+  }, [userId, get, isLoadingAll, hookIsLoading]);
+
+  // Check if a specific restaurant exists in the current list
+  const hasRestaurant = useCallback((restaurantId: string) => {
+    return restaurants.some(restaurant => restaurant.id === restaurantId);
+  }, [restaurants]);
+
+  // Load more pages until the target restaurant is found
+  const loadRestaurantIfNeeded = useCallback(async (restaurantId: string) => {
+    // If we already have the restaurant, no need to load more
+    if (hasRestaurant(restaurantId)) {
+      return true;
+    }
+
+    // If we don't have more pages to load, the restaurant doesn't exist
+    if (!hasMore) {
+      return false;
+    }
+
+    // Load more pages until we find the restaurant or run out of pages
+    let found = false;
+    let attempts = 0;
+    const maxAttempts = 5; // Reduced attempts to prevent infinite loops
+
+    while (!found && hasMore && attempts < maxAttempts) {
+      attempts++;
+      
+      // Load next page
+      await loadAllRestaurants();
+      
+      // Check if the restaurant is now in our list
+      found = hasRestaurant(restaurantId);
+      
+      // Small delay to prevent overwhelming the server
+      if (!found && hasMore) {
+        await new Promise(resolve => setTimeout(resolve, 300)); // Reduced delay
+      }
+    }
+
+    return found;
+  }, [restaurants, hasMore, hasRestaurant, loadAllRestaurants]);
 
   // Check for restaurantId in URL parameters and scroll to it
   useEffect(() => {
@@ -138,63 +284,88 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
 
     // Only scroll if we're on the restaurants tab and have a restaurantId
     if (tab === 'restaurants' && restaurantId) {
-      scrollToRestaurant(restaurantId);
+      // Debounce the scroll action to prevent multiple rapid calls
+      const timeoutId = setTimeout(() => {
+        // First, try to load the restaurant if it's not in our current list
+        loadRestaurantIfNeeded(restaurantId).then((found) => {
+          // Always try to scroll, even if the restaurant wasn't found
+          // (this handles the case where it was already loaded)
+          scrollToRestaurant(restaurantId);
+        });
+      }, 100); // Small delay to prevent rapid calls
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [scrollToRestaurant]);
+  }, [scrollToRestaurant, restaurants, loadRestaurantIfNeeded]);
 
-  const loadMoreRestaurants = async () => {
-    if (isLoadingMore || !hasMore) return;
-
-    setIsLoadingMore(true);
-    try {
-      const response = await get(`/api/users/${userId}/restaurants?page=${page + 1}&limit=12`);
-      const data = await response.json();
-
-      if (response.ok) {
-        // Filter out any duplicate restaurants by ID to prevent React key conflicts
-        const newRestaurants = data.data.filter((newRestaurant: any) => 
-          !restaurants.some(existingRestaurant => existingRestaurant.id === newRestaurant.id)
-        );
-        
-        setRestaurants(prev => [...prev, ...newRestaurants]);
-        setTotal(data.total);
-        setPage(data.page);
-        setHasMore(data.hasMore);
-      }
-    } catch (error) {
-      console.error('Error loading more restaurants:', error);
-    } finally {
-      setIsLoadingMore(false);
-    }
+  // Show loading state when data is being fetched and no data is available yet
+  const shouldShowLoading = () => {
+    // Show loading if:
+    // 1. Hook is loading AND we have no restaurants AND no initial data AND not initialized
+    // 2. OR we're actively loading more restaurants
+    // 3. OR restaurants loading state is true from hook
+    // 4. OR we're loading all restaurants at once
+    return (hookIsLoading && restaurants.length === 0 && initialRestaurants.length === 0 && !hasInitialized) || 
+           isLoadingMore ||
+           (loadingStates?.restaurants === true && restaurants.length === 0 && !hasInitialized) ||
+           isLoadingAll;
   };
 
-  // Show loading state only when no data is available and still loading
-  if (hookIsLoading && restaurants.length === 0 && initialRestaurants.length === 0 && !hasInitialized) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-          {[...Array(4)].map((_, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden">
-              <div className="h-72 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
-              <div className="p-4">
-                <div className="h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded animate-pulse mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
-              </div>
+  // Show loading state
+  if (shouldShowLoading()) {
+    if (isLoadingAll) {
+      // Use enhanced skeleton loader for loading all restaurants
+      return (
+        <RestaurantSkeletonLoader 
+          count={total || 12} 
+          showProgress={true}
+          message="Carregando todos os restaurantes..."
+        />
+      );
+    } else {
+      // Use regular skeleton loader for other loading states
+      return (
+        <div className="space-y-6">
+          <SkeletonLoader type="restaurant" count={4} />
+          {isLoadingMore && (
+            <div className="flex justify-center pt-6">
+              <div className="h-12 bg-gray-300 rounded-lg w-48 animate-pulse"></div>
             </div>
-          ))}
+          )}
         </div>
-      </div>
-    );
+      );
+    }
   }
 
-  // Show restaurants if they exist, regardless of loading state
-  // This ensures that even if loading is still true but data is available, it will be displayed
-  if (restaurants.length > 0 || (initialRestaurants.length > 0 && hasInitialized)) {
+  // Show restaurants if they exist and are ready for display
+  const shouldShowRestaurants = () => {
+    // Show restaurants if:
+    // 1. We have restaurants loaded AND (hook is not loading OR we have initialized with data)
+    // 2. OR we have initial restaurants and are initialized
+    return (restaurants.length > 0 && (!hookIsLoading || hasInitialized)) || 
+           (initialRestaurants.length > 0 && hasInitialized);
+  };
+
+  if (shouldShowRestaurants()) {
+    // Runtime validation: ensure no duplicate keys before rendering
+    const uniqueRestaurants = restaurants.filter((restaurant, index, arr) => {
+      const firstIndex = arr.findIndex(r => r.id === restaurant.id);
+      return index === firstIndex;
+    });
+    
+    // Log if we had to remove duplicates before rendering
+    if (restaurants.length !== uniqueRestaurants.length) {
+      console.warn('Removed duplicate restaurants before rendering:', {
+        originalLength: restaurants.length,
+        uniqueLength: uniqueRestaurants.length,
+        removedCount: restaurants.length - uniqueRestaurants.length
+      });
+    }
+
     return (
       <div className="space-y-6" ref={containerRef}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-          {restaurants.map((restaurant) => (
+          {uniqueRestaurants.map((restaurant) => (
             <RestaurantCard
               key={restaurant.id}
               restaurant={restaurant}
@@ -202,7 +373,8 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
               onEdit={() => {
                 // Navigate to edit page with back navigation parameters
                 const currentUserId = window.location.pathname.split('/')[2];
-                const editUrl = `/restaurants/${restaurant.id}/edit?source=profile&userId=${currentUserId}&tab=restaurants`;
+                const currentTab = new URLSearchParams(window.location.search).get('tab') || 'restaurants';
+                const editUrl = `/restaurants/${restaurant.id}/edit?source=profile&userId=${currentUserId}&tab=${currentTab}&restaurantId=${restaurant.id}`;
                 window.location.href = editUrl;
               }}
               onDelete={() => {
@@ -218,22 +390,6 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
           ))}
         </div>
 
-        {/* Load More Button */}
-        {hasMore && (
-          <div className="flex justify-center pt-6">
-            <TouchButton
-              onClick={loadMoreRestaurants}
-              loading={isLoadingMore}
-              variant="primary"
-              size="md"
-              disabled={isLoadingMore}
-              icon={isLoadingMore ? undefined : <Utensils className="h-4 w-4" />}
-              fullWidth={false}
-            >
-              {isLoadingMore ? 'Carregando...' : 'Carregar mais restaurantes'}
-            </TouchButton>
-          </div>
-        )}
 
         {/* Total Count - Always show if we have a total count */}
         {total > 0 && (
@@ -245,7 +401,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
     );
   }
 
-  // Show empty state if no restaurants and not loading or initialized
+  // Show empty state if no restaurants and not loading
   if (restaurants.length === 0 && !hookIsLoading && !hasInitialized) {
     return (
       <EmptyState

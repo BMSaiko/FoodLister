@@ -7,6 +7,7 @@ import { useUserData } from '@/hooks/data/useUserData';
 import { useProfileActions } from '@/hooks/forms/useProfileActions';
 import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';
 import { toast } from 'react-toastify';
+import { useScrollLock } from '@/utils/scrollLock';
 import { 
   Star, 
   List, 
@@ -32,6 +33,7 @@ import UserReviewsSection from '@/components/ui/profile/sections/reviews/UserRev
 import UserListsSection from '@/components/ui/profile/sections/lists/UserListsSection';
 import UserRestaurantsSection from '@/components/ui/profile/sections/restaurants/UserRestaurantsSection';
 import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
+import UserLoadingPage from './loading';
 
 interface UserProfile {
   id: string;
@@ -100,6 +102,7 @@ const UserProfilePage = () => {
   const [activeTab, setActiveTab] = useState<'reviews' | 'lists' | 'restaurants' | 'activity'>('reviews');
   const [copySuccess, setCopySuccess] = useState(false);
   const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
+  const [restaurantsLoading, setRestaurantsLoading] = useState(false);
   
   // Get URL parameters
   const searchParams = useSearchParams();
@@ -111,6 +114,7 @@ const UserProfilePage = () => {
     lists,
     restaurants,
     loading,
+    loadingStates,
     error,
     fetchUserRestaurants,
     hasCachedData,
@@ -174,33 +178,45 @@ const UserProfilePage = () => {
     return false;
   };
 
-  // Load restaurants when restaurants tab is active
+  // Load restaurants when restaurants tab is active (only if not already loaded)
   useEffect(() => {
-    if (activeTab === 'restaurants' && profile) {
+    if (activeTab === 'restaurants' && profile && restaurants.length === 0 && !loading) {
       fetchUserRestaurants();
     }
-  }, [activeTab, profile, fetchUserRestaurants]);
+  }, [activeTab, profile, restaurants.length, loading, fetchUserRestaurants]);
 
   // Load restaurants immediately if restaurants tab is set in URL on initial load
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam === 'restaurants' && profile) {
+    if (tabParam === 'restaurants' && profile && restaurants.length === 0 && !loading) {
       fetchUserRestaurants();
     }
-  }, [profile, fetchUserRestaurants, searchParams]);
+  }, [profile, restaurants.length, loading, fetchUserRestaurants, searchParams]);
 
-  // Load restaurants data immediately when component mounts if restaurants tab is active
-  useEffect(() => {
-    if (activeTab === 'restaurants' && profile && restaurants.length === 0) {
-      fetchUserRestaurants();
-    }
-  }, [activeTab, profile, restaurants.length, fetchUserRestaurants]);
-
-  // Force reload restaurants when switching to restaurants tab
+  // Force reload restaurants when switching to restaurants tab (only if not already loaded)
   const handleTabChange = (tabKey: string) => {
     setActiveTab(tabKey as any);
-    if (tabKey === 'restaurants' && profile) {
-      fetchUserRestaurants();
+    
+    // Update URL parameter to reflect current tab
+    const currentPath = window.location.pathname;
+    const currentUrl = new URL(window.location.href);
+    
+    if (tabKey === 'reviews') {
+      // Remove tab parameter for default tab
+      currentUrl.searchParams.delete('tab');
+    } else {
+      // Set tab parameter for other tabs
+      currentUrl.searchParams.set('tab', tabKey);
+    }
+    
+    // Update URL without page reload
+    router.replace(`${currentPath}${currentUrl.search}`, { scroll: false });
+    
+    if (tabKey === 'restaurants' && profile && restaurants.length === 0 && !loading) {
+      // Use the enhanced UserRestaurantsSection's loadAllRestaurants function
+      // This will be handled by the UserRestaurantsSection component itself
+      // when it detects the tab change and empty restaurant list
+      console.log('Switching to restaurants tab - UserRestaurantsSection will handle loading');
     }
   };
 
@@ -297,15 +313,9 @@ const UserProfilePage = () => {
   });
 
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center" role="status" aria-live="polite">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando perfil...</p>
-        </div>
-      </div>
-    );
+  // Show loading component when auth is loading or when user data is being fetched
+  if (authLoading || (loading && !profile)) {
+    return <UserLoadingPage />;
   }
 
   if (!profile) {
@@ -652,6 +662,7 @@ const UserProfilePage = () => {
                 initialTotal={profile.stats?.totalRestaurantsAdded ?? 0}
                 isOwnProfile={profile.isOwnProfile}
                 isLoading={loading}
+                loadingStates={loadingStates}
                 error={error}
               />
             )}
