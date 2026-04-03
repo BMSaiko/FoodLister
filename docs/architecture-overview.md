@@ -499,6 +499,86 @@ await supabase
   .eq('id', restaurantId);
 ```
 
+## User Profile Architecture
+
+The FoodList application includes a comprehensive user profile system that enables users to:
+- View their own and other users' profiles
+- Manage reviews, restaurants, and lists
+- Interact with content through edit, delete, and share actions
+
+### Profile Page Architecture
+
+```
+app/users/[id]/page.tsx (Client Component)
+├── UserProfileHeader
+│   ├── User avatar and display name
+│   ├── Stats (reviews count, restaurants count, lists count)
+│   └── Privacy indicator
+├── ProfileTabs
+│   ├── Reviews tab
+│   ├── Restaurants tab
+│   └── Lists tab
+└── Tab Content
+    ├── UserReviewsSection
+    │   └── ReviewCard[] (with pagination)
+    ├── UserRestaurantsSection
+    │   └── RestaurantCard[] (with pagination)
+    └── UserListsSection
+        └── ProfileCard[] (with pagination)
+```
+
+### Data Flow
+
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│  Profile Page   │────►│  API Routes      │────►│  Supabase       │
+│  (Client)       │     │  /api/users/[id] │     │  Database       │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+         │                        │                       │
+         │                        │                       │
+         ▼                        ▼                       ▼
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│  Local State    │     │  Auth Check      │     │  RLS Policies   │
+│  (useState)     │◄────│  (useSecureApi)  │◄────│  (Row Level)    │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+```
+
+### Component Hierarchy
+
+#### Shared Components
+- **ProfileCard**: Base card wrapper with Link/button functionality
+- **TouchButton**: Touch-optimized button with minimum 44px targets
+- **SkeletonLoader**: Loading skeletons for all content types
+- **EmptyState**: Empty state with optional action button
+
+#### Review Components
+- **ReviewCard**: Main review display with edit/delete
+  - ReviewCardHeader: Restaurant image + rating badge
+  - ReviewCardFooter: Rating, amount spent, date badges
+  - ReviewCardActions: Edit, delete, share buttons
+
+#### Restaurant Components
+- **RestaurantCard**: Main restaurant display for profile view
+  - RestaurantCardHeader: Image + rating badge
+  - RestaurantCardContent: Description section
+  - RestaurantCardFooter: Rating, price, date, location, cuisine tags
+  - RestaurantCardActions: Edit, delete, share buttons
+
+### Responsive Design Strategy
+
+| Breakpoint | Grid Columns | Card Height | Image Aspect |
+|------------|--------------|-------------|--------------|
+| Mobile (<768px) | 1 | Auto | 4:3 |
+| Tablet (768px+) | 2 | Auto | 16:9 |
+| Desktop (1024px+) | 3 | Auto | 16:9 |
+
+### Security Considerations
+
+- **Row Level Security (RLS)**: Users can only edit/delete their own content
+- **Profile visibility**: Public profiles with privacy controls
+- **API authentication**: All mutations require valid JWT token
+- **Input validation**: Server-side validation on all API routes
+
 ## Future Architecture Enhancements
 
 ### Potential Improvements

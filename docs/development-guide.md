@@ -677,6 +677,87 @@ const handleImageUpload = async (imageUrl) => {
 };
 ```
 
+## User Profile Components
+
+The application includes a comprehensive user profile system that allows users to view and manage their reviews, restaurants, and lists, as well as view other users' profiles.
+
+### Profile Component Architecture
+
+```
+components/ui/profile/
+├── UserProfileHeader.tsx          # Profile header with user info and stats
+├── ProfileTabs.tsx                # Tab navigation (Reviews, Restaurants, Lists)
+├── ProfileActions.tsx             # Profile action buttons (Edit, Follow, etc.)
+├── PrivacyToggle.tsx              # Privacy settings toggle
+└── sections/
+    ├── shared/
+    │   ├── ProfileCard.tsx        # Base card component for all profile items
+    │   ├── TouchButton.tsx        # Touch-optimized button component
+    │   ├── SkeletonLoader.tsx     # Loading skeleton for all content types
+    │   └── index.ts               # Shared exports
+    ├── reviews/
+    │   ├── ReviewCard.tsx         # Review card with edit/delete functionality
+    │   ├── ReviewCardHeader.tsx   # Review card header with restaurant image
+    │   ├── ReviewCardFooter.tsx   # Review card footer with metadata badges
+    │   ├── ReviewCardActions.tsx  # Review action buttons
+    │   └── UserReviewsSection.tsx # Reviews list with pagination
+    ├── restaurants/
+    │   ├── RestaurantCard.tsx     # Restaurant card for profile view
+    │   ├── RestaurantCardHeader.tsx
+    │   ├── RestaurantCardContent.tsx
+    │   ├── RestaurantCardFooter.tsx
+    │   ├── RestaurantCardActions.tsx
+    │   ├── RestaurantSkeletonLoader.tsx
+    │   └── UserRestaurantsSection.tsx
+    └── lists/
+        └── UserListsSection.tsx   # Lists grid with pagination
+```
+
+### Design Patterns
+
+#### Card Component Structure
+All profile cards follow a consistent structure:
+1. **Header**: Image/visual element with rating badge and action buttons
+2. **Content**: Description, comments, or main information
+3. **Footer**: Metadata badges (rating, price, date, location, tags)
+4. **Actions**: Edit, delete, share buttons (positioned over header image)
+
+#### Responsive Grid Layout
+```tsx
+// Standard grid pattern used across all sections
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+```
+
+#### Touch-Optimized Components
+- Minimum touch target: 44px (TouchButton md size)
+- Touch feedback with active states
+- Swipe gestures for mobile (future enhancement)
+
+### State Management
+
+Profile sections use a combination of:
+- **Local state**: For UI state (editing, loading more)
+- **useSecureApiClient hook**: For authenticated API calls
+- **useUserCache hook**: For cache invalidation after mutations
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/users/[id]/reviews` | GET | Fetch user's reviews with pagination |
+| `/api/users/[id]/restaurants` | GET | Fetch user's restaurants with pagination |
+| `/api/users/[id]/lists` | GET | Fetch user's lists with pagination |
+| `/api/reviews/[id]` | PUT | Update a review |
+| `/api/reviews/[id]` | DELETE | Delete a review |
+
+### Accessibility
+
+- Keyboard navigation (Enter, Space for card interaction)
+- ARIA labels on all interactive elements
+- Focus management for modals and dropdowns
+- `prefers-reduced-motion` support for animations
+- Screen reader friendly badge descriptions
+
 ## Contributing
 
 ### Code Review Guidelines

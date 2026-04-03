@@ -3,9 +3,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useSecureApiClient } from '@/hooks/useSecureApiClient';
-import Navbar from '@/components/layouts/Navbar';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
+import Navbar from '@/components/ui/navigation/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import { ArrowLeft, Edit, User } from 'lucide-react';
 import Link from 'next/link';

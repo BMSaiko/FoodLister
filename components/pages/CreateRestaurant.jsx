@@ -5,11 +5,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import GoogleMapsModal from '@/components/ui/RestaurantDetails/GoogleMapsModal';
-import FormField from '@/components/ui/Forms/FormField';
-import FormSection from '@/components/ui/Forms/FormSection';
-import FormActions from '@/components/ui/Forms/FormActions';
 import CuisineSelector from '@/components/ui/Filters/CuisineSelector';
 import DietaryOptionsSelector from '@/components/ui/Filters/DietaryOptionsSelector';
 import FeaturesSelector from '@/components/ui/Filters/FeaturesSelector';
@@ -18,12 +15,15 @@ import ImageUploader from '@/components/ui/RestaurantManagement/ImageUploader';
 import MenuManager from '@/components/ui/RestaurantManagement/MenuManager';
 import RestaurantImageManager from '@/components/ui/RestaurantManagement/RestaurantImageManager';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home, Lock } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, FileText, Check, Map, Phone, Plus, X, Smartphone, Home, Lock, Save } from 'lucide-react';
 import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
-import { MultiplePhoneInput } from '@/components/ui/Forms/PhoneInput';
 import { toast } from 'react-toastify';
+import FormSection from '@/components/ui/common/FormSection';
+import FormField from '@/components/ui/common/FormField';
+import MultiplePhoneInput from '@/components/ui/common/MultiplePhoneInput';
+import FormActions from '@/components/ui/common/FormActions';
 
 export default function CreateRestaurant() {
   const router = useRouter();
@@ -643,12 +643,37 @@ export default function CreateRestaurant() {
             </FormSection>
 
             {/* Ações */}
-            <FormActions
-              onCancel={() => router.push('/restaurants')}
-              onSubmit={handleSubmit}
-              submitText="Salvar Restaurante"
-              loading={loading}
-            />
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => router.push('/restaurants')}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <span className="hidden sm:inline">Cancelar</span>
+                <span className="sm:hidden">X</span>
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  loading
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <span className="hidden sm:inline">Salvando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-5 w-5 mr-2" />
+                    <span className="hidden sm:inline">Salvar Restaurante</span>
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

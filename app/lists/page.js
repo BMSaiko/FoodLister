@@ -4,7 +4,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ListCard from '@/components/ui/RestaurantManagement/ListCard';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
 import { Plus, Search as SearchIcon, ListChecks } from 'lucide-react';
 

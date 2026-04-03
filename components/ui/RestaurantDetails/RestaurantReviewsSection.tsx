@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, forwardRef, useRef } from 'react';
 import { Star, Edit, X, User, Euro } from 'lucide-react';
-import ReviewForm from '../Forms/ReviewForm';
 import { Review } from '@/libs/types';
 import { formatDate, formatPrice } from '@/utils/formatters';
 import { toast } from 'react-toastify';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import ReviewForm from './ReviewForm';
 
 interface RestaurantReviewsSectionProps {
   restaurantId: string;
@@ -15,22 +17,50 @@ interface RestaurantReviewsSectionProps {
   onReviewSubmitted: (newReview: Review) => void;
   onEditReview: (review: Review) => void;
   onDeleteReview: (reviewId: string) => void;
+  onScrollToForm?: () => void;
 }
 
-export default function RestaurantReviewsSection({
-  restaurantId,
-  reviews,
-  reviewCount,
-  user,
-  userProfile,
-  loading = false,
-  onReviewSubmitted,
-  onEditReview,
-  onDeleteReview
-}: RestaurantReviewsSectionProps) {
+const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSectionProps>((
+  {
+    restaurantId,
+    reviews,
+    reviewCount,
+    user,
+    userProfile,
+    loading = false,
+    onReviewSubmitted,
+    onEditReview,
+    onDeleteReview,
+    onScrollToForm
+  },
+  ref
+) => {
   
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const reviewFormRef = useRef<HTMLDivElement>(null);
+
+  // Trigger scroll to form when editing starts
+  useEffect(() => {
+    if (editingReview && reviewFormRef.current) {
+      // Scroll to the review form with smooth animation
+      try {
+        reviewFormRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add a subtle highlight effect
+        reviewFormRef.current.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        setTimeout(() => {
+          reviewFormRef.current?.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        }, 3000);
+      } catch (error) {
+        console.warn('Scroll to form failed:', error);
+      }
+    }
+  }, [editingReview]);
 
   const handleReviewSubmitted = (newReview: Review) => {
     onReviewSubmitted(newReview);
@@ -57,7 +87,7 @@ export default function RestaurantReviewsSection({
   };
 
   return (
-    <div id="restaurant-reviews" className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-4">
+    <div ref={ref} id="restaurant-reviews" className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-4">
       {/* Section Header */}
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
@@ -87,7 +117,7 @@ export default function RestaurantReviewsSection({
       <div className="p-4 sm:p-6">
         {/* Review Form */}
         {(showReviewForm || editingReview) && (
-          <div className="mb-6">
+          <div ref={reviewFormRef} className="mb-6">
             <ReviewForm
               restaurantId={restaurantId}
               onReviewSubmitted={handleReviewSubmitted}
@@ -95,7 +125,8 @@ export default function RestaurantReviewsSection({
                 setShowReviewForm(false);
                 setEditingReview(null);
               }}
-              initialReview={editingReview}
+              isEditing={!!editingReview}
+              initialReview={editingReview || undefined}
             />
           </div>
         )}
@@ -140,9 +171,10 @@ export default function RestaurantReviewsSection({
         ) : (
           /* Reviews List */
           <div className="space-y-4 sm:space-y-6">
-            {reviews.map(review => (
+            {reviews.map((review, index) => (
               <div 
-                key={review.id} 
+                key={`${review.id}-${index}`} 
+                id={`review-${review.id}`}
                 className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-gray-200 hover:shadow-md transition-all duration-200 group"
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3 sm:gap-4">
@@ -166,9 +198,12 @@ export default function RestaurantReviewsSection({
                           )}
                         </div>
                         <div>
-                          <span className="font-semibold text-gray-800 text-sm sm:text-base">
-                            {review.user.name}
-                          </span>
+                        <Link 
+                          href={`/users/${review.user.userIdCode}`}
+                          className="font-semibold text-gray-800 text-sm sm:text-base hover:text-amber-600 transition-colors"
+                        >
+                          {review.user.name}
+                        </Link>
                           <div className="flex items-center gap-1 sm:gap-2 mt-1">
                             {Array(5).fill(0).map((_, i) => (
                               <Star
@@ -243,4 +278,8 @@ export default function RestaurantReviewsSection({
       </div>
     </div>
   );
-}
+});
+
+RestaurantReviewsSection.displayName = 'RestaurantReviewsSection';
+
+export default RestaurantReviewsSection;
