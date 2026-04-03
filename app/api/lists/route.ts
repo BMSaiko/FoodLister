@@ -10,15 +10,28 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
 
     // Get lists with search filter if provided
-    // RLS policies will automatically filter based on is_public and user ownership
-    // If user is not authenticated, supabase will be null, so we need to handle that
+    // SECURITY: Explicitly filter by is_public and user ownership
+    // RLS policies provide additional protection, but we also enforce filtering at the application level
     let listsQuery;
     
     if (supabase) {
-      // User is authenticated, use authenticated client
-      listsQuery = supabase
-        .from('lists')
-        .select('*');
+      // User is authenticated: fetch their own lists + public lists from others
+      // We need to get the user's ID to filter properly
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Fetch lists that are either public OR owned by the current user
+        listsQuery = supabase
+          .from('lists')
+          .select('*')
+          .or(`is_public.eq.true,creator_id.eq.${user.id}`);
+      } else {
+        // Fallback: if we can't get user, only show public lists
+        listsQuery = supabase
+          .from('lists')
+          .select('*')
+          .eq('is_public', true);
+      }
     } else {
       // User is not authenticated, create a public client
       const { createClient } = await import('@supabase/supabase-js');
