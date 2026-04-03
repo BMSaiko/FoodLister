@@ -3,167 +3,112 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/libs/supabase/client';
-import { useAuth } from '@/contexts';
-import Navbar from '@/components/ui/navigation/Navbar';
+import { createClient } from 'libs/supabase/client';
+import { useAuth } from 'contexts';
+import Navbar from 'components/ui/navigation/Navbar';
 import Link from 'next/link';
-import { ArrowLeft, Plus, X, Search, Save } from 'lucide-react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { VisibilityToggle, SelectedRestaurants } from 'components/ui/lists/ListFormFields';
 
 export default function CreateList() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const supabase = createClient();
+  
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    description: ''
+    description: '',
+    isPublic: true
   });
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurants, setSelectedRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
-  
-  const supabase = createClient();
 
-  // Verificar autenticação
+  // Check authentication
   useEffect(() => {
     if (!authLoading && !user) {
       toast.error('Você precisa estar logado para criar listas.', {
         position: "top-center",
         autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base",
-        bodyClassName: "text-sm sm:text-base"
+        theme: "light"
       });
       router.push('/auth/signin');
-      return;
     }
   }, [user, authLoading, router]);
 
-  // Fetch all restaurants for selection
+  // Fetch all restaurants for manual selection
   useEffect(() => {
     async function fetchRestaurants() {
-      const { data, error } = await supabase
-        .from('restaurants')
-        .select('*');
-        
+      const { data, error } = await supabase.from('restaurants').select('*');
       if (!error && data) {
         setRestaurants(data);
-        setFilteredRestaurants(data);
       }
     }
-    
     fetchRestaurants();
   }, []);
-  
-  // Filter restaurants based on search query and exclude already selected ones
-  useEffect(() => {
-    // First filter out already selected restaurants
-    const availableRestaurants = restaurants.filter(restaurant => 
-      !selectedRestaurants.some(selected => selected.id === restaurant.id)
-    );
-    
-    // Then apply search filter if there's a query
-    if (searchQuery === '') {
-      setFilteredRestaurants(availableRestaurants);
-    } else {
-      const filtered = availableRestaurants.filter(restaurant => 
-        restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredRestaurants(filtered);
-    }
-  }, [searchQuery, restaurants, selectedRestaurants]);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const addRestaurant = (restaurant) => {
     if (!selectedRestaurants.some(r => r.id === restaurant.id)) {
       setSelectedRestaurants([...selectedRestaurants, restaurant]);
     }
   };
-  
+
   const removeRestaurant = (restaurantId) => {
     setSelectedRestaurants(selectedRestaurants.filter(r => r.id !== restaurantId));
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check if user is authenticated
     if (!user) {
-      toast.error('Você precisa estar logado para criar uma lista.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base",
-        bodyClassName: "text-sm sm:text-base"
-      });
+      toast.error('Você precisa estar logado para criar uma lista.', { position: "top-center", autoClose: 4000, theme: "light" });
       router.push('/auth/signin');
       return;
     }
 
-    // Simple validation
     if (!formData.name) {
-      toast.error('Por favor, preencha o nome da lista.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base",
-        bodyClassName: "text-sm sm:text-base"
-      });
+      toast.error('Por favor, preencha o nome da lista.', { position: "top-center", autoClose: 4000, theme: "light" });
       return;
     }
 
     setLoading(true);
 
     try {
-      // 1. Get user display name from profiles table or email
-      const { data: profileData, error: profileError } = await supabase
+      // Get user display name
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('display_name')
         .eq('user_id', user.id)
         .single();
 
-      const displayName = (!profileError && profileData?.display_name) ? profileData.display_name : user.email;
+      const displayName = profileData?.display_name || user.email;
 
-      // 2. Create the list with creator_id and creator_name defined explicitly
+      // Create the list
+      const listDataToInsert = {
+        name: formData.name,
+        description: formData.description || '',
+        creator_id: user.id,
+        creator_name: displayName,
+        is_public: formData.isPublic
+      };
+
       const { data: listData, error: listError } = await supabase
         .from('lists')
-        .insert([
-          {
-            name: formData.name,
-            description: formData.description || '',
-            creator_id: user.id,
-            creator_name: displayName
-          }
-        ])
+        .insert([listDataToInsert])
         .select();
 
-      if (listError) {
-        throw listError;
-      }
+      if (listError) throw listError;
 
       const listId = listData[0].id;
 
-      // If there are selected restaurants, add them to the list
+      // Add restaurants to the list
       if (selectedRestaurants.length > 0) {
         const restaurantRelations = selectedRestaurants.map(restaurant => ({
           list_id: listId,
@@ -174,59 +119,40 @@ export default function CreateList() {
           .from('list_restaurants')
           .insert(restaurantRelations);
 
-        if (relationError) {
-          throw relationError;
-        }
+        if (relationError) throw relationError;
       }
 
-      // Show success message and redirect to the new list's page
-      toast.success('Lista criada com sucesso!', {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base",
-        bodyClassName: "text-sm sm:text-base"
-      });
+      toast.success('Lista criada com sucesso!', { position: "top-center", autoClose: 3000, theme: "light" });
       router.push(`/lists/${listId}`);
     } catch (err) {
       console.error('Error creating list:', err);
-      toast.error('Erro ao criar lista. Por favor, tente novamente.', {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base",
-        bodyClassName: "text-sm sm:text-base"
-      });
+      toast.error('Erro ao criar lista. Por favor, tente novamente.', { position: "top-center", autoClose: 5000, theme: "light" });
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50/30">
       <Navbar />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Link href="/lists" className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
+        <Link href="/lists" className="inline-flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline transition-colors">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar para Listas
         </Link>
         
-        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
-        
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">Criar Nova Lista</h1>
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 sm:px-6 py-4 sm:py-6">
+            <h1 className="text-2xl font-bold text-white">Criar Nova Lista</h1>
+            <p className="text-amber-100 text-sm mt-1">Adicione seus restaurantes favoritos a uma lista personalizada</p>
+          </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+            {/* Name */}
             <div className="mb-4">
-              <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
+              <label htmlFor="name" className="block text-gray-700 font-semibold mb-2">
                 Nome da Lista *
               </label>
               <input
@@ -235,13 +161,15 @@ export default function CreateList() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                placeholder="Ex: Melhores restaurantes italianos"
                 required
               />
             </div>
             
+            {/* Description */}
             <div className="mb-6">
-              <label htmlFor="description" className="block text-gray-700 font-medium mb-2">
+              <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">
                 Descrição
               </label>
               <textarea
@@ -249,99 +177,94 @@ export default function CreateList() {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
+                rows={3}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                placeholder="Descreva o tema desta lista..."
               />
             </div>
             
+            {/* Visibility Toggle */}
+            <VisibilityToggle 
+              isPublic={formData.isPublic} 
+              onChange={(isPublic) => setFormData(prev => ({ ...prev, isPublic }))} 
+            />
+            
+            {/* Content based on mode */}
             <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">
-                Adicionar Restaurantes
-              </label>
-              
-              <div className="relative mb-4">
-                <input
-                  type="text"
-                  placeholder="Procurar restaurantes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-400"
-                />
-                <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-              </div>
-              
-              <div className="mb-4 max-h-36 sm:max-h-48 overflow-y-auto bg-gray-50 rounded-md border border-gray-200">
-                {filteredRestaurants.length > 0 ? (
-                  <ul className="divide-y divide-gray-200">
-                    {filteredRestaurants.map(restaurant => (
-                      <li 
-                        key={restaurant.id} 
-                        className="p-3 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
-                        onClick={() => addRestaurant(restaurant)}
-                      >
-                        <div className="pr-2">
-                          <div className="font-medium text-sm sm:text-base line-clamp-1">{restaurant.name}</div>
-                          <div className="text-xs sm:text-sm text-gray-500">€{restaurant.price_per_person.toFixed(2)} • {restaurant.rating.toFixed(1)}★</div>
-                        </div>
-                        <Plus className="h-5 w-5 text-amber-600 flex-shrink-0" />
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="p-4 text-center text-gray-500 text-sm">
-                    Nenhum restaurante encontrado
-                  </div>
-                )}
-              </div>
-              
-              <div className="mb-4">
-                <h3 className="font-medium text-gray-700 mb-2 text-sm sm:text-base">Restaurantes Selecionados ({selectedRestaurants.length})</h3>
-                {selectedRestaurants.length > 0 ? (
-                  <ul className="space-y-2">
-                    {selectedRestaurants.map(restaurant => (
-                      <li key={restaurant.id} className="flex justify-between items-center bg-amber-50 p-2 sm:p-3 rounded-md">
-                        <span className="text-sm line-clamp-1 mr-2">{restaurant.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeRestaurant(restaurant.id)}
-                          className="text-gray-500 hover:text-red-500 flex-shrink-0"
-                          aria-label="Remover restaurante"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-500 text-xs sm:text-sm">Nenhum restaurante selecionado</p>
-                )}
-              </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-semibold mb-2">Buscar Restaurantes</label>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar por nome..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto bg-gray-50 rounded-xl border border-gray-200">
+                  {restaurants.length > 0 ? (
+                    <ul className="divide-y divide-gray-200">
+                      {restaurants
+                        .filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .filter(r => !selectedRestaurants.some(s => s.id === r.id))
+                        .slice(0, 20)
+                        .map(restaurant => (
+                          <li
+                            key={restaurant.id}
+                            className="flex items-center justify-between p-3 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-800 truncate">{restaurant.name}</p>
+                              {restaurant.location && (
+                                <p className="text-sm text-gray-500 truncate">{restaurant.location}</p>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => addRestaurant(restaurant)}
+                              className="ml-3 px-3 py-1.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-sm font-medium"
+                            >
+                              Adicionar
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p className="p-4 text-center text-gray-500">Nenhum restaurante disponível</p>
+                  )}
+                </div>
             </div>
             
-            <div className="flex justify-end">
+            {/* Selected Restaurants */}
+            <SelectedRestaurants 
+              restaurants={selectedRestaurants} 
+              onRemove={removeRestaurant} 
+            />
+            
+            {/* Actions */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
               <button
                 type="button"
                 onClick={() => router.push('/lists')}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 mr-4 hover:bg-gray-50"
+                className="px-5 py-2.5 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors font-medium"
               >
-                <span className="hidden sm:inline">Cancelar</span>
-                <span className="sm:hidden">X</span>
+                Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    <span className="hidden sm:inline">Salvando...</span>
-                  </>
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Salvando...</span>
+                  </div>
                 ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Criar Lista</span>
-                  </>
+                  <div className="flex items-center gap-2">
+                    <Save className="h-4 w-4" />
+                    <span>Criar Lista</span>
+                  </div>
                 )}
               </button>
             </div>

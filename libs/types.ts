@@ -44,6 +44,14 @@ export interface List {
   updated_at: string;
   creator_id?: string;
   creator_name?: string;
+  is_public?: boolean;
+  filters?: {
+    cuisineTypes?: string[];
+    priceRange?: [number, number];
+    minRating?: number;
+    features?: string[];
+    dietaryOptions?: string[];
+  };
 }
 
 export interface User {
