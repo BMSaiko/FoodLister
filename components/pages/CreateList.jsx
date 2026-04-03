@@ -3,28 +3,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/libs/supabase/client';
-import { useAuth } from '@/contexts';
-import Navbar from '@/components/ui/navigation/Navbar';
+import { createClient } from 'libs/supabase/client';
+import { useAuth } from 'contexts';
+import Navbar from 'components/ui/navigation/Navbar';
 import Link from 'next/link';
 import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
-import TabbedRestaurantFilters from '@/components/ui/Filters/TabbedRestaurantFilters';
-import { VisibilityToggle, ModeSelector, SelectedRestaurants } from '@/components/ui/lists/ListFormFields';
-import { useListFilterLogic } from '@/hooks/lists/useListFilterLogic';
-
-const initialFilters = {
-  search: '',
-  cuisine_types: [],
-  features: [],
-  dietary_options: [],
-  price_range: { min: 0, max: 100 },
-  rating_range: { min: 0, max: 5 },
-  location: { city: '' },
-  visit_count: { min: 0, max: 100 },
-  visited: false,
-  not_visited: false
-};
+import { VisibilityToggle, SelectedRestaurants } from 'components/ui/lists/ListFormFields';
 
 export default function CreateList() {
   const router = useRouter();
@@ -37,19 +22,9 @@ export default function CreateList() {
     description: '',
     isPublic: true
   });
-  const [creationMode, setCreationMode] = useState('manual');
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurants, setSelectedRestaurants] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const {
-    filters,
-    setFilters,
-    filteredRestaurants,
-    activeFilters,
-    clearFilters,
-    loading: filtersLoading
-  } = useListFilterLogic();
 
   // Check authentication
   useEffect(() => {
@@ -73,15 +48,6 @@ export default function CreateList() {
     }
     fetchRestaurants();
   }, []);
-
-  // Auto-select all filtered restaurants when in filter mode
-  useEffect(() => {
-    if (creationMode === 'filters' && filteredRestaurants.length > 0) {
-      setSelectedRestaurants(filteredRestaurants);
-    } else if (creationMode === 'filters' && filteredRestaurants.length === 0) {
-      setSelectedRestaurants([]);
-    }
-  }, [filteredRestaurants, creationMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -132,10 +98,6 @@ export default function CreateList() {
         creator_name: displayName,
         is_public: formData.isPublic
       };
-
-      if (creationMode === 'filters' && activeFilters) {
-        listDataToInsert.filters = filters;
-      }
 
       const { data: listData, error: listError } = await supabase
         .from('lists')
@@ -227,21 +189,8 @@ export default function CreateList() {
               onChange={(isPublic) => setFormData(prev => ({ ...prev, isPublic }))} 
             />
             
-            {/* Mode Selector */}
-            <ModeSelector 
-              mode={creationMode} 
-              onChange={(mode) => {
-                setCreationMode(mode);
-                setSelectedRestaurants([]);
-                if (mode === 'filters') {
-                  setFilters(initialFilters);
-                }
-              }} 
-            />
-            
             {/* Content based on mode */}
-            {creationMode === 'manual' ? (
-              <div className="mb-6">
+            <div className="mb-6">
                 <div className="mb-4">
                   <label className="block text-gray-700 font-semibold mb-2">Buscar Restaurantes</label>
                   <input
@@ -285,23 +234,7 @@ export default function CreateList() {
                   )}
                 </div>
               </div>
-            ) : (
-              <div className="mb-6">
-                <TabbedRestaurantFilters
-                  filters={filters}
-                  setFilters={setFilters}
-                  clearFilters={clearFilters}
-                  autoApply={true}
-                />
-                {activeFilters && (
-                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                    <p className="text-sm text-amber-700">
-                      <span className="font-semibold">{filteredRestaurants.length}</span> restaurantes encontrados
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+            </div>
             
             {/* Selected Restaurants */}
             <SelectedRestaurants 
