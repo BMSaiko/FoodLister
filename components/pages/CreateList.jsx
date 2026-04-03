@@ -233,7 +233,6 @@ export default function CreateList() {
                     <p className="p-4 text-center text-gray-500">Nenhum restaurante disponível</p>
                   )}
                 </div>
-              </div>
             </div>
             
             {/* Selected Restaurants */}
