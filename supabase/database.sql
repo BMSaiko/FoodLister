@@ -49,6 +49,12 @@ CREATE TABLE public.profiles (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   phone_number text,
+  user_id_code character varying UNIQUE,
+  public_profile boolean DEFAULT true,
+  total_restaurants_visited integer DEFAULT 0,
+  total_reviews integer DEFAULT 0,
+  total_lists integer DEFAULT 0,
+  total_restaurants_added integer DEFAULT 0,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
@@ -116,6 +122,7 @@ CREATE TABLE public.restaurants (
   menu_images ARRAY DEFAULT '{}'::text[] CHECK (array_length(menu_images, 1) <= 10),
   latitude numeric CHECK (latitude IS NULL OR latitude >= '-90'::integer::numeric AND latitude <= 90::numeric),
   longitude numeric CHECK (longitude IS NULL OR longitude >= '-180'::integer::numeric AND longitude <= 180::numeric),
+  review_count integer DEFAULT 0,
   CONSTRAINT restaurants_pkey PRIMARY KEY (id),
   CONSTRAINT restaurants_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES auth.users(id)
 );
@@ -144,4 +151,15 @@ CREATE TABLE public.user_restaurant_visits (
   CONSTRAINT user_restaurant_visits_pkey PRIMARY KEY (id),
   CONSTRAINT user_restaurant_visits_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
   CONSTRAINT user_restaurant_visits_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id)
+);
+CREATE TABLE public.user_search_index (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL UNIQUE,
+  display_name text,
+  location text,
+  bio text,
+  search_vector tsvector,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT user_search_index_pkey PRIMARY KEY (id),
+  CONSTRAINT user_search_index_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(user_id)
 );

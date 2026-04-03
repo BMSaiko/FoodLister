@@ -1,13 +1,13 @@
 // app/restaurants/[id]/page.tsx
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useSecureApiClient } from '@/hooks/useSecureApiClient';
-import { usePublicApiClient } from '@/hooks/usePublicApiClient';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useParams, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
+import { usePublicApiClient } from '@/hooks/auth/usePublicApiClient';
 import { createClient } from '@/libs/supabase/client';
-import Navbar from '@/components/layouts/Navbar';
+import Navbar from '@/components/ui/navigation/Navbar';
 import { Review } from '@/libs/types';
 
 // Import new components
@@ -34,7 +34,6 @@ import { toast } from 'react-toastify';
 import Image from 'next/image';
 import RestaurantCarousel from '@/components/ui/RestaurantList/RestaurantCarousel';
 import RestaurantImagePlaceholder from '@/components/ui/RestaurantManagement/RestaurantImagePlaceholder';
-import ReviewForm from '@/components/ui/Forms/ReviewForm';
 
 interface Restaurant {
   id: string;
@@ -67,7 +66,9 @@ interface Restaurant {
 
 export default function RestaurantDetails() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
+  const reviewId = searchParams?.get('review');
   const { user } = useAuth();
   const { get, post, patch, del } = useSecureApiClient();
   const { get: getPublic } = usePublicApiClient();
@@ -82,13 +83,14 @@ export default function RestaurantDetails() {
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
   const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [allDataLoaded, setAllDataLoaded] = useState(false);
+  const reviewsSectionRef = useRef<HTMLDivElement>(null);
+  const reviewFormRef = useRef<HTMLDivElement>(null);
 
   // Memoize functions to prevent infinite re-renders
   const fetchRestaurantDetails = useCallback(async () => {
@@ -265,7 +267,7 @@ export default function RestaurantDetails() {
     const fetchUserProfile = async () => {
       if (user?.id) {
         try {
-          const response = await get(`/api/profile`);
+          const response = await get(`/api/users/me`);
           if (response.ok) {
             const profileData = await response.json();
             setUserProfile({
@@ -339,6 +341,37 @@ export default function RestaurantDetails() {
 
     fetchRestaurantDetails();
   }, [id, fetchRestaurantDetails]);
+
+  // Handle scroll to review when reviewId is present
+  useEffect(() => {
+    if (reviewId && allDataLoaded && reviewsSectionRef.current) {
+      // Find the review element by ID
+      const reviewElement = document.getElementById(`review-${reviewId}`);
+      if (reviewElement) {
+        // Scroll to the review with smooth animation
+        reviewElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add a temporary highlight effect
+        reviewElement.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        setTimeout(() => {
+          reviewElement.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        }, 3000);
+      }
+    }
+  }, [reviewId, allDataLoaded]);
+
+  // Track when all data is loaded
+  useEffect(() => {
+    if (!loading && !loadingReviews && restaurant && reviews.length >= 0) {
+      setAllDataLoaded(true);
+    } else {
+      setAllDataLoaded(false);
+    }
+  }, [loading, loadingReviews, restaurant, reviews.length]);
 
 
 
@@ -641,27 +674,33 @@ export default function RestaurantDetails() {
   // Obtém a classe de estilo para a avaliação
   const ratingClass = getRatingClass(restaurant.rating || 0);
 
-  // Handle review submission
+  // Handle review submission (both create and edit)
   const handleReviewSubmitted = async (newReview: Review) => {
-    if (editingReview) {
-      // Update existing review - refetch reviews to ensure profile image is updated
-      await fetchReviews();
-    } else {
-      // Add new review - inject current user's profile image
-      const reviewWithImage = {
-        ...newReview,
-        user: {
-          ...newReview.user,
-          profileImage: userProfile?.avatar_url || undefined
-        }
-      };
-      setReviews(prev => [reviewWithImage, ...prev]);
+    // Use the review data as-is from the API response (which now includes user profile data)
+    const reviewWithUserData = newReview;
+
+    // Check if this is an edit (review already exists) or a new review
+    setReviews(prev => {
+      const existingReviewIndex = prev.findIndex(review => review.id === newReview.id);
+      
+      if (existingReviewIndex !== -1) {
+        // This is an edit - update the existing review
+        const updatedReviews = [...prev];
+        updatedReviews[existingReviewIndex] = reviewWithUserData;
+        return updatedReviews;
+      } else {
+        // This is a new review - add to the beginning
+        return [reviewWithUserData, ...prev];
+      }
+    });
+
+    // Only increment review count for new reviews, not edits
+    const existingReviewIndex = reviews.findIndex(review => review.id === newReview.id);
+    if (existingReviewIndex === -1) {
       setReviewCount(prev => prev + 1);
     }
-    setShowReviewForm(false);
-    setEditingReview(null);
 
-    // Update restaurant rating after successful review submission/update
+    // Update restaurant rating after successful review submission
     await updateRestaurantRating(id || '');
 
     // Fetch updated restaurant data to get the new rating and price_per_person
@@ -675,12 +714,13 @@ export default function RestaurantDetails() {
       logError('Error fetching updated restaurant data', error);
     }
 
-    toast.success(editingReview ? 'Avaliação atualizada com sucesso!' : 'Avaliação enviada com sucesso!');
+    toast.success('Avaliação enviada com sucesso!');
   };
 
-  // Handle review edit
+  // Handle review edit - this is handled by RestaurantReviewsSection component
   const handleEditReview = (review: Review) => {
-    setEditingReview(review);
+    // The RestaurantReviewsSection component handles the edit functionality internally
+    // No additional action needed here
   };
 
   // Handle review deletion
@@ -726,28 +766,19 @@ export default function RestaurantDetails() {
   // Helper function to update restaurant rating based on reviews
   const updateRestaurantRating = async (restaurantId: string) => {
     try {
-      // Calculate average rating from all reviews for this restaurant
-      const response = await get(`/api/reviews?restaurant_id=${restaurantId}`);
-      const data = await response.json();
+      // Use the new rating-specific endpoint that doesn't require restaurant ownership
+      const response = await post(`/api/restaurants/${restaurantId}/rating`, {});
       
-      let averageRating = 0;
-      if (data.reviews && data.reviews.length > 0) {
-        const totalRating = data.reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
-        averageRating = totalRating / data.reviews.length;
-      }
-      // If no reviews, rating should be 0
-
-      // Update the restaurant's rating via API
-      try {
-        const updateResponse = await patch(`/api/restaurants/${restaurantId}`, { rating: averageRating });
-        if (!updateResponse.ok) {
-          const errorText = await updateResponse.text();
-          console.error('Error updating restaurant rating via API:', errorText);
-          // Don't throw error, just log it - rating update is not critical for user experience
-        }
-      } catch (error) {
-        console.error('Error updating restaurant rating:', error);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error updating restaurant rating:', errorText);
         // Don't throw error, just log it - rating update is not critical for user experience
+      } else {
+        const data = await response.json();
+        // Update local restaurant state with new rating
+        if (data.restaurant) {
+          setRestaurant(prev => prev ? { ...prev, rating: data.restaurant.rating } : null);
+        }
       }
     } catch (error) {
       console.error('Error in updateRestaurantRating:', error);
@@ -843,6 +874,7 @@ export default function RestaurantDetails() {
 
         {/* Restaurant Reviews Section */}
         <RestaurantReviewsSection
+          ref={reviewsSectionRef}
           restaurantId={id}
           reviews={reviews}
           reviewCount={reviewCount}
@@ -852,6 +884,15 @@ export default function RestaurantDetails() {
           onReviewSubmitted={handleReviewSubmitted}
           onEditReview={handleEditReview}
           onDeleteReview={handleDeleteReview}
+          onScrollToForm={() => {
+            if (reviewFormRef.current) {
+              reviewFormRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'nearest'
+              });
+            }
+          }}
         />
       </div>
 

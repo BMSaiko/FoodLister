@@ -4,9 +4,9 @@ import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TabbedRestaurantFilters from '@/components/ui/Filters/TabbedRestaurantFilters';
 import { FiltersProvider, useAuth } from '@/contexts/index';
-import { useRestaurants } from '@/hooks/useRestaurants';
-import { useVisitsData } from '@/hooks/useVisitsData';
-import { useFiltersLogic } from '@/hooks/useFiltersLogic';
+import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
+import { useRestaurants } from '@/hooks/data/useRestaurants';
+import { useVisitsData } from '@/hooks/data/useVisitsData';
 
 import { RestaurantsHeader } from '@/components/ui/RestaurantList/RestaurantsHeader';
 import { RestaurantGrid } from '@/components/ui/RestaurantGrid';

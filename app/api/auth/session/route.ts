@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { logSessionStart, logSessionExpired, logTokenError, logAuthError } from '@/utils/authLogger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      logAuthError({ error: authError, userId: user?.id }, user?.id);
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -30,11 +32,22 @@ export async function GET(request: NextRequest) {
     const { data: session, error: sessionError } = await supabase.auth.getSession();
 
     if (sessionError) {
+      logTokenError({ error: sessionError, userId: user.id }, user.id);
       console.error('Error fetching session:', sessionError);
       return NextResponse.json(
         { error: 'Failed to fetch session' },
         { status: 500 }
       );
+    }
+
+    // Log session information
+    if (session.session) {
+      logSessionStart({ 
+        hasAccessToken: !!session.session.access_token,
+        hasRefreshToken: !!session.session.refresh_token,
+        expiresAt: session.session.expires_at,
+        userId: user.id 
+      }, user.id);
     }
 
     // Return session data
