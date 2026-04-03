@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
 
     // Get lists with search filter if provided
+    // RLS policies will automatically filter based on is_public and user ownership
     let listsQuery = supabase
       .from('lists')
       .select('*');

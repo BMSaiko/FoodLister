@@ -7,7 +7,8 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import Navbar from '@/components/ui/navigation/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
-import { ArrowLeft, Edit, User } from 'lucide-react';
+import RestaurantRoulette from '@/components/ui/RestaurantRoulette';
+import { ArrowLeft, Edit, User, Shuffle, Globe, Lock, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 
 interface Restaurant {
@@ -43,6 +44,8 @@ interface List {
   creator?: string;
   created_at: string;
   updated_at: string;
+  is_public?: boolean;
+  filters?: any;
   restaurants: Restaurant[];
 }
 
@@ -53,6 +56,8 @@ export default function ListDetails() {
   const [list, setList] = useState<List | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showRoulette, setShowRoulette] = useState(false);
+  const [applyingFilters, setApplyingFilters] = useState(false);
 
   useEffect(() => {
     async function fetchListDetails() {
@@ -106,6 +111,88 @@ export default function ListDetails() {
 
     fetchListDetails();
   }, [id]);
+
+  // Apply filters from list if it has them
+  const applyFilters = async () => {
+    if (!list?.filters) return;
+    
+    setApplyingFilters(true);
+    try {
+      const supabase = (await import('@/libs/supabase/client')).getClient();
+      const filters = list.filters;
+      
+      let query = supabase.from('restaurants').select('*');
+      
+      if (filters.cuisineTypes?.length > 0) {
+        const { data: junctionData } = await supabase
+          .from('restaurant_cuisine_types')
+          .select('restaurant_id')
+          .in('cuisine_type_id', filters.cuisineTypes);
+        
+        if (junctionData && junctionData.length > 0) {
+          const restaurantIds = [...new Set(junctionData.map((j: any) => j.restaurant_id))];
+          query = query.in('id', restaurantIds);
+        } else {
+          setRestaurants([]);
+          setApplyingFilters(false);
+          return;
+        }
+      }
+      
+      if (filters.features?.length > 0) {
+        const { data: junctionData } = await supabase
+          .from('restaurant_restaurant_features')
+          .select('restaurant_id')
+          .in('feature_id', filters.features);
+        
+        if (junctionData && junctionData.length > 0) {
+          const restaurantIds = [...new Set(junctionData.map((j: any) => j.restaurant_id))];
+          query = query.in('id', restaurantIds);
+        } else {
+          setRestaurants([]);
+          setApplyingFilters(false);
+          return;
+        }
+      }
+      
+      if (filters.dietaryOptions?.length > 0) {
+        const { data: junctionData } = await supabase
+          .from('restaurant_dietary_options_junction')
+          .select('restaurant_id')
+          .in('dietary_option_id', filters.dietaryOptions);
+        
+        if (junctionData && junctionData.length > 0) {
+          const restaurantIds = [...new Set(junctionData.map((j: any) => j.restaurant_id))];
+          query = query.in('id', restaurantIds);
+        } else {
+          setRestaurants([]);
+          setApplyingFilters(false);
+          return;
+        }
+      }
+      
+      query = query.gte('price_per_person', filters.priceRange?.[0] ?? 0)
+                   .lte('price_per_person', filters.priceRange?.[1] ?? 100)
+                   .gte('rating', filters.minRating ?? 0);
+      
+      const { data, error } = await query;
+      
+      if (!error && data) {
+        const transformedRestaurants = data.map((restaurant: any) => ({
+          ...restaurant,
+          features: restaurant.restaurant_features?.map((rf: any) => rf.features) || [],
+          dietary_options: restaurant.restaurant_dietary_options?.map((rdo: any) => rdo.dietary_options) || [],
+          cuisine_types: restaurant.restaurant_cuisine_types?.map((rct: any) => rct.cuisine_types) || []
+        }));
+        
+        setRestaurants(transformedRestaurants);
+      }
+    } catch (err) {
+      console.error('Error applying filters:', err);
+    } finally {
+      setApplyingFilters(false);
+    }
+  };
   
   if (loading) {
     return (
@@ -149,35 +236,74 @@ export default function ListDetails() {
             <span className="text-sm sm:text-base">Voltar</span>
           </Link>
           
-          <div className="flex w-full sm:w-auto">
-            {user && list?.creator_id === user.id && (
-              <Link
-                href={`/lists/${id}/edit`}
-                className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
-              >
-                <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
-                <span className="text-sm sm:text-base">Editar</span>
-              </Link>
-            )}
-          </div>
+           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+             {/* Roulette Button */}
+             <button
+               onClick={() => setShowRoulette(true)}
+               className="flex items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:from-purple-600 hover:to-pink-600 active:from-purple-700 active:to-pink-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
+             >
+               <Shuffle className="h-4 w-4 mr-1.5 sm:mr-1" />
+               <span className="text-sm sm:text-base">Roleta</span>
+             </button>
+             
+             {user && list?.creator_id === user.id && (
+               <Link
+                 href={`/lists/${id}/edit`}
+                 className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
+               >
+                 <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
+                 <span className="text-sm sm:text-base">Editar</span>
+               </Link>
+             )}
+           </div>
         </div>
         
         <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md mb-4 sm:mb-6 lg:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">{list.name}</h1>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">{list.description}</p>
           
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 gap-2 sm:gap-0">
-            <div className="text-xs sm:text-sm text-gray-500">
-              {restaurants.length} restaurantes • Criada em {new Date(list.created_at).toLocaleDateString('pt-PT')}
-            </div>
-            
-            {list.creator && (
-              <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                Criada por: {list.creator}
-              </div>
-            )}
-          </div>
+           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 gap-2 sm:gap-0">
+             <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500">
+               <span>
+                 {restaurants.length} restaurantes • Criada em {new Date(list.created_at).toLocaleDateString('pt-PT')}
+               </span>
+               
+               {/* Privacy indicator */}
+               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
+                 list.is_public !== false 
+                   ? 'bg-green-100 text-green-700' 
+                   : 'bg-red-100 text-red-700'
+               }`}>
+                 {list.is_public !== false ? (
+                   <><Globe className="h-3 w-3" /> Pública</>
+                 ) : (
+                   <><Lock className="h-3 w-3" /> Privada</>
+                 )}
+               </span>
+               
+               {/* Filter indicator */}
+               {list.filters && (
+                 <button
+                   onClick={applyFilters}
+                   disabled={applyingFilters}
+                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 hover:bg-blue-200 disabled:opacity-50"
+                 >
+                   {applyingFilters ? (
+                     <><RefreshCw className="h-3 w-3 animate-spin" /> A aplicar...</>
+                   ) : (
+                     <>Com filtros</>
+                   )}
+                 </button>
+               )}
+             </div>
+             
+             {list.creator && (
+               <div className="flex items-center text-xs sm:text-sm text-gray-500">
+                 <User className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                 Criada por: {list.creator}
+               </div>
+             )}
+           </div>
         </div>
         
         <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Restaurantes nesta lista</h2>
@@ -193,8 +319,16 @@ export default function ListDetails() {
               />
             ))}
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
+         )}
+       </div>
+       
+       {/* Roulette Modal */}
+       {showRoulette && (
+         <RestaurantRoulette 
+           restaurants={restaurants} 
+           onClose={() => setShowRoulette(false)} 
+         />
+       )}
+     </div>
+   );
+ }
