@@ -9,17 +9,22 @@ import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
 import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useListFilters } from '@/hooks/lists/useListFilters';
-import {
-  VisibilityToggle,
-  ModeSelector,
-  FilterChips,
-  PriceRangeSlider,
-  RatingSlider,
-  RestaurantSearch,
-  SelectedRestaurants,
-  FilterPreview
-} from '@/components/ui/lists/ListFormFields';
+import TabbedRestaurantFilters from '@/components/ui/Filters/TabbedRestaurantFilters';
+import { VisibilityToggle, ModeSelector, SelectedRestaurants } from '@/components/ui/lists/ListFormFields';
+import { useListFilterLogic } from '@/hooks/lists/useListFilterLogic';
+
+const initialFilters = {
+  search: '',
+  cuisine_types: [],
+  features: [],
+  dietary_options: [],
+  price_range: { min: 0, max: 100 },
+  rating_range: { min: 0, max: 5 },
+  location: { city: '' },
+  visit_count: { min: 0, max: 100 },
+  visited: false,
+  not_visited: false
+};
 
 export default function CreateList() {
   const router = useRouter();
@@ -39,13 +44,12 @@ export default function CreateList() {
   
   const {
     filters,
-    filterOptions,
-    filterPreview,
-    loadingPreview,
-    toggleFilter,
-    updatePriceRange,
-    updateMinRating
-  } = useListFilters();
+    setFilters,
+    filteredRestaurants,
+    activeFilters,
+    clearFilters,
+    loading: filtersLoading
+  } = useListFilterLogic();
 
   // Check authentication
   useEffect(() => {
@@ -72,10 +76,12 @@ export default function CreateList() {
 
   // Auto-select all filtered restaurants when in filter mode
   useEffect(() => {
-    if (creationMode === 'filters' && filterPreview.length > 0) {
-      setSelectedRestaurants(filterPreview);
+    if (creationMode === 'filters' && filteredRestaurants.length > 0) {
+      setSelectedRestaurants(filteredRestaurants);
+    } else if (creationMode === 'filters' && filteredRestaurants.length === 0) {
+      setSelectedRestaurants([]);
     }
-  }, [filterPreview, creationMode]);
+  }, [filteredRestaurants, creationMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -127,7 +133,7 @@ export default function CreateList() {
         is_public: formData.isPublic
       };
 
-      if (creationMode === 'filters') {
+      if (creationMode === 'filters' && activeFilters) {
         listDataToInsert.filters = filters;
       }
 
@@ -227,43 +233,73 @@ export default function CreateList() {
               onChange={(mode) => {
                 setCreationMode(mode);
                 setSelectedRestaurants([]);
+                if (mode === 'filters') {
+                  setFilters(initialFilters);
+                }
               }} 
             />
             
             {/* Content based on mode */}
             {creationMode === 'manual' ? (
               <div className="mb-6">
-                <RestaurantSearch
-                  restaurants={restaurants}
-                  selectedRestaurants={selectedRestaurants}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  onAdd={addRestaurant}
-                />
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-semibold mb-2">Buscar Restaurantes</label>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Buscar por nome..."
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div className="max-h-48 overflow-y-auto bg-gray-50 rounded-xl border border-gray-200">
+                  {restaurants.length > 0 ? (
+                    <ul className="divide-y divide-gray-200">
+                      {restaurants
+                        .filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                        .filter(r => !selectedRestaurants.some(s => s.id === r.id))
+                        .slice(0, 20)
+                        .map(restaurant => (
+                          <li
+                            key={restaurant.id}
+                            className="flex items-center justify-between p-3 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-800 truncate">{restaurant.name}</p>
+                              {restaurant.location && (
+                                <p className="text-sm text-gray-500 truncate">{restaurant.location}</p>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => addRestaurant(restaurant)}
+                              className="ml-3 px-3 py-1.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors text-sm font-medium"
+                            >
+                              Adicionar
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p className="p-4 text-center text-gray-500">Nenhum restaurante disponível</p>
+                  )}
+                </div>
               </div>
             ) : (
-              <div className="mb-6 space-y-4 p-4 bg-gray-50 rounded-xl">
-                <FilterChips
-                  options={filterOptions.cuisineTypes}
-                  selected={filters.cuisineTypes}
-                  onToggle={(id) => toggleFilter('cuisineTypes', id)}
-                  title="Tipo de Cozinha"
+              <div className="mb-6">
+                <TabbedRestaurantFilters
+                  filters={filters}
+                  setFilters={setFilters}
+                  clearFilters={clearFilters}
+                  autoApply={true}
                 />
-                <PriceRangeSlider value={filters.priceRange} onChange={updatePriceRange} />
-                <RatingSlider value={filters.minRating} onChange={updateMinRating} />
-                <FilterChips
-                  options={filterOptions.features}
-                  selected={filters.features}
-                  onToggle={(id) => toggleFilter('features', id)}
-                  title="Características"
-                />
-                <FilterChips
-                  options={filterOptions.dietaryOptions}
-                  selected={filters.dietaryOptions}
-                  onToggle={(id) => toggleFilter('dietaryOptions', id)}
-                  title="Opções Dietéticas"
-                />
-                <FilterPreview restaurants={filterPreview} loading={loadingPreview} />
+                {activeFilters && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                    <p className="text-sm text-amber-700">
+                      <span className="font-semibold">{filteredRestaurants.length}</span> restaurantes encontrados
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             
