@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, Utensils, Clock, MapPin, Euro, DollarSign, Users, List as ListIcon } from 'lucide-react';
 import { formatDate } from '@/utils/formatters';
+import Link from 'next/link';
 
 interface ProfileCardProps {
   children: React.ReactNode;
@@ -34,9 +35,9 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
 
   if (href) {
     return (
-      <a href={href} className="block">
+      <Link href={href} className="block">
         {content}
-      </a>
+      </Link>
     );
   }
 

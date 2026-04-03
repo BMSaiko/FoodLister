@@ -86,7 +86,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {lists.map((list) => (
           <ProfileCard
             key={list.id}
@@ -123,7 +123,6 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
 
               {/* Footer */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between mt-4">
-                <RestaurantCountBadge count={list.restaurantCount} />
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <span>Ver lista completa</span>
                   <ChevronRight className="h-4 w-4 text-gray-400" />

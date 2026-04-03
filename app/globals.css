@@ -406,6 +406,30 @@ body {
   }
 }
 
+/* Respect user's preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-float,
+  .animate-float-delayed,
+  .animate-float-slow,
+  .animate-float-very-slow,
+  .animate-bounce-subtle,
+  .animate-pulse-strong,
+  .animate-spin-slow,
+  .animate-spin-super-slow,
+  .animate-fade-in-up {
+    animation: none !important;
+  }
+}
+
 /* Melhorias de acessibilidade para todos os dispositivos */
 :focus-visible {
   outline: 2px solid var(--primary);
@@ -495,12 +519,28 @@ a:active, button:active {
 /* Melhorias para tablets */
 @media (min-width: 640px) and (max-width: 1023px) {
   .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
   
   .grid {
-    gap: 1rem;
+    gap: 1.25rem;
+  }
+  
+  /* Stats grid: 4 columns on tablet for better space usage */
+  .grid-cols-2.lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  
+  /* Profile header: side-by-side layout on tablet */
+  .flex-col.lg\:flex-row {
+    flex-direction: row;
+  }
+  
+  /* Profile image: larger on tablet */
+  .lg\:w-32.lg\:h-32 {
+    width: 6rem;
+    height: 6rem;
   }
 }
 

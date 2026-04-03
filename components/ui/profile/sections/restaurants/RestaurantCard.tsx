@@ -2,12 +2,10 @@
 "use client";
 
 import React from 'react';
-import { Star, MapPin, Euro, Clock, Share2, Edit, Trash2 } from 'lucide-react';
-import { formatDate } from '@/utils/formatters';
+import { Star } from 'lucide-react';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
-import { TouchButton } from '../shared';
-import RestaurantCardHeader from './RestaurantCardHeader';
 import RestaurantCardContent from './RestaurantCardContent';
+import RestaurantCardFooter from './RestaurantCardFooter';
 import RestaurantCardActions from './RestaurantCardActions';
 
 interface RestaurantCardProps {
@@ -45,35 +43,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 }) => {
   const hasImage = restaurant.imageUrl || (restaurant.images && restaurant.images.length > 0);
 
-  // Function to categorize price level
-  const categorizePriceLevel = (price: number) => {
-    if (price <= 10) return { label: 'Econômico', level: 1 };
-    if (price <= 20) return { label: 'Moderado', level: 2 };
-    if (price <= 50) return { label: 'Elevado', level: 3 };
-    return { label: 'Luxo', level: 4 };
-  };
-
-  // Get color class based on price level
-  const getPriceColorClass = (level: number): string => {
-    switch(level) {
-      case 1: return 'text-amber-400';
-      case 2: return 'text-amber-500';
-      case 3: return 'text-amber-600';
-      case 4: return 'text-amber-800';
-      default: return 'text-amber-400';
-    }
-  };
-
-  const getPriceLabelClass = (level: number): string => {
-    switch(level) {
-      case 1: return 'text-amber-400 font-bold';
-      case 2: return 'text-amber-500 font-bold';
-      case 3: return 'text-amber-600 font-bold';
-      case 4: return 'text-amber-800 font-bold';
-      default: return 'text-amber-400 font-medium';
-    }
-  };
-
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {
     if (rating >= 4.5) return 'bg-green-50 text-green-700';
@@ -105,9 +74,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     }
   };
 
-  // Ensure we have a valid key for React rendering
-  const renderKey = restaurant.id || `restaurant-${Math.random().toString(36).substr(2, 9)}`;
-  
   return (
     <div 
       className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 group ${className}`}
@@ -116,7 +82,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       onKeyDown={handleKeyDown}
       aria-label={`Restaurante ${restaurant.name}`}
       data-restaurant-id={dataRestaurantId}
-      key={renderKey}
     >
       {/* Restaurant Image Section - Clickable for navigation */}
       <div 
@@ -173,8 +138,14 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
       {/* Content Area */}
       <div className="p-4" onClick={handleCardClick}>
-        {/* Restaurant Content - Improved design */}
+        {/* Description - Similar to ReviewCard comment section */}
         <RestaurantCardContent 
+          restaurant={restaurant} 
+          centered={false}
+        />
+
+        {/* Footer - Metadata and tags, similar to ReviewCardFooter */}
+        <RestaurantCardFooter 
           restaurant={restaurant} 
           centered={false}
         />

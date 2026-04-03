@@ -129,15 +129,6 @@ const UserProfilePage = () => {
     cacheTTL: 5 * 60 * 1000 // 5 minutes cache
   });
 
-  // Debug logging to track data flow from hook to component
-  useEffect(() => {
-    console.log('UserProfilePage - useUserData data:', {
-      profile: profile ? { id: profile.id, name: profile.name } : null,
-      restaurants: restaurants.length,
-      loading,
-      error
-    });
-  }, [profile, restaurants, loading, error]);
 
   // Initialize animations
   useEffect(() => {
@@ -217,7 +208,6 @@ const UserProfilePage = () => {
       // Use the enhanced UserRestaurantsSection's loadAllRestaurants function
       // This will be handled by the UserRestaurantsSection component itself
       // when it detects the tab change and empty restaurant list
-      console.log('Switching to restaurants tab - UserRestaurantsSection will handle loading');
     }
   };
 

@@ -76,20 +76,11 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       setHasMore(initialRestaurants.length < initialTotal);
       setHasInitialized(true);
       hasFetchedRestaurants.current = true;
-      console.log('UserRestaurantsSection - Initialized with initial data:', {
-        restaurants: initialRestaurants.length,
-        total: initialTotal,
-        hasMore: initialRestaurants.length < initialTotal
-      });
     } else if (hasInitialized && initialRestaurants.length > 0) {
       // Update if initialRestaurants changes (e.g., from parent re-render)
       setRestaurants(initialRestaurants);
       setTotal(initialTotal);
       setHasMore(initialRestaurants.length < initialTotal);
-      console.log('UserRestaurantsSection - Updated with new initial data:', {
-        restaurants: initialRestaurants.length,
-        total: initialTotal
-      });
     }
   }, [initialRestaurants, initialTotal, hasInitialized]);
 
@@ -101,7 +92,6 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
     const isRestaurantsTab = tab === 'restaurants';
     
     if (isRestaurantsTab && !hasInitialized && restaurants.length === 0 && !hookIsLoading) {
-      console.log('UserRestaurantsSection - Auto-loading all restaurants on mount');
       loadAllRestaurants();
     }
   }, [hasInitialized, restaurants.length, hookIsLoading]);
@@ -114,32 +104,9 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       setHasMore(initialRestaurants.length < initialTotal);
       setHasInitialized(true);
       hasFetchedRestaurants.current = true;
-      console.log('UserRestaurantsSection - Synced with hook data after loading:', {
-        restaurants: initialRestaurants.length,
-        total: initialTotal
-      });
     }
   }, [hookIsLoading, initialRestaurants, initialTotal, hasInitialized]);
 
-  // Debug logging to track data flow
-  useEffect(() => {
-    console.log('UserRestaurantsSection - Props received:', {
-      userId,
-      initialRestaurants: initialRestaurants.length,
-      initialTotal,
-      hookIsLoading,
-      hookError
-    });
-  }, [userId, initialRestaurants, initialTotal, hookIsLoading, hookError]);
-
-  useEffect(() => {
-    console.log('UserRestaurantsSection - State updated:', {
-      restaurants: restaurants.length,
-      total,
-      hasMore,
-      hasInitialized
-    });
-  }, [restaurants, total, hasMore, hasInitialized]);
 
   const { get } = useSecureApiClient();
 
@@ -195,7 +162,6 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       // Remove duplicates by ID (though the API should not return duplicates)
       const uniqueRestaurants = data.data.filter((restaurant: any, index: number, arr: any[]) => {
         if (!restaurant || !restaurant.id) {
-          console.warn('Skipping restaurant without valid ID:', restaurant);
           return false;
         }
         
@@ -210,13 +176,8 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       setHasInitialized(true);
       hasFetchedRestaurants.current = true;
 
-      console.log('UserRestaurantsSection - Loaded all restaurants:', {
-        restaurants: uniqueRestaurants.length,
-        total: data.total || uniqueRestaurants.length
-      });
 
     } catch (error) {
-      console.error('Error loading all restaurants:', error);
       // Fallback to loading first page if bulk load fails
       try {
         const fallbackResponse = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
@@ -229,7 +190,6 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
           hasFetchedRestaurants.current = true;
         }
       } catch (fallbackError) {
-        console.error('Fallback loading also failed:', fallbackError);
       }
     } finally {
       setIsLoadingAll(false);
@@ -353,18 +313,10 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       return index === firstIndex;
     });
     
-    // Log if we had to remove duplicates before rendering
-    if (restaurants.length !== uniqueRestaurants.length) {
-      console.warn('Removed duplicate restaurants before rendering:', {
-        originalLength: restaurants.length,
-        uniqueLength: uniqueRestaurants.length,
-        removedCount: restaurants.length - uniqueRestaurants.length
-      });
-    }
 
     return (
       <div className="space-y-6" ref={containerRef}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {uniqueRestaurants.map((restaurant) => (
             <RestaurantCard
               key={restaurant.id}
@@ -379,11 +331,9 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
               }}
               onDelete={() => {
                 // Handle delete functionality
-                console.log('Delete restaurant:', restaurant.id);
               }}
               onShare={() => {
                 // Handle share functionality
-                console.log('Share restaurant:', restaurant.id);
               }}
               dataRestaurantId={restaurant.id}
             />
