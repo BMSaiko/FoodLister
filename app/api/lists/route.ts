@@ -64,15 +64,14 @@ export async function GET(request: NextRequest) {
 
     // Fetch individual counts for each list
     // Use the appropriate client based on whether user is authenticated
-    const countClient = supabase || (async () => {
+    let resolvedCountClient = supabase;
+    if (!resolvedCountClient) {
       const { createClient } = await import('@supabase/supabase-js');
-      return createClient(
+      resolvedCountClient = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
       );
-    })();
-    
-    const resolvedCountClient = typeof countClient === 'object' ? countClient : await countClient;
+    }
     
     const processedData = await Promise.all(
       listsData.map(async (list: any) => {
