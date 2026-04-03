@@ -31,10 +31,12 @@ The FoodList application uses a hybrid architecture:
 
 #### GET `/api/lists`
 
-**Purpose**: Retrieves all lists with optional search filtering and restaurant counts
+**Purpose**: Retrieves lists with optional search filtering and restaurant counts. Returns user's own lists + public lists for authenticated users, only public lists for unauthenticated users.
+
+**Authentication**: Optional (affects which lists are returned)
 
 **Parameters**:
-- `search` (optional): String to filter lists by name
+- `search` (optional): String to filter lists by name (case-insensitive)
 
 **Response**:
 ```json
@@ -44,7 +46,10 @@ The FoodList application uses a hybrid architecture:
       "id": "uuid",
       "name": "My Favorite Restaurants",
       "description": "A collection of my favorite places",
-      "creator": "user_id",
+      "creator": "user_name",
+      "creator_id": "user_uuid",
+      "is_public": true,
+      "filters": null,
       "created_at": "2024-01-01T00:00:00Z",
       "updated_at": "2024-01-01T00:00:00Z",
       "restaurantCount": 5
@@ -53,11 +58,16 @@ The FoodList application uses a hybrid architecture:
 }
 ```
 
-**Caching**: Includes cache headers for better performance
+**Security**: 
+- Authenticated users: See their own lists (public + private) + public lists from others
+- Unauthenticated users: See only public lists
+- Application-level filtering ensures `is_public` is respected
+
+**Caching**: `Cache-Control: public, s-maxage=60, stale-while-revalidate=120`
 
 **Usage**:
 ```javascript
-// Get all lists
+// Get all lists (public only if not authenticated)
 fetch('/api/lists')
   .then(response => response.json())
   .then(data => console.log(data));
@@ -70,7 +80,7 @@ fetch('/api/lists?search=favorite')
 
 #### GET `/api/lists/[id]`
 
-**Purpose**: Retrieves a specific list with all its restaurants
+**Purpose**: Retrieves a specific list with all its restaurants, including cuisine types, features, and dietary options.
 
 **Parameters**: List ID in URL path
 
@@ -81,7 +91,10 @@ fetch('/api/lists?search=favorite')
     "id": "uuid",
     "name": "My Favorite Restaurants",
     "description": "A collection of my favorite places",
-    "creator": "user_id",
+    "creator": "user_name",
+    "creator_id": "user_uuid",
+    "is_public": true,
+    "filters": null,
     "created_at": "2024-01-01T00:00:00Z",
     "updated_at": "2024-01-01T00:00:00Z",
     "restaurants": [
@@ -89,6 +102,9 @@ fetch('/api/lists?search=favorite')
         "id": "uuid",
         "name": "Restaurant Name",
         "description": "Description",
+        "cuisine_types": [...],
+        "restaurant_restaurant_features": [...],
+        "restaurant_dietary_options_junction": [...]
         // ... other restaurant fields
       }
     ]
@@ -96,7 +112,9 @@ fetch('/api/lists?search=favorite')
 }
 ```
 
-**Caching**: Includes cache headers for better performance
+**Security**: Respects RLS policies - private lists only visible to owner
+
+**Caching**: `Cache-Control: public, s-maxage=60, stale-while-revalidate=120`
 
 **Usage**:
 ```javascript
@@ -104,6 +122,18 @@ fetch('/api/lists/123e4567-e89b-12d3-a456-426614174000')
   .then(response => response.json())
   .then(data => console.log(data));
 ```
+
+#### ⚠️ Missing List API Endpoints
+
+The following endpoints are **not yet implemented**:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/lists` | POST | Create a new list |
+| `/api/lists/[id]` | PUT/PATCH | Update list details |
+| `/api/lists/[id]` | DELETE | Delete a list |
+
+**Note**: List creation and updates are currently handled directly via the Supabase client in the frontend components. See `components/pages/CreateList.jsx` and `components/pages/EditList.jsx` for implementation details.
 
 ### Restaurants API
 

@@ -66,7 +66,11 @@ The FoodList application uses a relational database with the following main enti
 | `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
 | `name` | `text` | NO | - | List name |
 | `description` | `text` | YES | - | List description |
-| `creator` | `text` | YES | - | Name of person who created list |
+| `creator` | `text` | YES | - | Name of person who created list (legacy) |
+| `creator_id` | `uuid` | YES | - | UUID of user who created list (FK to auth.users) |
+| `creator_name` | `text` | YES | - | Display name of creator at time of creation |
+| `is_public` | `boolean` | NO | `true` | Whether list is publicly visible |
+| `filters` | `jsonb` | YES | - | Saved filter configuration used to create list |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 | `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
 
@@ -225,23 +229,32 @@ FOR DELETE USING (auth.uid()::text = creator);
 ```
 
 ### Lists Table
+
+The lists table uses `is_public` column for visibility control:
+
 ```sql
--- Allow authenticated users to read all lists
-CREATE POLICY "Allow read access to lists" ON lists
-FOR SELECT USING (auth.role() = 'authenticated');
+-- Public lists are viewable by everyone, private lists only by creator
+CREATE POLICY "Lists are viewable by everyone" ON lists
+  FOR SELECT
+  USING (is_public = true OR creator_id = auth.uid());
 
--- Allow authenticated users to create lists
-CREATE POLICY "Allow insert access to lists" ON lists
-FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+-- Users can create their own lists
+CREATE POLICY "Users can create their own lists" ON lists
+  FOR INSERT
+  WITH CHECK (creator_id = auth.uid());
 
--- Allow users to update lists they created
-CREATE POLICY "Allow update access to own lists" ON lists
-FOR UPDATE USING (auth.uid()::text = creator);
+-- Users can update their own lists
+CREATE POLICY "Users can update their own lists" ON lists
+  FOR UPDATE
+  USING (creator_id = auth.uid());
 
--- Allow users to delete lists they created
-CREATE POLICY "Allow delete access to own lists" ON lists
-FOR DELETE USING (auth.uid()::text = creator);
+-- Users can delete their own lists
+CREATE POLICY "Users can delete their own lists" ON lists
+  FOR DELETE
+  USING (creator_id = auth.uid());
 ```
+
+**Note**: The `is_public` column (added in migration 022) controls visibility. Private lists (`is_public = false`) are only visible to their creator.
 
 ### User Restaurant Visits Table
 ```sql
