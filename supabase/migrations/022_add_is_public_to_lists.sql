@@ -45,4 +45,4 @@ CREATE POLICY "Users can delete their own lists" ON public.lists
   FOR DELETE
   USING (
     creator_id = auth.uid()
-  );
+  ); 
