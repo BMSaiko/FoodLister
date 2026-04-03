@@ -33,6 +33,14 @@ A modern, responsive web application for managing your restaurant discoveries an
 - **List Categories**: Group restaurants by occasion, cuisine, or personal preferences
 - **Share & Export**: Share your restaurant lists with others
 
+### 👤 User Profiles
+- **View Profiles**: Browse your own and other users' profiles
+- **Reviews Management**: View, edit, and delete your restaurant reviews
+- **Restaurants Management**: Manage your saved restaurants with edit/delete functionality
+- **Lists Overview**: View and manage your restaurant lists
+- **Responsive Design**: Optimized for mobile, tablet, and desktop
+- **Privacy Controls**: Control who can see your profile information
+
 ## 🛠️ Tech Stack
 
 ### Frontend
