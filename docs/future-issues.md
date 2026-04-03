@@ -341,4 +341,235 @@ Consider consolidating or sharing common logic between them.
 
 ---
 
+## 📋 Lists Feature Enhancements
+
+### 16. Duplicate List Functionality
+
+**Priority:** Medium  
+**Labels:** `enhancement`, `lists`
+
+**Description:**
+Allow users to duplicate an existing list to create a new one with the same restaurants.
+
+**Acceptance Criteria:**
+- [ ] Add "Duplicate" button to list detail page (owner only)
+- [ ] Copy all restaurants from original list
+- [ ] Pre-fill create form with copied data + " (Copy)" suffix
+- [ ] Allow user to modify before saving
+- [ ] Toast notification on success
+
+**Files to Modify:**
+- `app/lists/[id]/page.tsx`
+- `app/lists/create/page.tsx`
+- `components/pages/CreateList.jsx`
+
+---
+
+### 17. Reorder Restaurants in List
+
+**Priority:** Medium  
+**Labels:** `enhancement`, `lists`, `ui`
+
+**Description:**
+Allow users to change the order of restaurants within a list using drag-and-drop.
+
+**Acceptance Criteria:**
+- [ ] Add drag-and-drop reordering in edit mode
+- [ ] Store order in `list_restaurants` table (add `position` column)
+- [ ] Persist order on save
+- [ ] Display restaurants in saved order on detail page
+- [ ] Mobile-friendly touch support
+
+**Database Changes Required:**
+```sql
+ALTER TABLE public.list_restaurants
+ADD COLUMN IF NOT EXISTS position integer NOT NULL DEFAULT 0;
+```
+
+**Files to Modify:**
+- `supabase/migrations/024_add_list_restaurant_position.sql`
+- `app/lists/[id]/edit/page.tsx`
+- `app/api/lists/[id]/route.ts`
+
+---
+
+### 18. List Statistics Dashboard
+
+**Priority:** Medium  
+**Labels:** `enhancement`, `lists`, `ui`
+
+**Description:**
+Show statistics for a list including average rating, cuisine distribution, and visited count.
+
+**Acceptance Criteria:**
+- [ ] Show total restaurants count
+- [ ] Show average rating of all restaurants in list
+- [ ] Show cuisine type distribution (chart)
+- [ ] Show price range distribution
+- [ ] Show visited vs unvisited count
+
+**Files to Modify:**
+- `app/lists/[id]/page.tsx`
+- `app/api/lists/[id]/route.ts`
+
+---
+
+### 19. Export List Data
+
+**Priority:** Medium  
+**Labels:** `enhancement`, `lists`
+
+**Description:**
+Allow users to export their lists as JSON, CSV, or PDF.
+
+**Acceptance Criteria:**
+- [ ] Export as JSON
+- [ ] Export as CSV (restaurant name, location, rating, cuisine types)
+- [ ] Export as PDF (formatted with images)
+- [ ] Download file triggered from list detail page
+
+**Files to Create:**
+- `utils/listExport.ts`
+
+**Files to Modify:**
+- `app/lists/[id]/page.tsx`
+
+---
+
+### 20. List Comments System
+
+**Priority:** Low  
+**Labels:** `enhancement`, `lists`, `social`
+
+**Description:**
+Allow users to add comments/notes to lists.
+
+**Acceptance Criteria:**
+- [ ] Add comments section to list detail page
+- [ ] Only list owner can comment (or public for public lists)
+- [ ] Edit/delete own comments
+- [ ] Timestamps on comments
+- [ ] Pagination for many comments
+
+**Database Changes Required:**
+```sql
+CREATE TABLE public.list_comments (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  list_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  comment text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT list_comments_pkey PRIMARY KEY (id),
+  CONSTRAINT list_comments_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.lists(id) ON DELETE CASCADE,
+  CONSTRAINT list_comments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+```
+
+---
+
+### 21. Collaborative Lists
+
+**Priority:** Low  
+**Labels:** `enhancement`, `lists`, `social`
+
+**Description:**
+Allow multiple users to edit the same list.
+
+**Acceptance Criteria:**
+- [ ] Add "collaborators" feature (invite users by email/username)
+- [ ] Collaborators can add/remove restaurants
+- [ ] Owner can remove collaborators
+- [ ] Activity log showing who added/removed what
+
+**Database Changes Required:**
+```sql
+CREATE TABLE public.list_collaborators (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  list_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  role text NOT NULL DEFAULT 'editor',
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT list_collaborators_pkey PRIMARY KEY (id),
+  CONSTRAINT list_collaborators_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.lists(id) ON DELETE CASCADE,
+  CONSTRAINT list_collaborators_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT list_collaborators_unique UNIQUE (list_id, user_id)
+);
+```
+
+---
+
+### 22. List Tags/Categories
+
+**Priority:** Low  
+**Labels:** `enhancement`, `lists`
+
+**Description:**
+Allow users to organize lists with tags or categories.
+
+**Acceptance Criteria:**
+- [ ] Add tags array to lists table
+- [ ] Filter lists by tags on `/lists` page
+- [ ] Suggest common tags (e.g., "Date Night", "Family", "Work Lunch")
+
+**Database Changes Required:**
+```sql
+ALTER TABLE public.lists
+ADD COLUMN IF NOT EXISTS tags text[] DEFAULT '{}';
+```
+
+---
+
+### 23. List Cover Image
+
+**Priority:** Low  
+**Labels:** `enhancement`, `lists`, `ui`
+
+**Description:**
+Allow users to set a cover image for their lists.
+
+**Acceptance Criteria:**
+- [ ] Allow uploading a cover image for list
+- [ ] Auto-generate from first restaurant's image if not set
+- [ ] Display cover on list cards
+
+**Database Changes Required:**
+```sql
+ALTER TABLE public.lists
+ADD COLUMN IF NOT EXISTS cover_image_url text;
+```
+
+---
+
+### 24. Smart Restaurant Suggestions for Lists
+
+**Priority:** Low  
+**Labels:** `enhancement`, `lists`, `ai`
+
+**Description:**
+Suggest restaurants to add to lists based on existing cuisine types and user history.
+
+**Acceptance Criteria:**
+- [ ] Suggest restaurants based on existing list cuisine types
+- [ ] Suggest restaurants based on user's visit history
+- [ ] "You might also like" section on list detail page
+
+---
+
+### 25. List Import from External Sources
+
+**Priority:** Low  
+**Labels:** `enhancement`, `lists`
+
+**Description:**
+Allow users to import lists from external sources like JSON, CSV, Google Maps, or TripAdvisor.
+
+**Acceptance Criteria:**
+- [ ] Import from JSON file
+- [ ] Import from CSV
+- [ ] Import from Google Maps (saved places)
+- [ ] Import from TripAdvisor
+
+---
+
 *Last updated: 2026-04-03*

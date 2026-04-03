@@ -1,17 +1,51 @@
 // app/api/lists/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getClient } from '@/libs/supabase/client';
+import { getServerClient } from '@/libs/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getClient();
+    const responseObj = NextResponse.next();
+    const supabase = await getServerClient(request, responseObj);
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
 
     // Get lists with search filter if provided
-    let listsQuery = supabase
-      .from('lists')
-      .select('*');
+    // SECURITY: Explicitly filter by is_public and user ownership
+    // RLS policies provide additional protection, but we also enforce filtering at the application level
+    let listsQuery;
+    
+    if (supabase) {
+      // User is authenticated: fetch their own lists + public lists from others
+      // We need to get the user's ID to filter properly
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Fetch lists that are either public OR owned by the current user
+        listsQuery = supabase
+          .from('lists')
+          .select('*')
+          .or(`is_public.eq.true,creator_id.eq.${user.id}`);
+      } else {
+        // Fallback: if we can't get user, only show public lists
+        listsQuery = supabase
+          .from('lists')
+          .select('*')
+          .eq('is_public', true);
+      }
+    } else {
+      // User is not authenticated, create a public client
+      const { createClient } = await import('@supabase/supabase-js');
+      const publicSupabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      );
+      
+      // For unauthenticated users, only fetch public lists
+      listsQuery = publicSupabase
+        .from('lists')
+        .select('*')
+        .eq('is_public', true);
+    }
 
     if (search) {
       listsQuery = listsQuery.ilike('name', `%${search}%`);
@@ -29,9 +63,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch individual counts for each list
+    // Use the appropriate client based on whether user is authenticated
+    let resolvedCountClient = supabase;
+    if (!resolvedCountClient) {
+      const { createClient } = await import('@supabase/supabase-js');
+      resolvedCountClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      );
+    }
+    
     const processedData = await Promise.all(
       listsData.map(async (list: any) => {
-        const { count, error } = await supabase
+        const { count, error } = await resolvedCountClient
           .from('list_restaurants')
           .select('*', { count: 'exact', head: true })
           .eq('list_id', list.id);
