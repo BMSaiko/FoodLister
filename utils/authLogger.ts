@@ -1,4 +1,7 @@
 /**
+ * @deprecated Use `utils/auth.ts` instead.
+ * This file is kept for backward compatibility only.
+ * 
  * Authentication logging utility for debugging authentication issues
  */
 

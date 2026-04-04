@@ -82,8 +82,8 @@ export const useSettings = (): UseSettingsResult => {
       setLoading(true);
       setError(null);
 
-      // Validate required fields
-      if (!data.name || data.name.trim() === '') {
+      // Validate required fields (only if name is being explicitly updated)
+      if (data.name !== undefined && data.name.trim() === '') {
         throw new Error('Display name is required');
       }
 

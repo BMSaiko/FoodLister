@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Tag, Search, Check, Plus, X } from 'lucide-react';
-import type { RestaurantFeature } from '@/libs/types';
+
+interface RestaurantFeature {
+  id: string;
+  name: string;
+  icon?: string;
+  [key: string]: any;
+}
 
 export default function FeaturesSelector({
   features,

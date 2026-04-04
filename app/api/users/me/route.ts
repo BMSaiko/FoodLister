@@ -117,8 +117,8 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
     
-    // Validate required fields
-    if (!body.display_name || body.display_name.trim() === '') {
+    // Validate required fields (only if display_name is being explicitly updated)
+    if (body.display_name !== undefined && body.display_name.trim() === '') {
       return NextResponse.json(
         { error: 'Display name is required' },
         { status: 400 }
@@ -180,16 +180,16 @@ export async function PUT(request: NextRequest) {
       profileData = data;
       profileError = error;
     } else {
-      // Profile exists, update it
+      // Profile exists, update it (preserve existing values for fields not provided)
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          display_name: body.display_name || null,
-          bio: body.bio || null,
-          avatar_url: body.avatar_url || null,
-          phone_number: body.phone_number || null,
-          website: body.website || null,
-          location: body.location || null,
+          display_name: body.display_name !== undefined ? body.display_name : existingProfile.display_name,
+          bio: body.bio !== undefined ? body.bio : existingProfile.bio,
+          avatar_url: body.avatar_url !== undefined ? body.avatar_url : existingProfile.avatar_url,
+          phone_number: body.phone_number !== undefined ? body.phone_number : existingProfile.phone_number,
+          website: body.website !== undefined ? body.website : existingProfile.website,
+          location: body.location !== undefined ? body.location : existingProfile.location,
           public_profile: body.public_profile !== undefined ? body.public_profile : existingProfile.public_profile,
           updated_at: new Date().toISOString()
         })

@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Tag, Search, Check, Plus, X } from 'lucide-react';
-import type { DietaryOption } from '@/libs/types';
+
+interface DietaryOption {
+  id: string;
+  name: string;
+  icon?: string;
+  [key: string]: any;
+}
 
 interface DietaryOptionsSelectorProps {
   dietaryOptions: DietaryOption[];
