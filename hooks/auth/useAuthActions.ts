@@ -96,6 +96,45 @@ export function useAuthActions(options: UseAuthActionsOptions = {}) {
   const signOut = useCallback(async (): Promise<void> => {
     try {
       await supabase.auth.signOut();
+      
+      // Clear all authentication data from browser storage
+      if (typeof document !== 'undefined') {
+        // Clear cookies
+        document.cookie.split(";").forEach((c) => {
+          const eqPos = c.indexOf("=");
+          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        });
+      }
+      
+      // Clear localStorage (including Supabase session keys)
+      if (typeof localStorage !== 'undefined') {
+        // Remove Supabase-specific keys first
+        const supabaseKeys = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith('sb-') || key.includes('supabase'))) {
+            supabaseKeys.push(key);
+          }
+        }
+        supabaseKeys.forEach(key => localStorage.removeItem(key));
+        localStorage.clear();
+      }
+      
+      // Clear sessionStorage
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.clear();
+      }
+      
+      // Clear service worker cache
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => {
+            caches.delete(name);
+          });
+        });
+      }
+      
       onSignOut?.();
     } catch (error) {
       logError('Error signing out', error);
