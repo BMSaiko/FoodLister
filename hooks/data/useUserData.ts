@@ -1,10 +1,42 @@
+/**
+ * useUserData - Consolidated hook for fetching user data
+ * Replaces useUserData, useUserDataOptimized, and useUserDataV2
+ * Supports caching, pagination, and selective data loading
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useApiClient } from '../auth/useApiClient';
 import { toast } from 'react-toastify';
 import { lockScroll, unlockScroll } from '@/utils/scrollLock';
+import { useLocalStorage } from '../utilities/useLocalStorage';
 
-interface UserData {
-  profile: any;
+// Types
+export interface UserProfile {
+  id: string;
+  userIdCode: string;
+  name: string;
+  profileImage: string;
+  location: string;
+  bio: string;
+  website: string;
+  publicProfile: boolean;
+  createdAt: string;
+  updatedAt: string;
+  stats?: {
+    totalRestaurantsVisited: number;
+    totalReviews: number;
+    totalLists: number;
+    totalRestaurantsAdded: number;
+    joinedDate: string;
+  };
+  recentReviews?: any[];
+  recentLists?: any[];
+  accessLevel: 'OWNER' | 'PUBLIC' | 'PRIVATE' | null;
+  isOwnProfile: boolean;
+}
+
+export interface UserData {
+  profile: UserProfile | null;
   reviews: any[];
   lists: any[];
   restaurants: any[];
@@ -16,41 +48,39 @@ interface UserData {
     restaurants: boolean;
   };
   error: string | null;
+  accessLevel: 'OWNER' | 'PUBLIC' | 'PRIVATE' | null;
 }
 
-interface UseUserDataOptions {
+export interface UseUserDataOptions {
   userId: string;
   enableReviews?: boolean;
   enableLists?: boolean;
   enableRestaurants?: boolean;
   autoFetch?: boolean;
-  cacheTTL?: number; // Custom TTL in milliseconds
+  cacheTTL?: number;
+  useCursorPagination?: boolean;
 }
 
-// Request deduplication cache
-const requestCache = new Map<string, Promise<any>>();
-
-// Performance optimization: debounce function
-const debounce = (func: Function, wait: number) => {
-  let timeout: NodeJS.Timeout;
-  return function executedFunction(...args: any[]) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
+// Cache key constants
+const CACHE_KEYS = {
+  PROFILE: 'user_profile_',
+  REVIEWS: 'user_reviews_',
+  LISTS: 'user_lists_',
+  RESTAURANTS: 'user_restaurants_'
 };
 
-export const useUserData = (options: UseUserDataOptions) => {
+// Request deduplication cache
+const pendingRequests = new Map<string, Promise<any>>();
+
+export function useUserData(options: UseUserDataOptions) {
   const {
     userId,
     enableReviews = true,
     enableLists = true,
-    enableRestaurants = true, // Enable restaurant loading by default
+    enableRestaurants = false,
     autoFetch = true,
-    cacheTTL = 5 * 60 * 1000 // 5 minutes default
+    cacheTTL = 5 * 60 * 1000, // 5 minutes
+    useCursorPagination = true
   } = options;
 
   const [userData, setUserData] = useState<UserData>({
@@ -65,629 +95,281 @@ export const useUserData = (options: UseUserDataOptions) => {
       lists: false,
       restaurants: false
     },
-    error: null
+    error: null,
+    accessLevel: null
   });
 
   const { get } = useApiClient();
+  const { get: getCache, setWithTTL: setCache, remove: removeCache, removeByPrefix } = useLocalStorage();
+  const cursorRef = useRef<string | null>(null);
+  const hasMoreRef = useRef<boolean>(true);
 
-  // Fetch user profile data with deduplication
-  const fetchUserProfile = useCallback(async () => {
-    if (!userId) return;
+  // Fetch user profile
+  const fetchProfile = useCallback(async () => {
+    if (!userId) return null;
 
-    const cacheKey = `profile_${userId}`;
+    const cacheKey = CACHE_KEYS.PROFILE + userId;
     
-    // Check if request is already in progress
-    if (requestCache.has(cacheKey)) {
-      return requestCache.get(cacheKey);
+    // Check cache first
+    const cached = getCache<UserProfile>(cacheKey);
+    if (cached) {
+      setUserData(prev => ({ ...prev, profile: cached, loading: false, error: null }));
+      return cached;
     }
 
-    const requestPromise = (async () => {
+    // Check pending request
+    if (pendingRequests.has(cacheKey)) {
+      return pendingRequests.get(cacheKey);
+    }
+
+    const promise = (async () => {
       try {
         setUserData(prev => ({ ...prev, loading: true, error: null }));
         
         const response = await get(`/api/users/${userId}`);
-        
-        const profileData = await response.json();
+        const data = await response.json();
 
         if (response.ok) {
+          setCache(cacheKey, data, cacheTTL);
           setUserData(prev => ({
             ...prev,
-            profile: profileData,
+            profile: data,
+            accessLevel: data.accessLevel,
             loading: false,
             error: null
           }));
-
-          // Simple caching - just store in localStorage for now
-          try {
-            const cacheKey = `user_profile_${userId}`;
-            localStorage.setItem(cacheKey, JSON.stringify({
-              data: profileData,
-              timestamp: Date.now(),
-              ttl: cacheTTL
-            }));
-          } catch (error) {
-            console.warn('Could not cache profile data:', error);
-          }
-
-          return profileData;
+          return data;
         } else {
-          // Handle different error types
-          let errorType = 'unknown';
-          let errorMessage = 'Failed to fetch user profile';
-          
-          if (response.status === 404) {
-            errorType = 'not_found';
-            errorMessage = 'User not found or profile is private';
-          } else if (response.status === 401 || response.status === 403) {
-            errorType = 'unauthorized';
-            errorMessage = 'Access denied. Please check your authentication.';
-          } else if (response.status >= 500) {
-            errorType = 'server_error';
-            errorMessage = 'Server error. Please try again later.';
-          } else if (response.status >= 400) {
-            errorType = 'client_error';
-            errorMessage = profileData.error || 'Invalid request';
-          }
-          
-          setUserData(prev => ({
-            ...prev,
-            profile: null,
-            loading: false,
-            error: errorMessage
-          }));
-
-          // Don't throw an error for 404, let the component handle it gracefully
-          if (response.status === 404) {
-            return null;
-          }
-          
-          throw new Error(errorMessage);
+          const errorMsg = data.error || 'Failed to fetch user profile';
+          setUserData(prev => ({ ...prev, profile: null, loading: false, error: errorMsg }));
+          return null;
         }
       } catch (error) {
-        console.error('Error fetching user profile:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Network error or server unavailable';
-        setUserData(prev => ({
-          ...prev,
-          error: errorMessage,
-          loading: false
-        }));
-        throw error;
+        const errorMsg = error instanceof Error ? error.message : 'Network error';
+        setUserData(prev => ({ ...prev, error: errorMsg, loading: false }));
+        return null;
       } finally {
-        // Remove from cache when request completes
-        requestCache.delete(cacheKey);
+        pendingRequests.delete(cacheKey);
       }
     })();
 
-    requestCache.set(cacheKey, requestPromise);
-    return requestPromise;
-  }, [userId, get, cacheTTL]);
+    pendingRequests.set(cacheKey, promise);
+    return promise;
+  }, [userId, get, cacheTTL, getCache, setCache]);
 
-  // Fetch user reviews with deduplication
-  const fetchUserReviews = useCallback(async () => {
-    if (!userId || !enableReviews) return;
+  // Fetch user reviews
+  const fetchReviews = useCallback(async (page = 1, limit = 12) => {
+    if (!userId || !enableReviews) return [];
 
-    const cacheKey = `reviews_${userId}`;
-    
-    // Check if request is already in progress
-    if (requestCache.has(cacheKey)) {
-      return requestCache.get(cacheKey);
+    const cacheKey = `${CACHE_KEYS.REVIEWS}${userId}_page${page}`;
+    const cached = getCache<any[]>(cacheKey);
+    if (cached) {
+      setUserData(prev => ({ ...prev, reviews: cached }));
+      return cached;
     }
 
-    const requestPromise = (async () => {
-      try {
-        const response = await get(`/api/users/${userId}/reviews?page=1&limit=12`);
-        const reviewsData = await response.json();
+    try {
+      const response = await get(`/api/users/${userId}/reviews?page=${page}&limit=${limit}`);
+      const data = await response.json();
 
-        if (response.ok) {
-          setUserData(prev => ({
-            ...prev,
-            reviews: reviewsData.data || []
-          }));
-
-          // Simple caching for reviews
-          try {
-            const cacheKey = `user_reviews_${userId}`;
-            localStorage.setItem(cacheKey, JSON.stringify({
-              data: reviewsData.data || [],
-              timestamp: Date.now(),
-              ttl: cacheTTL
-            }));
-          } catch (error) {
-            console.warn('Could not cache reviews data:', error);
-          }
-
-          return reviewsData.data || [];
-        } else {
-          throw new Error(reviewsData.error || 'Failed to fetch user reviews');
-        }
-      } catch (error) {
-        console.error('Error fetching user reviews:', error);
-        throw error;
-      } finally {
-        // Remove from cache when request completes
-        requestCache.delete(cacheKey);
+      if (response.ok) {
+        const reviews = data.data || [];
+        setCache(cacheKey, reviews, cacheTTL);
+        setUserData(prev => ({ ...prev, reviews }));
+        return reviews;
       }
-    })();
+      return [];
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      return [];
+    }
+  }, [userId, enableReviews, get, cacheTTL, getCache, setCache]);
 
-    requestCache.set(cacheKey, requestPromise);
-    return requestPromise;
-  }, [userId, get, enableReviews, cacheTTL]);
+  // Fetch user lists
+  const fetchLists = useCallback(async (page = 1, limit = 12) => {
+    if (!userId || !enableLists) return [];
 
-  // Fetch user lists with deduplication
-  const fetchUserLists = useCallback(async () => {
-    if (!userId || !enableLists) return;
-
-    const cacheKey = `lists_${userId}`;
-    
-    // Check if request is already in progress
-    if (requestCache.has(cacheKey)) {
-      return requestCache.get(cacheKey);
+    const cacheKey = `${CACHE_KEYS.LISTS}${userId}_page${page}`;
+    const cached = getCache<any[]>(cacheKey);
+    if (cached) {
+      setUserData(prev => ({ ...prev, lists: cached }));
+      return cached;
     }
 
-    const requestPromise = (async () => {
-      try {
-        const response = await get(`/api/users/${userId}/lists?page=1&limit=12`);
-        const listsData = await response.json();
+    try {
+      const response = await get(`/api/users/${userId}/lists?page=${page}&limit=${limit}`);
+      const data = await response.json();
 
-        if (response.ok) {
-          setUserData(prev => ({
-            ...prev,
-            lists: listsData.data || []
-          }));
-
-          // Simple caching for lists
-          try {
-            const cacheKey = `user_lists_${userId}`;
-            localStorage.setItem(cacheKey, JSON.stringify({
-              data: listsData.data || [],
-              timestamp: Date.now(),
-              ttl: cacheTTL
-            }));
-          } catch (error) {
-            console.warn('Could not cache lists data:', error);
-          }
-
-          return listsData.data || [];
-        } else {
-          throw new Error(listsData.error || 'Failed to fetch user lists');
-        }
-      } catch (error) {
-        console.error('Error fetching user lists:', error);
-        throw error;
-      } finally {
-        // Remove from cache when request completes
-        requestCache.delete(cacheKey);
+      if (response.ok) {
+        const lists = data.data || [];
+        setCache(cacheKey, lists, cacheTTL);
+        setUserData(prev => ({ ...prev, lists }));
+        return lists;
       }
-    })();
+      return [];
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+      return [];
+    }
+  }, [userId, enableLists, get, cacheTTL, getCache, setCache]);
 
-    requestCache.set(cacheKey, requestPromise);
-    return requestPromise;
-  }, [userId, get, enableLists, cacheTTL]);
+  // Fetch user restaurants
+  const fetchRestaurants = useCallback(async (page = 1, limit = 12) => {
+    if (!userId || !enableRestaurants) return [];
 
-  // Fetch user restaurants with deduplication
-  const fetchUserRestaurants = useCallback(async () => {
-    if (!userId) return;
-
-    const cacheKey = `restaurants_${userId}`;
-    
-    // Check if request is already in progress
-    if (requestCache.has(cacheKey)) {
-      return requestCache.get(cacheKey);
+    const cacheKey = `${CACHE_KEYS.RESTAURANTS}${userId}_page${page}`;
+    const cached = getCache<any[]>(cacheKey);
+    if (cached) {
+      setUserData(prev => ({ ...prev, restaurants: cached }));
+      return cached;
     }
 
-    const requestPromise = (async () => {
-      try {
-        setUserData(prev => ({ ...prev, loading: true }));
+    try {
+      setUserData(prev => ({ 
+        ...prev, 
+        loading: true, 
+        loadingStates: { ...prev.loadingStates, restaurants: true } 
+      }));
+
+      const response = await get(`/api/users/${userId}/restaurants?page=${page}&limit=${limit}`);
+      const data = await response.json();
+
+      if (response.ok && data.data) {
+        const restaurants = data.data.filter((r: any, i: number, arr: any[]) => 
+          r?.id && arr.findIndex(x => x.id === r.id) === i
+        );
         
-        const response = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
-        const restaurantsData = await response.json();
-
-        if (response.ok && restaurantsData.data && Array.isArray(restaurantsData.data)) {
-          // Filter out any duplicate restaurants by ID to prevent React key conflicts
-          const uniqueRestaurants = restaurantsData.data.filter((restaurant: any, index: number, arr: any[]) => {
-            // Ensure the restaurant has a valid ID
-            if (!restaurant || !restaurant.id) {
-              console.warn('Skipping restaurant without valid ID:', restaurant);
-              return false;
-            }
-            
-            // Check if this ID already exists in the array
-            const firstIndex = arr.findIndex(r => r.id === restaurant.id);
-            return index === firstIndex;
-          });
-
-          setUserData(prev => ({
-            ...prev,
-            restaurants: uniqueRestaurants,
-            loading: false
-          }));
-
-          // Simple caching for restaurants
-          try {
-            const cacheKey = `user_restaurants_${userId}`;
-            localStorage.setItem(cacheKey, JSON.stringify({
-              data: uniqueRestaurants,
-              timestamp: Date.now(),
-              ttl: cacheTTL
-            }));
-          } catch (error) {
-            console.warn('Could not cache restaurants data:', error);
-          }
-
-          return uniqueRestaurants;
-        } else {
-          throw new Error(restaurantsData.error || 'Failed to fetch user restaurants');
-        }
-      } catch (error) {
-        console.error('Error fetching user restaurants:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Error fetching user restaurants';
+        setCache(cacheKey, restaurants, cacheTTL);
         setUserData(prev => ({
           ...prev,
-          error: errorMessage,
-          loading: false
+          restaurants,
+          loading: false,
+          loadingStates: { ...prev.loadingStates, restaurants: false }
         }));
-        throw error;
-      } finally {
-        // Remove from cache when request completes
-        requestCache.delete(cacheKey);
+        return restaurants;
       }
-    })();
+      
+      setUserData(prev => ({
+        ...prev,
+        loading: false,
+        loadingStates: { ...prev.loadingStates, restaurants: false }
+      }));
+      return [];
+    } catch (error) {
+      console.error('Error fetching restaurants:', error);
+      setUserData(prev => ({
+        ...prev,
+        loading: false,
+        loadingStates: { ...prev.loadingStates, restaurants: false }
+      }));
+      return [];
+    }
+  }, [userId, enableRestaurants, get, cacheTTL, getCache, setCache]);
 
-    requestCache.set(cacheKey, requestPromise);
-    return requestPromise;
-  }, [userId, get, cacheTTL]);
-
-  // Debounced load data function to prevent rapid API calls
-  const debouncedLoadData = useCallback(
-    debounce(async () => {
-      if (!userId) return;
-
-      try {
-        
-        // Check cache first
-        const cachedProfile = getCachedProfile(userId);
-        const cachedReviews = getCachedReviews(userId);
-        const cachedLists = getCachedLists(userId);
-        
-        if (cachedProfile) {
-          // Use cached data but set loading to true for background refresh
-          setUserData(prev => ({
-            ...prev,
-            profile: cachedProfile,
-            reviews: cachedReviews || [],
-            lists: cachedLists || [],
-            loading: true, // Keep loading true for background refresh
-            error: null
-          }));
-
-          // Background refresh
-          try {
-            
-            await Promise.all([
-              fetchUserProfile().catch(error => {
-                return null;
-              }),
-              enableReviews ? fetchUserReviews().catch(error => {
-                return [];
-              }) : Promise.resolve(),
-              enableLists ? fetchUserLists().catch(error => {
-                return [];
-              }) : Promise.resolve()
-            ]);
-            
-            setUserData(prev => ({ ...prev, loading: false }));
-            
-          } catch (refreshError) {
-            setUserData(prev => ({ ...prev, loading: false }));
-          }
-        } else {
-          // No cache, fetch all data
-          setUserData(prev => ({ ...prev, loading: true, error: null }));
-          
-          try {
-            await Promise.all([
-              fetchUserProfile(),
-              enableReviews ? fetchUserReviews() : Promise.resolve(),
-              enableLists ? fetchUserLists() : Promise.resolve()
-            ]);
-            setUserData(prev => ({ ...prev, loading: false }));
-          } catch (fetchError) {
-            console.error('Error fetching user data:', fetchError);
-            const errorMessage = fetchError instanceof Error ? fetchError.message : 'Error fetching user data';
-            setUserData(prev => ({
-              ...prev,
-              error: errorMessage,
-              loading: false
-            }));
-          }
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Error loading user data';
-        setUserData(prev => ({
-          ...prev,
-          error: errorMessage,
-          loading: false
-        }));
-      }
-    }, 300), // 300ms debounce
-    [
-      userId,
-      enableReviews,
-      enableLists,
-      cacheTTL,
-      fetchUserProfile,
-      fetchUserReviews,
-      fetchUserLists
-    ]
-  );
-
-  // Load data with simple caching
+  // Load all data
   const loadData = useCallback(async () => {
     if (!userId) return;
-    await debouncedLoadData();
-  }, [debouncedLoadData]);
 
-  // Refresh all data (invalidate cache and refetch)
+    try {
+      setUserData(prev => ({ ...prev, loading: true, error: null }));
+
+      await Promise.allSettled([
+        fetchProfile(),
+        enableReviews ? fetchReviews() : Promise.resolve(),
+        enableLists ? fetchLists() : Promise.resolve(),
+        enableRestaurants ? fetchRestaurants() : Promise.resolve()
+      ]);
+
+      setUserData(prev => ({ ...prev, loading: false }));
+    } catch (error) {
+      setUserData(prev => ({
+        ...prev,
+        error: error instanceof Error ? error.message : 'Error loading data',
+        loading: false
+      }));
+    }
+  }, [userId, fetchProfile, fetchReviews, fetchLists, fetchRestaurants, enableReviews, enableLists, enableRestaurants]);
+
+  // Refresh all data (invalidate cache)
   const refreshData = useCallback(async () => {
     if (!userId) return;
+    
+    removeByPrefix(CACHE_KEYS.PROFILE + userId);
+    removeByPrefix(CACHE_KEYS.REVIEWS + userId);
+    removeByPrefix(CACHE_KEYS.LISTS + userId);
+    removeByPrefix(CACHE_KEYS.RESTAURANTS + userId);
+    
+    await loadData();
+    toast.success('Dados atualizados!', { position: "top-center", autoClose: 3000 });
+  }, [userId, loadData, removeByPrefix]);
 
-    try {
-      invalidateCache(userId);
-      await loadData();
-      toast.success('Dados do usuário atualizados!');
-    } catch (error) {
-      console.error('Error refreshing user data:', error);
-      toast.error('Erro ao atualizar dados do usuário');
-    }
-  }, [userId, loadData]);
-
-  // Refresh specific data type
-  const refreshProfile = useCallback(async () => {
-    if (!userId) return;
+  // Load more restaurants with cursor pagination
+  const loadMoreRestaurants = useCallback(async () => {
+    if (!hasMoreRef.current || userData.loadingStates.restaurants) return;
     
     try {
-      await fetchUserProfile();
-      toast.success('Perfil atualizado!');
-    } catch (error) {
-      console.error('Error refreshing profile:', error);
-      toast.error('Erro ao atualizar perfil');
-    }
-  }, [userId, fetchUserProfile]);
+      lockScroll();
+      const allRestaurants: any[] = [];
+      let attempts = 0;
+      const maxAttempts = 10;
 
-  const refreshReviews = useCallback(async () => {
-    if (!userId || !enableReviews) return;
-    
-    try {
-      await fetchUserReviews();
-      toast.success('Avaliações atualizadas!');
-    } catch (error) {
-      console.error('Error refreshing reviews:', error);
-      toast.error('Erro ao atualizar avaliações');
-    }
-  }, [userId, enableReviews, fetchUserReviews]);
+      while (attempts < maxAttempts) {
+        attempts++;
+        const url = cursorRef.current
+          ? `/api/users/${userId}/restaurants?cursor=${cursorRef.current}&limit=24`
+          : `/api/users/${userId}/restaurants?page=1&limit=24`;
 
-  const refreshLists = useCallback(async () => {
-    if (!userId || !enableLists) return;
-    
-    try {
-      await fetchUserLists();
-      toast.success('Listas atualizadas!');
-    } catch (error) {
-      console.error('Error refreshing lists:', error);
-      toast.error('Erro ao atualizar listas');
-    }
-  }, [userId, enableLists, fetchUserLists]);
+        const response = await get(url);
+        const data = await response.json();
 
-  const refreshRestaurants = useCallback(async () => {
-    if (!userId) return;
-    
-    try {
-      await fetchUserRestaurants();
-      toast.success('Restaurantes atualizados!');
-    } catch (error) {
-      console.error('Error refreshing restaurants:', error);
-      toast.error('Erro ao atualizar restaurantes');
-    }
-  }, [userId, fetchUserRestaurants]);
+        if (!response.ok || !data.data) break;
 
-  // Enhanced restaurant loading that loads all pages and tracks completion
-  const loadAllRestaurants = useCallback(async () => {
-    if (!userId) return;
+        allRestaurants.push(...data.data);
+        cursorRef.current = data.nextCursor || null;
+        hasMoreRef.current = !!data.nextCursor;
 
-    const cacheKey = `all_restaurants_${userId}`;
-    
-    // Check if request is already in progress
-    if (requestCache.has(cacheKey)) {
-      return requestCache.get(cacheKey);
-    }
-
-    const requestPromise = (async () => {
-      try {
-        // Lock scroll to prevent scrolling during loading
-        lockScroll();
+        setUserData(prev => ({ ...prev, restaurants: [...allRestaurants] }));
         
-        setUserData(prev => ({ 
-          ...prev, 
-          loading: true,
-          loadingStates: { ...prev.loadingStates, restaurants: true }
-        }));
-
-        // First, get the total count and first page
-        const firstPageResponse = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
-        const firstPageData = await firstPageResponse.json();
-
-        if (!firstPageResponse.ok || !firstPageData.data || !Array.isArray(firstPageData.data)) {
-          throw new Error(firstPageData.error || 'Failed to fetch user restaurants');
-        }
-
-        let allRestaurants = [...firstPageData.data];
-        let currentPage = 1;
-        let totalPages = Math.ceil(firstPageData.total / 12);
-
-        // Load all remaining pages
-        const pagePromises = [];
-        
-        for (let page = 2; page <= totalPages; page++) {
-          pagePromises.push(
-            get(`/api/users/${userId}/restaurants?page=${page}&limit=12`)
-              .then((response: Response) => response.json())
-              .then((data: any) => {
-                if (data.ok && data.data && Array.isArray(data.data)) {
-                  return data.data;
-                }
-                throw new Error(data.error || `Failed to fetch page ${page}`);
-              })
-          );
-        }
-
-        // Wait for all pages to load
-        const additionalPagesData = await Promise.all(pagePromises);
-        
-        // Combine all pages
-        additionalPagesData.forEach(pageData => {
-          allRestaurants = [...allRestaurants, ...pageData];
-        });
-
-        // Remove duplicates by ID
-        const uniqueRestaurants = allRestaurants.filter((restaurant: any, index: number, arr: any[]) => {
-          if (!restaurant || !restaurant.id) {
-            console.warn('Skipping restaurant without valid ID:', restaurant);
-            return false;
-          }
-          
-          const firstIndex = arr.findIndex(r => r.id === restaurant.id);
-          return index === firstIndex;
-        });
-
-        setUserData(prev => ({
-          ...prev,
-          restaurants: uniqueRestaurants,
-          loading: false,
-          loadingStates: { ...prev.loadingStates, restaurants: false }
-        }));
-
-        // Cache all restaurants data
-        try {
-          const cacheKey = `user_all_restaurants_${userId}`;
-          localStorage.setItem(cacheKey, JSON.stringify({
-            data: uniqueRestaurants,
-            timestamp: Date.now(),
-            ttl: cacheTTL
-          }));
-        } catch (error) {
-          console.warn('Could not cache all restaurants data:', error);
-        }
-
-        return uniqueRestaurants;
-      } catch (error) {
-        console.error('Error loading all restaurants:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Error loading all restaurants';
-        setUserData(prev => ({
-          ...prev,
-          error: errorMessage,
-          loading: false,
-          loadingStates: { ...prev.loadingStates, restaurants: false }
-        }));
-        throw error;
-      } finally {
-        // Always unlock scroll when done
-        unlockScroll();
-        // Remove from cache when request completes
-        requestCache.delete(cacheKey);
+        if (!hasMoreRef.current) break;
       }
-    })();
+    } catch (error) {
+      console.error('Error loading more restaurants:', error);
+    } finally {
+      unlockScroll();
+    }
+  }, [userId, get, userData.loadingStates.restaurants]);
 
-    requestCache.set(cacheKey, requestPromise);
-    return requestPromise;
-  }, [userId, get, cacheTTL]);
-
-  // Initialize data loading
+  // Auto-fetch on mount
   useEffect(() => {
     if (autoFetch && userId) {
       loadData();
     }
   }, [autoFetch, userId, loadData]);
 
-  // Debug: Track hook calls
+  // Cleanup on unmount
   useEffect(() => {
-  }, [userId, autoFetch]);
-
-  // Cache helper functions
-  const invalidateCache = (userId: string) => {
-    try {
-      localStorage.removeItem(`user_profile_${userId}`);
-      localStorage.removeItem(`user_reviews_${userId}`);
-      localStorage.removeItem(`user_lists_${userId}`);
-      localStorage.removeItem(`user_restaurants_${userId}`);
-    } catch (error) {
-      console.warn('Error invalidating cache:', error);
-    }
-  };
-
-  const getCachedProfile = (userId: string) => {
-    try {
-      const cacheKey = `user_profile_${userId}`;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const data = JSON.parse(cached);
-        if (Date.now() - data.timestamp < data.ttl) {
-          return data.data;
+    return () => {
+      // Clean up pending requests for this user
+      for (const key of pendingRequests.keys()) {
+        if (key.includes(userId)) {
+          pendingRequests.delete(key);
         }
       }
-    } catch (error) {
-      console.warn('Error reading cached profile:', error);
-    }
-    return null;
-  };
+    };
+  }, [userId]);
 
-  const getCachedReviews = (userId: string) => {
-    try {
-      const cacheKey = `user_reviews_${userId}`;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const data = JSON.parse(cached);
-        if (Date.now() - data.timestamp < data.ttl) {
-          return data.data;
-        }
-      }
-    } catch (error) {
-      console.warn('Error reading cached reviews:', error);
-    }
-    return null;
-  };
-
-  const getCachedLists = (userId: string) => {
-    try {
-      const cacheKey = `user_lists_${userId}`;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const data = JSON.parse(cached);
-        if (Date.now() - data.timestamp < data.ttl) {
-          return data.data;
-        }
-      }
-    } catch (error) {
-      console.warn('Error reading cached lists:', error);
-    }
-    return null;
-  };
+  // Alias for backward compatibility
+  const fetchUserRestaurants = fetchRestaurants;
 
   return {
     ...userData,
-    // Data fetching methods
     loadData,
     refreshData,
-    refreshProfile,
-    refreshReviews,
-    refreshLists,
-    refreshRestaurants,
+    loadMoreRestaurants,
+    fetchRestaurants,
     fetchUserRestaurants,
-    
-    // Cache management
-    invalidateCache: () => invalidateCache(userId),
-    
-    // Utility methods
-    hasCachedData: !!getCachedProfile(userId)
+    hasMoreRestaurants: hasMoreRef.current,
+    canViewPrivateData: userData.accessLevel === 'OWNER' || userData.accessLevel === 'PRIVATE',
+    isOwnProfile: userData.accessLevel === 'OWNER'
   };
-};
+}
