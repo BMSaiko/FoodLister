@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
-import { ensureUserProfileExists } from '@/libs/auth';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -42,8 +41,7 @@ async function updateRestaurantRating(restaurantId: string) {
 
 export async function GET(request: NextRequest) {
   try {
-    const response = NextResponse.next();
-    const supabase = await getServerClient(request, response);
+    const supabase = await getPublicServerClient();
     const { searchParams } = new URL(request.url);
     const restaurantId = searchParams.get('restaurant_id');
 
@@ -83,33 +81,10 @@ export async function GET(request: NextRequest) {
     // Get unique user IDs to fetch their profile images from profiles table
     const userIds = [...new Set(reviewsData.map((review: any) => review.user_id))];
 
-    // Fetch user profiles and emails
+    // Fetch user profiles from profiles table (public data only)
     const userProfiles = new Map();
-    const userEmails = new Map();
 
     if (userIds.length > 0) {
-      // Use public client for reading public data, but need authenticated client for auth.users
-      const publicSupabase = await getPublicServerClient();
-      
-      // Ensure profiles exist for all users who have reviews
-      for (const userId of userIds) {
-        try {
-          // Get user email for profile creation - this requires authenticated access
-          const { data: userData, error: userError } = await supabase
-            .from('auth.users')
-            .select('email')
-            .eq('id', userId)
-            .single();
-
-          const userEmail = (!userError && (userData as any)?.email) ? (userData as any).email : null;
-          
-          // Ensure profile exists for this user
-          await ensureUserProfileExists(supabase, userId, userEmail);
-        } catch (error) {
-          console.error(`Error ensuring profile exists for user ${userId}:`, error);
-        }
-      }
-
       // Get profile data including user_id_code
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
@@ -126,19 +101,7 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      // Get user emails from auth.users
-      const { data: usersData, error: usersError } = await supabase
-        .from('auth.users')
-        .select('id, email')
-        .in('id', userIds);
-
-      if (!usersError && usersData) {
-        usersData.forEach((user: any) => {
-          userEmails.set(user.id, user.email || null);
-        });
-      }
-
-      // Ensure all users have an entry in the maps
+      // Ensure all users have an entry in the map
       userIds.forEach(userId => {
         if (!userProfiles.has(userId)) {
           userProfiles.set(userId, {
@@ -147,23 +110,18 @@ export async function GET(request: NextRequest) {
             userIdCode: null
           });
         }
-        if (!userEmails.has(userId)) {
-          userEmails.set(userId, null);
-        }
       });
     }
 
     // Transform user data consistently across all endpoints
     const processedData = reviewsData.map((review: any) => {
       const profile = userProfiles.get(review.user_id) || { displayName: null, avatarUrl: null, userIdCode: null };
-      const email = userEmails.get(review.user_id);
-      const emailName = email ? email.split('@')[0] : null;
 
       return {
         ...review,
         user: {
           id: review.user_id,
-          name: profile.displayName || review.user_name || emailName || 'Anonymous User',
+          name: profile.displayName || review.user_name || 'Anonymous User',
           profileImage: profile.avatarUrl || null,
           userIdCode: profile.userIdCode || null
         }

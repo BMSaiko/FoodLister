@@ -20,6 +20,8 @@ export { useApiMutation } from './data/useApiMutation';
 export { useForm } from './forms/useForm';
 export { useImageUpload } from './forms/useImageUpload';
 export { useListForm } from './forms/useListForm';
+export { useRestaurantForm } from './forms/useRestaurantForm';
+export { useMealScheduling } from './forms/useMealScheduling';
 
 // List hooks
 export * from './lists';

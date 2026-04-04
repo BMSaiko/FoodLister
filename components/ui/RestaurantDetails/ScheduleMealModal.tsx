@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Calendar, Clock, Users, Mail, UtensilsCrossed } from 'lucide-react';
-import { validateEmails } from '@/utils/formatters';
-import { toast } from 'react-toastify';
+import { useMealScheduling } from '@/hooks/forms/useMealScheduling';
 
 type ScheduleMealModalProps = {
   isOpen: boolean;
@@ -20,188 +19,33 @@ const ScheduleMealModal = ({
   restaurantLocation,
   restaurantDescription
 }: ScheduleMealModalProps) => {
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [participants, setParticipants] = useState('');
-  const [duration, setDuration] = useState(2); // hours
-  const [mealType, setMealType] = useState('');
+  const {
+    form,
+    setDate,
+    setParticipants,
+    setDuration,
+    handleMealTypeChange,
+    handleTimeChange,
+    handleSubmit,
+    resetForm,
+    mealTypes
+  } = useMealScheduling({
+    onSuccess: onClose
+  });
 
-  const resetForm = () => {
-    setDate('');
-    setTime('');
-    setParticipants('');
-    setDuration(2);
-    setMealType('');
-  };
-
-  const mealTypes = [
-    { value: 'pequeno-almoco', label: 'Pequeno Almoço', icon: '☕', defaultTime: '08:00', defaultDuration: 1 },
-    { value: 'almoco', label: 'Almoço', icon: '🍽️', defaultTime: '12:30', defaultDuration: 1.5 },
-    { value: 'brunch', label: 'Brunch', icon: '🥐', defaultTime: '11:00', defaultDuration: 2 },
-    { value: 'lanche', label: 'Lanche', icon: '🍪', defaultTime: '16:00', defaultDuration: 1 },
-    { value: 'jantar', label: 'Jantar', icon: '🍽️', defaultTime: '19:00', defaultDuration: 2 },
-    { value: 'ceia', label: 'Ceia', icon: '🌙', defaultTime: '22:00', defaultDuration: 1 }
-  ];
-
-  // Update time and duration when meal type changes
-  const handleMealTypeChange = (newMealType: string) => {
-    setMealType(newMealType);
-    const selectedMeal = mealTypes.find(meal => meal.value === newMealType);
-    if (selectedMeal && !time) { // Only update if time hasn't been manually set
-      setTime(selectedMeal.defaultTime);
-    }
-    if (selectedMeal && duration === 2) { // Only update if duration is still default
-      setDuration(selectedMeal.defaultDuration);
-    }
-  };
-
-  // Auto-assign meal type based on selected time
-  const handleTimeChange = (newTime: string) => {
-    setTime(newTime);
-
-    // Always auto-assign meal type based on time, regardless of previous selection
-    if (newTime && newTime.includes(':')) {
-      const timeParts = newTime.split(':');
-      if (timeParts.length >= 2) {
-        const hour = parseInt(timeParts[0], 10);
-        if (!isNaN(hour) && hour >= 0 && hour <= 23) {
-          let suggestedMealType = '';
-
-          if (hour >= 6 && hour < 11) {
-            suggestedMealType = 'pequeno-almoco';
-          } else if (hour >= 11 && hour < 14) {
-            suggestedMealType = 'almoco';
-          } else if (hour >= 14 && hour < 17) {
-            suggestedMealType = 'lanche';
-          } else if (hour >= 17 && hour < 22) {
-            suggestedMealType = 'jantar';
-          } else if (hour >= 22 || hour < 6) {
-            suggestedMealType = 'ceia';
-          }
-
-          // Check for brunch time (10-12) - overrides morning breakfast
-          if (hour >= 10 && hour < 12) {
-            suggestedMealType = 'brunch';
-          }
-
-          if (suggestedMealType) {
-            setMealType(suggestedMealType);
-            // Also set duration if still default
-            const selectedMeal = mealTypes.find(meal => meal.value === suggestedMealType);
-            if (selectedMeal && duration === 2) {
-              setDuration(selectedMeal.defaultDuration);
-            }
-          }
-        }
-      }
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    handleSubmit(restaurantName, restaurantLocation, restaurantDescription);
+  };
 
-    // Input validation
-    if (!date || !time) {
-      toast.error('Por favor, selecione data e hora.');
-      return;
-    }
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
 
-    if (!mealType) {
-      toast.error('Por favor, selecione o tipo de refeição.');
-      return;
-    }
-
-    let startDateTime: Date;
-    let endDateTime: Date;
-
-    try {
-      // Create start datetime with validation
-      startDateTime = new Date(`${date}T${time}`);
-      if (isNaN(startDateTime.getTime())) {
-        throw new Error('Data ou hora inválida');
-      }
-
-      // Create end datetime
-      endDateTime = new Date(startDateTime.getTime() + duration * 60 * 60 * 1000);
-      if (isNaN(endDateTime.getTime())) {
-        throw new Error('Erro ao calcular hora de fim');
-      }
-
-      // Ensure end time is after start time
-      if (endDateTime <= startDateTime) {
-        throw new Error('A hora de fim deve ser após a hora de início');
-      }
-    } catch (error) {
-      toast.error(`Erro na validação de data/hora: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-      return;
-    }
-
-    // Format for Google Calendar (YYYYMMDDTHHMMSSZ)
-    // Note: Using UTC format - for local timezone, would need different approach
-    const formatDateTime = (dt: Date) => {
-      return dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    };
-
-    const start = formatDateTime(startDateTime);
-    const end = formatDateTime(endDateTime);
-
-    // Prepare and validate participants emails
-    let validEmails: string[] = [];
-    if (participants.trim()) {
-      const emailList = participants
-        .split(',')
-        .map(email => email.trim())
-        .filter(email => email.length > 0);
-
-      validEmails = validateEmails(emailList);
-
-      // Warn about invalid emails but don't block
-      const invalidCount = emailList.length - validEmails.length;
-      if (invalidCount > 0) {
-        toast.warn(`${invalidCount} email(s) inválido(s) foram ignorados. Apenas emails válidos serão incluídos.`);
-      }
-    }
-
-    const emails = validEmails.join(',');
-
-    // Get selected meal type label
-    const selectedMeal = mealTypes.find(meal => meal.value === mealType);
-    const mealLabel = selectedMeal ? selectedMeal.label : 'Refeição';
-
-    // Prepare restaurant description with fallback
-    const safeDescription = (restaurantDescription && restaurantDescription.trim())
-      ? restaurantDescription.trim()
-      : 'Descrição não disponível';
-
-    // Create Google Calendar URL
-    const baseUrl = 'https://calendar.google.com/calendar/u/0/r/eventedit';
-    const params = new URLSearchParams({
-      text: `${mealLabel} em ${restaurantName}`,
-      dates: `${start}/${end}`,
-      details: `${mealLabel} reservado no restaurante ${restaurantName}.\n\nDescrição: ${safeDescription}`,
-      location: restaurantLocation,
-      ...(emails && { add: emails })
-    });
-
-    const calendarUrl = `${baseUrl}?${params.toString()}`;
-
-    // Open in new tab with error handling
-    try {
-      const newWindow = window.open(calendarUrl, '_blank', 'noopener,noreferrer');
-
-      // Check if popup was blocked
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        toast.error('A janela popup foi bloqueada pelo navegador. Por favor, permita popups para este site e tente novamente.');
-        return;
-      }
-
-      // Close modal on success
-      toast.success('Evento criado com sucesso no Google Calendar!');
-      resetForm();
-      onClose();
-    } catch (error) {
-      toast.error('Erro ao abrir o Google Calendar. Verifique as configurações do navegador.');
-    }
+  const getMealTypeLabel = (value: string): string => {
+    const meal = mealTypes.find(m => m.value === value);
+    return meal ? meal.label : 'Refeição';
   };
 
   if (!isOpen) return null;
@@ -222,10 +66,7 @@ const ScheduleMealModal = ({
               </div>
             </div>
             <button
-              onClick={() => {
-                resetForm();
-                onClose();
-              }}
+              onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
               aria-label="Fechar"
             >
@@ -240,7 +81,7 @@ const ScheduleMealModal = ({
             Preencha os detalhes abaixo para criar um evento no seu Google Calendar.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleFormSubmit} className="space-y-5">
             {/* Date and Time Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -251,7 +92,7 @@ const ScheduleMealModal = ({
                 <input
                   type="date"
                   id="date"
-                  value={date}
+                  value={form.date}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white"
                   min={new Date().toISOString().split('T')[0]}
@@ -267,7 +108,7 @@ const ScheduleMealModal = ({
                 <input
                   type="time"
                   id="time"
-                  value={time}
+                  value={form.time}
                   onChange={(e) => handleTimeChange(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white"
                   required
@@ -283,7 +124,7 @@ const ScheduleMealModal = ({
               </label>
               <select
                 id="mealType"
-                value={mealType}
+                value={form.mealType}
                 onChange={(e) => handleMealTypeChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
                 required
@@ -304,12 +145,12 @@ const ScheduleMealModal = ({
               </label>
               <select
                 id="duration"
-                value={duration}
+                value={form.duration}
                 onChange={(e) => setDuration(Number(e.target.value))}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
               >
                 <option value={0.5}>⚡ 30 min - Rápido</option>
-                <option value={1}>🍽️ 1 hora - {mealType === 'pequeno-almoco' ? 'Pequeno almoço' : mealType === 'almoco' ? 'Almoço' : mealType === 'brunch' ? 'Brunch' : mealType === 'lanche' ? 'Lanche' : mealType === 'jantar' ? 'Jantar' : 'Ceia'} rápido</option>
+                <option value={1}>🍽️ 1 hora - {getMealTypeLabel(form.mealType)} rápido</option>
                 <option value={1.5}>🍽️ 1.5 horas - Normal</option>
                 <option value={2}>🍽️ 2 horas - Completo</option>
                 <option value={3}>🍽️ 3 horas - Especial</option>
@@ -325,7 +166,7 @@ const ScheduleMealModal = ({
               </label>
               <textarea
                 id="participants"
-                value={participants}
+                value={form.participants}
                 onChange={(e) => setParticipants(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -333,9 +174,9 @@ const ScheduleMealModal = ({
                     const textarea = e.target as HTMLTextAreaElement;
                     const start = textarea.selectionStart;
                     const end = textarea.selectionEnd;
-                    const newValue = participants.substring(0, start) + ', ' + participants.substring(end);
+                    const currentValue = form.participants;
+                    const newValue = currentValue.substring(0, start) + ', ' + currentValue.substring(end);
                     setParticipants(newValue);
-                    // Set cursor position after the comma and space
                     setTimeout(() => {
                       textarea.selectionStart = textarea.selectionEnd = start + 2;
                     }, 0);
