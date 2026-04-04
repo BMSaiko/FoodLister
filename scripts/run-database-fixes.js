@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Database Fix Script for FoodList Application
  * 
