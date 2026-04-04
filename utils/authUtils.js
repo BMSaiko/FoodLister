@@ -1,4 +1,9 @@
-// Utility functions for authentication redirects
+/**
+ * @deprecated Use `utils/auth.ts` instead.
+ * This file is kept for backward compatibility only.
+ * 
+ * Utility functions for authentication redirects
+ */
 
 /**
  * Creates a login URL with returnTo parameter

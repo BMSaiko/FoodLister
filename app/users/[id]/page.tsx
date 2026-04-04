@@ -381,11 +381,11 @@ const UserProfilePage = () => {
     
     // Try to create stats object from available data as fallback
     const fallbackStats = {
-      totalRestaurantsVisited: profile.total_restaurants_visited || 0,
-      totalReviews: profile.total_reviews || 0,
-      totalLists: profile.total_lists || 0,
+      totalRestaurantsVisited: (profile as any).total_restaurants_visited || 0,
+      totalReviews: (profile as any).total_reviews || 0,
+      totalLists: (profile as any).total_lists || 0,
       totalRestaurantsAdded: 0, // Will be fetched separately
-      joinedDate: profile.created_at
+      joinedDate: (profile as any).created_at
     };
         
     // Update the profile with fallback stats
@@ -631,7 +631,7 @@ const UserProfilePage = () => {
             {activeTab === 'reviews' && (
               <UserReviewsSection
                 userId={userId}
-                initialReviews={profile.recentReviews}
+                initialReviews={profile.recentReviews || []}
                 initialTotal={profile.stats?.totalReviews ?? 0}
                 isOwnProfile={profile.isOwnProfile}
               />
@@ -640,7 +640,7 @@ const UserProfilePage = () => {
             {activeTab === 'lists' && (
               <UserListsSection
                 userId={userId}
-                initialLists={profile.recentLists}
+                initialLists={profile.recentLists || []}
                 initialTotal={profile.stats?.totalLists ?? 0}
                 isOwnProfile={profile.isOwnProfile}
               />
@@ -666,9 +666,9 @@ const UserProfilePage = () => {
                       <Star className="h-5 w-5 mr-2 text-amber-600" />
                       Últimas Avaliações
                     </h3>
-                    {profile.recentReviews.length > 0 ? (
+                    {(profile.recentReviews || []).length > 0 ? (
                       <div className="space-y-4">
-                        {profile.recentReviews.slice(0, 3).map((review: any) => (
+                        {(profile.recentReviews || []).slice(0, 3).map((review: any) => (
                           <div key={review.id} className="bg-white rounded-lg p-4 shadow-sm">
                             <div className="flex items-start justify-between mb-2">
                               <div>
@@ -704,9 +704,9 @@ const UserProfilePage = () => {
                       <List className="h-5 w-5 mr-2 text-blue-600" />
                       Últimas Listas
                     </h3>
-                    {profile.recentLists.length > 0 ? (
+                    {(profile.recentLists || []).length > 0 ? (
                       <div className="space-y-4">
-                        {profile.recentLists.slice(0, 3).map((list: any) => (
+                        {(profile.recentLists || []).slice(0, 3).map((list: any) => (
                           <div key={list.id} className="bg-white rounded-lg p-4 shadow-sm">
                             <div className="flex items-start justify-between mb-2">
                               <div>

@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { Tag, Search, Check, Plus, X } from 'lucide-react';
-import type { CuisineType } from '../../../libs/types';
+
+interface CuisineType {
+  id: string;
+  name: string;
+  icon?: string;
+  [key: string]: any;
+}
 
 export default function CuisineSelector({
   cuisineTypes,

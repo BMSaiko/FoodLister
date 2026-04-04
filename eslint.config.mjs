@@ -3,6 +3,26 @@ import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import typescriptParser from "@typescript-eslint/parser";
 
 export default [
+  // Ignore build output and other generated files
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "out/**",
+      "dist/**",
+      "scripts/run-database-fixes.js",
+    ],
+  },
+  {
+    files: ["scripts/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "script",
+    },
+    rules: {
+      "no-console": "off",
+    },
+  },
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {

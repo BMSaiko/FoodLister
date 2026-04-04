@@ -244,7 +244,7 @@ export const RestaurantSearch: React.FC<RestaurantSearchProps> = ({
 };
 
 interface SelectedRestaurantsProps {
-  restaurants: Restaurant[];
+  restaurants: Array<{ id: string; name: string }>;
   onRemove: (id: string) => void;
 }
 

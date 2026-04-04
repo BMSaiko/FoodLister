@@ -572,4 +572,183 @@ Allow users to import lists from external sources like JSON, CSV, Google Maps, o
 
 ---
 
-*Last updated: 2026-04-03*
+## 🚀 CI/CD & DevOps
+
+### 26. Add Automated Testing to CI Pipeline
+
+**Priority:** High  
+**Labels:** `ci-cd`, `testing`, `devops`
+
+**Description:**
+The CI pipeline currently only runs linting and build. Add automated tests to catch regressions before they reach production.
+
+**Current State:**
+- CI runs: `npm run lint` → `npm run build`
+- No tests are executed
+
+**Acceptance Criteria:**
+- [ ] Add `npm test` step to CI pipeline
+- [ ] Configure test coverage thresholds (e.g., 80%)
+- [ ] Fail PRs that don't meet coverage requirements
+- [ ] Add coverage report as PR comment
+
+**Files to Modify:**
+- `.github/workflows/ci.yml`
+- `jest.config.js` (create if needed)
+
+---
+
+### 27. Add E2E Testing with Playwright
+
+**Priority:** Medium  
+**Labels:** `ci-cd`, `testing`, `e2e`
+
+**Description:**
+Add end-to-end tests for critical user flows (auth, restaurant search, list creation).
+
+**Critical Flows to Test:**
+- [ ] User registration and login
+- [ ] Search and filter restaurants
+- [ ] Create and edit a list
+- [ ] Add restaurant to list
+- [ ] Write and edit review
+- [ ] View another user's profile
+
+**Files to Create:**
+- `e2e/` directory with Playwright tests
+- `playwright.config.ts`
+
+**Files to Modify:**
+- `.github/workflows/ci.yml` (add e2e job)
+
+---
+
+### 28. Add Preview URL Comment to PRs
+
+**Priority:** Medium  
+**Labels:** `ci-cd`, `devops`
+
+**Description:**
+When a preview deployment succeeds, automatically comment the preview URL on the PR for easy review.
+
+**Acceptance Criteria:**
+- [ ] Deploy preview job outputs the preview URL
+- [ ] GitHub Action comments the URL on the PR
+- [ ] Only comment on PRs from the same repository (not forks)
+
+**Files to Modify:**
+- `.github/workflows/deploy.yml`
+- Add `actions/github-script` or `mshick/add-pr-comment` action
+
+---
+
+### 29. Add Database Migration Step to CI/CD
+
+**Priority:** High  
+**Labels:** `ci-cd`, `database`, `devops`
+
+**Description:**
+Automate Supabase database migrations as part of the deployment pipeline to ensure schema changes are applied before code that depends on them.
+
+**Acceptance Criteria:**
+- [ ] Run migrations before deploy on production
+- [ ] Verify migration success before proceeding
+- [ ] Rollback on failed migrations
+- [ ] Log migration output
+
+**Files to Modify:**
+- `.github/workflows/deploy.yml`
+- Add Supabase CLI step
+
+---
+
+### 30. Add Environment Protection Rules
+
+**Priority:** Medium  
+**Labels:** `ci-cd`, `security`, `devops`
+
+**Description:**
+Add GitHub environment protection rules to require manual approval for production deployments from PRs.
+
+**Acceptance Criteria:**
+- [ ] Create "production" environment in GitHub
+- [ ] Require approval from code owners before deploying to production
+- [ ] Add environment-specific secrets
+- [ ] Log deployment approvals
+
+**Setup Required:**
+- GitHub repo settings → Environments → Add "production"
+- Configure required reviewers
+
+---
+
+### 31. Add Performance Budget Monitoring
+
+**Priority:** Low  
+**Labels:** `ci-cd`, `performance`, `devops`
+
+**Description:**
+Monitor bundle size and page load times in CI to prevent performance regressions.
+
+**Acceptance Criteria:**
+- [ ] Set max bundle size limits (e.g., main.js < 250KB)
+- [ ] Fail CI if bundle exceeds limit
+- [ ] Track Lighthouse scores in CI
+- [ ] Add performance report to PR comments
+
+**Tools to Consider:**
+- `@next/bundle-analyzer`
+- `lighthouse-ci`
+- `webpack-bundle-analyzer`
+
+**Files to Modify:**
+- `.github/workflows/ci.yml`
+- `next.config.mjs`
+
+---
+
+### 32. Add Automated Dependency Updates
+
+**Priority:** Low  
+**Labels:** `ci-cd`, `maintenance`, `devops`
+
+**Description:**
+Set up Dependabot or Renovate to automatically create PRs for dependency updates.
+
+**Acceptance Criteria:**
+- [ ] Dependabot configured for npm packages
+- [ ] Weekly dependency scan
+- [ ] Auto-create PRs for minor/patch updates
+- [ ] Group related updates (e.g., all @supabase packages)
+
+**Files to Create:**
+- `.github/dependabot.yml`
+
+---
+
+### 33. Add Release Automation with Semantic Versioning
+
+**Priority:** Low  
+**Labels:** `ci-cd`, `devops`
+
+**Description:**
+Automate version bumping and changelog generation based on commit messages.
+
+**Acceptance Criteria:**
+- [ ] Conventional commits format enforced
+- [ ] Auto version bump on merge to main
+- [ ] Generate changelog from commits
+- [ ] Create GitHub release tag
+
+**Tools to Consider:**
+- `semantic-release`
+- `changesets`
+- `commitlint`
+
+**Files to Create:**
+- `.github/workflows/release.yml`
+- `.releaserc.json` or `changesets` config
+
+---
+
+*Last updated: 2026-04-04*
