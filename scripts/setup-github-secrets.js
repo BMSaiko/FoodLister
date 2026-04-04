@@ -1,15 +1,15 @@
 /**
- * Script para configurar GitHub Secrets automaticamente
+ * Script para gerar instruções de configuração dos GitHub Secrets
  * 
- * Uso:
- * 1. Gere um Personal Access Token em: https://github.com/settings/tokens
- *    - Permissões necessárias: repo (full control)
- * 2. Execute: node scripts/setup-github-secrets.js <GITHUB_TOKEN>
+ * Este script lê o arquivo .env.local e lista os secrets necessários
+ * para serem configurados manualmente no GitHub.
  * 
- * Ou defina a variável de ambiente GITHUB_TOKEN antes de executar
+ * Uso: node scripts/setup-github-secrets.js
+ * 
+ * Os secrets devem ser configurados em:
+ * https://github.com/BMSaiko/FoodLister/settings/secrets/actions
  */
 
-const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -34,120 +34,9 @@ function parseEnvFile(filePath) {
   return env;
 }
 
-// Função para criptografar secrets (GitHub requer libsodium)
-// Como não temos libsodium, vamos usar a API do GitHub para obter a chave pública
-function getPublicKey(owner, repo, token) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'api.github.com',
-      path: `/repos/${owner}/${repo}/actions/secrets/public-key`,
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': 'Node.js'
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        if (res.statusCode === 200) {
-          resolve(JSON.parse(data));
-        } else {
-          reject(new Error(`Failed to get public key: ${res.statusCode} - ${data}`));
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.end();
-  });
-}
-
-// Criptografar secret usando a chave pública do GitHub
-async function encryptSecret(publicKey, value) {
-  // Precisamos usar libsodium-wrappers para criptografia compatível com GitHub
-  const sodium = require('tweetnacl');
-  const sodiumUtil = require('tweetnacl-util');
-
-  const messageBytes = sodiumUtil.decodeUTF8(value);
-  const publicKeyBytes = sodiumUtil.decodeBase64(publicKey);
-
-  const nonce = sodium.randomBytes(sodium.box.nonceLength);
-  const encryptedMessage = sodium.box(
-    messageBytes,
-    nonce,
-    publicKeyBytes,
-    sodiumUtil.decodeBase64(process.env.GITHUB_SECRET_KEY || '')
-  );
-
-  const encryptedBuffer = Buffer.concat([nonce, encryptedMessage]);
-  return encryptedBuffer.toString('base64');
-}
-
-// Criar ou atualizar um secret
-function createOrUpdateSecret(owner, repo, secretName, encryptedValue, keyId, token) {
-  return new Promise((resolve, reject) => {
-    const postData = JSON.stringify({
-      encrypted_value: encryptedValue,
-      key_id: keyId
-    });
-
-    const options = {
-      hostname: 'api.github.com',
-      path: `/repos/${owner}/${repo}/actions/secrets/${secretName}`,
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': 'Node.js',
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        if (res.statusCode === 201 || res.statusCode === 204) {
-          resolve({ status: res.statusCode, name: secretName });
-        } else {
-          reject(new Error(`Failed to create secret ${secretName}: ${res.statusCode} - ${data}`));
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.write(postData);
-    req.end();
-  });
-}
-
 // Função principal
-async function main() {
-  // Obter token
-  let token = process.argv[2] || process.env.GITHUB_TOKEN;
-  
-  if (!token) {
-    console.error('❌ Erro: GitHub Token não fornecido.');
-    console.log('');
-    console.log('Como obter um token:');
-    console.log('1. Vá para: https://github.com/settings/tokens');
-    console.log('2. Clique em "Generate new token" > "Generate new token (classic)"');
-    console.log('3. Dê um nome (ex: "Setup Secrets")');
-    console.log('4. Selecione a permissão "repo" (full control)');
-    console.log('5. Copie o token gerado');
-    console.log('');
-    console.log('Execute: node scripts/setup-github-secrets.js <SEU_TOKEN>');
-    process.exit(1);
-  }
-
-  console.log('🔧 Configurando GitHub Secrets...');
+function main() {
+  console.log('🔧 GitHub Secrets - Instruções de Configuração');
   console.log(`📁 Repositório: ${GITHUB_OWNER}/${GITHUB_REPO}`);
   console.log('');
 
@@ -155,6 +44,8 @@ async function main() {
   const envPath = path.join(__dirname, '..', '.env.local');
   if (!fs.existsSync(envPath)) {
     console.error('❌ Erro: Arquivo .env.local não encontrado');
+    console.log('');
+    console.log('Crie o arquivo .env.local com suas variáveis de ambiente antes de executar este script.');
     process.exit(1);
   }
 
@@ -168,51 +59,28 @@ async function main() {
     'CLOUDINARY_CLOUD_NAME': env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     'CLOUDINARY_API_KEY': env.CLOUDINARY_API_KEY,
     'CLOUDINARY_API_SECRET': env.CLOUDINARY_API_SECRET,
-    'CLOUDINARY_URL': `cloudinary://${env.CLOUDINARY_API_KEY}:${env.CLOUDINARY_API_SECRET}@${env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}`,
+    'CLOUDINARY_URL': env.CLOUDINARY_URL || `cloudinary://${env.CLOUDINARY_API_KEY}:${env.CLOUDINARY_API_SECRET}@${env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}`,
     'NEXTAUTH_SECRET': env.NEXTAUTH_SECRET || crypto.randomBytes(32).toString('hex'),
-    'NEXTAUTH_URL': env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+    'NEXTAUTH_URL': env.NEXTAUTH_URL || 'http://localhost:3000',
     'NEXT_PUBLIC_SITE_URL': env.NEXT_PUBLIC_SITE_URL,
   };
 
-  // Obter chave pública do GitHub
-  console.log('🔑 Obtendo chave pública do GitHub...');
-  let publicKey;
-  try {
-    publicKey = await getPublicKey(GITHUB_OWNER, GITHUB_REPO, token);
-    console.log(`✅ Chave pública obtida (ID: ${publicKey.key_id})`);
-  } catch (error) {
-    console.error(`❌ Erro ao obter chave pública: ${error.message}`);
-    console.log('');
-    console.log('Verifique:');
-    console.log('1. O token está correto e tem permissão "repo"');
-    console.log('2. O repositório existe e você tem acesso');
-    process.exit(1);
-  }
-
-  // Para criptografia correta, vamos usar uma abordagem diferente
-  // O GitHub requer libsodium, então vamos instalar a dependência
+  console.log('📋 Secrets necessários para o repositório:');
   console.log('');
-  console.log('📦 Para criptografar os secrets, precisamos do pacote "tweetnacl"');
-  console.log('Execute: npm install tweetnacl tweetnacl-util --save-dev');
-  console.log('');
-  console.log('Alternativamente, configure os secrets manualmente:');
-  console.log('');
-  console.log('📋 Secrets para configurar no GitHub:');
-  console.log('   Vá para: Settings > Secrets and variables > Actions');
+  console.log('Configure em: https://github.com/BMSaiko/FoodLister/settings/secrets/actions');
   console.log('');
   
   for (const [name, value] of Object.entries(secretsToCreate)) {
     if (value) {
-      const displayValue = value.length > 50 ? value.substring(0, 50) + '...' : value;
-      console.log(`   🔐 ${name}: ${displayValue}`);
+      console.log(`   🔐 ${name}`);
     }
   }
 
   console.log('');
-  console.log('💡 Dica: Instale a GitHub CLI (gh) para facilitar:');
-  console.log('   winget install GitHub.cli');
+  console.log('💡 Use a GitHub CLI para configurar rapidamente:');
+  console.log('   gh secret set <NAME> --body "<VALUE>"');
   console.log('');
-  console.log('   Depois use: gh secret set <NAME> --body "<VALUE>"');
+  console.log('Ou use a interface web: Settings > Secrets and variables > Actions > New repository secret');
 }
 
-main().catch(console.error);
+main();
