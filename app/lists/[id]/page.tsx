@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import Navbar from '@/components/ui/navigation/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import RestaurantRoulette from '@/components/ui/RestaurantRoulette';
@@ -52,7 +51,6 @@ interface List {
 export default function ListDetails() {
   const { id } = useParams();
   const { user } = useAuth();
-  const { get } = useSecureApiClient();
   const [list, setList] = useState<List | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +64,7 @@ export default function ListDetails() {
       setLoading(true);
 
       try {
-        const response = await get(`/api/lists/${id}`);
+        const response = await fetch(`/api/lists/${id}`);
 
         if (!response.ok) {
           const errorText = await response.text().catch(() => 'Unknown error');
