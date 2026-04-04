@@ -19,6 +19,7 @@ export interface UserProfile {
   location: string;
   bio: string;
   website: string;
+  phoneNumber?: string;
   publicProfile: boolean;
   createdAt: string;
   updatedAt: string;
@@ -361,14 +362,22 @@ export function useUserData(options: UseUserDataOptions) {
   // Alias for backward compatibility
   const fetchUserRestaurants = fetchRestaurants;
 
+  // Check if we have cached data
+  const hasCachedData = !!getCache<UserProfile>(CACHE_KEYS.PROFILE + userId);
+
+  // Alias for backward compatibility
+  const refreshProfile = refreshData;
+
   return {
     ...userData,
     loadData,
     refreshData,
+    refreshProfile,
     loadMoreRestaurants,
     fetchRestaurants,
     fetchUserRestaurants,
     hasMoreRestaurants: hasMoreRef.current,
+    hasCachedData,
     canViewPrivateData: userData.accessLevel === 'OWNER' || userData.accessLevel === 'PRIVATE',
     isOwnProfile: userData.accessLevel === 'OWNER'
   };

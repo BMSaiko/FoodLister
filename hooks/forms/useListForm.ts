@@ -75,16 +75,17 @@ export function useListForm(options: UseListFormOptions = {}) {
         const { data: listData, error: listError } = await supabase
           .from('lists')
           .select('*')
-          .eq('id', listId);
+          .eq('id', listId as string)
+          .single();
 
         if (listError) throw listError;
 
-        if (!listData || listData.length === 0) {
+        if (!listData) {
           setError('Lista não encontrada.');
           return;
         }
 
-        const list = listData[0];
+        const list = listData as any;
         setFormData({
           name: list.name,
           description: list.description || '',
@@ -95,12 +96,12 @@ export function useListForm(options: UseListFormOptions = {}) {
         const { data: listRestaurantsData, error: relError } = await supabase
           .from('list_restaurants')
           .select('restaurant_id')
-          .eq('list_id', listId);
+          .eq('list_id', listId as string);
 
         if (relError) throw relError;
 
         if (listRestaurantsData && listRestaurantsData.length > 0) {
-          const restaurantIds = listRestaurantsData.map(item => item.restaurant_id);
+          const restaurantIds = (listRestaurantsData as any[]).map((item: any) => item.restaurant_id);
 
           const { data: restaurantDetails, error: restaurantError } = await supabase
             .from('restaurants')
@@ -172,15 +173,15 @@ export function useListForm(options: UseListFormOptions = {}) {
           is_public: formData.isPublic
         };
 
-        const { error: updateError } = await supabase
-          .from('lists')
+        const { error: updateError } = await (supabase
+          .from('lists') as any)
           .update(updateData)
-          .eq('id', listId);
+          .eq('id', listId as string);
 
         if (updateError) throw updateError;
 
         // Update restaurant relations
-        await updateListRestaurants(listId);
+        await updateListRestaurants(listId as string);
 
         toast.success('Lista atualizada com sucesso!', { position: "top-center", autoClose: 3000 });
         onSuccess?.(listId);
@@ -195,8 +196,8 @@ export function useListForm(options: UseListFormOptions = {}) {
           is_public: formData.isPublic
         };
 
-        const { data: listData, error: listError } = await supabase
-          .from('lists')
+        const { data: listData, error: listError } = await (supabase
+          .from('lists') as any)
           .insert([listDataToInsert])
           .select();
 
@@ -211,8 +212,8 @@ export function useListForm(options: UseListFormOptions = {}) {
             restaurant_id: restaurant.id
           }));
 
-          const { error: relationError } = await supabase
-            .from('list_restaurants')
+          const { error: relationError } = await (supabase
+            .from('list_restaurants') as any)
             .insert(restaurantRelations);
 
           if (relationError) throw relationError;
@@ -245,21 +246,21 @@ export function useListForm(options: UseListFormOptions = {}) {
   // Helper to update list restaurants (delete + insert)
   const updateListRestaurants = async (listId: string) => {
     // Get current restaurant relations
-    const { data: currentRelations, error: relError } = await supabase
-      .from('list_restaurants')
+    const { data: currentRelations, error: relError } = await (supabase
+      .from('list_restaurants') as any)
       .select('restaurant_id')
       .eq('list_id', listId);
 
     if (relError) throw relError;
 
-    const currentRestaurantIds = currentRelations.map(rel => rel.restaurant_id);
+    const currentRestaurantIds = (currentRelations as any[]).map((rel: any) => rel.restaurant_id);
     const newRestaurantIds = selectedRestaurants.map(r => r.id);
 
     // Remove restaurants no longer in the list
     const restaurantsToRemove = currentRestaurantIds.filter(id => !newRestaurantIds.includes(id));
     if (restaurantsToRemove.length > 0) {
-      const { error: removeError } = await supabase
-        .from('list_restaurants')
+      const { error: removeError } = await (supabase
+        .from('list_restaurants') as any)
         .delete()
         .eq('list_id', listId)
         .in('restaurant_id', restaurantsToRemove);
@@ -275,8 +276,8 @@ export function useListForm(options: UseListFormOptions = {}) {
         restaurant_id: restaurantId
       }));
 
-      const { error: addError } = await supabase
-        .from('list_restaurants')
+      const { error: addError } = await (supabase
+        .from('list_restaurants') as any)
         .insert(newRelations);
 
       if (addError) throw addError;

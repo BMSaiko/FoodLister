@@ -218,9 +218,6 @@ export class ApiMonitor {
 // Create singleton instance
 export const apiMonitor = new ApiMonitor();
 
-// Export class for testing
-export { ApiMonitor };
-
 // Export convenience functions
 export const logApiResponse = apiMonitor.logApiResponse.bind(apiMonitor);
 export const measureFunction = apiMonitor.measureFunction.bind(apiMonitor);

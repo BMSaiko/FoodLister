@@ -202,9 +202,6 @@ export class DbMonitor {
 // Create singleton instance
 export const dbMonitor = new DbMonitor();
 
-// Export class for testing
-export { DbMonitor };
-
 // Export convenience functions
 export const logDatabaseQuery = dbMonitor.logDatabaseQuery.bind(dbMonitor);
 export const measureDatabaseQuery = dbMonitor.measureDatabaseQuery.bind(dbMonitor);

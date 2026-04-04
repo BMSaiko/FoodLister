@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { uploadToCloudinary, optimizeCloudinaryUrl } from '@/utils/cloudinaryConverter';
+import { uploadToCloudinary, convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 
 export interface UploadedImage {
   url: string;
@@ -65,15 +65,15 @@ export function useImageUpload(options: UseImageUploadOptions = {}) {
         }
 
         try {
-          const result = await uploadToCloudinary(file, folder);
+          const result = await uploadToCloudinary(file);
           
-          if (result.url) {
+          if (result) {
             // Optimize the URL for delivery
-            const optimizedUrl = optimizeCloudinaryUrl(result.url);
+            const optimizedUrl = convertCloudinaryUrl(result);
             
             const uploadedImage: UploadedImage = {
               url: optimizedUrl,
-              publicId: result.publicId
+              publicId: undefined
             };
             
             uploadedImages.push(uploadedImage);

@@ -116,10 +116,10 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
         setLoading(true);
 
         const [restaurantResult, cuisineResult, dietaryResult, featuresResult] = await Promise.all([
-          supabase.from('restaurants').select('*').eq('id', restaurantId).single(),
-          supabase.from('restaurant_cuisine_types').select('cuisine_type_id').eq('restaurant_id', restaurantId),
-          supabase.from('restaurant_dietary_options_junction').select('dietary_option_id').eq('restaurant_id', restaurantId),
-          supabase.from('restaurant_restaurant_features').select('feature_id').eq('restaurant_id', restaurantId)
+          (supabase.from('restaurants') as any).select('*').eq('id', restaurantId as string).single(),
+          (supabase.from('restaurant_cuisine_types') as any).select('cuisine_type_id').eq('restaurant_id', restaurantId as string),
+          (supabase.from('restaurant_dietary_options_junction') as any).select('dietary_option_id').eq('restaurant_id', restaurantId as string),
+          (supabase.from('restaurant_restaurant_features') as any).select('feature_id').eq('restaurant_id', restaurantId as string)
         ]);
 
         if (restaurantResult.error) throw restaurantResult.error;
@@ -127,7 +127,7 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
         if (dietaryResult.error) throw dietaryResult.error;
         if (featuresResult.error) throw featuresResult.error;
 
-        const data = restaurantResult.data;
+        const data = restaurantResult.data as any;
         setFormData({
           name: data.name,
           description: data.description,
@@ -140,9 +140,9 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
           menu_images: data.menu_images || [],
           phone_numbers: data.phone_numbers || [],
           creator: data.creator || 'Anônimo',
-          selectedCuisineTypes: cuisineResult.data?.map(r => r.cuisine_type_id) || [],
-          selectedDietaryOptions: dietaryResult.data?.map(r => r.dietary_option_id) || [],
-          selectedFeatures: featuresResult.data?.map(r => r.feature_id) || []
+          selectedCuisineTypes: (cuisineResult.data as any[])?.map((r: any) => r.cuisine_type_id) || [],
+          selectedDietaryOptions: (dietaryResult.data as any[])?.map((r: any) => r.dietary_option_id) || [],
+          selectedFeatures: (featuresResult.data as any[])?.map((r: any) => r.feature_id) || []
         });
       } catch (error) {
         console.error('Error fetching restaurant:', error);
@@ -237,8 +237,8 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
 
       if (isEdit && restaurantId) {
         // Update existing restaurant
-        const { error: updateError } = await supabase
-          .from('restaurants')
+        const { error: updateError } = await (supabase
+          .from('restaurants') as any)
           .update({
             name: formData.name,
             description: formData.description,
@@ -264,8 +264,8 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
         return { id: restaurantId };
       } else {
         // Create new restaurant
-        const { data, error } = await supabase
-          .from('restaurants')
+        const { data, error } = await (supabase
+          .from('restaurants') as any)
           .insert({
             name: formData.name,
             description: formData.description,
@@ -321,7 +321,7 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
 
     if (formData.selectedCuisineTypes.length > 0) {
       promises.push(
-        supabase.from('restaurant_cuisine_types').insert(
+        (supabase.from('restaurant_cuisine_types') as any).insert(
           formData.selectedCuisineTypes.map(id => ({ restaurant_id: restaurantId, cuisine_type_id: id }))
         )
       );
@@ -329,7 +329,7 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
 
     if (formData.selectedDietaryOptions.length > 0) {
       promises.push(
-        supabase.from('restaurant_dietary_options_junction').insert(
+        (supabase.from('restaurant_dietary_options_junction') as any).insert(
           formData.selectedDietaryOptions.map(id => ({ restaurant_id: restaurantId, dietary_option_id: id }))
         )
       );
@@ -337,7 +337,7 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
 
     if (formData.selectedFeatures.length > 0) {
       promises.push(
-        supabase.from('restaurant_restaurant_features').insert(
+        (supabase.from('restaurant_restaurant_features') as any).insert(
           formData.selectedFeatures.map(id => ({ restaurant_id: restaurantId, feature_id: id }))
         )
       );
@@ -351,9 +351,9 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
     const promises = [];
 
     // Delete existing relations
-    promises.push(supabase.from('restaurant_cuisine_types').delete().eq('restaurant_id', restaurantId));
-    promises.push(supabase.from('restaurant_dietary_options_junction').delete().eq('restaurant_id', restaurantId));
-    promises.push(supabase.from('restaurant_restaurant_features').delete().eq('restaurant_id', restaurantId));
+    promises.push((supabase.from('restaurant_cuisine_types') as any).delete().eq('restaurant_id', restaurantId));
+    promises.push((supabase.from('restaurant_dietary_options_junction') as any).delete().eq('restaurant_id', restaurantId));
+    promises.push((supabase.from('restaurant_restaurant_features') as any).delete().eq('restaurant_id', restaurantId));
 
     await Promise.all(promises);
 

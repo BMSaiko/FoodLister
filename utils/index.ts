@@ -4,8 +4,7 @@
 export * from './auth';
 
 // Legacy auth utilities (deprecated - use ./auth instead)
-export * from './authUtils';
-export * from './authLogger';
+// Note: authUtils and authLogger exports removed to avoid duplicate exports
 
 // Data and formatting
 export * from './cloudinaryConverter';
