@@ -221,24 +221,32 @@ export default function MealCard({
           </div>
 
           {/* Accept/Decline for participants */}
-          {meal.participantStatus === 'pending' && !meal.isOrganizer && (
+          {!meal.isOrganizer && meal.participantStatus && (
             <div className="flex items-center space-x-2">
               {onAccept && (
                 <button
                   onClick={() => onAccept(meal.id)}
-                  className="flex items-center space-x-1 px-3 py-1.5 text-sm text-white bg-green-500 hover:bg-green-600 rounded-lg transition-colors"
+                  className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    meal.participantStatus === 'accepted'
+                      ? 'text-white bg-green-600 hover:bg-green-700 ring-2 ring-green-300'
+                      : 'text-white bg-green-500 hover:bg-green-600'
+                  }`}
                 >
                   <Check className="h-4 w-4" />
-                  <span>Aceitar</span>
+                  <span>{meal.participantStatus === 'accepted' ? 'Aceite ✓' : 'Aceitar'}</span>
                 </button>
               )}
               {onDecline && (
                 <button
                   onClick={() => onDecline(meal.id)}
-                  className="flex items-center space-x-1 px-3 py-1.5 text-sm text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+                  className={`flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    meal.participantStatus === 'declined'
+                      ? 'text-white bg-red-600 hover:bg-red-700 ring-2 ring-red-300'
+                      : 'text-white bg-red-500 hover:bg-red-600'
+                  }`}
                 >
                   <X className="h-4 w-4" />
-                  <span>Recusar</span>
+                  <span>{meal.participantStatus === 'declined' ? 'Recusado ✓' : 'Recusar'}</span>
                 </button>
               )}
             </div>
