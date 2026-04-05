@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       if (!file) {
         console.error('No file provided in form data');
         return NextResponse.json(
-          { error: 'Nenhum arquivo fornecido' },
+          { error: 'No file provided' },
           { status: 400 }
         );
       }
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       if (!file.type.startsWith('image/')) {
         console.error('Invalid file type:', file.type);
         return NextResponse.json(
-          { error: 'O arquivo deve ser uma imagem' },
+          { error: 'The file must be an image' },
           { status: 400 }
         );
       }
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       if (file.size > maxSize) {
         console.error('File too large:', file.size);
         return NextResponse.json(
-          { error: 'A imagem deve ter no máximo 10MB' },
+          { error: 'The image must be at most 10MB' },
           { status: 400 }
         );
       }
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       if (!imageData || !providedMimeType) {
         console.error('Missing required fields for base64 upload');
         return NextResponse.json(
-          { error: 'Dados da imagem ou tipo MIME não fornecidos' },
+          { error: 'Image data or MIME type not provided' },
           { status: 400 }
         );
       }
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       } catch (conversionError) {
         console.error('Base64 conversion failed:', conversionError);
         return NextResponse.json(
-          { error: 'Dados da imagem base64 inválidos' },
+          { error: 'Invalid base64 image data' },
           { status: 400 }
         );
       }
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
       if (imageBuffer.length > maxSize) {
         console.error('Decoded image too large:', imageBuffer.length);
         return NextResponse.json(
-          { error: 'A imagem deve ter no máximo 10MB' },
+          { error: 'The image must be at most 10MB' },
           { status: 400 }
         );
       }
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     } else {
       console.error('Unsupported content type:', contentType);
       return NextResponse.json(
-        { error: 'Tipo de conteúdo não suportado' },
+        { error: 'Unsupported content type' },
         { status: 400 }
       );
     }
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     if (!cloudName || !uploadPreset || !apiKey || !apiSecret) {
       console.error('Missing Cloudinary environment variables');
       return NextResponse.json(
-        { error: 'Configuração do Cloudinary incompleta' },
+        { error: 'Incomplete Cloudinary configuration' },
         { status: 500 }
       );
     }
@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
       const errorText = await response.text();
       console.error('Cloudinary API error:', errorText);
       return NextResponse.json(
-        { error: 'Erro no upload para Cloudinary' },
+        { error: 'Error uploading to Cloudinary' },
         { status: 500 }
       );
     }
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Unexpected upload error:', error);
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
