@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Calendar, Clock, MapPin, Download, ExternalLink, Check, X, Users } from 'lucide-react';
 
 interface MealCardProps {
@@ -35,6 +36,7 @@ interface MealCardProps {
   onDecline?: (mealId: string) => void;
   onDownloadIcs?: (mealId: string) => void;
   onOpenGoogleCalendar?: (link: string) => void;
+  onViewDetails?: (mealId: string) => void;
 }
 
 const MEAL_ICONS: Record<string, string> = {
@@ -74,7 +76,8 @@ export default function MealCard({
   onAccept,
   onDecline,
   onDownloadIcs,
-  onOpenGoogleCalendar
+  onOpenGoogleCalendar,
+  onViewDetails
 }: MealCardProps) {
   const mealIcon = MEAL_ICONS[meal.mealType] || '🍴';
   const mealLabel = MEAL_LABELS[meal.mealType] || meal.mealType;
@@ -194,6 +197,16 @@ export default function MealCard({
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center space-x-2">
+            {/* View Details */}
+            <Link
+              href={`/meals/${meal.id}`}
+              className="flex items-center space-x-1 px-3 py-1.5 text-sm text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors"
+              title="Ver detalhes"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span>Detalhes</span>
+            </Link>
+
             {/* Download ICS */}
             {onDownloadIcs && (
               <button
@@ -203,18 +216,6 @@ export default function MealCard({
               >
                 <Download className="h-4 w-4" />
                 <span>.ics</span>
-              </button>
-            )}
-
-            {/* Google Calendar */}
-            {meal.isOrganizer && meal.googleCalendarLink && onOpenGoogleCalendar && (
-              <button
-                onClick={() => onOpenGoogleCalendar(meal.googleCalendarLink!)}
-                className="flex items-center space-x-1 px-3 py-1.5 text-sm text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-                title="Abrir no Google Calendar"
-              >
-                <ExternalLink className="h-4 w-4" />
-                <span>Calendar</span>
               </button>
             )}
           </div>

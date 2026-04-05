@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { X, Calendar, Clock, Users, Mail, UtensilsCrossed, Search, Loader2 } from 'lucide-react';
 import { useMealScheduling } from '@/hooks/forms/useMealScheduling';
 import { useDebounce } from '@/hooks/utilities/useDebounce';
@@ -30,6 +31,7 @@ const ScheduleMealModal = ({
   restaurantDescription,
   restaurantId
 }: ScheduleMealModalProps) => {
+  const router = useRouter();
   const {
     form,
     setDate,
@@ -131,17 +133,21 @@ const ScheduleMealModal = ({
 
         if (response.ok) {
           const result = await response.json();
+          const mealId = result.data?.id;
           
           // Show success toast
           toast.success('Refeição agendada com sucesso!');
-          
-          // Open Google Calendar
-          handleSubmit(restaurantName, restaurantLocation, restaurantDescription);
           
           // Reset form and close modal
           resetForm();
           setSelectedUsers([]);
           setSearchQuery('');
+          onClose();
+          
+          // Redirect to meal details page
+          if (mealId) {
+            router.push(`/meals/${mealId}`);
+          }
           return;
         } else {
           // API returned an error

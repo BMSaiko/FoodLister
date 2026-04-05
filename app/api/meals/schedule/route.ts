@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { generateGoogleCalendarUrl } from '@/utils/googleCalendar';
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: NextRequest) {
   try {
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Add participants if provided
+    // Add participants if provided and send notifications
     if (participantUserIds && participantUserIds.length > 0) {
       const participantRecords = participantUserIds.map((userId: string) => ({
         scheduled_meal_id: scheduledMeal.id,
@@ -123,7 +124,41 @@ export async function POST(request: NextRequest) {
 
       if (participantsError) {
         console.error('Error adding participants:', participantsError);
-        // Don't fail the whole request, just log the error
+      }
+
+      // Send in-app notifications to participants
+      const mealTypeLabels: Record<string, string> = {
+        'pequeno-almoco': 'Pequeno Almoço',
+        'almoco': 'Almoço',
+        'brunch': 'Brunch',
+        'lanche': 'Lanche',
+        'jantar': 'Jantar',
+        'ceia': 'Ceia'
+      };
+      const mealLabel = mealTypeLabels[mealType] || mealType;
+
+      // Use service role to create notifications (bypasses RLS)
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      if (supabaseUrl && supabaseServiceKey) {
+        const serviceSupabase = createClient(supabaseUrl, supabaseServiceKey);
+
+        const notifications = participantUserIds.map((userId: string) => ({
+          user_id: userId,
+          type: 'meal_invitation',
+          title: `Convite para ${mealLabel}`,
+          message: `${organizerProfile?.display_name || 'Alguém'} convidou-te para um(a) ${mealLabel} em ${restaurant.name}`,
+          link: `/meals/${scheduledMeal.id}`
+        }));
+
+        const { error: notifError } = await serviceSupabase
+          .from('notifications')
+          .insert(notifications);
+
+        if (notifError) {
+          console.error('Error sending notifications:', notifError);
+        }
       }
     }
 
