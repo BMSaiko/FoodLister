@@ -113,60 +113,52 @@ const ScheduleMealModal = ({
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If we have restaurantId, save to database first
-    if (restaurantId) {
-      try {
-        const participantIds = selectedUsers.map(u => u.id);
-        
-        const response = await fetch('/api/meals/schedule', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            restaurantId,
-            mealDate: form.date,
-            mealTime: form.time,
-            mealType: form.mealType,
-            durationMinutes: form.duration * 60,
-            participantUserIds: participantIds
-          })
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          const mealId = result.data?.id;
-          
-          // Show success toast
-          toast.success('Refeição agendada com sucesso!');
-          
-          // Reset form and close modal
-          resetForm();
-          setSelectedUsers([]);
-          setSearchQuery('');
-          onClose();
-          
-          // Redirect to meal details page
-          if (mealId) {
-            router.push(`/meals/${mealId}`);
-          }
-          return;
-        } else {
-          // API returned an error
-          const errorData = await response.json();
-          toast.error(errorData.error || 'Erro ao agendar refeição. Tente novamente.');
-          return;
-        }
-      } catch (error) {
-        console.error('Error scheduling meal:', error);
-        toast.error('Erro de conexão ao agendar refeição. Tente novamente.');
-        return;
-      }
+    if (!restaurantId) {
+      toast.error('Erro: restaurante não identificado.');
+      return;
     }
 
-    // No restaurantId - just open Google Calendar (legacy behavior)
-    handleSubmit(restaurantName, restaurantLocation, restaurantDescription);
-    resetForm();
-    setSelectedUsers([]);
-    setSearchQuery('');
+    try {
+      const participantIds = selectedUsers.map(u => u.id);
+      
+      const response = await fetch('/api/meals/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurantId,
+          mealDate: form.date,
+          mealTime: form.time,
+          mealType: form.mealType,
+          durationMinutes: form.duration * 60,
+          participantUserIds: participantIds
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const mealId = result.data?.id;
+        
+        // Show success toast
+        toast.success('Refeição agendada com sucesso!');
+        
+        // Reset form and close modal
+        resetForm();
+        setSelectedUsers([]);
+        setSearchQuery('');
+        onClose();
+        
+        // Redirect to meal details page
+        if (mealId) {
+          router.push(`/meals/${mealId}`);
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Erro ao agendar refeição. Tente novamente.');
+      }
+    } catch (error) {
+      console.error('Error scheduling meal:', error);
+      toast.error('Erro de conexão ao agendar refeição. Tente novamente.');
+    }
   };
 
   const handleClose = () => {
@@ -217,7 +209,7 @@ const ScheduleMealModal = ({
         {/* Content */}
         <div className="px-6 py-6">
           <p className="text-gray-600 mb-6 text-sm">
-            Preencha os detalhes abaixo para criar um evento no seu Google Calendar.
+            Preencha os detalhes abaixo para agendar uma refeição neste restaurante.
           </p>
 
           <form onSubmit={handleFormSubmit} className="space-y-5">
@@ -438,7 +430,7 @@ const ScheduleMealModal = ({
                 type="submit"
                 className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all font-semibold shadow-md hover:shadow-lg"
               >
-                📅 Criar Evento no Calendar
+                📅 Agendar Refeição
               </button>
             </div>
           </form>
