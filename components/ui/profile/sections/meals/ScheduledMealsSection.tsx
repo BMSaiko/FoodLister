@@ -18,8 +18,8 @@ export default function ScheduledMealsSection({
   const { user } = useAuth();
   const isCurrentUser = !userId || userId === user?.id;
 
-  // If viewing another user's profile, only show organized meals
-  const mealType = isCurrentUser ? type : 'organized';
+  // If viewing another user's profile, show organized and participating meals
+  const mealType = isCurrentUser ? type : 'all';
 
   const {
     meals,
