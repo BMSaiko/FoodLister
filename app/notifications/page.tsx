@@ -5,17 +5,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Bell, Check, Trash2, Utensils, Loader2, ArrowLeft, Filter } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
-import { useNotifications, Notification } from '@/hooks/data/useNotifications';
+import { useAllNotifications, Notification } from '@/hooks/data/useAllNotifications';
 import { toast } from 'react-toastify';
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
+  const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useAllNotifications();
   const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [displayNotifications, setDisplayNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
-    fetchNotifications(false);
+    fetchNotifications();
   }, []);
 
   useEffect(() => {
