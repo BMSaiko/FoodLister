@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
 // GET a single scheduled meal
 export async function GET(
@@ -197,6 +198,63 @@ export async function PATCH(
     if (updateError) {
       console.error('Error updating meal:', updateError);
       return NextResponse.json({ error: 'Failed to update meal' }, { status: 500 });
+    }
+
+    // Get meal details with restaurant name for notification
+    const { data: mealDetails } = await supabase
+      .from('scheduled_meals')
+      .select(`
+        id,
+        meal_date,
+        meal_time,
+        meal_type,
+        duration_minutes,
+        restaurants (
+          name
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    // Get all participants and create notifications
+    const { data: participants } = await supabase
+      .from('meal_participants')
+      .select('user_id')
+      .eq('scheduled_meal_id', id)
+      .neq('user_id', user.id);
+
+    if (participants && participants.length > 0) {
+      const mealTypeLabels: Record<string, string> = {
+        'pequeno-almoco': 'Pequeno Almoço',
+        'almoco': 'Almoço',
+        'brunch': 'Brunch',
+        'lanche': 'Lanche',
+        'jantar': 'Jantar',
+        'ceia': 'Ceia'
+      };
+
+      const restaurantName = mealDetails?.restaurants?.name || 'restaurante';
+      const mealTypeLabel = mealTypeLabels[mealDetails?.meal_type] || mealDetails?.meal_type || 'refeição';
+      const newDate = mealDetails?.meal_date ? new Date(mealDetails.meal_date + 'T00:00:00').toLocaleDateString('pt-PT') : '';
+      const newTime = mealDetails?.meal_time || '';
+
+      const notifications = participants.map((p: any) => ({
+        user_id: p.user_id,
+        type: 'meal_updated',
+        title: 'Refeição atualizada',
+        message: `O organizador atualizou os detalhes da ${mealTypeLabel} em ${restaurantName}${newDate ? ` para ${newDate}` : ''}${newTime ? ` às ${newTime}` : ''}.`,
+        link: `/meals/${id}`
+      }));
+
+      // Use service role client for notifications to bypass RLS
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && supabaseServiceKey) {
+        const serviceSupabase = createClient(supabaseUrl, supabaseServiceKey);
+        await serviceSupabase
+          .from('notifications')
+          .insert(notifications);
+      }
     }
 
     return NextResponse.json({ data: updatedMeal, message: 'Meal updated successfully' });
