@@ -167,10 +167,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: meals,
-      total: count || 0,
+      total: totalCount || 0,
       page,
       limit,
-      hasMore: count ? count > (offset + limit) : false
+      hasMore: totalCount ? totalCount > (offset + limit) : false
     });
 
   } catch (error) {
