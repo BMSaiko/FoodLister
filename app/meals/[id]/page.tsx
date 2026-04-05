@@ -481,8 +481,13 @@ export default function MealDetailsPage() {
               </button>
             )}
 
-            {/* Accept/Decline for participants */}
-            {!meal.isOrganizer && meal.participantStatus && (
+            {/* Accept/Decline for organizer and participants */}
+            {(() => {
+              const mealDateTime = new Date(`${meal.mealDate}T${meal.mealTime}`);
+              const isMealPast = mealDateTime < new Date();
+              const canRespond = meal.isOrganizer || meal.participantStatus !== null && meal.participantStatus !== undefined;
+              return !isMealPast && canRespond;
+            })() && (
               <div className="flex space-x-3 pt-2">
                 <button
                   onClick={handleAccept}

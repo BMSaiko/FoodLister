@@ -82,6 +82,15 @@ export default function MealCard({
   const mealIcon = MEAL_ICONS[meal.mealType] || '🍴';
   const mealLabel = MEAL_LABELS[meal.mealType] || meal.mealType;
 
+  // Check if meal date/time has passed
+  const isMealPast = () => {
+    const mealDateTime = new Date(`${meal.mealDate}T${meal.mealTime}`);
+    return mealDateTime < new Date();
+  };
+
+  // Determine if user can accept/decline (organizer or participant)
+  const canRespond = meal.isOrganizer || meal.participantStatus !== null && meal.participantStatus !== undefined;
+
   const getStatusBadge = () => {
     if (!meal.participantStatus || meal.isOrganizer) return null;
 
@@ -220,8 +229,8 @@ export default function MealCard({
             )}
           </div>
 
-          {/* Accept/Decline for participants */}
-          {!meal.isOrganizer && meal.participantStatus && (
+          {/* Accept/Decline for organizer and participants */}
+          {!isMealPast() && canRespond && (
             <div className="flex items-center space-x-2">
               {onAccept && (
                 <button
