@@ -63,42 +63,60 @@ export async function GET(request: NextRequest) {
         )
       `, { count: 'exact' });
 
-    // Filter by type
+    // Get meal IDs for participant filter first
+    let participantMealIds: string[] = [];
+    if (type === 'participating' || type === 'all') {
+      const { data: participantMeals } = await supabase
+        .from('meal_participants')
+        .select('scheduled_meal_id')
+        .eq('user_id', user.id);
+      
+      participantMealIds = participantMeals?.map((m: any) => m.scheduled_meal_id) || [];
+    }
+
+    // Build the main query with proper filtering
     if (type === 'organized') {
       query = query.eq('organizer_id', user.id);
     } else if (type === 'participating') {
-      // First get the meal IDs where user is a participant
-      const { data: participantMeals } = await supabase
-        .from('meal_participants')
-        .select('scheduled_meal_id')
-        .eq('user_id', user.id);
-      
-      const mealIds = participantMeals?.map((m: any) => m.scheduled_meal_id) || [];
-      query = query.in('id', mealIds);
+      query = query.in('id', participantMealIds);
     } else {
       // 'all' - show both organized and participating
-      // First get the meal IDs where user is a participant
-      const { data: participantMeals } = await supabase
-        .from('meal_participants')
-        .select('scheduled_meal_id')
-        .eq('user_id', user.id);
+      // Get distinct meal IDs combining organized and participating
+      const allMealIds = new Set<string>();
+      // We'll filter organized meals in the main query
+      participantMealIds.forEach(id => allMealIds.add(id));
       
-      const mealIds = participantMeals?.map((m: any) => m.scheduled_meal_id) || [];
+      // For 'all' type, we need to get organized meals separately
+      const { data: organizedMeals } = await supabase
+        .from('scheduled_meals')
+        .select('id')
+        .eq('organizer_id', user.id);
       
-      // Use or filter with explicit IDs instead of subquery
-      if (mealIds.length > 0) {
-        query = query.or(`organizer_id.eq.${user.id},id.in.(${mealIds.join(',')})`);
+      organizedMeals?.forEach((m: any) => allMealIds.add(m.id));
+      
+      const uniqueMealIds = Array.from(allMealIds);
+      if (uniqueMealIds.length > 0) {
+        query = query.in('id', uniqueMealIds);
       } else {
-        query = query.eq('organizer_id', user.id);
+        // No meals found, return empty
+        return NextResponse.json({
+          data: [],
+          total: 0,
+          page,
+          limit,
+          hasMore: false
+        });
       }
     }
 
-    // Order by date and time
-    query = query.order('meal_date', { ascending: true })
-                 .order('meal_time', { ascending: true })
-                 .range(offset, offset + limit - 1);
+    // Get total count for pagination
+    const { count: totalCount } = await query;
 
-    const { data, error, count } = await query;
+    // Order by date and time, then apply pagination
+    const { data, error } = await query
+      .order('meal_date', { ascending: true })
+      .order('meal_time', { ascending: true })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error('Error fetching scheduled meals:', error);
