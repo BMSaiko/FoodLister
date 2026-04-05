@@ -246,10 +246,81 @@ export async function PATCH(request: NextRequest) {
         message: 'Participant status updated successfully'
       });
     } else {
-      return NextResponse.json(
-        { error: 'participantId is required for organizer updates' },
-        { status: 400 }
-      );
+      // Organizer updating their own participation status
+      const { data: existingOrganizerParticipant } = await supabase
+        .from('meal_participants')
+        .select('*')
+        .eq('scheduled_meal_id', mealId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingOrganizerParticipant) {
+        // Update existing record
+        const { data, error } = await supabase
+          .from('meal_participants')
+          .update({ status })
+          .eq('scheduled_meal_id', mealId)
+          .eq('user_id', user.id)
+          .select(`
+            id,
+            user_id,
+            status,
+            profiles:profiles!meal_participants_user_id_fkey (
+              user_id,
+              display_name,
+              avatar_url,
+              user_id_code
+            )
+          `)
+          .single();
+
+        if (error) {
+          console.error('Error updating organizer participant status:', error);
+          return NextResponse.json(
+            { error: 'Failed to update participant status' },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json({
+          data,
+          message: 'Participant status updated successfully'
+        });
+      } else {
+        // Create new participant record for organizer
+        const { data, error } = await supabase
+          .from('meal_participants')
+          .insert({
+            scheduled_meal_id: mealId,
+            user_id: user.id,
+            status
+          })
+          .select(`
+            id,
+            user_id,
+            status,
+            profiles:profiles!meal_participants_user_id_fkey (
+              user_id,
+              display_name,
+              avatar_url,
+              user_id_code
+            )
+          `)
+          .single();
+
+        if (error) {
+          console.error('Error creating organizer participant record:', error);
+          return NextResponse.json(
+            { error: 'Failed to create participant record' },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json({
+          data,
+          message: 'Participant status created successfully'
+        });
+      }
     }
 
   } catch (error) {
