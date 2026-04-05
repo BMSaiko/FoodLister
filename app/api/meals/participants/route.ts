@@ -137,44 +137,120 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Build update query
-    let updateQuery = supabase
-      .from('meal_participants')
-      .update({ status })
-      .eq('scheduled_meal_id', mealId);
-
     // If user is not the organizer, they can only update their own status
     if (meal.organizer_id !== user.id) {
-      updateQuery = updateQuery.eq('user_id', user.id);
+      // Check if participant record exists
+      const { data: existingParticipant } = await supabase
+        .from('meal_participants')
+        .select('*')
+        .eq('scheduled_meal_id', mealId)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingParticipant) {
+        // Update existing record
+        const { data, error } = await supabase
+          .from('meal_participants')
+          .update({ status })
+          .eq('scheduled_meal_id', mealId)
+          .eq('user_id', user.id)
+          .select(`
+            id,
+            user_id,
+            status,
+            profiles:profiles!meal_participants_user_id_fkey (
+              user_id,
+              display_name,
+              avatar_url,
+              user_id_code
+            )
+          `)
+          .single();
+
+        if (error) {
+          console.error('Error updating participant status:', error);
+          return NextResponse.json(
+            { error: 'Failed to update participant status' },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json({
+          data,
+          message: 'Participant status updated successfully'
+        });
+      } else {
+        // Create new participant record (self-invite)
+        const { data, error } = await supabase
+          .from('meal_participants')
+          .insert({
+            scheduled_meal_id: mealId,
+            user_id: user.id,
+            status
+          })
+          .select(`
+            id,
+            user_id,
+            status,
+            profiles:profiles!meal_participants_user_id_fkey (
+              user_id,
+              display_name,
+              avatar_url,
+              user_id_code
+            )
+          `)
+          .single();
+
+        if (error) {
+          console.error('Error creating participant record:', error);
+          return NextResponse.json(
+            { error: 'Failed to create participant record' },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json({
+          data,
+          message: 'Participant status created successfully'
+        });
+      }
     } else if (participantId) {
       // Organizer can update specific participant
-      updateQuery = updateQuery.eq('id', participantId);
-    }
+      const { data, error } = await supabase
+        .from('meal_participants')
+        .update({ status })
+        .eq('id', participantId)
+        .select(`
+          id,
+          user_id,
+          status,
+          profiles:profiles!meal_participants_user_id_fkey (
+            user_id,
+            display_name,
+            avatar_url,
+            user_id_code
+          )
+        `)
+        .single();
 
-    const { data, error } = await updateQuery.select(`
-      id,
-      user_id,
-      status,
-      profiles:profiles!meal_participants_user_id_fkey (
-        user_id,
-        display_name,
-        avatar_url,
-        user_id_code
-      )
-    `).single();
+      if (error) {
+        console.error('Error updating participant status:', error);
+        return NextResponse.json(
+          { error: 'Failed to update participant status' },
+          { status: 500 }
+        );
+      }
 
-    if (error) {
-      console.error('Error updating participant status:', error);
+      return NextResponse.json({
+        data,
+        message: 'Participant status updated successfully'
+      });
+    } else {
       return NextResponse.json(
-        { error: 'Failed to update participant status' },
-        { status: 500 }
+        { error: 'participantId is required for organizer updates' },
+        { status: 400 }
       );
     }
-
-    return NextResponse.json({
-      data,
-      message: 'Participant status updated successfully'
-    });
 
   } catch (error) {
     console.error('Error in update participant status:', error);

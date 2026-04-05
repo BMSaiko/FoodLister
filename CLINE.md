@@ -198,46 +198,64 @@ Reusable code templates in `snippets/`:
 
 ## Workflow Rules
 
-### Planning Mode - ALWAYS Use Subagents
+### ALL Modes - ALWAYS Use Subagents
 
-When planning or analyzing, **ALWAYS use subagents** to maximize coverage:
+**Both Planning AND Acting modes MUST use subagents** for all tasks.
 
-| When to Use Subagents | Example |
-|-----------------------|---------|
-| Analyzing code impact | "Check all components using this hook" |
-| Searching patterns | "Find all API routes that need auth" |
-| Multi-file exploration | "Show me all files related to lists feature" |
-| Validating changes | "Check if this breaks existing functionality" |
-| Broad codebase queries | "Find all places using Supabase directly" |
+#### Planning Mode - Subagents for Analysis
+Use subagents to explore and understand before acting:
 
-**Rule:** For any planning task, launch 2-5 subagents in parallel to explore different aspects simultaneously.
+| When | What Subagents Do |
+|------|-------------------|
+| Analyzing impact | Check all files affected by a change |
+| Searching patterns | Find all occurrences of a pattern |
+| Exploring features | Map all components, hooks, and APIs involved |
+| Validating approach | Cross-reference with existing code and docs |
 
-### Acting Mode - Parallel Execution (+1 Pattern)
+**Rule:** Launch 2-5 subagents in parallel to cover different aspects.
 
-When executing, **maximize parallelism** with the +1 rule:
+#### Acting Mode - Subagents for Execution + Parallel Tasks
+Use subagents to **execute tasks** and run **multiple tasks in parallel**:
 
-| Action | +1 Parallel Action |
-|--------|-------------------|
-| Create component file | Create test file simultaneously |
-| Update API route | Update API docs simultaneously |
-| Write migration | Update types/database.ts simultaneously |
-| Run tests | Run linting simultaneously |
-| Create feature | Create documentation simultaneously |
+| Scenario | Subagent 1 | Subagent 2 | Subagent 3 |
+|----------|------------|------------|------------|
+| Create feature | Create component | Create hook | Create test |
+| Add API endpoint | Create route | Update docs | Add validation |
+| Database change | Write migration | Update types | Update schema docs |
+| Refactor | Update component | Update tests | Update hooks |
 
-**Rule:** For every action, identify and execute at least one independent action alongside it.
+**Rule:** If there are 2+ tasks, distribute them across subagents and execute in parallel.
 
 ### Parallel Execution Guidelines
 
-1. **Identify dependencies** - Only parallelize independent tasks
-2. **Batch file operations** - Create multiple files in one call when possible
-3. **Run validations together** - `npm run lint && npm test` in parallel
-4. **Update docs with code** - Documentation updates happen alongside code changes
+1. **Always use subagents** - Both planning AND acting require subagents
+2. **Identify parallelizable tasks** - Split work across 2-5 subagents
+3. **Batch independent operations** - Group tasks that don't depend on each other
+4. **Execute simultaneously** - Launch all subagents at once for independent tasks
+
+### Task Distribution Examples
+
+**Task: "Create a restaurant review component"**
+- Subagent 1: Create `ReviewCard.tsx` component
+- Subagent 2: Create `ReviewCard.test.tsx` test
+- Subagent 3: Update `components/index.ts` exports
+
+**Task: "Add rating filter to restaurant list"**
+- Subagent 1: Add UI filter component
+- Subagent 2: Update API endpoint with filter param
+- Subagent 3: Update filter hook logic
+
+**Task: "Create database migration for new table"**
+- Subagent 1: Write SQL migration
+- Subagent 2: Update TypeScript types
+- Subagent 3: Update database schema docs
 
 ### Execution Checklist
 
 Before completing any task:
 - [ ] Used subagents for planning/analysis
-- [ ] Executed independent actions in parallel
+- [ ] Used subagents for execution (acting mode)
+- [ ] Distributed 2+ tasks across parallel subagents
 - [ ] Ran linting (`npm run lint`)
 - [ ] Ran tests (`npm test`)
 - [ ] Updated relevant documentation
