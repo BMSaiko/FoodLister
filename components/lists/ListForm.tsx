@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Search } from 'lucide-react';
 import { VisibilityToggle, SelectedRestaurants } from 'components/ui/lists/ListFormFields';
+import ListTagsInput from 'components/ui/lists/ListTagsInput';
 import { ListFormData, Restaurant } from 'hooks/forms/useListForm';
 
 interface ListFormProps {
@@ -119,6 +120,42 @@ export default function ListForm({
               isPublic={formData.isPublic} 
               onChange={(isPublic) => onFormChange({ isPublic })} 
             />
+            
+            {/* Cover Image URL */}
+            <div className="mb-6">
+              <label htmlFor="cover_image_url" className="block text-gray-700 font-semibold mb-2">
+                URL da Imagem de Capa
+              </label>
+              <input
+                type="url"
+                id="cover_image_url"
+                name="cover_image_url"
+                value={formData.cover_image_url || ''}
+                onChange={(e) => onFormChange({ cover_image_url: e.target.value })}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                placeholder="https://exemplo.com/imagem.jpg"
+              />
+              {formData.cover_image_url && (
+                <div className="mt-2 rounded-lg overflow-hidden border border-gray-200">
+                  <img 
+                    src={formData.cover_image_url} 
+                    alt="Preview da capa" 
+                    className="w-full h-32 object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+            
+            {/* Tags */}
+            <div className="mb-6">
+              <ListTagsInput
+                tags={formData.tags || []}
+                onChange={(tags) => onFormChange({ tags })}
+              />
+            </div>
             
             {/* Restaurant Search */}
             <div className="mb-6">

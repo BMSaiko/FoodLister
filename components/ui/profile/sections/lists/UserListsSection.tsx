@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { List, Utensils, Clock, Users, MapPin, ChevronRight } from 'lucide-react';
+import { List, Utensils, Clock, Users, MapPin, ChevronRight, Trash2, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { formatDate } from '@/utils/formatters';
+import { toast } from 'react-toastify';
+import { useShare } from '@/hooks/utilities/useShare';
 import { 
   ProfileCard, 
   ListIconBadge, 
@@ -38,7 +40,38 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialLists.length < initialTotal);
 
-  const { get } = useSecureApiClient();
+  const { get, del: deleteRequest } = useSecureApiClient();
+  const { share } = useShare();
+
+  const handleShareList = async (listId: string, listName: string, listDescription?: string) => {
+    await share({
+      title: listName,
+      text: listDescription || `Vê a lista "${listName}" no FoodLister!`,
+      url: `/lists/${listId}`,
+    });
+  };
+
+  const handleDeleteList = async (listId: string, listName: string) => {
+    if (!confirm(`Tem certeza que deseja eliminar a lista "${listName}"? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+
+    try {
+      const response = await deleteRequest(`/api/lists/${listId}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Lista eliminada com sucesso!');
+        setLists(prev => prev.filter(list => list.id !== listId));
+        setTotal(prev => prev - 1);
+      } else {
+        toast.error(data.error || 'Erro ao eliminar a lista');
+      }
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      toast.error('Erro ao eliminar a lista. Tente novamente.');
+    }
+  };
 
   const loadMoreLists = async () => {
     if (isLoadingMore || !hasMore) return;
@@ -126,6 +159,34 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <span>Ver lista completa</span>
                   <ChevronRight className="h-4 w-4 text-gray-400" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleShareList(list.id, list.name, list.description);
+                    }}
+                    className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                    aria-label={`Partilhar lista ${list.name}`}
+                  >
+                    <Share2 className="h-4 w-4" />
+                    <span>Partilhar</span>
+                  </button>
+                  {isOwnProfile && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleDeleteList(list.id, list.name);
+                      }}
+                      className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                      aria-label={`Eliminar lista ${list.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>Eliminar</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

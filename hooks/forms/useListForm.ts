@@ -11,6 +11,8 @@ export interface ListFormData {
   name: string;
   description: string;
   isPublic: boolean;
+  tags: string[];
+  cover_image_url: string;
 }
 
 export interface Restaurant {
@@ -29,7 +31,9 @@ export interface UseListFormOptions {
 const DEFAULT_FORM_DATA: ListFormData = {
   name: '',
   description: '',
-  isPublic: true
+  isPublic: true,
+  tags: [],
+  cover_image_url: ''
 };
 
 export function useListForm(options: UseListFormOptions = {}) {
@@ -89,7 +93,9 @@ export function useListForm(options: UseListFormOptions = {}) {
         setFormData({
           name: list.name,
           description: list.description || '',
-          isPublic: list.is_public !== false
+          isPublic: list.is_public !== false,
+          tags: list.tags || [],
+          cover_image_url: list.cover_image_url || ''
         });
 
         // Fetch restaurants in this list
@@ -170,7 +176,9 @@ export function useListForm(options: UseListFormOptions = {}) {
         const updateData = {
           name: formData.name,
           description: formData.description,
-          is_public: formData.isPublic
+          is_public: formData.isPublic,
+          tags: formData.tags,
+          cover_image_url: formData.cover_image_url
         };
 
         const { error: updateError } = await (supabase
@@ -193,7 +201,9 @@ export function useListForm(options: UseListFormOptions = {}) {
           description: formData.description || '',
           creator_id: userId,
           creator_name: displayName,
-          is_public: formData.isPublic
+          is_public: formData.isPublic,
+          tags: formData.tags,
+          cover_image_url: formData.cover_image_url
         };
 
         const { data: listData, error: listError } = await (supabase
