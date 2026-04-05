@@ -105,6 +105,7 @@ const UserProfilePage = () => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
   const [restaurantsLoading, setRestaurantsLoading] = useState(false);
+  const [totalMeals, setTotalMeals] = useState(0);
   
   // Get URL parameters
   const searchParams = useSearchParams();
@@ -177,6 +178,35 @@ const UserProfilePage = () => {
       fetchUserRestaurants();
     }
   }, [activeTab, profile, restaurants.length, loading, fetchUserRestaurants]);
+
+  // Fetch total meals count for the viewed user
+  useEffect(() => {
+    const fetchMealsCount = async () => {
+      if (!userId) return;
+      try {
+        // Fetch organized meals
+        const organizedResponse = await fetch(`/api/meals/scheduled?type=organized&page=1&limit=1`);
+        let organizedTotal = 0;
+        if (organizedResponse.ok) {
+          const organizedResult = await organizedResponse.json();
+          organizedTotal = organizedResult.total || 0;
+        }
+
+        // Fetch participating meals
+        const participatingResponse = await fetch(`/api/meals/scheduled?type=participating&page=1&limit=1`);
+        let participatingTotal = 0;
+        if (participatingResponse.ok) {
+          const participatingResult = await participatingResponse.json();
+          participatingTotal = participatingResult.total || 0;
+        }
+
+        setTotalMeals(organizedTotal + participatingTotal);
+      } catch (error) {
+        console.error('Error fetching meals count:', error);
+      }
+    };
+    fetchMealsCount();
+  }, [userId]);
 
   // Load restaurants immediately if restaurants tab is set in URL on initial load
   useEffect(() => {
@@ -606,7 +636,7 @@ const UserProfilePage = () => {
                 { key: 'reviews', label: 'Avaliações', icon: Star, count: profile.stats?.totalReviews ?? 0 },
                 { key: 'lists', label: 'Listas', icon: List, count: profile.stats?.totalLists ?? 0 },
                 { key: 'restaurants', label: 'Restaurantes', icon: Utensils, count: profile.stats?.totalRestaurantsAdded ?? 0 },
-                { key: 'meals', label: 'Refeições', icon: Calendar, count: 0 },
+                { key: 'meals', label: 'Refeições', icon: Calendar, count: totalMeals },
                 { key: 'activity', label: 'Atividade', icon: Clock, count: (profile.stats?.totalReviews ?? 0) + (profile.stats?.totalLists ?? 0) }
               ].map((tab) => (
                 <button
