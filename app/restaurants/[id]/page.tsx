@@ -902,6 +902,7 @@ export default function RestaurantDetails() {
         restaurantName={restaurant?.name || ''}
         restaurantLocation={restaurant?.location || ''}
         restaurantDescription={restaurant?.description || ''}
+        restaurantId={restaurant?.id}
       />
 
       {/* ScrollToTopButton - only appears on desktop */}
