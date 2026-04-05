@@ -67,16 +67,30 @@ export async function GET(request: NextRequest) {
     if (type === 'organized') {
       query = query.eq('organizer_id', user.id);
     } else if (type === 'participating') {
-      query = query.in(
-        'id',
-        supabase
-          .from('meal_participants')
-          .select('scheduled_meal_id')
-          .eq('user_id', user.id)
-      );
+      // First get the meal IDs where user is a participant
+      const { data: participantMeals } = await supabase
+        .from('meal_participants')
+        .select('scheduled_meal_id')
+        .eq('user_id', user.id);
+      
+      const mealIds = participantMeals?.map((m: any) => m.scheduled_meal_id) || [];
+      query = query.in('id', mealIds);
     } else {
       // 'all' - show both organized and participating
-      query = query.or(`organizer_id.eq.${user.id},id.in.(select scheduled_meal_id from meal_participants where user_id=${user.id})`);
+      // First get the meal IDs where user is a participant
+      const { data: participantMeals } = await supabase
+        .from('meal_participants')
+        .select('scheduled_meal_id')
+        .eq('user_id', user.id);
+      
+      const mealIds = participantMeals?.map((m: any) => m.scheduled_meal_id) || [];
+      
+      // Use or filter with explicit IDs instead of subquery
+      if (mealIds.length > 0) {
+        query = query.or(`organizer_id.eq.${user.id},id.in.(${mealIds.join(',')})`);
+      } else {
+        query = query.eq('organizer_id', user.id);
+      }
     }
 
     // Order by date and time
