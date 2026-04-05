@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Bell, X, Check, Trash2, Utensils, Loader2 } from 'lucide-react';
 import { useNotifications, Notification } from '@/hooks/data/useNotifications';
 
 export default function NotificationsDropdown() {
+  const router = useRouter();
   const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -23,11 +25,14 @@ export default function NotificationsDropdown() {
   }, []);
 
   const handleNotificationClick = async (notification: Notification) => {
+    // Marcar como lida ANTES de redirecionar
     if (!notification.read) {
       await markAsRead(notification.id);
     }
+    // Fechar dropdown e navegar
     if (notification.link) {
       setIsOpen(false);
+      router.push(notification.link);
     }
   };
 
