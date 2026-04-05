@@ -94,18 +94,27 @@ export function useNotifications() {
     }
   }, []);
 
-  // Poll for new notifications every 30 seconds
+  // Poll for unread count every 30 seconds (for the badge)
   useEffect(() => {
     if (!user) return;
 
-    fetchNotifications(true);
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await fetch('/api/notifications?unreadOnly=true');
+        if (response.ok) {
+          const result = await response.json();
+          setUnreadCount(result.unreadCount || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching unread count:', error);
+      }
+    };
 
-    const interval = setInterval(() => {
-      fetchNotifications(true);
-    }, 30000);
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
 
     return () => clearInterval(interval);
-  }, [user, fetchNotifications]);
+  }, [user]);
 
   return {
     notifications,

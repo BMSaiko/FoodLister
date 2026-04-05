@@ -121,6 +121,44 @@ npm run test:coverage # Run tests with coverage
 
 ---
 
+## Specialized Agents
+
+This project uses specialized agent files for task-specific guidance. **Always read the relevant agent file before starting work on a task.**
+
+### Agent Files Location: `agents/`
+
+| Agent File | When to Use |
+|------------|-------------|
+| `agents/frontend-agent.md` | Creating React components, hooks, pages, or working with Next.js features |
+| `agents/backend-agent.md` | Creating API routes, Supabase integration, Cloudinary upload, or authentication |
+| `agents/database-agent.md` | Creating database tables, migrations, RLS policies, or SQL queries |
+| `agents/testing-agent.md` | Writing Jest tests, component tests, API tests, or mocking |
+| `agents/ui-ux-agent.md` | Creating UI components, animations with Framer Motion, or improving accessibility |
+| `agents/devops-agent.md` | Setting up CI/CD, deploying to Vercel, ESLint config, or performance monitoring |
+
+### How to Use Agents
+
+1. **Identify the task type** (frontend, backend, database, testing, UI/UX, devops)
+2. **Read the corresponding agent file** in `agents/`
+3. **Follow the checklist** in the agent file
+4. **Use the code examples** as reference
+5. **Avoid the common errors** listed in each agent
+
+### Agent Selection Guide
+
+| Task | Primary Agent | Secondary Agent |
+|------|---------------|-----------------|
+| New React component | `frontend-agent.md` | `ui-ux-agent.md` |
+| New API endpoint | `backend-agent.md` | `database-agent.md` |
+| Database migration | `database-agent.md` | `backend-agent.md` |
+| Write tests | `testing-agent.md` | - |
+| UI component with animations | `ui-ux-agent.md` | `frontend-agent.md` |
+| Deploy or CI/CD | `devops-agent.md` | - |
+| Form with validation | `frontend-agent.md` | `ui-ux-agent.md` |
+| Image upload feature | `backend-agent.md` | `ui-ux-agent.md` |
+
+---
+
 ## Important Notes
 
 - Always check `docs/PROJECT-SKILLS.md` for detailed skill requirements
@@ -128,6 +166,7 @@ npm run test:coverage # Run tests with coverage
 - Use the existing API client in `libs/apiClient.ts` for Supabase calls
 - Authentication is handled via `contexts/AuthContext.tsx`
 - Database schema is defined in `supabase/database.sql`
+- **Read relevant agent files before starting any task**
 
 ---
 
