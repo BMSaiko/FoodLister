@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Clock, Users, Utensils, Download, ArrowLeft, Loader2, Check, X, ExternalLink } from 'lucide-react';
+import { Calendar, Clock, Users, Utensils, Download, ArrowLeft, Loader2, Check, X, ExternalLink, Edit, Trash2 } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { toast } from 'react-toastify';
@@ -64,6 +64,10 @@ export default function MealDetailsPage() {
   const [meal, setMeal] = useState<Meal | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [editForm, setEditForm] = useState({ mealDate: '', mealTime: '', mealType: '', durationMinutes: 0 });
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchMeal();
@@ -164,6 +168,73 @@ export default function MealDetailsPage() {
     }
   };
 
+  const handleEdit = () => {
+    if (!meal) return;
+    setEditForm({
+      mealDate: meal.mealDate,
+      mealTime: meal.mealTime,
+      mealType: meal.mealType,
+      durationMinutes: meal.durationMinutes
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!meal) return;
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/meals/${mealId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setMeal(prev => prev ? {
+          ...prev,
+          mealDate: result.data.meal_date,
+          mealTime: result.data.meal_time,
+          mealType: result.data.meal_type,
+          durationMinutes: result.data.duration_minutes
+        } : null);
+        setShowEditModal(false);
+        toast.success('Refeição atualizada com sucesso!');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Erro ao atualizar refeição');
+      }
+    } catch (error) {
+      console.error('Error updating meal:', error);
+      toast.error('Erro ao atualizar refeição');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!meal) return;
+    setSaving(true);
+    try {
+      const response = await fetch(`/api/meals/${mealId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        toast.success('Refeição eliminada com sucesso!');
+        router.push('/users/me');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Erro ao eliminar refeição');
+      }
+    } catch (error) {
+      console.error('Error deleting meal:', error);
+      toast.error('Erro ao eliminar refeição');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('pt-BR', {
@@ -257,6 +328,24 @@ export default function MealDetailsPage() {
                 <span className="px-3 py-1 bg-amber-200 text-amber-800 text-sm font-medium rounded-full">
                   Organizador
                 </span>
+              )}
+              {meal.isOrganizer && (
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleEdit}
+                    className="p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
+                    title="Editar refeição"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                    title="Eliminar refeição"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               )}
               {meal.participantStatus && getStatusBadge(meal.participantStatus)}
             </div>
@@ -428,6 +517,123 @@ export default function MealDetailsPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4">
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 rounded-t-xl border-b border-gray-100">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-900">Editar Refeição</h3>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">Data</label>
+                <input
+                  type="date"
+                  value={editForm.mealDate}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, mealDate: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">Hora</label>
+                <input
+                  type="time"
+                  value={editForm.mealTime}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, mealTime: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">Tipo de refeição</label>
+                <select
+                  value={editForm.mealType}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, mealType: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                >
+                  <option value="pequeno-almoco">Pequeno Almoço</option>
+                  <option value="almoco">Almoço</option>
+                  <option value="brunch">Brunch</option>
+                  <option value="lanche">Lanche</option>
+                  <option value="jantar">Jantar</option>
+                  <option value="ceia">Ceia</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2 text-sm">Duração (minutos)</label>
+                <select
+                  value={editForm.durationMinutes}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, durationMinutes: Number(e.target.value) }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                >
+                  <option value={30}>30 minutos</option>
+                  <option value={60}>1 hora</option>
+                  <option value={90}>1.5 horas</option>
+                  <option value={120}>2 horas</option>
+                  <option value={180}>3 horas</option>
+                  <option value={240}>4 horas</option>
+                </select>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={saving}
+                className="px-6 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 transition-colors font-medium"
+              >
+                {saving ? 'A guardar...' : 'Guardar alterações'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar refeição?</h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Esta ação irá eliminar a refeição e todas as participações associadas. Esta ação não pode ser desfeita.
+              </p>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={saving}
+                  className="flex-1 px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors font-medium"
+                >
+                  {saving ? 'A eliminar...' : 'Eliminar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
