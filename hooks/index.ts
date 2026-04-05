@@ -15,6 +15,7 @@ export { useSettings } from './data/useSettings';
 export { useVisitsData } from './data/useVisitsData';
 export { useUserCache } from './data/useUserCache';
 export { useApiMutation } from './data/useApiMutation';
+export { useScheduledMeals } from './data/useScheduledMeals';
 
 // Form hooks
 export { useForm } from './forms/useForm';

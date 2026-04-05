@@ -33,32 +33,36 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(url.searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
 
+    // Check if search is a user_id_code (FL000001 format)
+    const isUserIdCode = /^FL\d{6}$/i.test(search);
+
     // Build base query
     let query = supabase
-      .from('user_search_index')
+      .from('profiles')
       .select(`
-        *,
-        profiles (
-          user_id_code,
-          display_name,
-          avatar_url,
-          location,
-          bio,
-          public_profile,
-          total_restaurants_visited,
-          total_reviews,
-          total_lists,
-          created_at
-        )
+        user_id,
+        user_id_code,
+        display_name,
+        avatar_url,
+        location,
+        bio,
+        public_profile,
+        total_restaurants_visited,
+        total_reviews,
+        total_lists,
+        created_at
       `, { count: 'exact' })
-      .eq('profiles.public_profile', true);
+      .eq('public_profile', true);
 
-    // Apply search filters
+    // Apply search filters - search by user_id_code, display_name, or email
     if (search) {
-      query = query.textSearch('search_vector', search, {
-        config: 'portuguese',
-        type: 'websearch'
-      });
+      if (isUserIdCode) {
+        // Exact match for user_id_code
+        query = query.eq('user_id_code', search.toUpperCase());
+      } else {
+        // Text search on display_name
+        query = query.ilike('display_name', `%${search}%`);
+      }
     }
 
     if (location) {
@@ -67,28 +71,28 @@ export async function GET(request: NextRequest) {
 
     // Apply numeric filters
     if (minReviews !== undefined) {
-      query = query.gte('profiles.total_reviews', minReviews);
+      query = query.gte('total_reviews', minReviews);
     }
 
     if (maxReviews !== undefined) {
-      query = query.lte('profiles.total_reviews', maxReviews);
+      query = query.lte('total_reviews', maxReviews);
     }
 
     if (minLists !== undefined) {
-      query = query.gte('profiles.total_lists', minLists);
+      query = query.gte('total_lists', minLists);
     }
 
     if (maxLists !== undefined) {
-      query = query.lte('profiles.total_lists', maxLists);
+      query = query.lte('total_lists', maxLists);
     }
 
     // Apply date filters
     if (joinedAfter) {
-      query = query.gte('profiles.created_at', joinedAfter);
+      query = query.gte('created_at', joinedAfter);
     }
 
     if (joinedBefore) {
-      query = query.lte('profiles.created_at', joinedBefore);
+      query = query.lte('created_at', joinedBefore);
     }
 
     // Apply pagination
@@ -107,17 +111,17 @@ export async function GET(request: NextRequest) {
 
     // Transform data to match expected format
     const users = data?.map((item: any) => ({
-      id: item.profiles.user_id,
-      name: item.profiles.display_name,
-      profileImage: item.profiles.avatar_url,
-      userIdCode: item.profiles.user_id_code,
-      location: item.profiles.location,
-      bio: item.profiles.bio,
-      publicProfile: item.profiles.public_profile,
-      totalRestaurantsVisited: item.profiles.total_restaurants_visited,
-      totalReviews: item.profiles.total_reviews,
-      totalLists: item.profiles.total_lists,
-      createdAt: item.profiles.created_at
+      id: item.user_id,
+      name: item.display_name,
+      profileImage: item.avatar_url,
+      userIdCode: item.user_id_code,
+      location: item.location,
+      bio: item.bio,
+      publicProfile: item.public_profile,
+      totalRestaurantsVisited: item.total_restaurants_visited,
+      totalReviews: item.total_reviews,
+      totalLists: item.total_lists,
+      createdAt: item.created_at
     })) || [];
 
     return NextResponse.json({

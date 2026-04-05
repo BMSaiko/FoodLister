@@ -182,6 +182,33 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['restaurant_restaurant_features']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['restaurant_restaurant_features']['Insert']>;
       };
+      scheduled_meals: {
+        Row: {
+          id: string;
+          restaurant_id: string;
+          organizer_id: string;
+          meal_date: string;
+          meal_time: string;
+          meal_type: string;
+          duration_minutes: number;
+          google_calendar_link: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['scheduled_meals']['Row'], 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Database['public']['Tables']['scheduled_meals']['Insert']>;
+      };
+      meal_participants: {
+        Row: {
+          id: string;
+          scheduled_meal_id: string;
+          user_id: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['meal_participants']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['meal_participants']['Insert']>;
+      };
     };
   };
 }
