@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Calendar, Clock, Users, Mail, UtensilsCrossed, Search, Loader2 } from 'lucide-react';
 import { useMealScheduling } from '@/hooks/forms/useMealScheduling';
 import { useDebounce } from '@/hooks/utilities/useDebounce';
+import { toast } from 'react-toastify';
 
 interface SearchResult {
   id: string;
@@ -110,7 +111,7 @@ const ScheduleMealModal = ({
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If we have restaurantId, try to save to database first
+    // If we have restaurantId, save to database first
     if (restaurantId) {
       try {
         const participantIds = selectedUsers.map(u => u.id);
@@ -131,19 +132,31 @@ const ScheduleMealModal = ({
         if (response.ok) {
           const result = await response.json();
           
-          // Also open Google Calendar
+          // Show success toast
+          toast.success('Refeição agendada com sucesso!');
+          
+          // Open Google Calendar
           handleSubmit(restaurantName, restaurantLocation, restaurantDescription);
+          
+          // Reset form and close modal
           resetForm();
           setSelectedUsers([]);
           setSearchQuery('');
           return;
+        } else {
+          // API returned an error
+          const errorData = await response.json();
+          toast.error(errorData.error || 'Erro ao agendar refeição. Tente novamente.');
+          return;
         }
       } catch (error) {
         console.error('Error scheduling meal:', error);
+        toast.error('Erro de conexão ao agendar refeição. Tente novamente.');
+        return;
       }
     }
 
-    // Fallback to Google Calendar only
+    // No restaurantId - just open Google Calendar (legacy behavior)
     handleSubmit(restaurantName, restaurantLocation, restaurantDescription);
     resetForm();
     setSelectedUsers([]);
