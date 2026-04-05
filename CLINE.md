@@ -159,6 +159,92 @@ This project uses specialized agent files for task-specific guidance. **Always r
 
 ---
 
+## Reference Documentation
+
+Quick access to project-specific documentation:
+
+| Document | Location | Purpose |
+|----------|----------|---------|
+| Database Schema | `docs/database-schema-reference.md` | All tables, columns, relationships, and indexes |
+| API Endpoints | `docs/api-endpoints-reference.md` | All API routes, request/response formats |
+| Error Handling | `docs/error-handling-guide.md` | How to handle Supabase, API, and frontend errors |
+| Prompt Templates | `docs/prompt-templates.md` | Pre-built prompts for common tasks |
+| Skills & Competencies | `docs/PROJECT-SKILLS.md` | Complete list of required skills |
+
+---
+
+## Task Instructions
+
+Step-by-step guides for common tasks in `instructions/`:
+
+| Instruction | File |
+|-------------|------|
+| Create Component | `instructions/create-component.md` |
+| Create API Route | `instructions/create-api-route.md` |
+| Create Database Migration | `instructions/create-migration.md` |
+
+---
+
+## Code Snippets
+
+Reusable code templates in `snippets/`:
+
+| Snippet | File |
+|---------|------|
+| Component Templates | `snippets/component-template.tsx` |
+| Hook Templates | `snippets/hook-template.ts` |
+
+---
+
+## Workflow Rules
+
+### Planning Mode - ALWAYS Use Subagents
+
+When planning or analyzing, **ALWAYS use subagents** to maximize coverage:
+
+| When to Use Subagents | Example |
+|-----------------------|---------|
+| Analyzing code impact | "Check all components using this hook" |
+| Searching patterns | "Find all API routes that need auth" |
+| Multi-file exploration | "Show me all files related to lists feature" |
+| Validating changes | "Check if this breaks existing functionality" |
+| Broad codebase queries | "Find all places using Supabase directly" |
+
+**Rule:** For any planning task, launch 2-5 subagents in parallel to explore different aspects simultaneously.
+
+### Acting Mode - Parallel Execution (+1 Pattern)
+
+When executing, **maximize parallelism** with the +1 rule:
+
+| Action | +1 Parallel Action |
+|--------|-------------------|
+| Create component file | Create test file simultaneously |
+| Update API route | Update API docs simultaneously |
+| Write migration | Update types/database.ts simultaneously |
+| Run tests | Run linting simultaneously |
+| Create feature | Create documentation simultaneously |
+
+**Rule:** For every action, identify and execute at least one independent action alongside it.
+
+### Parallel Execution Guidelines
+
+1. **Identify dependencies** - Only parallelize independent tasks
+2. **Batch file operations** - Create multiple files in one call when possible
+3. **Run validations together** - `npm run lint && npm test` in parallel
+4. **Update docs with code** - Documentation updates happen alongside code changes
+
+### Execution Checklist
+
+Before completing any task:
+- [ ] Used subagents for planning/analysis
+- [ ] Executed independent actions in parallel
+- [ ] Ran linting (`npm run lint`)
+- [ ] Ran tests (`npm test`)
+- [ ] Updated relevant documentation
+- [ ] Verified all files were created successfully
+
+---
+
 ## Important Notes
 
 - Always check `docs/PROJECT-SKILLS.md` for detailed skill requirements
@@ -167,6 +253,7 @@ This project uses specialized agent files for task-specific guidance. **Always r
 - Authentication is handled via `contexts/AuthContext.tsx`
 - Database schema is defined in `supabase/database.sql`
 - **Read relevant agent files before starting any task**
+- **ALWAYS use subagents for planning, parallel execution for acting**
 
 ---
 

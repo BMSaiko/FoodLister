@@ -482,23 +482,31 @@ export default function MealDetailsPage() {
             )}
 
             {/* Accept/Decline for participants */}
-            {!meal.isOrganizer && meal.participantStatus === 'pending' && (
+            {!meal.isOrganizer && meal.participantStatus && (
               <div className="flex space-x-3 pt-2">
                 <button
                   onClick={handleAccept}
                   disabled={updating}
-                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors font-medium"
+                  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+                    meal.participantStatus === 'accepted'
+                      ? 'bg-green-600 text-white ring-2 ring-green-300 hover:bg-green-700'
+                      : 'bg-green-500 text-white hover:bg-green-600'
+                  } disabled:opacity-50`}
                 >
                   <Check className="h-5 w-5" />
-                  <span>{updating ? 'A confirmar...' : 'Confirmar Presença'}</span>
+                  <span>{updating ? 'A confirmar...' : meal.participantStatus === 'accepted' ? 'Aceite ✓' : 'Confirmar Presença'}</span>
                 </button>
                 <button
                   onClick={handleDecline}
                   disabled={updating}
-                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors font-medium"
+                  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors font-medium ${
+                    meal.participantStatus === 'declined'
+                      ? 'bg-red-600 text-white ring-2 ring-red-300 hover:bg-red-700'
+                      : 'bg-red-500 text-white hover:bg-red-600'
+                  } disabled:opacity-50`}
                 >
                   <X className="h-5 w-5" />
-                  <span>{updating ? 'A recusar...' : 'Recusar'}</span>
+                  <span>{updating ? 'A recusar...' : meal.participantStatus === 'declined' ? 'Recusado ✓' : 'Recusar'}</span>
                 </button>
               </div>
             )}
