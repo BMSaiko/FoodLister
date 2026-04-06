@@ -1,4 +1,39 @@
-import { NextRequest } from 'next/server';
+// Mock next/server BEFORE any imports
+jest.mock('next/server', () => {
+  class MockNextRequest {
+    public method: string;
+    public headers: Map<string, string>;
+    public nextUrl: URL;
+    public url: string;
+    
+    constructor(input: string | URL, _init?: RequestInit) {
+      const urlStr = input instanceof URL ? input.toString() : input;
+      this.url = urlStr;
+      this.nextUrl = new URL(urlStr);
+      this.method = 'GET';
+      this.headers = new Map();
+    }
+  }
+
+  return {
+    NextRequest: MockNextRequest,
+    NextResponse: {
+      next: () => ({
+        headers: new Map(),
+        headers: {
+          set: jest.fn(),
+        },
+      }),
+      json: (body: any, init?: { status?: number }) => ({
+        status: init?.status || 200,
+        json: () => Promise.resolve(body),
+        headers: {
+          set: jest.fn(),
+        },
+      }),
+    },
+  };
+});
 
 // Mock Supabase server client
 jest.mock('@/libs/supabase/server', () => ({
@@ -54,6 +89,7 @@ describe('Lists API', () => {
   describe('GET /api/lists', () => {
     it('returns lists for authenticated user', async () => {
       const { GET } = await import('@/app/api/lists/route');
+      const { NextRequest } = require('next/server');
       const request = new NextRequest('http://localhost:3000/api/lists');
       const response = await GET(request);
       const data = await response.json();
@@ -64,6 +100,7 @@ describe('Lists API', () => {
 
     it('applies search filter when provided', async () => {
       const { GET } = await import('@/app/api/lists/route');
+      const { NextRequest } = require('next/server');
       const request = new NextRequest('http://localhost:3000/api/lists?search=Favorite');
       const response = await GET(request);
       const data = await response.json();
@@ -86,6 +123,7 @@ describe('Lists API', () => {
       });
 
       const { GET } = await import('@/app/api/lists/route');
+      const { NextRequest } = require('next/server');
       const request = new NextRequest('http://localhost:3000/api/lists');
       const response = await GET(request);
       const data = await response.json();
@@ -108,6 +146,7 @@ describe('Lists API', () => {
       });
 
       const { GET } = await import('@/app/api/lists/route');
+      const { NextRequest } = require('next/server');
       const request = new NextRequest('http://localhost:3000/api/lists');
       const response = await GET(request);
 
