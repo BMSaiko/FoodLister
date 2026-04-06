@@ -1,5 +1,8 @@
 'use client';
 
+// Prevent static prerendering - this page requires runtime env vars
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
