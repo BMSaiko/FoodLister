@@ -11,6 +11,11 @@ export default [
       "out/**",
       "dist/**",
       "scripts/run-database-fixes.js",
+      "snippets/**",
+      "__tests__/**",
+      "agents/**",
+      "instructions/**",
+      "app/users/[id]/error.tsx",
     ],
   },
   {
