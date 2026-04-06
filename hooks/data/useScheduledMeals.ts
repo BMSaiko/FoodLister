@@ -58,10 +58,25 @@ export interface UserSearchResult {
 interface UseScheduledMealsOptions {
   type?: 'all' | 'organized' | 'participating';
   enabled?: boolean;
+  userId?: string; // Optional: fetch meals for a specific user profile
+  searchQuery?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  mealType?: string;
+  restaurantName?: string;
 }
 
 export function useScheduledMeals(options: UseScheduledMealsOptions = {}) {
-  const { type = 'all', enabled = true } = options;
+  const { 
+    type = 'all', 
+    enabled = true,
+    userId,
+    searchQuery = '',
+    dateFrom = '',
+    dateTo = '',
+    mealType = '',
+    restaurantName = ''
+  } = options;
 
   const [meals, setMeals] = useState<ScheduledMeal[]>([]);
   const [loading, setLoading] = useState(false);
@@ -78,8 +93,22 @@ export function useScheduledMeals(options: UseScheduledMealsOptions = {}) {
     setError(null);
 
     try {
+      // Build query params
+      const params = new URLSearchParams({
+        type,
+        page: pageNum.toString(),
+        limit: '20'
+      });
+      
+      if (userId) params.set('userId', userId);
+      if (searchQuery) params.set('search', searchQuery);
+      if (dateFrom) params.set('dateFrom', dateFrom);
+      if (dateTo) params.set('dateTo', dateTo);
+      if (mealType) params.set('mealType', mealType);
+      if (restaurantName) params.set('restaurantName', restaurantName);
+      
       const response = await fetch(
-        `/api/meals/scheduled?type=${type}&page=${pageNum}&limit=20`
+        `/api/meals/scheduled?${params.toString()}`
       );
 
       if (!response.ok) {
@@ -104,7 +133,7 @@ export function useScheduledMeals(options: UseScheduledMealsOptions = {}) {
     } finally {
       setLoading(false);
     }
-  }, [type, enabled]);
+  }, [type, enabled, userId, searchQuery, dateFrom, dateTo, mealType, restaurantName]);
 
   // Schedule a new meal
   const scheduleMeal = useCallback(async (data: {
@@ -248,6 +277,11 @@ export function useScheduledMeals(options: UseScheduledMealsOptions = {}) {
       fetchMeals(page + 1);
     }
   }, [loading, hasMore, page, fetchMeals]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, dateFrom, dateTo, mealType, restaurantName]);
 
   // Initial load
   useEffect(() => {

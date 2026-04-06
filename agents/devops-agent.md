@@ -1,4 +1,5 @@
 # DevOps Agent - FoodList
+<!-- TRIGGER: Lê quando configuras CI/CD, deploy Vercel, environment variables, ESLint, ou monitoring -->
 
 ## Especialidade
 GitHub Actions, Vercel Deploy, ESLint, Performance Monitoring, Environment Management

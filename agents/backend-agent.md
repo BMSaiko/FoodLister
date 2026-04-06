@@ -1,4 +1,5 @@
 # Backend Agent - FoodList
+<!-- TRIGGER: Lê quando crias API routes, integrações Supabase server-side, upload Cloudinary, autenticação, ou rate limiting -->
 
 ## Especialidade
 Supabase, API Routes, Rate Limiting, Cloudinary Integration, Authentication

@@ -29,9 +29,20 @@ export async function GET(request: NextRequest) {
     // Parse query parameters
     const url = new URL(request.url);
     const type = url.searchParams.get('type') || 'all'; // 'organized', 'participating', 'all'
+    const targetUserId = url.searchParams.get('userId'); // Optional: fetch meals for a specific user
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
+
+    // Determine which user's meals to fetch
+    const userId = targetUserId || user.id;
+    
+    // Search parameters
+    const searchQuery = url.searchParams.get('search') || '';
+    const dateFrom = url.searchParams.get('dateFrom') || '';
+    const dateTo = url.searchParams.get('dateTo') || '';
+    const mealType = url.searchParams.get('mealType') || '';
+    const restaurantName = url.searchParams.get('restaurantName') || '';
 
     let query = supabase
       .from('scheduled_meals')
@@ -69,14 +80,14 @@ export async function GET(request: NextRequest) {
       const { data: participantMeals } = await supabase
         .from('meal_participants')
         .select('scheduled_meal_id')
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
       
       participantMealIds = participantMeals?.map((m: any) => m.scheduled_meal_id) || [];
     }
 
     // Build the main query with proper filtering
     if (type === 'organized') {
-      query = query.eq('organizer_id', user.id);
+      query = query.eq('organizer_id', userId);
     } else if (type === 'participating') {
       query = query.in('id', participantMealIds);
     } else {
@@ -90,7 +101,7 @@ export async function GET(request: NextRequest) {
       const { data: organizedMeals } = await supabase
         .from('scheduled_meals')
         .select('id')
-        .eq('organizer_id', user.id);
+        .eq('organizer_id', userId);
       
       organizedMeals?.forEach((m: any) => allMealIds.add(m.id));
       
@@ -107,6 +118,30 @@ export async function GET(request: NextRequest) {
           hasMore: false
         });
       }
+    }
+
+    // Apply search filters
+    if (searchQuery) {
+      // Search by restaurant name or general search
+      const searchTerm = `%${searchQuery}%`;
+      query = query.ilike('restaurants.name', searchTerm);
+    }
+    
+    if (restaurantName) {
+      const searchTerm = `%${restaurantName}%`;
+      query = query.ilike('restaurants.name', searchTerm);
+    }
+    
+    if (mealType) {
+      query = query.eq('meal_type', mealType);
+    }
+    
+    if (dateFrom) {
+      query = query.gte('meal_date', dateFrom);
+    }
+    
+    if (dateTo) {
+      query = query.lte('meal_date', dateTo);
     }
 
     // Get total count for pagination
@@ -161,8 +196,8 @@ export async function GET(request: NextRequest) {
           userIdCode: p.profiles.user_id_code
         } : null
       })) || [],
-      isOrganizer: meal.organizer_id === user.id,
-      participantStatus: meal.meal_participants?.find((p: any) => p.user_id === user.id)?.status || null
+      isOrganizer: meal.organizer_id === userId,
+      participantStatus: meal.meal_participants?.find((p: any) => p.user_id === userId)?.status || null
     })) || [];
 
     return NextResponse.json({

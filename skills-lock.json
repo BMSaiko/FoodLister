@@ -6,6 +6,26 @@
       "sourceType": "github",
       "computedHash": "f483c304fcde060211ffae00f49bb728536e7e7613c99db45b5b924d9fc17243"
     },
+    "foodlister-frontend": {
+      "source": "local",
+      "sourceType": "local",
+      "computedHash": "local-foodlister-frontend"
+    },
+    "foodlister-backend": {
+      "source": "local",
+      "sourceType": "local",
+      "computedHash": "local-foodlister-backend"
+    },
+    "foodlister-database": {
+      "source": "local",
+      "sourceType": "local",
+      "computedHash": "local-foodlister-database"
+    },
+    "foodlister-testing": {
+      "source": "local",
+      "sourceType": "local",
+      "computedHash": "local-foodlister-testing"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",

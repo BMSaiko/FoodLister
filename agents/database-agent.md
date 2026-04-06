@@ -1,4 +1,5 @@
 # Database Agent - FoodList
+<!-- TRIGGER: Lê quando crias tabelas, migrations SQL, RLS policies, indexes, ou otimizas queries -->
 
 ## Especialidade
 PostgreSQL, Supabase, Migrations, Row Level Security (RLS), SQL Optimization

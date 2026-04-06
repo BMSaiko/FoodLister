@@ -1,4 +1,5 @@
 # UI/UX Agent - FoodList
+<!-- TRIGGER: Lê quando crias componentes UI, animações Framer Motion, melhoras acessibilidade, ou design de formulários -->
 
 ## Especialidade
 Componentes UI, Acessibilidade (a11y), Framer Motion, Mobile UX, Design System

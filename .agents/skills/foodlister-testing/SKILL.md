@@ -1,60 +1,31 @@
-# Testing Agent - FoodList
-<!-- TRIGGER: Lê quando escreves testes Jest, testes de componentes, testes de API, ou mocks do Supabase -->
-
-## Especialidade
-Jest, React Testing Library, Mocks, Test Coverage, API Testing
-
+---
+name: foodlister-testing
+description: FoodLister testing patterns. Use when writing Jest tests, component tests, API tests, or mocking Supabase in the FoodLister project. Covers React Testing Library patterns, mock strategies, test structure, and coverage configuration. Triggers when working with __tests__/, writing test files, mocking Supabase, or configuring Jest in the FoodLister project.
 ---
 
-## Tech Stack Obrigatória
+# FoodLister Testing Patterns
 
-| Tecnologia | Versão | Uso |
-|------------|--------|-----|
-| Jest | 29.7.x | Test framework |
-| @testing-library/react | 16.1.x | Component testing |
-| @testing-library/jest-dom | 6.6.x | Custom matchers |
-| ts-jest | 29.2.x | TypeScript support |
-| jest-environment-jsdom | 29.7.x | Browser environment |
+Project-specific testing patterns for FoodLister (Jest + React Testing Library).
 
----
+## Test Structure
 
-## Padrões do Projeto
-
-### Estrutura de Testes
 ```
 __tests__/
-├── api/              # Testes de API routes
-├── components/       # Testes de componentes React
-├── hooks/            # Testes de custom hooks
-└── utils/            # Testes de funções utilitárias
+├── api/              # API route tests
+├── components/       # Component tests
+├── hooks/            # Custom hook tests
+└── utils/            # Utility function tests
 ```
 
-### Naming Conventions
-- **Ficheiros**: `[name].test.ts` ou `[name].test.tsx`
-- **Testes**: `describe('[ComponentName]', ...)`
-- **Casos**: `it('should [expected behavior]', ...)`
+## Naming Conventions
+- **Files**: `[name].test.ts` or `[name].test.tsx`
+- **Describe blocks**: `describe('[ComponentName]', ...)`
+- **Test cases**: `it('should [expected behavior]', ...)`
 
----
+## Component Testing
 
-## Checklist para Novo Teste
-
-- [ ] Criar ficheiro em `__tests__/[category]/`
-- [ ] Usar Arrange-Act-Assert pattern
-- [ ] Mock Supabase e APIs externas
-- [ ] Testar happy path
-- [ ] Testar error cases
-- [ ] Testar edge cases (empty state, loading, etc.)
-- [ ] Verificar accessibility (aria attributes)
-- [ ] Run `npm test` para validar
-- [ ] Verificar coverage com `npm run test:coverage`
-
----
-
-## Component Testing Patterns
-
-### Teste Básico de Componente
+### Basic Component Test
 ```tsx
-// __tests__/components/Button.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import Button from '@/components/ui/Button';
 
@@ -67,7 +38,6 @@ describe('Button', () => {
   it('should call onClick when clicked', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
     fireEvent.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -79,9 +49,8 @@ describe('Button', () => {
 });
 ```
 
-### Teste com Provider/Context
+### Test with Provider/Context
 ```tsx
-// __tests__/components/RestaurantList.test.tsx
 import { render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider } from '@/contexts/AuthContext';
 import RestaurantList from '@/components/restaurant/RestaurantList';
@@ -112,7 +81,6 @@ describe('RestaurantList', () => {
 
   it('should display restaurants after loading', async () => {
     renderWithProviders(<RestaurantList />);
-    
     await waitFor(() => {
       expect(screen.getByText('Test Restaurant')).toBeInTheDocument();
     });
@@ -120,12 +88,9 @@ describe('RestaurantList', () => {
 });
 ```
 
----
-
 ## Hook Testing
 
 ```tsx
-// __tests__/hooks/useAuth.test.tsx
 import { renderHook, waitFor } from '@testing-library/react';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -137,16 +102,13 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 describe('useAuth', () => {
   it('should return user when authenticated', async () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
-    
     await waitFor(() => {
       expect(result.current.user).toBeDefined();
     });
   });
 
   it('should return null when not authenticated', async () => {
-    // Mock unauthenticated state
     const { result } = renderHook(() => useAuth(), { wrapper });
-    
     await waitFor(() => {
       expect(result.current.user).toBeNull();
     });
@@ -154,12 +116,9 @@ describe('useAuth', () => {
 });
 ```
 
----
-
 ## API Testing
 
 ```tsx
-// __tests__/api/restaurants.test.ts
 import { NextRequest } from 'next/server';
 import { GET, POST } from '@/app/api/restaurants/route';
 
@@ -192,31 +151,9 @@ describe('RESTAURANTS API', () => {
 });
 ```
 
----
-
-## Custom Matchers (jest-dom)
-
-```tsx
-// jest.setup.ts - já configurado no projeto
-import '@testing-library/jest-dom';
-
-// Matchers disponíveis:
-// - toBeInTheDocument()
-// - toBeVisible()
-// - toHaveTextContent()
-// - toBeDisabled() / toBeEnabled()
-// - toHaveAttribute()
-// - toHaveClass()
-// - toHaveValue()
-// - toBeChecked()
-// - toBeEmpty()
-```
-
----
-
 ## Mock Patterns
 
-### Mock de Módulo Inteiro
+### Mock Entire Module
 ```tsx
 jest.mock('framer-motion', () => ({
   motion: {
@@ -226,7 +163,7 @@ jest.mock('framer-motion', () => ({
 }));
 ```
 
-### Mock de Função
+### Mock Supabase
 ```tsx
 const mockSupabase = {
   from: jest.fn().mockReturnThis(),
@@ -243,48 +180,19 @@ jest.mock('@/libs/supabase/client', () => ({
 }));
 ```
 
----
+## Checklist for New Tests
 
-## Test Coverage
+- [ ] Create file in `__tests__/[category]/`
+- [ ] Use Arrange-Act-Assert pattern
+- [ ] Mock Supabase and external APIs
+- [ ] Test happy path
+- [ ] Test error cases
+- [ ] Test edge cases (empty state, loading, etc.)
+- [ ] Check accessibility (aria attributes)
+- [ ] Run `npm test` to validate
+- [ ] Check coverage with `npm run test:coverage`
 
-### Configuração (jest.config.js)
-```js
-module.exports = {
-  coverageDirectory: 'coverage',
-  collectCoverageFrom: [
-    'components/**/*.{ts,tsx}',
-    'hooks/**/*.{ts,tsx}',
-    'libs/**/*.{ts,tsx}',
-    'utils/**/*.{ts,tsx}',
-    '!**/*.d.ts',
-    '!**/node_modules/**',
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
-    },
-  },
-};
-```
-
----
-
-## Erros Comuns a Evitar
-
-1. **Não mockar Supabase** - testes falham sem conexão
-2. **Testar implementação** em vez de comportamento
-3. **Múltiplas assertions** num único teste
-4. **Não testar error cases** - apenas happy path
-5. **Tests dependentes entre si** - cada teste deve ser independente
-6. **Não limpar mocks** entre testes - usar `beforeEach`/`afterEach`
-7. **Ignorar accessibility** nos testes de componentes
-
----
-
-## Comandos
+## Commands
 
 ```bash
 npm test                 # Run all tests
@@ -294,6 +202,12 @@ npm test -- --verbose    # Detailed output
 npm test -- [pattern]    # Run specific tests
 ```
 
----
+## Common Errors to Avoid
 
-*Last updated: 2026-04-05*
+1. Not mocking Supabase — tests fail without connection
+2. Testing implementation instead of behavior
+3. Multiple assertions in a single test
+4. Not testing error cases — only happy path
+5. Dependent tests — each test should be independent
+6. Not cleaning mocks between tests — use `beforeEach`/`afterEach`
+7. Ignoring accessibility in component tests

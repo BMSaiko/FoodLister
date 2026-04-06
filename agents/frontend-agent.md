@@ -1,4 +1,5 @@
 # Frontend Agent - FoodList
+<!-- TRIGGER: Lê quando crias componentes React, hooks, páginas Next.js, trabalhas com Framer Motion, ou precisas de 'use client' -->
 
 ## Especialidade
 React 19, Next.js 15 (App Router), Tailwind CSS v4, Framer Motion, TypeScript
