@@ -1,6 +1,9 @@
 // app/layout.js (com meta viewport)
 // Adicione ou atualize a tag meta viewport no cabeçalho
 
+// Prevent static prerendering - this layout requires runtime env vars
+export const dynamic = 'force-dynamic';
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/layouts/ClientLayout";
