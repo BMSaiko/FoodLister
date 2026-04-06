@@ -692,7 +692,7 @@ const UserProfilePage = () => {
 
             {activeTab === 'meals' && (
               <ScheduledMealsSection
-                userId={userId}
+                userId={profile.id}
                 type={profile.isOwnProfile ? 'all' : 'organized'}
               />
             )}
