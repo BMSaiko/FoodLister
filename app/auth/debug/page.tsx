@@ -1,5 +1,8 @@
 'use client';
 
+// Prevent static prerendering - this page requires runtime env vars
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { authLogger } from '@/utils/authLogger';
