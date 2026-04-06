@@ -30,10 +30,18 @@ function RestaurantsContent({ showHeader = true }) {
   const searchQuery = searchParams.get('search');
   const { user } = useAuth();
   const [scrollRestored, setScrollRestored] = React.useState(false);
+  const gridRef = React.useRef(null);
 
   const { restaurants, loading } = useRestaurants(searchQuery);
   const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
   const { filters, setFilters, filteredRestaurants, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
+
+  // Auto-scroll to restaurant grid when search results load
+  React.useEffect(() => {
+    if (searchQuery && !loading && filteredRestaurants.length > 0 && gridRef.current) {
+      gridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [searchQuery, loading, filteredRestaurants.length]);
 
   // Enhanced scroll restoration and search parameter persistence
   React.useEffect(() => {
@@ -111,12 +119,14 @@ function RestaurantsContent({ showHeader = true }) {
       {loading ? (
         <RestaurantsLoading />
       ) : filteredRestaurants.length > 0 ? (
-        <RestaurantGrid
-          restaurants={filteredRestaurants}
-          visitsData={visitsData}
-          loadingVisits={loadingVisits}
-          onVisitsDataUpdate={handleVisitsDataUpdate}
-        />
+        <div ref={gridRef}>
+          <RestaurantGrid
+            restaurants={filteredRestaurants}
+            visitsData={visitsData}
+            loadingVisits={loadingVisits}
+            onVisitsDataUpdate={handleVisitsDataUpdate}
+          />
+        </div>
       ) : (
         <EmptyState searchQuery={searchQuery} />
       )}
