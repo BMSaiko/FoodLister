@@ -21,20 +21,23 @@ export default function MenuManager({
   disabled?: boolean;
 }) {
   // Local state for managing images (simplified approach)
-  const [localImages, setLocalImages] = useState(Array.isArray(menuImages) ? menuImages : []);
+  const [localImages, setLocalImages] = useState<string[]>([]);
+  const prevMenuImagesRef = React.useRef<string[] | null>(null);
 
   // Tab state
   const [activeTab, setActiveTab] = useState('links');
 
-  // Sync local images with parent when they change
+  // Sync local images with parent only when parent images actually change
   useEffect(() => {
-    setLocalImages(Array.isArray(menuImages) ? menuImages : []);
+    const newImages = Array.isArray(menuImages) ? menuImages : [];
+    const prevImages = prevMenuImagesRef.current;
+    
+    // Only update if images actually changed (avoid infinite loop)
+    if (!prevImages || JSON.stringify(newImages) !== JSON.stringify(prevImages)) {
+      setLocalImages(newImages);
+      prevMenuImagesRef.current = newImages;
+    }
   }, [menuImages]);
-
-  // Sync local images back to parent
-  useEffect(() => {
-    onMenuImagesChange(localImages);
-  }, [localImages, onMenuImagesChange]);
 
   // Ensure menuLinks is always an array
   const safeMenuLinks = Array.isArray(menuLinks) ? menuLinks : [];
@@ -94,12 +97,16 @@ export default function MenuManager({
     if (localImages.length >= 10) {
       return; // Safety check
     }
-    setLocalImages(prev => [...prev, imageUrl]);
+    const newImages = [...localImages, imageUrl];
+    setLocalImages(newImages);
+    onMenuImagesChange(newImages);
   };
 
   // Remove an image
   const handleRemoveImage = (index: number) => {
-    setLocalImages(prev => prev.filter((_, i) => i !== index));
+    const newImages = localImages.filter((_, i) => i !== index);
+    setLocalImages(newImages);
+    onMenuImagesChange(newImages);
   };
 
   // Handle Enter key in link input

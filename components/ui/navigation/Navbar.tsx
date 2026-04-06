@@ -9,6 +9,7 @@ import NavbarActions from './NavbarActions';
 import { Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
+import NotificationsDropdown from './NotificationsDropdown';
 
 // Define the profile data interface
 interface ProfileData {
@@ -129,6 +130,11 @@ const Navbar = ({ clearFilters = null }) => {
           <div className="flex items-center gap-3 flex-shrink-0">
             {/* Botão de criar */}
             <NavbarActions activeSection={activeSection} showLogin={true} showSignout={false} />
+
+            {/* Notificações (apenas se logado) */}
+            {user && !loading && (
+              <NotificationsDropdown />
+            )}
 
             {/* Menu do usuário (apenas se logado) */}
             {user && !loading && (
@@ -262,19 +268,21 @@ const Navbar = ({ clearFilters = null }) => {
             <span className="whitespace-nowrap">FoodLister</span>
           </Link>
 
-          <div className="flex items-center gap-2">
-            {!user && !loading && (
-              <Link href="/auth/signin">
-                <button className="flex items-center justify-center bg-amber-500 text-white px-3 py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] min-w-[44px] text-sm font-medium">
-                  <User className="h-4 w-4" />
-                  <span className="hidden sm:inline ml-1">Entrar</span>
-                </button>
-              </Link>
-            )}
-            {user && !loading && (
-              <>
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+           <div className="flex items-center gap-2">
+             {!user && !loading && (
+               <Link href="/auth/signin">
+                 <button className="flex items-center justify-center bg-amber-500 text-white px-3 py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] min-w-[44px] text-sm font-medium">
+                   <User className="h-4 w-4" />
+                   <span className="hidden sm:inline ml-1">Entrar</span>
+                 </button>
+               </Link>
+             )}
+             {user && !loading && (
+               <>
+                 {/* Notificações mobile */}
+                 <NotificationsDropdown />
+                 <button
+                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 transition-colors min-h-[44px]"
                   title="Menu do usuário"
                 >

@@ -7,8 +7,14 @@ import { useAuth } from '@/hooks/auth/useAuth';
 import Navbar from '@/components/ui/navigation/Navbar';
 import RestaurantCard from '@/components/ui/RestaurantCard';
 import RestaurantRoulette from '@/components/ui/RestaurantRoulette';
-import { ArrowLeft, Edit, User, Shuffle, Globe, Lock, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Edit, User, Shuffle, Globe, Lock, RefreshCw, Trash2, Share2, Copy, BarChart3, MessageCircle, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
+import { useShare } from '@/hooks/utilities/useShare';
+import ListStatistics from '@/components/ui/lists/ListStatistics';
+import ListComments from '@/components/ui/lists/ListComments';
+import ListExportButtons from '@/components/ui/lists/ListExportButtons';
+import ListCollaborators from '@/components/ui/lists/ListCollaborators';
 
 interface Restaurant {
   id: string;
@@ -56,6 +62,10 @@ export default function ListDetails() {
   const [loading, setLoading] = useState(true);
   const [showRoulette, setShowRoulette] = useState(false);
   const [applyingFilters, setApplyingFilters] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [duplicating, setDuplicating] = useState(false);
+  const [showStatistics, setShowStatistics] = useState(false);
+  const { share } = useShare();
 
   useEffect(() => {
     async function fetchListDetails() {
@@ -109,6 +119,70 @@ export default function ListDetails() {
 
     fetchListDetails();
   }, [id]);
+
+  // Share list
+  const handleShareList = async () => {
+    if (!list) return;
+    await share({
+      title: list.name,
+      text: list.description || `Vê a lista "${list.name}" no FoodLister!`,
+      url: `/lists/${id}`,
+    });
+  };
+
+  // Duplicate list
+  const handleDuplicateList = async () => {
+    if (!list) return;
+
+    setDuplicating(true);
+    try {
+      const response = await fetch(`/api/lists/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: `${list.name} (Cópia)` }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Lista duplicada com sucesso!');
+        window.location.href = `/lists/${data.list.id}`;
+      } else {
+        toast.error(data.error || 'Erro ao duplicar a lista');
+      }
+    } catch (error) {
+      console.error('Error duplicating list:', error);
+      toast.error('Erro ao duplicar a lista. Tente novamente.');
+    } finally {
+      setDuplicating(false);
+    }
+  };
+
+  // Delete list
+  const handleDeleteList = async () => {
+    if (!confirm(`Tem certeza que deseja eliminar a lista "${list?.name}"? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/lists/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Lista eliminada com sucesso!');
+        window.location.href = '/lists';
+      } else {
+        toast.error(data.error || 'Erro ao eliminar a lista');
+      }
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      toast.error('Erro ao eliminar a lista. Tente novamente.');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   // Apply filters from list if it has them
   const applyFilters = async () => {
@@ -244,15 +318,52 @@ export default function ListDetails() {
                <span className="text-sm sm:text-base">Roleta</span>
              </button>
              
-             {user && list?.creator_id === user.id && (
-               <Link
-                 href={`/lists/${id}/edit`}
-                 className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
-               >
-                 <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
-                 <span className="text-sm sm:text-base">Editar</span>
-               </Link>
-             )}
+              {/* Share Button - Available for all users */}
+              <button
+                onClick={handleShareList}
+                className="flex items-center justify-center bg-blue-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-blue-600 active:bg-blue-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
+              >
+                <Share2 className="h-4 w-4 mr-1.5 sm:mr-1" />
+                <span className="text-sm sm:text-base">Partilhar</span>
+              </button>
+
+               {user && list?.creator_id === user.id && (
+                 <>
+                   {/* Duplicate Button */}
+                   <button
+                     onClick={handleDuplicateList}
+                     disabled={duplicating}
+                     className="flex items-center justify-center bg-indigo-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-indigo-600 active:bg-indigo-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0 disabled:opacity-50"
+                   >
+                     {duplicating ? (
+                       <RefreshCw className="h-4 w-4 mr-1.5 sm:mr-1 animate-spin" />
+                     ) : (
+                       <Copy className="h-4 w-4 mr-1.5 sm:mr-1" />
+                     )}
+                     <span className="text-sm sm:text-base">{duplicating ? 'A duplicar...' : 'Duplicar'}</span>
+                   </button>
+
+                   <Link
+                     href={`/lists/${id}/edit`}
+                     className="flex items-center justify-center bg-amber-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0"
+                   >
+                     <Edit className="h-4 w-4 mr-1.5 sm:mr-1" />
+                     <span className="text-sm sm:text-base">Editar</span>
+                   </Link>
+                   <button
+                     onClick={handleDeleteList}
+                     disabled={deleting}
+                     className="flex items-center justify-center bg-red-500 text-white px-4 py-2.5 sm:px-3 sm:py-2 rounded-md hover:bg-red-600 active:bg-red-700 transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-0 disabled:opacity-50"
+                   >
+                     {deleting ? (
+                       <RefreshCw className="h-4 w-4 mr-1.5 sm:mr-1 animate-spin" />
+                     ) : (
+                       <Trash2 className="h-4 w-4 mr-1.5 sm:mr-1" />
+                     )}
+                     <span className="text-sm sm:text-base">{deleting ? 'A eliminar...' : 'Eliminar'}</span>
+                   </button>
+                 </>
+               )}
            </div>
         </div>
         
@@ -304,21 +415,68 @@ export default function ListDetails() {
            </div>
         </div>
         
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Restaurantes nesta lista</h2>
-        
-        {restaurants.length === 0 ? (
-          <p className="text-gray-500 text-sm sm:text-base">Não há restaurantes nesta lista.</p>
-        ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-            {restaurants.map(restaurant => (
-              <RestaurantCard 
-                key={restaurant.id} 
-                restaurant={restaurant} 
-              />
-            ))}
-          </div>
+         {/* Statistics Section - Collapsible */}
+         {restaurants.length > 0 && (
+           <div className="mb-4 sm:mb-6 lg:mb-8">
+             <button
+               onClick={() => setShowStatistics(!showStatistics)}
+               className="flex items-center gap-2 text-lg font-semibold text-gray-800 hover:text-amber-600 transition-colors"
+             >
+               <BarChart3 className="h-5 w-5" />
+               <span>Estatísticas</span>
+               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showStatistics ? 'rotate-180' : ''}`} />
+             </button>
+             {showStatistics && (
+               <div className="mt-4">
+                 <ListStatistics restaurants={restaurants} />
+               </div>
+             )}
+           </div>
          )}
-       </div>
+
+         <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Restaurantes nesta lista</h2>
+         
+         {restaurants.length === 0 ? (
+           <p className="text-gray-500 text-sm sm:text-base">Não há restaurantes nesta lista.</p>
+         ) : (
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+             {restaurants.map(restaurant => (
+               <RestaurantCard 
+                 key={restaurant.id} 
+                 restaurant={restaurant} 
+               />
+             ))}
+           </div>
+          )}
+
+          {/* Export Section */}
+          {restaurants.length > 0 && (
+            <div className="mb-4 sm:mb-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Exportar Lista</h3>
+              <ListExportButtons list={list} restaurants={restaurants} />
+            </div>
+          )}
+
+          {/* Collaborators Section - Only for owner */}
+          {user?.id === list.creator_id && (
+            <div className="mb-4 sm:mb-6 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+              <ListCollaborators
+                listId={id as string}
+                isOwner={true}
+              />
+            </div>
+          )}
+
+          {/* Comments Section - Only for public lists */}
+          {list.is_public && (
+            <div className="mt-6 sm:mt-8">
+              <ListComments
+                listId={id as string}
+                isOwner={user?.id === list.creator_id}
+              />
+            </div>
+          )}
+         </div>
        
        {/* Roulette Modal */}
        {showRoulette && (

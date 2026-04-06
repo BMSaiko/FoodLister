@@ -33,6 +33,7 @@ import ProfileTabs from '@/components/ui/profile/ProfileTabs';
 import UserReviewsSection from '@/components/ui/profile/sections/reviews/UserReviewsSection';
 import UserListsSection from '@/components/ui/profile/sections/lists/UserListsSection';
 import UserRestaurantsSection from '@/components/ui/profile/sections/restaurants/UserRestaurantsSection';
+import ScheduledMealsSection from '@/components/ui/profile/sections/meals/ScheduledMealsSection';
 import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
 import UserLoadingPage from './loading';
 
@@ -100,10 +101,11 @@ const UserProfilePage = () => {
   }, [userId, user, authLoading, router]);
 
   const [isVisible, setIsVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<'reviews' | 'lists' | 'restaurants' | 'activity'>('reviews');
+  const [activeTab, setActiveTab] = useState<'reviews' | 'lists' | 'restaurants' | 'meals' | 'activity'>('reviews');
   const [copySuccess, setCopySuccess] = useState(false);
   const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
   const [restaurantsLoading, setRestaurantsLoading] = useState(false);
+  const [totalMeals, setTotalMeals] = useState(0);
   
   // Get URL parameters
   const searchParams = useSearchParams();
@@ -138,8 +140,8 @@ const UserProfilePage = () => {
   // Set initial active tab based on URL parameter
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['reviews', 'lists', 'restaurants', 'activity'].includes(tabParam)) {
-      setActiveTab(tabParam as 'reviews' | 'lists' | 'restaurants' | 'activity');
+    if (tabParam && ['reviews', 'lists', 'restaurants', 'meals', 'activity'].includes(tabParam)) {
+      setActiveTab(tabParam as 'reviews' | 'lists' | 'restaurants' | 'meals' | 'activity');
     }
   }, [searchParams]);
 
@@ -176,6 +178,35 @@ const UserProfilePage = () => {
       fetchUserRestaurants();
     }
   }, [activeTab, profile, restaurants.length, loading, fetchUserRestaurants]);
+
+  // Fetch total meals count for the viewed user
+  useEffect(() => {
+    const fetchMealsCount = async () => {
+      if (!userId) return;
+      try {
+        // Fetch organized meals
+        const organizedResponse = await fetch(`/api/meals/scheduled?type=organized&page=1&limit=1`);
+        let organizedTotal = 0;
+        if (organizedResponse.ok) {
+          const organizedResult = await organizedResponse.json();
+          organizedTotal = organizedResult.total || 0;
+        }
+
+        // Fetch participating meals
+        const participatingResponse = await fetch(`/api/meals/scheduled?type=participating&page=1&limit=1`);
+        let participatingTotal = 0;
+        if (participatingResponse.ok) {
+          const participatingResult = await participatingResponse.json();
+          participatingTotal = participatingResult.total || 0;
+        }
+
+        setTotalMeals(organizedTotal + participatingTotal);
+      } catch (error) {
+        console.error('Error fetching meals count:', error);
+      }
+    };
+    fetchMealsCount();
+  }, [userId]);
 
   // Load restaurants immediately if restaurants tab is set in URL on initial load
   useEffect(() => {
@@ -605,6 +636,7 @@ const UserProfilePage = () => {
                 { key: 'reviews', label: 'Avaliações', icon: Star, count: profile.stats?.totalReviews ?? 0 },
                 { key: 'lists', label: 'Listas', icon: List, count: profile.stats?.totalLists ?? 0 },
                 { key: 'restaurants', label: 'Restaurantes', icon: Utensils, count: profile.stats?.totalRestaurantsAdded ?? 0 },
+                { key: 'meals', label: 'Refeições', icon: Calendar, count: totalMeals },
                 { key: 'activity', label: 'Atividade', icon: Clock, count: (profile.stats?.totalReviews ?? 0) + (profile.stats?.totalLists ?? 0) }
               ].map((tab) => (
                 <button
@@ -655,6 +687,13 @@ const UserProfilePage = () => {
                 isLoading={loading}
                 loadingStates={loadingStates}
                 error={error}
+              />
+            )}
+
+            {activeTab === 'meals' && (
+              <ScheduledMealsSection
+                userId={profile.id}
+                type={profile.isOwnProfile ? 'all' : 'organized'}
               />
             )}
 

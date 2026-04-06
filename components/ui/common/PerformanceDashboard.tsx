@@ -85,7 +85,7 @@ const PerformanceDashboard = () => {
   // Performance improvements data
   const improvements = [
     {
-      title: 'Filter Performance',
+      title: 'Desempenho do Filtro',
       before: '200ms',
       after: '50ms',
       improvement: '75%',
@@ -93,7 +93,7 @@ const PerformanceDashboard = () => {
       color: '#10B981'
     },
     {
-      title: 'Render Time',
+      title: 'Tempo de Renderização',
       before: '150ms',
       after: '30ms',
       improvement: '80%',
@@ -101,7 +101,7 @@ const PerformanceDashboard = () => {
       color: '#3B82F6'
     },
     {
-      title: 'Memory Usage',
+      title: 'Uso de Memória',
       before: '150MB',
       after: '60MB',
       improvement: '60%',
@@ -109,7 +109,7 @@ const PerformanceDashboard = () => {
       color: '#8B5CF6'
     },
     {
-      title: 'Mobile Response',
+      title: 'Resposta no Telemóvel',
       before: '200ms',
       after: '40ms',
       improvement: '80%',
@@ -120,11 +120,11 @@ const PerformanceDashboard = () => {
 
   // Accessibility compliance
   const accessibilityFeatures = [
-    { name: 'Keyboard Navigation', status: 'excellent', score: 100 },
-    { name: 'Screen Reader Support', status: 'excellent', score: 100 },
-    { name: 'Color Contrast', status: 'good', score: 95 },
-    { name: 'Focus Management', status: 'excellent', score: 100 },
-    { name: 'ARIA Labels', status: 'excellent', score: 100 }
+    { name: 'Navegação por Teclado', status: 'excellent', score: 100 },
+    { name: 'Suporte a Leitores de Ecrã', status: 'excellent', score: 100 },
+    { name: 'Contraste de Cores', status: 'good', score: 95 },
+    { name: 'Gestão de Foco', status: 'excellent', score: 100 },
+    { name: 'Etiquetas ARIA', status: 'excellent', score: 100 }
   ];
 
   const getScoreColor = (score: number): string => {
@@ -148,14 +148,14 @@ const PerformanceDashboard = () => {
             <Eye className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-800">Performance Dashboard</h2>
-            <p className="text-sm text-gray-600">Roulette Filter System Metrics</p>
+            <h2 className="text-xl font-bold text-gray-800">Painel de Desempenho</h2>
+            <p className="text-sm text-gray-600">Métricas do Sistema de Filtro Roleta</p>
           </div>
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <div className="flex items-center space-x-1">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span>Live Monitoring</span>
+            <span>Monitorização em Tempo Real</span>
           </div>
         </div>
       </div>
@@ -163,10 +163,10 @@ const PerformanceDashboard = () => {
       {/* Tabs */}
       <div className="flex space-x-1 mb-6 bg-white/50 rounded-lg p-1">
         {[
-          { id: 'overview', label: 'Overview', icon: Eye },
-          { id: 'performance', label: 'Performance', icon: Zap },
-          { id: 'accessibility', label: 'Accessibility', icon: Accessibility },
-          { id: 'improvements', label: 'Improvements', icon: TrendingUp }
+          { id: 'overview', label: 'Visão Geral', icon: Eye },
+          { id: 'performance', label: 'Desempenho', icon: Zap },
+          { id: 'accessibility', label: 'Acessibilidade', icon: Accessibility },
+          { id: 'improvements', label: 'Melhorias', icon: TrendingUp }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -186,50 +186,50 @@ const PerformanceDashboard = () => {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            {
-              label: 'Render Time',
-              value: `${metrics.renderTime.toFixed(1)}ms`,
-              target: '< 100ms',
-              status: metrics.renderTime < 100 ? 'good' : 'warning',
-              icon: RefreshCw
-            },
-            {
-              label: 'Filter Time',
-              value: `${metrics.filterTime.toFixed(1)}ms`,
-              target: '< 100ms',
-              status: metrics.filterTime < 100 ? 'good' : 'warning',
-              icon: Target
-            },
-            {
-              label: 'FPS',
-              value: `${metrics.fps.toFixed(0)}`,
-              target: '> 60',
-              status: metrics.fps >= 60 ? 'good' : 'warning',
-              icon: Clock
-            },
-            {
-              label: 'Memory Usage',
-              value: `${metrics.memoryUsage.toFixed(0)}MB`,
-              target: '< 100MB',
-              status: metrics.memoryUsage < 100 ? 'good' : 'warning',
-              icon: Database
-            },
-            {
-              label: 'User Engagement',
-              value: `${metrics.userEngagement.toFixed(0)}%`,
-              target: '> 80%',
-              status: metrics.userEngagement > 80 ? 'good' : 'warning',
-              icon: Users
-            },
-            {
-              label: 'Accessibility Score',
-              value: `${metrics.accessibilityScore.toFixed(0)}%`,
-              target: '> 90%',
-              status: metrics.accessibilityScore > 90 ? 'good' : 'warning',
-              icon: Accessibility
-            }
-          ].map((metric, index) => (
+            {[
+              {
+                label: 'Tempo de Renderização',
+                value: `${metrics.renderTime.toFixed(1)}ms`,
+                target: '< 100ms',
+                status: metrics.renderTime < 100 ? 'good' : 'warning',
+                icon: RefreshCw
+              },
+              {
+                label: 'Tempo do Filtro',
+                value: `${metrics.filterTime.toFixed(1)}ms`,
+                target: '< 100ms',
+                status: metrics.filterTime < 100 ? 'good' : 'warning',
+                icon: Target
+              },
+              {
+                label: 'FPS',
+                value: `${metrics.fps.toFixed(0)}`,
+                target: '> 60',
+                status: metrics.fps >= 60 ? 'good' : 'warning',
+                icon: Clock
+              },
+              {
+                label: 'Uso de Memória',
+                value: `${metrics.memoryUsage.toFixed(0)}MB`,
+                target: '< 100MB',
+                status: metrics.memoryUsage < 100 ? 'good' : 'warning',
+                icon: Database
+              },
+              {
+                label: 'Envolvimento do Utilizador',
+                value: `${metrics.userEngagement.toFixed(0)}%`,
+                target: '> 80%',
+                status: metrics.userEngagement > 80 ? 'good' : 'warning',
+                icon: Users
+              },
+              {
+                label: 'Pontuação de Acessibilidade',
+                value: `${metrics.accessibilityScore.toFixed(0)}%`,
+                target: '> 90%',
+                status: metrics.accessibilityScore > 90 ? 'good' : 'warning',
+                icon: Accessibility
+              }
+            ].map((metric, index) => (
             <div key={index} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
@@ -246,7 +246,7 @@ const PerformanceDashboard = () => {
                     ? 'bg-yellow-100 text-yellow-800'
                     : 'bg-red-100 text-red-800'
                 }`}>
-                  {metric.status === 'good' ? 'Excellent' : 'Needs Attention'}
+                  {metric.status === 'good' ? 'Excelente' : 'Requer Atenção'}
                 </span>
               </div>
               <div className="text-2xl font-bold text-gray-900 mb-1">{metric.value}</div>
@@ -262,7 +262,7 @@ const PerformanceDashboard = () => {
           {/* Real-time Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Real-time Performance</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Desempenho em Tempo Real</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={historicalData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -277,7 +277,7 @@ const PerformanceDashboard = () => {
             </div>
 
             <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Frame Rate</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Taxa de Atualização</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={historicalData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -295,7 +295,7 @@ const PerformanceDashboard = () => {
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Average Render Time</p>
+                  <p className="text-sm text-gray-600">Tempo Médio de Renderização</p>
                   <p className="text-2xl font-bold text-blue-600">{metrics.renderTime.toFixed(1)}ms</p>
                 </div>
                 <div className={`p-3 rounded-full ${
@@ -311,7 +311,7 @@ const PerformanceDashboard = () => {
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Filter Performance</p>
+                  <p className="text-sm text-gray-600">Desempenho do Filtro</p>
                   <p className="text-2xl font-bold text-green-600">{metrics.filterTime.toFixed(1)}ms</p>
                 </div>
                 <div className={`p-3 rounded-full ${
@@ -327,7 +327,7 @@ const PerformanceDashboard = () => {
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Memory Efficiency</p>
+                  <p className="text-sm text-gray-600">Eficiência de Memória</p>
                   <p className="text-2xl font-bold text-purple-600">{metrics.memoryUsage.toFixed(0)}MB</p>
                 </div>
                 <div className={`p-3 rounded-full ${
@@ -349,7 +349,7 @@ const PerformanceDashboard = () => {
           {/* Accessibility Score */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Accessibility Score</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Pontuação de Acessibilidade</h3>
               <div className="flex items-center justify-center">
                 <div className="relative w-40 h-40">
                   <ResponsiveContainer width="100%" height="100%">
@@ -372,7 +372,7 @@ const PerformanceDashboard = () => {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-gray-900">{metrics.accessibilityScore.toFixed(0)}%</div>
-                      <div className="text-xs text-gray-500">WCAG Compliance</div>
+                      <div className="text-xs text-gray-500">Conformidade WCAG</div>
                     </div>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ const PerformanceDashboard = () => {
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Key Features</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Funcionalidades Principais</h3>
               <div className="space-y-3">
                 {accessibilityFeatures.map((feature, index) => (
                   <div key={index} className="flex items-center justify-between">
@@ -412,11 +412,11 @@ const PerformanceDashboard = () => {
               <div key={index} className="bg-white rounded-lg p-4 shadow-sm border-l-4" style={{ borderLeftColor: improvement.color }}>
                 <div className="flex items-center justify-between mb-3">
                   <improvement.icon className="h-6 w-6" style={{ color: improvement.color }} />
-                  <span className="text-xs text-gray-500">Before: {improvement.before}</span>
+                  <span className="text-xs text-gray-500">Antes: {improvement.before}</span>
                 </div>
                 <div className="mb-2">
                   <h4 className="font-semibold text-gray-800">{improvement.title}</h4>
-                  <p className="text-sm text-gray-600">After: {improvement.after}</p>
+                  <p className="text-sm text-gray-600">Depois: {improvement.after}</p>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold" style={{ color: improvement.color }}>
@@ -430,19 +430,19 @@ const PerformanceDashboard = () => {
 
           {/* Impact Metrics */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Impact Metrics</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Métricas de Impacto</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600">+75%</div>
-                <div className="text-sm text-gray-600">Filter Performance</div>
+                <div className="text-sm text-gray-600">Desempenho do Filtro</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-600">+80%</div>
-                <div className="text-sm text-gray-600">User Engagement</div>
+                <div className="text-sm text-gray-600">Envolvimento do Utilizador</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600">+60%</div>
-                <div className="text-sm text-gray-600">Memory Efficiency</div>
+                <div className="text-sm text-gray-600">Eficiência de Memória</div>
               </div>
             </div>
           </div>

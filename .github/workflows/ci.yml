@@ -2,57 +2,45 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master]
   pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
+    branches: [main, master]
 
 jobs:
-  lint:
-    name: Lint
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Setup Node.js
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Run lint
+      - name: Run linter
         run: npm run lint
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Type check
+        run: npx tsc --noEmit
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+      - name: Run tests
+        run: npm test -- --coverage
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Create .env.local
-        run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env.local
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env.local
-          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env.local
-          echo "NEXTAUTH_URL=http://localhost:3000" >> .env.local
-          echo "CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}" >> .env.local
-
-      - name: Build Next.js app
+      - name: Build
         run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}

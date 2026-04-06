@@ -15,11 +15,14 @@ export { useSettings } from './data/useSettings';
 export { useVisitsData } from './data/useVisitsData';
 export { useUserCache } from './data/useUserCache';
 export { useApiMutation } from './data/useApiMutation';
+export { useScheduledMeals } from './data/useScheduledMeals';
 
 // Form hooks
 export { useForm } from './forms/useForm';
 export { useImageUpload } from './forms/useImageUpload';
 export { useListForm } from './forms/useListForm';
+export { useRestaurantForm } from './forms/useRestaurantForm';
+export { useMealScheduling } from './forms/useMealScheduling';
 
 // List hooks
 export * from './lists';

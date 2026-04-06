@@ -22,5 +22,8 @@ export * from './dbMonitor';
 // Search utilities
 export * from './search';
 
+// Google Calendar utilities
+export * from './googleCalendar';
+
 // Scroll lock utility
 export * from './scrollLock';

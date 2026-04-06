@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Star, Utensils, Clock, MapPin, Euro, DollarSign } from 'lucide-react';
+import { Star, Utensils, Clock, MapPin, Euro, DollarSign, Trash2, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { formatDate } from '@/utils/formatters';
+import { toast } from 'react-toastify';
+import { useShare } from '@/hooks/utilities/useShare';
 import { 
   ProfileCard, 
   RatingBadge, 
@@ -108,7 +110,38 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   }, [hookIsLoading, initialRestaurants, initialTotal, hasInitialized]);
 
 
-  const { get } = useSecureApiClient();
+  const { get, del: deleteRequest } = useSecureApiClient();
+  const { share } = useShare();
+
+  const handleShareRestaurant = async (restaurantId: string, restaurantName: string) => {
+    await share({
+      title: restaurantName,
+      text: `Vê o restaurante "${restaurantName}" no FoodLister!`,
+      url: `/restaurants/${restaurantId}`,
+    });
+  };
+
+  const handleDeleteRestaurant = async (restaurantId: string, restaurantName: string) => {
+    if (!confirm(`Tem certeza que deseja eliminar o restaurante "${restaurantName}"? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+
+    try {
+      const response = await deleteRequest(`/api/restaurants/${restaurantId}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success('Restaurante eliminado com sucesso!');
+        setRestaurants(prev => prev.filter(r => r.id !== restaurantId));
+        setTotal(prev => prev - 1);
+      } else {
+        toast.error(data.error || 'Erro ao eliminar o restaurante');
+      }
+    } catch (error) {
+      console.error('Error deleting restaurant:', error);
+      toast.error('Erro ao eliminar o restaurante. Tente novamente.');
+    }
+  };
 
   // Scroll to specific restaurant after navigation from edit
   const scrollToRestaurant = useCallback((restaurantId: string) => {
@@ -330,10 +363,10 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
                 window.location.href = editUrl;
               }}
               onDelete={() => {
-                // Handle delete functionality
+                handleDeleteRestaurant(restaurant.id, restaurant.name);
               }}
               onShare={() => {
-                // Handle share functionality
+                handleShareRestaurant(restaurant.id, restaurant.name);
               }}
               dataRestaurantId={restaurant.id}
             />

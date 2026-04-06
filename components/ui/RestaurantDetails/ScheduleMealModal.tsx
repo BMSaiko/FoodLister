@@ -1,9 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { X, Calendar, Clock, Users, Mail, UtensilsCrossed } from 'lucide-react';
-import { validateEmails } from '@/utils/formatters';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { X, Calendar, Clock, Users, Mail, UtensilsCrossed, Search, Loader2 } from 'lucide-react';
+import { useMealScheduling } from '@/hooks/forms/useMealScheduling';
+import { useDebounce } from '@/hooks/utilities/useDebounce';
 import { toast } from 'react-toastify';
+
+interface SearchResult {
+  id: string;
+  name: string | null;
+  profileImage: string | null;
+  userIdCode: string | null;
+}
 
 type ScheduleMealModalProps = {
   isOpen: boolean;
@@ -11,6 +20,7 @@ type ScheduleMealModalProps = {
   restaurantName: string;
   restaurantLocation: string;
   restaurantDescription: string;
+  restaurantId?: string;
 };
 
 const ScheduleMealModal = ({
@@ -18,191 +28,156 @@ const ScheduleMealModal = ({
   onClose,
   restaurantName,
   restaurantLocation,
-  restaurantDescription
+  restaurantDescription,
+  restaurantId
 }: ScheduleMealModalProps) => {
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [participants, setParticipants] = useState('');
-  const [duration, setDuration] = useState(2); // hours
-  const [mealType, setMealType] = useState('');
+  const router = useRouter();
+  const {
+    form,
+    setDate,
+    setParticipants,
+    setDuration,
+    handleMealTypeChange,
+    handleTimeChange,
+    handleSubmit,
+    resetForm,
+    mealTypes
+  } = useMealScheduling({
+    onSuccess: onClose
+  });
 
-  const resetForm = () => {
-    setDate('');
-    setTime('');
-    setParticipants('');
-    setDuration(2);
-    setMealType('');
-  };
+  // User search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 300);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<SearchResult[]>([]);
+  const [showEmailFallback, setShowEmailFallback] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const mealTypes = [
-    { value: 'pequeno-almoco', label: 'Pequeno Almoço', icon: '☕', defaultTime: '08:00', defaultDuration: 1 },
-    { value: 'almoco', label: 'Almoço', icon: '🍽️', defaultTime: '12:30', defaultDuration: 1.5 },
-    { value: 'brunch', label: 'Brunch', icon: '🥐', defaultTime: '11:00', defaultDuration: 2 },
-    { value: 'lanche', label: 'Lanche', icon: '🍪', defaultTime: '16:00', defaultDuration: 1 },
-    { value: 'jantar', label: 'Jantar', icon: '🍽️', defaultTime: '19:00', defaultDuration: 2 },
-    { value: 'ceia', label: 'Ceia', icon: '🌙', defaultTime: '22:00', defaultDuration: 1 }
-  ];
-
-  // Update time and duration when meal type changes
-  const handleMealTypeChange = (newMealType: string) => {
-    setMealType(newMealType);
-    const selectedMeal = mealTypes.find(meal => meal.value === newMealType);
-    if (selectedMeal && !time) { // Only update if time hasn't been manually set
-      setTime(selectedMeal.defaultTime);
+  // Search users on debounced query change
+  useEffect(() => {
+    if (!debouncedSearch || debouncedSearch.length < 2) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
     }
-    if (selectedMeal && duration === 2) { // Only update if duration is still default
-      setDuration(selectedMeal.defaultDuration);
-    }
-  };
 
-  // Auto-assign meal type based on selected time
-  const handleTimeChange = (newTime: string) => {
-    setTime(newTime);
-
-    // Always auto-assign meal type based on time, regardless of previous selection
-    if (newTime && newTime.includes(':')) {
-      const timeParts = newTime.split(':');
-      if (timeParts.length >= 2) {
-        const hour = parseInt(timeParts[0], 10);
-        if (!isNaN(hour) && hour >= 0 && hour <= 23) {
-          let suggestedMealType = '';
-
-          if (hour >= 6 && hour < 11) {
-            suggestedMealType = 'pequeno-almoco';
-          } else if (hour >= 11 && hour < 14) {
-            suggestedMealType = 'almoco';
-          } else if (hour >= 14 && hour < 17) {
-            suggestedMealType = 'lanche';
-          } else if (hour >= 17 && hour < 22) {
-            suggestedMealType = 'jantar';
-          } else if (hour >= 22 || hour < 6) {
-            suggestedMealType = 'ceia';
-          }
-
-          // Check for brunch time (10-12) - overrides morning breakfast
-          if (hour >= 10 && hour < 12) {
-            suggestedMealType = 'brunch';
-          }
-
-          if (suggestedMealType) {
-            setMealType(suggestedMealType);
-            // Also set duration if still default
-            const selectedMeal = mealTypes.find(meal => meal.value === suggestedMealType);
-            if (selectedMeal && duration === 2) {
-              setDuration(selectedMeal.defaultDuration);
-            }
-          }
+    const searchUsers = async () => {
+      setIsSearching(true);
+      try {
+        const response = await fetch(`/api/users/search?q=${encodeURIComponent(debouncedSearch)}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSearchResults(data.data || []);
+          setShowDropdown(true);
         }
+      } catch (error) {
+        console.error('Error searching users:', error);
+      } finally {
+        setIsSearching(false);
       }
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Input validation
-    if (!date || !time) {
-      toast.error('Por favor, selecione data e hora.');
-      return;
-    }
-
-    if (!mealType) {
-      toast.error('Por favor, selecione o tipo de refeição.');
-      return;
-    }
-
-    let startDateTime: Date;
-    let endDateTime: Date;
-
-    try {
-      // Create start datetime with validation
-      startDateTime = new Date(`${date}T${time}`);
-      if (isNaN(startDateTime.getTime())) {
-        throw new Error('Data ou hora inválida');
-      }
-
-      // Create end datetime
-      endDateTime = new Date(startDateTime.getTime() + duration * 60 * 60 * 1000);
-      if (isNaN(endDateTime.getTime())) {
-        throw new Error('Erro ao calcular hora de fim');
-      }
-
-      // Ensure end time is after start time
-      if (endDateTime <= startDateTime) {
-        throw new Error('A hora de fim deve ser após a hora de início');
-      }
-    } catch (error) {
-      toast.error(`Erro na validação de data/hora: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-      return;
-    }
-
-    // Format for Google Calendar (YYYYMMDDTHHMMSSZ)
-    // Note: Using UTC format - for local timezone, would need different approach
-    const formatDateTime = (dt: Date) => {
-      return dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     };
 
-    const start = formatDateTime(startDateTime);
-    const end = formatDateTime(endDateTime);
+    searchUsers();
+  }, [debouncedSearch]);
 
-    // Prepare and validate participants emails
-    let validEmails: string[] = [];
-    if (participants.trim()) {
-      const emailList = participants
-        .split(',')
-        .map(email => email.trim())
-        .filter(email => email.length > 0);
-
-      validEmails = validateEmails(emailList);
-
-      // Warn about invalid emails but don't block
-      const invalidCount = emailList.length - validEmails.length;
-      if (invalidCount > 0) {
-        toast.warn(`${invalidCount} email(s) inválido(s) foram ignorados. Apenas emails válidos serão incluídos.`);
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
       }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelectUser = useCallback((user: SearchResult) => {
+    if (!selectedUsers.find(u => u.id === user.id)) {
+      setSelectedUsers(prev => [...prev, user]);
+    }
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowDropdown(false);
+    searchInputRef.current?.focus();
+  }, [selectedUsers]);
+
+  const handleRemoveUser = useCallback((userId: string) => {
+    setSelectedUsers(prev => prev.filter(u => u.id !== userId));
+  }, []);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!restaurantId) {
+      toast.error('Erro: restaurante não identificado.');
+      return;
     }
 
-    const emails = validEmails.join(',');
-
-    // Get selected meal type label
-    const selectedMeal = mealTypes.find(meal => meal.value === mealType);
-    const mealLabel = selectedMeal ? selectedMeal.label : 'Refeição';
-
-    // Prepare restaurant description with fallback
-    const safeDescription = (restaurantDescription && restaurantDescription.trim())
-      ? restaurantDescription.trim()
-      : 'Descrição não disponível';
-
-    // Create Google Calendar URL
-    const baseUrl = 'https://calendar.google.com/calendar/u/0/r/eventedit';
-    const params = new URLSearchParams({
-      text: `${mealLabel} em ${restaurantName}`,
-      dates: `${start}/${end}`,
-      details: `${mealLabel} reservado no restaurante ${restaurantName}.\n\nDescrição: ${safeDescription}`,
-      location: restaurantLocation,
-      ...(emails && { add: emails })
-    });
-
-    const calendarUrl = `${baseUrl}?${params.toString()}`;
-
-    // Open in new tab with error handling
     try {
-      const newWindow = window.open(calendarUrl, '_blank', 'noopener,noreferrer');
+      const participantIds = selectedUsers.map(u => u.id);
+      
+      const response = await fetch('/api/meals/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurantId,
+          mealDate: form.date,
+          mealTime: form.time,
+          mealType: form.mealType,
+          durationMinutes: form.duration * 60,
+          participantUserIds: participantIds
+        })
+      });
 
-      // Check if popup was blocked
-      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-        toast.error('A janela popup foi bloqueada pelo navegador. Por favor, permita popups para este site e tente novamente.');
-        return;
+      if (response.ok) {
+        const result = await response.json();
+        const mealId = result.data?.id;
+        
+        // Show success toast
+        toast.success('Refeição agendada com sucesso!');
+        
+        // Reset form and close modal
+        resetForm();
+        setSelectedUsers([]);
+        setSearchQuery('');
+        onClose();
+        
+        // Redirect to meal details page
+        if (mealId) {
+          router.push(`/meals/${mealId}`);
+        }
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Erro ao agendar refeição. Tente novamente.');
       }
-
-      // Close modal on success
-      toast.success('Evento criado com sucesso no Google Calendar!');
-      resetForm();
-      onClose();
     } catch (error) {
-      toast.error('Erro ao abrir o Google Calendar. Verifique as configurações do navegador.');
+      console.error('Error scheduling meal:', error);
+      toast.error('Erro de conexão ao agendar refeição. Tente novamente.');
     }
   };
+
+  const handleClose = () => {
+    resetForm();
+    setSelectedUsers([]);
+    setSearchQuery('');
+    setShowDropdown(false);
+    onClose();
+  };
+
+  const getMealTypeLabel = (value: string): string => {
+    const meal = mealTypes.find(m => m.value === value);
+    return meal ? meal.label : 'Refeição';
+  };
+
+  // Filter out already selected users from results
+  const filteredResults = searchResults.filter(
+    user => !selectedUsers.find(u => u.id === user.id)
+  );
 
   if (!isOpen) return null;
 
@@ -222,10 +197,7 @@ const ScheduleMealModal = ({
               </div>
             </div>
             <button
-              onClick={() => {
-                resetForm();
-                onClose();
-              }}
+              onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-colors"
               aria-label="Fechar"
             >
@@ -237,10 +209,10 @@ const ScheduleMealModal = ({
         {/* Content */}
         <div className="px-6 py-6">
           <p className="text-gray-600 mb-6 text-sm">
-            Preencha os detalhes abaixo para criar um evento no seu Google Calendar.
+            Preencha os detalhes abaixo para agendar uma refeição neste restaurante.
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleFormSubmit} className="space-y-5">
             {/* Date and Time Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -251,7 +223,7 @@ const ScheduleMealModal = ({
                 <input
                   type="date"
                   id="date"
-                  value={date}
+                  value={form.date}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white"
                   min={new Date().toISOString().split('T')[0]}
@@ -267,7 +239,7 @@ const ScheduleMealModal = ({
                 <input
                   type="time"
                   id="time"
-                  value={time}
+                  value={form.time}
                   onChange={(e) => handleTimeChange(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white"
                   required
@@ -283,7 +255,7 @@ const ScheduleMealModal = ({
               </label>
               <select
                 id="mealType"
-                value={mealType}
+                value={form.mealType}
                 onChange={(e) => handleMealTypeChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
                 required
@@ -304,12 +276,12 @@ const ScheduleMealModal = ({
               </label>
               <select
                 id="duration"
-                value={duration}
+                value={form.duration}
                 onChange={(e) => setDuration(Number(e.target.value))}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base text-gray-900 bg-gray-50 hover:bg-white"
               >
                 <option value={0.5}>⚡ 30 min - Rápido</option>
-                <option value={1}>🍽️ 1 hora - {mealType === 'pequeno-almoco' ? 'Pequeno almoço' : mealType === 'almoco' ? 'Almoço' : mealType === 'brunch' ? 'Brunch' : mealType === 'lanche' ? 'Lanche' : mealType === 'jantar' ? 'Jantar' : 'Ceia'} rápido</option>
+                <option value={1}>🍽️ 1 hora - {getMealTypeLabel(form.mealType)} rápido</option>
                 <option value={1.5}>🍽️ 1.5 horas - Normal</option>
                 <option value={2}>🍽️ 2 horas - Completo</option>
                 <option value={3}>🍽️ 3 horas - Especial</option>
@@ -317,38 +289,137 @@ const ScheduleMealModal = ({
               </select>
             </div>
 
-            {/* Participants */}
+            {/* Participants - User Search */}
             <div>
-              <label htmlFor="participants" className="block text-gray-700 font-semibold mb-2 text-sm flex items-center">
-                <Mail className="h-4 w-4 mr-2 text-amber-500" />
+              <label className="block text-gray-700 font-semibold mb-2 text-sm flex items-center">
+                <Users className="h-4 w-4 mr-2 text-amber-500" />
                 Convidar participantes
               </label>
-              <textarea
-                id="participants"
-                value={participants}
-                onChange={(e) => setParticipants(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    const textarea = e.target as HTMLTextAreaElement;
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
-                    const newValue = participants.substring(0, start) + ', ' + participants.substring(end);
-                    setParticipants(newValue);
-                    // Set cursor position after the comma and space
-                    setTimeout(() => {
-                      textarea.selectionStart = textarea.selectionEnd = start + 2;
-                    }, 0);
-                  }
-                }}
-                placeholder="exemplo@email.com, outro@email.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white resize-none"
-                rows={3}
-              />
+
+              {/* Selected Users Chips */}
+              {selectedUsers.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {selectedUsers.map(user => (
+                    <div
+                      key={user.id}
+                      className="flex items-center space-x-2 bg-amber-50 border border-amber-200 rounded-full px-3 py-1.5"
+                    >
+                      {user.profileImage ? (
+                        <img
+                          src={user.profileImage}
+                          alt=""
+                          className="h-6 w-6 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-6 w-6 rounded-full bg-amber-200 flex items-center justify-center text-xs font-medium text-amber-700">
+                          {user.name?.charAt(0) || user.userIdCode?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      <span className="text-sm text-gray-700">
+                        {user.name || user.userIdCode}
+                      </span>
+                      {user.userIdCode && (
+                        <span className="text-xs text-gray-500">({user.userIdCode})</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveUser(user.id)}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Search Input */}
+              <div ref={searchRef} className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
+                    placeholder="Pesquisar por nome, ID (FL000001) ou email..."
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white"
+                  />
+                  {isSearching && (
+                    <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 animate-spin" />
+                  )}
+                </div>
+
+                {/* Search Results Dropdown */}
+                {showDropdown && filteredResults.length > 0 && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {filteredResults.map(user => (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => handleSelectUser(user)}
+                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                      >
+                        {user.profileImage ? (
+                          <img
+                            src={user.profileImage}
+                            alt=""
+                            className="h-8 w-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded-full bg-amber-200 flex items-center justify-center text-sm font-medium text-amber-700">
+                            {user.name?.charAt(0) || '?'}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {user.name || 'Utilizador'}
+                          </p>
+                          {user.userIdCode && (
+                            <p className="text-xs text-gray-500">{user.userIdCode}</p>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* No results message */}
+                {showDropdown && debouncedSearch.length >= 2 && filteredResults.length === 0 && !isSearching && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center">
+                    <p className="text-sm text-gray-500">Nenhum utilizador encontrado</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Email Fallback Toggle */}
+              <button
+                type="button"
+                onClick={() => setShowEmailFallback(!showEmailFallback)}
+                className="mt-2 text-sm text-amber-600 hover:text-amber-700 flex items-center"
+              >
+                <Mail className="h-3 w-3 mr-1" />
+                {showEmailFallback ? 'Ocultar campo de email' : 'Ou adicionar por email'}
+              </button>
+
+              {/* Email Fallback Textarea */}
+              {showEmailFallback && (
+                <div className="mt-2">
+                  <textarea
+                    value={form.participants}
+                    onChange={(e) => setParticipants(e.target.value)}
+                    placeholder="exemplo@email.com, outro@email.com"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-colors text-base bg-gray-50 hover:bg-white resize-none"
+                    rows={2}
+                  />
+                </div>
+              )}
+
               <div className="text-xs text-gray-500 mt-2">
                 <p className="flex items-center">
                   <Users className="h-3 w-3 mr-1" />
-                  Opcional: os participantes receberão convites automáticos
+                  Pesquisa utilizadores registados ou adiciona por email
                 </p>
               </div>
             </div>
@@ -359,7 +430,7 @@ const ScheduleMealModal = ({
                 type="submit"
                 className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all font-semibold shadow-md hover:shadow-lg"
               >
-                📅 Criar Evento no Calendar
+                📅 Agendar Refeição
               </button>
             </div>
           </form>
