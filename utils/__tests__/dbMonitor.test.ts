@@ -132,7 +132,7 @@ describe('DbMonitor', () => {
   describe('generateRecommendations', () => {
     it('should recommend index review for slow queries', () => {
       const monitor = new DbMonitor();
-      const stats = { avgExecutionTime: 600, totalQueries: 100, slowQueries: 5, totalRowsReturned: 500 };
+      const stats = { avgExecutionTime: 600, totalQueries: 100, slowQueries: 5, totalRowsReturned: 500, maxExecutionTime: 800, minExecutionTime: 200 };
       
       const recommendations = monitor.generateRecommendations(stats);
       
@@ -143,7 +143,7 @@ describe('DbMonitor', () => {
 
     it('should recommend optimization for high slow query percentage', () => {
       const monitor = new DbMonitor();
-      const stats = { avgExecutionTime: 400, totalQueries: 100, slowQueries: 10, totalRowsReturned: 500 };
+      const stats = { avgExecutionTime: 400, totalQueries: 100, slowQueries: 10, totalRowsReturned: 500, maxExecutionTime: 600, minExecutionTime: 100 };
       
       const recommendations = monitor.generateRecommendations(stats);
       
@@ -154,7 +154,7 @@ describe('DbMonitor', () => {
 
     it('should return positive message when performance is good', () => {
       const monitor = new DbMonitor();
-      const stats = { avgExecutionTime: 100, totalQueries: 100, slowQueries: 2, totalRowsReturned: 500 };
+      const stats = { avgExecutionTime: 100, totalQueries: 100, slowQueries: 2, totalRowsReturned: 500, maxExecutionTime: 150, minExecutionTime: 50 };
       
       const recommendations = monitor.generateRecommendations(stats);
       
