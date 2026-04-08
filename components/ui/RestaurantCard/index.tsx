@@ -123,7 +123,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
   return (
     <Link href={`/restaurants/${restaurant.id}`} className={centered ? "block w-full" : ""} onClick={handleCardClick}>
-      <div className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : 'min-w-[280px] max-w-[365px] sm:max-w-[500px] lg:max-w-[600px]'}`}>
+      <div className={`bg-[var(--card-bg)] rounded-xl shadow-md overflow-hidden hover:shadow-lg h-full w-full flex flex-col ${centered ? 'min-w-[280px] sm:min-w-[320px]' : 'min-w-[280px] max-w-[365px] sm:max-w-[500px] lg:max-w-[600px]'}`}>
         {/* Header with Image and Actions */}
         <div className="relative">
           <RestaurantCardHeader restaurant={restaurant} centered={centered} />
@@ -138,19 +138,19 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className={`p-3 sm:p-4 flex-grow ${centered ? 'text-center' : ''}`}>
-          <div className={`flex ${centered ? 'flex-col items-center gap-2' : 'justify-between items-start'}`}>
-            <h3 className={`font-bold text-base sm:text-lg text-gray-800 line-clamp-1 ${centered ? 'text-center' : ''}`}>
-              {restaurant.name}
-            </h3>
-          </div>
-          
+        <div className={`p-4 sm:p-5 flex-grow flex flex-col gap-3 ${centered ? 'text-center items-center' : ''}`}>
+          {/* Restaurant Name */}
+          <h3 className={`font-bold text-base sm:text-lg text-[var(--foreground)] line-clamp-1 ${centered ? 'text-center' : ''}`}>
+            {restaurant.name}
+          </h3>
 
           {/* Categories Section */}
           <RestaurantCardCategories restaurant={restaurant} centered={centered} />
 
-          {/* Footer Content */}
-          <RestaurantCardFooter restaurant={restaurant} centered={centered} />
+          {/* Footer Content - pushes to bottom */}
+          <div className="mt-auto">
+            <RestaurantCardFooter restaurant={restaurant} centered={centered} />
+          </div>
         </div>
       </div>
     </Link>

@@ -52,11 +52,11 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
       {restaurant.location && (
         <button
           onClick={handleOpenMapModal}
-          className="bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
+          className="bg-primary hover:bg-primary-hover p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
           title="Abrir mapa"
         >
-          <MapPin className="h-4 w-4 text-gray-600" />
-          <span className="text-xs font-medium hidden sm:inline text-gray-600">Mapa</span>
+          <MapPin className="h-4 w-4 text-[var(--primary-foreground)]" />
+          <span className="text-xs font-medium hidden sm:inline text-[var(--primary-foreground)]">Mapa</span>
         </button>
       )}
 
@@ -67,11 +67,15 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
           disabled={isUpdating || loadingVisits}
           className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
             loadingVisits
-              ? 'bg-gray-200 text-gray-400 animate-pulse'
+              ? 'bg-gray-200 text-gray-500 animate-pulse'
               : visited
-              ? 'bg-green-500 text-white hover:bg-green-600'
-              : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+              ? 'hover:bg-[#059669]'
+              : 'hover:bg-[#6b7280]'
           }`}
+          style={{
+            backgroundColor: loadingVisits ? '#e5e7eb' : visited ? '#10b981' : '#9ca3af',
+            color: loadingVisits ? '#6b7280' : visited ? '#ffffff' : '#000000'
+          }}
           title={
             loadingVisits
               ? 'Carregando status de visita...'
@@ -82,7 +86,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
         >
           {loadingVisits ? (
             <>
-              <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
+              <div className="h-4 w-4 rounded-full border-2 border-[var(--gray-400)] border-t-transparent animate-spin" />
               <span className="text-xs font-medium hidden sm:inline">Carregando</span>
             </>
           ) : visited ? (

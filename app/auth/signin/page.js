@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff, Mail, Lock, LogIn, ChefHat, Sparkles, Utensils, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, LogIn, ChefHat, Sparkles, Utensils } from 'lucide-react';
 import { authLogger } from '@/utils/authLogger';
 
 function SignInForm() {
@@ -35,7 +35,6 @@ function SignInForm() {
     try {
       const { error, session, user } = await signIn(email, password);
 
-      // Log the sign-in attempt for debugging
       authLogger.log({
         type: 'session_start',
         timestamp: Date.now(),
@@ -63,28 +62,20 @@ function SignInForm() {
 
       setIsLoading(false);
 
-      // Check if toast was already shown in this session
       const toastShown = sessionStorage.getItem('loginToastShown');
       if (!toastShown) {
-        // Show success toast
         toast.success('Login realizado com sucesso!');
-        // Mark that toast was shown
         sessionStorage.setItem('loginToastShown', 'true');
       }
       
-      // Use router.back() to return to the previous page
-      // This is more reliable than using returnTo parameter
       try {
-        // Check if there's history to go back to
         if (window.history.length > 1) {
           router.back();
         } else {
-          // Fallback to restaurants page if no history
           router.push('/restaurants');
         }
       } catch (redirectError) {
         console.error('Redirect error:', redirectError);
-        // Final fallback in case router.back() fails
         router.push('/restaurants');
       }
     } catch (signUpError) {
@@ -109,17 +100,18 @@ function SignInForm() {
 
       <div className="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-md w-full space-y-8">
+          {/* Header */}
           <div className="text-center">
             <div className="mx-auto h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center shadow-lg mb-6">
               <LogIn className="h-8 w-8 sm:h-10 sm:w-10 text-amber-600" />
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
               Bem-vindo de volta!
             </h2>
-            <p className="text-lg text-gray-600 mb-6">
+            <p className="text-lg text-foreground-secondary mb-6">
               Continue organizando suas experiências gastronômicas
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-foreground-muted">
               Ou{' '}
               <Link
                 href="/auth/signup"
@@ -130,9 +122,11 @@ function SignInForm() {
             </p>
           </div>
 
+          {/* Form */}
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 shadow-2xl border border-amber-100/50">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 shadow-xl border border-amber-100/50">
               <div className="space-y-4">
+                {/* Email */}
                 <div>
                   <label htmlFor="email" className="sr-only">
                     Email
@@ -147,13 +141,15 @@ function SignInForm() {
                       type="email"
                       autoComplete="email"
                       required
-                      className="appearance-none relative block w-full pl-12 pr-4 py-3 border border-amber-200 placeholder-amber-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white/50 backdrop-blur-sm transition-all duration-200"
+                      className="appearance-none relative block w-full pl-12 pr-4 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px]"
                       placeholder="Endereço de email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                 </div>
+
+                {/* Password */}
                 <div>
                   <label htmlFor="password" className="sr-only">
                     Senha
@@ -168,7 +164,7 @@ function SignInForm() {
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
                       required
-                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-amber-200 placeholder-amber-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 bg-white/50 backdrop-blur-sm transition-all duration-200"
+                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px]"
                       placeholder="Sua senha"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -176,8 +172,9 @@ function SignInForm() {
                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
                       <button
                         type="button"
-                        className="text-amber-500 hover:text-amber-700 focus:outline-none transition-colors duration-200"
+                        className="text-amber-500 hover:text-amber-700 focus:outline-none transition-colors duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
                         onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                       >
                         {showPassword ? (
                           <EyeOff className="h-5 w-5" />
@@ -190,6 +187,7 @@ function SignInForm() {
                 </div>
               </div>
 
+              {/* Forgot password link */}
               <div className="flex items-center justify-between mt-6">
                 <div className="text-sm">
                   <Link
@@ -201,11 +199,12 @@ function SignInForm() {
                 </div>
               </div>
 
+              {/* Submit button */}
               <div className="mt-6">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 min-h-[48px]"
                 >
                   {isLoading ? (
                     <div className="flex items-center">
@@ -231,7 +230,7 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">A carregar...</div>}>
       <SignInForm />
     </Suspense>
   );

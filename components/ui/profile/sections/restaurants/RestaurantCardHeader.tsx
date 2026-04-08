@@ -56,21 +56,21 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   // Get color class based on price level
   const getPriceColorClass = (level: number): string => {
     switch(level) {
-      case 1: return 'text-amber-400';
-      case 2: return 'text-amber-500';
-      case 3: return 'text-amber-600';
-      case 4: return 'text-amber-800';
-      default: return 'text-amber-400';
+      case 1: return 'text-primary';
+      case 2: return 'text-primary';
+      case 3: return 'text-primary-hover';
+      case 4: return 'text-primary-dark';
+      default: return 'text-primary';
     }
   };
 
   const getPriceLabelClass = (level: number): string => {
     switch(level) {
-      case 1: return 'text-amber-400 font-bold';
-      case 2: return 'text-amber-500 font-bold';
-      case 3: return 'text-amber-600 font-bold';
-      case 4: return 'text-amber-800 font-bold';
-      default: return 'text-amber-400 font-medium';
+      case 1: return 'text-primary font-bold';
+      case 2: return 'text-primary font-bold';
+      case 3: return 'text-primary-hover font-bold';
+      case 4: return 'text-primary-dark font-bold';
+      default: return 'text-primary font-medium';
     }
   };
 

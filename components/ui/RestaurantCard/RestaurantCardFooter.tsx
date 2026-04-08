@@ -35,16 +35,16 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
                   key={i}
                   className={`h-3 w-3 ${
                     i < Math.floor(restaurant.rating || 0)
-                      ? 'text-amber-400 fill-current'
-                      : 'text-gray-300'
+                      ? 'text-primary fill-current'
+                      : 'text-[var(--gray-300)]'
                   }`}
                 />
               ))}
-              <span className="font-semibold text-sm text-amber-700 ml-1">
+              <span className="font-semibold text-sm text-[var(--primary-dark)] ml-1">
                 {(restaurant.rating || 0).toFixed(1)}
               </span>
             </div>
-            <div className="flex items-center text-gray-600 text-xs">
+            <div className="flex items-center text-[var(--foreground-secondary)] text-xs">
               <span className="font-medium">{restaurant.review_count}</span>
               <span className="ml-1">{restaurant.review_count === 1 ? 'avaliação' : 'avaliações'}</span>
             </div>
@@ -64,14 +64,14 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
               else label = 'Luxo';
               
               return (
-                <span className="text-xs text-amber-400 font-bold">
+                <span className="text-xs text-primary font-bold">
                   {label}
                 </span>
               );
             })()}
             
             {/* Price Value */}
-            <span className="text-amber-600 font-semibold text-sm">
+            <span className="text-primary-hover font-semibold text-sm">
               €{restaurant.price_per_person.toFixed(2)}
             </span>
           </div>
@@ -80,14 +80,14 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
 
       {/* Description */}
       {getDescriptionPreview(restaurant.description) && (
-        <p className={`text-gray-600 mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>
+        <p className={`text-[var(--foreground-secondary)] mt-2 line-clamp-2 text-sm sm:text-base ${centered ? 'text-center' : ''}`}>
           {getDescriptionPreview(restaurant.description)}
         </p>
       )}
       
       {/* Location */}
       {restaurant.location && (
-        <div className={`flex items-center text-gray-500 text-xs sm:text-sm mt-2 line-clamp-1 ${centered ? 'justify-center' : ''}`}>
+        <div className={`flex items-center text-[var(--foreground-muted)] text-xs sm:text-sm mt-2 line-clamp-1 ${centered ? 'justify-center' : ''}`}>
           <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
           <span className="truncate">{restaurant.location}</span>
         </div>
@@ -95,7 +95,7 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
       
       {/* Creator */}
       {restaurant.creator_name && (
-        <div className={`mt-2 text-xs text-gray-500 ${centered ? 'text-center' : ''}`}>
+        <div className={`mt-2 text-xs text-[var(--foreground-muted)] ${centered ? 'text-center' : ''}`}>
           Adicionado por: {restaurant.creator_name}
         </div>
       )}

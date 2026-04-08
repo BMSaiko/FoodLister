@@ -60,7 +60,8 @@ const RouletteBanner = () => {
           <div className="mt-2">
             <Link
               href="/restaurants/roulette"
-              className="inline-flex items-center px-8 py-4 bg-white text-amber-600 font-semibold rounded-lg hover:bg-amber-50 active:bg-amber-100 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-lg"
+              className="inline-flex items-center px-8 py-4 bg-white font-bold rounded-lg hover:bg-amber-50 active:bg-amber-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 text-lg"
+              style={{ color: '#b45309' }}
             >
               <ChefHat className="h-5 w-5 mr-2" />
               Gire a Roleta

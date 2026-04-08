@@ -105,8 +105,8 @@ export default function ScrollToTopButton({
         xl:flex
         w-14
         h-14
-        bg-amber-500
-        hover:bg-amber-600
+        bg-primary
+        hover:bg-primary-hover
         text-white
         rounded-full
         shadow-lg
@@ -119,7 +119,7 @@ export default function ScrollToTopButton({
         hover:shadow-xl
         focus:outline-none
         focus:ring-4
-        focus:ring-amber-300
+        focus:ring-primary
         ${className}
       `}
     >

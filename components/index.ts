@@ -16,3 +16,9 @@ export { default as DietaryOptionsSelector } from './ui/Filters/DietaryOptionsSe
 export { default as DualRangeSlider } from './ui/Filters/DualRangeSlider';
 export { default as FeaturesSelector } from './ui/Filters/FeaturesSelector';
 export { default as ReviewCardActions } from './ui/profile/sections/reviews/ReviewCardActions';
+
+// Base UI components
+export { Card, CardImage, CardContent, CardHeader, CardFooter } from './ui/Card';
+export { PageHeader } from './ui/PageHeader';
+export { Container } from './ui/Container';
+export { FormField, FormInput, FormTextarea, FormSelect } from './ui/FormField';

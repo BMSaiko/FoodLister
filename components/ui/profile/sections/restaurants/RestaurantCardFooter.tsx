@@ -33,11 +33,11 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
   // Get color class based on price level
   const getPriceColorClass = (level: number): string => {
     switch(level) {
-      case 1: return 'text-amber-400';
-      case 2: return 'text-amber-500';
-      case 3: return 'text-amber-600';
-      case 4: return 'text-amber-800';
-      default: return 'text-amber-400';
+      case 1: return 'text-primary';
+      case 2: return 'text-primary';
+      case 3: return 'text-primary-hover';
+      case 4: return 'text-primary-dark';
+      default: return 'text-primary';
     }
   };
 

@@ -16,9 +16,9 @@ import { FilterStats } from '@/components/ui/Filters/FilterStats';
 // Component para mostrar loading
 function RestaurantsLoading() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div className="grid-responsive">
       {Array(6).fill(0).map((_, index) => (
-        <div key={index} className="bg-white rounded-xl shadow-md h-56 sm:h-64 md:h-72 animate-pulse" />
+        <div key={index} className="card h-56 sm:h-64 md:h-72 skeleton" />
       ))}
     </div>
   );
@@ -138,7 +138,7 @@ function RestaurantsContent({ showHeader = true }) {
 export default function RestaurantsList({ showHeader = true }) {
   return (
     <FiltersProvider>
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <div className="container-main py-4 sm:py-6 lg:py-8">
         <Suspense fallback={<RestaurantsLoading />}>
           <RestaurantsContent showHeader={showHeader} />
         </Suspense>

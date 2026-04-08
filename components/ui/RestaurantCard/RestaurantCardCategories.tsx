@@ -23,7 +23,7 @@ const RestaurantCardCategories: React.FC<RestaurantCardCategoriesProps> = ({
       {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
         <div className={`flex flex-wrap gap-1 ${centered ? 'justify-center' : ''}`}>
           {restaurant.cuisine_types.map(type => (
-            <span key={type.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-amber-100 text-amber-800">
+            <span key={type.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-[var(--primary-lighter)] text-[var(--primary-dark)]">
               <Tag className="h-3 w-3 mr-1" />
               {type.name}
             </span>
@@ -35,13 +35,13 @@ const RestaurantCardCategories: React.FC<RestaurantCardCategoriesProps> = ({
       {restaurant.dietary_options && restaurant.dietary_options.length > 0 && (
         <div className={`flex flex-wrap gap-1 ${centered ? 'justify-center' : ''}`}>
           {restaurant.dietary_options.slice(0, 3).map(option => (
-            <span key={option.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800">
+            <span key={option.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-[var(--success-light)] text-[var(--success)]">
               <span className="mr-1 text-sm">{option.icon || '🥗'}</span>
               {option.name}
             </span>
           ))}
           {restaurant.dietary_options.length > 3 && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-[var(--gray-100)] text-[var(--gray-600)]">
               +{restaurant.dietary_options.length - 3}
             </span>
           )}
@@ -52,13 +52,13 @@ const RestaurantCardCategories: React.FC<RestaurantCardCategoriesProps> = ({
       {restaurant.features && restaurant.features.length > 0 && (
         <div className={`flex flex-wrap gap-1 ${centered ? 'justify-center' : ''}`}>
           {restaurant.features.slice(0, 3).map(feature => (
-            <span key={feature.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">
+            <span key={feature.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-[var(--info-light)] text-[var(--info)]">
               <span className="mr-1 text-sm">{feature.icon || '⭐'}</span>
               {feature.name}
             </span>
           ))}
           {restaurant.features.length > 3 && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-[var(--gray-100)] text-[var(--gray-600)]">
               +{restaurant.features.length - 3}
             </span>
           )}

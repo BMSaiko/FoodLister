@@ -54,8 +54,8 @@ export default function RestaurantInfoSection({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-4">
-      <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+    <div className="bg-[var(--card-bg)] rounded-xl shadow-lg border border-[var(--card-border)] p-4 sm:p-6 mb-4">
+      <h3 className="text-base sm:text-lg font-semibold text-[var(--foreground)] mb-3 sm:mb-4 flex items-center">
         <span className="mr-2">📋</span>
         Informações do Restaurante
       </h3>
@@ -64,17 +64,17 @@ export default function RestaurantInfoSection({
         {/* Location - Available for all users */}
         {location && (
           <div
-            className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl border border-blue-200 hover:bg-blue-100 active:bg-blue-200 transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
+            className="flex items-center p-2 sm:p-4 bg-[var(--info-light)] rounded-lg sm:rounded-xl border border-[var(--info-light)] hover:bg-[var(--info-light)]/70 active:bg-[var(--info-light)] transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
             onClick={() => openMapModal({ location, latitude, longitude })}
           >
             <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-4">
-              <MapPin className="h-4 w-4 sm:h-5 w-5 text-blue-600" />
+              <MapPin className="h-4 w-4 sm:h-5 w-5 text-[var(--info)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs sm:text-sm font-medium text-gray-800 mb-1">Localização</div>
-              <p className="text-xs sm:text-sm text-gray-600 truncate">{location}</p>
+              <div className="text-xs sm:text-sm font-medium text-[var(--foreground)] mb-1">Localização</div>
+              <p className="text-xs sm:text-sm text-[var(--foreground-secondary)] truncate">{location}</p>
             </div>
-            <div className="flex-shrink-0 text-blue-600 text-xs sm:text-sm font-medium">
+            <div className="flex-shrink-0 text-[var(--info)] text-xs sm:text-sm font-medium">
               Abrir no mapa
             </div>
           </div>
@@ -83,8 +83,8 @@ export default function RestaurantInfoSection({
         {/* Phone Numbers */}
         {phoneNumbers.length > 0 && (
           <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center text-gray-700 text-xs sm:text-sm font-medium mb-1 sm:mb-2">
-              <Phone className="h-3 w-3 sm:h-4 w-4 mr-1 sm:mr-2 text-amber-500" />
+            <div className="flex items-center text-[var(--foreground-secondary)] text-xs sm:text-sm font-medium mb-1 sm:mb-2">
+              <Phone className="h-3 w-3 sm:h-4 w-4 mr-1 sm:mr-2 text-primary" />
               Telefones para contato
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
@@ -95,25 +95,25 @@ export default function RestaurantInfoSection({
                 return (
                   <div
                     key={index}
-                    className="flex items-center p-2 sm:p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200 hover:border-amber-300 transition-all duration-200 group hover:shadow-md"
+                    className="flex items-center p-2 sm:p-3 bg-[var(--background-secondary)] rounded-lg border border-[var(--card-border)] hover:border-primary transition-all duration-200 group hover:shadow-md"
                   >
                     <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-3 group-hover:scale-110 transition-transform duration-200">
-                      <PhoneIcon className="h-3 w-3 sm:h-4 w-4 text-amber-500" />
+                      <PhoneIcon className="h-3 w-3 sm:h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-medium text-gray-700">{phone}</span>
-                        <span className="text-xs text-gray-500 bg-amber-100 px-1 sm:px-2 py-0.5 rounded-full">
+                        <span className="text-xs sm:text-sm font-medium text-[var(--foreground-secondary)]">{phone}</span>
+                        <span className="text-xs text-[var(--foreground-muted)] bg-[var(--primary-lighter)] px-1 sm:px-2 py-0.5 rounded-full">
                           {phoneType === 'mobile' ? 'móvel' : 'fixo'}
                         </span>
                       </div>
                     </div>
                     <a
                       href={`tel:${phone}`}
-                      className="ml-1 sm:ml-2 p-0.5 sm:p-1 hover:bg-amber-100 rounded-full transition-colors"
+                      className="ml-1 sm:ml-2 p-0.5 sm:p-1 hover:bg-[var(--primary-lighter)] rounded-full transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <svg className="h-3 w-3 sm:h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="h-3 w-3 sm:h-4 w-4 text-primary-hover" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
                     </a>
@@ -127,21 +127,21 @@ export default function RestaurantInfoSection({
         {/* Source URL */}
         {sourceUrl && (
           <div 
-            className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg sm:rounded-xl border border-purple-200 hover:bg-purple-100 active:bg-purple-200 transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
+            className="flex items-center p-2 sm:p-4 bg-[var(--background-secondary)] rounded-lg sm:rounded-xl border border-[var(--card-border)] hover:bg-[var(--background-tertiary)] active:bg-[var(--background-tertiary)] transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
             onClick={() => window.open(sourceUrl, '_blank', 'noopener,noreferrer')}
           >
             <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-4">
-              <Globe className="h-4 w-4 sm:h-5 w-5 text-purple-600" />
+              <Globe className="h-4 w-4 sm:h-5 w-5 text-[var(--foreground-muted)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs sm:text-sm font-medium text-gray-800 mb-1">Fonte Original</div>
-              <p className="text-xs sm:text-sm text-gray-600 truncate">{sourceUrl}</p>
+              <div className="text-xs sm:text-sm font-medium text-[var(--foreground)] mb-1">Fonte Original</div>
+              <p className="text-xs sm:text-sm text-[var(--foreground-secondary)] truncate">{sourceUrl}</p>
             </div>
             <a 
               href={sourceUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-purple-600 hover:text-purple-800 hover:underline text-xs sm:text-sm font-medium"
+              className="text-primary hover:text-primary-hover hover:underline text-xs sm:text-sm font-medium"
               onClick={(e) => e.stopPropagation()}
             >
               Visitar site
@@ -152,24 +152,24 @@ export default function RestaurantInfoSection({
         {/* Menu Links */}
         {menuLinks.length > 0 && (
           <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center text-gray-700 text-xs sm:text-sm font-medium">
-              <Globe className="h-3 w-3 sm:h-4 w-4 mr-1 sm:mr-2 text-amber-500" />
+            <div className="flex items-center text-[var(--foreground-secondary)] text-xs sm:text-sm font-medium">
+              <Globe className="h-3 w-3 sm:h-4 w-4 mr-1 sm:mr-2 text-primary" />
               Links de Menus ({menuLinks.length})
             </div>
             <div className="space-y-1 sm:space-y-2">
               {menuLinks.map((link, index) => (
                 <div
                   key={index}
-                  className="flex items-center p-2 sm:p-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200 hover:bg-amber-100 active:bg-amber-200 transition-all duration-200 cursor-pointer min-h-[44px] sm:min-h-[56px]"
+                  className="flex items-center p-2 sm:p-3 bg-[var(--primary-lighter)] rounded-lg border border-primary hover:bg-[var(--primary-light)] transition-all duration-200 cursor-pointer min-h-[44px] sm:min-h-[56px]"
                   onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}
                 >
                   <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-3">
-                    <FileText className="h-3 w-3 sm:h-4 w-4 text-amber-600" />
+                    <FileText className="h-3 w-3 sm:h-4 w-4 text-primary-hover" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm text-gray-700 truncate">{link}</p>
+                    <p className="text-xs sm:text-sm text-[var(--foreground-secondary)] truncate">{link}</p>
                   </div>
-                  <span className="text-amber-600 hover:text-amber-800 hover:underline text-xs sm:text-sm font-medium ml-1 sm:ml-2">
+                  <span className="text-primary hover:text-primary-hover hover:underline text-xs sm:text-sm font-medium ml-1 sm:ml-2">
                     Ver menu
                   </span>
                 </div>

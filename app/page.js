@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Star, MapPin, List, Shuffle, Users, Award, ChevronRight, Sparkles, ChefHat, Utensils, Apple, Coffee, Wine } from 'lucide-react';
+import { Container } from '@/components/ui/Container';
 
 export default function Home() {
   const [isVisible, setIsVisible] = useState(false);
@@ -33,57 +34,59 @@ export default function Home() {
         <div className={`absolute bottom-20 right-1/3 w-3 h-3 sm:w-4 sm:h-4 bg-orange-600 rounded-full opacity-65 animate-pulse transition-all duration-1000 delay-1100 hidden sm:block ${isVisible ? 'scale-100 opacity-65' : 'scale-0 opacity-0'}`}></div>
         <MapPin className={`absolute top-1/2 left-5 w-5 h-5 sm:w-6 sm:h-6 text-amber-700 opacity-50 animate-bounce transition-all duration-1000 delay-1300 hidden sm:block ${isVisible ? 'translate-x-0 opacity-50' : '-translate-x-5 opacity-0'}`} />
       </div>
+
       {/* Hero Section */}
-      <section className="pt-12 pb-16 px-4 sm:pt-16 sm:pb-20 sm:px-6 lg:px-8 relative">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className={`transition-all duration-1000 ${heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
-              <span className="inline-block animate-fade-in-up">Organize seus</span><br />
-              <span className="text-amber-500 inline-block animate-fade-in-up animation-delay-300 bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
-                restaurantes favoritos
-              </span>
-            </h1>
-            <p className={`text-lg xs:text-xl sm:text-2xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto transition-all duration-1000 delay-500 ${heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} px-2 sm:px-0`}>
-              Descubra, organize e avalie seus restaurantes preferidos.
-              <span className="font-semibold text-amber-600"> Crie listas personalizadas</span> e nunca mais esqueça um lugar incrível.
-            </p>
+      <section className="pt-12 pb-16 sm:pt-16 sm:pb-20 relative">
+        <Container>
+          <div className="text-center">
+            <div className={`transition-all duration-1000 ${heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+              <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
+                <span className="inline-block animate-fade-in-up">Organize seus</span><br />
+                <span className="text-amber-500 inline-block animate-fade-in-up animation-delay-300 bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
+                  restaurantes favoritos
+                </span>
+              </h1>
+              <p className={`text-lg xs:text-xl sm:text-2xl text-foreground-secondary mb-6 sm:mb-8 max-w-3xl mx-auto transition-all duration-1000 delay-500 ${heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} px-2 sm:px-0`}>
+                Descubra, organize e avalie seus restaurantes preferidos.
+                <span className="font-semibold text-amber-600"> Crie listas personalizadas</span> e nunca mais esqueça um lugar incrível.
+              </p>
+            </div>
+            <div className={`flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center transition-all duration-1000 delay-700 ${heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} px-4 sm:px-0`}>
+              <Link
+                href="/auth/signup"
+                className="group bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-4 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden min-h-[48px] sm:min-h-[52px] flex items-center justify-center"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  Começar Agora
+                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              </Link>
+              <Link
+                href="/restaurants"
+                className="group bg-white/80 backdrop-blur-sm hover:bg-white text-foreground px-6 py-4 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg border-2 border-gray-200 hover:border-amber-300 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden min-h-[48px] sm:min-h-[52px] flex items-center justify-center"
+              >
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  Explorar Restaurantes
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:rotate-12" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-50 to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </Link>
+            </div>
           </div>
-          <div className={`flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center transition-all duration-1000 delay-700 ${heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'} px-4 sm:px-0`}>
-            <Link
-              href="/auth/signup"
-              className="group bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6 py-4 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden min-h-[48px] flex items-center justify-center"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Começar Agora
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-            </Link>
-            <Link
-              href="/restaurants"
-              className="group bg-white/80 backdrop-blur-sm hover:bg-white text-gray-900 px-6 py-4 sm:px-8 sm:py-4 rounded-xl font-semibold text-base sm:text-lg border-2 border-gray-200 hover:border-amber-300 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden min-h-[48px] flex items-center justify-center"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Explorar Restaurantes
-                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:rotate-12" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-amber-50 to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </Link>
-          </div>
-        </div>
+        </Container>
 
         {/* Animated background shapes */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <div className={`absolute top-1/4 left-1/4 w-32 h-32 bg-amber-400/60 rounded-full blur-xl animate-float transition-all duration-1000 shadow-2xl ${heroVisible ? 'opacity-60' : 'opacity-0'}`}></div>
           <div className={`absolute bottom-1/4 right-1/4 w-24 h-24 bg-orange-500/70 rounded-full blur-lg animate-float-delayed transition-all duration-1000 delay-300 shadow-xl ${heroVisible ? 'opacity-70' : 'opacity-0'}`}></div>
-          {/* Additional background elements with better contrast */}
           <div className={`absolute top-1/2 right-1/2 w-20 h-20 bg-yellow-400/50 rounded-full blur-md animate-pulse transition-all duration-1000 delay-500 ${heroVisible ? 'opacity-50' : 'opacity-0'}`}></div>
           <div className={`absolute bottom-1/2 left-1/2 w-16 h-16 bg-amber-500/55 rounded-full blur-lg animate-bounce transition-all duration-1000 delay-700 ${heroVisible ? 'opacity-55' : 'opacity-0'}`}></div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 px-4 sm:py-20 sm:px-6 lg:px-8 bg-white relative overflow-hidden">
+      <section className="py-16 sm:py-20 bg-white relative overflow-hidden">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -91,9 +94,9 @@ export default function Home() {
           }}></div>
         </div>
 
-        <div className="max-w-7xl mx-auto relative">
-          <div className={`text-center mb-12 sm:mb-16 transition-all duration-1000 ${featuresVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'} px-2 sm:px-0`}>
-            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+        <Container>
+          <div className={`text-center mb-12 sm:mb-16 transition-all duration-1000 ${featuresVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-foreground mb-3 sm:mb-4">
               Tudo que você precisa para organizar sua
               <span className="text-amber-500 block sm:inline"> experiência gastronômica</span>
             </h2>
@@ -141,7 +144,7 @@ export default function Home() {
             ].map((feature, index) => (
               <div
                 key={index}
-                className={`group text-center p-8 rounded-2xl bg-gradient-to-br from-white to-amber-50/50 border border-amber-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 cursor-pointer relative overflow-hidden ${featuresVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
+                className={`group text-center p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-white to-amber-50/50 border border-amber-100/50 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 cursor-pointer relative overflow-hidden ${featuresVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
                 style={{ transitionDelay: `${feature.delay}ms` }}
               >
                 {/* Hover background effect */}
@@ -152,11 +155,11 @@ export default function Home() {
                 <div className="absolute bottom-4 left-4 w-1 h-1 bg-orange-300 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 delay-200 transform -translate-x-2 group-hover:translate-x-0"></div>
 
                 <div className="relative z-10">
-                  <div className="w-20 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                    <feature.icon className="h-10 w-10 text-amber-500 group-hover:text-orange-500 transition-colors duration-300" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                    <feature.icon className="h-8 w-8 sm:h-10 sm:w-10 text-amber-500 group-hover:text-orange-500 transition-colors duration-300" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-amber-700 transition-colors duration-300">{feature.title}</h3>
-                  <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">{feature.description}</p>
+                  <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 group-hover:text-amber-700 transition-colors duration-300">{feature.title}</h3>
+                  <p className="text-foreground-secondary leading-relaxed group-hover:text-foreground transition-colors duration-300 text-sm sm:text-base">{feature.description}</p>
                 </div>
 
                 {/* Shine effect */}
@@ -166,18 +169,17 @@ export default function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 px-4 sm:py-20 sm:px-6 lg:px-8 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 relative overflow-hidden">
-        {/* Animated background elements with better contrast - reduced for mobile */}
+      <section className="py-16 sm:py-20 bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 relative overflow-hidden">
+        {/* Animated background elements - hidden on mobile for performance */}
         <div className="absolute inset-0 hidden sm:block">
           <div className="absolute top-10 left-10 w-16 h-16 bg-yellow-200/35 rounded-full animate-float shadow-lg"></div>
           <div className="absolute top-20 right-20 w-12 h-12 bg-orange-300/40 rounded-full animate-float-delayed shadow-md"></div>
           <div className="absolute bottom-20 left-1/4 w-20 h-20 bg-amber-200/30 rounded-full animate-pulse shadow-lg"></div>
           <div className="absolute bottom-10 right-1/3 w-14 h-14 bg-red-300/35 rounded-full animate-bounce shadow-md"></div>
-          {/* Additional high-contrast elements */}
           <div className="absolute top-1/4 left-1/2 w-8 h-8 bg-yellow-300/45 rounded-full animate-ping shadow-lg"></div>
           <ChefHat className="absolute top-1/3 left-1/4 w-6 h-6 text-yellow-200 opacity-60 animate-bounce drop-shadow-lg" />
           <Apple className="absolute bottom-1/4 right-1/4 w-5 h-5 text-orange-200 opacity-65 animate-bounce drop-shadow-md" />
@@ -186,61 +188,63 @@ export default function Home() {
           <div className="absolute bottom-1/2 right-2/3 w-9 h-9 bg-yellow-400/40 rounded-full animate-float-delayed shadow-md"></div>
         </div>
 
-        <div className="max-w-4xl mx-auto text-center text-white relative z-10 px-2 sm:px-0">
-          <div className="animate-fade-in-up">
-            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 drop-shadow-lg">
-              Nunca mais esqueça um restaurante
-              <span className="text-yellow-200 block sm:inline"> incrível</span>
-            </h2>
-            <p className="text-lg xs:text-xl mb-8 sm:mb-12 opacity-95 drop-shadow-md max-w-2xl mx-auto leading-relaxed">
-              Com o FoodLister, você tem todas as suas experiências gastronômicas organizadas
-              e acessíveis a qualquer momento. Encontre facilmente aquele restaurante perfeito
-              para cada ocasião.
-            </p>
-          </div>
+        <Container>
+          <div className="text-center text-white relative z-10">
+            <div className="animate-fade-in-up">
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 drop-shadow-lg">
+                Nunca mais esqueça um restaurante
+                <span className="text-yellow-200 block sm:inline"> incrível</span>
+              </h2>
+              <p className="text-lg xs:text-xl mb-8 sm:mb-12 opacity-95 drop-shadow-md max-w-2xl mx-auto leading-relaxed">
+                Com o FoodLister, você tem todas as suas experiências gastronômicas organizadas
+                e acessíveis a qualquer momento. Encontre facilmente aquele restaurante perfeito
+                para cada ocasião.
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
-            {[
-              { icon: '∞', text: 'Restaurantes ilimitados', delay: 0, bgColor: 'from-yellow-400/20 to-amber-400/20' },
-              { icon: '📱', text: 'Acesso em qualquer dispositivo', delay: 200, bgColor: 'from-orange-400/25 to-red-400/25' },
-              { icon: '🔒', text: 'Seus dados sempre seguros', delay: 400, bgColor: 'from-amber-400/20 to-orange-400/20' }
-            ].map((benefit, index) => (
-              <div
-                key={index}
-                className={`group bg-gradient-to-br ${benefit.bgColor} backdrop-blur-sm rounded-2xl p-8 border border-white/30 hover:border-white/50 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 shadow-2xl hover:shadow-3xl relative overflow-hidden`}
-                style={{ animationDelay: `${benefit.delay}ms` }}
-              >
-                {/* Enhanced background effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
+              {[
+                { icon: '∞', text: 'Restaurantes ilimitados', delay: 0, bgColor: 'from-yellow-400/20 to-amber-400/20' },
+                { icon: '📱', text: 'Acesso em qualquer dispositivo', delay: 200, bgColor: 'from-orange-400/25 to-red-400/25' },
+                { icon: '🔒', text: 'Seus dados sempre seguros', delay: 400, bgColor: 'from-amber-400/20 to-orange-400/20' }
+              ].map((benefit, index) => (
+                <div
+                  key={index}
+                  className={`group bg-gradient-to-br ${benefit.bgColor} backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-white/30 hover:border-white/50 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 shadow-xl hover:shadow-2xl relative overflow-hidden`}
+                  style={{ animationDelay: `${benefit.delay}ms` }}
+                >
+                  {/* Enhanced background effect on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
 
-                <div className="relative z-10">
-                  <div className="text-5xl mb-4 animate-pulse group-hover:animate-bounce transition-all duration-300 drop-shadow-lg">
-                    {benefit.icon}
+                  <div className="relative z-10">
+                    <div className="text-4xl sm:text-5xl mb-3 sm:mb-4 animate-pulse group-hover:animate-bounce transition-all duration-300 drop-shadow-lg">
+                      {benefit.icon}
+                    </div>
+                    <p className="text-base sm:text-lg font-semibold drop-shadow-md group-hover:text-yellow-200 transition-colors duration-300">
+                      {benefit.text}
+                    </p>
                   </div>
-                  <p className="text-lg font-semibold drop-shadow-md group-hover:text-yellow-200 transition-colors duration-300">
-                    {benefit.text}
-                  </p>
-                </div>
 
-                {/* Enhanced hover effect particles */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                  <div className="absolute top-2 right-2 w-1 h-1 bg-yellow-200 rounded-full animate-ping shadow-lg"></div>
-                  <div className="absolute bottom-2 left-2 w-1 h-1 bg-yellow-200 rounded-full animate-ping animation-delay-300 shadow-lg"></div>
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-orange-200 rounded-full animate-pulse shadow-md"></div>
-                </div>
+                  {/* Enhanced hover effect particles */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <div className="absolute top-2 right-2 w-1 h-1 bg-yellow-200 rounded-full animate-ping shadow-lg"></div>
+                    <div className="absolute bottom-2 left-2 w-1 h-1 bg-yellow-200 rounded-full animate-ping animation-delay-300 shadow-lg"></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-orange-200 rounded-full animate-pulse shadow-md"></div>
+                  </div>
 
-                {/* Shine effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4 sm:py-20 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
+      <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
         {/* Enhanced animated background particles - optimized for mobile */}
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-amber-400 rounded-full opacity-60 animate-pulse shadow-lg"></div>
@@ -261,44 +265,44 @@ export default function Home() {
           <div className="absolute bottom-1/4 right-1/3 w-6 h-6 bg-gradient-to-r from-orange-400 to-red-400 rounded-full opacity-25 animate-float-delayed blur-sm hidden sm:block"></div>
         </div>
 
-        <div className="max-w-4xl mx-auto text-center relative z-10 px-2 sm:px-0">
-          <div className="animate-fade-in-up">
-            <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 drop-shadow-lg">
-              Pronto para começar sua
-              <span className="text-amber-400 block sm:inline"> jornada gastronômica</span>?
-            </h2>
-            <p className="text-lg xs:text-xl mb-6 sm:mb-8 opacity-90 drop-shadow-md max-w-2xl mx-auto leading-relaxed">
-              Junte-se a milhares de usuários que já organizam suas experiências culinárias conosco.
-              <span className="text-amber-300 font-semibold"> Comece agora mesmo!</span>
-            </p>
-          </div>
+        <Container>
+          <div className="text-center relative z-10">
+            <div className="animate-fade-in-up">
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl font-bold mb-4 sm:mb-6 drop-shadow-lg">
+                Pronto para começar sua
+                <span className="text-amber-400 block sm:inline"> jornada gastronômica</span>?
+              </h2>
+              <p className="text-lg xs:text-xl mb-6 sm:mb-8 opacity-90 drop-shadow-md max-w-2xl mx-auto leading-relaxed">
+                Junte-se a milhares de usuários que já organizam suas experiências culinárias conosco.
+                <span className="text-amber-300 font-semibold"> Comece agora mesmo!</span>
+              </p>
+            </div>
 
-          <div className="animate-fade-in-up animation-delay-300">
-            <Link
-              href="/auth/signup"
-              className="group bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:from-amber-400 hover:via-orange-400 hover:to-red-400 text-white px-8 py-4 sm:px-10 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 hover:scale-110 relative overflow-hidden inline-block min-h-[52px] sm:min-h-[60px]"
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
+            <div className="animate-fade-in-up animation-delay-300">
+              <Link
+                href="/auth/signup"
+                className="group bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:from-amber-400 hover:via-orange-400 hover:to-red-400 text-white px-8 py-4 sm:px-10 sm:py-5 rounded-2xl font-bold text-lg sm:text-xl transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 hover:scale-105 relative overflow-hidden inline-flex items-center justify-center gap-2 sm:gap-3 min-h-[52px] sm:min-h-[60px]"
+              >
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 transition-transform group-hover:rotate-12" />
                 Criar Conta Gratuita
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 transition-transform group-hover:-rotate-12" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-amber-400 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
-              {/* Ripple effect */}
-              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute inset-0 rounded-2xl border-2 border-white/50 animate-ping"></div>
-                <div className="absolute inset-0 rounded-2xl border-2 border-white/50 animate-ping animation-delay-200"></div>
-              </div>
-            </Link>
-          </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-amber-400 opacity-0 group-hover:opacity-30 transition-opacity duration-300"></div>
+                {/* Ripple effect */}
+                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute inset-0 rounded-2xl border-2 border-white/50 animate-ping"></div>
+                  <div className="absolute inset-0 rounded-2xl border-2 border-white/50 animate-ping animation-delay-200"></div>
+                </div>
+              </Link>
+            </div>
 
-          {/* Additional encouragement */}
-          <div className="mt-6 sm:mt-8 animate-fade-in-up animation-delay-500">
-            <p className="text-amber-200 text-xs sm:text-sm opacity-75">
-              🎉 <strong>Grátis para sempre</strong> • Sem cartão de crédito • Comece em segundos
-            </p>
+            {/* Additional encouragement */}
+            <div className="mt-6 sm:mt-8 animate-fade-in-up animation-delay-500">
+              <p className="text-amber-200 text-xs sm:text-sm opacity-75">
+                🎉 <strong>Grátis para sempre</strong> • Sem cartão de crédito • Comece em segundos
+              </p>
+            </div>
           </div>
-        </div>
+        </Container>
       </section>
     </div>
   );

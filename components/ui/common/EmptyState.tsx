@@ -19,7 +19,7 @@ export const EmptyState = React.memo<EmptyStateProps>(({ searchQuery }) => {
           <p className="text-gray-500 mb-6 text-sm sm:text-base">
             Não encontramos nenhum restaurante que corresponda a "{searchQuery}".
           </p>
-          <Link href="/restaurants" className="text-amber-600 hover:text-amber-800 font-medium">
+          <Link href="/restaurants" className="text-primary hover:text-primary-dark font-medium">
             Limpar pesquisa
           </Link>
         </div>
@@ -38,7 +38,7 @@ export const EmptyState = React.memo<EmptyStateProps>(({ searchQuery }) => {
         </p>
         <Link
           href="/restaurants/create"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-500 hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
           <Plus className="h-4 w-4 mr-2" />
           Adicionar Restaurante

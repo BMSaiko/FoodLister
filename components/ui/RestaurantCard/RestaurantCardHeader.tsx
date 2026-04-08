@@ -57,22 +57,22 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   // Get color class based on price level
   const getPriceColorClass = (level: number) => {
     switch(level) {
-      case 1: return 'text-amber-400';
-      case 2: return 'text-amber-500';
-      case 3: return 'text-amber-600';
-      case 4: return 'text-amber-800';
-      default: return 'text-amber-400';
+      case 1: return 'text-primary-light';
+      case 2: return 'text-primary';
+      case 3: return 'text-primary-hover';
+      case 4: return 'text-primary-dark';
+      default: return 'text-primary-light';
     }
   };
   
   // Classe para o texto do label - garantindo melhor legibilidade
   const getPriceLabelClass = (level: number) => {
     switch(level) {
-      case 1: return 'text-amber-400 font-bold';
-      case 2: return 'text-amber-500 font-bold';
-      case 3: return 'text-amber-600 font-bold';
-      case 4: return 'text-amber-800 font-bold';
-      default: return 'text-amber-400 font-medium';
+      case 1: return 'text-primary-light font-bold';
+      case 2: return 'text-primary font-bold';
+      case 3: return 'text-primary-hover font-bold';
+      case 4: return 'text-primary-dark font-bold';
+      default: return 'text-primary-light font-medium';
     }
   };
 
@@ -81,10 +81,10 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
 
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {
-    if (rating >= 4.5) return 'bg-green-100 text-green-700';
-    if (rating >= 3.5) return 'bg-amber-100 text-amber-700';
-    if (rating >= 2.5) return 'bg-yellow-100 text-yellow-700';
-    return 'bg-red-100 text-red-700';
+    if (rating >= 4.5) return 'bg-[var(--success-light)] text-[var(--success)]';
+    if (rating >= 3.5) return 'bg-[var(--primary-lighter)] text-[var(--primary-dark)]';
+    if (rating >= 2.5) return 'bg-[var(--warning-light)] text-[var(--warning)]';
+    return 'bg-[var(--error-light)] text-[var(--error)]';
   };
   
   const ratingStyle = getRatingStyle(restaurant.rating || 0);
@@ -109,6 +109,9 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
         <RestaurantImagePlaceholder />
       )}
 
+      {/* Dark overlay for image */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+      
       {/* Rating Badge */}
       <div className={`absolute top-3 left-3 px-2 py-1 rounded ${ratingStyle}`}>
         <div className="flex items-center gap-1">

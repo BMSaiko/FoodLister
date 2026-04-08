@@ -56,7 +56,7 @@ const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
         value={query}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        className="bg-gray-100 pl-3 pr-12 py-2.5 sm:py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-amber-300 text-base sm:text-sm min-h-[44px] sm:min-h-[40px] transition-colors"
+        className="bg-[var(--background-secondary)] pl-3 pr-12 py-2.5 sm:py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-primary text-base sm:text-sm min-h-[44px] sm:min-h-[40px] transition-colors"
         disabled={isSubmitting}
         autoComplete="off"
         autoCorrect="off"
@@ -70,8 +70,8 @@ const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
         disabled={isSubmitting || !query.trim()}
         className={`absolute right-3 top-1/2 transform -translate-y-1/2 transition-all duration-200 ${
           isSubmitting || !query.trim() 
-            ? 'text-gray-300 cursor-not-allowed' 
-            : 'text-gray-400 hover:text-amber-500 active:scale-95'
+            ? 'text-[var(--gray-300)] cursor-not-allowed' 
+            : 'text-primary hover:text-primary-hover active:scale-95'
         }`}
         aria-label="Buscar"
       >

@@ -72,9 +72,9 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
         <div className="container mx-auto px-4 py-8">
           <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
             <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-8 bg-[var(--background-tertiary)] rounded w-1/2"></div>
+              <div className="h-4 bg-[var(--background-tertiary)] rounded w-full"></div>
+              <div className="h-4 bg-[var(--background-tertiary)] rounded w-3/4"></div>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
       />
       
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Link href={backUrl} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
+        <Link href={backUrl} className="flex items-center text-primary mb-4 sm:mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
           {backLabel}
         </Link>

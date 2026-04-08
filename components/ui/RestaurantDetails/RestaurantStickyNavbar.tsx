@@ -121,7 +121,7 @@ export default function RestaurantStickyNavbar({
   };
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-[var(--card-bg)] border-t border-[var(--card-border)] shadow-lg z-50 md:hidden">
       <div className="max-w-md mx-auto px-4 py-2">
         {/* Scrollable container for all buttons */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
@@ -149,17 +149,17 @@ export default function RestaurantStickyNavbar({
           {/* Middle: Visit controls */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Visit Counter with Switch Button */}
-            <div className="flex items-center gap-2 bg-gradient-to-r from-amber-50 to-orange-50 rounded-full px-3 py-2 border border-amber-200">
+            <div className="flex items-center gap-2 bg-[var(--primary-lighter)] rounded-full px-3 py-2 border border-primary">
               {/* Switch Button replacing "Visitas" text */}
               <button
                 onClick={onToggleVisited}
                 disabled={isUpdating || loadingVisits}
                 className={`flex items-center gap-2 px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
                   loadingVisits
-                    ? 'bg-gray-200 text-gray-400 animate-pulse'
+                    ? 'bg-[var(--primary-light)] text-[var(--primary-hover)] animate-pulse'
                     : visited
-                    ? 'bg-green-500 text-white hover:bg-green-600'
-                    : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                    ? 'bg-[var(--success)] text-white hover:bg-[var(--success-hover)]'
+                    : 'bg-[var(--gray-300)] text-[var(--foreground-secondary)] hover:bg-[var(--gray-400)]'
                 } disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg`}
                 title={
                   loadingVisits
@@ -170,7 +170,7 @@ export default function RestaurantStickyNavbar({
                 }
               >
                 {loadingVisits ? (
-                  <div className="h-3 w-3 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
+                  <div className="h-3 w-3 rounded-full border-2 border-[var(--gray-400)] border-t-transparent animate-spin" />
                 ) : visited ? (
                   <Check className="h-3 w-3" />
                 ) : (
@@ -190,13 +190,13 @@ export default function RestaurantStickyNavbar({
                   >
                     <X className="h-3 w-3" />
                   </button>
-                  <span className="text-sm font-bold text-amber-700 tabular-nums min-w-[20px] text-center">
+                  <span className="text-sm font-bold text-primary-dark tabular-nums min-w-[20px] text-center">
                     {visitCount}
                   </span>
                   <button
                     onClick={onAddVisit}
                     disabled={!visited}
-                    className="flex items-center justify-center w-6 h-6 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white rounded-full transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center justify-center w-6 h-6 bg-primary hover:bg-primary-hover active:bg-primary-dark text-white rounded-full transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Adicionar +1 visita"
                   >
                     <Plus className="h-3 w-3" />
