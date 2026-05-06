@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Fix lockfile detection issue by setting the correct root for output file tracing
+  outputFileTracingRoot: process.cwd(),
   images: {
     remotePatterns: [
       {

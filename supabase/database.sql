@@ -19,9 +19,31 @@ CREATE TABLE public.filter_presets (
   CONSTRAINT filter_presets_pkey PRIMARY KEY (id),
   CONSTRAINT filter_presets_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
+CREATE TABLE public.list_collaborators (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  list_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  role text NOT NULL DEFAULT 'editor'::text CHECK (role = ANY (ARRAY['editor'::text, 'viewer'::text])),
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT list_collaborators_pkey PRIMARY KEY (id),
+  CONSTRAINT list_collaborators_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.lists(id),
+  CONSTRAINT list_collaborators_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.list_comments (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  list_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  comment text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT list_comments_pkey PRIMARY KEY (id),
+  CONSTRAINT list_comments_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.lists(id),
+  CONSTRAINT list_comments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.list_restaurants (
   list_id uuid NOT NULL,
   restaurant_id uuid NOT NULL,
+  position integer NOT NULL DEFAULT 0,
   CONSTRAINT list_restaurants_pkey PRIMARY KEY (list_id, restaurant_id),
   CONSTRAINT list_restaurants_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.lists(id),
   CONSTRAINT list_restaurants_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id)
@@ -35,8 +57,34 @@ CREATE TABLE public.lists (
   creator_id uuid,
   creator_name text,
   filters jsonb,
+  is_public boolean NOT NULL DEFAULT true,
+  tags ARRAY DEFAULT '{}'::text[],
+  cover_image_url text,
   CONSTRAINT lists_pkey PRIMARY KEY (id),
   CONSTRAINT lists_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.meal_participants (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  scheduled_meal_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  status character varying NOT NULL DEFAULT 'pending'::character varying CHECK (status::text = ANY (ARRAY['pending'::character varying, 'accepted'::character varying, 'declined'::character varying]::text[])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT meal_participants_pkey PRIMARY KEY (id),
+  CONSTRAINT meal_participants_scheduled_meal_id_fkey FOREIGN KEY (scheduled_meal_id) REFERENCES public.scheduled_meals(id),
+  CONSTRAINT meal_participants_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(user_id)
+);
+CREATE TABLE public.notifications (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  type text NOT NULL,
+  title text NOT NULL,
+  message text NOT NULL,
+  link text,
+  read boolean NOT NULL DEFAULT false,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT notifications_pkey PRIMARY KEY (id),
+  CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.profiles (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -139,6 +187,28 @@ CREATE TABLE public.reviews (
   CONSTRAINT reviews_pkey PRIMARY KEY (id),
   CONSTRAINT reviews_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
   CONSTRAINT reviews_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.scheduled_meals (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  restaurant_id uuid NOT NULL,
+  organizer_id uuid NOT NULL,
+  meal_date date NOT NULL,
+  meal_time time without time zone NOT NULL,
+  meal_type character varying NOT NULL,
+  duration_minutes integer NOT NULL DEFAULT 120,
+  google_calendar_link text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT scheduled_meals_pkey PRIMARY KEY (id),
+  CONSTRAINT scheduled_meals_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
+  CONSTRAINT scheduled_meals_organizer_id_fkey FOREIGN KEY (organizer_id) REFERENCES public.profiles(user_id)
+);
+CREATE TABLE public.schema_migrations (
+  version text NOT NULL,
+  description text,
+  installed_at timestamp with time zone DEFAULT now(),
+  success boolean DEFAULT true,
+  CONSTRAINT schema_migrations_pkey PRIMARY KEY (version)
 );
 CREATE TABLE public.user_restaurant_visits (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),

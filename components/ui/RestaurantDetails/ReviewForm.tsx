@@ -124,7 +124,10 @@ export default function ReviewForm({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit review');
+        const errorMessage = errorData.details 
+          ? `${errorData.error}: ${errorData.details}` 
+          : (errorData.error || 'Failed to submit review');
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
