@@ -369,6 +369,38 @@ Redirect/Update UI
 - **Types**: kebab-case (e.g., `database.ts`)
 - **Migrations**: Sequential numbers (e.g., `024_add_list_comments.sql`)
 
+## Documentation Organization Pattern
+
+### Memory Bank Structure
+- **Location**: `memory-bank/` folder in project root
+- **Purpose**: Project context, progress tracking, and technical decisions
+- **Files** (6 total):
+  - `projectbrief.md` - Project overview and objectives
+  - `productContext.md` - Product context and user needs
+  - `activeContext.md` - Current session state and recent changes
+  - `systemPatterns.md` - Architecture and design patterns (this file)
+  - `techContext.md` - Technology stack and environment
+  - `progress.md` - Progress tracking and milestones
+
+### Documentation Structure (`docs/`)
+- **Purpose**: User guides, API docs, and technical documentation
+- **Subdirectories** (8 total):
+  - `api/` - API documentation and endpoint references
+  - `architecture/` - System architecture and design documents
+  - `database/` - Database schema and references
+  - `features/` - Feature roadmaps and implementation guides
+  - `guides/` - Development, deployment, and user guides
+  - `progress/` - Progress tracking and session reports
+  - `reference/` - Skills, templates, and references
+  - `setup/` - Setup and configuration guides
+  - `tasks/` - Task tracking and planning documents
+
+### Benefits
+- **Clear Separation**: Memory bank for project context, docs/ for documentation
+- **Logical Grouping**: Related documents organized in dedicated folders
+- **Scalability**: Easy to add new documents in appropriate categories
+- **Discoverability**: Consistent structure makes finding documents intuitive
+
 ## Summary
 
 FoodLister follows modern React/Next.js patterns with clear separation of concerns:

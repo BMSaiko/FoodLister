@@ -19,6 +19,13 @@
 - ✅ **Solution**: Created `can_access_list()` and `is_list_collaborator()` SECURITY DEFINER functions to bypass RLS recursion
 - ✅ **Applied**: Run `supabase/fix-rls-recursion-final.sql` in Supabase Dashboard SQL Editor
 
+### Lists API Fix (Current Session)
+- ✅ **404 Not Found Error Fixed**: Fixed `app/api/lists/[id]/route.ts` GET handler
+- ✅ **Root Cause**: GET handler was using `getClient()` (browser-side client) which doesn't work in server-side API routes
+- ✅ **Solution**: Changed to use `getServerClient()` with request/response for authenticated access, with fallback to `getPublicServerClient()` for unauthenticated users
+- ✅ **Result**: RLS policies now correctly evaluate `auth.uid()` for authenticated users, fixing 404 errors on list detail pages
+- ✅ **Build Verified**: `npm run build` succeeds with the fix applied
+
 ### Error Handling Fixes
 - ✅ **Logger Fix**: Updated `utils/logger.ts` with try-catch around `JSON.stringify()` to handle circular references
 - ✅ **ReviewForm Fix**: Improved error handling in `components/ui/RestaurantDetails/ReviewForm.tsx` to handle different error response formats
@@ -107,26 +114,32 @@
 ## Immediate Next Steps
 
 ### High Priority
-1. **Apply Migration 036** (Pending user action)
+1. **Verify Lists Fix**: Test list detail page at `/lists/[id]` (logged in and logged out)
+   - Ensure `supabase/fix-rls-recursion-final.sql` has been applied
+   - Verify lists load correctly without 404 errors
+
+2. **Apply Migration 036** (Pending user action)
    - Run `supabase/migrations/036_public_restaurant_access.sql` in Supabase SQL Editor
    - Verify unlogged users can access `/restaurants` and `/restaurants/[id]`
    - Verify logged-in users can create/edit restaurants and post reviews
    - Verify review authors' public data is visible
 
-2. **Complete Test Coverage**
+3. **Complete Test Coverage**
    - Add tests for newly implemented features (collaboration, comments, meal scheduling)
    - Achieve 80%+ coverage target
 
-3. **Feature Polish**
+4. **Feature Polish**
    - Improve error messages and user feedback
    - Add loading skeletons for all async operations
    - Enhance mobile experience
 
 ### Medium Priority
 4. **Documentation**
-   - Update API documentation (docs/api-documentation.md)
-   - Create user guide for collaboration features
-   - Document filter preset system
+    - Update API documentation (docs/api/api-documentation.md)
+    - Create user guide for collaboration features
+    - Document filter preset system
+    - Memory bank organized in `memory-bank/` folder
+    - Documentation organized in `docs/` subdirectories (api/, architecture/, database/, features/, guides/, progress/, reference/, setup/, tasks/)
 
 ## Current Focus Areas
 
@@ -192,13 +205,15 @@
 ## Session Context for AI Assistants
 
 When working on this project:
-1. **Always check**: Latest commit hash is `0c52aa1849de202941fa62db92a06710924778fd`
+1. **Always check**: Latest commit hash is `116dd26d6b002f4d18b58e03d9a5e81ab285c1fd` (branch: `76-design-ter-o-msm-design-em-toda-a-webapp`)
 2. **Database changes**: Use `supabase/migrations/` with sequential numbering
 3. **Component type**: Default to Server Components, add 'use client' only when needed
 4. **State management**: Use Context API (Auth, Filters, Modal) + custom hooks
 5. **Testing**: Add tests in `__tests__/` mirroring the source structure
 6. **Styling**: TailwindCSS 3 with dark mode support (class strategy) - **v4 conflict fixed**
 7. **Environment**: Never commit `.env.local`, use `.env.local.example`
-8. **Design System**: ✅ COMPLETED - All components use `bg-[var(--variable)]` instead of hardcoded Tailwind colors
-   - **All 300+ instances fixed** across 45+ components
-   - **Build verified**: Successful production build with all CSS variable replacements
+8. **Design System**: 🚧 IN PROGRESS - ~70% complete
+   - **Fixed**: 45+ components converted to CSS variables
+   - **Remaining**: ~100+ instances in 15+ .tsx files
+   - **Key files pending**: ListForm.tsx, FilterPanel.tsx, PriceLevelDisplay.tsx, FormSection.tsx, FormField.tsx
+   - **Pattern**: Replace `bg-gray-50` → `bg-[var(--gray-50)]`, `text-gray-800` → `text-[var(--gray-800)]`, etc.

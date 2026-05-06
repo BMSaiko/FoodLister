@@ -231,6 +231,36 @@ npm run lint:fix
 - React Hooks plugin enabled
 - Ignores: `supabase/migrations/`, `scripts/`, `__tests__/`
 
+## Documentation Structure
+
+### Memory Bank (`memory-bank/`)
+- **Purpose**: Project context, progress tracking, and technical decisions
+- **Files** (6 total):
+  - `projectbrief.md` - Project overview and objectives
+  - `productContext.md` - Product context and user needs
+  - `activeContext.md` - Current session state and recent changes
+  - `systemPatterns.md` - Architecture and design patterns
+  - `techContext.md` - Technology stack and environment (this file)
+  - `progress.md` - Progress tracking and milestones
+
+### Documentation (`docs/`)
+- **Purpose**: User guides, API docs, and technical documentation
+- **Subdirectories** (9 total):
+  - `api/` - API documentation and endpoint references
+  - `architecture/` - System architecture and design documents
+  - `database/` - Database schema and references
+  - `features/` - Feature roadmaps and implementation guides
+  - `guides/` - Development, deployment, and user guides
+  - `progress/` - Progress tracking and session reports
+  - `reference/` - Skills, templates, and references
+  - `setup/` - Setup and configuration guides
+  - `tasks/` - Task tracking and planning documents
+
+### Documentation Tools
+- **Markdown**: All documentation in Markdown format
+- **Diagrams**: ASCII art and code blocks for architecture visualization
+- **Cross-references**: Links between related documentation files
+
 ## Performance Considerations
 
 ### Frontend
