@@ -138,7 +138,7 @@ function RestaurantsContent({ showHeader = true }) {
 export default function RestaurantsList({ showHeader = true }) {
   return (
     <FiltersProvider>
-      <div className="container-main py-4 sm:py-6 lg:py-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <Suspense fallback={<RestaurantsLoading />}>
           <RestaurantsContent showHeader={showHeader} />
         </Suspense>

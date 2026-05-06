@@ -82,15 +82,22 @@
 ## Active Work in Progress
 
 ### Design System Standardization (COMPLETED ✅)
-- ✅ **Root Cause Fixed**: Tailwind CSS v4 → v3 (postcss.config.mjs updated)
-- ✅ **CSS Syntax Fixed**: globals.css rewritten with valid syntax and proper CSS variables
-- ✅ **Phase 1 Complete**: Fixed 45+ components (RestaurantRoulette, ErrorBoundary, EmptyState, Navbar, BaseForm, Card, FilterPanel, TabbedRestaurantFilters, List components, Profile components, etc.)
-- ✅ **Phase 2 Complete**: Fixed remaining ~256 hardcoded color instances in 36+ files
-- ✅ **Build Verified**: `npm run build` succeeds with all fixes applied
-- ✅ **CSS Variables Added**: All necessary color variables (--error-50, --error-100, --green-500, --red-500, --warning, --warning-light, --white, --black, --amber-700, etc.)
-- ✅ **Border Radius Standardized**: Updated tailwind.config.js with consistent radius values
-- ✅ **Typography Conflicts Resolved**: Fixed font family conflicts
-- ✅ **Syntax Errors Fixed**: Unterminated template literals, JSX errors
+ - ✅ **Root Cause Fixed**: Tailwind CSS v4 → v3 (postcss.config.mjs updated)
+ - ✅ **CSS Syntax Fixed**: globals.css rewritten with valid syntax and proper CSS variables
+ - ✅ **Phase 1 Complete**: Fixed 45+ components (RestaurantRoulette, ErrorBoundary, EmptyState, Navbar, BaseForm, Card, FilterPanel, TabbedRestaurantFilters, List components, Profile components, etc.)
+ - ✅ **Phase 2 Complete**: Fixed remaining ~256 hardcoded color instances in 36+ files
+ - ✅ **Build Verified**: `npm run build` succeeds with all fixes applied
+ - ✅ **CSS Variables Added**: All necessary color variables (--error-50, --error-100, --green-500, --red-500, --warning, --warning-light, --white, --black, --amber-700, etc.)
+ - ✅ **Border Radius Standardized**: Updated tailwind.config.js with consistent radius values
+ - ✅ **Typography Conflicts Resolved**: Fixed font family conflicts
+ - ✅ **Syntax Errors Fixed**: Unterminated template literals, JSX errors
+
+### Container Margin Fix (COMPLETED ✅)
+ - ✅ **Issue**: Restaurant grid on `/restaurants` page was stuck to page edges (no margins like the banner)
+ - ✅ **Root Cause**: `Container.tsx` and `RestaurantsList.jsx` used non-existent `container-main` CSS class
+ - ✅ **Solution**: Updated to use proper Tailwind classes (`container mx-auto px-3 sm:px-4 lg:px-6`)
+ - ✅ **Files Fixed**: `components/ui/Container.tsx`, `components/RestaurantsList.jsx`
+ - ✅ **Result**: Grid now has consistent padding matching the `RouletteBanner` component
 
 ### From TASKS_5HOURS.md
 1. **Performance Optimization**

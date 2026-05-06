@@ -8,9 +8,9 @@ interface ContainerProps {
 }
 
 const variantClasses: Record<string, string> = {
-  default: 'container-main',
-  narrow: 'container-main max-w-3xl',
-  wide: 'container-main max-w-7xl',
+  default: 'container mx-auto px-4 sm:px-6 lg:px-8',
+  narrow: 'container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl',
+  wide: 'container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl',
   full: 'w-full px-4 sm:px-6 lg:px-8',
 };
 
