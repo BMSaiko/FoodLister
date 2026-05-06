@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Plus, Link as LinkIcon, Image as ImageIcon, AlertCircle, Globe, FileText } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import Image from 'next/image';
@@ -20,24 +20,26 @@ export default function MenuManager({
   onMenuImagesChange: (images: string[]) => void;
   disabled?: boolean;
 }) {
-  // Local state for managing images (simplified approach)
+  // Local state for managing images
   const [localImages, setLocalImages] = useState<string[]>([]);
-  const prevMenuImagesRef = React.useRef<string[] | null>(null);
-
-  // Tab state
   const [activeTab, setActiveTab] = useState('links');
+  
+  // Track if we need to notify parent about image changes
+  const pendingImagesRef = useRef<string[] | null>(null);
 
   // Sync local images with parent only when parent images actually change
   useEffect(() => {
     const newImages = Array.isArray(menuImages) ? menuImages : [];
-    const prevImages = prevMenuImagesRef.current;
-    
-    // Only update if images actually changed (avoid infinite loop)
-    if (!prevImages || JSON.stringify(newImages) !== JSON.stringify(prevImages)) {
-      setLocalImages(newImages);
-      prevMenuImagesRef.current = newImages;
-    }
+    setLocalImages(newImages);
   }, [menuImages]);
+
+  // Notify parent of pending image changes
+  useEffect(() => {
+    if (pendingImagesRef.current) {
+      onMenuImagesChange(pendingImagesRef.current);
+      pendingImagesRef.current = null;
+    }
+  }, [localImages, onMenuImagesChange]);
 
   // Ensure menuLinks is always an array
   const safeMenuLinks = Array.isArray(menuLinks) ? menuLinks : [];
@@ -92,21 +94,26 @@ export default function MenuManager({
     onMenuLinksChange(newLinks);
   };
 
-  // Add an image (using local state)
+  // Add an image using functional state update to avoid stale closure
   const handleImageUploaded = (imageUrl: string) => {
-    if (localImages.length >= 10) {
-      return; // Safety check
-    }
-    const newImages = [...localImages, imageUrl];
-    setLocalImages(newImages);
-    onMenuImagesChange(newImages);
+    setLocalImages(prevImages => {
+      if (prevImages.length >= 10) {
+        return prevImages; // Don't add more
+      }
+      const newImages = [...prevImages, imageUrl];
+      // Store the new images to notify parent after render
+      pendingImagesRef.current = newImages;
+      return newImages;
+    });
   };
 
   // Remove an image
   const handleRemoveImage = (index: number) => {
-    const newImages = localImages.filter((_, i) => i !== index);
-    setLocalImages(newImages);
-    onMenuImagesChange(newImages);
+    setLocalImages(prevImages => {
+      const newImages = prevImages.filter((_, i) => i !== index);
+      pendingImagesRef.current = newImages;
+      return newImages;
+    });
   };
 
   // Handle Enter key in link input
