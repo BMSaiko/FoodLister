@@ -2,7 +2,7 @@
 
 ## Current Project State
 
-**Latest Commit**: `1a8a7205c45fffdb9c94bcf9e6c779a6fa564adb`
+**Latest Commit**: `31e47c3879cab71211d82bc629a571433484fd86`
 **Branch**: Main (default)
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
@@ -35,6 +35,13 @@
 - ✅ **SQL Files Created**: 
   - `supabase/run-in-sql-editor.sql` - Complete database setup
   - `supabase/fix-rls-recursion-final.sql` - RLS recursion fix
+
+### /update Command (Current Session)
+- ✅ **Created Rule File**: `.clinerules/update-command.md` with complete guidelines
+- ✅ **Purpose**: Automates memory bank update, change analysis, atomic commits, and push
+- ✅ **Conventional Commits**: Enforces type(scope): description format
+- ✅ **Logical Separation**: Commits separated by category (migrations, frontend, backend, docs, config)
+- ✅ **Project-Specific**: Follows FoodLister patterns (Supabase migrations, Server Components, etc.)
 
 ## Recently Applied Features
 
@@ -212,15 +219,12 @@
 ## Session Context for AI Assistants
 
 When working on this project:
-1. **Always check**: Latest commit hash is `116dd26d6b002f4d18b58e03d9a5e81ab285c1fd` (branch: `76-design-ter-o-msm-design-em-toda-a-webapp`)
+1. **Always check**: Latest commit hash is `31e47c3879cab71211d82bc629a571433484fd86` (branch: `main`)
 2. **Database changes**: Use `supabase/migrations/` with sequential numbering
 3. **Component type**: Default to Server Components, add 'use client' only when needed
 4. **State management**: Use Context API (Auth, Filters, Modal) + custom hooks
 5. **Testing**: Add tests in `__tests__/` mirroring the source structure
 6. **Styling**: TailwindCSS 3 with dark mode support (class strategy) - **v4 conflict fixed**
 7. **Environment**: Never commit `.env.local`, use `.env.local.example`
-8. **Design System**: 🚧 IN PROGRESS - ~70% complete
-   - **Fixed**: 45+ components converted to CSS variables
-   - **Remaining**: ~100+ instances in 15+ .tsx files
-   - **Key files pending**: ListForm.tsx, FilterPanel.tsx, PriceLevelDisplay.tsx, FormSection.tsx, FormField.tsx
-   - **Pattern**: Replace `bg-gray-50` → `bg-[var(--gray-50)]`, `text-gray-800` → `text-[var(--gray-800)]`, etc.
+8. **Design System**: ✅ COMPLETED - All hardcoded colors replaced with CSS variables
+9. **/update Command**: Follow rules in `.clinerules/update-command.md` for memory bank updates, commits, and push
