@@ -146,18 +146,21 @@ export default function MapSelectorModal() {
 
   return (
     <div 
-      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] backdrop-blur-2xl flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] backdrop-blur-sm flex items-center justify-center z-50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="map-modal-title"
     >
       <div 
         ref={modalRef}
-        className="bg-[var(--card-bg)] rounded-lg shadow-[var(--card-shadow-lg)] max-w-md w-full max-h-[80vh] overflow-y-auto"
+        className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow-lg)] max-w-md w-full max-h-[85vh] overflow-y-auto"
       >
         {/* Header */}
         <div className="flex justify-between items-center p-3 sm:p-4 border-b border-[var(--gray-200)]">
-          <h2 id="map-modal-title" className="text-lg font-semibold text-[var(--gray-800)]">Abrir localização em</h2>
+          <div className="flex items-center">
+            <MapPin className="h-5 w-5 mr-2 text-[var(--gray-600)]" />
+            <h2 id="map-modal-title" className="text-lg font-semibold text-[var(--gray-800)]">Abrir localização em</h2>
+          </div>
           <button
             ref={initialFocusRef}
             onClick={closeMapModal}
@@ -170,6 +173,14 @@ export default function MapSelectorModal() {
 
         {/* Content */}
         <div className="p-3 sm:p-4">
+          {/* Prominent location display */}
+          {validLocation && (
+            <div className="mb-3 sm:mb-4 p-3 bg-[var(--blue-50)] rounded-lg border border-[var(--blue-100)] flex items-center">
+              <MapPin className="h-4 w-4 mr-2 text-[var(--blue-600)] flex-shrink-0" />
+              <span className="text-sm text-[var(--blue-800)] font-medium truncate">{location}</span>
+            </div>
+          )}
+
           <p className="text-sm text-[var(--gray-600)] mb-3 sm:mb-4 text-center">
             Escolha o aplicativo de mapas:
           </p>
@@ -191,20 +202,30 @@ export default function MapSelectorModal() {
             </div>
           )}
 
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             {mapOptions.map((option, index) => {
               const Icon = option.icon;
               return (
                 <button
                   key={option.name}
                   onClick={() => handleOpenMap(option.url)}
-                  className={`w-full flex items-center justify-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${option.color} ${option.textColor} font-medium text-sm sm:text-base hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--blue-600)]`}
+                  className={`w-full flex items-center justify-center px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 ${option.color} ${option.textColor} font-medium text-sm sm:text-base hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--blue-600)] border border-transparent`}
                 >
-                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
                   {option.name}
                 </button>
               );
             })}
+          </div>
+
+          {/* Cancel Button */}
+          <div className="mt-3 sm:mt-4">
+            <button
+              onClick={closeMapModal}
+              className="w-full flex items-center justify-center px-4 py-3 min-h-[48px] rounded-lg border border-[var(--gray-300)] text-[var(--gray-700)] hover:bg-[var(--gray-50)] transition-all duration-200 font-medium text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gray-500)]"
+            >
+              Cancelar
+            </button>
           </div>
 
           {/* Precise location display */}
@@ -215,28 +236,7 @@ export default function MapSelectorModal() {
                 <div className="text-sm">{latitude.toFixed(6)}, {longitude.toFixed(6)}</div>
               </div>
             )}
-            {validLocation && (
-              <div className="text-xs text-[var(--gray-600)] mt-2">
-                <div className="font-medium text-[var(--gray-700)] mb-1">Localização:</div>
-                <div className="text-left max-w-xs mx-auto text-sm">{location}</div>
-              </div>
-            )}
           </div>
-
-          {/* Detailed address information when coordinates are available */}
-          {hasValidCoords && (
-            <div className="mt-3 sm:mt-4 text-center">
-              <div className="text-xs text-[var(--purple-600)] bg-[var(--purple-50)] rounded-lg p-2 border border-[var(--purple-100)]">
-                <div className="font-medium text-[var(--purple-800)] mb-1">Endereço detalhado:</div>
-                <div className="text-sm">
-                  Clique em um aplicativo de mapas para obter informações completas de endereço
-                </div>
-                <div className="text-xs text-[var(--purple-700)] mt-1">
-                  (Rua, número, bairro, cidade, código postal, estado, país)
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

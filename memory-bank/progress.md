@@ -3,7 +3,7 @@
 ## Project Status Overview
 
 **Current Version**: 0.1.0 (Private)
-**Latest Commit**: `31e47c3879cab71211d82bc629a571433484fd86`
+**Latest Commit**: `556b1305e20eed981106f98638ec5b06c8e00aad`
 **Total Database Migrations**: 38
 **Test Files**: 30+
 
@@ -196,6 +196,18 @@
 - [ ] Apply migration 036 manually in Supabase SQL Editor
 - [ ] Verify unlogged users can view all restaurants and reviews
 - [ ] Test all access scenarios (create/edit restaurants, post reviews)
+
+### Map Modal Design Improvement (100% complete)
+- [x] Added missing `--blue-500` CSS variable to `app/globals.css`
+- [x] Fixed Google Maps button appearing white (no hover state)
+- [x] Improved `MapSelectorModal.tsx` design:
+  - Added prominent location display with icon
+  - Improved button styling with better padding and hover effects
+  - Added Cancel button with outline style
+  - Enhanced header with MapPin icon
+  - Better spacing and typography
+  - Added transition animations
+- [x] Build verified successful
 
 ### ✅ Design System Standardization (100% complete)
 - [x] Identified root cause: Tailwind CSS v3/v4 version conflict + CSS syntax errors
