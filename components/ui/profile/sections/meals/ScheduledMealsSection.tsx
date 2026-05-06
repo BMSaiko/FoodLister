@@ -100,8 +100,8 @@ export default function ScheduledMealsSection({
         />
         
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 text-amber-500 animate-spin mb-3" />
-          <p className="text-gray-500 text-sm">A carregar refeições agendadas...</p>
+          <Loader2 className="h-8 w-8 text-[var(--amber-500)] animate-spin mb-3" />
+          <p className="text-[var(--gray-500)] text-sm">A carregar refeições agendadas...</p>
         </div>
       </div>
     );
@@ -120,25 +120,25 @@ export default function ScheduledMealsSection({
         <div className="flex flex-col items-center justify-center py-12 text-center">
           {hasActiveSearch ? (
             <>
-              <div className="p-4 bg-gray-50 rounded-full mb-4">
-                <SearchX className="h-8 w-8 text-gray-400" />
+              <div className="p-4 bg-[var(--gray-50)] rounded-full mb-4">
+                <SearchX className="h-8 w-8 text-[var(--gray-400)]" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-2">
                 Nenhuma refeição encontrada
               </h3>
-              <p className="text-gray-500 text-sm max-w-sm">
+              <p className="text-[var(--gray-500)] text-sm max-w-sm">
                 Não foram encontradas refeições com os filtros selecionados. Tenta ajustar a tua pesquisa.
               </p>
             </>
           ) : (
             <>
-              <div className="p-4 bg-amber-50 rounded-full mb-4">
-                <Calendar className="h-8 w-8 text-amber-500" />
+              <div className="p-4 bg-[var(--amber-50)] rounded-full mb-4">
+                <Calendar className="h-8 w-8 text-[var(--amber-500)]" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-2">
                 Sem refeições agendadas
               </h3>
-              <p className="text-gray-500 text-sm max-w-sm">
+              <p className="text-[var(--gray-500)] text-sm max-w-sm">
                 {isCurrentUser
                   ? 'Ainda não tens refeições agendadas. Agenda a tua próxima refeição num restaurante!'
                   : 'Este utilizador ainda não tem refeições agendadas.'}
@@ -162,12 +162,12 @@ export default function ScheduledMealsSection({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Utensils className="h-5 w-5 text-amber-500" />
-          <h2 className="text-lg font-semibold text-gray-900">
+          <Utensils className="h-5 w-5 text-[var(--amber-500)]" />
+          <h2 className="text-lg font-semibold text-[var(--gray-900)]">
             Refeições Agendadas
           </h2>
         </div>
-        <span className="text-sm text-gray-500">{total} refeição(ões)</span>
+        <span className="text-sm text-[var(--gray-500)]">{total} refeição{total !== 1 ? 'ões' : ''}</span>
       </div>
 
       {/* Meals List */}
@@ -202,7 +202,7 @@ export default function ScheduledMealsSection({
           <button
             onClick={loadMore}
             disabled={loading}
-            className="px-6 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+            className="px-6 py-2.5 bg-[var(--amber-500)] text-white rounded-lg hover:bg-[var(--amber-600)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
           >
             {loading ? (
               <span className="flex items-center space-x-2">

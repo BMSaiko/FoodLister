@@ -98,14 +98,14 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-6 w-6 animate-spin text-amber-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-lg font-semibold text-gray-800">
+      <div className="flex items-center gap-2 text-lg font-semibold text-[var(--gray-800)]">
         <Users className="h-5 w-5" />
         <span>Colaboradores ({collaborators.length})</span>
       </div>
@@ -114,25 +114,25 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
       {isOwner && (
         <form onSubmit={handleAddCollaborator} className="flex gap-2 items-end">
           <div className="flex-1">
-            <label className="block text-sm text-gray-600 mb-1">Email</label>
+            <label className="block text-sm text-[var(--gray-600)] mb-1">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gray-400)]" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="utilizador@exemplo.com"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
                 disabled={submitting}
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Função</label>
+            <label className="block text-sm text-[var(--gray-600)] mb-1">Função</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as "editor" | "viewer")}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="px-3 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
               disabled={submitting}
             >
               <option value="editor">Editor</option>
@@ -142,7 +142,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
           <button
             type="submit"
             disabled={submitting || !email.trim()}
-            className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -156,7 +156,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
 
       {/* Collaborators List */}
       {collaborators.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center py-4">
+        <p className="text-[var(--gray-500)] text-sm text-center py-4">
           Nenhum colaborador nesta lista
         </p>
       ) : (
@@ -164,17 +164,17 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
           {collaborators.map((collab) => (
             <div
               key={collab.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              className="flex items-center justify-between p-3 bg-[var(--gray-50)] rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-semibold">
+                <div className="w-10 h-10 rounded-full bg-[var(--primary-light)] flex items-center justify-center text-[var(--primary-dark)] font-semibold">
                   {collab.profiles?.display_name?.[0]?.toUpperCase() || "U"}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-800">
+                  <p className="font-medium text-[var(--gray-800)]">
                     {collab.profiles?.display_name || "Utilizador"}
                   </p>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 text-xs text-[var(--gray-500)]">
                     {collab.role === "editor" ? (
                       <Shield className="h-3 w-3" />
                     ) : (
@@ -187,7 +187,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
               {isOwner && (
                 <button
                   onClick={() => handleRemoveCollaborator(collab.user_id)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  className="p-2 text-[var(--error)] hover:bg-[var(--error-50)] rounded-lg transition-colors"
                   aria-label="Remover colaborador"
                 >
                   <Trash2 className="h-4 w-4" />

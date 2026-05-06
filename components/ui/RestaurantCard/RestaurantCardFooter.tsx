@@ -64,14 +64,14 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
               else label = 'Luxo';
               
               return (
-                <span className="text-xs text-primary font-bold">
-                  {label}
-                </span>
+              <span className="text-xs text-[var(--primary)] font-bold">
+                {label}
+              </span>
               );
             })()}
             
             {/* Price Value */}
-            <span className="text-primary-hover font-semibold text-sm">
+            <span className="text-[var(--primary-hover)] font-semibold text-sm">
               €{restaurant.price_per_person.toFixed(2)}
             </span>
           </div>

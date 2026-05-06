@@ -76,10 +76,10 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
 
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {
-    if (rating >= 4.5) return 'bg-green-50 text-green-700';
-    if (rating >= 3.5) return 'bg-amber-50 text-amber-700';
-    if (rating >= 2.5) return 'bg-yellow-50 text-yellow-700';
-    return 'bg-red-50 text-red-700';
+    if (rating >= 4.5) return 'bg-[var(--green-50)] text-[var(--green-700)]';
+    if (rating >= 3.5) return 'bg-[var(--amber-50)] text-[var(--amber-700)]';
+    if (rating >= 2.5) return 'bg-[var(--yellow-50)] text-[var(--yellow-700)]';
+    return 'bg-[var(--red-50)] text-[var(--red-700)]';
   };
 
   return (
@@ -99,14 +99,14 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
           }}
         />
       ) : (
-        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-          <Star className="h-12 w-12 text-gray-400" />
+          <div className="w-full h-full bg-gradient-to-br from-[var(--gray-200)] to-[var(--gray-300)] flex items-center justify-center">
+            <Star className="h-12 w-12 text-[var(--gray-400)]" />
         </div>
       )}
 
       {/* Restaurant Rating Badge */}
       {restaurant.rating && (
-        <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(restaurant.rating)}`}>
+          <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(restaurant.rating) || 'bg-[var(--gray-50)] text-[var(--gray-700)]'}`}>
           <div className="flex items-center gap-1">
             <Star className="h-3 w-3" fill="currentColor" />
             <span className="font-semibold text-xs">{restaurant.rating.toFixed(1)}/5</span>
@@ -116,8 +116,8 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
 
       {/* Restaurant Name Overlay */}
       <div className="absolute bottom-3 left-3 right-3">
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
+          <div className="bg-[var(--white)]/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
+            <h3 className="text-lg font-bold text-[var(--gray-900)] line-clamp-1">
             {restaurant.name}
           </h3>
         </div>

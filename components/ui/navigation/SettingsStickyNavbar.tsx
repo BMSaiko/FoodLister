@@ -76,7 +76,7 @@ export default function SettingsStickyNavbar({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-[var(--card-bg)] border-t border-[var(--gray-200)] shadow-lg z-50 md:hidden">
       <div className="max-w-md mx-auto px-4 py-2">
         {/* Horizontal scrollable container for buttons */}
         <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2">
@@ -85,8 +85,8 @@ export default function SettingsStickyNavbar({
             onClick={handleScrollToTop}
             className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 transform hover:scale-110 ${
               isVisible
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:shadow-xl'
-                : 'bg-gray-100 text-gray-400 shadow-sm'
+                ? 'bg-gradient-to-r from-[var(--amber-500)] to-[var(--orange-500)] text-[var(--white)] shadow-lg hover:shadow-xl'
+                : 'bg-[var(--gray-100)] text-[var(--gray-400)] shadow-sm'
             } ${isVisible ? 'animate-bounce' : ''}`}
             aria-label="Voltar ao topo"
             title="Voltar ao topo"
@@ -101,7 +101,7 @@ export default function SettingsStickyNavbar({
           {/* Back Button - Centered */}
           <button
             onClick={handleBack}
-            className="flex items-center justify-center w-12 h-12 bg-gray-100 text-gray-700 border border-gray-200 rounded-full hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="flex items-center justify-center w-12 h-12 bg-[var(--gray-100)] text-[var(--gray-700)] border border-[var(--gray-200)] rounded-full hover:bg-[var(--gray-200)] active:bg-[var(--gray-300)] transition-all duration-200 shadow-sm hover:shadow-md"
             aria-label="Voltar"
             title="Voltar"
           >
@@ -114,8 +114,8 @@ export default function SettingsStickyNavbar({
             disabled={isSubmitting}
             className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
               isSubmitting
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 shadow-lg hover:shadow-xl transform hover:scale-110'
+                ? 'bg-[var(--gray-300)] text-[var(--gray-500)] cursor-not-allowed'
+                : 'bg-[var(--amber-500)] text-[var(--white)] hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] shadow-lg hover:shadow-xl transform hover:scale-110'
             }`}
             aria-label={isSubmitting ? 'Salvando...' : 'Salvar alterações'}
             title={isSubmitting ? 'Salvando...' : 'Salvar alterações'}
@@ -131,7 +131,7 @@ export default function SettingsStickyNavbar({
           {profile && (
             <Link
               href={`/users/${profile.userIdCode}`}
-              className="flex items-center justify-center w-12 h-12 bg-gray-100 text-gray-700 border border-gray-200 rounded-full hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="flex items-center justify-center w-12 h-12 bg-[var(--gray-100)] text-[var(--gray-700)] border border-[var(--gray-200)] rounded-full hover:bg-[var(--gray-200)] active:bg-[var(--gray-300)] transition-all duration-200 shadow-sm hover:shadow-md"
               aria-label="Ver Perfil Público"
               title="Ver Perfil Público"
             >

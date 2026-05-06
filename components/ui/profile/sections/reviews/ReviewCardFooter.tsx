@@ -34,30 +34,30 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
   // Get color class based on price level
   const getPriceColorClass = (level: number): string => {
     switch(level) {
-      case 1: return 'text-amber-400';
-      case 2: return 'text-amber-500';
-      case 3: return 'text-amber-600';
-      case 4: return 'text-amber-800';
-      default: return 'text-amber-400';
+      case 1: return 'text-[var(--amber-400)]';
+      case 2: return 'text-[var(--amber-500)]';
+      case 3: return 'text-[var(--amber-600)]';
+      case 4: return 'text-[var(--amber-800)]';
+      default: return 'text-[var(--amber-400)]';
     }
   };
 
   const getPriceLabelClass = (level: number): string => {
     switch(level) {
-      case 1: return 'text-amber-400 font-bold';
-      case 2: return 'text-amber-500 font-bold';
-      case 3: return 'text-amber-600 font-bold';
-      case 4: return 'text-amber-800 font-bold';
-      default: return 'text-amber-400 font-medium';
+      case 1: return 'text-[var(--amber-400)] font-bold';
+      case 2: return 'text-[var(--amber-500)] font-bold';
+      case 3: return 'text-[var(--amber-600)] font-bold';
+      case 4: return 'text-[var(--amber-800)] font-bold';
+      default: return 'text-[var(--amber-400)] font-medium';
     }
   };
 
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {
-    if (rating >= 4.5) return 'bg-green-50 text-green-700 border-green-200';
-    if (rating >= 3.5) return 'bg-amber-50 text-amber-700 border-amber-200';
-    if (rating >= 2.5) return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-    return 'bg-red-50 text-red-700 border-red-200';
+    if (rating >= 4.5) return 'bg-[var(--green-50)] text-[var(--green-700)] border-[var(--green-200)]';
+    if (rating >= 3.5) return 'bg-[var(--amber-50)] text-[var(--amber-700)] border-[var(--amber-200)]';
+    if (rating >= 2.5) return 'bg-[var(--yellow-50)] text-[var(--yellow-700)] border-[var(--yellow-200)]';
+    return 'bg-[var(--red-50)] text-[var(--red-700)] border-[var(--red-200)]';
   };
 
   return (
@@ -65,7 +65,7 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
 
 
       {/* Review Footer */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-gray-500">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-[var(--gray-500)]">
         <div className="flex flex-wrap gap-2 sm:gap-4">
           <div className={`flex items-center gap-1 px-2 py-1 rounded ${getRatingStyle(review.rating)}`}>
             <Star className="h-4 w-4 fill-current" />
@@ -86,15 +86,15 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1 px-2 py-1 rounded border border-gray-200">
+        <div className="flex items-center gap-1 px-2 py-1 rounded border border-[var(--gray-200)]">
           <Clock className="h-4 w-4" />
           <span>{new Date(review.createdAt).toLocaleDateString('pt-PT')}</span>
         </div>
       </div>
       {/* Review Content */}
       {review.comment && (
-        <div className="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 mt-4 mb-4">
-          <p className="text-gray-700 leading-relaxed text-sm sm:text-base line-clamp-3">
+        <div className="bg-[var(--white)] rounded-lg p-3 sm:p-4 border border-[var(--gray-200)] mt-4 mb-4">
+          <p className="text-[var(--gray-700)] leading-relaxed text-sm sm:text-base line-clamp-3">
             {review.comment}
           </p>
         </div>

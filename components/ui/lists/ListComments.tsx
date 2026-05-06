@@ -115,18 +115,18 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
         <div className="flex items-center gap-2 mb-4">
-          <MessageCircle className="h-5 w-5 text-amber-500" />
-          <h3 className="text-lg font-semibold text-gray-900">Comentários</h3>
+          <MessageCircle className="h-5 w-5 text-[var(--primary)]" />
+          <h3 className="text-lg font-semibold text-[var(--gray-900)]">Comentários</h3>
         </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse flex gap-3">
-              <div className="w-8 h-8 bg-gray-200 rounded-full" />
+              <div className="w-8 h-8 bg-[var(--gray-200)] rounded-full" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-1/4" />
-                <div className="h-3 bg-gray-200 rounded w-3/4" />
+                <div className="h-4 bg-[var(--gray-200)] rounded w-1/4" />
+                <div className="h-3 bg-[var(--gray-200)] rounded w-3/4" />
               </div>
             </div>
           ))}
@@ -136,10 +136,10 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
       <div className="flex items-center gap-2 mb-4">
-        <MessageCircle className="h-5 w-5 text-amber-500" />
-        <h3 className="text-lg font-semibold text-gray-900">
+        <MessageCircle className="h-5 w-5 text-[var(--primary)]" />
+        <h3 className="text-lg font-semibold text-[var(--gray-900)]">
           Comentários ({comments.length})
         </h3>
       </div>
@@ -153,13 +153,13 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Adicionar comentário..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
               disabled={submitting}
             />
             <button
               type="submit"
               disabled={submitting || !newComment.trim()}
-              className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-lg hover:bg-[var(--primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {submitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -173,7 +173,7 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
 
       {/* Comments List */}
       {comments.length === 0 ? (
-        <p className="text-gray-500 text-sm text-center py-4">
+        <p className="text-[var(--gray-500)] text-sm text-center py-4">
           {user
             ? "Ainda não há comentários. Seja o primeiro!"
             : "Faça login para comentar."}
@@ -183,26 +183,26 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
           {comments.map((comment) => (
             <div
               key={comment.id}
-              className="flex gap-3 p-3 bg-gray-50 rounded-lg"
+              className="flex gap-3 p-3 bg-[var(--gray-50)] rounded-lg"
             >
-              <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-medium text-amber-600">
+              <div className="w-8 h-8 bg-[var(--primary-light)] rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-medium text-[var(--primary-dark)]">
                   {comment.profiles?.display_name?.charAt(0).toUpperCase() || "U"}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-[var(--gray-900)]">
                     {comment.profiles?.display_name || "Utilizador"}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-[var(--gray-500)]">
                       {formatDate(comment.created_at)}
                     </span>
                     {user && user.id === comment.user_id && (
                       <button
                         onClick={() => handleDelete(comment.id)}
-                        className="text-gray-400 hover:text-red-500 transition-colors"
+                        className="text-[var(--gray-400)] hover:text-[var(--error)] transition-colors"
                         aria-label="Eliminar comentário"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -210,7 +210,7 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
                     )}
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 mt-1">{comment.comment}</p>
+                <p className="text-sm text-[var(--gray-700)] mt-1">{comment.comment}</p>
               </div>
             </div>
           ))}

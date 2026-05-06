@@ -57,22 +57,22 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   // Get color class based on price level
   const getPriceColorClass = (level: number) => {
     switch(level) {
-      case 1: return 'text-primary-light';
-      case 2: return 'text-primary';
-      case 3: return 'text-primary-hover';
-      case 4: return 'text-primary-dark';
-      default: return 'text-primary-light';
+      case 1: return 'text-[var(--primary-light)]';
+      case 2: return 'text-[var(--primary)]';
+      case 3: return 'text-[var(--primary-hover)]';
+      case 4: return 'text-[var(--primary-dark)]';
+      default: return 'text-[var(--primary-light)]';
     }
   };
   
   // Classe para o texto do label - garantindo melhor legibilidade
   const getPriceLabelClass = (level: number) => {
     switch(level) {
-      case 1: return 'text-primary-light font-bold';
-      case 2: return 'text-primary font-bold';
-      case 3: return 'text-primary-hover font-bold';
-      case 4: return 'text-primary-dark font-bold';
-      default: return 'text-primary-light font-medium';
+      case 1: return 'text-[var(--primary-light)] font-bold';
+      case 2: return 'text-[var(--primary)] font-bold';
+      case 3: return 'text-[var(--primary-hover)] font-bold';
+      case 4: return 'text-[var(--primary-dark)] font-bold';
+      default: return 'text-[var(--primary-light)] font-medium';
     }
   };
 

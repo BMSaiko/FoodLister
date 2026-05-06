@@ -107,8 +107,8 @@ export default function MapSelectorModal() {
         : validLocation
         ? `https://maps.google.com/?q=${encodedLocation}`
         : 'https://maps.google.com/',
-      color: 'bg-blue-500 hover:bg-blue-600',
-      textColor: 'text-white'
+      color: 'bg-[var(--blue-500)] hover:bg-[var(--blue-600)]',
+      textColor: 'text-[var(--primary-foreground)]'
     },
     {
       name: 'Waze',
@@ -118,8 +118,8 @@ export default function MapSelectorModal() {
         : validLocation
         ? `https://waze.com/ul?q=${encodedLocation}&navigate=yes`
         : 'https://waze.com/',
-      color: 'bg-purple-500 hover:bg-purple-600',
-      textColor: 'text-white'
+      color: 'bg-[var(--purple-500)] hover:bg-[var(--purple-600)]',
+      textColor: 'text-[var(--primary-foreground)]'
     },
     {
       name: 'Apple Maps',
@@ -129,8 +129,8 @@ export default function MapSelectorModal() {
         : validLocation
         ? `https://maps.apple.com/?q=${encodedLocation}`
         : 'https://maps.apple.com/',
-      color: 'bg-gray-500 hover:bg-gray-600',
-      textColor: 'text-white'
+      color: 'bg-[var(--gray-500)] hover:bg-[var(--gray-600)]',
+      textColor: 'text-[var(--primary-foreground)]'
     }
   ];
 
@@ -146,22 +146,22 @@ export default function MapSelectorModal() {
 
   return (
     <div 
-      className="fixed inset-0 backdrop-blur-2xl bg-transparent flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] backdrop-blur-2xl flex items-center justify-center z-50 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="map-modal-title"
     >
       <div 
         ref={modalRef}
-        className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto"
+        className="bg-[var(--card-bg)] rounded-lg shadow-[var(--card-shadow-lg)] max-w-md w-full max-h-[80vh] overflow-y-auto"
       >
         {/* Header */}
-        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-gray-200">
-          <h2 id="map-modal-title" className="text-lg font-semibold text-gray-800">Abrir localização em</h2>
+        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-[var(--gray-200)]">
+          <h2 id="map-modal-title" className="text-lg font-semibold text-[var(--gray-800)]">Abrir localização em</h2>
           <button
             ref={initialFocusRef}
             onClick={closeMapModal}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors"
+            className="text-[var(--gray-400)] hover:text-[var(--gray-600)] p-1 rounded-md hover:bg-[var(--gray-100)] transition-colors"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />
@@ -170,25 +170,23 @@ export default function MapSelectorModal() {
 
         {/* Content */}
         <div className="p-3 sm:p-4">
-          <p className="text-sm text-gray-600 mb-3 sm:mb-4 text-center">
+          <p className="text-sm text-[var(--gray-600)] mb-3 sm:mb-4 text-center">
             Escolha o aplicativo de mapas:
           </p>
 
           {/* Data validation warnings */}
           {(!validLocation || !hasValidCoords) && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3 sm:mb-4">
-              <div className="flex items-start gap-2">
-                <div className="text-yellow-600 text-sm">
-                  {!validLocation && !hasValidCoords && (
-                    <p>• Localização e coordenadas inválidas - abrindo mapas gerais</p>
-                  )}
-                  {!validLocation && hasValidCoords && (
-                    <p>• Localização inválida - usando apenas coordenadas</p>
-                  )}
-                  {validLocation && !hasValidCoords && (
-                    <p>• Coordenadas inválidas - usando apenas localização</p>
-                  )}
-                </div>
+            <div className="bg-[var(--yellow-50)] border border-[var(--yellow-200)] rounded-lg p-3 mb-3 sm:mb-4">
+              <div className="text-[var(--yellow-600)] text-sm">
+                {!validLocation && !hasValidCoords && (
+                  <p>• Localização e coordenadas inválidas - abrindo mapas gerais</p>
+                )}
+                {!validLocation && hasValidCoords && (
+                  <p>• Localização inválida - usando apenas coordenadas</p>
+                )}
+                {validLocation && !hasValidCoords && (
+                  <p>• Coordenadas inválidas - usando apenas localização</p>
+                )}
               </div>
             </div>
           )}
@@ -200,7 +198,7 @@ export default function MapSelectorModal() {
                 <button
                   key={option.name}
                   onClick={() => handleOpenMap(option.url)}
-                  className={`w-full flex items-center justify-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${option.color} ${option.textColor} font-medium text-sm sm:text-base hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+                  className={`w-full flex items-center justify-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg transition-colors ${option.color} ${option.textColor} font-medium text-sm sm:text-base hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--blue-600)]`}
                 >
                   <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
                   {option.name}
@@ -212,14 +210,14 @@ export default function MapSelectorModal() {
           {/* Precise location display */}
           <div className="mt-3 sm:mt-4 text-center">
             {hasValidCoords && (
-              <div className="text-xs text-blue-600 font-mono bg-blue-50 rounded-lg p-2 border border-blue-100">
-                <div className="font-medium text-blue-800 mb-1">Coordenadas precisas:</div>
+              <div className="text-xs text-[var(--blue-600)] font-mono bg-[var(--blue-50)] rounded-lg p-2 border border-[var(--blue-100)]">
+                <div className="font-medium text-[var(--blue-800)] mb-1">Coordenadas precisas:</div>
                 <div className="text-sm">{latitude.toFixed(6)}, {longitude.toFixed(6)}</div>
               </div>
             )}
             {validLocation && (
-              <div className="text-xs text-gray-600 mt-2">
-                <div className="font-medium text-gray-700 mb-1">Localização:</div>
+              <div className="text-xs text-[var(--gray-600)] mt-2">
+                <div className="font-medium text-[var(--gray-700)] mb-1">Localização:</div>
                 <div className="text-left max-w-xs mx-auto text-sm">{location}</div>
               </div>
             )}
@@ -228,12 +226,12 @@ export default function MapSelectorModal() {
           {/* Detailed address information when coordinates are available */}
           {hasValidCoords && (
             <div className="mt-3 sm:mt-4 text-center">
-              <div className="text-xs text-purple-600 bg-purple-50 rounded-lg p-2 border border-purple-100">
-                <div className="font-medium text-purple-800 mb-1">Endereço detalhado:</div>
+              <div className="text-xs text-[var(--purple-600)] bg-[var(--purple-50)] rounded-lg p-2 border border-[var(--purple-100)]">
+                <div className="font-medium text-[var(--purple-800)] mb-1">Endereço detalhado:</div>
                 <div className="text-sm">
                   Clique em um aplicativo de mapas para obter informações completas de endereço
                 </div>
-                <div className="text-xs text-purple-700 mt-1">
+                <div className="text-xs text-[var(--purple-700)] mt-1">
                   (Rua, número, bairro, cidade, código postal, estado, país)
                 </div>
               </div>

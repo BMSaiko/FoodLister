@@ -34,30 +34,30 @@ export default function FilterPanel({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className={`bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden ${className}`}>
+    <div className={`bg-[var(--card-bg)] rounded-[var(--radius-2xl)] shadow-lg border border-[var(--card-border)] overflow-hidden ${className}`}>
       {/* Header */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-4 sm:p-6 hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between p-4 sm:p-6 hover:bg-[var(--background-secondary)] transition-colors"
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl shadow-md">
+          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-[var(--primary)] to-[var(--orange-500)] rounded-[var(--radius-xl)] shadow-md">
             <Filter className="h-5 w-5 text-white" />
           </div>
           <div className="text-left">
-            <span className="block text-lg font-bold text-gray-800">{title}</span>
+            <span className="block text-lg font-bold text-[var(--foreground)]">{title}</span>
             {activeFilters.length > 0 && (
-              <span className="text-sm text-amber-600 font-medium">
+              <span className="text-sm text-[var(--primary)] font-medium">
                 {activeFilters.length} {activeFilters.length === 1 ? 'filtro ativo' : 'filtros ativos'}
               </span>
             )}
           </div>
         </div>
         {isOpen ? (
-          <ChevronUp className="h-5 w-5 text-gray-400" />
+          <ChevronUp className="h-5 w-5 text-[var(--foreground-muted)]" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-gray-400" />
+          <ChevronDown className="h-5 w-5 text-[var(--foreground-muted)]" />
         )}
       </button>
 
@@ -68,23 +68,23 @@ export default function FilterPanel({
             {activeFilters.map(filter => (
               <span
                 key={filter.id}
-                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 border border-amber-200/80 shadow-sm group"
+                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-[var(--primary-50)] to-[var(--orange-50)] text-[var(--primary-dark)] border border-[var(--primary-light)]/80 shadow-sm group"
               >
-                <span className="mr-2 w-2 h-2 bg-amber-400 rounded-full"></span>
+                <span className="mr-2 w-2 h-2 bg-[var(--primary)] rounded-full"></span>
                 <span className="font-medium">{filter.label}</span>
                 <button
                   onClick={filter.onRemove}
-                  className="ml-2 p-0.5 rounded-full hover:bg-amber-200/50 transition-colors"
+                  className="ml-2 p-0.5 rounded-full hover:bg-[var(--primary-light)]/50 transition-colors"
                   aria-label="Remover filtro"
                 >
-                  <X className="h-3.5 w-3.5 text-amber-600" />
+                  <X className="h-3.5 w-3.5 text-[var(--primary-dark)]" />
                 </button>
               </span>
             ))}
             {onClearAll && (
               <button
                 onClick={onClearAll}
-                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[var(--background-secondary)] text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors"
               >
                 <X className="h-3.5 w-3.5 mr-1" />
                 Limpar tudo
@@ -116,7 +116,7 @@ interface FilterSectionProps {
 export function FilterSection({ title, children, className = '' }: FilterSectionProps) {
   return (
     <div className={`mb-6 last:mb-0 ${className}`}>
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">{title}</h3>
+      <h3 className="text-sm font-semibold text-[var(--foreground-secondary)] mb-3">{title}</h3>
       {children}
     </div>
   );
@@ -139,8 +139,8 @@ export function FilterChip({ label, active = false, onClick, onRemove, className
       onClick={onClick}
       className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
         active
-          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
-          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--orange-500)] text-[var(--primary-foreground)] shadow-md'
+          : 'bg-[var(--background-secondary)] text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)]'
       } ${className}`}
     >
       <span>{label}</span>
@@ -150,7 +150,7 @@ export function FilterChip({ label, active = false, onClick, onRemove, className
             e.stopPropagation();
             onRemove();
           }}
-          className="ml-2 p-0.5 rounded-full hover:bg-white/20 transition-colors"
+          className="ml-2 p-0.5 rounded-full hover:bg-[var(--primary-foreground)]/20 transition-colors"
         >
           <X className="h-3.5 w-3.5" />
         </span>

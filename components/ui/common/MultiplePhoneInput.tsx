@@ -46,9 +46,9 @@ export default function MultiplePhoneInput({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <label className={`block text-sm font-medium text-gray-700 ${labelClassName}`}>
+      <label className={`block text-sm font-medium text-[var(--gray-700)] ${labelClassName}`}>
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-[var(--red-500)] ml-1">*</span>}
       </label>
       
       <div className="space-y-3">
@@ -59,7 +59,7 @@ export default function MultiplePhoneInput({
               value={phone}
               onChange={(e) => updatePhone(index, e.target.value)}
               disabled={disabled}
-              className={`flex-1 px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all text-sm ${inputClassName}`}
+              className={`flex-1 px-3 py-2 bg-[var(--card-bg)] border border-[var(--gray-300)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all text-sm ${inputClassName}`}
               placeholder="+351 912 345 678"
             />
             {values.length > 1 && (
@@ -67,7 +67,7 @@ export default function MultiplePhoneInput({
                 type="button"
                 onClick={() => removePhone(index)}
                 disabled={disabled}
-                className="px-3 py-2 text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-2 text-[var(--error)] hover:text-[var(--red-800)] disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Remover número"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,7 +83,7 @@ export default function MultiplePhoneInput({
             type="button"
             onClick={addPhone}
             disabled={disabled}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-3 py-2 border border-[var(--gray-300)] text-sm leading-4 font-medium rounded-md text-[var(--gray-700)] bg-[var(--card-bg)] hover:bg-[var(--gray-50)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -94,11 +94,11 @@ export default function MultiplePhoneInput({
       </div>
       
       {helperText && (
-        <p className="text-xs text-gray-500">{helperText}</p>
+        <p className="text-xs text-[var(--gray-500)]">{helperText}</p>
       )}
       
       {error && (
-        <p className="text-xs text-red-600">{error}</p>
+        <p className="text-xs text-[var(--error)]">{error}</p>
       )}
     </div>
   );

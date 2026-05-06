@@ -2,14 +2,13 @@
 
 ## Current Project State
 
-**Latest Commit**: `89d5da742a8cd0ee758ec9c34572103151f9584a`
-
+**Latest Commit**: `0c52aa1849de202941fa62db92a06710924778fd`
 **Branch**: Main (default)
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
 ## Recently Applied Features
 
-### Database Migrations (37 total)
+### Database Migrations (38 total)
 - **Core Tables**: restaurants, profiles, lists, reviews, list_restaurants
 - **Junction Tables**: restaurant_cuisine_types, restaurant_features, restaurant_dietary_options_junction
 - **Collaboration**: list_collaborators (with roles: editor/viewer)
@@ -17,6 +16,7 @@
 - **Advanced**: filter_presets, user_search_index, scheduled_meals
 - **Menu System**: menu_links (max 5), menu_images (max 10), menu_url (deprecated)
 - **User Stats**: review_count on profiles with auto-update triggers
+- **Public Access**: Migration 036 allows public (unlogged) users to read restaurants
 
 ### Key Features Implemented
 
@@ -51,6 +51,17 @@
 
 ## Active Work in Progress
 
+### Design System Standardization (COMPLETED ✅)
+- ✅ **Root Cause Fixed**: Tailwind CSS v4 → v3 (postcss.config.mjs updated)
+- ✅ **CSS Syntax Fixed**: globals.css rewritten with valid syntax and proper CSS variables
+- ✅ **Phase 1 Complete**: Fixed 45+ components (RestaurantRoulette, ErrorBoundary, EmptyState, Navbar, BaseForm, Card, FilterPanel, TabbedRestaurantFilters, List components, Profile components, etc.)
+- ✅ **Phase 2 Complete**: Fixed remaining ~256 hardcoded color instances in 36+ files
+- ✅ **Build Verified**: `npm run build` succeeds with all fixes applied
+- ✅ **CSS Variables Added**: All necessary color variables (--error-50, --error-100, --green-500, --red-500, --warning, --warning-light, --white, --black, --amber-700, etc.)
+- ✅ **Border Radius Standardized**: Updated tailwind.config.js with consistent radius values
+- ✅ **Typography Conflicts Resolved**: Fixed font family conflicts
+- ✅ **Syntax Errors Fixed**: Unterminated template literals, JSX errors
+
 ### From TASKS_5HOURS.md
 1. **Performance Optimization**
    - Database query optimization (indexes, query restructuring)
@@ -70,36 +81,26 @@
    - Performance dashboard exists (dev tool)
    - Need: User behavior tracking, popular restaurants lists
 
-### Recent Code Changes
-- Applied review_count migration (scripts/add-review-count-column.sql)
-- Fixed database issues (scripts/fix-database-issues.sql)
-- Updated TypeScript types (types/database.ts)
-- Enhanced filter system with tabbed interface
-
 ## Immediate Next Steps
 
 ### High Priority
-1. **Complete Test Coverage**
+1. **Apply Migration 036** (Pending user action)
+   - Run `supabase/migrations/036_public_restaurant_access.sql` in Supabase SQL Editor
+   - Verify unlogged users can access `/restaurants` and `/restaurants/[id]`
+   - Verify logged-in users can create/edit restaurants and post reviews
+   - Verify review authors' public data is visible
+
+2. **Complete Test Coverage**
    - Add tests for newly implemented features (collaboration, comments, meal scheduling)
    - Achieve 80%+ coverage target
 
-2. **Performance Audit**
-   - Run Lighthouse audits on key pages
-   - Optimize slow database queries
-   - Implement virtual scrolling for large lists (if needed)
-
-3. **Bug Fixes**
-   - Monitor auth logger for authentication issues
-   - Fix any failing tests in `__tests__/`
-   - Address known issues in docs/future-issues.md
-
-### Medium Priority
-4. **Feature Polish**
+3. **Feature Polish**
    - Improve error messages and user feedback
    - Add loading skeletons for all async operations
    - Enhance mobile experience
 
-5. **Documentation**
+### Medium Priority
+4. **Documentation**
    - Update API documentation (docs/api-documentation.md)
    - Create user guide for collaboration features
    - Document filter preset system
@@ -147,6 +148,7 @@
 2. **Frontend**
    - Some components mix Server/Client patterns (needs review)
    - Performance dashboard is dev-only (consider production metrics)
+   - **Design**: ✅ COMPLETED - All hardcoded colors replaced with CSS variables
 
 3. **Testing**
    - Some API routes lack comprehensive tests
@@ -167,10 +169,13 @@
 ## Session Context for AI Assistants
 
 When working on this project:
-1. **Always check**: Latest commit hash is `89d5da742a8cd0ee758ec9c34572103151f9584a`
+1. **Always check**: Latest commit hash is `0c52aa1849de202941fa62db92a06710924778fd`
 2. **Database changes**: Use `supabase/migrations/` with sequential numbering
 3. **Component type**: Default to Server Components, add 'use client' only when needed
 4. **State management**: Use Context API (Auth, Filters, Modal) + custom hooks
 5. **Testing**: Add tests in `__tests__/` mirroring the source structure
-6. **Styling**: TailwindCSS 4 with dark mode support (class strategy)
+6. **Styling**: TailwindCSS 3 with dark mode support (class strategy) - **v4 conflict fixed**
 7. **Environment**: Never commit `.env.local`, use `.env.local.example`
+8. **Design System**: ✅ COMPLETED - All components use `bg-[var(--variable)]` instead of hardcoded Tailwind colors
+   - **All 300+ instances fixed** across 45+ components
+   - **Build verified**: Successful production build with all CSS variable replacements

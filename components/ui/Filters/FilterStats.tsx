@@ -13,8 +13,8 @@ export const FilterStats = React.memo<FilterStatsProps>(({ activeFilters, totalR
   if (!activeFilters) return null;
 
   return (
-    <div className="text-sm text-gray-500 mb-4 flex items-center">
-      <Filter className="h-3 w-3 mr-1 text-amber-500" />
+    <div className="text-sm text-[var(--foreground-muted)] mb-4 flex items-center">
+      <Filter className="h-3 w-3 mr-1 text-[var(--primary)]" />
       <span>
         Mostrando {filteredCount} de {totalRestaurants} restaurantes
       </span>

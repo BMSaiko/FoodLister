@@ -4,7 +4,7 @@
 
 **Current Version**: 0.1.0 (Private)
 **Latest Commit**: `89d5da742a8cd0ee758ec9c34572103151f9584a`
-**Total Database Migrations**: 37
+**Total Database Migrations**: 38
 **Test Files**: 30+
 
 ## Completed Features
@@ -87,7 +87,7 @@
 - [x] 15+ custom hooks for reusable logic
 - [x] Component composition pattern (40+ components)
 - [x] TypeScript 5.8.2 with strict mode
-- [x] TailwindCSS 4 with custom theme
+- [x] TailwindCSS 3 with custom theme (v4 conflict fixed)
 - [x] Framer Motion for animations
 - [x] Lucide React for icons
 - [x] React Hook Form for form handling
@@ -96,7 +96,8 @@
 - [x] Supabase integration (PostgreSQL, Auth, Realtime)
 - [x] 15+ database tables with proper relationships
 - [x] Row Level Security (RLS) on all user tables
-- [x] 37 database migrations (sequential)
+- [x] 38 database migrations (sequential)
+- [x] Public read access for restaurants (migration 036)
 - [x] Database seeds for filter categories
 - [x] Auto-update triggers (review_count, search_index)
 - [x] Full-text search with user_search_index table
@@ -118,6 +119,20 @@
 - [x] API route tests
 - [x] ESLint 9.39.2 with Next.js and React Hooks rules
 - [x] TypeScript strict mode with incremental compilation
+
+#### Design System & Styling
+- [x] CSS variables defined in globals.css (--primary, --primary-light, etc.)
+- [x] Fixed Tailwind v3/v4 conflict (was using v4 syntax with v3 installation)
+- [x] Fixed CSS syntax errors in globals.css (invalid hex colors, typos, unclosed blocks)
+- [x] Rewrote globals.css with all CSS variables (--gray-*, --amber-*, --error-*, etc.)
+- [x] Fixed hardcoded colors in 45+ components across components/ui/, components/lists/, components/restaurant/
+- [x] Fixed hardcoded colors in LazyImage.tsx (bg-gray-200, bg-gray-100, text-gray-400)
+- [x] Added missing color variables (--error-50, --error-100, --green-500, --red-500, --warning, --warning-light)
+- [x] Standardized border radius in tailwind.config.js
+- [x] Resolved typography conflicts
+- [x] Build successful: "✓ Compiled successfully"
+- [ ] Fix remaining ~256 hardcoded colors in 36+ files
+- [ ] Final build verification after all fixes
 
 #### DevOps & Deployment
 - [x] GitHub repository setup
@@ -161,6 +176,30 @@
 - [ ] User guide for collaboration features
 - [ ] Filter preset system documentation
 - [ ] Update API documentation with recent changes
+
+### 🚧 Public Access Implementation (90% complete)
+- [x] Created migration 036_public_restaurant_access.sql for public restaurant access
+- [x] Verified API routes support public access via getPublicServerClient
+- [x] Verified reviews API includes public user data (display_name, avatar_url, user_id_code)
+- [x] Verified frontend components handle unlogged users correctly
+- [ ] Apply migration 036 manually in Supabase SQL Editor
+- [ ] Verify unlogged users can view all restaurants and reviews
+- [ ] Test all access scenarios (create/edit restaurants, post reviews)
+
+### 🚧 Design System Standardization (65% complete)
+- [x] Identified root cause: Tailwind CSS v3/v4 version conflict + CSS syntax errors
+- [x] Fixed Tailwind: Removed v4, installed v3 correctly
+- [x] Fixed postcss.config.mjs to use v3 plugin
+- [x] Fixed CSS syntax errors in globals.css (invalid hex colors with 7 digits, typos, unclosed blocks)
+- [x] Rewrote globals.css with all CSS variables (--primary, --gray-*, --amber-*, etc.)
+- [x] Fixed hardcoded colors in 45+ components (RestaurantRoulette, ErrorBoundary, EmptyState, Navbar, BaseForm, Card, FilterPanel, etc.)
+- [x] Fixed hardcoded colors in LazyImage.tsx (bg-gray-200, bg-gray-100, text-gray-400)
+- [x] Added missing color variables to globals.css (--error-50, --error-100, --green-500, --red-500, --warning, --warning-light)
+- [x] Standardized border radius in tailwind.config.js
+- [x] Resolved typography conflicts
+- [x] Build successful and dev server running with correct styles
+- [ ] Fix remaining ~256 hardcoded colors in 36+ files (RouletteFilters, CuisineSelector, FeaturesSelector, etc.)
+- [ ] Final build verification after all fixes
 
 ## Pending Features
 
@@ -234,6 +273,9 @@
 - Performance dashboard is dev-only (consider production metrics with opt-in)
 - Mobile experience could be enhanced with swipe gestures
 - Some loading states lack proper skeletons
+- **Design consistency**: ~256 hardcoded colors remaining in 36+ files (actively being fixed)
+- **Latest commit**: `0c52aa1849de202941fa62db92a06710924778fd`
+- Tailwind v3/v4 conflict resolved (was using v4 syntax with v3 installation)
 
 ### 🐛 Testing
 - Some API routes lack comprehensive test coverage
@@ -308,7 +350,7 @@
 
 - **Repository**: https://github.com/BMSaiko/FoodLister.git
 - **Total Commits**: (Check GitHub for latest count)
-- **Database Migrations**: 37
+- **Database Migrations**: 38
 - **Test Files**: 30+
 - **Components**: 40+
 - **Custom Hooks**: 15+

@@ -57,12 +57,12 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
 
   if (!images || images.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center py-12 px-6 bg-amber-50/50 rounded-2xl border-2 border-dashed border-amber-200 ${className}`}>
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-          <ImageIcon className="w-8 h-8 text-amber-500" />
+      <div className={`flex flex-col items-center justify-center py-12 px-6 bg-[var(--amber-50)]/50 rounded-2xl border-2 border-dashed border-[var(--amber-200)] ${className}`}>
+        <div className="w-16 h-16 bg-[var(--amber-100)] rounded-full flex items-center justify-center mb-4">
+          <ImageIcon className="w-8 h-8 text-[var(--amber-500)]" />
         </div>
-        <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhuma imagem do menu</h3>
-        <p className="text-sm text-amber-600 text-center max-w-xs">
+        <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem do menu</h3>
+        <p className="text-sm text-[var(--amber-600)] text-center max-w-xs">
           As imagens dos menus aparecerão aqui quando adicionadas ao restaurante
         </p>
       </div>
@@ -156,12 +156,12 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
 
   if (!images || images.length === 0) {
     return (
-      <div className={`flex flex-col items-center justify-center py-12 px-6 bg-amber-50/50 rounded-2xl border-2 border-dashed border-amber-200 ${className}`}>
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-          <ImageIcon className="w-8 h-8 text-amber-500" />
+      <div className={`flex flex-col items-center justify-center py-12 px-6 bg-[var(--amber-50)]/50 rounded-2xl border-2 border-dashed border-[var(--amber-200)] ${className}`}>
+        <div className="w-16 h-16 bg-[var(--amber-100)] rounded-full flex items-center justify-center mb-4">
+          <ImageIcon className="w-8 h-8 text-[var(--amber-500)]" />
         </div>
-        <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhuma imagem do menu</h3>
-        <p className="text-sm text-amber-600 text-center max-w-xs">
+        <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem do menu</h3>
+        <p className="text-sm text-[var(--amber-600)] text-center max-w-xs">
           As imagens dos menus aparecerão aqui quando adicionadas ao restaurante
         </p>
       </div>
@@ -205,7 +205,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
           >
             {/* Image Container - Mobile Friendly */}
             <div
-              className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 shadow-md sm:shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.01] sm:group-hover:scale-[1.02] group-active:scale-95"
+              className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-[var(--amber-50)] to-[var(--orange-50)] shadow-md sm:shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-[1.01] sm:group-hover:scale-[1.02] group-active:scale-95"
               onClick={() => {
                 const isMobile = window.innerWidth < 640;
 
@@ -239,10 +239,10 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
               />
 
               {/* Gradient Overlay - Mobile Optimized */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--black)]/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity duration-300" />
 
               {/* Image Number Badge - Mobile Friendly */}
-              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-white/95 backdrop-blur-sm text-amber-800 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-semibold shadow-lg">
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-[var(--white)]/95 backdrop-blur-sm text-[var(--amber-800)] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-semibold shadow-lg">
                 {item.originalIndex + 1}
               </div>
 
@@ -254,8 +254,8 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     ? 'opacity-100' // Mobile: state control
                     : 'opacity-0 group-active:opacity-100' // Mobile: temporary on tap
               }`}>
-                <div className="bg-white/95 backdrop-blur-sm rounded-full p-2 sm:p-3 shadow-lg">
-                  <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                <div className="bg-[var(--white)]/95 backdrop-blur-sm rounded-full p-2 sm:p-3 shadow-lg">
+                  <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--amber-600)]" />
                 </div>
               </div>
 
@@ -270,7 +270,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                         prevSet();
                       }}
                       disabled={isTransitioning}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-white hover:bg-amber-500 active:bg-amber-600 border-2 border-amber-200 hover:border-amber-500 active:border-amber-600 text-amber-600 hover:text-white active:text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--white)] hover:bg-[var(--amber-500)] active:bg-[var(--amber-600)] border-2 border-[var(--amber-200)] hover:border-[var(--amber-500)] active:border-[var(--amber-600)] text-[var(--amber-600)] hover:text-[var(--white)] active:text-[var(--white)] rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
                       aria-label="Imagens anteriores"
                     >
                       <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7" />
@@ -285,7 +285,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                         nextSet();
                       }}
                       disabled={isTransitioning}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 border-2 border-amber-500 text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--amber-500)] hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] border-2 border-[var(--amber-500)] text-[var(--white)] rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
                       aria-label="Próximas imagens"
                     >
                       <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7" />
@@ -297,15 +297,15 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     <>
                       {/* Mobile: Single image shows dots */}
                       {visibleCount === 1 && index === 0 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-[var(--white)]/90 backdrop-blur-sm rounded-full shadow-md">
                           {Array.from({ length: Math.ceil(images.length / Math.max(visibleCount, 1)) }, (_, dotIndex) => (
                             <button
                               key={dotIndex}
                               onClick={() => goToSet(dotIndex)}
                               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                                 Math.floor(startIndex / visibleCount) === dotIndex
-                                  ? 'bg-amber-500 scale-125 shadow-sm'
-                                  : 'bg-gray-300 hover:bg-amber-400 hover:scale-110'
+                                  ? 'bg-[var(--amber-500)] scale-125 shadow-sm'
+                                  : 'bg-[var(--gray-300)] hover:bg-[var(--amber-400)] hover:scale-110'
                               }`}
                               aria-label={`Conjunto ${dotIndex + 1} de imagens`}
                             />
@@ -315,15 +315,15 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                       
                       {/* Tablet: Right image shows dots */}
                       {visibleCount === 2 && index === 1 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-[var(--white)]/90 backdrop-blur-sm rounded-full shadow-md">
                           {Array.from({ length: Math.ceil(images.length / Math.max(visibleCount, 1)) }, (_, dotIndex) => (
                             <button
                               key={dotIndex}
                               onClick={() => goToSet(dotIndex)}
                               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                                 Math.floor(startIndex / visibleCount) === dotIndex
-                                  ? 'bg-amber-500 scale-125 shadow-sm'
-                                  : 'bg-gray-300 hover:bg-amber-400 hover:scale-110'
+                                  ? 'bg-[var(--amber-500)] scale-125 shadow-sm'
+                                  : 'bg-[var(--gray-300)] hover:bg-[var(--amber-400)] hover:scale-110'
                               }`}
                               aria-label={`Conjunto ${dotIndex + 1} de imagens`}
                             />
@@ -333,15 +333,15 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                       
                       {/* Desktop: Center image shows dots */}
                       {visibleCount === 3 && index === 1 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-md">
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 hidden sm:flex space-x-2 px-3 py-1.5 bg-[var(--white)]/90 backdrop-blur-sm rounded-full shadow-md">
                           {Array.from({ length: Math.ceil(images.length / Math.max(visibleCount, 1)) }, (_, dotIndex) => (
                             <button
                               key={dotIndex}
                               onClick={() => goToSet(dotIndex)}
                               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                                 Math.floor(startIndex / visibleCount) === dotIndex
-                                  ? 'bg-amber-500 scale-125 shadow-sm'
-                                  : 'bg-gray-300 hover:bg-amber-400 hover:scale-110'
+                                  ? 'bg-[var(--amber-500)] scale-125 shadow-sm'
+                                  : 'bg-[var(--gray-300)] hover:bg-[var(--amber-400)] hover:scale-110'
                               }`}
                               aria-label={`Conjunto ${dotIndex + 1} de imagens`}
                             />
@@ -360,12 +360,12 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
 
       {/* Modal Lightbox */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm" onClick={closeModal}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--black)]/95 backdrop-blur-sm" onClick={closeModal}>
           <div className="relative w-full h-full max-w-7xl max-h-screen p-4" onClick={(e) => e.stopPropagation()}>
             {/* Close Button */}
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 z-10 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
+              className="absolute top-4 right-4 z-10 w-12 h-12 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
               aria-label="Fechar modal"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,7 +381,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     e.stopPropagation();
                     prevModalImage();
                   }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
                   aria-label="Imagem anterior"
                 >
                   <ChevronLeft className="w-7 h-7" />
@@ -391,7 +391,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     e.stopPropagation();
                     nextModalImage();
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
                   aria-label="Próxima imagem"
                 >
                   <ChevronRight className="w-7 h-7" />
@@ -436,12 +436,12 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
             </div>
 
             {/* Image Counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[var(--black)]/50 backdrop-blur-sm text-[var(--white)] px-4 py-2 rounded-full text-sm font-medium">
               {modalImageIndex + 1} de {images.length}
             </div>
 
             {/* Keyboard Instructions - Desktop only */}
-            <div className="absolute bottom-4 right-4 hidden sm:block bg-black/50 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-xs">
+            <div className="absolute bottom-4 right-4 hidden sm:block bg-[var(--black)]/50 backdrop-blur-sm text-[var(--white)] px-3 py-2 rounded-lg text-xs">
               <div className="flex items-center space-x-2">
                 <span>← → Navegar</span>
                 <span>•</span>

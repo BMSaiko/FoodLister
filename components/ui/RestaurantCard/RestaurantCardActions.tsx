@@ -1,4 +1,4 @@
-// components/ui/RestaurantCardActions.tsx
+// components/ui/RestaurantCard/RestaurantCardActions.tsx
 "use client";
 
 import React from 'react';
@@ -46,13 +46,23 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
     }
   };
 
+  const getButtonClasses = () => {
+    if (loadingVisits) {
+      return 'bg-[var(--gray-200)] text-[var(--gray-500)] animate-pulse cursor-wait';
+    }
+    if (visited) {
+      return 'bg-[var(--green-500)] hover:bg-[var(--green-600)] text-[var(--primary-foreground)]';
+    }
+    return 'bg-[var(--gray-400)] hover:bg-[var(--gray-500)] text-[var(--foreground)]';
+  };
+
   return (
     <div className="absolute top-3 right-3 flex flex-col gap-2">
       {/* Map Button - Available for all users */}
       {restaurant.location && (
         <button
           onClick={handleOpenMapModal}
-          className="bg-primary hover:bg-primary-hover p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
+          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
           title="Abrir mapa"
         >
           <MapPin className="h-4 w-4 text-[var(--primary-foreground)]" />
@@ -65,17 +75,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
         <button
           onClick={onToggleVisited}
           disabled={isUpdating || loadingVisits}
-          className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-            loadingVisits
-              ? 'bg-gray-200 text-gray-500 animate-pulse'
-              : visited
-              ? 'hover:bg-[#059669]'
-              : 'hover:bg-[#6b7280]'
-          }`}
-          style={{
-            backgroundColor: loadingVisits ? '#e5e7eb' : visited ? '#10b981' : '#9ca3af',
-            color: loadingVisits ? '#6b7280' : visited ? '#ffffff' : '#000000'
-          }}
+          className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 cursor-pointer hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${getButtonClasses()}`}
           title={
             loadingVisits
               ? 'Carregando status de visita...'

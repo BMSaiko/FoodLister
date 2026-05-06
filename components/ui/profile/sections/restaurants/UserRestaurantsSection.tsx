@@ -156,9 +156,9 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
           block: 'center'
         });
         // Add a temporary highlight effect
-        restaurantElement.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        restaurantElement.classList.add('ring-2', 'ring-[var(--amber-500)]', 'ring-opacity-50', 'rounded-lg');
         setTimeout(() => {
-          restaurantElement.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+          restaurantElement.classList.remove('ring-2', 'ring-[var(--amber-500)]', 'ring-opacity-50', 'rounded-lg');
         }, 3000);
         return true;
       }
@@ -322,7 +322,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
           <SkeletonLoader type="restaurant" count={4} />
           {isLoadingMore && (
             <div className="flex justify-center pt-6">
-              <div className="h-12 bg-gray-300 rounded-lg w-48 animate-pulse"></div>
+              <div className="h-12 bg-[var(--gray-300)] rounded-lg w-48 animate-pulse"></div>
             </div>
           )}
         </div>
@@ -376,8 +376,8 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
 
         {/* Total Count - Always show if we have a total count */}
         {total > 0 && (
-          <div className="text-center text-gray-500 text-sm ios-safe-padding-top">
-            Mostrando {restaurants.length} de {total} restaurantes
+        <div className="text-center text-[var(--gray-500)] text-sm ios-safe-padding-top">
+          Mostrando {restaurants.length} de {total} restaurantes
           </div>
         )}
       </div>
@@ -388,7 +388,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   if (restaurants.length === 0 && !hookIsLoading && !hasInitialized) {
     return (
       <EmptyState
-        icon={<Utensils className="h-8 w-8 text-gray-400" />}
+        icon={<Utensils className="h-8 w-8 text-[var(--gray-400)]" />}
         title="Nenhum restaurante encontrado"
         description={isOwnProfile 
           ? 'Você ainda não adicionou nenhum restaurante. Comece a explorar e adicionar seus restaurantes favoritos!'
@@ -407,11 +407,11 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
     return (
       <div className="text-center py-8">
         <div className="text-6xl mb-4">⚠️</div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Erro ao carregar restaurantes</h3>
-        <p className="text-gray-600 mb-4">{hookError}</p>
+        <h3 className="text-lg font-semibold text-[var(--gray-800)] mb-2">Erro ao carregar restaurantes</h3>
+        <p className="text-[var(--gray-600)] mb-4">{hookError}</p>
         <button
           onClick={() => window.location.reload()}
-          className="bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors"
+          className="bg-[var(--amber-500)] text-white px-6 py-2 rounded-lg hover:bg-[var(--amber-600)] transition-colors"
         >
           Tentar Novamente
         </button>

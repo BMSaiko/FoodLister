@@ -10,12 +10,12 @@ interface ListTagsInputProps {
 }
 
 const TAG_COLORS = [
-  { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
-  { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200' },
-  { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
-  { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
-  { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-200' },
-  { bg: 'bg-pink-100', text: 'text-pink-800', border: 'border-pink-200' },
+  { bg: 'bg-[var(--amber-100)]', text: 'text-[var(--amber-800)]', border: 'border-[var(--amber-200)]' },
+  { bg: 'bg-[var(--orange-100)]', text: 'text-[var(--orange-800)]', border: 'border-[var(--orange-200)]' },
+  { bg: 'bg-[var(--green-100)]', text: 'text-[var(--green-800)]', border: 'border-[var(--green-200)]' },
+  { bg: 'bg-[var(--blue-100)]', text: 'text-[var(--blue-800)]', border: 'border-[var(--blue-200)]' },
+  { bg: 'bg-[var(--purple-100)]', text: 'text-[var(--purple-800)]', border: 'border-[var(--purple-200)]' },
+  { bg: 'bg-[var(--pink-100)]', text: 'text-[var(--pink-800)]', border: 'border-[var(--pink-200)]' },
 ];
 
 export default function ListTagsInput({ tags, onChange, placeholder = 'Adicionar tag...' }: ListTagsInputProps) {
@@ -41,12 +41,12 @@ export default function ListTagsInput({ tags, onChange, placeholder = 'Adicionar
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="flex items-center gap-2 text-sm text-[var(--gray-600)]">
         <Tag className="h-4 w-4" />
         <span>Tags</span>
       </div>
       
-      <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded-lg bg-white">
+      <div className="flex flex-wrap gap-2 p-2 border border-[var(--gray-200)] rounded-lg bg-[var(--card-bg)]">
         {tags.map((tag, index) => {
           const color = TAG_COLORS[index % TAG_COLORS.length];
           return (
@@ -76,7 +76,7 @@ export default function ListTagsInput({ tags, onChange, placeholder = 'Adicionar
         />
       </div>
       
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-[var(--gray-500)]">
         Pressione Enter para adicionar, Backspace para remover
       </p>
     </div>

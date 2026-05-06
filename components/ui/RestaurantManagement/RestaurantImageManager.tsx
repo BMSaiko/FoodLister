@@ -130,15 +130,15 @@ export default function RestaurantImageManager({
     <div className="space-y-6">
       {/* Header with counter */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center text-sm text-gray-600">
-          <ImageIcon className="h-4 w-4 mr-2 text-amber-500" />
+        <div className="flex items-center text-sm text-[var(--gray-600)]">
+          <ImageIcon className="h-4 w-4 mr-2 text-[var(--amber-500)]" />
           Imagens do Restaurante
-          <span className="ml-2 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+          <span className="ml-2 px-2 py-0.5 bg-[var(--amber-100)] text-[var(--amber-700)] rounded-full text-xs font-medium">
             {localImages.length}/10
           </span>
         </div>
         {selectedDisplayIndex >= 0 && localImages.length > 0 && (
-          <div className="flex items-center text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-md">
+          <div className="flex items-center text-xs text-[var(--amber-600)] bg-[var(--amber-50)] px-2 py-1 rounded-md">
             <Star className="h-3 w-3 mr-1 fill-current" />
             Imagem principal: {selectedDisplayIndex + 1}
           </div>
@@ -160,8 +160,8 @@ export default function RestaurantImageManager({
             <div key={index} className="relative group">
               <div className={`relative aspect-square rounded-xl overflow-hidden border-2 shadow-sm hover:shadow-md transition-all duration-200 ${
                 selectedDisplayIndex === index
-                  ? 'border-amber-500 ring-2 ring-amber-200'
-                  : 'border-gray-200'
+                  ? 'border-[var(--amber-500)] ring-2 ring-[var(--amber-200)]'
+                  : 'border-[var(--gray-200)]'
               }`}>
                 <Image
                   src={imageUrl}
@@ -173,27 +173,27 @@ export default function RestaurantImageManager({
 
                 {/* Display image indicator */}
                 {selectedDisplayIndex === index && (
-                  <div className="absolute top-2 left-2 bg-amber-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-lg">
+                  <div className="absolute top-2 left-2 bg-[var(--amber-500)] text-[var(--primary-foreground)] px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-lg">
                     <Star className="h-3 w-3 mr-1 fill-current" />
                     Principal
                   </div>
                 )}
 
                 {/* Image number badge */}
-                <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium">
+                <div className="absolute top-2 right-2 bg-[rgba(0,0,0,0.5)] backdrop-blur-sm text-[var(--primary-foreground)] px-2 py-1 rounded-full text-xs font-medium">
                   {index + 1}
                 </div>
 
                 {/* Hover overlay with actions */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-[rgba(0,0,0,0)] group-hover:bg-[rgba(0,0,0,0.2)] transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => handleSetDisplayImage(index)}
                       className={`p-2 rounded-full transition-all duration-200 ${
                         selectedDisplayIndex === index
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-white/90 text-gray-700 hover:bg-white'
+                          ? 'bg-[var(--amber-500)] text-[var(--primary-foreground)]'
+                          : 'bg-[rgba(255,255,255,0.9)] text-[var(--gray-700)] hover:bg-white'
                       } shadow-lg`}
                       title={selectedDisplayIndex === index ? "Imagem principal" : "Definir como imagem principal"}
                     >
@@ -202,7 +202,7 @@ export default function RestaurantImageManager({
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index)}
-                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all duration-200 shadow-lg"
+                      className="p-2 bg-[var(--red-500)] text-[var(--primary-foreground)] rounded-full hover:bg-[var(--red-600)] transition-all duration-200 shadow-lg"
                       title="Remover imagem"
                     >
                       <X className="h-4 w-4" />
@@ -218,7 +218,7 @@ export default function RestaurantImageManager({
                     type="button"
                     onClick={() => handleMoveUp(index)}
                     disabled={index === 0}
-                    className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+                    className="px-2 py-1 text-xs bg-[var(--gray-100)] hover:bg-[var(--gray-200)] disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
                     title="Mover para cima"
                   >
                     ↑
@@ -227,7 +227,7 @@ export default function RestaurantImageManager({
                     type="button"
                     onClick={() => handleMoveDown(index)}
                     disabled={index === localImages.length - 1}
-                    className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
+                    className="px-2 py-1 text-xs bg-[var(--gray-100)] hover:bg-[var(--gray-200)] disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
                     title="Mover para baixo"
                   >
                     ↓
@@ -238,35 +238,35 @@ export default function RestaurantImageManager({
                   onClick={() => handleSetDisplayImage(index)}
                   className={`px-2 py-1 text-xs rounded transition-colors flex items-center gap-1 ${
                     selectedDisplayIndex === index
-                      ? 'bg-amber-500 text-white'
-                      : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                      ? 'bg-[var(--amber-500)] text-[var(--primary-foreground)]'
+                      : 'bg-[var(--amber-100)] text-[var(--amber-700)] hover:bg-[var(--amber-200)]'
                   }`}
                   title="Definir como imagem principal"
                 >
                   <Star className={`h-3 w-3 ${selectedDisplayIndex === index ? 'fill-current' : ''}`} />
-                  {selectedDisplayIndex === index ? 'Principal' : 'Principal'}
+                  {selectedDisplayIndex === index ? 'Principal' : 'Definir'}
                 </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 px-6 bg-amber-50/50 rounded-xl border-2 border-dashed border-amber-200">
-          <ImageIcon className="h-12 w-12 mx-auto text-amber-400 mb-4" />
-          <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhuma imagem adicionada</h3>
-          <p className="text-sm text-amber-600 mb-4">Adicione imagens do restaurante para criar um carrossel atrativo</p>
-          <p className="text-xs text-amber-500">A primeira imagem adicionada será automaticamente definida como principal</p>
+        <div className="text-center py-12 px-6 bg-[rgba(var(--amber-50),0.5)] rounded-xl border-2 border-dashed border-[var(--amber-200)]">
+          <ImageIcon className="h-12 w-12 mx-auto text-[var(--amber-400)] mb-4" />
+          <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem adicionada</h3>
+          <p className="text-sm text-[var(--amber-600)] mb-4">Adicione imagens do restaurante para criar um carrossel atrativo</p>
+          <p className="text-xs text-[var(--amber-500)]">A primeira imagem adicionada será automaticamente definida como principal</p>
         </div>
       )}
 
       {/* Summary and tips */}
-      <div className="text-xs text-gray-500 space-y-2 bg-gray-50 p-4 rounded-lg">
+      <div className="text-xs text-[var(--gray-500)] space-y-2 bg-[var(--gray-50)] p-4 rounded-lg">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div>• Imagens do restaurante: {localImages.length}/10 máximo</div>
           <div>• A imagem principal aparece nos cards e no início do carrossel</div>
         </div>
-        <div className="pt-2 border-t border-gray-200">
-          <p className="text-amber-600 font-medium">💡 Dica: Use a primeira imagem como foto de destaque do restaurante</p>
+        <div className="pt-2 border-t border-[var(--gray-200)]">
+          <p className="text-[var(--amber-600)] font-medium">💡 Dica: Use a primeira imagem como foto de destaque do restaurante</p>
         </div>
       </div>
     </div>

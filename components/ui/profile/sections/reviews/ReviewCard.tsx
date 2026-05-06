@@ -71,30 +71,30 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   // Get color class based on price level
   const getPriceColorClass = (level: number): string => {
     switch(level) {
-      case 1: return 'text-amber-400';
-      case 2: return 'text-amber-500';
-      case 3: return 'text-amber-600';
-      case 4: return 'text-amber-800';
-      default: return 'text-amber-400';
+      case 1: return 'text-[var(--amber-400)]';
+      case 2: return 'text-[var(--amber-500)]';
+      case 3: return 'text-[var(--amber-600)]';
+      case 4: return 'text-[var(--amber-800)]';
+      default: return 'text-[var(--amber-400)]';
     }
   };
 
   const getPriceLabelClass = (level: number): string => {
     switch(level) {
-      case 1: return 'text-amber-400 font-bold';
-      case 2: return 'text-amber-500 font-bold';
-      case 3: return 'text-amber-600 font-bold';
-      case 4: return 'text-amber-800 font-bold';
-      default: return 'text-amber-400 font-medium';
+      case 1: return 'text-[var(--amber-400)] font-bold';
+      case 2: return 'text-[var(--amber-500)] font-bold';
+      case 3: return 'text-[var(--amber-600)] font-bold';
+      case 4: return 'text-[var(--amber-800)] font-bold';
+      default: return 'text-[var(--amber-400)] font-medium';
     }
   };
 
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {
-    if (rating >= 4.5) return 'bg-green-50 text-green-700';
-    if (rating >= 3.5) return 'bg-amber-50 text-amber-700';
-    if (rating >= 2.5) return 'bg-yellow-50 text-yellow-700';
-    return 'bg-red-50 text-red-700';
+    if (rating >= 4.5) return 'bg-[var(--green-50)] text-[var(--green-700)] border-[var(--green-200)]';
+    if (rating >= 3.5) return 'bg-[var(--amber-50)] text-[var(--amber-700)] border-[var(--amber-200)]';
+    if (rating >= 2.5) return 'bg-[var(--yellow-50)] text-[var(--yellow-700)] border-[var(--yellow-200)]';
+    return 'bg-[var(--red-50)] text-[var(--red-700)] border-[var(--red-200)]';
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -135,7 +135,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
 
   return (
     <div 
-      className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 group ${className}`}
+      className={`bg-[var(--white)] rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 group ${className}`}
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
@@ -159,23 +159,25 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-            <Star className="h-12 w-12 text-gray-400" />
+          <div className="w-full h-full bg-gradient-to-br from-[var(--gray-200)] to-[var(--gray-300)] flex items-center justify-center">
+            <Star className="h-12 w-12 text-[var(--gray-400)]" />
           </div>
         )}
 
         {/* Restaurant Rating Badge */}
-        <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(review.restaurant.rating ?? review.rating)}`}>
-          <div className="flex items-center gap-1">
-            <Star className="h-3 w-3" fill="currentColor" />
-            <span className="font-semibold text-xs">{(review.restaurant.rating ?? review.rating).toFixed(1)}/5</span>
+        {review.restaurant.rating && (
+          <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(review.restaurant.rating)}`}>
+            <div className="flex items-center gap-1">
+              <Star className="h-3 w-3" fill="currentColor" />
+              <span className="font-semibold text-xs">{(review.restaurant.rating ?? 0).toFixed(1)}/5</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Restaurant Name Overlay */}
         <div className="absolute bottom-3 left-3 right-3">
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
-            <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
+          <div className="bg-[var(--white)]/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
+            <h3 className="text-lg font-bold text-[var(--gray-900)] line-clamp-1">
               {review.restaurant.name}
             </h3>
           </div>
@@ -194,11 +196,37 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
 
       {/* Content Area */}
       <div className="p-4" onClick={handleCardClick}>
+        {/* Review Header - Rating and Amount Spent */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${getRatingStyle(review.rating)}`}>
+              <Star className="h-4 w-4" fill="currentColor" />
+              <span className="font-semibold text-sm">{review.rating.toFixed(1)}/5</span>
+            </div>
+            {review.amountSpent && (
+              <div className={`flex items-center gap-2 px-2 py-1 rounded border ${getPriceColorClass(categorizePriceLevel(review.amountSpent).level)}`}>
+                <span className="font-semibold">
+                  {formatAmount(review.amountSpent)}
+                </span>
+                {/* Price Category Label */}
+                <span className="text-xs font-medium">
+                  {categorizePriceLevel(review.amountSpent).label}
+                </span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-1 px-2 py-1 rounded border border-[var(--gray-200)]">
+            <Clock className="h-4 w-4" />
+            <span>{new Date(review.createdAt).toLocaleDateString('pt-PT')}</span>
+          </div>
+        </div>
+
+        {/* Review Content */}
         {isEditing ? (
           // Edit Mode - Not clickable for redirection
           <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
                 Avaliação
               </label>
               <div className="flex gap-2">
@@ -214,20 +242,20 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                     <Star
                       className={`h-6 w-6 ${
                         star <= (editingData?.rating || 0)
-                          ? 'text-amber-400 fill-current'
-                          : 'text-gray-300'
+                          ? 'text-[var(--amber-400)] fill-current'
+                          : 'text-[var(--gray-300)]'
                       }`}
                     />
                   </button>
                 ))}
-                <span className="ml-2 text-sm text-gray-600 font-medium">
+                <span className="ml-2 text-sm text-[var(--gray-600)] font-medium">
                   {(editingData?.rating || 0)}/5
                 </span>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
                 Comentário
               </label>
               <textarea
@@ -237,17 +265,17 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                   onEditChange?.('comment', e.target.value);
                 }}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent resize-none"
                 placeholder="Descreva sua experiência..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
                 Valor Gasto (EUR)
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-500">€</span>
+                <span className="absolute left-3 top-2 text-[var(--gray-500)]">€</span>
                 <input
                   type="number"
                   value={editingData?.amountSpent || ''}
@@ -257,7 +285,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
                   }}
                   step="0.01"
                   min="0"
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full pl-8 pr-3 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent"
                   placeholder="0.00"
                 />
               </div>
@@ -289,7 +317,16 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         ) : (
           // View Mode - Clickable for redirection
           <div>
-            {/* Review Footer - Positioned above the comment */}
+            {/* Review Comment */}
+            {review.comment && (
+              <div className="bg-[var(--white)] rounded-lg p-3 sm:p-4 border border-[var(--gray-200)] mb-4">
+                <p className="text-[var(--gray-700)] leading-relaxed text-sm sm:text-base line-clamp-3">
+                  {review.comment}
+                </p>
+              </div>
+            )}
+
+            {/* Review Footer - Metadata and tags, similar to RestaurantCardFooter */}
             <ReviewCardFooter 
               review={review} 
               centered={false}

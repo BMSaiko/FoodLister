@@ -13,9 +13,9 @@ interface CardProps {
 }
 
 const variantClasses: Record<string, string> = {
-  default: 'bg-card-bg border border-card-border shadow-[var(--card-shadow)]',
-  elevated: 'bg-card-bg border border-card-border shadow-[var(--card-shadow-lg)]',
-  outlined: 'bg-transparent border-2 border-card-border',
+  default: 'bg-[var(--card-bg)] border border-[var(--card-border)] shadow-[var(--card-shadow)]',
+  elevated: 'bg-[var(--card-bg)] border border-[var(--card-border)] shadow-[var(--card-shadow-lg)]',
+  outlined: 'bg-transparent border-2 border-[var(--card-border)]',
 };
 
 export const Card: React.FC<CardProps> = ({
@@ -140,7 +140,7 @@ interface CardFooterProps {
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children, className = '' }) => {
   return (
-    <div className={`px-4 md:px-5 py-3 border-t border-card-border flex items-center gap-2 ${className}`}>
+    <div className={`px-4 md:px-5 py-3 border-t border-[var(--card-border)] flex items-center gap-2 ${className}`}>
       {children}
     </div>
   );

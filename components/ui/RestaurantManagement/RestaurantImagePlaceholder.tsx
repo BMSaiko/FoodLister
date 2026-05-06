@@ -5,11 +5,11 @@ const RestaurantImagePlaceholder = ({
   iconSize = "48",
   showText = true,
   textSize = "text-sm",
-  iconColor = "text-amber-600",
-  textColor = "text-amber-700"
+  iconColor = "text-[var(--amber-600)]",
+  textColor = "text-[var(--amber-700)]"
 }) => {
   return (
-    <div className={`w-full h-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center ${className}`}>
+    <div className={`w-full h-full bg-gradient-to-br from-[var(--amber-100)] to-[var(--amber-200)] flex items-center justify-center ${className}`}>
       <div className="flex flex-col items-center gap-2">
         {/* Logo SVG baseado no logo da app */}
         <svg
@@ -28,7 +28,7 @@ const RestaurantImagePlaceholder = ({
           <path d="M7 2v20"></path>
           <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
         </svg>
-
+        
         {/* Texto do placeholder */}
         {showText && (
           <span className={`${textColor} font-medium ${textSize} text-center px-2`}>

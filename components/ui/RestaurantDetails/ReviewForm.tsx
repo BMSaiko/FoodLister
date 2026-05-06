@@ -194,25 +194,25 @@ export default function ReviewForm({
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 sm:p-6 border border-gray-200 shadow-sm">
+    <div className="bg-[var(--card-bg)] rounded-lg p-4 sm:p-6 border border-[var(--card-border)] shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">
+        <h3 className="text-lg font-semibold text-[var(--gray-800)]">
           {isEditing ? 'Editar Avaliação' : 'Avaliar Restaurante'}
         </h3>
         <button
           onClick={handleCancel}
-          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-1 hover:bg-[var(--gray-100)] rounded-full transition-colors"
           title="Cancelar"
         >
-          <X className="h-5 w-5 text-gray-500" />
+          <X className="h-5 w-5 text-[var(--gray-500)]" />
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Rating Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            Classificação <span className="text-red-500">*</span>
+          <label className="block text-sm font-medium text-[var(--gray-700)] mb-3">
+            Classificação <span className="text-[var(--red-500)]">*</span>
           </label>
           <div className="flex items-center gap-2">
             {Array.from({ length: 5 }, (_, i) => {
@@ -226,8 +226,8 @@ export default function ReviewForm({
                   onClick={() => handleRatingClick(starValue)}
                   className={`transition-all duration-200 ${
                     isActive 
-                      ? 'text-amber-400 hover:text-amber-500' 
-                      : 'text-gray-300 hover:text-amber-300'
+                      ? 'text-[var(--amber-400)] hover:text-[var(--amber-500)]' 
+                      : 'text-[var(--gray-300)] hover:text-[var(--amber-300)]'
                   }`}
                   title={`Classificar ${starValue} estrela${starValue > 1 ? 's' : ''}`}
                 >
@@ -239,12 +239,12 @@ export default function ReviewForm({
                 </button>
               );
             })}
-            <span className="ml-4 text-sm text-gray-600 font-medium">
+            <span className="ml-4 text-sm text-[var(--gray-600)] font-medium">
               {formData.rating > 0 ? `${formData.rating}/5` : 'Selecione uma classificação'}
             </span>
           </div>
           {errors.rating && (
-            <p className="mt-2 text-sm text-red-600">{errors.rating}</p>
+            <p className="mt-2 text-sm text-[var(--red-600)]">{errors.rating}</p>
           )}
         </div>
 
@@ -272,7 +272,7 @@ export default function ReviewForm({
           helperText="Valor total gasto na visita (opcional)"
         />
         {errors.amount_spent && (
-          <p className="mt-2 text-sm text-red-600">{errors.amount_spent}</p>
+          <p className="mt-2 text-sm text-[var(--red-600)]">{errors.amount_spent}</p>
         )}
 
         {/* Form Actions */}
