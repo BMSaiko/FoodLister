@@ -148,12 +148,21 @@ export default function RestaurantDetails() {
       } catch (error) {
         logError('Error fetching review count', error);
       }
-    } catch (error) {
-      logError('Error fetching restaurant details', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+      } catch (error) {
+        // Handle different error types safely
+        let errorMessage = 'Unknown error';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+        } else if (error && typeof error === 'object') {
+          errorMessage = JSON.stringify(error).substring(0, 200);
+        }
+        logError('Error fetching restaurant details', errorMessage);
+      } finally {
+        setLoading(false);
+      }
+    }, [id]);
 
   const fetchReviews = useCallback(async () => {
     if (!id) return;

@@ -160,10 +160,20 @@ function log(level: LogLevel, message: string, context?: Record<string, any>): v
 
   // Structured JSON logging for security and parseability
   const logMethod = level === LogLevel.ERROR ? console.error :
-                   level === LogLevel.WARN ? console.warn :
-                   level === LogLevel.INFO ? console.info : console.debug;
+                     level === LogLevel.WARN ? console.warn :
+                     level === LogLevel.INFO ? console.info : console.debug;
 
-  logMethod(JSON.stringify(entry));
+  try {
+    logMethod(JSON.stringify(entry));
+  } catch (stringifyError) {
+    // Fallback for circular references or other stringify issues
+    logMethod(JSON.stringify({
+      level: entry.level,
+      message: entry.message,
+      timestamp: entry.timestamp,
+      context: '[CONTEXT_REMOVED_DUE_TO_STRINGIFY_ERROR]'
+    }));
+  }
 }
 
 /**
