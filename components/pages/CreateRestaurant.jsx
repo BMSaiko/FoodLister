@@ -26,8 +26,8 @@ export default function CreateRestaurant() {
   // Show loading while checking auth
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+      <div className="min-h-screen bg-[var(--gray-50)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--amber-500)]"></div>
       </div>
     );
   }

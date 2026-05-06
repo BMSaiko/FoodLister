@@ -27,8 +27,8 @@ function AuthGuard({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50/30 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-[var(--gray-50)] to-[var(--amber-50)]/30 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--amber-500)]"></div>
       </div>
     );
   }
@@ -86,15 +86,15 @@ function EditListContent({ listId }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-[var(--gray-50)] to-[var(--amber-50)]/30">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6 max-w-2xl mx-auto">
+          <div className="bg-[var(--white)] rounded-2xl shadow-lg p-6 max-w-2xl mx-auto">
             <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-gray-200 rounded-xl w-1/2"></div>
-              <div className="h-4 bg-gray-200 rounded-xl w-full"></div>
-              <div className="h-4 bg-gray-200 rounded-xl w-full"></div>
-              <div className="h-4 bg-gray-200 rounded-xl w-3/4"></div>
+              <div className="h-8 bg-[var(--gray-200)] rounded-xl w-1/2"></div>
+              <div className="h-4 bg-[var(--gray-200)] rounded-xl w-full"></div>
+              <div className="h-4 bg-[var(--gray-200)] rounded-xl w-full"></div>
+              <div className="h-4 bg-[var(--gray-200)] rounded-xl w-3/4"></div>
             </div>
           </div>
         </div>
