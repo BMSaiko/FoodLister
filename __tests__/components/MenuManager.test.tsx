@@ -40,10 +40,13 @@ jest.mock('lucide-react', () => ({
   FileText: () => <span data-testid="file-text-icon" />,
 }));
 
-// Mock next/image
+// Mock next/image - filter out fill prop as it's not valid HTML
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => <img {...props} alt={props.alt} />,
+  default: (props: any) => {
+    const { fill, ...rest } = props;
+    return <img {...rest} alt={props.alt} />;
+  },
 }));
 
 // Store callbacks to simulate uploads
@@ -272,6 +275,9 @@ describe('MenuManager', () => {
       expect(screen.getByText('https://example.com/menu1')).toBeInTheDocument();
     });
 
+    // Re-type the same link (input was cleared after first add)
+    fireEvent.change(input, { target: { value: 'https://example.com/menu1' } });
+    
     // Try to add the same link again
     fireEvent.click(addButton);
 

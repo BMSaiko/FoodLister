@@ -31,7 +31,21 @@ const mockProfile = {
   isOwnProfile: true,
 };
 
+// Create mutable router mock
+const mockRouter = {
+  push: jest.fn(),
+  replace: jest.fn(),
+  prefetch: jest.fn(),
+  back: jest.fn(),
+};
+
 // Mock modules BEFORE importing the component
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => mockRouter),
+  usePathname: () => '/users/settings',
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 jest.mock('@/libs/supabase/client', () => ({
   getClient: jest.fn(() => ({
     auth: {
@@ -56,17 +70,6 @@ jest.mock('@/libs/supabase/client', () => ({
   })),
   getServerClient: jest.fn(),
   getPublicServerClient: jest.fn(),
-}));
-
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-    back: jest.fn(),
-  }),
-  usePathname: () => '/users/settings',
-  useSearchParams: () => new URLSearchParams(),
 }));
 
 jest.mock('next/link', () => {
@@ -167,6 +170,11 @@ const SettingsPage = require('@/app/users/settings/page').default;
 describe('SettingsPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset router mocks
+    mockRouter.push.mockClear();
+    mockRouter.replace.mockClear();
+    mockRouter.prefetch.mockClear();
+    mockRouter.back.mockClear();
   });
 
   it('renders the settings page with form actions', () => {
@@ -182,19 +190,10 @@ describe('SettingsPage', () => {
   });
 
   it('calls handleCancel when cancel button is clicked', () => {
-    const mockBack = jest.fn();
-    const useRouterMock = require('next/navigation').useRouter;
-    (useRouterMock as jest.Mock).mockReturnValue({
-      push: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-      back: mockBack,
-    });
-    
     render(<SettingsPage />);
     const cancelButton = screen.getByTestId('cancel-button');
     fireEvent.click(cancelButton);
-    expect(mockBack).toHaveBeenCalled();
+    expect(mockRouter.back).toHaveBeenCalled();
   });
 
   it('displays user profile information', () => {
