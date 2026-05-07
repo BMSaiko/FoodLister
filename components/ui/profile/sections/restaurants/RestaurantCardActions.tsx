@@ -14,6 +14,7 @@ interface RestaurantCardActionsProps {
     location?: string;
     latitude?: number;
     longitude?: number;
+    source_url?: string;
   };
   isOwnRestaurant: boolean;
   onEdit?: (e: React.MouseEvent) => void;
@@ -43,7 +44,8 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
       openMapModal({
         location: restaurant.location || '',
         latitude: restaurant.latitude,
-        longitude: restaurant.longitude
+        longitude: restaurant.longitude,
+        source_url: restaurant.source_url
       });
     }
   };
