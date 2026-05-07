@@ -1,22 +1,28 @@
 // app/api/lists/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getClient } from '@/libs/supabase/client';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = getClient();
     const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ error: 'List ID is required' }, { status: 400 });
     }
 
+    // Try authenticated access first, fall back to public client for unauthenticated users
+    const supabase = await getServerClient(request, new NextResponse());
+    const client = supabase || (await getPublicServerClient());
+
+    if (!client) {
+      return NextResponse.json({ error: 'Failed to initialize database client' }, { status: 500 });
+    }
+
     // Step 1: Fetch the list details
-    const { data: listData, error: listError } = await supabase
+    const { data: listData, error: listError } = await client
       .from('lists')
       .select('*')
       .eq('id', id)
@@ -35,7 +41,7 @@ export async function GET(
     }
 
     // Step 2: Fetch restaurant IDs from list_restaurants (ordered by position)
-    const { data: listRestaurants, error: listRestaurantsError } = await supabase
+    const { data: listRestaurants, error: listRestaurantsError } = await client
       .from('list_restaurants')
       .select('restaurant_id, position')
       .eq('list_id', id)
@@ -59,7 +65,7 @@ export async function GET(
     if (listRestaurants && listRestaurants.length > 0) {
       const restaurantIds = listRestaurants.map((lr: { restaurant_id: string }) => lr.restaurant_id);
       
-      const { data: restaurantData, error: restaurantError } = await supabase
+      const { data: restaurantData, error: restaurantError } = await client
         .from('restaurants')
         .select(`
           *,

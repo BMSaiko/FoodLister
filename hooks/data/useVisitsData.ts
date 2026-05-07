@@ -61,6 +61,7 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
 
         if (response.ok) {
           const data = await response.json();
+          // Data is already in snake_case format from API, matching VisitData type
           setVisitsData(data);
         } else if (response.status === 401) {
           // Retry once after a short delay to handle race condition after login
@@ -78,6 +79,7 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
 
           if (retryResponse.ok) {
             const data = await retryResponse.json();
+            // Data is already in snake_case format from API, matching VisitData type
             setVisitsData(data);
           } else {
             console.error('❌ Authentication expired after retry, redirecting to signin');
@@ -94,17 +96,17 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
           });
           setVisitsData(defaultVisitsData);
         }
-      } catch (error) {
-        console.error('Error fetching visits data:', error);
-        // Set default visits data on error
-        const defaultVisitsData: VisitsData = {};
-        restaurants.forEach(restaurant => {
-          defaultVisitsData[restaurant.id] = { visited: false, visit_count: 0 };
-        });
-        setVisitsData(defaultVisitsData);
-      } finally {
-        setLoadingVisits(false);
-      }
+        } catch (error) {
+          console.error('Error fetching visits data:', error);
+          // Set default visits data on error
+          const defaultVisitsData: VisitsData = {};
+          restaurants.forEach(restaurant => {
+            defaultVisitsData[restaurant.id] = { visited: false, visit_count: 0 };
+          });
+          setVisitsData(defaultVisitsData);
+        } finally {
+          setLoadingVisits(false);
+        }
     };
 
     fetchVisitsData();
@@ -132,6 +134,7 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
 
             if (response.ok) {
               const data = await response.json();
+              // Data is already in snake_case format from API, matching VisitData type
               setVisitsData(data);
             } else if (response.status === 401) {
               // Retry once after a short delay
@@ -149,6 +152,7 @@ export function useVisitsData(restaurants: Restaurant[], user: any): UseVisitsDa
 
               if (retryResponse.ok) {
                 const data = await retryResponse.json();
+                // Data is already in snake_case format from API, matching VisitData type
                 setVisitsData(data);
               } else {
                 console.error('❌ Authentication expired during visibility change after retry, signing out');

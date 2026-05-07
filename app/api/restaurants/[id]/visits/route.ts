@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({
       visited: visitData ? (visitData as any).visited : false,
-      visitCount: visitData ? (visitData as any).visit_count : 0
+      visit_count: visitData ? (visitData as any).visit_count : 0
     });
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
       return NextResponse.json({
         visited: true,
-        visitCount: (updatedVisit as any).visit_count
+        visit_count: (updatedVisit as any).visit_count
       });
     } else {
       // Create new record with explicit user_id
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
       return NextResponse.json({
         visited: true,
-        visitCount: 1
+        visit_count: 1
       });
     }
   } catch (error) {
@@ -186,7 +186,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         return NextResponse.json({
           visited: newVisitedStatus,
-          visitCount: (updatedVisit as any).visit_count
+          visit_count: (updatedVisit as any).visit_count
         });
       } else {
         // Create new record with visited = true and explicit user_id
@@ -208,7 +208,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         return NextResponse.json({
           visited: true,
-          visitCount: 1
+          visit_count: 1
         });
       }
     }
@@ -254,7 +254,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
           return NextResponse.json({
             visited: shouldMarkUnvisited ? false : (existingVisit as any).visited,
-            visitCount: newVisitCount
+            visit_count: newVisitCount
           });
         } else {
           return NextResponse.json({ error: 'Cannot remove visit: visit count is already 0' }, { status: 400 });

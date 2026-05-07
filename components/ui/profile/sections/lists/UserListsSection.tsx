@@ -102,7 +102,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
   if (lists.length === 0) {
     return (
       <EmptyState
-        icon={<List className="h-8 w-8 text-gray-400" />}
+        icon={<List className="h-8 w-8 text-[var(--gray-400)]" />}
         title="Nenhuma lista encontrada"
         description={isOwnProfile 
           ? 'Você ainda não criou nenhuma lista. Comece a organizar seus restaurantes favoritos!'
@@ -129,7 +129,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
             touchTarget={true}
           >
             {/* List Header with Icon */}
-            <div className="relative h-48 sm:h-56 lg:h-64 w-full rounded-t-xl overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100">
+            <div className="relative h-48 sm:h-56 lg:h-64 w-full rounded-t-xl overflow-hidden bg-gradient-to-br from-[var(--amber-50)] to-[var(--amber-100)]">
               <div className="w-full h-full flex items-center justify-center">
                 <ListIconBadge count={list.restaurantCount} />
               </div>
@@ -138,27 +138,27 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
             {/* Content Area */}
             <div className="p-4 flex-grow">
               <div className="flex items-center gap-3 mb-3">
-                <h3 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
+                <h3 className="text-lg font-bold text-[var(--gray-900)] group-hover:text-[var(--amber-600)] transition-colors">
                   {list.name}
                 </h3>
               </div>
               
               {list.description && (
-                <p className="text-gray-700 text-sm line-clamp-3 mb-4">
+                <p className="text-[var(--gray-700)] text-sm line-clamp-3 mb-4">
                   {list.description}
                 </p>
               )}
               
-              <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-gray-600">
+              <div className="flex flex-wrap gap-2 sm:gap-4 text-sm text-[var(--gray-600)]">
                 <RestaurantCountBadge count={list.restaurantCount} />
                 <DateBadge date={list.createdAt} prefix="Criada em" />
               </div>
 
               {/* Footer */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between mt-4">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-[var(--gray-500)]">
                   <span>Ver lista completa</span>
-                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                  <ChevronRight className="h-4 w-4 text-[var(--gray-400)]" />
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -167,7 +167,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
                       e.stopPropagation();
                       handleShareList(list.id, list.name, list.description);
                     }}
-                    className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex items-center gap-1 text-sm text-[var(--blue-500)] hover:text-[var(--blue-600)] hover:bg-[var(--blue-50)] px-3 py-1.5 rounded-lg transition-colors"
                     aria-label={`Partilhar lista ${list.name}`}
                   >
                     <Share2 className="h-4 w-4" />
@@ -180,7 +180,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
                         e.stopPropagation();
                         handleDeleteList(list.id, list.name);
                       }}
-                      className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                      className="flex items-center gap-1 text-sm text-[var(--red-500)] hover:text-[var(--red-600)] hover:bg-[var(--red-50)] px-3 py-1.5 rounded-lg transition-colors"
                       aria-label={`Eliminar lista ${list.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -213,7 +213,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
 
       {/* Total Count */}
       {total > lists.length && (
-        <div className="text-center text-gray-500 text-sm ios-safe-padding-top">
+        <div className="text-center text-[var(--gray-500)] text-sm ios-safe-padding-top">
           Mostrando {lists.length} de {total} listas
         </div>
       )}

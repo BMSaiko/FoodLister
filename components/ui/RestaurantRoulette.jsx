@@ -67,103 +67,103 @@ export default function RestaurantRoulette({ restaurants, onClose }) {
 
   if (restaurants.length === 0) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl p-6 max-w-md w-full">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">Roleta de Restaurantes</h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <X className="h-5 w-5" />
-            </button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--card-bg)] rounded-[var(--radius-xl)] p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-[var(--foreground)]">Roleta de Restaurantes</h3>
+              <button
+                onClick={onClose}
+                className="text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-[var(--foreground-secondary)] text-center py-8">
+              Não há restaurantes nesta lista para girar a roleta.
+            </p>
           </div>
-          <p className="text-gray-500 text-center py-8">
-            Não há restaurantes nesta lista para girar a roleta.
-          </p>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl p-6 max-w-lg w-full relative">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-          disabled={isSpinning}
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[var(--card-bg)] rounded-[var(--radius-xl)] p-6 max-w-lg w-full relative">
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]"
+              disabled={isSpinning}
+            >
+              <X className="h-5 w-5" />
+            </button>
 
-        <div className="text-center mb-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-2">
-            🎰 Roleta de Restaurantes
-          </h3>
-          <p className="text-gray-500 text-sm">
-            Não consegue decidir? Deixe a roleta escolher por si!
-          </p>
-        </div>
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-[var(--foreground)] mb-2">
+                🎰 Roleta de Restaurantes
+              </h3>
+              <p className="text-[var(--foreground-secondary)] text-sm">
+                Não consegue decidir? Deixe a roleta escolher por si!
+              </p>
+            </div>
 
         {/* Roulette Display */}
         <div className="relative mb-6">
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border-2 border-amber-200">
-            {/* Pointer */}
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-amber-500"></div>
-            </div>
+            <div className="bg-gradient-to-br from-[var(--primary-50)] to-[var(--orange-50)] rounded-[var(--radius-xl)] p-6 border-2 border-[var(--primary-light)]">
+              {/* Pointer */}
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-[var(--primary)]"></div>
+              </div>
 
-            {/* Current Restaurant */}
-            <div className={`transition-all duration-200 ${isSpinning ? 'scale-95 opacity-70' : 'scale-100 opacity-100'}`}>
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden">
-                  {restaurants[currentIndex]?.image_url ? (
-                    <img
-                      src={restaurants[currentIndex].image_url}
-                      alt={restaurants[currentIndex].name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-3xl">🍽️</span>
+              {/* Current Restaurant */}
+              <div className={`transition-all duration-200 ${isSpinning ? 'scale-95 opacity-70' : 'scale-100 opacity-100'}`}>
+                <div className="text-center">
+                  <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-[var(--card-bg)] shadow-[var(--card-shadow)] flex items-center justify-center overflow-hidden">
+                    {restaurants[currentIndex]?.image_url ? (
+                      <img
+                        src={restaurants[currentIndex].image_url}
+                        alt={restaurants[currentIndex].name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-3xl">🍽️</span>
+                    )}
+                  </div>
+                  <h4 className="text-lg font-semibold text-[var(--foreground)] mb-1">
+                    {restaurants[currentIndex]?.name}
+                  </h4>
+                  <div className="flex items-center justify-center gap-4 text-sm text-[var(--foreground-secondary)]">
+                    {restaurants[currentIndex]?.rating && (
+                      <span className="flex items-center gap-1">
+                        <Star className="h-4 w-4 text-[var(--primary)]" />
+                        {restaurants[currentIndex].rating.toFixed(1)}
+                      </span>
+                    )}
+                    {restaurants[currentIndex]?.price_per_person && (
+                      <span className="flex items-center gap-1">
+                        €{restaurants[currentIndex].price_per_person.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                  {restaurants[currentIndex]?.location && (
+                    <p className="text-xs text-[var(--foreground-muted)] mt-1 flex items-center justify-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {restaurants[currentIndex].location}
+                    </p>
                   )}
                 </div>
-                <h4 className="text-lg font-semibold text-gray-800 mb-1">
-                  {restaurants[currentIndex]?.name}
-                </h4>
-                <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
-                  {restaurants[currentIndex]?.rating && (
-                    <span className="flex items-center gap-1">
-                      <Star className="h-4 w-4 text-amber-500" />
-                      {restaurants[currentIndex].rating.toFixed(1)}
-                    </span>
-                  )}
-                  {restaurants[currentIndex]?.price_per_person && (
-                    <span className="flex items-center gap-1">
-                      €{restaurants[currentIndex].price_per_person.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-                {restaurants[currentIndex]?.location && (
-                  <p className="text-xs text-gray-400 mt-1 flex items-center justify-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {restaurants[currentIndex].location}
-                  </p>
-                )}
               </div>
             </div>
-          </div>
         </div>
 
         {/* Spin Button */}
         <button
           onClick={spin}
           disabled={isSpinning}
-          className={`w-full py-3 rounded-lg font-semibold text-white flex items-center justify-center gap-2 transition-all ${
+          className={`w-full py-3 rounded-[var(--radius-lg)] font-semibold text-[var(--primary-foreground)] flex items-center justify-center gap-2 transition-all ${
             isSpinning
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-md hover:shadow-lg'
+              ? 'bg-[var(--gray-400)] cursor-not-allowed'
+              : 'bg-gradient-to-r from-[var(--primary)] to-[var(--orange-500)] hover:from-[var(--primary-hover)] hover:to-[var(--orange-600)] shadow-md hover:shadow-lg'
           }`}
         >
           <Shuffle className={`h-5 w-5 ${isSpinning ? 'animate-spin' : ''}`} />
@@ -172,24 +172,24 @@ export default function RestaurantRoulette({ restaurants, onClose }) {
 
         {/* Result */}
         {showResult && selectedRestaurant && (
-          <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200 animate-fade-in">
-            <p className="text-green-800 font-medium text-center mb-2">
+          <div className="mt-4 p-4 bg-[var(--success-light)] rounded-[var(--radius-lg)] border border-[var(--success-border)] animate-fade-in">
+            <p className="text-[var(--success-dark)] font-medium text-center mb-2">
               🎉 Restaurante Selecionado!
             </p>
-            <h4 className="text-lg font-bold text-green-900 text-center mb-3">
+            <h4 className="text-lg font-bold text-[var(--success)] text-center mb-3">
               {selectedRestaurant.name}
             </h4>
             <div className="flex gap-2">
               <Link
                 href={`/restaurants/${selectedRestaurant.id}`}
-                className="flex-1 py-2 px-3 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition-colors flex items-center justify-center gap-1"
+                className="flex-1 py-2 px-3 bg-[var(--success)] text-[var(--primary-foreground)] text-sm rounded-md hover:bg-[var(--success-dark)] transition-colors flex items-center justify-center gap-1"
               >
                 <ExternalLink className="h-4 w-4" />
                 Ver Detalhes
               </Link>
               <button
                 onClick={spin}
-                className="py-2 px-3 bg-white text-green-600 text-sm rounded-md border border-green-300 hover:bg-green-100 transition-colors flex items-center justify-center gap-1"
+                className="py-2 px-3 bg-[var(--card-bg)] text-[var(--success)] text-sm rounded-md border border-[var(--success-border)] hover:bg-[var(--success-light)] transition-colors flex items-center justify-center gap-1"
               >
                 <Shuffle className="h-4 w-4" />
                 Girar Novamente
@@ -199,7 +199,7 @@ export default function RestaurantRoulette({ restaurants, onClose }) {
         )}
 
         {/* Restaurant Count */}
-        <p className="text-center text-xs text-gray-400 mt-4">
+        <p className="text-center text-xs text-[var(--foreground-muted)] mt-4">
           {restaurants.length} restaurante{restaurants.length !== 1 ? "s" : ""} na lista
         </p>
       </div>

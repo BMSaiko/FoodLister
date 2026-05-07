@@ -91,7 +91,7 @@ export default function ProfileStickyNavbar({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-[var(--card-bg)] border-t border-[var(--gray-200)] shadow-lg z-50 md:hidden">
       <div className="max-w-md mx-auto px-4 py-2">
         {/* Horizontal scrollable container for buttons */}
         <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2">
@@ -100,8 +100,8 @@ export default function ProfileStickyNavbar({
             onClick={handleScrollToTop}
             className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 transform hover:scale-110 ${
               isVisible
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:shadow-xl'
-                : 'bg-gray-100 text-gray-400 shadow-sm'
+                ? 'bg-gradient-to-r from-[var(--amber-500)] to-[var(--orange-500)] text-[var(--white)] shadow-lg hover:shadow-xl'
+                : 'bg-[var(--gray-100)] text-[var(--gray-400)] shadow-sm'
             } ${isVisible ? 'animate-bounce' : ''}`}
             aria-label="Voltar ao topo"
             title="Voltar ao topo"
@@ -119,8 +119,8 @@ export default function ProfileStickyNavbar({
             disabled={isSharing}
             className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
               isSharing
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 shadow-lg hover:shadow-xl transform hover:scale-110'
+                ? 'bg-[var(--gray-300)] text-[var(--gray-500)] cursor-not-allowed'
+                : 'bg-[var(--blue-500)] text-[var(--white)] hover:bg-[var(--blue-600)] active:bg-[var(--blue-700)] shadow-lg hover:shadow-xl transform hover:scale-110'
             }`}
             aria-label={isSharing ? 'Compartilhando...' : 'Compartilhar perfil'}
             title={isSharing ? 'Compartilhando...' : 'Compartilhar perfil'}
@@ -138,8 +138,8 @@ export default function ProfileStickyNavbar({
             disabled={isCopying}
             className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
               isCopying
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-green-500 text-white hover:bg-green-600 active:bg-green-700 shadow-lg hover:shadow-xl transform hover:scale-110'
+                ? 'bg-[var(--gray-300)] text-[var(--gray-500)] cursor-not-allowed'
+                : 'bg-[var(--green-500)] text-[var(--white)] hover:bg-[var(--green-600)] active:bg-[var(--green-700)] shadow-lg hover:shadow-xl transform hover:scale-110'
             }`}
             aria-label={isCopying ? 'Copiando...' : 'Copiar link do perfil'}
             title={isCopying ? 'Copiando...' : 'Copiar link do perfil'}
@@ -158,8 +158,8 @@ export default function ProfileStickyNavbar({
               disabled={isEditing}
               className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 ${
                 isEditing
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 shadow-lg hover:shadow-xl transform hover:scale-110'
+                  ? 'bg-[var(--gray-300)] text-[var(--gray-500)] cursor-not-allowed'
+                  : 'bg-[var(--amber-500)] text-[var(--white)] hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] shadow-lg hover:shadow-xl transform hover:scale-110'
               }`}
               aria-label={isEditing ? 'Editando...' : 'Editar perfil'}
               title={isEditing ? 'Editando...' : 'Editar perfil'}

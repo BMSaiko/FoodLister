@@ -11,6 +11,7 @@ import { ArrowLeft, Edit, User, Shuffle, Globe, Lock, RefreshCw, Trash2, Share2,
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
+import { useVisitsData } from '@/hooks/data/useVisitsData';
 import ListStatistics from '@/components/ui/lists/ListStatistics';
 import ListComments from '@/components/ui/lists/ListComments';
 import ListExportButtons from '@/components/ui/lists/ListExportButtons';
@@ -66,6 +67,7 @@ export default function ListDetails() {
   const [duplicating, setDuplicating] = useState(false);
   const [showStatistics, setShowStatistics] = useState(false);
   const { share } = useShare();
+  const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
 
   useEffect(() => {
     async function fetchListDetails() {
@@ -439,14 +441,17 @@ export default function ListDetails() {
          {restaurants.length === 0 ? (
            <p className="text-gray-500 text-sm sm:text-base">Não há restaurantes nesta lista.</p>
          ) : (
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-             {restaurants.map(restaurant => (
-               <RestaurantCard 
-                 key={restaurant.id} 
-                 restaurant={restaurant} 
-               />
-             ))}
-           </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+              {restaurants.map(restaurant => (
+                <RestaurantCard 
+                  key={restaurant.id} 
+                  restaurant={restaurant} 
+                  visitsData={visitsData[restaurant.id] || null}
+                  loadingVisits={loadingVisits}
+                  onVisitsDataUpdate={handleVisitsDataUpdate}
+                />
+              ))}
+            </div>
           )}
 
           {/* Export Section */}

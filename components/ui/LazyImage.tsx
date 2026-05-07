@@ -19,7 +19,7 @@ export default function LazyImage({
   src,
   alt,
   className = '',
-  placeholderClassName = 'bg-gray-200',
+  placeholderClassName = 'bg-[var(--gray-200)]',
   priority = false,
   width,
   height,
@@ -93,9 +93,9 @@ export default function LazyImage({
 
       {/* Error State */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+        <div className="absolute inset-0 flex items-center justify-center bg-[var(--gray-100)]">
           <svg
-            className="w-8 h-8 text-gray-400"
+            className="w-8 h-8 text-[var(--gray-400)]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

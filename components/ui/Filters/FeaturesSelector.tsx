@@ -39,7 +39,7 @@ export default function FeaturesSelector({
 
   return (
     <div className={`mb-6 ${className}`}>
-      <label className="flex items-center text-gray-700 font-medium mb-3">
+      <label className="flex items-center text-[var(--gray-700)] font-medium mb-3">
         <Tag className="h-4 w-4 mr-2" />
         Características do Restaurante
       </label>
@@ -51,44 +51,44 @@ export default function FeaturesSelector({
           placeholder="Buscar características..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+          className="w-full pl-8 pr-3 py-2 border border-[var(--gray-300)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors"
         />
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--gray-400)]" />
       </div>
 
       {/* Lista de características disponíveis */}
       {loading ? (
-        <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="text-center py-6 text-[var(--gray-500)] bg-[var(--gray-50)] rounded-lg border border-[var(--gray-200)]">
           Carregando características...
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto bg-[var(--gray-50)] p-4 rounded-lg border border-[var(--gray-200)] mb-4">
           {filteredFeatures.length > 0 ? (
             filteredFeatures.map(feature => (
               <div
                 key={feature.id}
                 className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-all ${
                   selectedFeatures.includes(feature.id)
-                    ? 'bg-primary border border-primary text-white shadow-sm'
-                    : 'bg-white border border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                    ? 'bg-[var(--primary)] border border-[var(--primary)] text-white shadow-sm'
+                    : 'bg-white border border-[var(--gray-200)] hover:bg-[var(--gray-100)] hover:border-[var(--gray-300)]'
                 }`}
                 onClick={() => handleToggleFeature(feature.id)}
               >
                 <span className={`text-sm flex-grow truncate ${
-                  selectedFeatures.includes(feature.id) ? 'text-white' : 'text-gray-700'
+                  selectedFeatures.includes(feature.id) ? 'text-white' : 'text-[var(--gray-700)]'
                 }`}>
-                  <span className="mr-2">{feature.icon || '🏷️'}</span>
+                  <span className="mr-2">{feature.icon || '✨'}</span>
                   {feature.name}
                 </span>
                 {selectedFeatures.includes(feature.id) ? (
                   <Check className="h-4 w-4 text-white flex-shrink-0 ml-2" />
                 ) : (
-                  <Plus className="h-4 w-4 text-gray-400 flex-shrink-0 ml-2" />
+                  <Plus className="h-4 w-4 text-[var(--gray-400)] flex-shrink-0 ml-2" />
                 )}
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-gray-500 col-span-full">
+            <div className="text-center py-4 text-[var(--gray-500)] col-span-full">
               Nenhuma característica encontrada
             </div>
           )}
@@ -97,7 +97,7 @@ export default function FeaturesSelector({
 
       {/* Características selecionadas */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
           Características Selecionadas ({selectedFeatures.length})
         </label>
 
@@ -106,14 +106,14 @@ export default function FeaturesSelector({
             {selectedFeaturesInOrder.map(feature => (
               <div
                 key={feature.id}
-                className="flex items-center bg-primary text-white px-2 py-0.5 rounded-full text-xs font-medium shadow-sm"
+                className="flex items-center bg-[var(--primary)] text-white px-2 py-0.5 rounded-full text-xs font-medium shadow-sm"
               >
-                <span className="mr-1">{feature.icon || '🏷️'}</span>
+                <span className="mr-1">{feature.icon || '✨'}</span>
                 <span>{feature.name}</span>
                 <button
                   type="button"
                   onClick={() => handleToggleFeature(feature.id)}
-                  className="ml-1 text-white hover:text-gray-200 transition-colors"
+                  className="ml-1 text-white hover:text-[var(--gray-200)] transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -121,7 +121,7 @@ export default function FeaturesSelector({
             ))}
           </div>
         ) : (
-          <div className="text-sm text-gray-500 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+          <div className="text-sm text-[var(--gray-500)] bg-[var(--gray-50)] px-3 py-2 rounded-lg border border-[var(--gray-200)]">
             Nenhuma característica selecionada
           </div>
         )}

@@ -4,6 +4,7 @@ interface MapModalData {
   location: string;
   latitude?: number;
   longitude?: number;
+  source_url?: string;
 }
 
 interface ModalContextType {

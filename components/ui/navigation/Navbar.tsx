@@ -74,14 +74,14 @@ const Navbar = ({ clearFilters = null }) => {
   };
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-[var(--card-bg)] shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
         {/* Versão desktop */}
         <div className="hidden md:flex md:items-center md:justify-between md:gap-4">
           {/* Logo/Nome do site */}
           <Link
             href="/restaurants"
-            className="flex items-center text-lg sm:text-xl font-bold text-amber-500 flex-shrink-0"
+            className="flex items-center text-lg sm:text-xl font-bold text-primary flex-shrink-0"
             onClick={(e) => {
               if (pathname === '/' || pathname === '/restaurants') {
                 e.preventDefault();
@@ -89,19 +89,19 @@ const Navbar = ({ clearFilters = null }) => {
               }
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 sm:h-6 sm:w-6 mr-2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-primary"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
             <span className="whitespace-nowrap">FoodLister</span>
           </Link>
 
           {/* Seção central com botões e pesquisa */}
           <div className="flex items-center space-x-3 sm:space-x-4 flex-1 justify-center max-w-2xl">
-            <div className="flex bg-gray-100 rounded-lg p-1">
+              <div className="flex bg-[var(--background-secondary)] rounded-lg p-1">
               <Link href="/restaurants">
                 <button
                   className={`px-3 sm:px-4 py-2 rounded-md transition-colors text-sm sm:text-base min-h-[40px] ${
                     activeSection === 'restaurants' 
-                      ? 'bg-white shadow-sm text-amber-500' 
-                      : 'text-gray-600 hover:text-amber-500'
+                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      : 'text-primary hover:text-primary-hover'
                   }`}
                 >
                   Restaurantes
@@ -111,8 +111,8 @@ const Navbar = ({ clearFilters = null }) => {
                 <button
                   className={`px-3 sm:px-4 py-2 rounded-md transition-colors text-sm sm:text-base min-h-[40px] ${
                     activeSection === 'lists' 
-                      ? 'bg-white shadow-sm text-amber-500' 
-                      : 'text-gray-600 hover:text-amber-500'
+                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      : 'text-primary hover:text-primary-hover'
                   }`}
                 >
                   Listas
@@ -141,10 +141,10 @@ const Navbar = ({ clearFilters = null }) => {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 transition-colors min-h-[40px]"
+                  className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[40px]"
                   title="Menu do usuário"
                 >
-                  <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
                     {userProfile?.avatar_url ? (
                       <img
                         src={userProfile.avatar_url}
@@ -157,7 +157,7 @@ const Navbar = ({ clearFilters = null }) => {
                       </span>
                     )}
                   </div>
-                  <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-primary transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown do usuário */}
@@ -168,11 +168,11 @@ const Navbar = ({ clearFilters = null }) => {
                       className="fixed inset-0 z-10"
                       onClick={() => setUserMenuOpen(false)}
                     />
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-xl border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
                       {/* Header com avatar e informações */}
-                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 border-b border-gray-100">
+                      <div className="bg-gradient-to-r from-[var(--primary-50)] to-[var(--orange-50)] px-4 py-4 border-b border-[var(--gray-100)]">
                         <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                        <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0 ring-2 ring-[var(--primary-foreground)] shadow-sm">
                             {userProfile?.avatar_url ? (
                               <img
                                 src={userProfile.avatar_url}
@@ -186,10 +186,10 @@ const Navbar = ({ clearFilters = null }) => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
+                            <p className="text-sm font-semibold text-[var(--foreground)] truncate">
                               {userProfile?.display_name || user.email?.split('@')[0] || 'Usuário'}
                             </p>
-                            <p className="text-xs text-gray-600 truncate">
+                            <p className="text-xs text-primary truncate">
                               {user.email}
                             </p>
                           </div>
@@ -201,10 +201,10 @@ const Navbar = ({ clearFilters = null }) => {
                         <Link
                           href={`/users/${userProfile?.user_id_code || user.id}`}
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-4 px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                          className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <User className="h-4 w-4 text-amber-600" />
+                          <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                            <User className="h-4 w-4 text-[var(--primary-dark)]" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-medium">Meu Perfil</p>
@@ -219,10 +219,10 @@ const Navbar = ({ clearFilters = null }) => {
                         <Link
                           href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-4 px-4 py-3 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                          className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <Settings className="h-4 w-4 text-amber-600" />
+                          <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                            <Settings className="h-4 w-4 text-[var(--primary-dark)]" />
                           </div>
                           <p className="font-medium">Configurações</p>
                         </Link>
@@ -236,10 +236,10 @@ const Navbar = ({ clearFilters = null }) => {
                             await signOut();
                             router.push('/');
                           }}
-                          className="flex items-center gap-4 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors active:bg-red-100"
+                          className="flex items-center gap-4 w-full px-4 py-3 text-sm text-[var(--error)] hover:bg-[var(--error-light)] hover:text-[var(--error)] transition-colors active:bg-[var(--error-light)]"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                            <LogOut className="h-4 w-4 text-red-600" />
+                          <div className="w-8 h-8 rounded-lg bg-[var(--error-light)] flex items-center justify-center flex-shrink-0">
+                            <LogOut className="h-4 w-4 text-[var(--error)]" />
                           </div>
                           <p className="font-medium">Sair</p>
                         </button>
@@ -256,7 +256,7 @@ const Navbar = ({ clearFilters = null }) => {
         <div className="md:hidden flex items-center justify-between">
           <Link
             href="/restaurants"
-            className="flex items-center text-lg font-bold text-amber-500 flex-shrink-0"
+            className="flex items-center text-lg font-bold text-primary flex-shrink-0"
             onClick={(e) => {
               if (pathname === '/' || pathname === '/restaurants') {
                 e.preventDefault();
@@ -264,14 +264,14 @@ const Navbar = ({ clearFilters = null }) => {
               }
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1.5"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1.5 text-primary"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
             <span className="whitespace-nowrap">FoodLister</span>
           </Link>
 
            <div className="flex items-center gap-2">
              {!user && !loading && (
                <Link href="/auth/signin">
-                 <button className="flex items-center justify-center bg-amber-500 text-white px-3 py-2 rounded-md hover:bg-amber-600 active:bg-amber-700 transition-colors min-h-[44px] min-w-[44px] text-sm font-medium">
+                 <button className="flex items-center justify-center bg-[var(--primary)] text-[var(--primary-foreground)] px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)] transition-colors min-h-[44px] min-w-[44px] text-sm font-medium">
                    <User className="h-4 w-4" />
                    <span className="hidden sm:inline ml-1">Entrar</span>
                  </button>
@@ -281,12 +281,12 @@ const Navbar = ({ clearFilters = null }) => {
                <>
                  {/* Notificações mobile */}
                  <NotificationsDropdown />
-                 <button
-                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2 transition-colors min-h-[44px]"
+                  <button
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                   className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[44px]"
                   title="Menu do usuário"
                 >
-                  <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
                     {userProfile?.avatar_url ? (
                       <img
                         src={userProfile.avatar_url}
@@ -309,11 +309,11 @@ const Navbar = ({ clearFilters = null }) => {
                       className="fixed inset-0 z-10"
                       onClick={() => setUserMenuOpen(false)}
                     />
-                    <div className="absolute right-2 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-2 top-full mt-2 w-72 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-xl border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
                       {/* Header com avatar e informações */}
-                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-4 border-b border-gray-100">
+                      <div className="bg-gradient-to-r from-[var(--primary-50)] to-[var(--orange-50)] px-4 py-4 border-b border-[var(--gray-100)]">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                          <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0 ring-2 ring-[var(--primary-foreground)] shadow-sm">
                             {userProfile?.avatar_url ? (
                               <img
                                 src={userProfile.avatar_url}
@@ -327,10 +327,10 @@ const Navbar = ({ clearFilters = null }) => {
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-900 truncate">
+                            <p className="text-sm font-semibold text-[var(--foreground)] truncate">
                               {userProfile?.display_name || user.email?.split('@')[0] || 'Usuário'}
                             </p>
-                            <p className="text-xs text-gray-600 truncate">
+                             <p className="text-xs text-primary truncate">
                               {user.email}
                             </p>
                           </div>
@@ -342,22 +342,22 @@ const Navbar = ({ clearFilters = null }) => {
                         <Link
                           href={`/users/${userProfile?.user_id_code || user.id}`}
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center justify-center w-full px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                          className="flex items-center justify-center w-full px-4 py-3 text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
                           title="Meu Perfil"
                         >
-                          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <User className="h-5 w-5 text-amber-600" />
+                          <div className="w-10 h-10 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                            <User className="h-5 w-5 text-[var(--primary-dark)]" />
                           </div>
                         </Link>
 
                         <Link
                           href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center justify-center w-full px-4 py-3 text-gray-700 hover:bg-amber-50 hover:text-amber-800 transition-colors active:bg-amber-100"
+                          className="flex items-center justify-center w-full px-4 py-3 text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
                           title="Configurações"
                         >
-                          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <Settings className="h-5 w-5 text-amber-600" />
+                          <div className="w-10 h-10 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                            <Settings className="h-5 w-5 text-[var(--primary-dark)]" />
                           </div>
                         </Link>
 
@@ -370,11 +370,11 @@ const Navbar = ({ clearFilters = null }) => {
                             await signOut();
                             router.push('/');
                           }}
-                          className="flex items-center justify-center w-full px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors active:bg-red-100"
+                          className="flex items-center justify-center w-full px-4 py-3 text-[var(--error)] hover:bg-[var(--error-light)] hover:text-[var(--error)] transition-colors active:bg-[var(--error-light)]"
                           title="Sair"
                         >
-                          <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                            <LogOut className="h-5 w-5 text-red-600" />
+                          <div className="w-10 h-10 rounded-lg bg-[var(--error-light)] flex items-center justify-center flex-shrink-0">
+                            <LogOut className="h-5 w-5 text-[var(--error)]" />
                           </div>
                         </button>
                       </div>
@@ -385,7 +385,7 @@ const Navbar = ({ clearFilters = null }) => {
             )}
             <button
               onClick={toggleMobileMenu}
-              className="p-2 text-amber-500 hover:text-amber-600 focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 text-primary hover:text-primary-hover focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
@@ -399,14 +399,14 @@ const Navbar = ({ clearFilters = null }) => {
 
         {/* Menu mobile expandido */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 pb-3 space-y-3 border-t border-gray-200 pt-3">
-            <div className="flex bg-gray-100 rounded-lg p-1 justify-center">
+          <div className="md:hidden mt-3 pb-3 space-y-3 border-t border-[var(--gray-200)] pt-3">
+            <div className="flex bg-[var(--background-secondary)] rounded-lg p-1 justify-center">
               <Link href="/restaurants" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
                 <button
                   className={`w-full px-4 py-2.5 rounded-md transition-colors text-sm min-h-[44px] ${
                     activeSection === 'restaurants' 
-                      ? 'bg-white shadow-sm text-amber-500' 
-                      : 'text-gray-600 hover:text-amber-500'
+                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      : 'text-primary hover:text-primary-hover'
                   }`}
                 >
                   Restaurantes
@@ -416,8 +416,8 @@ const Navbar = ({ clearFilters = null }) => {
                 <button
                   className={`w-full px-4 py-2.5 rounded-md transition-colors text-sm min-h-[44px] ${
                     activeSection === 'lists' 
-                      ? 'bg-white shadow-sm text-amber-500' 
-                      : 'text-gray-600 hover:text-amber-500'
+                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      : 'text-primary hover:text-primary-hover'
                   }`}
                 >
                   Listas

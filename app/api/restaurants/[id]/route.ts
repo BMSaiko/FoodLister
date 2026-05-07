@@ -164,7 +164,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const visitCount = remainingVisits ? remainingVisits.length : 0;
         const visited = visitCount > 0;
 
-        return NextResponse.json({ visited, visitCount });
+        return NextResponse.json({ visited, visit_count: visitCount });
       } else {
         // Add visit
         const { error: insertError } = await supabase
@@ -179,7 +179,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           return NextResponse.json({ error: 'Failed to add visit' }, { status: 500 });
         }
 
-        return NextResponse.json({ visited: true, visitCount: 1 });
+        return NextResponse.json({ visited: true, visit_count: 1 });
       }
     } else if (body.action === 'remove_visit') {
       // Remove visit
@@ -206,26 +206,26 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         return NextResponse.json({ error: 'Failed to check remaining visits' }, { status: 500 });
       }
 
-      const visitCount = remainingVisits ? remainingVisits.length : 0;
-      const visited = visitCount > 0;
+        const visitCount = remainingVisits ? remainingVisits.length : 0;
+        const visited = visitCount > 0;
 
-      return NextResponse.json({ visited, visitCount });
-    } else if (body.action === 'add_visit') {
-      // Add visit
-      const { error: insertError } = await supabase
-        .from('user_restaurant_visits')
-        .insert({
-          user_id: user.id,
-          restaurant_id: id
-        });
+        return NextResponse.json({ visited, visit_count: visitCount });
+      } else if (body.action === 'add_visit') {
+        // Add visit
+        const { error: insertError } = await supabase
+          .from('user_restaurant_visits')
+          .insert({
+            user_id: user.id,
+            restaurant_id: id
+          });
 
-      if (insertError) {
-        console.error('Error adding visit:', insertError);
-        return NextResponse.json({ error: 'Failed to add visit' }, { status: 500 });
-      }
+        if (insertError) {
+          console.error('Error adding visit:', insertError);
+          return NextResponse.json({ error: 'Failed to add visit' }, { status: 500 });
+        }
 
-      return NextResponse.json({ visited: true, visitCount: 1 });
-    } else {
+        return NextResponse.json({ visited: true, visit_count: 1 });
+      } else {
       // Regular restaurant data update
       const {
         name,

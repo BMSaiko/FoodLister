@@ -221,7 +221,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating review:', error);
-      return NextResponse.json({ error: 'Failed to create review' }, { status: 500 });
+      return NextResponse.json({ error: 'Failed to create review', details: error.message, code: error.code }, { status: 500 });
     }
 
     // Update restaurant rating after successful review creation

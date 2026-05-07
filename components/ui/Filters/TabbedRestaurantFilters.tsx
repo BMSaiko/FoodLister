@@ -1,4 +1,3 @@
-// TabbedRestaurantFilters.tsx - Enhanced Version with Performance & Design Improvements
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
@@ -44,7 +43,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
   clearFilters,
   autoApply = true
 }) => {
-  // State management with performance optimizations
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('search');
   const [features, setFeatures] = useState<RestaurantFeature[]>([]);
@@ -58,7 +56,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
   const [showPresets, setShowPresets] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   
-  // Performance optimization refs
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const filterUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const metricsRef = useRef({
@@ -71,13 +68,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
   const { user } = useAuth();
   const supabase = createClient();
 
-
-  // Load features and dietary options with performance optimization
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        // Use Promise.all for parallel loading
         const [featuresResponse, dietaryResponse, cuisineResponse] = await Promise.all([
           fetch('/api/features'),
           fetch('/api/dietary-options'),
@@ -108,7 +102,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     loadData();
   }, []);
 
-  // Calculate active filters count with memoization
   const activeFiltersCountMemo = useMemo(() => {
     let count = 0;
     if (filters.search?.trim()) count++;
@@ -123,12 +116,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     return count;
   }, [filters]);
 
-  // Update active filters count
   useEffect(() => {
     setActiveFiltersCount(activeFiltersCountMemo);
   }, [activeFiltersCountMemo]);
 
-  // Performance-optimized range change handler
   const handleRangeChange = useCallback((field: string, value: number) => {
     setFilters((prev: any) => ({
       ...prev,
@@ -136,7 +127,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     }));
   }, [setFilters]);
 
-  // Performance-optimized multi-select handler
   const handleMultiSelect = useCallback((field: string, value: string) => {
     setFilters((prev: any) => {
       const current = prev[field] || [];
@@ -148,22 +138,20 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     });
   }, [setFilters]);
 
-  // Enhanced FilterChip with performance optimizations
   const FilterChip: React.FC<{ label: string; onRemove: () => void }> = React.memo(({ label, onRemove }) => (
-    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 border border-amber-200/80 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer group">
-      <span className="mr-2 w-2 h-2 bg-amber-400 rounded-full group-hover:bg-amber-500 transition-colors duration-200"></span>
+    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[var(--primary-50)] text-[var(--primary-dark)] border border-[var(--primary-light)]/80 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer group">
+      <span className="mr-2 w-2 h-2 bg-[var(--primary)] rounded-full group-hover:bg-[var(--primary-hover)] transition-colors duration-200"></span>
       <span className="font-medium">{label}</span>
       <button
         onClick={onRemove}
-        className="ml-2 p-1 rounded-full hover:bg-amber-200/50 transition-colors duration-200"
+        className="ml-2 p-1 rounded-full hover:bg-[var(--primary-light)]/50 transition-colors duration-200"
         aria-label="Remover filtro"
       >
-        <XIcon className="h-4 w-4 text-amber-600 group-hover:text-amber-700" />
+        <XIcon className="h-4 w-4 text-[var(--primary-dark)] group-hover:text-[var(--primary-dark)]" />
       </button>
     </span>
   ));
 
-  // Enhanced FilterTabButton with micro-interactions
   const FilterTabButton: React.FC<{ 
     id: string; 
     title: string; 
@@ -188,73 +176,69 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           setActiveTab(tabIds[nextIndex]);
         }
       }}
-              className={`group relative flex items-center space-x-2 sm:space-x-4 px-3 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold min-h-[44px] min-w-[140px] ${
+      className={`group relative flex items-center space-x-2 sm:space-x-4 px-3 sm:px-6 py-3 sm:py-4 rounded-[var(--radius-lg)] sm:rounded-[var(--radius-xl)] text-sm sm:text-base font-semibold min-h-[44px] min-w-[140px] ${
         isActive
-          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xl shadow-amber-500/20 ring-2 ring-amber-300/50'
-          : 'text-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-amber-50 hover:to-orange-50 hover:text-amber-700 border border-gray-200/60 hover:border-amber-300/60 shadow-sm hover:shadow-lg'
+          ? 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-xl shadow-[var(--primary)]/20 ring-2 ring-[var(--primary-light)]/50'
+          : 'text-[var(--foreground)] bg-[var(--background-secondary)] hover:bg-[var(--primary-50)] hover:text-[var(--primary-dark)] border border-[var(--card-border)]/60 hover:border-[var(--primary-light)]/60 shadow-sm hover:shadow-lg'
       }`}
       aria-selected={isActive}
       role="tab"
       tabIndex={0}
       aria-controls={`tab-panel-${id}`}
     >
-      {/* Animated background for active state */}
       {isActive && (
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
+        <div className="absolute inset-0 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] animate-pulse"></div>
       )}
       
-      <div className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 ${
+      <div className={`flex items-center justify-center w-10 h-10 rounded-[var(--radius-xl)] transition-all duration-200 ${
         isActive
-          ? 'bg-white/20 shadow-lg'
-          : 'bg-white/60 group-hover:bg-white/80'
+          ? 'bg-[var(--primary-foreground)]/20 shadow-lg'
+          : 'bg-[var(--primary-foreground)]/60 group-hover:bg-[var(--primary-foreground)]/80'
       }`}>
-        <div className={`w-6 h-6 ${isActive ? 'text-white' : 'text-amber-600'}`}>
+        <div className={`w-6 h-6 ${isActive ? 'text-[var(--primary-foreground)]' : 'text-[var(--primary)]'}`}>
           {icon}
         </div>
       </div>
       
       <span className="relative z-10 hidden sm:inline">{title}</span>
       
-      {/* Active indicator */}
       {isActive && (
-        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-1 bg-white rounded-full opacity-80"></div>
+        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-6 h-1 bg-[var(--primary-foreground)] rounded-full opacity-80"></div>
       )}
       
-      {/* Filter count indicators */}
       {id === 'search' && filters.search?.trim() && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-[var(--primary-foreground)]/20 text-[var(--primary-foreground)] text-sm font-medium rounded-full backdrop-blur-sm border border-[var(--primary-foreground)]/30">
           {filters.search.trim()}
         </span>
       )}
       {id === 'location' && filters.location?.city?.trim() && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-[var(--primary-foreground)]/20 text-[var(--primary-foreground)] text-sm font-medium rounded-full backdrop-blur-sm border border-[var(--primary-foreground)]/30">
           {filters.location.city}
         </span>
       )}
       {id === 'price-rating' && ((filters.price_range?.min !== 0 || filters.price_range?.max !== 100) || (filters.rating_range?.min !== 0 || filters.rating_range?.max !== 5)) && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-[var(--primary-foreground)]/20 text-[var(--primary-foreground)] text-sm font-medium rounded-full backdrop-blur-sm border border-[var(--primary-foreground)]/30">
           {((filters.price_range?.min !== 0 || filters.price_range?.max !== 100) ? '€' : '') + ((filters.rating_range?.min !== 0 || filters.rating_range?.max !== 5) ? '★' : '')}
         </span>
       )}
       {id === 'cuisine' && filters.cuisine_types && filters.cuisine_types.length > 0 && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-[var(--primary-foreground)]/20 text-[var(--primary-foreground)] text-sm font-medium rounded-full backdrop-blur-sm border border-[var(--primary-foreground)]/30">
           {filters.cuisine_types.length}
         </span>
       )}
       {id === 'features' && filters.features && filters.features.length > 0 && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-[var(--primary-foreground)]/20 text-[var(--primary-foreground)] text-sm font-medium rounded-full backdrop-blur-sm border border-[var(--primary-foreground)]/30">
           {filters.features.length}
         </span>
       )}
       {id === 'dietary' && filters.dietary_options && filters.dietary_options.length > 0 && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-[var(--primary-foreground)]/20 text-[var(--primary-foreground)] text-sm font-medium rounded-full backdrop-blur-sm border border-[var(--primary-foreground)]/30">
           {filters.dietary_options.length}
         </span>
       )}
     </button>
   ));
 
-  // Get available tabs with memoization
   const getAvailableTabs = useCallback(() => {
     const baseTabs = [
       { id: 'search', title: 'Busca Inteligente', icon: <SearchIcon className="h-6 w-6" /> },
@@ -284,7 +268,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     return baseTabs;
   }, [user, cuisineTypes, features, dietaryOptions]);
 
-  // Handle tab state management
   useEffect(() => {
     const availableTabs = getAvailableTabs();
     const availableTabIds = availableTabs.map(tab => tab.id);
@@ -294,23 +277,19 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     }
   }, [user, activeTab, getAvailableTabs]);
 
-  // Enhanced search with debouncing
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     
-    // Clear existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
     
-    // Set new timeout for debounced search
     searchTimeoutRef.current = setTimeout(() => {
       setFilters((prev: any) => ({ ...prev, search: value }));
     }, 300);
   }, [setFilters]);
 
-  // Enhanced location change with debouncing
   const handleLocationChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocationQuery(value);
@@ -327,16 +306,15 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     }, 300);
   }, [setFilters]);
 
-  // Enhanced render tab content with performance optimizations
   const renderTabContent = useCallback(() => {
     switch (activeTab) {
       case 'search':
         return (
           <div className="space-y-6">
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
                   <Search className="h-5 w-5" />
                 </div>
                 <input
@@ -344,7 +322,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                   placeholder="Buscar por nome, localização ou descrição..."
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm touch-auto"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-[var(--card-border)] rounded-[var(--radius-xl)] focus:ring-4 focus:ring-[var(--primary-light)] focus:border-[var(--primary)] transition-all duration-300 hover:border-[var(--primary-light)] shadow-sm touch-auto"
                 />
                 {searchQuery && (
                   <button
@@ -352,45 +330,44 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       setSearchQuery('');
                       setFilters((prev: any) => ({ ...prev, search: '' }));
                     }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
             </div>
             
-            {/* Search suggestions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button
                 onClick={() => {
                   setSearchQuery('italiano');
                   setFilters((prev: any) => ({ ...prev, search: 'italiano' }));
                 }}
-                className="p-4 text-left bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/60 hover:border-amber-300/80 transition-all duration-200 hover:shadow-md touch-manipulation"
+                className="p-4 text-left bg-[var(--primary-50)] rounded-[var(--radius-xl)] border border-[var(--primary-light)]/60 hover:border-[var(--primary-light)]/80 transition-all duration-200 hover:shadow-md touch-manipulation"
               >
-                <div className="text-amber-600 font-semibold">Italiano</div>
-                <div className="text-sm text-gray-600">Restaurantes italianos</div>
+                <div className="text-[var(--primary)] font-semibold">Italiano</div>
+                <div className="text-sm text-[var(--foreground-secondary)]">Restaurantes italianos</div>
               </button>
               <button
                 onClick={() => {
                   setSearchQuery('centro');
                   setFilters((prev: any) => ({ ...prev, search: 'centro' }));
                 }}
-                className="p-4 text-left bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/60 hover:border-amber-300/80 transition-all duration-200 hover:shadow-md touch-manipulation"
+                className="p-4 text-left bg-[var(--primary-50)] rounded-[var(--radius-xl)] border border-[var(--primary-light)]/60 hover:border-[var(--primary-light)]/80 transition-all duration-200 hover:shadow-md touch-manipulation"
               >
-                <div className="text-amber-600 font-semibold">Centro</div>
-                <div className="text-sm text-gray-600">Restaurantes no centro</div>
+                <div className="text-[var(--primary)] font-semibold">Centro</div>
+                <div className="text-sm text-[var(--foreground-secondary)]">Restaurantes no centro</div>
               </button>
               <button
                 onClick={() => {
                   setSearchQuery('romântico');
                   setFilters((prev: any) => ({ ...prev, search: 'romântico' }));
                 }}
-                className="p-4 text-left bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/60 hover:border-amber-300/80 transition-all duration-200 hover:shadow-md touch-manipulation"
+                className="p-4 text-left bg-[var(--primary-50)] rounded-[var(--radius-xl)] border border-[var(--primary-light)]/60 hover:border-[var(--primary-light)]/80 transition-all duration-200 hover:shadow-md touch-manipulation"
               >
-                <div className="text-amber-600 font-semibold">Romântico</div>
-                <div className="text-sm text-gray-600">Ambiente romântico</div>
+                <div className="text-[var(--primary)] font-semibold">Romântico</div>
+                <div className="text-sm text-[var(--foreground-secondary)]">Ambiente romântico</div>
               </button>
             </div>
           </div>
@@ -400,9 +377,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
         return (
           <div className="space-y-6">
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
                   <MapPin className="h-5 w-5" />
                 </div>
                 <input
@@ -410,7 +387,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                   placeholder="Cidade, bairro ou ponto de referência..."
                   value={locationQuery}
                   onChange={handleLocationChange}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-[var(--card-border)] rounded-[var(--radius-xl)] focus:ring-4 focus:ring-[var(--primary-light)] focus:border-[var(--primary)] transition-all duration-300 hover:border-[var(--primary-light)] shadow-sm"
                 />
                 {locationQuery && (
                   <button
@@ -418,9 +395,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       setLocationQuery('');
                       setFilters((prev: any) => ({ ...prev, location: { city: '' } }));
                     }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -433,7 +410,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
-                <label className="block text-lg font-semibold text-gray-800">Faixa de Preço</label>
+                <label className="block text-lg font-semibold text-[var(--foreground)]">Faixa de Preço</label>
                 <DualRangeSlider
                   min={0}
                   max={100}
@@ -454,7 +431,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               </div>
               
               <div className="space-y-6">
-                <label className="block text-lg font-semibold text-gray-800">Faixa de Avaliação</label>
+                <label className="block text-lg font-semibold text-[var(--foreground)]">Faixa de Avaliação</label>
                 <DualRangeSlider
                   min={0}
                   max={5}
@@ -480,11 +457,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
       case 'cuisine':
         return (
           <div className="space-y-6">
-            {/* Search Bar for Cuisine Types */}
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
                   <SearchIcon className="h-5 w-5" />
                 </div>
                 <input
@@ -495,17 +471,15 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     const value = e.target.value;
                     setSearchQuery(value);
                     
-                    // Clear existing timeout
                     if (searchTimeoutRef.current) {
                       clearTimeout(searchTimeoutRef.current);
                     }
                     
-                    // Set new timeout for debounced search
                     searchTimeoutRef.current = setTimeout(() => {
                       setFilters((prev: any) => ({ ...prev, cuisine_search: value }));
                     }, 300);
                   }}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-[var(--card-border)] rounded-[var(--radius-xl)] focus:ring-4 focus:ring-[var(--primary-light)] focus:border-[var(--primary)] transition-all duration-300 hover:border-[var(--primary-light)] shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -513,9 +487,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       setSearchQuery('');
                       setFilters((prev: any) => ({ ...prev, cuisine_search: '' }));
                     }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -525,11 +499,11 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               {loading ? (
                 Array.from({ length: 8 }).map((_, index) => (
                   <div key={index} className="animate-pulse">
-                    <div className="bg-gray-200 rounded-xl p-6"></div>
+                    <div className="bg-[var(--background-secondary)] rounded-[var(--radius-xl)] p-6"></div>
                   </div>
                 ))
               ) : cuisineTypes.length === 0 ? (
-                <div className="col-span-full text-center py-8 text-gray-500">
+                <div className="col-span-full text-center py-8 text-[var(--foreground-muted)]">
                   Nenhuma opção disponível
                 </div>
               ) : (
@@ -548,35 +522,34 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                           <button
                             key={item.id}
                             onClick={() => handleMultiSelect('cuisine_types', item.id)}
-                            className={`group relative p-6 rounded-xl border-2 ${
+                            className={`group relative p-6 rounded-[var(--radius-xl)] border-2 ${
                               isSelected 
-                                ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
-                                : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
+                                ? 'border-[var(--primary)] bg-[var(--primary-50)] shadow-xl shadow-[var(--primary)]/20' 
+                                : 'border-[var(--card-border)]/60 hover:border-[var(--primary-light)]/60 bg-[var(--background-secondary)] hover:shadow-lg'
                             }`}
                           >
-                            {/* Animated background */}
                             {isSelected && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
+                              <div className="absolute inset-0 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] animate-pulse"></div>
                             )}
                             
-                            <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                            <div className={`flex items-center justify-center w-12 h-12 rounded-[var(--radius-xl)] mb-4 mx-auto transition-all duration-300 ${
                               isSelected 
-                                ? 'bg-white/80 shadow-lg' 
-                                : 'bg-white/60 group-hover:bg-white/80'
+                                ? 'bg-[var(--primary-foreground)]/80 shadow-lg' 
+                                : 'bg-[var(--primary-foreground)]/60 group-hover:bg-[var(--primary-foreground)]/80'
                             }`}>
-                              <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
+                              <div className={`w-6 h-6 ${isSelected ? 'text-[var(--primary)]' : 'text-[var(--foreground-secondary)]'}`}>
                                 <span className="text-2xl">{item.icon || '🍽️'}</span>
                               </div>
                             </div>
                             
                             <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
-                              isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
+                              isSelected ? 'text-[var(--primary-dark)]' : 'text-[var(--foreground)] group-hover:text-[var(--primary)]'
                             }`}>
                               {item.name}
                             </div>
                             
                             {isSelected && (
-                              <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                              <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center shadow-lg">
                                 <Check className="h-4 w-4 text-white" />
                               </div>
                             )}
@@ -593,11 +566,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
       case 'features':
         return (
           <div className="space-y-6">
-            {/* Search Bar for Features */}
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
                   <SearchIcon className="h-5 w-5" />
                 </div>
                 <input
@@ -608,17 +580,15 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     const value = e.target.value;
                     setSearchQuery(value);
                     
-                    // Clear existing timeout
                     if (searchTimeoutRef.current) {
                       clearTimeout(searchTimeoutRef.current);
                     }
                     
-                    // Set new timeout for debounced search
                     searchTimeoutRef.current = setTimeout(() => {
                       setFilters((prev: any) => ({ ...prev, features_search: value }));
                     }, 300);
                   }}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-[var(--card-border)] rounded-[var(--radius-xl)] focus:ring-4 focus:ring-[var(--primary-light)] focus:border-[var(--primary)] transition-all duration-300 hover:border-[var(--primary-light)] shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -626,9 +596,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       setSearchQuery('');
                       setFilters((prev: any) => ({ ...prev, features_search: '' }));
                     }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -638,11 +608,11 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               {loading ? (
                 Array.from({ length: 8 }).map((_, index) => (
                   <div key={index} className="animate-pulse">
-                    <div className="bg-gray-200 rounded-xl p-6"></div>
+                    <div className="bg-[var(--background-secondary)] rounded-[var(--radius-xl)] p-6"></div>
                   </div>
                 ))
               ) : features.length === 0 ? (
-                <div className="col-span-full text-center py-8 text-gray-500">
+                <div className="col-span-full text-center py-8 text-[var(--foreground-muted)]">
                   Nenhuma opção disponível
                 </div>
               ) : (
@@ -661,34 +631,34 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                           <button
                             key={item.id}
                             onClick={() => handleMultiSelect('features', item.id)}
-                            className={`group relative p-6 rounded-xl border-2 ${
+                            className={`group relative p-6 rounded-[var(--radius-xl)] border-2 ${
                               isSelected 
-                                ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
-                                : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
+                                ? 'border-[var(--primary)] bg-[var(--primary-50)] shadow-xl shadow-[var(--primary)]/20' 
+                                : 'border-[var(--card-border)]/60 hover:border-[var(--primary-light)]/60 bg-[var(--background-secondary)] hover:shadow-lg'
                             }`}
                           >
                             {isSelected && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
+                              <div className="absolute inset-0 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] animate-pulse"></div>
                             )}
                             
-                            <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                            <div className={`flex items-center justify-center w-12 h-12 rounded-[var(--radius-xl)] mb-4 mx-auto transition-all duration-300 ${
                               isSelected 
-                                ? 'bg-white/80 shadow-lg' 
-                                : 'bg-white/60 group-hover:bg-white/80'
+                                ? 'bg-[var(--primary-foreground)]/80 shadow-lg' 
+                                : 'bg-[var(--primary-foreground)]/60 group-hover:bg-[var(--primary-foreground)]/80'
                             }`}>
-                              <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
+                              <div className={`w-6 h-6 ${isSelected ? 'text-[var(--primary)]' : 'text-[var(--foreground-secondary)]'}`}>
                                 <span className="text-2xl">{item.icon || '✨'}</span>
                               </div>
                             </div>
                             
                             <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
-                              isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
+                              isSelected ? 'text-[var(--primary-dark)]' : 'text-[var(--foreground)] group-hover:text-[var(--primary)]'
                             }`}>
                               {item.name}
                             </div>
                             
                             {isSelected && (
-                              <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                              <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center shadow-lg">
                                 <Check className="h-4 w-4 text-white" />
                               </div>
                             )}
@@ -705,11 +675,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
       case 'dietary':
         return (
           <div className="space-y-6">
-            {/* Search Bar for Dietary Options */}
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
                   <SearchIcon className="h-5 w-5" />
                 </div>
                 <input
@@ -720,17 +689,15 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     const value = e.target.value;
                     setSearchQuery(value);
                     
-                    // Clear existing timeout
                     if (searchTimeoutRef.current) {
                       clearTimeout(searchTimeoutRef.current);
                     }
                     
-                    // Set new timeout for debounced search
                     searchTimeoutRef.current = setTimeout(() => {
                       setFilters((prev: any) => ({ ...prev, dietary_search: value }));
                     }, 300);
                   }}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full pl-12 pr-4 py-4 text-lg border border-[var(--card-border)] rounded-[var(--radius-xl)] focus:ring-4 focus:ring-[var(--primary-light)] focus:border-[var(--primary)] transition-all duration-300 hover:border-[var(--primary-light)] shadow-sm"
                 />
                 {searchQuery && (
                   <button
@@ -738,9 +705,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       setSearchQuery('');
                       setFilters((prev: any) => ({ ...prev, dietary_search: '' }));
                     }}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -750,11 +717,11 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               {loading ? (
                 Array.from({ length: 8 }).map((_, index) => (
                   <div key={index} className="animate-pulse">
-                    <div className="bg-gray-200 rounded-xl p-6"></div>
+                    <div className="bg-[var(--background-secondary)] rounded-[var(--radius-xl)] p-6"></div>
                   </div>
                 ))
               ) : dietaryOptions.length === 0 ? (
-                <div className="col-span-full text-center py-8 text-gray-500">
+                <div className="col-span-full text-center py-8 text-[var(--foreground-muted)]">
                   Nenhuma opção disponível
                 </div>
               ) : (
@@ -773,34 +740,34 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                           <button
                             key={item.id}
                             onClick={() => handleMultiSelect('dietary_options', item.id)}
-                            className={`group relative p-6 rounded-xl border-2 ${
+                            className={`group relative p-6 rounded-[var(--radius-xl)] border-2 ${
                               isSelected 
-                                ? 'border-amber-400 bg-gradient-to-r from-amber-100 to-orange-100 shadow-xl shadow-amber-500/20' 
-                                : 'border-gray-200/60 hover:border-amber-300/60 bg-gradient-to-r from-gray-50 to-gray-100 hover:shadow-lg'
+                                ? 'border-[var(--primary)] bg-[var(--primary-50)] shadow-xl shadow-[var(--primary)]/20' 
+                                : 'border-[var(--card-border)]/60 hover:border-[var(--primary-light)]/60 bg-[var(--background-secondary)] hover:shadow-lg'
                             }`}
                           >
                             {isSelected && (
-                              <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-xl animate-pulse"></div>
+                              <div className="absolute inset-0 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] animate-pulse"></div>
                             )}
                             
-                            <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto transition-all duration-300 ${
+                            <div className={`flex items-center justify-center w-12 h-12 rounded-[var(--radius-xl)] mb-4 mx-auto transition-all duration-300 ${
                               isSelected 
-                                ? 'bg-white/80 shadow-lg' 
-                                : 'bg-white/60 group-hover:bg-white/80'
+                                ? 'bg-[var(--primary-foreground)]/80 shadow-lg' 
+                                : 'bg-[var(--primary-foreground)]/60 group-hover:bg-[var(--primary-foreground)]/80'
                             }`}>
-                              <div className={`w-6 h-6 ${isSelected ? 'text-amber-600' : 'text-gray-600'}`}>
+                              <div className={`w-6 h-6 ${isSelected ? 'text-[var(--primary)]' : 'text-[var(--foreground-secondary)]'}`}>
                                 <span className="text-2xl">{item.icon || '🥗'}</span>
                               </div>
                             </div>
                             
                             <div className={`text-center font-semibold text-lg transition-colors duration-300 ${
-                              isSelected ? 'text-amber-700' : 'text-gray-700 group-hover:text-amber-600'
+                              isSelected ? 'text-[var(--primary-dark)]' : 'text-[var(--foreground)] group-hover:text-[var(--primary)]'
                             }`}>
                               {item.name}
                             </div>
                             
                             {isSelected && (
-                              <div className="absolute top-3 right-3 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center shadow-lg">
+                              <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center shadow-lg">
                                 <Check className="h-4 w-4 text-white" />
                               </div>
                             )}
@@ -818,9 +785,8 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
         return (
           <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Visit Status Selection */}
               <div className="space-y-6">
-                <label className="block text-lg font-semibold text-gray-800">Status de Visita</label>
+                <label className="block text-lg font-semibold text-[var(--foreground)]">Status de Visita</label>
                 <select
                   value={
                     filters.visited && filters.not_visited ? 'all' :
@@ -853,18 +819,17 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                       return newFilters;
                     });
                   }}
-                  className="w-full px-4 py-4 text-lg border border-gray-200 rounded-xl focus:ring-4 focus:ring-amber-200 focus:border-amber-400 transition-all duration-300 hover:border-amber-300 shadow-sm"
+                  className="w-full px-4 py-4 text-lg border border-[var(--card-border)] rounded-[var(--radius-xl)] focus:ring-4 focus:ring-[var(--primary-light)] focus:border-[var(--primary)] transition-all duration-300 hover:border-[var(--primary-light)] shadow-sm"
                 >
                   <option value="all">Todas as frequências</option>
                   <option value="visited">Apenas Visitados</option>
                   <option value="not_visited">Apenas não visitados</option>
                 </select>
               </div>
-
-              {/* Visit Frequency */}
+              
               {filters.visited && (
                 <div className="space-y-6">
-                  <label className="block text-lg font-semibold text-gray-800">Frequência de Visitas</label>
+                  <label className="block text-lg font-semibold text-[var(--foreground)]">Frequência de Visitas</label>
                   <DualRangeSlider
                     min={1}
                     max={100}
@@ -883,8 +848,8 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     unit="vezes"
                   />
                   
-                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl p-4">
-                    <div className="text-sm text-amber-700">
+                  <div className="bg-[var(--primary-50)] border border-[var(--primary-light)]/60 rounded-[var(--radius-xl)] p-4">
+                    <div className="text-sm text-[var(--primary-dark)]">
                       <span className="font-semibold">Dica:</span> Defina um mínimo de visitas para encontrar seus restaurantes favoritos!
                     </div>
                   </div>
@@ -899,7 +864,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     }
   }, [activeTab, filters, loading, cuisineTypes, features, dietaryOptions, searchQuery, locationQuery, handleSearchChange, handleLocationChange, handleRangeChange, handleMultiSelect, setFilters]);
 
-  // Enhanced clear specific filter
   const clearSpecificFilter = useCallback((field: string) => {
     if (field === 'search') {
       setFilters((prev: any) => ({ ...prev, search: '' }));
@@ -922,7 +886,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     }
   }, [setFilters]);
 
-  // Save filter preset
   const saveFilterPreset = useCallback((name: string) => {
     const preset = {
       name,
@@ -936,48 +899,44 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     setFilterPresets(savedPresets);
   }, [filters]);
 
-  // Load filter preset
   const loadFilterPreset = useCallback((preset: any) => {
     setFilters(preset.filters);
     setShowPresets(false);
   }, [setFilters]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-100/50 backdrop-blur-sm overflow-hidden">
-      {/* Enhanced Filter Summary Bar */}
-      <div className="border-b border-gray-100/50 bg-gradient-to-r from-amber-50/80 via-orange-50/80 to-amber-50/80">
+    <div className="bg-[var(--card-bg)] rounded-[var(--radius-2xl)] shadow-xl border border-[var(--card-border)]/50 backdrop-blur-sm overflow-hidden">
+      <div className="border-b border-[var(--card-border)]/50 bg-[var(--primary-50)]/80">
         <div className="flex items-center justify-between p-6">
           <div className="flex items-center space-x-6">
-            {/* Enhanced Filter Toggle Button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="group flex items-center space-x-4 text-gray-800 hover:text-gray-900 transition-all duration-300"
+              className="group flex items-center space-x-4 text-[var(--foreground)] hover:text-[var(--foreground)] transition-all duration-300"
               aria-expanded={isOpen}
               aria-controls="filter-content"
             >
               <div className="relative">
-                <div className="absolute -inset-2 bg-gradient-to-r from-amber-400 to-orange-400 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-                <div className="relative flex items-center justify-center w-14 h-14 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl shadow-xl group-hover:shadow-2xl group-hover:from-amber-600 group-hover:to-orange-600 transition-all duration-300 transform group-hover:scale-105 group-active:scale-95">
+                <div className="absolute -inset-2 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                <div className="relative flex items-center justify-center w-14 h-14 bg-[var(--primary)] rounded-[var(--radius-xl)] shadow-xl group-hover:shadow-2xl transition-all duration-300 transform group-hover:scale-105 group-active:scale-95">
                   <FilterIcon className="h-7 w-7 text-white drop-shadow-lg" />
                 </div>
               </div>
               
               <div className="text-left">
-                <span className="block text-2xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors duration-300">Filtros Avançados</span>
+                <span className="block text-2xl font-bold text-[var(--foreground)] group-hover:text-[var(--foreground)] transition-colors duration-300">Filtros Avançados</span>
                 {activeFiltersCount > 0 && (
                   <div className="flex items-center space-x-3 mt-2">
                     <span className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/60 shadow-sm">
-                      <span className="w-3 h-3 bg-amber-400 rounded-full mr-2 animate-pulse"></span>
-                      <span className="text-sm font-semibold text-gray-700">{activeFiltersCount} filtros ativos</span>
+                      <span className="w-3 h-3 bg-[var(--primary)] rounded-full mr-2 animate-pulse"></span>
+                      <span className="text-sm font-semibold text-[var(--foreground)]">{activeFiltersCount} filtros ativos</span>
                     </span>
-                    <span className="text-sm text-gray-600">•</span>
-                    <span className="text-sm text-gray-600 font-medium">Performance otimizada</span>
+                    <span className="text-sm text-[var(--foreground-secondary)]">•</span>
+                    <span className="text-sm text-[var(--foreground-secondary)] font-medium">Performance otimizada</span>
                   </div>
                 )}
               </div>
             </button>
             
-            {/* Enhanced Active Filters Chips */}
             <div className="flex flex-wrap gap-3 max-w-2xl">
               {filters.search?.trim() && (
                 <FilterChip 
@@ -1042,40 +1001,36 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
             </div>
           </div>
           
-          {/* Enhanced Actions */}
           <div className="flex items-center space-x-4">
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="group inline-flex items-center px-6 py-3 border-2 border-amber-200/60 text-lg font-semibold rounded-xl text-amber-700 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 transition-all duration-300 hover:shadow-lg hover:border-amber-300/80 transform hover:-translate-y-1"
+                className="group inline-flex items-center px-6 py-3 border-2 border-[var(--primary-light)]/60 text-lg font-semibold rounded-[var(--radius-xl)] text-[var(--primary-dark)] bg-[var(--primary-50)] hover:shadow-lg hover:border-[var(--primary-light)]/80 transform hover:-translate-y-1"
               >
-                <X className="h-5 w-5 mr-3 text-amber-600 group-hover:text-amber-700" />
+                <X className="h-5 w-5 mr-3 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 <span>Limpar tudo</span>
               </button>
             )}
             
-            
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="group p-4 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-all duration-300 transform hover:scale-105"
+              className="group p-4 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-[var(--radius-xl)] transition-all duration-300 transform hover:scale-105"
               aria-label={isOpen ? "Fechar filtros" : "Abrir filtros"}
             >
               <div className="flex items-center justify-center w-8 h-8">
                 {isOpen ? (
-                  <ChevronUp className="h-6 w-6 text-amber-600 group-hover:text-amber-700" />
+                  <ChevronUp className="h-6 w-6 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 ) : (
-                  <ChevronDown className="h-6 w-6 text-amber-600 group-hover:text-amber-700" />
+                  <ChevronDown className="h-6 w-6 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 )}
               </div>
             </button>
           </div>
         </div>
       </div>
-
-      {/* Enhanced Filter Tabs */}
+      
       {isOpen && (
         <div className="p-6 sm:p-8" id="filter-content">
-          {/* Enhanced Tab Navigation */}
           <div className="flex flex-wrap gap-3 sm:gap-4 mb-6 sm:mb-8">
             {getAvailableTabs().map((tab) => (
               <FilterTabButton
@@ -1088,38 +1043,36 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               />
             ))}
           </div>
-
-          {/* Enhanced Tab Content */}
-          <div className="border border-gray-200/60 rounded-xl sm:rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-gray-50/80 via-transparent to-orange-50/20 shadow-lg">
+          
+          <div className="border border-[var(--card-border)]/60 rounded-[var(--radius-xl)] sm:rounded-[var(--radius-2xl)] p-6 sm:p-8 bg-[var(--background-secondary)]/80 shadow-lg">
             {renderTabContent()}
           </div>
-
-          {/* Enhanced Actions */}
-          <div className="flex flex-col sm:flex-row justify-end items-center space-y-4 sm:space-y-0 sm:space-x-4 pt-6 sm:pt-8 border-t border-gray-100/60">
+          
+          <div className="flex flex-col sm:flex-row justify-end items-center space-y-4 sm:space-y-0 sm:space-x-4 pt-6 sm:pt-8 border-t border-[var(--card-border)]/60">
             {autoApply && (
-              <div className="flex items-center space-x-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 px-6 py-3 rounded-xl shadow-sm">
+              <div className="flex items-center space-x-3 bg-[var(--primary-50)] border border-[var(--primary-light)]/60 px-6 py-3 rounded-[var(--radius-xl)] shadow-sm">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-amber-400 rounded-full animate-pulse"></div>
-                  <div className="w-3 h-3 bg-orange-400 rounded-full animate-pulse animation-delay-100"></div>
-                  <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse animation-delay-200"></div>
+                  <div className="w-3 h-3 bg-[var(--primary)] rounded-full animate-pulse"></div>
+                  <div className="w-3 h-3 bg-[var(--orange-500)] rounded-full animate-pulse animation-delay-100"></div>
+                  <div className="w-3 h-3 bg-[var(--primary)] rounded-full animate-pulse animation-delay-200"></div>
                 </div>
-                <span className="text-sm font-medium text-amber-700">Filtros aplicados automaticamente</span>
+                <span className="text-sm font-medium text-[var(--primary-dark)]">Filtros aplicados automaticamente</span>
               </div>
             )}
             
             <div className="flex space-x-4">
               <button
                 onClick={clearFilters}
-                className="group inline-flex items-center px-8 py-4 border-2 border-amber-200/60 text-lg font-semibold rounded-xl text-amber-700 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 transition-all duration-300 hover:shadow-lg hover:border-amber-300/80 transform hover:-translate-y-1"
+                className="group inline-flex items-center px-8 py-4 border-2 border-[var(--primary-light)]/60 text-lg font-semibold rounded-[var(--radius-xl)] text-[var(--primary-dark)] bg-[var(--primary-50)] hover:shadow-lg hover:border-[var(--primary-light)]/80 transform hover:-translate-y-1"
               >
-                <X className="h-5 w-5 mr-3 text-amber-600 group-hover:text-amber-700" />
+                <X className="h-5 w-5 mr-3 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 <span>Limpar filtros</span>
               </button>
               
               {!autoApply && (
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-lg font-semibold rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 active:translate-y-0"
+                  className="group inline-flex items-center px-8 py-4 bg-[var(--primary)] text-white text-lg font-semibold rounded-[var(--radius-xl)] hover:shadow-xl transform hover:-translate-y-1 active:translate-y-0"
                 >
                   <span className="font-semibold">Aplicar filtros</span>
                 </button>

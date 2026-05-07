@@ -178,7 +178,7 @@ export interface DatabaseError {
 // Visit tracking types
 export interface VisitData {
   visited: boolean;
-  visitCount: number;
+  visit_count: number;
   last_visit?: string;
 }
 

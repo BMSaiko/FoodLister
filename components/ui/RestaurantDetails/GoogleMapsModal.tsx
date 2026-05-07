@@ -37,7 +37,29 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
 
     setLoading(true);
     try {
-      const data = extractGoogleMapsData(googleMapsUrl);
+      let urlToExtract = googleMapsUrl;
+      
+      // Check if it's a short URL that needs resolution
+      const urlObj = new URL(googleMapsUrl);
+      const isShortUrl = urlObj.hostname === 'maps.app.goo.gl' || 
+                         urlObj.hostname === 'goo.gl';
+      
+      if (isShortUrl) {
+        // Resolve short URL via server-side API
+        const resolveResponse = await fetch(
+          `/api/resolve-google-maps-url?url=${encodeURIComponent(googleMapsUrl)}`
+        );
+        
+        if (!resolveResponse.ok) {
+          const errorData = await resolveResponse.json();
+          throw new Error(errorData.error || 'Falha ao resolver o link curto');
+        }
+        
+        const { finalUrl } = await resolveResponse.json();
+        urlToExtract = finalUrl;
+      }
+      
+      const data = extractGoogleMapsData(urlToExtract);
       setExtractedData(data);
 
       // Se extrair coordenadas, buscar endereço via OSM
@@ -93,7 +115,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-5 text-white sticky top-0 z-10">
+        <div className="bg-gradient-to-r from-[var(--amber-500)] to-[var(--amber-600)] px-6 py-5 text-white sticky top-0 z-10">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
@@ -101,12 +123,12 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               </div>
               <div>
                 <h2 className="text-xl font-bold">Importar do Google Maps</h2>
-                <p className="text-amber-100 text-sm">Extraia informações automaticamente</p>
+                <p className="text-[var(--amber-100)] text-sm">Extraia informações automaticamente</p>
               </div>
             </div>
             <button
               onClick={resetModal}
-              className="text-amber-100 hover:text-white hover:bg-white/20 rounded-full p-1 transition-colors"
+              className="text-[var(--amber-100)] hover:text-white hover:bg-white/20 rounded-full p-1 transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
@@ -118,39 +140,43 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
           {!extractedData ? (
             <>
               {/* Instructions */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+              <div className="bg-[var(--amber-50)] border border-[var(--amber-200)] rounded-xl p-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <div className="p-1 bg-amber-100 rounded-lg flex-shrink-0">
-                    <Search className="h-4 w-4 text-amber-600" />
+                  <div className="p-1 bg-[var(--amber-100)] rounded-lg flex-shrink-0">
+                    <Search className="h-4 w-4 text-[var(--amber-600)]" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-amber-900 mb-2">Como fazer:</h3>
-                    <ol className="text-sm text-amber-800 space-y-1">
+                    <h3 className="font-semibold text-[var(--amber-900)] mb-2">Como fazer:</h3>
+                    <ol className="text-sm text-[var(--amber-800)] space-y-1">
                       <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
-                        Abra o Google Maps no navegador
+                        <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
+                        Abra o Google Maps no navegador ou app móvel
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">2</span>
-                        Encontre e clique no restaurante
+                        <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">2</span>
+                        Encontre e selecione o restaurante
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">3</span>
-                        Copie o link da barra de endereço
+                        <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">3</span>
+                        Partilhe ou copie o link (suporta links curtos de mobile)
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="w-5 h-5 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs font-medium">4</span>
+                        <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">4</span>
                         Cole aqui e clique em "Extrair"
                       </li>
                     </ol>
+                    <p className="text-xs text-[var(--amber-700)] mt-2 flex items-center gap-1">
+                      <Map className="h-3 w-3" />
+                      Aceita links completos (google.com/maps) e links curtos (maps.app.goo.gl)
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Input URL */}
               <div className="mb-6">
-                <label className="block text-gray-800 font-semibold mb-3 flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-amber-600" />
+                <label className="block text-[var(--gray-800)] font-semibold mb-3 flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-[var(--amber-600)]" />
                   Link do Google Maps
                 </label>
                 <div className="relative">
@@ -161,8 +187,8 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                       setGoogleMapsUrl(e.target.value);
                       setError('');
                     }}
-                    placeholder="https://www.google.com/maps/place/Nome+do+Restaurante/..."
-                    className="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-colors text-gray-700"
+                    placeholder="Link do Google Maps (ex: google.com/maps ou maps.app.goo.gl/...)"
+                    className="w-full px-4 py-3 pr-12 border-2 border-[var(--gray-200)] rounded-xl focus:outline-none focus:border-[var(--amber-500)] focus:ring-2 focus:ring-[var(--amber-100)] transition-colors text-[var(--gray-700)]"
                   />
                   {googleMapsUrl && (
                     <button
@@ -176,23 +202,23 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                           setError('Não foi possível acessar o clipboard. Verifique as permissões do navegador.');
                         });
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--gray-400)] hover:text-[var(--gray-600)]"
                       title="Colar do clipboard"
                     >
                       <Copy className="h-4 w-4" />
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                  <ExternalLink className="h-3 w-3" />
-                  Cole o link completo do restaurante no Google Maps
-                </p>
+                  <p className="text-xs text-[var(--gray-500)] mt-2 flex items-center gap-1">
+                    <ExternalLink className="h-3 w-3" />
+                    Cole o link do restaurante (completo ou curto)
+                  </p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                <div className="bg-[var(--red-50)] border border-[var(--red-200)] text-[var(--red-700)] p-4 rounded-xl mb-6 flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-[var(--red-500)] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium">Erro na extração</p>
                     <p className="text-sm mt-1">{error}</p>
@@ -204,7 +230,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               <button
                 onClick={handleExtract}
                 disabled={loading || !googleMapsUrl.trim()}
-                className="w-full px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl hover:from-amber-600 hover:to-amber-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed flex items-center justify-center gap-3 font-semibold transition-all shadow-md hover:shadow-lg"
+                className="w-full px-6 py-3 bg-gradient-to-r from-[var(--amber-500)] to-[var(--amber-600)] text-white rounded-xl hover:from-[var(--amber-600)] hover:to-[var(--amber-700)] disabled:from-[var(--gray-400)] disabled:to-[var(--gray-500)] disabled:cursor-not-allowed flex items-center justify-center gap-3 font-semibold transition-all shadow-md hover:shadow-lg"
               >
                 {loading ? (
                   <>
@@ -223,58 +249,58 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
             <>
               {/* Success Message */}
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--green-100)] rounded-full mb-4">
+                  <CheckCircle className="h-8 w-8 text-[var(--green-600)]" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Informações extraídas!</h3>
-                <p className="text-gray-600">Revise os dados antes de confirmar</p>
+                <h3 className="text-xl font-bold text-[var(--gray-900)] mb-2">Informações extraídas!</h3>
+                <p className="text-[var(--gray-600)]">Revise os dados antes de confirmar</p>
               </div>
 
               {/* Extracted Data Display */}
               <div className="space-y-4 mb-6">
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5">
+                <div className="bg-gradient-to-r from-[var(--green-50)] to-[var(--emerald-50)] border border-[var(--green-200)] rounded-xl p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <p className="font-semibold text-green-800">Dados extraídos com sucesso</p>
+                    <CheckCircle className="h-5 w-5 text-[var(--green-600)]" />
+                    <p className="font-semibold text-[var(--green-800)]">Dados extraídos com sucesso</p>
                   </div>
 
                   {extractedData.name && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-500" />
+                      <label className="block text-sm font-medium text-[var(--gray-700)] mb-2 flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-[var(--gray-500)]" />
                         Nome do Restaurante
                       </label>
-                      <div className="bg-white border border-gray-200 rounded-lg p-3">
-                        <p className="text-gray-900 font-medium">{extractedData.name}</p>
+                      <div className="bg-white border border-[var(--gray-200)] rounded-lg p-3">
+                        <p className="text-[var(--gray-900)] font-medium">{extractedData.name}</p>
                       </div>
                     </div>
                   )}
 
                   {extractedData.latitude && extractedData.longitude && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <Navigation className="h-4 w-4 text-blue-500" />
+                      <label className="block text-sm font-medium text-[var(--gray-700)] mb-2 flex items-center gap-2">
+                        <Navigation className="h-4 w-4 text-[var(--blue-500)]" />
                         Coordenadas GPS
                       </label>
-                      <div className="bg-white border border-gray-200 rounded-lg p-3">
-                        <p className="text-gray-900 text-sm font-mono">
+                      <div className="bg-white border border-[var(--gray-200)] rounded-lg p-3">
+                        <p className="text-[var(--gray-900)] text-sm font-mono">
                           {extractedData.latitude.toFixed(6)}, {extractedData.longitude.toFixed(6)}
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">Latitude, Longitude</p>
+                        <p className="text-xs text-[var(--gray-500)] mt-1">Latitude, Longitude</p>
                       </div>
                     </div>
                   )}
 
                   {osmLoading && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <MapPinHouse className="h-4 w-4 text-purple-500" />
+                      <label className="block text-sm font-medium text-[var(--gray-700)] mb-2 flex items-center gap-2">
+                        <MapPinHouse className="h-4 w-4 text-[var(--purple-500)]" />
                         Buscando endereço via OpenStreetMap...
                       </label>
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <div className="bg-[var(--purple-50)] border border-[var(--purple-200)] rounded-lg p-3">
                         <div className="flex items-center gap-2">
-                          <Loader className="h-4 w-4 animate-spin text-purple-600" />
-                          <span className="text-sm text-purple-700">Buscando endereço...</span>
+                          <Loader className="h-4 w-4 animate-spin text-[var(--purple-600)]" />
+                          <span className="text-sm text-[var(--purple-700)]">Buscando endereço...</span>
                         </div>
                       </div>
                     </div>
@@ -282,25 +308,25 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
 
                   {osmAddress && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <MapPinHouse className="h-4 w-4 text-purple-500" />
+                      <label className="block text-sm font-medium text-[var(--gray-700)] mb-2 flex items-center gap-2">
+                        <MapPinHouse className="h-4 w-4 text-[var(--purple-500)]" />
                         Endereço Detalhado (OpenStreetMap)
                       </label>
-                      <div className="bg-white border border-gray-200 rounded-lg p-3">
-                        <p className="text-gray-900 text-sm">{osmAddress}</p>
-                        <p className="text-xs text-gray-500 mt-1">Rua, número, bairro, cidade, código postal, estado, país</p>
+                      <div className="bg-white border border-[var(--gray-200)] rounded-lg p-3">
+                        <p className="text-[var(--gray-900)] text-sm">{osmAddress}</p>
+                        <p className="text-xs text-[var(--gray-500)] mt-1">Rua, número, bairro, cidade, código postal, estado, país</p>
                       </div>
                     </div>
                   )}
 
                   {extractedData.address && !osmAddress && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-gray-500" />
+                      <label className="block text-sm font-medium text-[var(--gray-700)] mb-2 flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-[var(--gray-500)]" />
                         Endereço (Google Maps)
                       </label>
-                      <div className="bg-white border border-gray-200 rounded-lg p-3">
-                        <p className="text-gray-900 text-sm break-words">{extractedData.address}</p>
+                      <div className="bg-white border border-[var(--gray-200)] rounded-lg p-3">
+                        <p className="text-[var(--gray-900)] text-sm break-words">{extractedData.address}</p>
                       </div>
                     </div>
                   )}
@@ -308,8 +334,8 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                 </div>
 
                 {error && (
-                  <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-xl flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                  <div className="bg-[var(--yellow-50)] border border-[var(--yellow-200)] text-[var(--yellow-800)] p-4 rounded-xl flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-[var(--yellow-600)] flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium">Aviso</p>
                       <p className="text-sm mt-1">{error}</p>
@@ -327,13 +353,13 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                     setError('');
                     setOsmAddress(null);
                   }}
-                  className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 font-medium transition-all"
+                  className="flex-1 px-4 py-3 border-2 border-[var(--gray-200)] text-[var(--gray-700)] rounded-xl hover:bg-[var(--gray-50)] hover:border-[var(--gray-300)] font-medium transition-all"
                 >
                   Tentar outro link
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[var(--green-600)] to-[var(--green-500)] text-white rounded-xl hover:from-[var(--green-700)] hover:to-[var(--green-600)] font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                 >
                   Usar estas informações
                 </button>

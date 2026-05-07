@@ -13,8 +13,6 @@ import {
   MapPin, 
   FileText, 
   Camera, 
-  Save, 
-  ArrowLeft, 
   Eye, 
   EyeOff, 
   Shield, 
@@ -28,7 +26,7 @@ import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import UserProfileHeader from '@/components/ui/profile/UserProfileHeader';
 import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
-import SettingsStickyNavbar from '@/components/ui/navigation/SettingsStickyNavbar';
+import FormActions from '@/components/ui/common/FormActions';
 
 interface FormErrors {
   display_name?: string;
@@ -78,10 +76,10 @@ const ProfileSettingsPage = () => {
 
   // Initialize local profile when profile data loads
   useEffect(() => {
-    if (profile) {
+    if (profile && (!localProfile || profile.id !== localProfile.id)) {
       setLocalProfile(profile);
     }
-  }, [profile]);
+  }, [profile, localProfile]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -195,15 +193,6 @@ const ProfileSettingsPage = () => {
     }
   };
 
-  const handleSave = async () => {
-    // Create a mock form event for the handleSubmit function
-    const mockEvent = {
-      preventDefault: () => {},
-      target: { submit: () => {} }
-    } as unknown as React.FormEvent;
-    
-    await handleSubmit(mockEvent);
-  };
 
   const handleCancel = () => {
     router.back();
@@ -261,7 +250,7 @@ const ProfileSettingsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 pb-24 md:pb-8">
       {/* Navbar */}
       <Navbar />
 
@@ -482,40 +471,13 @@ const ProfileSettingsPage = () => {
               </div>
             </div>
 
-            {/* Actions - Desktop Only */}
-            <div className="hidden md:flex flex-wrap gap-3 mt-6">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                  isSubmitting
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1'
-                }`}
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span className="hidden sm:inline">Salvando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    <span className="hidden sm:inline">Salvar Alterações</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={isSubmitting}
-                className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all duration-200"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Cancelar</span>
-              </button>
-            </div>
+            {/* Form Actions - Sticky */}
+            <FormActions
+              onCancel={handleCancel}
+              onSubmit={handleSubmit}
+              submitText="Salvar Alterações"
+              loading={isSubmitting}
+            />
           </form>
         </div>
       </div>
@@ -523,13 +485,6 @@ const ProfileSettingsPage = () => {
       {/* Desktop Scroll to Top Button */}
       <ScrollToTopButton />
       
-      {/* Mobile Sticky Navbar */}
-      <SettingsStickyNavbar 
-        onSave={handleSave}
-        onCancel={handleCancel}
-        isSubmitting={isSubmitting}
-        profile={profile}
-      />
     </div>
   );
 };

@@ -67,14 +67,14 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
 
   if (loading || loadingOptions) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[var(--background)]">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+          <div className="bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-[var(--shadow-md)] p-6 max-w-2xl mx-auto">
             <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-8 bg-[var(--background-tertiary)] rounded w-1/2"></div>
+              <div className="h-4 bg-[var(--background-tertiary)] rounded w-full"></div>
+              <div className="h-4 bg-[var(--background-tertiary)] rounded w-3/4"></div>
             </div>
           </div>
         </div>
@@ -83,28 +83,28 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      
-      <GoogleMapsModal 
+      <div className="min-h-screen bg-[var(--background)]">
+        <Navbar />
+        
+        <GoogleMapsModal 
         isOpen={googleMapsModalOpen}
         onClose={() => setGoogleMapsModalOpen(false)}
         onSubmit={handleGoogleMapsData}
       />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <Link href={backUrl} className="flex items-center text-amber-600 mb-4 sm:mb-6 hover:underline">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-24 md:pb-8">
+        <Link href={backUrl} className="flex items-center text-primary mb-4 sm:mb-6 hover:underline">
           <ArrowLeft className="h-4 w-4 mr-2" />
           {backLabel}
         </Link>
         
         <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6">
+          <h1 className="text-2xl font-bold text-[var(--foreground)] mb-6">
             {isEdit ? 'Editar Restaurante' : 'Adicionar Novo Restaurante'}
           </h1>
 
           {isEdit && formData.creator && (
-            <div className="mb-4 text-sm text-gray-500">
+              <div className="mb-4 text-sm text-[var(--foreground-secondary)]">
               Adicionado por: {formData.creator}
             </div>
           )}

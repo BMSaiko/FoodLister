@@ -3,7 +3,8 @@ import { getServerClient } from '@/libs/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await getServerClient(request, undefined);
+    const response = NextResponse.next();
+    const supabase = await getServerClient(request, response);
 
     const body = await request.json();
     const { restaurantIds } = body;
@@ -12,7 +13,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'restaurantIds array is required' }, { status: 400 });
     }
 
-    // Get current user info for debugging
     if (!supabase) {
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Get visit records for all restaurants for this user
-    // Add explicit user_id filter for reliability (RLS should also filter automatically)
     const { data: visitData, error: visitError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
@@ -38,12 +37,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a map of restaurant_id -> visit data
-    const visitsMap: { [key: string]: { visited: boolean; visitCount: number } } = {};
+    // Count visits per restaurant (table has one row per visit)
+    const visitsMap: { [key: string]: { visited: boolean; visit_count: number } } = {};
+    
     if (visitData) {
+      // Group visits by restaurant_id
+      const visitGroups: { [key: string]: any[] } = {};
       visitData.forEach((visit: any) => {
-        visitsMap[visit.restaurant_id] = {
-          visited: visit.visited,
-          visitCount: visit.visit_count
+        if (!visitGroups[visit.restaurant_id]) {
+          visitGroups[visit.restaurant_id] = [];
+        }
+        visitGroups[visit.restaurant_id].push(visit);
+      });
+      
+      // Calculate visited and visit_count for each restaurant
+      Object.keys(visitGroups).forEach(restaurantId => {
+        const visits = visitGroups[restaurantId];
+        visitsMap[restaurantId] = {
+          visited: visits.length > 0,
+          visit_count: visits.length
         };
       });
     }
@@ -53,7 +65,7 @@ export async function POST(request: NextRequest) {
       if (!visitsMap[id]) {
         visitsMap[id] = {
           visited: false,
-          visitCount: 0
+          visit_count: 0
         };
       }
     });

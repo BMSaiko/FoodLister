@@ -16,6 +16,7 @@ interface ReviewCardActionsProps {
       location?: string;
       latitude?: number;
       longitude?: number;
+      source_url?: string;
     };
   };
   isOwnReview: boolean;
@@ -46,7 +47,8 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
       openMapModal({
         location: review.restaurant.location || '',
         latitude: review.restaurant.latitude,
-        longitude: review.restaurant.longitude
+        longitude: review.restaurant.longitude,
+        source_url: review.restaurant.source_url
       });
     }
   };

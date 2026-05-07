@@ -26,7 +26,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
       <button
         type="button"
         onClick={() => handleExport('json', exportListAsJSON)}
-        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm"
+        className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--blue-600)] hover:bg-[var(--blue-700)] text-white rounded-lg transition-colors text-sm"
         title="Exportar como JSON"
       >
         <FileJson className="h-4 w-4" />
@@ -36,7 +36,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
       <button
         type="button"
         onClick={() => handleExport('csv', exportListAsCSV)}
-        className="inline-flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm"
+        className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--green-600)] hover:bg-[var(--green-700)] text-white rounded-lg transition-colors text-sm"
         title="Exportar como CSV"
       >
         <FileSpreadsheet className="h-4 w-4" />
@@ -46,7 +46,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
       <button
         type="button"
         onClick={() => handleExport('pdf', exportListAsPDF)}
-        className="inline-flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
+        className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--purple-600)] hover:bg-[var(--purple-700)] text-white rounded-lg transition-colors text-sm"
         title="Exportar como PDF"
       >
         <FileText className="h-4 w-4" />

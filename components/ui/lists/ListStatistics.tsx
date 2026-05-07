@@ -36,7 +36,16 @@ interface ListStatisticsProps {
   restaurants: Restaurant[];
 }
 
-const COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#ec4899", "#f97316", "#14b8a6"];
+  const COLORS = [
+    "var(--primary)",
+    "var(--green-500)",
+    "var(--blue-600)",
+    "#8b5cf6",
+    "var(--red-500)",
+    "#ec4899",
+    "var(--orange-500)",
+    "#14b8a6"
+  ];
 
 const getPriceLevel = (price?: number): string => {
   if (!price) return "€";
@@ -93,53 +102,53 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
       {/* Top Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Total Restaurants */}
-        <div className="bg-white rounded-xl shadow-md p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-amber-100 rounded-full">
-            <UtensilsCrossed className="h-5 w-5 text-amber-600" />
+        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
+          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--primary-light)] rounded-full">
+            <UtensilsCrossed className="h-5 w-5 text-[var(--primary-dark)]" />
           </div>
-          <p className="text-2xl font-bold text-gray-900">{total}</p>
-          <p className="text-xs text-gray-500">Restaurantes</p>
+          <p className="text-2xl font-bold text-[var(--gray-900)]">{total}</p>
+          <p className="text-xs text-[var(--gray-500)]">Restaurantes</p>
         </div>
 
         {/* Average Rating */}
-        <div className="bg-white rounded-xl shadow-md p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-yellow-100 rounded-full">
-            <Star className="h-5 w-5 text-yellow-600" fill="currentColor" />
+        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
+          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--warning-light)] rounded-full">
+            <Star className="h-5 w-5 text-[var(--warning)]" fill="currentColor" />
           </div>
-          <p className="text-2xl font-bold text-gray-900">
+          <p className="text-2xl font-bold text-[var(--gray-900)]">
             {avgRating > 0 ? avgRating.toFixed(1) : "N/A"}
           </p>
-          <p className="text-xs text-gray-500">Rating Médio</p>
+          <p className="text-xs text-[var(--gray-500)]">Rating Médio</p>
         </div>
 
         {/* Visited */}
-        <div className="bg-white rounded-xl shadow-md p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-green-100 rounded-full">
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
+        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
+          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--success-light)] rounded-full">
+            <CheckCircle2 className="h-5 w-5 text-[var(--success)]" />
           </div>
-          <p className="text-2xl font-bold text-gray-900">{visitedCount}</p>
-          <p className="text-xs text-gray-500">Visitados</p>
+          <p className="text-2xl font-bold text-[var(--gray-900)]">{visitedCount}</p>
+          <p className="text-xs text-[var(--gray-500)]">Visitados</p>
         </div>
 
         {/* Unvisited */}
-        <div className="bg-white rounded-xl shadow-md p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-blue-100 rounded-full">
-            <XCircle className="h-5 w-5 text-blue-600" />
+        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
+          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--blue-600)]/20 rounded-full">
+            <XCircle className="h-5 w-5 text-[var(--blue-600)]" />
           </div>
-          <p className="text-2xl font-bold text-gray-900">{unvisitedCount}</p>
-          <p className="text-xs text-gray-500">Por Visitar</p>
+          <p className="text-2xl font-bold text-[var(--gray-900)]">{unvisitedCount}</p>
+          <p className="text-xs text-[var(--gray-500)]">Por Visitar</p>
         </div>
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Cuisine Type Distribution */}
-        {cuisineData.length > 0 && (
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-amber-500" />
-              Tipos de Cozinha
-            </h3>
+          {cuisineData.length > 0 && (
+            <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
+              <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-4 flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-[var(--primary)]" />
+                Tipos de Cozinha
+              </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -165,12 +174,12 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
         )}
 
         {/* Price Range Distribution */}
-        {priceData.length > 0 && (
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="text-amber-500">€</span>
-              Faixa de Preços
-            </h3>
+          {priceData.length > 0 && (
+            <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
+              <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-4 flex items-center gap-2">
+                <span className="text-[var(--primary)]">€</span>
+                Faixa de Preços
+              </h3>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -197,18 +206,18 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
       </div>
 
       {/* Visited Progress Bar */}
-      <div className="bg-white rounded-xl shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Progresso de Visitas</h3>
-        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-          <div
-            className="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full transition-all duration-500"
-            style={{ width: `${total > 0 ? (visitedCount / total) * 100 : 0}%` }}
-          />
+        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
+          <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-3">Progresso de Visitas</h3>
+          <div className="w-full bg-[var(--gray-200)] rounded-full h-4 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-[var(--success-light)] to-[var(--success)] h-4 rounded-full transition-all duration-500"
+              style={{ width: `${total > 0 ? (visitedCount / total) * 100 : 0}%` }}
+            />
+          </div>
+          <p className="text-sm text-[var(--gray-500)] mt-2 text-center">
+            {total > 0 ? Math.round((visitedCount / total) * 100) : 0}% visitado ({visitedCount} de {total})
+          </p>
         </div>
-        <p className="text-sm text-gray-500 mt-2 text-center">
-          {total > 0 ? Math.round((visitedCount / total) * 100) : 0}% visitado ({visitedCount} de {total})
-        </p>
-      </div>
     </div>
   );
 }

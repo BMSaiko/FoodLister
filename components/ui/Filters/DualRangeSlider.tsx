@@ -120,87 +120,94 @@ const DualRangeSlider: React.FC<DualRangeSliderProps> = ({
   const maxPercentage = getPercentage(value.max);
 
   return (
-    <div className={`space-y-3 ${className}`}>
-      <div className="flex justify-between items-center">
-        <label className="block text-sm font-medium text-gray-700">{label}</label>
-        <span className="text-sm text-gray-600">
-          {value.min}{unit} - {value.max}{unit}
-        </span>
-      </div>
-      
-      <div className="space-y-2">
-        <div className="relative" ref={sliderRef}>
-          {/* Track background */}
-          <div className="w-full h-2 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full shadow-inner"></div>
-          
-          {/* Selected range */}
-          <div 
-            className="absolute top-0 bottom-0 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full shadow-md"
-            style={{
-              left: `${Math.max(0, Math.min(100, minPercentage))}%`,
-              width: `${Math.max(0, Math.min(100, maxPercentage) - Math.max(0, Math.min(100, minPercentage)))}%`
-            }}
-          ></div>
-          
-          {/* Min Handle */}
-          <div
-            ref={minHandleRef}
-            className={`absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white rounded-full cursor-pointer hover:scale-110 hover:shadow-lg transition-all duration-200 ${
-              isDragging === 'min' ? 'ring-4 ring-amber-200/60 scale-110' : ''
-            }`}
-            style={{
-              left: `${Math.max(0, Math.min(100, minPercentage))}%`,
-              marginLeft: '-10px',
-              zIndex: 10,
-              maxWidth: '100%',
-              overflow: 'visible'
-            }}
-            onMouseDown={() => handleMouseDown('min')}
-            onKeyDown={(e) => handleKeyDown(e, 'min')}
-            tabIndex={0}
-            role="slider"
-            aria-label={`Mínimo ${label}`}
-            aria-valuemin={min}
-            aria-valuemax={max}
-            aria-valuenow={value.min}
-            aria-valuetext={`${value.min}${unit}`}
-          >
-            <div className="absolute inset-0 rounded-full bg-white/20"></div>
-          </div>
-          
-          {/* Max Handle */}
-          <div
-            ref={maxHandleRef}
-            className={`absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white rounded-full cursor-pointer hover:scale-110 hover:shadow-lg transition-all duration-200 ${
-              isDragging === 'max' ? 'ring-4 ring-amber-200/60 scale-110' : ''
-            }`}
-            style={{
-              left: `${Math.max(0, Math.min(100, maxPercentage))}%`,
-              marginLeft: '-10px',
-              zIndex: 10,
-              maxWidth: '100%',
-              overflow: 'visible'
-            }}
-            onMouseDown={() => handleMouseDown('max')}
-            onKeyDown={(e) => handleKeyDown(e, 'max')}
-            tabIndex={0}
-            role="slider"
-            aria-label={`Máximo ${label}`}
-            aria-valuemin={min}
-            aria-valuemax={max}
-            aria-valuenow={value.max}
-            aria-valuetext={`${value.max}${unit}`}
-          >
-            <div className="absolute inset-0 rounded-full bg-white/20"></div>
-          </div>
+      <div className={`space-y-3 ${className}`}>
+        <div className="flex justify-between items-center">
+          <label className="block text-sm font-medium text-[var(--foreground-secondary)]">{label}</label>
+          <span className="text-sm text-[var(--foreground-muted)]">
+            {value.min}{unit} - {value.max}{unit}
+          </span>
         </div>
         
-        <div className="flex justify-between text-xs text-gray-600 font-medium">
-          <span className="text-amber-600">{value.min}{unit}</span>
-          <span className="text-amber-600">{value.max}{unit}</span>
+        <div className="space-y-2">
+          <div className="relative" ref={sliderRef}>
+            {/* Track background */}
+            <div className="w-full h-2 bg-[var(--background-secondary)] rounded-full shadow-inner"></div>
+            
+            {/* Selected range */}
+            {(() => {
+              const leftPos = Math.max(0, Math.min(100, minPercentage));
+              const rightPos = Math.max(0, Math.min(100, maxPercentage));
+              const width = Math.max(0, rightPos - leftPos);
+              return (
+                <div 
+                  className="absolute top-0 bottom-0 bg-[var(--primary)] rounded-full shadow-md"
+                  style={{
+                    left: `${leftPos}%`,
+                    width: `${width}%`
+                  }}
+                ></div>
+              );
+            })()}
+            
+            {/* Min Handle */}
+            <div
+              ref={minHandleRef}
+              className={`absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-[var(--primary)] border-2 border-[var(--card-bg)] rounded-full cursor-pointer hover:scale-110 hover:shadow-lg transition-all duration-200 ${
+                isDragging === 'min' ? 'ring-4 ring-[var(--primary-light)]/60 scale-110' : ''
+              }`}
+              style={{
+                left: `${Math.max(0, Math.min(100, minPercentage))}%`,
+                marginLeft: '-10px',
+                zIndex: 10,
+                maxWidth: '100%',
+                overflow: 'visible'
+              }}
+              onMouseDown={() => handleMouseDown('min')}
+              onKeyDown={(e) => handleKeyDown(e, 'min')}
+              tabIndex={0}
+              role="slider"
+              aria-label={`Mínimo ${label}`}
+              aria-valuemin={min}
+              aria-valuemax={max}
+              aria-valuenow={value.min}
+              aria-valuetext={`${value.min}${unit}`}
+            >
+              <div className="absolute inset-0 rounded-full bg-[var(--card-bg)]/20"></div>
+            </div>
+            
+            {/* Max Handle */}
+            <div
+              ref={maxHandleRef}
+              className={`absolute top-1/2 transform -translate-y-1/2 w-5 h-5 bg-[var(--primary)] border-2 border-[var(--card-bg)] rounded-full cursor-pointer hover:scale-110 hover:shadow-lg transition-all duration-200 ${
+                isDragging === 'max' ? 'ring-4 ring-[var(--primary-light)]/60 scale-110' : ''
+              }`}
+              style={{
+                left: `${Math.max(0, Math.min(100, maxPercentage))}%`,
+                marginLeft: '-10px',
+                zIndex: 10,
+                maxWidth: '100%',
+                overflow: 'visible'
+              }}
+              onMouseDown={() => handleMouseDown('max')}
+              onKeyDown={(e) => handleKeyDown(e, 'max')}
+              tabIndex={0}
+              role="slider"
+              aria-label={`Máximo ${label}`}
+              aria-valuemin={min}
+              aria-valuemax={max}
+              aria-valuenow={value.max}
+              aria-valuetext={`${value.max}${unit}`}
+            >
+              <div className="absolute inset-0 rounded-full bg-[var(--card-bg)]/20"></div>
+            </div>
+          </div>
+          
+          <div className="flex justify-between text-xs text-[var(--foreground-muted)] font-medium">
+            <span className="text-[var(--primary-dark)]">{value.min}{unit}</span>
+            <span className="text-[var(--primary-dark)]">{value.max}{unit}</span>
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

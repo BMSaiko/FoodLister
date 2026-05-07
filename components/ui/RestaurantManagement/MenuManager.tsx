@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Plus, Link as LinkIcon, Image as ImageIcon, AlertCircle, Globe, FileText } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import Image from 'next/image';
@@ -20,28 +20,30 @@ export default function MenuManager({
   onMenuImagesChange: (images: string[]) => void;
   disabled?: boolean;
 }) {
-  // Local state for managing images (simplified approach)
+  // Local state for managing images
   const [localImages, setLocalImages] = useState<string[]>([]);
-  const prevMenuImagesRef = React.useRef<string[] | null>(null);
-
-  // Tab state
   const [activeTab, setActiveTab] = useState('links');
+  
+  // Track if we need to notify parent about image changes
+  const pendingImagesRef = useRef<string[] | null>(null);
 
   // Sync local images with parent only when parent images actually change
   useEffect(() => {
     const newImages = Array.isArray(menuImages) ? menuImages : [];
-    const prevImages = prevMenuImagesRef.current;
-    
-    // Only update if images actually changed (avoid infinite loop)
-    if (!prevImages || JSON.stringify(newImages) !== JSON.stringify(prevImages)) {
-      setLocalImages(newImages);
-      prevMenuImagesRef.current = newImages;
-    }
+    setLocalImages(newImages);
   }, [menuImages]);
+
+  // Notify parent of pending image changes
+  useEffect(() => {
+    if (pendingImagesRef.current) {
+      onMenuImagesChange(pendingImagesRef.current);
+      pendingImagesRef.current = null;
+    }
+  }, [localImages, onMenuImagesChange]);
 
   // Ensure menuLinks is always an array
   const safeMenuLinks = Array.isArray(menuLinks) ? menuLinks : [];
-
+  
   // State for link input
   const [linkInput, setLinkInput] = useState('');
   const [linkError, setLinkError] = useState('');
@@ -92,21 +94,26 @@ export default function MenuManager({
     onMenuLinksChange(newLinks);
   };
 
-  // Add an image (using local state)
+  // Add an image using functional state update to avoid stale closure
   const handleImageUploaded = (imageUrl: string) => {
-    if (localImages.length >= 10) {
-      return; // Safety check
-    }
-    const newImages = [...localImages, imageUrl];
-    setLocalImages(newImages);
-    onMenuImagesChange(newImages);
+    setLocalImages(prevImages => {
+      if (prevImages.length >= 10) {
+        return prevImages; // Don't add more
+      }
+      const newImages = [...prevImages, imageUrl];
+      // Store the new images to notify parent after render
+      pendingImagesRef.current = newImages;
+      return newImages;
+    });
   };
 
   // Remove an image
   const handleRemoveImage = (index: number) => {
-    const newImages = localImages.filter((_, i) => i !== index);
-    setLocalImages(newImages);
-    onMenuImagesChange(newImages);
+    setLocalImages(prevImages => {
+      const newImages = prevImages.filter((_, i) => i !== index);
+      pendingImagesRef.current = newImages;
+      return newImages;
+    });
   };
 
   // Handle Enter key in link input
@@ -120,20 +127,20 @@ export default function MenuManager({
   return (
     <div className="space-y-6">
       {/* Tabs Header */}
-      <div className="flex border-b border-amber-200 bg-amber-50/30 rounded-t-lg">
+      <div className="flex border-b border-[var(--amber-200)] bg-[rgba(var(--amber-50),0.3)] rounded-t-lg">
         <button
           type="button"
           onClick={() => setActiveTab('links')}
           className={`flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
             activeTab === 'links'
-              ? 'border-b-2 border-amber-500 text-amber-700 bg-white rounded-t-lg'
-              : 'text-gray-600 hover:text-amber-600 hover:bg-amber-50/50'
+              ? 'border-b-2 border-[var(--amber-500)] text-[var(--amber-700)] bg-[var(--card-bg)] rounded-t-lg'
+              : 'text-[var(--gray-600)] hover:text-[var(--amber-600)] hover:bg-[rgba(var(--amber-50),0.5)]'
           }`}
         >
           <Globe className="h-4 w-4 mr-2" />
           Links Externos
           <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-            activeTab === 'links' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
+            activeTab === 'links' ? 'bg-[var(--amber-100)] text-[var(--amber-700)]' : 'bg-[var(--gray-100)] text-[var(--gray-600)]'
           }`}>
             {safeMenuLinks.length}/5
           </span>
@@ -143,14 +150,14 @@ export default function MenuManager({
           onClick={() => setActiveTab('images')}
           className={`flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
             activeTab === 'images'
-              ? 'border-b-2 border-amber-500 text-amber-700 bg-white rounded-t-lg'
-              : 'text-gray-600 hover:text-amber-600 hover:bg-amber-50/50'
+              ? 'border-b-2 border-[var(--amber-500)] text-[var(--amber-700)] bg-[var(--card-bg)] rounded-t-lg'
+              : 'text-[var(--gray-600)] hover:text-[var(--amber-600)] hover:bg-[rgba(var(--amber-50),0.5)]'
           }`}
         >
           <ImageIcon className="h-4 w-4 mr-2" />
           Imagens do Menu
           <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
-            activeTab === 'images' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-600'
+            activeTab === 'images' ? 'bg-[var(--amber-100)] text-[var(--amber-700)]' : 'bg-[var(--gray-100)] text-[var(--gray-600)]'
           }`}>
             {localImages.length}/10
           </span>
@@ -158,7 +165,7 @@ export default function MenuManager({
       </div>
 
       {/* Tab Content */}
-      <div className="bg-white rounded-b-lg border border-t-0 border-amber-200 p-6">
+      <div className="bg-[var(--card-bg)] rounded-b-lg border border-t-0 border-[var(--amber-200)] p-6">
         {/* Links Tab */}
         {activeTab === 'links' && (
           <div className="space-y-4">
@@ -173,11 +180,11 @@ export default function MenuManager({
                   }}
                   onKeyPress={handleLinkKeyPress}
                   placeholder="https://exemplo.com/menu"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                  className="w-full px-4 py-3 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--amber-500)] focus:border-[var(--amber-500)] transition-all"
                   disabled={disabled || safeMenuLinks.length >= 5}
                 />
                 {linkError && (
-                  <p className="mt-2 text-sm text-red-600 flex items-center">
+                  <p className="mt-2 text-sm text-[var(--red-600)] flex items-center">
                     <AlertCircle className="h-4 w-4 mr-1" />
                     {linkError}
                   </p>
@@ -187,7 +194,7 @@ export default function MenuManager({
                 type="button"
                 onClick={handleAddLink}
                 disabled={disabled || safeMenuLinks.length >= 5 || !linkInput.trim()}
-                className="flex items-center justify-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+                className="flex items-center justify-center px-6 py-3 bg-[var(--amber-500)] text-[var(--primary-foreground)] rounded-lg hover:bg-[var(--amber-600)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-sm hover:shadow-md"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Link
@@ -198,20 +205,20 @@ export default function MenuManager({
             {safeMenuLinks.length > 0 ? (
               <div className="space-y-3">
                 {safeMenuLinks.map((link, index) => (
-                  <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-amber-200 transition-colors">
-                    <LinkIcon className="h-5 w-5 text-amber-500 flex-shrink-0" />
+                  <div key={index} className="flex items-center gap-3 p-4 bg-[var(--gray-50)] rounded-lg border border-[var(--gray-200)] hover:border-[var(--amber-200)] transition-colors">
+                    <LinkIcon className="h-5 w-5 text-[var(--amber-500)] flex-shrink-0" />
                     <a
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 text-blue-600 hover:text-blue-800 hover:underline truncate font-medium"
+                      className="flex-1 text-[var(--blue-600)] hover:text-[var(--blue-800)] hover:underline truncate font-medium"
                     >
                       {link}
                     </a>
                     <button
                       type="button"
                       onClick={() => handleRemoveLink(index)}
-                      className="flex items-center justify-center p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-200"
+                      className="flex items-center justify-center p-2 text-[var(--red-500)] hover:text-[var(--red-700)] hover:bg-[var(--red-50)] rounded-lg transition-all duration-200"
                       title="Remover link"
                     >
                       <X className="h-4 w-4" />
@@ -220,10 +227,10 @@ export default function MenuManager({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 px-6 bg-amber-50/50 rounded-xl border-2 border-dashed border-amber-200">
-                <Globe className="h-8 w-8 mx-auto text-amber-400 mb-3" />
-                <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhum link adicionado</h3>
-                <p className="text-sm text-amber-600">Adicione links externos para menus do restaurante</p>
+              <div className="text-center py-8 px-6 bg-[rgba(var(--amber-50),0.5)] rounded-xl border-2 border-dashed border-[var(--amber-200)]">
+                <Globe className="h-8 w-8 mx-auto text-[var(--amber-400)] mb-3" />
+                <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhum link adicionado</h3>
+                <p className="text-sm text-[var(--amber-600)]">Adicione links externos para menus do restaurante</p>
               </div>
             )}
           </div>
@@ -245,7 +252,7 @@ export default function MenuManager({
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {localImages.map((imageUrl, index) => (
                   <div key={index} className="relative group">
-                    <div className="aspect-square relative rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                    <div className="aspect-square relative rounded-xl overflow-hidden border border-[var(--gray-200)] shadow-sm hover:shadow-md transition-all duration-200">
                       <Image
                         src={imageUrl}
                         alt={`Menu ${index + 1}`}
@@ -257,7 +264,7 @@ export default function MenuManager({
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index)}
-                      className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-600 shadow-lg"
+                      className="absolute top-2 right-2 p-1.5 bg-[var(--red-500)] text-[var(--primary-foreground)] rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-[var(--red-600)] shadow-lg"
                       title="Remover imagem"
                     >
                       <X className="h-3 w-3" />
@@ -266,10 +273,10 @@ export default function MenuManager({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 px-6 bg-amber-50/50 rounded-xl border-2 border-dashed border-amber-200">
-                <ImageIcon className="h-8 w-8 mx-auto text-amber-400 mb-3" />
-                <h3 className="text-lg font-semibold text-amber-800 mb-2">Nenhuma imagem adicionada</h3>
-                <p className="text-sm text-amber-600">Faça upload de imagens dos menus do restaurante</p>
+              <div className="text-center py-8 px-6 bg-[rgba(var(--amber-50),0.5)] rounded-xl border-2 border-dashed border-[var(--amber-200)]">
+                <ImageIcon className="h-8 w-8 mx-auto text-[var(--amber-400)] mb-3" />
+                <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem adicionada</h3>
+                <p className="text-sm text-[var(--amber-600)]">Faça upload de imagens dos menus do restaurante</p>
               </div>
             )}
           </div>
@@ -277,7 +284,7 @@ export default function MenuManager({
       </div>
 
       {/* Summary */}
-      <div className="text-xs text-gray-500 text-center space-y-1 bg-gray-50 p-3 rounded-lg">
+      <div className="text-xs text-[var(--gray-500)] text-center space-y-1 bg-[var(--gray-50)] p-3 rounded-lg">
         <p>• Links externos: {safeMenuLinks.length}/5 máximo</p>
         <p>• Imagens do menu: {localImages.length}/10 máximo</p>
         <p>• Menus são opcionais - você pode adicionar links, imagens ou ambos</p>
