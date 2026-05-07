@@ -38,6 +38,7 @@
   - [x] Deprecated single menu_url support
 - [x] Multiple phone numbers support
 - [x] Google Maps URL parsing (no API key required)
+- [x] Google Maps short URL support (maps.app.goo.gl, goo.gl) with server-side resolution
 - [x] Restaurant visit tracking with notes
 - [x] Review count on restaurant records (auto-updated)
 

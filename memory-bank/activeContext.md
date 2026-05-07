@@ -36,6 +36,17 @@
   - `supabase/run-in-sql-editor.sql` - Complete database setup
   - `supabase/fix-rls-recursion-final.sql` - RLS recursion fix
 
+### Google Maps Short URL Support (Current Session)
+- ✅ **Problem**: Mobile Google Maps share links (maps.app.goo.gl) couldn't be imported
+- ✅ **Root Cause**: Short URLs redirect to full URLs, but extractor only handled full URLs
+- ✅ **Solution**: 
+  - Updated `isValidGoogleMapsUrl()` in `utils/googleMapsExtractor.ts` to accept `maps.app.goo.gl` and `goo.gl`
+  - Created `app/api/resolve-google-maps-url/route.ts` for server-side URL resolution (avoids CORS)
+  - Updated `GoogleMapsModal.tsx` to resolve short URLs before extraction
+  - Updated modal instructions to mention mobile share link support
+- ✅ **Tested**: API route successfully resolves `https://maps.app.goo.gl/PJcbsRHtRrLMvwaa8` to full URL
+- ✅ **Build Verified**: `npm run build` succeeds with all changes
+
 ### /update Command (Current Session)
 - ✅ **Created Rule File**: `.clinerules/update-command.md` with complete guidelines
 - ✅ **Purpose**: Automates memory bank update, change analysis, atomic commits, and push
