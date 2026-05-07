@@ -1,14 +1,20 @@
 # Database Schema Documentation
 
-This document describes the database schema for the FoodList application, which uses Supabase (PostgreSQL) as the backend database.
+This document describes the database schema for the FoodLister application, which uses Supabase (PostgreSQL) as the backend database.
 
 ## Overview
 
-The FoodList application uses a relational database with the following main entities:
+The FoodLister application uses a relational database with the following main entities:
 - Restaurants
 - Cuisine Types
+- Dietary Options
+- Restaurant Features
 - Lists
-- Users (managed by Supabase Auth)
+- Reviews
+- User Profiles
+- User Stats
+- Notifications
+- Visits
 
 ## Tables
 
@@ -26,12 +32,13 @@ The FoodList application uses a relational database with the following main enti
 | `rating` | `numeric` | YES | - | Restaurant rating (1-5) |
 | `location` | `text` | YES | - | Address/location string |
 | `source_url` | `text` | YES | - | URL where restaurant was found |
-| `creator` | `text` | YES | - | Name of person who added restaurant |
+| `creator` | `uuid` | YES | - | Foreign key to auth.users.id |
 | `menu_url` | `text` | YES | - | **Deprecated**: Single link to online menu (use menu_links instead) |
 | `menu_links` | `text[]` | YES | `'{}'::text[]` | Array of external links to restaurant menus (max 5) |
 | `menu_images` | `text[]` | YES | `'{}'::text[]` | Array of URLs for uploaded menu images (max 10) |
 | `phone_numbers` | `text[]` | YES | `'{}'::text[]` | Array of phone numbers for the restaurant |
-| `visited` | `boolean` | NO | `false` | Whether restaurant has been visited |
+| `latitude` | `double precision` | YES | - | Latitude coordinate |
+| `longitude` | `double precision` | YES | - | Longitude coordinate |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 | `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
 
@@ -57,6 +64,56 @@ The FoodList application uses a relational database with the following main enti
 | `cuisine_type_id` | `uuid` | NO | - | Foreign key to cuisine_types.id |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 
+**Unique Constraint**: `(restaurant_id, cuisine_type_id)`
+
+### Dietary Options Table
+
+**Table Name**: `dietary_options`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `name` | `text` | NO | - | Dietary option name (e.g., "Vegetarian", "Vegan") |
+| `description` | `text` | YES | - | Description of dietary option |
+| `icon` | `text` | YES | - | Icon identifier or emoji |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+
+### Restaurant Dietary Options Junction Table
+
+**Table Name**: `restaurant_dietary_options_junction`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
+| `dietary_option_id` | `uuid` | NO | - | Foreign key to dietary_options.id |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+
+**Unique Constraint**: `(restaurant_id, dietary_option_id)`
+
+### Restaurant Features Table
+
+**Table Name**: `restaurant_features`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `name` | `text` | NO | - | Feature name (e.g., "Outdoor Seating", "WiFi") |
+| `description` | `text` | YES | - | Description of feature |
+| `icon` | `text` | YES | - | Icon identifier or emoji |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+
+### Restaurant Restaurant Features Table (Junction)
+
+**Table Name**: `restaurant_restaurant_features`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
+| `feature_id` | `uuid` | NO | - | Foreign key to restaurant_features.id |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+
+**Unique Constraint**: `(restaurant_id, feature_id)`
+
 ### Lists Table
 
 **Table Name**: `lists`
@@ -66,9 +123,7 @@ The FoodList application uses a relational database with the following main enti
 | `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
 | `name` | `text` | NO | - | List name |
 | `description` | `text` | YES | - | List description |
-| `creator` | `text` | YES | - | Name of person who created list (legacy) |
 | `creator_id` | `uuid` | YES | - | UUID of user who created list (FK to auth.users) |
-| `creator_name` | `text` | YES | - | Display name of creator at time of creation |
 | `is_public` | `boolean` | NO | `true` | Whether list is publicly visible |
 | `filters` | `jsonb` | YES | - | Saved filter configuration used to create list |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
@@ -84,38 +139,7 @@ The FoodList application uses a relational database with the following main enti
 | `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 
-### Profiles Table
-
-**Table Name**: `profiles`
-
-| Column | Type | Nullable | Default | Description |
-|--------|------|----------|---------|-------------|
-| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
-| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id (unique) |
-| `display_name` | `text` | YES | - | User's display name |
-| `bio` | `text` | YES | - | User's biography |
-| `avatar_url` | `text` | YES | - | URL of user's avatar image |
-| `website` | `text` | YES | - | User's website URL |
-| `location` | `text` | YES | - | User's location |
-| `phone_number` | `text` | YES | - | User's phone number |
-| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
-| `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
-
-### User Restaurant Visits Table
-
-**Table Name**: `user_restaurant_visits`
-
-| Column | Type | Nullable | Default | Description |
-|--------|------|----------|---------|-------------|
-| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
-| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id |
-| `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
-| `visit_count` | `integer` | NO | `0` | Number of times user visited this restaurant |
-| `visited` | `boolean` | NO | `false` | Whether user has visited this restaurant at least once |
-| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
-| `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
-
-**Unique Constraint**: `(user_id, restaurant_id)` - Each user can have only one visit record per restaurant
+**Unique Constraint**: `(list_id, restaurant_id)`
 
 ### Reviews Table
 
@@ -128,7 +152,52 @@ The FoodList application uses a relational database with the following main enti
 | `user_id` | `uuid` | NO | - | Foreign key to auth.users.id |
 | `rating` | `numeric` | NO | - | Rating from 0.5 to 5.0 stars |
 | `comment` | `text` | YES | - | Optional text comment for the review |
-| `user_name` | `text` | YES | - | User's name at time of review (for historical data) |
+| `amount_spent` | `numeric` | YES | - | Amount spent during visit |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+| `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
+
+### User Stats Table
+
+**Table Name**: `user_stats`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id (unique) |
+| `restaurants_visited` | `integer` | NO | `0` | Number of restaurants visited |
+| `lists_created` | `integer` | NO | `0` | Number of lists created |
+| `reviews_written` | `integer` | NO | `0` | Number of reviews written |
+| `total_visits` | `integer` | NO | `0` | Total number of visits |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+| `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
+
+### Notifications Table
+
+**Table Name**: `notifications`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id |
+| `type` | `text` | NO | - | Notification type (e.g., "review", "list_shared") |
+| `message` | `text` | NO | - | Notification message |
+| `read` | `boolean` | NO | `false` | Whether notification has been read |
+| `related_id` | `uuid` | YES | - | ID of related entity (restaurant, list, review) |
+| `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
+
+### Scheduled Meals Table
+
+**Table Name**: `scheduled_meals`
+
+| Column | Type | Nullable | Default | Description |
+|--------|------|----------|---------|-------------|
+| `id` | `uuid` | NO | `gen_random_uuid()` | Primary key |
+| `user_id` | `uuid` | NO | - | Foreign key to auth.users.id |
+| `restaurant_id` | `uuid` | NO | - | Foreign key to restaurants.id |
+| `meal_date` | `date` | NO | - | Date of scheduled meal |
+| `meal_type` | `text` | YES | - | Type of meal (e.g., "lunch", "dinner") |
+| `participants` | `uuid[]` | YES | `'{}'::uuid[]` | Array of participant user IDs |
+| `notes` | `text` | YES | - | Additional notes |
 | `created_at` | `timestamp with time zone` | NO | `now()` | Creation timestamp |
 | `updated_at` | `timestamp with time zone` | NO | `now()` | Last update timestamp |
 
@@ -147,17 +216,15 @@ The FoodList application uses a relational database with the following main enti
 │ • price_per_person│                ▲
 │ • rating        │                │
 │ • location      │                │
-│ • source_url    │                │
-│ • creator       │       ┌─────────────────┐
-│ • menu_url      │       │ cuisine_types   │
-│ • visited       │       │                 │
-│ • created_at    │       │ • id (PK)       │
-│ • updated_at    │       │ • name          │
-└─────────────────┘       │ • description   │
-         ▲                │ • icon          │
-         │                │ • created_at    │
+│ • source_url    │       ┌─────────────────┐
+│ • creator       │       │ cuisine_types   │
+│ • menu_url      │       │                 │
+│ • visited       │       │ • id (PK)       │
+│ • created_at    │       │ • name          │
+│ • updated_at    │       │ • description   │
+│ └─────────────────┘       │ • icon          │
+         ▲                │ • created_at    │
          │                └─────────────────┘
-         │
          │
 ┌─────────────────┐       ┌──────────────────────┐
 │     lists       │       │   list_restaurants   │
@@ -165,20 +232,67 @@ The FoodList application uses a relational database with the following main enti
 │ • id (PK)       │◄──────┤ • list_id (FK)       │
 │ • name          │       │ • restaurant_id (FK) │
 │ • description   │       │ • created_at         │
-│ • creator       │       └──────────────────────┘
+│ • creator_id    │       └──────────────────────┘
+│ • is_public     │
+│ • filters       │
 │ • created_at    │
 │ • updated_at    │
 └─────────────────┘
+
+┌─────────────────┐       ┌──────────────────────┐
+│  reviews        │       │restaurant_dietary_   │
+│                 │       │options_junction      │
+│ • id (PK)       │       │                      │
+│ • restaurant_id │       │ • restaurant_id (FK) │
+│ • user_id       │       │ • dietary_option_id  │
+│ • rating        │       └──────────────────────┘
+│ • comment       │                ▲
+│ • amount_spent  │                │
+│ • created_at    │       ┌─────────────────┐
+│ • updated_at    │       │ dietary_options  │
+└─────────────────┘       │                 │
+                        │ • id (PK)       │
+                        │ • name          │
+                        │ • description   │
+                        │ • icon          │
+                        └─────────────────┘
+
+┌─────────────────┐       ┌──────────────────────┐
+│  user_stats     │       │restaurant_restaurant_│
+│                 │       │features              │
+│ • id (PK)       │       │                      │
+│ • user_id (FK)  │       │ • restaurant_id (FK) │
+│ • restaurants_  │       │ • feature_id (FK)   │
+│ • lists_created │       └──────────────────────┘
+│ • reviews_written│               ▲
+│ • total_visits  │               │
+│ • created_at    │       ┌─────────────────┐
+│ • updated_at    │       │restaurant_      │
+└─────────────────┘       │features        │
+                        │                 │
+                        │ • id (PK)       │
+                        │ • name          │
+                        │ • description   │
+                        │ • icon          │
+                        └─────────────────┘
 ```
 
 ### Relationships Summary
 
 - **One-to-Many**: `restaurants` → `restaurant_cuisine_types` (one restaurant can have many cuisine types)
 - **One-to-Many**: `cuisine_types` → `restaurant_cuisine_types` (one cuisine type can belong to many restaurants)
+- **One-to-Many**: `restaurants` → `restaurant_dietary_options_junction` (one restaurant can have many dietary options)
+- **One-to-Many**: `dietary_options` → `restaurant_dietary_options_junction`
+- **One-to-Many**: `restaurants` → `restaurant_restaurant_features` (one restaurant can have many features)
+- **One-to-Many**: `restaurant_features` → `restaurant_restaurant_features`
 - **One-to-Many**: `lists` → `list_restaurants` (one list can contain many restaurants)
 - **One-to-Many**: `restaurants` → `list_restaurants` (one restaurant can belong to many lists)
 - **One-to-Many**: `restaurants` → `reviews` (one restaurant can have many reviews)
 - **One-to-Many**: `auth.users` → `reviews` (one user can write many reviews)
+- **One-to-One**: `auth.users` → `user_stats` (one user has one stats record)
+- **One-to-Many**: `auth.users` → `notifications` (one user can have many notifications)
+- **One-to-Many**: `auth.users` → `scheduled_meals` (one user can schedule many meals)
+- **One-to-Many**: `restaurants` → `scheduled_meals` (one restaurant can have many scheduled meals)
 
 ## Indexes
 
@@ -191,6 +305,7 @@ CREATE INDEX idx_restaurants_creator ON restaurants(creator);
 CREATE INDEX idx_restaurants_visited ON restaurants(visited);
 CREATE INDEX idx_restaurants_rating ON restaurants(rating);
 CREATE INDEX idx_restaurants_price ON restaurants(price_per_person);
+CREATE INDEX idx_restaurants_location ON restaurants(location);
 
 -- Cuisine types table indexes
 CREATE INDEX idx_cuisine_types_name ON cuisine_types(name);
@@ -200,9 +315,37 @@ CREATE INDEX idx_restaurant_cuisine_types_restaurant_id ON restaurant_cuisine_ty
 CREATE INDEX idx_restaurant_cuisine_types_cuisine_type_id ON restaurant_cuisine_types(cuisine_type_id);
 CREATE UNIQUE INDEX idx_restaurant_cuisine_types_unique ON restaurant_cuisine_types(restaurant_id, cuisine_type_id);
 
+CREATE INDEX idx_restaurant_dietary_options_restaurant_id ON restaurant_dietary_options_junction(restaurant_id);
+CREATE INDEX idx_restaurant_dietary_options_option_id ON restaurant_dietary_options_junction(dietary_option_id);
+CREATE UNIQUE INDEX idx_restaurant_dietary_options_unique ON restaurant_dietary_options_junction(restaurant_id, dietary_option_id);
+
+CREATE INDEX idx_restaurant_features_restaurant_id ON restaurant_restaurant_features(restaurant_id);
+CREATE INDEX idx_restaurant_features_feature_id ON restaurant_restaurant_features(feature_id);
+CREATE UNIQUE INDEX idx_restaurant_features_unique ON restaurant_restaurant_features(restaurant_id, feature_id);
+
 CREATE INDEX idx_list_restaurants_list_id ON list_restaurants(list_id);
 CREATE INDEX idx_list_restaurants_restaurant_id ON list_restaurants(restaurant_id);
 CREATE UNIQUE INDEX idx_list_restaurants_unique ON list_restaurants(list_id, restaurant_id);
+
+-- Lists indexes
+CREATE INDEX idx_lists_creator_id ON lists(creator_id);
+CREATE INDEX idx_lists_is_public ON lists(is_public);
+
+-- Reviews indexes
+CREATE INDEX idx_reviews_restaurant_id ON reviews(restaurant_id);
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+
+-- User stats indexes
+CREATE UNIQUE INDEX idx_user_stats_user_id ON user_stats(user_id);
+
+-- Notifications indexes
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_read ON notifications(read);
+
+-- Scheduled meals indexes
+CREATE INDEX idx_scheduled_meals_user_id ON scheduled_meals(user_id);
+CREATE INDEX idx_scheduled_meals_restaurant_id ON scheduled_meals(restaurant_id);
+CREATE INDEX idx_scheduled_meals_date ON scheduled_meals(meal_date);
 ```
 
 ## Row Level Security (RLS) Policies
@@ -210,6 +353,7 @@ CREATE UNIQUE INDEX idx_list_restaurants_unique ON list_restaurants(list_id, res
 The following RLS policies should be implemented for data security:
 
 ### Restaurants Table
+
 ```sql
 -- Allow authenticated users to read all restaurants
 CREATE POLICY "Allow read access to restaurants" ON restaurants
@@ -219,13 +363,13 @@ FOR SELECT USING (auth.role() = 'authenticated');
 CREATE POLICY "Allow insert access to restaurants" ON restaurants
 FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
--- Allow users to update restaurants they created
+-- Allow users to update their own restaurants
 CREATE POLICY "Allow update access to own restaurants" ON restaurants
-FOR UPDATE USING (auth.uid()::text = creator);
+FOR UPDATE USING (creator = auth.uid()::text);
 
--- Allow users to delete restaurants they created
+-- Allow users to delete their own restaurants
 CREATE POLICY "Allow delete access to own restaurants" ON restaurants
-FOR DELETE USING (auth.uid()::text = creator);
+FOR DELETE USING (creator = auth.uid()::text);
 ```
 
 ### Lists Table
@@ -254,32 +398,10 @@ CREATE POLICY "Users can delete their own lists" ON lists
   USING (creator_id = auth.uid());
 ```
 
-**Note**: The `is_public` column (added in migration 022) controls visibility. Private lists (`is_public = false`) are only visible to their creator.
-
-### User Restaurant Visits Table
-```sql
--- Allow users to view their own visit records
-CREATE POLICY "Users can view their own visits" ON user_restaurant_visits
-    FOR SELECT USING (auth.uid() = user_id);
-
--- Allow users to insert visit records with their own user_id
-CREATE POLICY "Users can insert their own visits" ON user_restaurant_visits
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- Allow users to update their own visit records
-CREATE POLICY "Users can update their own visits" ON user_restaurant_visits
-    FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-
--- Allow users to delete their own visit records
-CREATE POLICY "Users can delete their own visits" ON user_restaurant_visits
-    FOR DELETE USING (auth.uid() = user_id);
-
--- Allow service role to manage all visit records (for admin operations)
-CREATE POLICY "Service role can manage all visits" ON user_restaurant_visits
-    FOR ALL USING (auth.role() = 'service_role');
-```
+**Note**: The `is_public` column controls visibility. Private lists (`is_public = false`) are only visible to their creator.
 
 ### Reviews Table
+
 ```sql
 -- Allow anyone to read reviews (for public display)
 CREATE POLICY "reviews_select_policy" ON reviews
@@ -298,11 +420,49 @@ CREATE POLICY "reviews_delete_policy" ON reviews
 FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
 ```
 
+### User Stats Table
+
+```sql
+-- Users can view their own stats
+CREATE POLICY "Users can view their own stats" ON user_stats
+FOR SELECT USING (user_id = auth.uid());
+
+-- Service role can manage all stats (for triggers)
+CREATE POLICY "Service role can manage stats" ON user_stats
+FOR ALL USING (auth.role() = 'service_role');
+```
+
+### Notifications Table
+
+```sql
+-- Users can view their own notifications
+CREATE POLICY "Users can view their own notifications" ON notifications
+FOR SELECT USING (user_id = auth.uid());
+
+-- Users can update their own notifications (mark as read)
+CREATE POLICY "Users can update their own notifications" ON notifications
+FOR UPDATE USING (user_id = auth.uid());
+
+-- Service role can create notifications
+CREATE POLICY "Service role can create notifications" ON notifications
+FOR INSERT WITH CHECK (auth.role() = 'service_role');
+```
+
+### Scheduled Meals Table
+
+```sql
+-- Users can manage their own scheduled meals
+CREATE POLICY "Users can manage their own meals" ON scheduled_meals
+FOR ALL USING (user_id = auth.uid())
+WITH CHECK (user_id = auth.uid());
+```
+
 ## Menu System
 
-The FoodList application supports a comprehensive menu system allowing restaurants to have multiple external links and uploaded images.
+The FoodLister application supports a comprehensive menu system allowing restaurants to have multiple external links and uploaded images.
 
 ### Menu Links (`menu_links`)
+
 - **Type**: `text[]` (PostgreSQL text array)
 - **Maximum**: 5 external links per restaurant
 - **Purpose**: Store URLs to external menu pages (PDFs, websites, etc.)
@@ -310,6 +470,7 @@ The FoodList application supports a comprehensive menu system allowing restauran
 - **Usage**: Displayed as clickable links in restaurant details
 
 ### Menu Images (`menu_images`)
+
 - **Type**: `text[]` (PostgreSQL text array)
 - **Maximum**: 10 uploaded images per restaurant
 - **Purpose**: Store Cloudinary URLs for uploaded menu images
@@ -317,6 +478,7 @@ The FoodList application supports a comprehensive menu system allowing restauran
 - **Usage**: Displayed in responsive carousel with modal viewer
 
 ### Migration from Legacy `menu_url`
+
 The `menu_url` field is deprecated in favor of the new array-based system:
 - **Old**: Single URL stored as text
 - **New**: Multiple URLs stored as arrays
@@ -334,6 +496,10 @@ CHECK (rating >= 0 AND rating <= 5);
 -- Price per person must be positive
 ALTER TABLE restaurants ADD CONSTRAINT check_price_positive
 CHECK (price_per_person > 0);
+
+-- Review rating must be between 0.5 and 5
+ALTER TABLE reviews ADD CONSTRAINT check_review_rating_range
+CHECK (rating >= 0.5 AND rating <= 5);
 ```
 
 ### Foreign Key Constraints
@@ -350,6 +516,24 @@ ALTER TABLE restaurant_cuisine_types
 ADD CONSTRAINT fk_restaurant_cuisine_types_cuisine_type
 FOREIGN KEY (cuisine_type_id) REFERENCES cuisine_types(id) ON DELETE CASCADE;
 
+-- restaurant_dietary_options_junction foreign keys
+ALTER TABLE restaurant_dietary_options_junction
+ADD CONSTRAINT fk_restaurant_dietary_options_restaurant
+FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE;
+
+ALTER TABLE restaurant_dietary_options_junction
+ADD CONSTRAINT fk_restaurant_dietary_options_option
+FOREIGN KEY (dietary_option_id) REFERENCES dietary_options(id) ON DELETE CASCADE;
+
+-- restaurant_restaurant_features foreign keys
+ALTER TABLE restaurant_restaurant_features
+ADD CONSTRAINT fk_restaurant_features_restaurant
+FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE;
+
+ALTER TABLE restaurant_restaurant_features
+ADD CONSTRAINT fk_restaurant_features_feature
+FOREIGN KEY (feature_id) REFERENCES restaurant_features(id) ON DELETE CASCADE;
+
 -- list_restaurants foreign keys
 ALTER TABLE list_restaurants
 ADD CONSTRAINT fk_list_restaurants_list
@@ -358,11 +542,40 @@ FOREIGN KEY (list_id) REFERENCES lists(id) ON DELETE CASCADE;
 ALTER TABLE list_restaurants
 ADD CONSTRAINT fk_list_restaurants_restaurant
 FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE;
+
+-- reviews foreign keys
+ALTER TABLE reviews
+ADD CONSTRAINT fk_reviews_restaurant
+FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE;
+
+ALTER TABLE reviews
+ADD CONSTRAINT fk_reviews_user
+FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- user_stats foreign key
+ALTER TABLE user_stats
+ADD CONSTRAINT fk_user_stats_user
+FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- notifications foreign key
+ALTER TABLE notifications
+ADD CONSTRAINT fk_notifications_user
+FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+-- scheduled_meals foreign keys
+ALTER TABLE scheduled_meals
+ADD CONSTRAINT fk_scheduled_meals_user
+FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+
+ALTER TABLE scheduled_meals
+ADD CONSTRAINT fk_scheduled_meals_restaurant
+FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE;
 ```
 
 ## Sample Data
 
 ### Cuisine Types
+
 ```sql
 INSERT INTO cuisine_types (name, description, icon) VALUES
 ('Italian', 'Italian cuisine', '🍝'),
@@ -377,11 +590,34 @@ INSERT INTO cuisine_types (name, description, icon) VALUES
 ('Korean', 'Korean cuisine', '🍲');
 ```
 
+### Dietary Options
+
+```sql
+INSERT INTO dietary_options (name, description, icon) VALUES
+('Vegetarian', 'No meat products', '🥗'),
+('Vegan', 'No animal products', '🌱'),
+('Gluten-Free', 'No gluten-containing ingredients', '🌾'),
+('Halal', 'Prepared according to Islamic law', '☪️'),
+('Kosher', 'Prepared according to Jewish law', '✡️');
+```
+
+### Restaurant Features
+
+```sql
+INSERT INTO restaurant_features (name, description, icon) VALUES
+('Outdoor Seating', 'Seating available outdoors', '🪑'),
+('WiFi', 'Free WiFi available', '📶'),
+('Parking', 'Parking available', '🅿️'),
+('Delivery', 'Delivery service available', '🛵'),
+('Takeout', 'Takeout available', '🥡'),
+('Reservations', 'Reservations accepted', '📅');
+```
+
 ## Data Isolation and Security
 
 ### User Data Isolation
 
-The FoodList application implements strict user data isolation using Supabase Row Level Security (RLS) policies. Each user can only access their own data:
+The FoodLister application implements strict user data isolation using Supabase Row Level Security (RLS) policies. Each user can only access their own data:
 
 #### User Restaurant Visits
 - **Isolation**: Each user sees only their own restaurant visit records
@@ -404,5 +640,28 @@ The application maintains data consistency through:
 - **Foreign key relationships** with CASCADE deletes
 - **Atomic operations** for data updates
 - **Proper error handling** for failed operations
+- **Database triggers** for maintaining derived data (e.g., user_stats)
 
-This schema provides a solid foundation for the FoodList application with proper relationships, constraints, and security policies.
+## Database Triggers
+
+### User Stats Triggers
+
+The `user_stats` table is automatically maintained by database triggers:
+
+```sql
+-- Trigger to create user_stats on user creation
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.user_stats (user_id)
+  VALUES (NEW.id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+```
+
+This schema provides a solid foundation for the FoodLister application with proper relationships, constraints, and security policies.
