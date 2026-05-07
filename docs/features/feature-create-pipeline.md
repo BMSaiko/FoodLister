@@ -1,143 +1,271 @@
-# Feature: Criar CI/CD Pipeline
+# Feature: Create Restaurant/List Pipeline
 
-> **Status:** ✅ Implementado  
-> **Prioridade:** Alta  
-> **Labels:** `devops`, `ci-cd`, `infrastructure`  
-> **Data de Criação:** 2026-04-03
+> **Status:** ✅ Implementado
+> **Prioridade:** Alta
+> **Labels:** `core`, `crud`, `restaurants`, `lists`
+> **Data de Criação:** 2026-05-07
 
 ---
 
 ## 📋 Descrição
 
-Implementar um pipeline de integração contínua e deployment (CI/CD) usando GitHub Actions para automatizar o processo de build, teste, lint e deploy da aplicação FoodList.
+Pipeline completa para criação de restaurantes e listas no FoodLister, incluindo formulários, validação, upload de imagens, e integração com Supabase.
 
 ## 🎯 Objetivos
 
-- **Automatizar testes** em cada pull request e push para branches principais
-- **Executar linting** e verificação de qualidade de código
-- **Build da aplicação** Next.js com verificação de erros
-- **Deploy automático** para produção (Vercel recomendada)
-- **Notificações** de status do pipeline
+- **Criação de Restaurantes** com todos os campos (nome, descrição, localização, preço, etc.)
+- **Criação de Listas** com configuração de privacidade e filtros
+- **Upload de Imagens** para menus (Cloudinary)
+- **Validação de Formulários** com feedback em tempo real
+- **Integração com API** e Supabase client
+- **Redirecionamento** após criação bem-sucedida
 
-## 🏗️ Arquitetura do Pipeline
-
-```
-┌─────────────┐     ┌──────────┐     ┌─────────┐     ┌──────────┐
-│   Push/PR   │ ──► │   Lint   │ ──► │  Build  │ ──► │  Deploy  │
-│             │     │          │     │         │     │          │
-└─────────────┘     └──────────┘     └─────────┘     └──────────┘
-                         │               │               │
-                    ┌────▼────┐     ┌────▼────┐     ┌────▼────┐
-                    │  ESLint │     │  Tests  │     │  Vercel │
-                    │  Prettier│    │  Jest   │     │  Preview│
-                    └─────────┘     └─────────┘     └─────────┘
-```
-
-## 📦 Workflows a Criar
-
-### 1. CI Pipeline (`ci.yml`)
-
-Executado em cada push e pull request.
-
-**Triggers:**
-- `push` para `main` e `develop`
-- `pull_request` para `main`
-
-**Jobs:**
-| Job | Descrição | Comandos |
-|-----|-----------|----------|
-| `lint` | Verificar qualidade de código | `npm run lint` |
-| `build` | Build da aplicação | `npm run build` |
-| `test` | Executar testes unitários | `npm test` (quando disponível) |
-
-### 2. Deploy Pipeline (`deploy.yml`)
-
-Executado em merges para `main`.
-
-**Triggers:**
-- `push` para `main` (após merge de PR)
-
-**Jobs:**
-| Job | Descrição | Ação |
-|-----|-----------|------|
-| `deploy-preview` | Deploy para ambiente de preview | Vercel Preview Deployment |
-| `deploy-production` | Deploy para produção | Vercel Production Deployment |
-
-## 📁 Files to Create
+## 🏗️ Arquitetura da Pipeline
 
 ```
-.github/
-└── workflows/
-    ├── ci.yml          # CI pipeline (lint + build + test)
-    └── deploy.yml      # Deploy pipeline (preview + production)
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Form      │────►│   API/      │────►│  Supabase   │
+│  Component  │     │   Supabase  │     │  Database   │
+└─────────────┘     └─────────────┘     └─────────────┘
+       │                                       │
+       │                                       │
+       ▼                                       ▼
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Hooks     │     │  Context   │     │   Storage   │
+│  (useForm)  │     │   API      │     │ (Cloudinary)│
+└─────────────┘     └─────────────┘     └─────────────┘
 ```
 
-## 🔧 Configuração Necessária
+## 📦 Componentes Envolvidos
 
-### Variáveis de Ambiente (GitHub Secrets)
+### Restaurant Creation
 
-| Secret | Descrição | Obrigatório |
-|--------|-----------|-------------|
-| `VERCEL_TOKEN` | Token de autenticação Vercel | Sim (deploy) |
-| `VERCEL_ORG_ID` | ID da organização Vercel | Sim (deploy) |
-| `VERCEL_PROJECT_ID` | ID do projeto Vercel | Sim (deploy) |
-| `SUPABASE_URL` | URL do projeto Supabase | Sim |
-| `SUPABASE_ANON_KEY` | Chave anónima Supabase | Sim |
-| `DATABASE_URL` | URL de conexão à base de dados | Sim |
-| `NEXTAUTH_SECRET` | Secret para NextAuth | Sim |
-| `NEXTAUTH_URL` | URL base da aplicação | Sim |
-| `CLOUDINARY_URL` | URL do Cloudinary para imagens | Sim |
+| Component | Tipo | Descrição |
+|----------|------|-----------|
+| `app/restaurants/create/page.jsx` | Client Component | Página de criação de restaurante |
+| `components/pages/CreateRestaurant.jsx` | Client Component | Componente da página com formulário |
+| `components/restaurant/RestaurantForm.jsx` | Client Component | Formulário reutilizável de restaurante |
+| `hooks/forms/useRestaurantForm.js` | Custom Hook | Lógica do formulário de restaurante |
 
-### Dependências Externas
+### List Creation
 
-- **Vercel Account** (gratuito para projetos pessoais)
-- **Supabase Project** (já configurado)
-- **Cloudinary Account** (já configurado)
+| Component | Tipo | Descrição |
+|----------|------|-----------|
+| `app/lists/create/page.jsx` | Client Component | Página de criação de lista |
+| `components/pages/CreateList.jsx` | Client Component | Componente da página com formulário |
+| `components/lists/ListForm.jsx` | Client Component | Formulário reutilizável de lista |
+| `hooks/forms/useListForm.js` | Custom Hook | Lógica do formulário de lista |
 
-## ✅ Acceptance Criteria
+## 🔧 Hooks Personalizados
 
-- [ ] Workflow CI executa em cada push/PR
-- [ ] Linting passa sem erros
-- [ ] Build da aplicação Next.js completa com sucesso
-- [ ] Deploy automático para preview em PRs
-- [ ] Deploy automático para produção em merge para `main`
-- [ ] Notificações de sucesso/falha configuradas
-- [ ] Documentação atualizada no README
+### useRestaurantForm
 
-## 📝 Passos de Implementação
+```javascript
+const {
+  formData,        // Dados atuais do formulário
+  errors,          // Erros de validação
+  isSubmitting,    // Estado de submissão
+  handleChange,     // Handler para mudanças
+  handleSubmit,     // Handler para submissão
+  resetForm,       // Reset do formulário
+  setFieldValue,    // Definir valor de campo
+  validateField    // Validar campo específico
+} = useRestaurantForm(initialData?);
+```
 
-### Fase 1: CI Básico
-1. Criar `.github/workflows/ci.yml`
-2. Configurar job de linting
-3. Configurar job de build
-4. Testar com push para branch de teste
+**Campos Gerenciados:**
+- `name` - Nome do restaurante (obrigatório)
+- `description` - Descrição (opcional)
+- `location` - Endereço (opcional)
+- `price_per_person` - Preço por pessoa (opcional, > 0)
+- `rating` - Avaliação (opcional, 0-5)
+- `source_url` - URL de origem (opcional)
+- `menu_links` - Links de menu (array, max 5)
+- `menu_images` - Imagens de menu (array, max 10)
+- `phone_numbers` - Telefones (array)
+- `cuisine_type_ids` - Tipos de cozinha (array)
+- `dietary_option_ids` - Opções dietéticas (array)
+- `feature_ids` - Características (array)
+- `latitude` / `longitude` - Coordenadas GPS
 
-### Fase 2: Deploy
-1. Criar `.github/workflows/deploy.yml`
-2. Configurar integração com Vercel
-3. Configurar deploy de preview para PRs
-4. Configurar deploy de produção para `main`
+### useListForm
 
-### Fase 3: Notificações e Melhorias
-1. Adicionar notificações Discord/Slack
-2. Configurar badges de status no README
-3. Adicionar proteção de branch (branch protection rules)
+```javascript
+const {
+  formData,
+  errors,
+  isSubmitting,
+  handleChange,
+  handleSubmit,
+  resetForm
+} = useListForm(initialData?);
+```
 
-## 🔗 Referências
+**Campos Gerenciados:**
+- `name` - Nome da lista (obrigatório)
+- `description` - Descrição (opcional)
+- `is_public` - Visibilidade pública (default: true)
+- `filters` - Configuração de filtros salva (jsonb)
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Vercel GitHub Integration](https://vercel.com/docs/git/vercel-for-github)
-- [Next.js Deployment Guide](https://nextjs.org/docs/app/building-your-application/deploying)
+## 🌐 Integração com API/Supabase
 
-## 📊 Estimativa
+### Criação de Restaurante
 
-| Fase | Tempo Estimado |
-|------|----------------|
-| Fase 1: CI Básico | 1-2 horas |
-| Fase 2: Deploy | 2-3 horas |
-| Fase 3: Notificações | 1 hora |
-| **Total** | **4-6 horas** |
+#### Via API Route (`POST /api/restaurants`)
+```javascript
+const response = await fetch('/api/restaurants', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(formData)
+});
+```
+
+#### Via Supabase Client (Direto)
+```javascript
+import { createClient } from '@/libs/supabase/client';
+
+const supabase = createClient();
+const { data, error } = await supabase
+  .from('restaurants')
+  .insert(formData)
+  .select()
+  .single();
+```
+
+### Criação de Lista
+
+#### Via API Route (`POST /api/lists`)
+```javascript
+const response = await fetch('/api/lists', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: formData.name,
+    description: formData.description,
+    is_public: formData.is_public,
+    filters: formData.filters
+  })
+});
+```
+
+## ☁️ Upload de Imagens (Cloudinary)
+
+### Utilitário: cloudinaryConverter.ts
+
+```javascript
+import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
+
+// Upload com retry
+const imageUrl = await uploadToCloudinary(imageFile, {
+  maxRetries: 3,
+  delay: 1000
+});
+
+// Adicionar à array de menu_images
+const updatedImages = [...formData.menu_images, imageUrl];
+setFieldValue('menu_images', updatedImages);
+```
+
+**Validações:**
+- Máximo 10 imagens de menu
+- Formatos suportados: JPG, PNG, WebP
+- Tamanho máximo: 10MB por imagem
+- Transformações automáticas (otimização)
+
+## ✅ Validação e Tratamento de Erros
+
+### Validação de Campos
+
+| Campo | Regra | Mensagem de Erro |
+|-------|------|-------------------|
+| `name` | Obrigatório, min 2 chars | "Nome é obrigatório" |
+| `price_per_person` | > 0 se preenchido | "Preço deve ser positivo" |
+| `rating` | 0-5 se preenchido | "Avaliação deve ser entre 0 e 5" |
+| `menu_links` | Máximo 5 links | "Máximo 5 links de menu" |
+| `menu_images` | Máximo 10 imagens | "Máximo 10 imagens de menu" |
+| `source_url` | URL válida se preenchida | "URL inválida" |
+
+### Tratamento de Erros na Submissão
+
+```javascript
+try {
+  setIsSubmitting(true);
+  const { data, error } = await supabase
+    .from('restaurants')
+    .insert(formData)
+    .select()
+    .single();
+
+  if (error) {
+    // Erro do Supabase (RLS, constraints, etc.)
+    toast.error(`Erro: ${error.message}`);
+    return;
+  }
+
+  // Sucesso
+  toast.success('Restaurante criado com sucesso!');
+  router.push(`/restaurants/${data.id}`);
+} catch (err) {
+  // Erro inesperado
+  console.error('Erro ao criar restaurante:', err);
+  toast.error('Erro inesperado. Tente novamente.');
+} finally {
+  setIsSubmitting(false);
+}
+```
+
+## 🔄 Navegação Pós-Criação
+
+### Restaurante
+- **Sucesso**: Redireciona para `/restaurants/[id]`
+- **Erro**: Permanece na página com erros exibidos
+
+### Lista
+- **Sucesso**: Redireciona para `/lists/[id]`
+- **Erro**: Permanece na página com erros exibidos
+
+## 🧪 Testes
+
+### Testes de Formulário
+```javascript
+// __tests__/components/restaurant/RestaurantForm.test.jsx
+describe('RestaurantForm', () => {
+  it('validates required fields', () => { /* ... */ });
+  it('submits form with valid data', () => { /* ... */ });
+  it('displays error messages', () => { /* ... */ });
+});
+```
+
+### Testes de Hook
+```javascript
+// __tests__/hooks/forms/useRestaurantForm.test.js
+describe('useRestaurantForm', () => {
+  it('initializes with default values', () => { /* ... */ });
+  it('validates form data', () => { /* ... */ });
+  it('submits data correctly', () => { /* ... */ });
+});
+```
+
+## 📊 Estado Atual (2026-05-07)
+
+- ✅ Página de criação de restaurantes implementada
+- ✅ Página de criação de listas implementada
+- ✅ Formulários com validação completa
+- ✅ Upload de imagens para Cloudinary
+- ✅ Integração com API routes e Supabase
+- ✅ Hooks personalizados para formulários
+- ✅ Tratamento de erros e feedback ao usuário
+- ✅ Redirecionamento pós-criação
+- ✅ Testes unitários para componentes e hooks
+
+## 🔮 Melhorias Futuras
+
+- [ ] Rascunhos automáticos (localStorage)
+- [ ] Geolocalização automática via browser API
+- [ ] Sugestão de tipos de cozinha baseada em ML
+- [ ] Importação em lote via CSV/Excel
+- [ ] Integração com Google Places API para autopreenchimento
 
 ---
 
-*Última atualização: 2026-04-03*
+*Última atualização: 2026-05-07*

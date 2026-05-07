@@ -1,6 +1,6 @@
 # Lists Feature Roadmap
 
-This document outlines the current state of the Lists feature in FoodList and identifies missing functionality for future development.
+This document outlines the current state of the Lists feature in FoodLister and identifies missing functionality for future development.
 
 ---
 
@@ -13,7 +13,7 @@ This document outlines the current state of the Lists feature in FoodList and id
 | Create List | ✅ Implemented | Name, description, visibility (public/private), filter-based restaurant selection |
 | Read List | ✅ Implemented | View list details with restaurants, cuisine types, features, dietary options |
 | Update List | ✅ Implemented | Edit name, description, visibility, add/remove restaurants |
-| Delete List | ⚠️ Partial | RLS policy exists, but no API endpoint or UI button |
+| Delete List | ✅ Implemented | API endpoint + UI button in list detail and user profile |
 
 ### ✅ Privacy & Security
 
@@ -21,25 +21,31 @@ This document outlines the current state of the Lists feature in FoodList and id
 |---------|--------|-------|
 | Public/Private Lists | ✅ Implemented | `is_public` column with RLS policies |
 | Owner-only Edit/Delete | ✅ Implemented | RLS policies enforce `creator_id = auth.uid()` |
-| Public List Discovery | ✅ Implemented | Unauthenticated users can see public lists |
+| Public List Discovery | ✅ Implemented | Authenticated users can see public lists |
 
 ### ✅ Restaurant Management
 
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Manual Restaurant Search | ✅ Implemented | Search and add restaurants to list |
-| Filter-based Selection | ✅ Implemented | `TabbedRestaurantFilters` integration |
-| Remove from List | ✅ Implemented | During edit mode |
+| Filter-based Selection | ✅ Implemented | Integration with filters |
+| Add Restaurant to List | ✅ Implemented | Via API `POST /api/lists/[id]/restaurants` |
+| Remove from List | ✅ Implemented | Via API `DELETE /api/lists/[id]/restaurants/[restaurantId]` |
 
 ### ✅ API Endpoints
 
 | Endpoint | Method | Status | Notes |
 |----------|--------|--------|-------|
 | `/api/lists` | GET | ✅ Implemented | Lists with search, restaurant counts, auth-aware |
+| `/api/lists` | POST | ✅ Implemented | Create new list |
 | `/api/lists/[id]` | GET | ✅ Implemented | Full list details with restaurants |
-| `/api/lists` | POST | ❌ Missing | Lists are created via Supabase client directly |
-| `/api/lists/[id]` | PUT/PATCH | ❌ Missing | Updates done via Supabase client directly |
-| `/api/lists/[id]` | DELETE | ❌ Missing | No endpoint exists |
+| `/api/lists/[id]` | PUT | ✅ Implemented | Update list details |
+| `/api/lists/[id]` | PATCH | ✅ Implemented | Partial update |
+| `/api/lists/[id]` | DELETE | ✅ Implemented | Delete list and associations |
+| `/api/lists/[id]/restaurants` | GET | ✅ Implemented | Get restaurants in list |
+| `/api/lists/[id]/restaurants` | POST | ✅ Implemented | Add restaurant to list |
+| `/api/lists/[id]/restaurants/[id]` | DELETE | ✅ Implemented | Remove restaurant from list |
+| `/api/lists/[id]/share` | POST | ✅ Implemented | Share list functionality |
 
 ### ✅ UI Components
 
@@ -49,6 +55,7 @@ This document outlines the current state of the Lists feature in FoodList and id
 | List Detail (`/lists/[id]`) | ✅ Implemented | Restaurants grid, privacy badge, roulette |
 | Create List (`/lists/create`) | ✅ Implemented | Form with visibility toggle, restaurant selection |
 | Edit List (`/lists/[id]/edit`) | ✅ Implemented | Pre-populated form, sync changes |
+| UserListsSection | ✅ Implemented | In user profile with delete button |
 
 ### ✅ Additional Features
 
@@ -56,6 +63,8 @@ This document outlines the current state of the Lists feature in FoodList and id
 |---------|--------|-------|
 | Roulette | ✅ Implemented | Random restaurant picker from list |
 | Restaurant Count | ✅ Implemented | Displayed on list cards |
+| Share List | ✅ Implemented | Web Share API + clipboard fallback |
+| List Stats | ✅ Implemented | Restaurants count, average rating in user stats |
 
 ---
 
@@ -63,65 +72,27 @@ This document outlines the current state of the Lists feature in FoodList and id
 
 ### 🔴 High Priority
 
-#### 1. Delete List Functionality
-
-**Description:** Users cannot delete lists from the UI. The RLS policy exists but there's no API endpoint or button.
-
-**Acceptance Criteria:**
-- [ ] Create `DELETE /api/lists/[id]` endpoint
-- [ ] Add delete button to list detail page (owner only)
-- [ ] Add delete button to `UserListsSection` component
-- [ ] Confirmation dialog before deletion
-- [ ] Toast notification on success/failure
-- [ ] Remove list from local state on success
-
-**Files to Create/Modify:**
-- `app/api/lists/[id]/route.ts` - Add DELETE method
-- `app/lists/[id]/page.tsx` - Add delete button
-- `components/ui/profile/sections/lists/UserListsSection.tsx` - Add delete handler
-
----
-
-#### 2. Share List Functionality
-
-**Description:** Users cannot share lists with others. The `onShare` handler is empty in list components.
-
-**Acceptance Criteria:**
-- [ ] Add share button to list cards and detail page
-- [ ] Implement Web Share API for supported browsers
-- [ ] Fallback to clipboard copy for unsupported browsers
-- [ ] Share URL format: `/lists/{id}`
-- [ ] Include list name in share title
-- [ ] Toast notification on successful share/copy
-
-**Files to Modify:**
-- `components/ui/profile/sections/lists/UserListsSection.tsx`
-- `app/lists/[id]/page.tsx`
-- Consider creating a shared `useShare` hook
-
----
-
-#### 3. Duplicate List
+#### 1. Duplicate List
 
 **Description:** Users cannot duplicate an existing list to create a new one with the same restaurants.
 
 **Acceptance Criteria:**
 - [ ] Add "Duplicate" button to list detail page (owner only)
 - [ ] Copy all restaurants from original list
-- [ ] Pre-fill create form with copied data + " (Copy)" suffix
+- [ ] Pre-fill create form with copied data + "(Copy)" suffix
 - [ ] Allow user to modify before saving
 - [ ] Toast notification on success
 
 **Files to Create/Modify:**
-- `app/lists/[id]/page.tsx` - Add duplicate button
-- `app/lists/create/page.tsx` - Accept pre-filled data via URL params
+- `app/lists/[id]/page.jsx` - Add duplicate button
+- `app/lists/create/page.jsx` - Accept pre-filled data via state
 - `components/pages/CreateList.jsx` - Handle pre-filled state
 
 ---
 
 ### 🟡 Medium Priority
 
-#### 4. Reorder Restaurants in List
+#### 2. Reorder Restaurants in List
 
 **Description:** Users cannot change the order of restaurants within a list.
 
@@ -139,47 +110,48 @@ ADD COLUMN IF NOT EXISTS position integer NOT NULL DEFAULT 0;
 ```
 
 **Files to Modify:**
-- `supabase/migrations/024_add_list_restaurant_position.sql` - New migration
-- `app/lists/[id]/edit/page.tsx` - Add drag-and-drop UI
+- `supabase/migrations/` - New migration
+- `app/lists/[id]/edit/page.jsx` - Add drag-and-drop UI
 - `app/api/lists/[id]/route.ts` - Return ordered restaurants
 
 ---
 
-#### 5. List Statistics
+#### 3. List Statistics (Enhanced)
 
-**Description:** No statistics are shown for lists (total restaurants, average rating, cuisine distribution, etc.)
+**Description:** More detailed statistics for lists.
 
 **Acceptance Criteria:**
-- [ ] Show total restaurants count
-- [ ] Show average rating of all restaurants in list
+- [x] Show total restaurants count
+- [x] Show average rating of all restaurants in list
 - [ ] Show cuisine type distribution (pie chart or bar)
 - [ ] Show price range distribution
 - [ ] Show visited vs unvisited count
-- [ ] Display on list detail page
+- [x] Display on list detail page
 
 **Files to Modify:**
-- `app/lists/[id]/page.tsx` - Add stats section
+- `app/lists/[id]/page.jsx` - Add enhanced stats section
 - `app/api/lists/[id]/route.ts` - Add stats computation
 
 ---
 
-#### 6. Export List
+#### 4. Export List
 
 **Description:** Users cannot export their lists to share outside the app.
 
 **Acceptance Criteria:**
-- [ ] Export as JSON
+- [x] Export as JSON
 - [ ] Export as CSV (restaurant name, location, rating, cuisine types)
 - [ ] Export as PDF (formatted with images)
 - [ ] Download file triggered from list detail page
+- [x] Export as ICS calendar (for scheduled meals)
 
 **Files to Create:**
-- `utils/listExport.ts` - Export utility functions
-- `app/lists/[id]/page.tsx` - Add export button
+- `utils/listExport.ts` - Export utility functions (✅ implemented)
+- `app/lists/[id]/page.jsx` - Add export button
 
 ---
 
-#### 7. List Comments
+#### 5. List Comments
 
 **Description:** Users cannot add comments or notes to lists.
 
@@ -206,13 +178,13 @@ CREATE TABLE public.list_comments (
 ```
 
 **Files to Create:**
-- `supabase/migrations/025_add_list_comments.sql` - New migration
-- `components/ui/lists/ListComments.tsx` - Comments component
+- `supabase/migrations/` - New migration
+- `components/lists/ListComments.tsx` - Comments component
 - `app/api/lists/[id]/comments/route.ts` - Comments API
 
 ---
 
-#### 8. Collaborative Lists
+#### 6. Collaborative Lists
 
 **Description:** Lists cannot be edited by multiple users.
 
@@ -241,7 +213,7 @@ CREATE TABLE public.list_collaborators (
 
 ### 🟢 Low Priority
 
-#### 9. List Categories/Tags
+#### 7. List Categories/Tags
 
 **Description:** Users cannot organize lists into categories or add tags.
 
@@ -258,7 +230,7 @@ ADD COLUMN IF NOT EXISTS tags text[] DEFAULT '{}';
 
 ---
 
-#### 10. List Cover Image
+#### 8. List Cover Image
 
 **Description:** Lists don't have a visual cover image.
 
@@ -275,7 +247,7 @@ ADD COLUMN IF NOT EXISTS cover_image_url text;
 
 ---
 
-#### 11. List Activity Feed
+#### 9. List Activity Feed
 
 **Description:** No history of changes made to a list.
 
@@ -286,7 +258,7 @@ ADD COLUMN IF NOT EXISTS cover_image_url text;
 
 ---
 
-#### 12. Smart List Suggestions
+#### 10. Smart List Suggestions
 
 **Description:** No AI-powered suggestions for restaurants to add to lists.
 
@@ -297,7 +269,7 @@ ADD COLUMN IF NOT EXISTS cover_image_url text;
 
 ---
 
-#### 13. List Templates
+#### 11. List Templates
 
 **Description:** Users cannot create or use templates for common list types.
 
@@ -308,18 +280,19 @@ ADD COLUMN IF NOT EXISTS cover_image_url text;
 
 ---
 
-#### 14. List Notifications
+#### 12. List Notifications
 
 **Description:** No notifications for changes to shared/collaborative lists.
 
 **Acceptance Criteria:**
+- [x] Notification system exists in database
 - [ ] Notify when someone adds a restaurant to your list
 - [ ] Notify when a collaborative list is updated
 - [ ] Email digest option
 
 ---
 
-#### 15. List Import
+#### 13. List Import
 
 **Description:** Users cannot import lists from external sources.
 
@@ -333,28 +306,27 @@ ADD COLUMN IF NOT EXISTS cover_image_url text;
 
 ## Database Schema Changes Summary
 
-| Migration | Purpose | Priority |
-|-----------|---------|----------|
-| `024_add_list_restaurant_position.sql` | Add position column for ordering | Medium |
-| `025_add_list_comments.sql` | Add comments table | Medium |
-| `026_add_list_collaborators.sql` | Add collaborators table | Medium |
-| `027_add_list_tags.sql` | Add tags column | Low |
-| `028_add_list_cover_image.sql` | Add cover image column | Low |
+| Migration | Purpose | Priority | Status |
+|-----------|---------|----------|-------|
+| `add_list_restaurant_position.sql` | Add position column for ordering | Medium | ❌ Not Started |
+| `add_list_comments.sql` | Add comments table | Medium | ❌ Not Started |
+| `add_list_collaborators.sql` | Add collaborators table | Medium | ❌ Not Started |
+| `add_list_tags.sql` | Add tags column | Low | ❌ Not Started |
+| `add_list_cover_image.sql` | Add cover image column | Low | ❌ Not Started |
 
 ---
 
 ## API Endpoints to Create
 
-| Endpoint | Method | Purpose | Priority |
-|----------|--------|---------|----------|
-| `/api/lists/[id]` | DELETE | Delete a list | High |
-| `/api/lists/[id]/comments` | GET | Get list comments | Medium |
-| `/api/lists/[id]/comments` | POST | Add comment | Medium |
-| `/api/lists/[id]/comments/[commentId]` | PUT | Update comment | Medium |
-| `/api/lists/[id]/comments/[commentId]` | DELETE | Delete comment | Medium |
-| `/api/lists/[id]/collaborators` | GET | Get collaborators | Medium |
-| `/api/lists/[id]/collaborators` | POST | Add collaborator | Medium |
-| `/api/lists/[id]/collaborators/[userId]` | DELETE | Remove collaborator | Medium |
+| Endpoint | Method | Purpose | Priority | Status |
+|----------|--------|---------|----------|-------|
+| `/api/lists/[id]/comments` | GET | Get list comments | Medium | ❌ Not Started |
+| `/api/lists/[id]/comments` | POST | Add comment | Medium | ❌ Not Started |
+| `/api/lists/[id]/comments/[commentId]` | PUT | Update comment | Medium | ❌ Not Started |
+| `/api/lists/[id]/comments/[commentId]` | DELETE | Delete comment | Medium | ❌ Not Started |
+| `/api/lists/[id]/collaborators` | GET | Get collaborators | Medium | ❌ Not Started |
+| `/api/lists/[id]/collaborators` | POST | Add collaborator | Medium | ❌ Not Started |
+| `/api/lists/[id]/collaborators/[userId]` | DELETE | Remove collaborator | Medium | ❌ Not Started |
 
 ---
 
@@ -362,21 +334,36 @@ ADD COLUMN IF NOT EXISTS cover_image_url text;
 
 ### Current List-Related Files
 
-| File | Purpose |
-|------|---------|
-| `app/lists/page.js` | Lists overview page |
-| `app/lists/[id]/page.tsx` | List detail page |
-| `app/lists/create/page.tsx` | Create list page |
-| `app/lists/[id]/edit/page.tsx` | Edit list page |
-| `app/api/lists/route.ts` | GET lists API |
-| `app/api/lists/[id]/route.ts` | GET single list API |
-| `components/pages/CreateList.jsx` | Create list form component |
-| `components/pages/EditList.jsx` | Edit list form component |
-| `hooks/lists/useListFilterLogic.ts` | List filtering hook |
-| `hooks/lists/useListFilters.ts` | List filters state hook |
-| `supabase/migrations/022_add_is_public_to_lists.sql` | Privacy migration |
-| `supabase/migrations/023_fix_list_privacy.sql` | Privacy fix migration |
+| File | Purpose | Status |
+|------|---------|-------|
+| `app/lists/page.jsx` | Lists overview page | ✅ Implemented |
+| `app/lists/[id]/page.jsx` | List detail page | ✅ Implemented |
+| `app/lists/create/page.jsx` | Create list page | ✅ Implemented |
+| `app/lists/[id]/edit/page.jsx` | Edit list page | ✅ Implemented |
+| `app/api/lists/route.ts` | GET/POST lists API | ✅ Implemented |
+| `app/api/lists/[id]/route.ts` | GET/PUT/PATCH/DELETE list API | ✅ Implemented |
+| `app/api/lists/[id]/restaurants/route.ts` | GET/POST restaurants in list | ✅ Implemented |
+| `app/api/lists/[id]/restaurants/[id]/route.ts` | DELETE restaurant from list | ✅ Implemented |
+| `app/api/lists/[id]/share/route.ts` | POST share list | ✅ Implemented |
+| `components/pages/CreateList.jsx` | Create list form component | ✅ Implemented |
+| `components/pages/EditList.jsx` | Edit list form component | ✅ Implemented |
+| `components/lists/ListForm.tsx` | Reusable list form | ✅ Implemented |
+| `hooks/lists/useListFilterLogic.ts` | List filtering logic | ✅ Implemented |
+| `hooks/lists/useListFilters.ts` | List filters state | ✅ Implemented |
+| `utils/listExport.ts` | Export utility (JSON, ICS) | ✅ Implemented |
+| `contexts/AuthContext.tsx` | Auth state for lists | ✅ Implemented |
 
 ---
 
-*Last updated: 2026-04-03*
+## Testing Status
+
+| Test Type | Coverage | Notes |
+|----------|---------|-------|
+| Unit Tests | ✅ Partial | Hooks and utils tested |
+| Component Tests | ✅ Partial | Form components tested |
+| API Tests | ❌ Missing | API routes need test coverage |
+| E2E Tests | ❌ Missing | Full user flows need testing |
+
+---
+
+*Last updated: 2026-05-07*
