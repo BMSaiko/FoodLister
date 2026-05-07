@@ -37,7 +37,29 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
 
     setLoading(true);
     try {
-      const data = extractGoogleMapsData(googleMapsUrl);
+      let urlToExtract = googleMapsUrl;
+      
+      // Check if it's a short URL that needs resolution
+      const urlObj = new URL(googleMapsUrl);
+      const isShortUrl = urlObj.hostname === 'maps.app.goo.gl' || 
+                         urlObj.hostname === 'goo.gl';
+      
+      if (isShortUrl) {
+        // Resolve short URL via server-side API
+        const resolveResponse = await fetch(
+          `/api/resolve-google-maps-url?url=${encodeURIComponent(googleMapsUrl)}`
+        );
+        
+        if (!resolveResponse.ok) {
+          const errorData = await resolveResponse.json();
+          throw new Error(errorData.error || 'Falha ao resolver o link curto');
+        }
+        
+        const { finalUrl } = await resolveResponse.json();
+        urlToExtract = finalUrl;
+      }
+      
+      const data = extractGoogleMapsData(urlToExtract);
       setExtractedData(data);
 
       // Se extrair coordenadas, buscar endereço via OSM
@@ -128,21 +150,25 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                     <ol className="text-sm text-[var(--amber-800)] space-y-1">
                       <li className="flex items-center gap-2">
                         <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">1</span>
-                        Abra o Google Maps no navegador
+                        Abra o Google Maps no navegador ou app móvel
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">2</span>
-                        Encontre e clique no restaurante
+                        Encontre e selecione o restaurante
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">3</span>
-                        Copie o link da barra de endereço
+                        Partilhe ou copie o link (suporta links curtos de mobile)
                       </li>
                       <li className="flex items-center gap-2">
                         <span className="w-5 h-5 bg-[var(--amber-600)] text-white rounded-full flex items-center justify-center text-xs font-medium">4</span>
                         Cole aqui e clique em "Extrair"
                       </li>
                     </ol>
+                    <p className="text-xs text-[var(--amber-700)] mt-2 flex items-center gap-1">
+                      <Map className="h-3 w-3" />
+                      Aceita links completos (google.com/maps) e links curtos (maps.app.goo.gl)
+                    </p>
                   </div>
                 </div>
               </div>
@@ -161,7 +187,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                       setGoogleMapsUrl(e.target.value);
                       setError('');
                     }}
-                    placeholder="https://www.google.com/maps/place/Nome+do+Restaurante/..."
+                    placeholder="Link do Google Maps (ex: google.com/maps ou maps.app.goo.gl/...)"
                     className="w-full px-4 py-3 pr-12 border-2 border-[var(--gray-200)] rounded-xl focus:outline-none focus:border-[var(--amber-500)] focus:ring-2 focus:ring-[var(--amber-100)] transition-colors text-[var(--gray-700)]"
                   />
                   {googleMapsUrl && (
@@ -183,10 +209,10 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-[var(--gray-500)] mt-2 flex items-center gap-1">
-                  <ExternalLink className="h-3 w-3" />
-                  Cole o link completo do restaurante no Google Maps
-                </p>
+                  <p className="text-xs text-[var(--gray-500)] mt-2 flex items-center gap-1">
+                    <ExternalLink className="h-3 w-3" />
+                    Cole o link do restaurante (completo ou curto)
+                  </p>
               </div>
 
               {/* Error Message */}
