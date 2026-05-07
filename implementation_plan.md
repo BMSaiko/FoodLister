@@ -1,105 +1,67 @@
 # Implementation Plan
 
 [Overview]
-Fix four critical UI/UX issues in the FoodLister application: missing navbar during list editing, incorrect visited/unvisited status display on list detail pages, malformed CSS on the Google Maps extractor confirmation button, and incorrect map link generation in the restaurant creation flow. These issues affect core user workflows including list management, restaurant visit tracking, restaurant creation, and map integration. The fixes involve targeted modifications to existing components, no new files or dependencies are required.
+Add a scroll-to-top button to the Restaurant Roulette sticky menu, fix the GitHub Actions deploy.yml workflow error, and add the subagents repetitive task rule file to the documentation.
+
+This plan addresses three key changes: 1) A critical fix for the GitHub Actions deploy workflow, which fails due to an invalid `secrets` context reference in a job `if` condition. 2) A UX improvement to the Restaurant Roulette component by adding a scroll-to-top button to its sticky bottom menu. 3) Documentation update to add the existing subagents repetitive task rule file to the project's docs folder, addressing GitHub issue #72.
 
 [Types]
-Update the `MapModalData` interface in `contexts/ModalContext.tsx` to include an optional `source_url` field for storing the extracted Google Maps URL. All other type definitions (`GoogleMapsData`, `VisitData`, `RestaurantWithDetails`) are already correctly defined and require no changes.
+No new type definitions are required for these changes.
 
-```typescript
-// Updated MapModalData interface in contexts/ModalContext.tsx
-interface MapModalData {
-  location: string;
-  latitude?: number;
-  longitude?: number;
-  source_url?: string; // New field for extracted Google Maps URL
-}
-```
+No new interfaces, enums, or data structures need to be added. Existing types (FilterPreset, SpinHistoryEntry) remain unchanged, and no modifications to type definitions in `types/` or component prop types are needed.
 
 [Files]
-Modify 6 existing files to resolve the four issues. No new files are required.
+Modify .github/workflows/deploy.yml, components/ui/RestaurantList/RestaurantRoulette.tsx, and add docs/reference/subagents-repetitive-task-rule.md.
 
-1. **components/pages/EditList.jsx**
-   - Add `<Navbar />` and wrapper div to the main content return path (non-loading state) to fix missing navbar during list editing.
-
-2. **app/lists/[id]/page.tsx**
-   - Import `useVisitsData` hook, fetch user-specific visit data for list restaurants, and pass `visitsData`, `loadingVisits`, and `onVisitsDataUpdate` props to `RestaurantCard` components to fix incorrect visited status display.
-
-3. **components/ui/RestaurantDetails/GoogleMapsModal.tsx**
-   - Correct Tailwind CSS arbitrary value syntax for CSS variables (remove `var()` wrapper) and add missing focus utility classes to the "Usar estas informações" button to fix malformed CSS.
-
-4. **contexts/ModalContext.tsx**
-   - Add `source_url?: string` to the `MapModalData` interface to support passing extracted Google Maps URLs to the map modal.
-
-5. **components/restaurant/CreateRestaurantModal.jsx**
-   - Pass `source_url` from extracted Google Maps data when calling `openMapModal` to ensure the correct Google Maps URL is available in the map modal.
-
-6. **components/ui/RestaurantCard/RestaurantCardFooter.tsx** (map links component)
-   - Update Google Maps link generation to use `source_url` from `mapModalData` if available, fall back to coordinate-based URL. Use latitude/longitude for all other map providers (Waze, Apple Maps, etc.).
+Detailed breakdown:
+- New files to be created:
+  - `docs/reference/subagents-repetitive-task-rule.md`: Contains the content of `.clinerules/use-subagents-repetitive.md` to make the rule discoverable in the documentation, addressing GitHub issue #72.
+- Existing files to be modified:
+  - `.github/workflows/deploy.yml`: Remove the invalid `secrets.VERCEL_TOKEN != ''` segment from the `if` condition of the `deploy-preview` job (line 16) to resolve the workflow parsing error.
+  - `components/ui/RestaurantList/RestaurantRoulette.tsx`: Import the `ArrowUp` icon from `lucide-react` and add a scroll-to-top button to the sticky bottom menu container.
+- No files to be deleted or moved.
+- No configuration file updates needed.
 
 [Functions]
-Modify component functions to handle new props and logic. No new functions are required, and no functions are removed.
+Add an inline onClick handler for the new scroll-to-top button; no existing functions are modified.
 
-1. **EditListContent (components/pages/EditList.jsx)**
-   - Update the main return path (non-loading state) to wrap `<ListForm />` in a container div that includes `<Navbar />`, matching the structure used in the loading state.
-
-2. **ListDetails (app/lists/[id]/page.tsx)**
-   - Add `useVisitsData` hook call: `const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);`
-   - Update `RestaurantCard` rendering to pass visit-related props:
-     ```tsx
-     <RestaurantCard 
-       key={restaurant.id} 
-       restaurant={restaurant} 
-       visitsData={visitsData[restaurant.id] || null}
-       loadingVisits={loadingVisits}
-       onVisitsDataUpdate={handleVisitsDataUpdate}
-     />
-     ```
-
-3. **GoogleMapsModal (components/ui/RestaurantDetails/GoogleMapsModal.tsx)**
-   - Update the "Usar estas informações" button `className` to fix CSS variable syntax and add focus classes:
-     ```tsx
-     className="flex-1 px-4 py-3 bg-gradient-to-r from-[--green-600] to-[--emerald-600] text-white rounded-xl hover:from-[--green-700] hover:to-[--emerald-700] font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-     ```
-
-4. **CreateRestaurantModal (components/restaurant/CreateRestaurantModal.jsx)**
-   - When opening the map modal after extracting Google Maps data, pass `source_url`:
-     ```tsx
-     openMapModal({
-       location: extractedData.location,
-       latitude: extractedData.latitude,
-       longitude: extractedData.longitude,
-       source_url: extractedData.source_url
-     });
-     ```
-
-5. **Map Links Rendering Function (components/ui/RestaurantCard/RestaurantCardFooter.tsx)**
-   - Update Google Maps link generation:
-     ```tsx
-     const { mapModalData } = useModal();
-     const googleMapsUrl = mapModalData?.source_url || (mapModalData?.latitude && mapModalData?.longitude 
-       ? `https://maps.google.com/?ll=${mapModalData.latitude},${mapModalData.longitude}` 
-       : `https://maps.google.com/?q=${encodeURIComponent(mapModalData?.location || '')}`);
-     ```
-   - Keep Waze, Apple Maps, and other links using coordinates only.
+Detailed breakdown:
+- New functions: None. An inline arrow function `() => window.scrollTo({ top: 0, behavior: 'smooth' })` will be added to the new button's `onClick` prop.
+- Modified functions: None. Existing functions like `handleSpin`, `loadFilterPreset`, etc. remain unchanged.
+- Removed functions: None.
 
 [Classes]
-No class definitions are modified. All changes are to functional components using React hooks.
+No class modifications are needed.
+
+Detailed breakdown:
+- New classes: None.
+- Modified classes: None. The `RestaurantRoulette` component (function component) remains unchanged except for the added import and button.
+- Removed classes: None.
 
 [Dependencies]
-No new dependencies are required. All changes use existing packages: Next.js, React, Tailwind CSS, Supabase JS client.
+No new dependencies are required.
+
+The `ArrowUp` icon is already available in the `lucide-react` package, which is already installed as a project dependency (version ^0.487.0 per memory-bank/techContext.md). No new packages need to be installed, and no version changes are required.
 
 [Testing]
-Manual testing is required for each fix:
-1. **Navbar Fix**: Navigate to any list, click "Editar", verify the navbar is visible in the edit form view.
-2. **Visited Status Fix**: Log in, open a list with restaurants, verify visited/unvisited buttons reflect the user's actual visit status. Toggle a status and verify it updates.
-3. **Button CSS Fix**: Open the Google Maps extractor modal, extract data, verify the "Usar estas informações" button has correct gradient, focus state, and no visual artifacts.
-4. **Map Links Fix**: Create a new restaurant, extract Google Maps data, open map links, verify Google Maps uses the extracted URL, Waze uses coordinates.
+No new test files are required, but existing functionality should be verified.
+
+Test file requirements: No new test files need to be created for these changes.
+Existing test modifications: None, but existing tests for `RestaurantRoulette` (if any) should be run to ensure no regressions.
+Validation strategies:
+1. Validate deploy.yml syntax using a YAML validator or by pushing to GitHub and checking the Actions tab.
+2. Manually test the scroll-to-top button in the Restaurant Roulette page to ensure it scrolls to the top smoothly.
+3. Verify the new docs file exists at `docs/reference/subagents-repetitive-task-rule.md`.
 
 [Implementation Order]
-Execute changes in this order to minimize conflicts and ensure dependencies are met:
-1. Update `contexts/ModalContext.tsx` to add `source_url` to `MapModalData` (prerequisite for map links fix).
-2. Fix missing navbar: Modify `components/pages/EditList.jsx` to include `<Navbar />` in the edit list view.
-3. Fix button CSS: Correct Tailwind classes in `components/ui/RestaurantDetails/GoogleMapsModal.tsx`.
-4. Fix map links: Update `components/restaurant/CreateRestaurantModal.jsx` to pass `source_url`, then update the map links component to use `source_url` for Google Maps.
-5. Fix visited status: Modify `app/lists/[id]/page.tsx` to fetch and pass visit data to `RestaurantCard` components.
+Fix the deploy.yml workflow first, then add the scroll button, then add the docs file, and finally verify all changes.
+
+1. Fix `.github/workflows/deploy.yml`: Remove the invalid `&& secrets.VERCEL_TOKEN != ''` from the `deploy-preview` job's `if` condition (line 16) to resolve the "Unrecognized named-value: 'secrets'" error.
+2. Modify `components/ui/RestaurantList/RestaurantRoulette.tsx`:
+   a. Add `ArrowUp` to the import list from `lucide-react`.
+   b. Update the sticky bottom menu container to include the new scroll-to-top button with appropriate styling and onClick handler.
+3. Create `docs/reference/subagents-repetitive-task-rule.md` with the content of `.clinerules/use-subagents-repetitive.md`.
+4. Verify changes:
+   a. Run `npm run build` to ensure no regressions in the Restaurant Roulette component.
+   b. Check deploy.yml syntax via GitHub Actions or a YAML validator.
+   c. Confirm the new docs file is present and accessible.
