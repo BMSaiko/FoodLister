@@ -182,7 +182,7 @@ export function useFiltersLogic(
       if (user && filters.visit_count) {
         const { min, max } = filters.visit_count;
         const restaurantVisitsData = visitsData[restaurant.id];
-        const visitCount = restaurantVisitsData ? restaurantVisitsData.visitCount : 0;
+        const visitCount = restaurantVisitsData ? restaurantVisitsData.visit_count : 0;
         
         // Apply visit count filtering based on current filter state
         const shouldFilter = shouldApplyVisitCountFilter(filters, min, max);
