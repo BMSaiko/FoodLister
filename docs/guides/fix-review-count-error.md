@@ -8,7 +8,7 @@ The application was throwing a database error when trying to fetch restaurant da
 Error: column restaurants.review_count does not exist
 ```
 
-This error occurred in the API endpoint `/api/restaurants/[id]/rating` when the code tried to select the `review_count` column from the `restaurants` table, but this column didn't exist in the database schema.
+This error occurred in API endpoints when the code tried to select the `review_count` column from the `restaurants` table, but this column didn't exist in the database schema.
 
 ## Root Cause
 
@@ -16,20 +16,82 @@ The `restaurants` table in the database schema was missing the `review_count` co
 
 ## Solution
 
-### 1. Database Migration
+### 1. Database Migration (Not Implemented)
 
-Created a migration script that adds the missing `review_count` column and sets up automatic maintenance:
+**Initial Approach**: A migration script was created to add the missing `review_count` column:
 
 **File:** `supabase/migrations/20260206140946_add_review_count_to_restaurants.sql`
 
-**What it does:**
-- Adds `review_count` column to the `restaurants` table (integer, default 0)
-- Creates a trigger function `update_restaurant_review_count()` that automatically updates the review count whenever reviews are added, updated, or deleted
-- Creates a trigger `trigger_update_restaurant_review_count` on the `reviews` table to call the function
-- Updates existing restaurants with their current review counts
-- Grants necessary permissions
+**What it would do:**
+- Add `review_count` column to the `restaurants` table (integer, default 0)
+- Create a trigger function `update_restaurant_review_count()` that automatically updates the review count whenever reviews are added, updated, or deleted
+- Create a trigger `trigger_update_restaurant_review_count` on the `reviews` table to call the function
+- Update existing restaurants with their current review counts
+- Grant necessary permissions
 
-### 2. API Compatibility Fix
+### 2. Alternative Solution (Implemented)
+
+Instead of maintaining a separate `review_count` column, the application now uses:
+
+#### A. Query-Based Counting
+
+```typescript
+// app/api/restaurants/[id]/route.ts
+const { data: restaurant, error: restaurantError } = await supabase
+  .from('restaurants')
+  .select(`
+    *,
+    reviews(count),
+    cuisine_types(*),
+    dietary_options(*),
+    features(*)
+  `)
+  .eq('id', id)
+  .single();
+
+if (restaurantError) throw restaurantError;
+
+// Extract review count from the query
+const reviewCount = restaurant.reviews?.[0]?.count || 0;
+```
+
+#### B. User Stats Table
+
+The `user_stats` table maintains review counts at the user level:
+
+```sql
+CREATE TABLE user_stats (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id),
+  restaurants_visited INTEGER DEFAULT 0,
+  lists_created INTEGER DEFAULT 0,
+  reviews_written INTEGER DEFAULT 0,  -- This tracks user's review count
+  total_visits INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+#### C. API Endpoints with Proper Counting
+
+```typescript
+// app/api/restaurants/route.ts
+const { data, error, count } = await supabase
+  .from('restaurants')
+  .select(`
+    *,
+    reviews(count)
+  `, { count: 'exact' })
+  .range(from, to);
+
+// Transform to include review_count
+const restaurantsWithCount = data?.map(restaurant => ({
+  ...restaurant,
+  review_count: restaurant.reviews?.[0]?.count || 0
+}));
+```
+
+### 3. API Compatibility Fix
 
 **File:** `app/api/restaurants/[id]/rating/route.ts`
 
@@ -39,12 +101,24 @@ Added backward compatibility to handle cases where the migration hasn't been app
 // If review_count column doesn't exist, fetch without it and calculate manually
 if (fetchError && fetchError.code === '42703' && fetchError.message.includes('review_count')) {
   // Fallback logic to calculate review count manually
+  const { count, error: countError } = await supabase
+    .from('reviews')
+    .select('*', { count: 'exact', head: true })
+    .eq('restaurant_id', id);
+    
+  if (countError) throw countError;
+  
+  // Return data without review_count column
+  return NextResponse.json({
+    ...data,
+    review_count: count || 0
+  });
 }
 ```
 
 This ensures the application continues to work even before the migration is applied.
 
-### 3. Migration Scripts
+### 4. Migration Scripts
 
 **Manual SQL Script:** `scripts/add-review-count-column.sql`
 - Can be run directly in the Supabase SQL editor
@@ -94,7 +168,7 @@ This ensures the application continues to work even before the migration is appl
 
 ## Benefits
 
-- **Performance**: No need to count reviews on every request
+- **Performance**: No need to count reviews on every request (if using the column)
 - **Data Consistency**: Review counts are always accurate and up-to-date
 - **Backward Compatibility**: Application works during migration
 - **Automatic Maintenance**: No manual intervention needed
@@ -103,16 +177,27 @@ This ensures the application continues to work even before the migration is appl
 
 After applying the migration, you can verify it worked by:
 
-1. Checking that the column exists:
+1. **Checking that the column exists:**
    ```sql
    SELECT column_name, data_type 
    FROM information_schema.columns 
    WHERE table_name = 'restaurants' AND column_name = 'review_count';
    ```
 
-2. Testing the API endpoint that was previously failing
+2. **Testing the API endpoint** that was previously failing
 
-3. Verifying that review counts update automatically when reviews are added/removed
+3. **Verifying that review counts update automatically** when reviews are added/removed
+
+## Current Implementation Status
+
+✅ **Status**: The codebase has been updated to handle both scenarios:
+- With `review_count` column (after migration)
+- Without `review_count` column (before migration or alternative approach)
+
+The application now uses a hybrid approach:
+1. Try to query with `review_count` column
+2. If column doesn't exist (error code `42703`), fall back to manual counting via `reviews(count)` subquery
+3. This ensures the app works regardless of the database state
 
 ## Files Modified/Created
 
@@ -120,7 +205,7 @@ After applying the migration, you can verify it worked by:
 - `app/api/restaurants/[id]/rating/route.ts` (modified - added compatibility)
 - `scripts/add-review-count-column.sql` (created)
 - `scripts/apply-review-count-migration.js` (created)
-- `docs/fix-review-count-error.md` (created - this file)
+- `docs/guides/fix-review-count-error.md` (created - this file)
 
 ## Notes
 
@@ -128,3 +213,33 @@ After applying the migration, you can verify it worked by:
 - The trigger function handles all CRUD operations on reviews
 - The API compatibility layer will be automatically bypassed once the column exists
 - This fix maintains full backward compatibility with existing data
+- **Current recommendation**: Use query-based counting (reviews(count)) instead of maintaining a separate column for better data integrity
+
+## Alternative Approach (Current Best Practice)
+
+Instead of maintaining a `review_count` column, the current codebase best practice is:
+
+```typescript
+// Efficient counting without separate column
+const { data, error, count } = await supabase
+  .from('restaurants')
+  .select(`
+    *,
+    reviews!inner(count)
+  `, { count: 'exact' })
+  .eq('id', restaurantId);
+
+// Or using a subquery for better performance
+const { data, error } = await supabase
+  .rpc('get_restaurant_with_review_count', { restaurant_id: restaurantId });
+```
+
+This approach:
+- Eliminates data synchronization issues
+- Reduces database storage
+- Simplifies the schema
+- Leverages PostgreSQL's built-in counting capabilities
+
+---
+
+*Last updated: 2026-05-07*
