@@ -75,7 +75,7 @@ export default function RestaurantDetails() {
   const supabase = createClient();
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-  const [visitData, setVisitData] = useState({ visited: false, visitCount: 0 });
+  const [visitData, setVisitData] = useState({ visited: false, visit_count: 0 });
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -309,7 +309,7 @@ export default function RestaurantDetails() {
       try {
         const response = await get(`/api/restaurants/${id}/visits`);
         const data = await response.json();
-        setVisitData({ visited: data.visited, visitCount: data.visitCount });
+        setVisitData({ visited: data.visited, visit_count: data.visit_count });
       } catch (error) {
         logError('Error fetching visit data', error);
       }
@@ -320,13 +320,13 @@ export default function RestaurantDetails() {
 
   // Ensure visit count is updated when visited becomes true
   useEffect(() => {
-    if (visitData.visited && visitData.visitCount === 0) {
+    if (visitData.visited && visitData.visit_count === 0) {
       // If visited is true but visitCount is still 0, refetch the data
       const refetchVisitData = async () => {
         try {
           const response = await get(`/api/restaurants/${id}/visits`);
           const data = await response.json();
-          setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
+          setVisitData(prev => ({ ...prev, visit_count: data.visit_count }));
         } catch (error) {
           logError('Error refetching visit data', error);
         }
@@ -334,7 +334,7 @@ export default function RestaurantDetails() {
 
       refetchVisitData();
     }
-  }, [visitData.visited, visitData.visitCount, id, get]);
+  }, [visitData.visited, visitData.visit_count, id, get]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -479,7 +479,7 @@ export default function RestaurantDetails() {
     try {
       const response = await patch(`/api/restaurants/${id}/visits`, { action: 'toggle_visited' });
       const data = await response.json();
-      setVisitData({ visited: data.visited, visitCount: data.visitCount });
+      setVisitData({ visited: data.visited, visit_count: data.visit_count });
 
       // Show success toast
       toast.success(
@@ -520,7 +520,7 @@ export default function RestaurantDetails() {
     try {
       const response = await post(`/api/restaurants/${id}/visits`);
       const data = await response.json();
-      setVisitData(prev => ({ ...prev, visitCount: data.visitCount }));
+        setVisitData(prev => ({ ...prev, visit_count: data.visit_count }));
 
       // Show success toast
       toast.success('Visita adicionada com sucesso!', {
@@ -554,7 +554,7 @@ export default function RestaurantDetails() {
     try {
       const response = await patch(`/api/restaurants/${id}/visits`, { action: 'remove_visit' });
       const data = await response.json();
-      setVisitData(prev => ({ ...prev, visitCount: data.visitCount, visited: data.visited }));
+        setVisitData(prev => ({ ...prev, visit_count: data.visit_count, visited: data.visited }));
 
       // Show success toast
       toast.success('Visita removida com sucesso!', {
@@ -827,7 +827,7 @@ export default function RestaurantDetails() {
       {/* Sticky Navbar for Mobile */}
       <RestaurantStickyNavbar
         visited={visitData.visited}
-        visitCount={visitData.visitCount}
+        visitCount={visitData.visit_count}
         onShare={handleShareClick}
         onSchedule={() => setIsScheduleModalOpen(true)}
         onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
@@ -850,7 +850,7 @@ export default function RestaurantDetails() {
           user={user}
           showActions={true}
           visited={visitData.visited}
-          visitCount={visitData.visitCount}
+          visitCount={visitData.visit_count}
           onToggleVisited={handleToggleVisited}
           onAddVisit={handleAddVisit}
           onRemoveVisit={handleRemoveVisit}

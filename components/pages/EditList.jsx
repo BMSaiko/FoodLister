@@ -103,20 +103,25 @@ function EditListContent({ listId }) {
   }
 
   return (
-    <ListForm
-      mode="edit"
-      formData={formData}
-      selectedRestaurants={selectedRestaurants}
-      loading={loading}
-      saving={saving}
-      error={error}
-      backLink={`/lists/${listId}`}
-      backText="Voltar para Detalhes da Lista"
-      onFormChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
-      onSubmit={handleSubmit}
-      onAddRestaurant={addRestaurant}
-      onRemoveRestaurant={removeRestaurant}
-      availableRestaurants={getAvailableRestaurants('')}
-    />
+    <div className="min-h-screen bg-gradient-to-br from-[var(--gray-50)] to-[var(--amber-50)]/30">
+      <Navbar />
+      <div className="container mx-auto px-4 py-8">
+        <ListForm
+          mode="edit"
+          formData={formData}
+          selectedRestaurants={selectedRestaurants}
+          loading={loading}
+          saving={saving}
+          error={error}
+          backLink={`/lists/${listId}`}
+          backText="Voltar para Detalhes da Lista"
+          onFormChange={(data) => setFormData(prev => ({ ...prev, ...data }))}
+          onSubmit={handleSubmit}
+          onAddRestaurant={addRestaurant}
+          onRemoveRestaurant={removeRestaurant}
+          availableRestaurants={getAvailableRestaurants('')}
+        />
+      </div>
+    </div>
   );
 }
