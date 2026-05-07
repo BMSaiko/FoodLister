@@ -219,6 +219,12 @@ export function isValidGoogleMapsUrl(url: string): boolean {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname;
     
+    // Check for short Google Maps URLs (mobile shares)
+    if (hostname === 'maps.app.goo.gl' || hostname === 'goo.gl') {
+      return true;
+    }
+    
+    // Check for full Google Maps URLs
     return hostname.includes('google.com') && 
            (urlObj.pathname.includes('/maps') || 
             urlObj.pathname.includes('/place'));
