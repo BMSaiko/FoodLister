@@ -8,9 +8,10 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Search } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { VisibilityToggle, SelectedRestaurants } from 'components/ui/lists/ListFormFields';
 import ListTagsInput from 'components/ui/lists/ListTagsInput';
+import FormActions from 'components/ui/common/FormActions';
 import { ListFormData, Restaurant } from 'hooks/forms/useListForm';
 
 interface ListFormProps {
@@ -56,13 +57,13 @@ export default function ListForm({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-amber-50/30">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-24 md:pb-8">
         <Link href={backLink} className="inline-flex items-center text-primary mb-4 sm:mb-6 hover:underline transition-colors">
           <ArrowLeft className="h-4 w-4 mr-2" />
           {backText}
         </Link>
         
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden max-w-2xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-lg max-w-2xl mx-auto">
           {/* Header */}
           <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 sm:px-6 py-4 sm:py-6">
             <h1 className="text-2xl font-bold text-white">
@@ -209,35 +210,16 @@ export default function ListForm({
               restaurants={selectedRestaurants} 
               onRemove={onRemoveRestaurant} 
             />
-            
-            {/* Actions */}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={() => router.push(backLink)}
-                className="px-5 py-2.5 border border-[var(--card-border)] rounded-xl text-[var(--foreground)] hover:bg-[var(--background-secondary)] transition-colors font-medium"
-              >
-                Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-5 py-2.5 bg-gradient-to-r from-primary to-orange-500 text-white rounded-xl hover:from-primary-hover hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={saving}
-              >
-                {saving ? (
-                  <div className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>Salvando...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Save className="h-4 w-4" />
-                    <span>{isCreate ? 'Criar Lista' : 'Salvar Alterações'}</span>
-                  </div>
-                )}
-              </button>
-            </div>
           </form>
+          
+          {/* Form Actions - Fixed on mobile, right-aligned on desktop */}
+          <FormActions
+            onCancel={() => router.push(backLink)}
+            onSubmit={handleSubmit}
+            submitText={isCreate ? 'Criar Lista' : 'Salvar Alterações'}
+            loading={saving}
+            cancelText="Cancelar"
+          />
         </div>
       </div>
     </div>

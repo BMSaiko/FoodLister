@@ -481,7 +481,7 @@ const RestaurantRoulette = () => {
       </div>
       
       {/* Roleta */}
-      <div className="bg-transparent rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 relative overflow-hidden">
+      <div className="bg-transparent rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 pb-32 sm:pb-8 relative overflow-hidden">
         <div className="flex flex-col items-center relative z-10">
           <div className="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px] aspect-square mb-4 sm:mb-6">
             {/* SVG Roleta com nomes */}
@@ -625,24 +625,26 @@ const RestaurantRoulette = () => {
             </div>
           </div>
           
-          {/* Botão de girar */}
-          <button
-            onClick={handleSpin}
-            disabled={spinning || availableCount === 0}
-            className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-3 bg-[var(--amber-500)] text-white rounded-full font-bold text-base sm:text-lg hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg min-h-[52px] sm:min-h-[48px] disabled:hover:bg-[var(--amber-500)]"
-          >
-            {spinning ? (
-              <>
-                <RotateCcw className="h-5 w-5 animate-spin" />
-                <span>Girando...</span>
-              </>
-            ) : (
-              <>
-                <RotateCcw className="h-5 w-5" />
-                <span>Girar Roleta</span>
-              </>
-            )}
-          </button>
+          {/* Botão de girar - Fixed no mobile, right-aligned on desktop */}
+          <div className="fixed bottom-4 left-4 right-4 z-[9999] flex justify-center sm:fixed sm:bottom-4 sm:right-4 sm:left-auto sm:w-auto sm:rounded-xl sm:z-[9999] sm:shadow-xl sm:bg-white sm:border sm:border-amber-500 sm:p-3">
+            <button
+              onClick={handleSpin}
+              disabled={spinning || availableCount === 0}
+              className="w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-3 bg-[var(--amber-500)] text-white rounded-full font-bold text-base sm:text-lg hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg min-h-[52px] sm:min-h-[48px] disabled:hover:bg-[var(--amber-500)]"
+            >
+              {spinning ? (
+                <>
+                  <RotateCcw className="h-5 w-5 animate-spin" />
+                  <span>Girando...</span>
+                </>
+              ) : (
+                <>
+                  <RotateCcw className="h-5 w-5" />
+                  <span>Girar Roleta</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
       
