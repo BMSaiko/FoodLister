@@ -54,6 +54,21 @@
 - ✅ **Logical Separation**: Commits separated by category (migrations, frontend, backend, docs, config)
 - ✅ **Project-Specific**: Follows FoodLister patterns (Supabase migrations, Server Components, etc.)
 
+### GitHub Actions & CI Fixes (Current Session)
+- ✅ **Deploy Workflow Fix**: Fixed `.github/workflows/deploy.yml` by removing invalid `secrets.VERCEL_TOKEN != ''` from job-level `if` condition (line 16) that caused "Unrecognized named-value: 'secrets'" error.
+
+### UI Enhancements (Current Session)
+- ✅ **Scroll-to-Top Button**: Added to Restaurant Roulette sticky menu, visible only when `window.scrollY > 100`.
+
+### API & Build Fixes (Current Session)
+- ✅ **Health Route Fix**: Added `export const dynamic = 'force-dynamic'` to `app/api/health/route.ts` to resolve Next.js prerendering error.
+- ✅ **Build Verification**: `npm run build` succeeds with all changes applied.
+
+### Cline Rules & Documentation (Current Session)
+- ✅ **Env Files Rule**: Created `.clinerules/env-files.md` prohibiting modification of `.env` files (only `.env.example` allowed).
+- ✅ **Pre-Push Validation Rule**: Created `.clinerules/pre-push-validation.md` mandating lint, build, test pass before `git push`.
+- ✅ **Subagents Documentation**: Created `docs/reference/subagents-repetitive-task-rule.md` to address GitHub issue #72.
+
 ### Bug Fixes (Current Session)
 - ✅ **Google Maps Modal Button CSS**: Fixed "Usar estas informações" button appearing white due to incorrect CSS variable syntax (`--green-600` → `var(--green-600)`)
 - ✅ **Map Links Logic**: Updated `MapSelectorModal.tsx` to use `source_url` (extracted Google Maps URL) for Google Maps, and only coordinates for Waze/Apple Maps

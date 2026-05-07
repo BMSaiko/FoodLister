@@ -148,6 +148,7 @@
 - [x] Environment variable configuration
 - [x] Build scripts (dev, build, start, lint, test)
 - [x] Turbopack for fast development
+- [x] Fixed GitHub Actions deploy.yml invalid secrets reference
 
 ## In Progress`
 
@@ -156,6 +157,9 @@
 - [x] **Map Links Logic**: Google Maps now uses `source_url` (extracted URL), Waze/Apple Maps use coordinates only
 - [x] **Visit Status API Fix**: Fixed `app/api/restaurants/visits/route.ts` to properly count visits per restaurant
 - [x] **Navbar Verification**: Confirmed Navbar is present in EditList page (no fix needed)
+- [x] **Deploy Workflow Fix**: Fixed `.github/workflows/deploy.yml` invalid secrets reference causing "Unrecognized named-value: 'secrets'" error
+- [x] **Scroll-to-Top Button**: Added to Restaurant Roulette sticky menu, visible when `window.scrollY > 100`
+- [x] **Health Route Fix**: Added `export const dynamic = 'force-dynamic'` to `app/api/health/route.ts` to resolve Next.js prerendering error
 
 ### 🚧 Performance Optimization (60% complete)
 - [x] Database indexes on frequently queried columns
@@ -178,7 +182,7 @@
 - [ ] Target: 80%+ coverage across all modules
 - [ ] E2E tests (Playwright/Cypress) - not started
 
-### 🚧 Documentation (90% complete)
+### 🚧 Documentation (95% complete)
 - [x] README.md with setup instructions
 - [x] Memory bank organized in dedicated `memory-bank/` folder (6 files)
 - [x] Documentation organized in `docs/` subdirectories:
@@ -192,6 +196,9 @@
   - [x] `docs/setup/` - Setup and configuration guides
   - [x] `docs/tasks/` - Task tracking (TASKS_5HOURS.md)
 - [x] /update command rule (`.clinerules/update-command.md`) for automated workflow
+- [x] Subagents repetitive task rule documentation (`docs/reference/subagents-repetitive-task-rule.md`)
+- [x] Env files rule (`.clinerules/env-files.md`)
+- [x] Pre-push validation rule (`.clinerules/pre-push-validation.md`)
 - [ ] User guide for collaboration features
 - [ ] Filter preset system documentation
 - [ ] Generate API documentation from code (Swagger/OpenAPI)
