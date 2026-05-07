@@ -187,7 +187,7 @@ const RestaurantRoulette = () => {
           // Set default visits data on failure
           const defaultVisitsData: RestaurantVisitsData = {};
           restaurantIds.forEach(id => {
-            defaultVisitsData[id] = { visited: false, visitCount: 0 };
+            defaultVisitsData[id] = { visited: false, visit_count: 0 };
           });
           setVisitsData(defaultVisitsData);
         }
@@ -196,7 +196,7 @@ const RestaurantRoulette = () => {
         // Set default visits data on error
         const defaultVisitsData: RestaurantVisitsData = {};
         restaurants.forEach(restaurant => {
-          defaultVisitsData[restaurant.id] = { visited: false, visitCount: 0 };
+          defaultVisitsData[restaurant.id] = { visited: false, visit_count: 0 };
         });
         setVisitsData(defaultVisitsData);
       } finally {
@@ -279,7 +279,7 @@ const RestaurantRoulette = () => {
         ...prev,
         [restaurantId]: {
           visited: data.visited,
-          visitCount: data.visit_count
+          visit_count: data.visit_count
         }
       }));
       
@@ -685,7 +685,7 @@ const RestaurantRoulette = () => {
                     ...prev,
                     [restaurantId]: {
                       visited: newVisitsData.visited,
-                      visitCount: newVisitsData.visit_count
+                      visit_count: newVisitsData.visit_count
                     }
                   }));
                 }}

@@ -11,7 +11,7 @@ interface RestaurantHeaderProps {
   user?: any;
   showActions?: boolean;
   visited?: boolean;
-  visitCount?: number;
+  visitCount?: number;  // This receives visit_count value from API
   onToggleVisited?: () => void;
   onAddVisit?: () => void;
   onRemoveVisit?: () => void;
@@ -27,7 +27,7 @@ export default function RestaurantHeader({
   user, 
   showActions = true,
   visited = false,
-  visitCount = 0,
+  visitCount = 0,  // This receives visit_count value
   onToggleVisited,
   onAddVisit,
   onRemoveVisit,

@@ -11,6 +11,7 @@ interface RestaurantInfoSectionProps {
   phoneNumbers?: string[];
   latitude?: number;
   longitude?: number;
+  source_url?: string;
 }
 
 // Helper function to detect if a number is mobile or fixed
@@ -41,7 +42,8 @@ export default function RestaurantInfoSection({
   menuImages = [],
   phoneNumbers = [],
   latitude,
-  longitude
+  longitude,
+  source_url
 }: RestaurantInfoSectionProps) {
   
   const { openMapModal } = useModal();
@@ -65,7 +67,7 @@ export default function RestaurantInfoSection({
         {location && (
           <div
             className="flex items-center p-2 sm:p-4 bg-[var(--info-light)] rounded-lg sm:rounded-xl border border-[var(--info-light)] hover:bg-[var(--info-light)]/70 active:bg-[var(--info-light)] transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
-            onClick={() => openMapModal({ location, latitude, longitude })}
+            onClick={() => openMapModal({ location, latitude, longitude, source_url })}
           >
             <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-4">
               <MapPin className="h-4 w-4 sm:h-5 w-5 text-[var(--info)]" />
