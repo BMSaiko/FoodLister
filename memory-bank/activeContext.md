@@ -2,89 +2,54 @@
 
 ## Current Project State
 
-**Latest Commit**: `5a3c0f36d66a19a146e8e22e34ffc3b8117db860`
-**Branch**: 76-design-ter-o-msm-design-em-toda-a-webapp
+**Latest Commit**: `5c10a06546b2e2110f00f8723689bb1674aed4a7`
+**Branch**: main
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
 ## Recent Fixes (Current Session)
 
-### Build & Configuration Fixes
-- ✅ **Next.js Build Fix**: Set `outputFileTracingRoot: process.cwd()` in `next.config.mjs` to fix lockfile detection issue
-- ✅ **Favicon Fix**: Removed duplicate `app/favicon.ico` (kept `public/favicon.ico`) to fix prerender error
-- ✅ **Build Status**: `npm run build` now succeeds with all routes generating properly
+### Documentation Update Session (2026-05-07)
+- ✅ **Complete Documentation Update**: Updated all 18+ documentation files in `docs/` directory
+- ✅ **README.md Updated**: Reflected current project state (~85% completion)
+- ✅ **New Cline Rule**: Created `.clinerules/docs-command.md` for `/docs` command
 
-### RLS Policy Fix (Critical)
-- ✅ **Infinite Recursion Fixed**: Created `supabase/fix-rls-recursion-final.sql` with SECURITY DEFINER functions
-- ✅ **Root Cause**: Lists and list_collaborators policies were causing infinite recursion
-- ✅ **Solution**: Created `can_access_list()` and `is_list_collaborator()` SECURITY DEFINER functions to bypass RLS recursion
-- ✅ **Applied**: Run `supabase/fix-rls-recursion-final.sql` in Supabase Dashboard SQL Editor
+### Files Updated in Documentation:
+- ✅ `docs/api/api-documentation.md` - Updated with current API structure (20+ endpoints)
+- ✅ `docs/api/api-endpoints-reference.md` - Complete endpoint reference
+- ✅ `docs/architecture/architecture-overview.md` - Updated (Tailwind 3, all tables, components)
+- ✅ `docs/database/database-schema.md` - Complete schema with all tables
+- ✅ `docs/database/database-schema-reference.md` - Technical reference updated
+- ✅ `docs/features/feature-create-pipeline.md` - Pipeline documentation
+- ✅ `docs/features/lists-feature-roadmap.md` - Roadmap updated
+- ✅ `docs/guides/development-guide.md` - Development guide updated
+- ✅ `docs/guides/advanced-filters-guide.md` - Advanced filters guide
+- ✅ `docs/guides/deployment-guide.md` - Deployment guide (Vercel, Netlify, Railway, Docker)
+- ✅ `docs/guides/error-handling-guide.md` - Error handling guide
+- ✅ `docs/guides/fix-review-count-error.md` - Review count error fix guide
+- ✅ `docs/guides/refactoring-guide.md` - Refactoring guide
+- ✅ `docs/progress/progress-tracker.md` - Progress tracker updated
+- ✅ `docs/progress/future-issues.md` - Future issues updated
+- ✅ `docs/progress/SESSION-REPORT.md` - Session report created
+- ✅ `docs/reference/PROJECT-SKILLS.md` - Skills documentation updated
+- ✅ `docs/reference/prompt-templates.md` - Prompt templates updated
+- ✅ `docs/reference/subagents-repetitive-task-rule.md` - Subagents rule documented
+- ✅ `docs/setup/github-secrets-setup.md` - GitHub secrets setup updated
+- ✅ `docs/tasks/TASKS_5HOURS.md` - Task list updated
+- ✅ `README.md` - Root README updated
 
-### Lists API Fix (Current Session)
-- ✅ **404 Not Found Error Fixed**: Fixed `app/api/lists/[id]/route.ts` GET handler
-- ✅ **Root Cause**: GET handler was using `getClient()` (browser-side client) which doesn't work in server-side API routes
-- ✅ **Solution**: Changed to use `getServerClient()` with request/response for authenticated access, with fallback to `getPublicServerClient()` for unauthenticated users
-- ✅ **Result**: RLS policies now correctly evaluate `auth.uid()` for authenticated users, fixing 404 errors on list detail pages
-- ✅ **Build Verified**: `npm run build` succeeds with the fix applied
+### Documentation Update Process:
+1. **Read Codebase**: Used subagents to parallelize reading of all directories
+2. **Update Docs**: All 18+ files in `docs/` updated to reflect current state
+3. **Update README**: Root README.md updated with current features and progress
+4. **Create Rule**: New `.clinerules/docs-command.md` created
 
-### Error Handling Fixes
-- ✅ **Logger Fix**: Updated `utils/logger.ts` with try-catch around `JSON.stringify()` to handle circular references
-- ✅ **ReviewForm Fix**: Improved error handling in `components/ui/RestaurantDetails/ReviewForm.tsx` to handle different error response formats
-- ✅ **Restaurant Details Fix**: Fixed error handling in `app/restaurants/[id]/page.tsx` to safely extract error messages
-
-### Database Migration
-- ✅ **SQL Files Created**: 
-  - `supabase/run-in-sql-editor.sql` - Complete database setup
-  - `supabase/fix-rls-recursion-final.sql` - RLS recursion fix
-
-### Google Maps Short URL Support (Current Session)
-- ✅ **Problem**: Mobile Google Maps share links (maps.app.goo.gl) couldn't be imported
-- ✅ **Root Cause**: Short URLs redirect to full URLs, but extractor only handled full URLs
-- ✅ **Solution**: 
-  - Updated `isValidGoogleMapsUrl()` in `utils/googleMapsExtractor.ts` to accept `maps.app.goo.gl` and `goo.gl`
-  - Created `app/api/resolve-google-maps-url/route.ts` for server-side URL resolution (avoids CORS)
-  - Updated `GoogleMapsModal.tsx` to resolve short URLs before extraction
-  - Updated modal instructions to mention mobile share link support
-- ✅ **Tested**: API route successfully resolves `https://maps.app.goo.gl/PJcbsRHtRrLMvwaa8` to full URL
-- ✅ **Build Verified**: `npm run build` succeeds with all changes
-
-### /update Command (Current Session)
-- ✅ **Created Rule File**: `.clinerules/update-command.md` with complete guidelines
-- ✅ **Purpose**: Automates memory bank update, change analysis, atomic commits, and push
-- ✅ **Conventional Commits**: Enforces type(scope): description format
-- ✅ **Logical Separation**: Commits separated by category (migrations, frontend, backend, docs, config)
-- ✅ **Project-Specific**: Follows FoodLister patterns (Supabase migrations, Server Components, etc.)
-
-### GitHub Actions & CI Fixes (Current Session)
-- ✅ **Deploy Workflow Fix**: Fixed `.github/workflows/deploy.yml` by removing invalid `secrets.VERCEL_TOKEN != ''` from job-level `if` condition (line 16) that caused "Unrecognized named-value: 'secrets'" error.
-
-### UI Enhancements (Current Session)
-- ✅ **Scroll-to-Top Button**: Added to Restaurant Roulette sticky menu, visible only when `window.scrollY > 100`.
-
-### API & Build Fixes (Current Session)
-- ✅ **Health Route Fix**: Added `export const dynamic = 'force-dynamic'` to `app/api/health/route.ts` to resolve Next.js prerendering error.
-- ✅ **Build Verification**: `npm run build` succeeds with all changes applied.
-
-### Cline Rules & Documentation (Current Session)
-- ✅ **Env Files Rule**: Created `.clinerules/env-files.md` prohibiting modification of `.env` files (only `.env.example` allowed).
-- ✅ **Pre-Push Validation Rule**: Created `.clinerules/pre-push-validation.md` mandating lint, build, test pass before `git push`.
-- ✅ **Subagents Documentation**: Created `docs/reference/subagents-repetitive-task-rule.md` to address GitHub issue #72.
-
-### Bug Fixes (Current Session)
-- ✅ **Google Maps Modal Button CSS**: Fixed "Usar estas informações" button appearing white due to incorrect CSS variable syntax (`--green-600` → `var(--green-600)`)
-- ✅ **Map Links Logic**: Updated `MapSelectorModal.tsx` to use `source_url` (extracted Google Maps URL) for Google Maps, and only coordinates for Waze/Apple Maps
-- ✅ **Visit Status API Fix**: Fixed `app/api/restaurants/visits/route.ts` to properly count visits per restaurant (table has one row per visit, not a `visit_count` column)
-- ✅ **Navbar Verification**: Verified Navbar is present in `components/pages/EditList.jsx` and `app/lists/[id]/edit/page.tsx`
-
-### Test Fixes (Current Session)
-- ✅ **Settings Page Test Fixed**: Fixed `__tests__/pages/settings.test.tsx` - `useRouterMock.mockReturnValue is not a function`
-- ✅ **Root Cause**: `next/navigation` mock was returning a plain object for `useRouter` instead of a Jest mock function
-- ✅ **Solution**: Changed mock to use `jest.fn()` for `useRouter`, updated test to verify `mockRouter.back` is called on cancel
-- ✅ **MenuManager Test Fixed**: Fixed `__tests__/components/MenuManager.test.tsx` - duplicate link test and fill prop warning
-- ✅ **Root Cause 1**: `next/image` mock passing `fill` prop to HTML `img` element (invalid attribute)
-- ✅ **Solution 1**: Updated mock to filter out `fill` prop before rendering
-- ✅ **Root Cause 2**: Duplicate link test failing because input field cleared after adding link
-- ✅ **Solution 2**: Added `fireEvent.change()` to re-type URL before attempting duplicate add
-- ✅ **Test Results**: All 84 tests now passing (11 test suites)
+### Key Changes Made:
+- **Project Name**: Corrected "FoodList" to "FoodLister" throughout all docs
+- **Progress**: Updated to ~85% completion
+- **API Endpoints**: Documented all 20+ endpoints
+- **Database**: Updated with all 12 tables
+- **Features**: Documented all implemented features (menus, user profiles, advanced filters)
+- **Tech Stack**: Updated to reflect current versions (Next.js 15, React 18, TailwindCSS 3)
 
 ## Recently Applied Features
 
@@ -132,81 +97,83 @@
 ## Active Work in Progress
 
 ### Design System Standardization (COMPLETED ✅)
-  - ✅ **Root Cause Fixed**: Tailwind CSS v4 → v3 (postcss.config.mjs updated)
-  - ✅ **CSS Syntax Fixed**: globals.css rewritten with valid syntax and proper CSS variables
-  - ✅ **Phase 1 Complete**: Fixed 45+ components (RestaurantRoulette, ErrorBoundary, EmptyState, Navbar, BaseForm, Card, FilterPanel, TabbedRestaurantFilters, List components, Profile components, etc.)
-  - ✅ **Phase 2 Complete**: Fixed remaining ~256 hardcoded color instances in 36+ files
-  - ✅ **Build Verified**: `npm run build` succeeds with all fixes applied
-  - ✅ **CSS Variables Added**: All necessary color variables (--error-50, --error-100, --green-500, --red-500, --warning, --warning-light, --white, --black, --amber-700, etc.)
-  - ✅ **Border Radius Standardized**: Updated tailwind.config.js with consistent radius values
-  - ✅ **Typography Conflicts Resolved**: Fixed font family conflicts
-  - ✅ **Syntax Errors Fixed**: Unterminated template literals, JSX errors
+   - ✅ **Root Cause Fixed**: Tailwind CSS v4 → v3 (postcss.config.mjs updated)
+   - ✅ **CSS Syntax Fixed**: globals.css rewritten with valid syntax and proper CSS variables
+   - ✅ **Phase 1 Complete**: Fixed 45+ components (RestaurantRoulette, ErrorBoundary, EmptyState, Navbar, BaseForm, Card, FilterPanel, TabbedRestaurantFilters, List components, Profile components, etc.)
+   - ✅ **Phase 2 Complete**: Fixed remaining ~256 hardcoded color instances in 36+ files
+   - ✅ **Build Verified**: `npm run build` succeeds with all fixes applied
+   - ✅ **CSS Variables Added**: All necessary color variables (--error-50, --error-100, --green-500, --red-500, --warning, --warning-light, --white, --black, --amber-700, etc.)
+   - ✅ **Border Radius Standardized**: Updated tailwind.config.js with consistent radius values
+   - ✅ **Typography Conflicts Resolved**: Fixed font family conflicts
+   - ✅ **Syntax Errors Fixed**: Unterminated template literals, JSX errors
 
 ### Sticky Submit Buttons (COMPLETED ✅)
-  - ✅ **FormActions Component**: Modified to use fixed positioning on mobile (`fixed bottom-0 left-0 right-0`) and right-aligned on desktop (`md:fixed md:bottom-4 md:right-4 md:left-auto md:w-auto md:rounded-xl md:border md:shadow-xl`)
-  - ✅ **ListForm.tsx**: Replaced inline buttons with shared FormActions component
-  - ✅ **RestaurantForm.tsx**: Already using FormActions with proper bottom padding (`pb-24 md:pb-8`)
-  - ✅ **RestaurantRoulette.tsx**: Made spin button sticky with fixed container (`fixed bottom-4 left-4 right-4 z-[9999]`) and right-aligned on desktop
-  - ✅ **Settings Page**: Replaced SettingsStickyNavbar with FormActions component, deleted unused SettingsStickyNavbar.tsx
-  - ✅ **Mobile-Friendly**: All buttons have 44px minimum touch targets
-  - ✅ **Responsive Design**: Maintained the existing design system (amber/orange colors, rounded-full for spin button)
-  - ✅ **Build Verified**: `npm run build` succeeds with all changes
+   - ✅ **FormActions Component**: Modified to use fixed positioning on mobile (`fixed bottom-0 left-0 right-0`) and right-aligned on desktop (`md:fixed md:bottom-4 md:right-4 md:left-auto md:w-auto md:rounded-xl md:border md:shadow-xl`)
+   - ✅ **ListForm.tsx**: Replaced inline buttons with shared FormActions component
+   - ✅ **RestaurantForm.tsx**: Already using FormActions with proper bottom padding (`pb-24 md:pb-8`)
+   - ✅ **RestaurantRoulette.tsx**: Made spin button sticky with fixed container (`fixed bottom-4 left-4 right-4 z-[9999]`) and right-aligned on desktop
+   - ✅ **Settings Page**: Replaced SettingsStickyNavbar with FormActions component, deleted unused SettingsStickyNavbar.tsx
+   - ✅ **Mobile-Friendly**: All buttons have 44px minimum touch targets
+   - ✅ **Responsive Design**: Maintained the existing design system (amber/orange colors, rounded-full for spin button)
+   - ✅ **Build Verified**: `npm run build` succeeds with all changes
+   - ✅ **Test File Created**: `__tests__/pages/settings.test.tsx` (note: has pre-existing infinite loop bug in component)
 
 ### Container Margin Fix (COMPLETED ✅)
-  - ✅ **Issue**: Restaurant grid on `/restaurants` page was stuck to page edges (no margins like the banner)
-  - ✅ **Root Cause**: `Container.tsx` and `RestaurantsList.jsx` used non-existent `container-main` CSS class
-  - ✅ **Solution**: Updated to use proper Tailwind classes (`container mx-auto px-3 sm:px-4 lg:px-6`)
-  - ✅ **Files Fixed**: `components/ui/Container.tsx`, `components/RestaurantsList.jsx`
-  - ✅ **Result**: Grid now has consistent padding matching the `RouletteBanner` component
+   - ✅ **Issue**: Restaurant grid on `/restaurants` page was stuck to page edges (no margins like the banner)
+   - ✅ **Root Cause**: `Container.tsx` and `RestaurantsList.jsx` used non-existent `container-main` CSS class
+   - ✅ **Solution**: Updated to use proper Tailwind classes (`container mx-auto px-3 sm:px-4 lg:px-6`)
+   - ✅ **Files Fixed**: `components/ui/Container.tsx`, `components/RestaurantsList.jsx`
+   - ✅ **Result**: Grid now has consistent padding matching the `RouletteBanner` component
 
 ### Map Modal Design Improvement (COMPLETED ✅)
-- ✅ **Google Maps Button Fix**: Added missing `--blue-500` CSS variable to `app/globals.css`
-- ✅ **Root Cause**: Button appeared white when not hovering because `--blue-500` was not defined
-- ✅ **Solution**: Added `--blue-500: #3b82f6` to CSS variables
-- ✅ **Modal Design Improved**: Enhanced `components/ui/RestaurantManagement/MapSelectorModal.tsx`
-  - Added prominent location display with icon
-  - Improved button styling with better padding, borders, and hover effects
-  - Added Cancel button with outline style
-  - Improved header with MapPin icon
-  - Better spacing and typography
-  - Added transition animations
-- ✅ **Build Verified**: `npm run build` succeeds with all changes
+   - ✅ **Google Maps Button Fix**: Added missing `--blue-500` CSS variable to `app/globals.css`
+   - ✅ **Root Cause**: Button appeared white when not hovering because `--blue-500` was not defined
+   - ✅ **Solution**: Added `--blue-500: #3b82f6` to CSS variables
+   - ✅ **Modal Design Improved**: Enhanced `components/ui/RestaurantManagement/MapSelectorModal.tsx`
+   - Added prominent location display with icon
+   - Improved button styling with better padding, borders, and hover effects
+   - Added Cancel button with outline style
+   - Improved header with MapPin icon
+   - Better spacing and typography
+   - Added transition animations
+   - ✅ **Build Verified**: `npm run build` succeeds with all changes
 
 ### Settings Page Sticky Buttons (COMPLETED ✅)
-- ✅ **Replaced SettingsStickyNavbar**: Updated `app/users/settings/page.tsx` to use FormActions component
-- ✅ **Deleted SettingsStickyNavbar.tsx**: Removed unused component from `components/ui/navigation/`
-- ✅ **Added FormActions**: With props onCancel, onSubmit, submitText="Salvar Alterações", loading
-- ✅ **Page Padding**: Added `pb-24 md:pb-8` to page container for mobile button spacing
-- ✅ **Removed Unused Code**: Removed handleSave function and desktop-only action div
-- ✅ **Build Verified**: `npm run build` succeeds
-- ✅ **Test File Created**: `__tests__/pages/settings.test.tsx` (note: has pre-existing infinite loop bug in component)
+   - ✅ **Replaced SettingsStickyNavbar**: Updated `app/users/settings/page.tsx` to use FormActions component
+   - ✅ **Deleted SettingsStickyNavbar.tsx**: Removed unused component from `components/ui/navigation/`
+   - ✅ **Added FormActions**: With props onCancel, onSubmit, submitText="Salvar Alterações", loading
+   - ✅ **Page Padding**: Added `pb-24 md:pb-8` to page container for mobile button spacing
+   - ✅ **Removed Unused Code**: Removed handleSave function and desktop-only action div
+   - ✅ **Build Verified**: `npm run build` succeeds
+   - ✅ **Test File Created**: `__tests__/pages/settings.test.tsx` (note: has pre-existing infinite loop bug in component)
 
 ### Visit Status Button Fix (COMPLETED ✅)
-- ✅ **Problem**: Visit status buttons on restaurant cards in individual list pages showed "not visited" incorrectly
-- ✅ **Root Cause**: `app/api/restaurants/visits/route.ts` was trying to access `visit.visit_count` column that doesn't exist in `user_restaurant_visits` table
-- ✅ **Solution**: Updated API to properly count visits by grouping rows by `restaurant_id` and calculating `visit_count` as the number of rows per restaurant
-- ✅ **Files Fixed**: `app/api/restaurants/visits/route.ts`
-- ✅ **Build Verified**: `npm run build` succeeds with the fix
+   - ✅ **Problem**: Visit status buttons on restaurant cards in individual list pages showed "not visited" incorrectly
+   - ✅ **Root Cause**: `app/api/restaurants/visits/route.ts` was trying to access `visit.visit_count` column that doesn't exist in `user_restaurant_visits` table
+   - ✅ **Solution**: Updated API to properly count visits by grouping rows by `restaurant_id` and calculating `visit_count` as the number of rows per restaurant
+   - ✅ **Files Fixed**: `app/api/restaurants/visits/route.ts`
+   - ✅ **Build Verified**: `npm run build` succeeds with the fix
 
 ### Google Maps Modal Button CSS Fix (COMPLETED ✅)
-- ✅ **Problem**: "Usar estas informações" button appeared completely white
-- ✅ **Root Cause**: Incorrect CSS variable syntax `from-[--green-600]` instead of `from-[var(--green-600)]`
-- ✅ **Solution**: Fixed CSS in `components/ui/RestaurantDetails/GoogleMapsModal.tsx` line 362
-- ✅ **Build Verified**: `npm run build` succeeds
+   - ✅ **Problem**: "Usar estas informações" button appeared completely white
+   - ✅ **Root Cause**: Incorrect CSS variable syntax `from-[--green-600]` instead of `from-[var(--green-600)]`
+   - ✅ **Solution**: Fixed CSS in `components/ui/RestaurantDetails/GoogleMapsModal.tsx` line 362
+   - ✅ **Build Verified**: `npm run build` succeeds
 
 ### Map Links Logic Fix (COMPLETED ✅)
-- ✅ **Problem**: Map links were using location string for all map services
-- ✅ **Solution**: Updated `components/ui/RestaurantManagement/MapSelectorModal.tsx`:
-  - Google Maps now uses `source_url` (extracted Google Maps URL from creation)
-  - Waze and Apple Maps use only coordinates (no location string)
-- ✅ **Build Verified**: `npm run build` succeeds
+   - ✅ **Problem**: Map links were using location string for all map services
+   - ✅ **Solution**: Updated `components/ui/RestaurantManagement/MapSelectorModal.tsx`:
+   - Google Maps now uses `source_url` (extracted Google Maps URL from creation)
+   - Waze and Apple Maps use only coordinates (no location string)
+   - ✅ **Build Verified**: `npm run build` succeeds
 
 ### Navbar Verification (COMPLETED ✅)
-- ✅ **Problem**: User reported navbar disappears when editing a list at `/lists/[id]/edit`
-- ✅ **Verification**: Confirmed Navbar is present in `components/pages/EditList.jsx` (lines 90, 107) and `app/lists/[id]/edit/page.tsx`
-- ✅ **Status**: No fix needed - Navbar is properly included
+   - ✅ **Problem**: User reported navbar disappears when editing a list at `/lists/[id]/edit`
+   - ✅ **Verification**: Confirmed Navbar is present in `components/pages/EditList.jsx` (lines 90, 107) and `app/lists/[id]/edit/page.tsx`
+   - ✅ **Status**: No fix needed - Navbar is properly included
 
-### From TASKS_5HOURS.md
+## From TASKS_5HOURS.md
+
 1. **Performance Optimization**
    - Database query optimization (indexes, query restructuring)
    - Frontend bundle size analysis
@@ -262,6 +229,7 @@
 - ✅ **Google Maps Button CSS**: Fixed incorrect CSS variable syntax
 - ✅ **Map Links Logic**: Google Maps uses source_url, others use coordinates only
 - ✅ **Navbar Verification**: Confirmed present in EditList page
+- ✅ **Documentation Update**: All 18+ docs updated, README updated, new Cline rule created
 
 ## Current Focus Areas
 
@@ -327,7 +295,7 @@
 ## Session Context for AI Assistants
 
 When working on this project:
-1. **Always check**: Latest commit hash is `ba1a15648013093cf2dabe519edee9147b3cce44` (branch: `76-design-ter-o-msm-design-em-toda-a-webapp`)
+1. **Always check**: Latest commit hash is `5c10a06546b2e2110f00f8723689bb1674aed4a7` (branch: `main`)
 2. **Database changes**: Use `supabase/migrations/` with sequential numbering
 3. **Component type**: Default to Server Components, add 'use client' only when needed
 4. **State management**: Use Context API (Auth, Filters, Modal) + custom hooks
@@ -337,3 +305,4 @@ When working on this project:
 8. **Design System**: ✅ COMPLETED - All hardcoded colors replaced with CSS variables
 9. **Sticky Buttons**: Submit buttons use fixed positioning on mobile, right-aligned on desktop via FormActions component
 10. **/update Command**: Follow rules in `.clinerules/update-command.md` for memory bank updates, commits, and push
+11. **/docs Command**: Follow rules in `.clinerules/docs-command.md` for documentation updates
