@@ -171,10 +171,13 @@
 - [ ] Database query optimization (complex joins)
 - [ ] Lighthouse audit and improvements
 
-### 🚧 Test Coverage Expansion (70% complete)
+### 🚧 Test Coverage Expansion (75% complete)
 - [x] Core component tests
 - [x] Basic API route tests
 - [x] Hook logic tests
+- [x] Fixed settings.test.tsx - useRouter mock now working
+- [x] Fixed MenuManager.test.tsx - duplicate link test and fill prop warning fixed
+- [x] All 84 tests now passing (11 test suites)
 - [ ] Complete coverage for collaboration features
 - [ ] Complete coverage for comments system
 - [ ] Complete coverage for meal scheduling

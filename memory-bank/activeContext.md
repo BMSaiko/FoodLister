@@ -2,7 +2,7 @@
 
 ## Current Project State
 
-**Latest Commit**: `ba1a15648013093cf2dabe519edee9147b3cce44`
+**Latest Commit**: `5a3c0f36d66a19a146e8e22e34ffc3b8117db860`
 **Branch**: 76-design-ter-o-msm-design-em-toda-a-webapp
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
@@ -74,6 +74,17 @@
 - ✅ **Map Links Logic**: Updated `MapSelectorModal.tsx` to use `source_url` (extracted Google Maps URL) for Google Maps, and only coordinates for Waze/Apple Maps
 - ✅ **Visit Status API Fix**: Fixed `app/api/restaurants/visits/route.ts` to properly count visits per restaurant (table has one row per visit, not a `visit_count` column)
 - ✅ **Navbar Verification**: Verified Navbar is present in `components/pages/EditList.jsx` and `app/lists/[id]/edit/page.tsx`
+
+### Test Fixes (Current Session)
+- ✅ **Settings Page Test Fixed**: Fixed `__tests__/pages/settings.test.tsx` - `useRouterMock.mockReturnValue is not a function`
+- ✅ **Root Cause**: `next/navigation` mock was returning a plain object for `useRouter` instead of a Jest mock function
+- ✅ **Solution**: Changed mock to use `jest.fn()` for `useRouter`, updated test to verify `mockRouter.back` is called on cancel
+- ✅ **MenuManager Test Fixed**: Fixed `__tests__/components/MenuManager.test.tsx` - duplicate link test and fill prop warning
+- ✅ **Root Cause 1**: `next/image` mock passing `fill` prop to HTML `img` element (invalid attribute)
+- ✅ **Solution 1**: Updated mock to filter out `fill` prop before rendering
+- ✅ **Root Cause 2**: Duplicate link test failing because input field cleared after adding link
+- ✅ **Solution 2**: Added `fireEvent.change()` to re-type URL before attempting duplicate add
+- ✅ **Test Results**: All 84 tests now passing (11 test suites)
 
 ## Recently Applied Features
 
