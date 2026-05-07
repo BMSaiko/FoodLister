@@ -1,6 +1,6 @@
-# API Endpoints Reference - FoodList
+# API Endpoints Reference - FoodLister
 
-Complete reference of all API routes in the FoodList application.
+Complete reference of all API routes in the FoodLister application.
 
 ---
 
@@ -8,18 +8,22 @@ Complete reference of all API routes in the FoodList application.
 
 ```
 Development: http://localhost:3000/api
-Production: https://your-domain.vercel.app/api
+Production: https://your-domain.com/api
 ```
 
 ---
 
 ## Authentication
 
-All endpoints that modify data require authentication via Supabase session.
+Most endpoints support optional or required authentication via Supabase session cookies.
 
-### Headers
+### Session Management
+- **Cookie-based**: Supabase Auth stores session in cookies
+- **Session endpoint**: `GET /api/auth/session` returns current session data
+
+### Authentication Header (for API client)
 ```
-Cookie: supabase-auth-token=...
+Authorization: Bearer <jwt-token>
 ```
 
 ---
@@ -28,167 +32,231 @@ Cookie: supabase-auth-token=...
 
 ### Health Check
 
-```
-GET /api/health
-```
+#### `GET /api/health`
+**Description**: Simple health check for monitoring and load balancers
+
+**Authentication**: Not required
 
 **Response:** `200 OK`
 ```json
-{ "status": "ok", "timestamp": "2026-04-05T17:00:00Z" }
+{
+  "status": "ok",
+  "timestamp": "2026-01-15T10:30:00.000Z",
+  "uptime": 12345.67,
+  "environment": "production",
+  "version": "1.0.0"
+}
 ```
 
 ---
 
-### Restaurants
+### Authentication
 
-#### List Restaurants
-```
-GET /api/restaurants
-```
+#### `GET /api/auth/session`
+**Description**: Get current user session data
 
-**Query Parameters:**
-| Param | Type | Required | Description |
-|-------|------|----------|-------------|
-| page | number | | Page number (default: 1) |
-| limit | number | | Items per page (default: 20, max: 100) |
-| search | string | | Search by name |
-| cuisine | string | | Filter by cuisine type |
-| minRating | number | | Minimum rating |
-| maxPrice | number | | Maximum price per person |
-| sortBy | string | | Sort field (name, rating, created_at) |
-| sortOrder | string | | Sort order (asc, desc) |
+**Authentication**: Optional
 
 **Response:** `200 OK`
 ```json
 {
-  "data": [...],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "totalPages": 5
-  }
+  "user": { "id": "...", "email": "...", "name": "..." },
+  "session": { "access_token": "...", "refresh_token": "...", "expires_at": 1234567890 }
 }
 ```
 
-#### Get Restaurant by ID
-```
-GET /api/restaurants/[id]
-```
+---
+
+### Reference Data
+
+#### `GET /api/cuisine-types`
+**Description**: List all cuisine types
+
+**Authentication**: Not required
 
 **Response:** `200 OK`
 ```json
-{
-  "data": {
-    "id": "...",
-    "name": "...",
-    "cuisine_types": ["Italian", "Pizza"],
-    "dietary_options": ["Vegetarian"],
-    "features": ["Outdoor Seating"],
-    "reviews": [...],
-    "review_count": 10,
-    "avg_rating": 4.5
+[
+  {
+    "id": "uuid",
+    "name": "Italian",
+    "description": "Italian cuisine",
+    "icon": "🍝",
+    "created_at": "2024-01-01T00:00:00Z"
   }
-}
+]
 ```
 
-#### Create Restaurant
-```
-POST /api/restaurants
-```
+#### `POST /api/cuisine-types`
+**Description**: Create a new cuisine type
+
+**Authentication**: Required
 
 **Body:**
 ```json
 {
-  "name": "Restaurant Name",
-  "description": "...",
-  "location": "...",
-  "phone_numbers": ["+351..."],
-  "cuisine_type_ids": ["uuid1", "uuid2"],
-  "dietary_option_ids": ["uuid1"],
-  "feature_ids": ["uuid1"],
-  "price_per_person": 25.50,
-  "menu_url": "https://...",
-  "images": ["https://..."],
-  "latitude": 38.7,
-  "longitude": -9.1
+  "name": "Japanese",
+  "description": "Japanese cuisine",
+  "icon": "🍣"
 }
 ```
 
 **Response:** `201 Created`
 
-#### Update Restaurant
-```
-PUT /api/restaurants/[id]
-```
+---
 
-**Response:** `200 OK`
+#### `GET /api/dietary-options`
+**Description**: List all dietary options
 
-#### Delete Restaurant
-```
-DELETE /api/restaurants/[id]
-```
+**Authentication**: Not required
 
-**Response:** `204 No Content`
+**Response:** `200 OK` - Array of dietary option objects
+
+#### `POST /api/dietary-options`
+**Description**: Create a new dietary option
+
+**Authentication**: Required
+
+**Response:** `201 Created`
+
+---
+
+#### `GET /api/features`
+**Description**: List all restaurant features
+
+**Authentication**: Not required
+
+**Response:** `200 OK` - Array of feature objects
+
+#### `POST /api/features`
+**Description**: Create a new restaurant feature
+
+**Authentication**: Required
+
+**Response:** `201 Created`
 
 ---
 
 ### Lists
 
-#### Get User Lists
-```
-GET /api/lists
-```
+#### `GET /api/lists`
+**Description**: Fetch lists with search filtering and restaurant counts
+
+**Authentication**: Optional (affects which lists are returned)
 
 **Query Parameters:**
-| Param | Type | Description |
-|-------|------|-------------|
-| userId | string | Filter by user |
-| search | string | Search by name |
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| search | string | No | Search by name (case-insensitive) |
 
 **Response:** `200 OK`
+```json
+{
+  "lists": [
+    {
+      "id": "uuid",
+      "name": "My Favorite Restaurants",
+      "description": "A collection of my favorite places",
+      "creator": "user_name",
+      "creator_id": "user_uuid",
+      "is_public": true,
+      "filters": null,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "restaurantCount": 5
+    }
+  ]
+}
+```
 
-#### Create List
-```
-POST /api/lists
-```
+**Caching**: `Cache-Control: public, s-maxage=60, stale-while-revalidate=120`
+
+#### `POST /api/lists`
+**Description**: Create a new list
+
+**Authentication**: Required
 
 **Body:**
 ```json
 {
-  "name": "My Favorite Places",
-  "description": "...",
-  "restaurant_ids": ["uuid1", "uuid2"]
+  "name": "My New List",
+  "description": "List description",
+  "is_public": true,
+  "filters": null
 }
 ```
 
-**Response:** `201 Created`
+**Response:** `201 Created` - Created list object
 
-#### Get List by ID
+---
+
+#### `GET /api/lists/[id]`
+**Description**: Retrieve a specific list with all its restaurants
+
+**Authentication**: Optional (private lists only visible to owner)
+
+**Response:** `200 OK`
+```json
+{
+  "list": {
+    "id": "uuid",
+    "name": "My Favorite Restaurants",
+    "description": "A collection of my favorite places",
+    "creator": "user_name",
+    "creator_id": "user_uuid",
+    "is_public": true,
+    "filters": null,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z",
+    "restaurants": [...]
+  }
+}
 ```
-GET /api/lists/[id]
+
+#### `PUT /api/lists/[id]`
+**Description**: Update list details (name, description, public status)
+
+**Authentication**: Required (only list owner)
+
+**Body:**
+```json
+{
+  "name": "Updated Name",
+  "description": "Updated description",
+  "is_public": false
+}
 ```
+
+**Response:** `200 OK` - Updated list object
+
+#### `PATCH /api/lists/[id]`
+**Description**: Partially update list details
+
+**Authentication**: Required (only list owner)
 
 **Response:** `200 OK`
 
-#### Update List
-```
-PUT /api/lists/[id]
-```
+#### `DELETE /api/lists/[id]`
+**Description**: Delete a list and its restaurant associations
 
-**Response:** `200 OK`
-
-#### Delete List
-```
-DELETE /api/lists/[id]
-```
+**Authentication**: Required (only list owner)
 
 **Response:** `204 No Content`
 
-#### Add Restaurant to List
-```
-POST /api/lists/[id]/restaurants
-```
+---
+
+#### `GET /api/lists/[id]/restaurants`
+**Description**: Get all restaurants in a specific list
+
+**Authentication**: Optional (depends on list visibility)
+
+**Response:** `200 OK` - Array of restaurant objects
+
+#### `POST /api/lists/[id]/restaurants`
+**Description**: Add a restaurant to a list
+
+**Authentication**: Required (only list owner)
 
 **Body:**
 ```json
@@ -197,60 +265,230 @@ POST /api/lists/[id]/restaurants
 
 **Response:** `201 Created`
 
-#### Remove Restaurant from List
-```
-DELETE /api/lists/[listId]/restaurants/[restaurantId]
-```
+#### `DELETE /api/lists/[id]/restaurants/[restaurantId]`
+**Description**: Remove a restaurant from a list
+
+**Authentication**: Required (only list owner)
 
 **Response:** `204 No Content`
 
 ---
 
-### Reviews
+#### `POST /api/lists/[id]/share`
+**Description**: Share a list (generate share link or manage sharing)
 
-#### Get Restaurant Reviews
-```
-GET /api/reviews?restaurantId=uuid
-```
-
-**Query Parameters:**
-| Param | Type | Description |
-|-------|------|-------------|
-| restaurantId | string | Filter by restaurant |
-| userId | string | Filter by user |
-| page | number | Page number |
-| limit | number | Items per page |
+**Authentication**: Required (only list owner)
 
 **Response:** `200 OK`
 
-#### Create Review
+---
+
+### Restaurants
+
+#### `GET /api/restaurants`
+**Description**: Retrieve all restaurants with optional search filtering
+
+**Authentication**: Not required (public data)
+
+**Query Parameters:**
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| search | string | No | Search by name |
+
+**Response:** `200 OK`
+```json
+{
+  "restaurants": [
+    {
+      "id": "uuid",
+      "name": "Restaurant Name",
+      "description": "Description",
+      "image_url": "https://...",
+      "price_per_person": 25.50,
+      "rating": 4.5,
+      "location": "Address",
+      "source_url": "https://...",
+      "creator": "user_id",
+      "menu_url": "https://...",
+      "menu_links": ["https://menu1.pdf", "https://menu2.com"],
+      "menu_images": ["https://cloudinary.com/image1.jpg"],
+      "phone_numbers": ["+1234567890"],
+      "visited": false,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "cuisine_types": [...],
+      "review_count": 3
+    }
+  ]
+}
 ```
-POST /api/reviews
+
+---
+
+#### `GET /api/restaurants/[id]`
+**Description**: Get a specific restaurant with all details
+
+**Authentication**: Not required
+
+**Response:** `200 OK` - Restaurant object with all relations
+
+#### `PUT /api/restaurants/[id]`
+**Description**: Update restaurant details
+
+**Authentication**: Required (only creator or admin)
+
+**Response:** `200 OK` - Updated restaurant object
+
+#### `DELETE /api/restaurants/[id]`
+**Description**: Delete a restaurant
+
+**Authentication**: Required (only creator)
+
+**Response:** `204 No Content`
+
+---
+
+#### `GET /api/restaurants/[id]/lists`
+**Description**: Get all lists that contain this restaurant
+
+**Authentication**: Optional
+
+**Response:** `200 OK` - Array of list objects
+
+---
+
+#### `GET /api/restaurants/visits`
+**Description**: Get visit data for multiple restaurants in a single request
+
+**Authentication**: Required (via Authorization header)
+
+**Request Body:**
+```json
+{
+  "restaurantIds": ["uuid1", "uuid2", "uuid3"]
+}
 ```
+
+**Response:** `200 OK`
+```json
+{
+  "uuid1": { "visited": true, "visitCount": 2 },
+  "uuid2": { "visited": false, "visitCount": 0 }
+}
+```
+
+#### `POST /api/restaurants/visits`
+**Description**: Record visits for multiple restaurants
+
+**Authentication**: Required
+
+**Response:** `200 OK`
+
+---
+
+#### `GET /api/restaurants/[id]/visits`
+**Description**: Get visit data for a specific restaurant
+
+**Authentication**: Required
+
+**Response:** `200 OK`
+```json
+{ "visited": true, "visitCount": 3 }
+```
+
+#### `POST /api/restaurants/[id]/visits`
+**Description**: Record a visit to a restaurant (increments visit count)
+
+**Authentication**: Required
+
+**Response:** `200 OK`
+```json
+{ "visited": true, "visitCount": 2 }
+```
+
+#### `PATCH /api/restaurants/[id]/visits`
+**Description**: Update visit status (toggle visited/unvisited or adjust count)
+
+**Authentication**: Required
+
+**Request Body** (one of):
+```json
+{"action": "toggle_visited"}
+{"action": "remove_visit"}
+```
+
+**Response:** `200 OK`
+
+---
+
+### Reviews
+
+#### `GET /api/reviews`
+**Description**: Get all reviews for a specific restaurant
+
+**Authentication**: Not required
+
+**Query Parameters:**
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| restaurant_id | string | Yes | UUID of the restaurant |
+
+**Response:** `200 OK`
+```json
+{
+  "reviews": [
+    {
+      "id": "uuid",
+      "restaurant_id": "uuid",
+      "user_id": "uuid",
+      "rating": 5,
+      "comment": "Excellent food and service!",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "user": { "id": "uuid", "name": "John Doe" }
+    }
+  ]
+}
+```
+
+#### `POST /api/reviews`
+**Description**: Create a new review for a restaurant
+
+**Authentication**: Required
 
 **Body:**
 ```json
 {
   "restaurant_id": "uuid",
-  "rating": 4.5,
-  "comment": "Great food!",
-  "amount_spent": 30.00
+  "rating": 4,
+  "comment": "Great experience!"
 }
 ```
 
-**Response:** `201 Created`
+**Response:** `201 Created` - Created review object
 
-#### Update Review
-```
-PUT /api/reviews/[id]
-```
+---
 
-**Response:** `200 OK`
+#### `GET /api/reviews/[id]`
+**Description**: Get a specific review with user and restaurant details
 
-#### Delete Review
-```
-DELETE /api/reviews/[id]
-```
+**Authentication**: Not required
+
+**Response:** `200 OK` - Review object with relations
+
+#### `PUT /api/reviews/[id]`
+**Description**: Update an existing review (user can only update their own)
+
+**Authentication**: Required
+
+**Response:** `200 OK` - Updated review object
+
+#### `DELETE /api/reviews/[id]`
+**Description**: Delete a review (user can only delete their own)
+
+**Authentication**: Required
 
 **Response:** `204 No Content`
 
@@ -258,188 +496,45 @@ DELETE /api/reviews/[id]
 
 ### Users
 
-#### Get User Profile
-```
-GET /api/users/[id]
-```
+#### `GET /api/users/me`
+**Description**: Get current user's profile and settings
 
-**Response:** `200 OK`
-
-#### Get Current User
-```
-GET /api/users/me
-```
-
-**Response:** `200 OK`
-
-#### Update User Settings
-```
-PUT /api/users/settings
-```
-
-**Body:**
-```json
-{
-  "display_name": "...",
-  "bio": "...",
-  "avatar_url": "...",
-  "location": "...",
-  "website": "...",
-  "phone_number": "...",
-  "public_profile": true
-}
-```
-
-**Response:** `200 OK`
-
-#### Search Users
-```
-GET /api/users/search?q=query
-```
-
-**Response:** `200 OK`
-
----
-
-### Auth
-
-#### Get Session
-```
-GET /api/auth/session
-```
+**Authentication**: Required
 
 **Response:** `200 OK`
 ```json
 {
-  "user": { "id": "...", "email": "..." },
-  "session": { "access_token": "...", "refresh_token": "..." }
+  "user": {
+    "id": "uuid",
+    "name": "User Name",
+    "email": "user@example.com",
+    "avatar_url": "https://...",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
 }
 ```
 
----
+#### `GET /api/users/me/lists`
+**Description**: Get all lists created by the current user
 
-### Upload
+**Authentication**: Required
 
-#### Upload Image
-```
-POST /api/upload
-```
+**Response:** `200 OK` - Array of list objects
 
-**Body:** `multipart/form-data`
-| Field | Type | Description |
-|-------|------|-------------|
-| file | File | Image file |
-| folder | string | Target folder (default: "foodlist") |
+#### `GET /api/users/me/stats`
+**Description**: Get current user's statistics
+
+**Authentication**: Required
 
 **Response:** `200 OK`
 ```json
 {
-  "url": "https://res.cloudinary.com/...",
-  "public_id": "foodlist/xyz123"
+  "restaurants_visited": 42,
+  "lists_created": 5,
+  "reviews_written": 12,
+  "total_visits": 60
 }
 ```
-
----
-
-### Cuisine Types
-
-#### Get All Cuisine Types
-```
-GET /api/cuisine-types
-```
-
-**Response:** `200 OK`
-```json
-{
-  "data": [
-    { "id": "uuid", "name": "Italian", "icon": "pizza" }
-  ]
-}
-```
-
----
-
-### Features
-
-#### Get All Features
-```
-GET /api/features
-```
-
-**Response:** `200 OK`
-
----
-
-### Dietary Options
-
-#### Get All Dietary Options
-```
-GET /api/dietary-options
-```
-
-**Response:** `200 OK`
-
----
-
-### Notifications
-
-#### Get Notifications
-```
-GET /api/notifications
-```
-
-**Response:** `200 OK`
-
-#### Create Notification
-```
-POST /api/notifications/create
-```
-
-**Body:**
-```json
-{
-  "user_id": "uuid",
-  "type": "review",
-  "message": "New review on..."
-}
-```
-
-**Response:** `201 Created`
-
----
-
-### Meals
-
-#### Get Scheduled Meals
-```
-GET /api/meals/scheduled
-```
-
-**Response:** `200 OK`
-
-#### Schedule Meal
-```
-POST /api/meals/schedule
-```
-
-**Body:**
-```json
-{
-  "restaurant_id": "uuid",
-  "date": "2026-04-10",
-  "meal_type": "lunch",
-  "participants": ["uuid1", "uuid2"]
-}
-```
-
-**Response:** `201 Created`
-
-#### Get Meal Participants
-```
-GET /api/meals/participants?mealId=uuid
-```
-
-**Response:** `200 OK`
 
 ---
 
@@ -450,7 +545,8 @@ All endpoints return errors in this format:
 ```json
 {
   "error": "Error message",
-  "details": "Optional details"
+  "code": "ERROR_CODE",
+  "details": {}
 }
 ```
 
@@ -460,7 +556,7 @@ All endpoints return errors in this format:
 |------|---------|
 | 200 | Success |
 | 201 | Created |
-| 204 | Deleted |
+| 204 | No Content (Deleted) |
 | 400 | Bad Request |
 | 401 | Unauthorized |
 | 403 | Forbidden |
@@ -472,12 +568,53 @@ All endpoints return errors in this format:
 
 ## Rate Limiting
 
-- **Limit:** 100 requests per 15 minutes per IP
-- **Headers:**
-  - `X-RateLimit-Limit: 100`
-  - `X-RateLimit-Remaining: 95`
-  - `X-RateLimit-Reset: 1617716800`
+### Server-side
+- Middleware rate limiter in `middleware/rateLimiter.ts`
+- Configurable limits per endpoint
+
+### Client-side
+- `apiClient` in `libs/apiClient.ts` includes:
+  - Client-side rate limiter (max 10 requests/second)
+  - Configurable request timeout (default 30 seconds)
+  - Retry logic with exponential backoff
 
 ---
 
-*Last updated: 2026-04-05*
+## Caching
+
+### API Routes Cache Headers
+
+| Endpoint | Cache-Control |
+|----------|---------------|
+| `/api/health` | No caching |
+| `/api/cuisine-types` | `public, s-maxage=300` |
+| `/api/dietary-options` | `public, s-maxage=300` |
+| `/api/features` | `public, s-maxage=300` |
+| `/api/lists` | `public, s-maxage=60, stale-while-revalidate=120` |
+| `/api/restaurants` | `public, s-maxage=60, stale-while-revalidate=120` |
+
+### Client-side Cache
+The `apiClient` provides:
+- Response caching with TTL support (default 5 minutes)
+- Request deduplication
+- Cache invalidation: `invalidateCache()`, `clearCache()`
+
+---
+
+## Security
+
+### Row Level Security (RLS)
+All database tables have RLS policies:
+- Users can only modify their own data
+- Public data readable by everyone
+- Private lists only visible to owners
+- Reviews only modifiable by authors
+
+### Authentication
+- Supabase Auth with JWT tokens
+- Session management via cookies
+- API routes use `getUser()` for authentication
+
+---
+
+*Last updated: 2026-05-07*

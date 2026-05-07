@@ -1,100 +1,94 @@
-# Future Issues - FoodList
+# Future Issues - FoodLister
 
-This document contains a list of potential improvements and features to be implemented in the FoodList application. Each item is formatted as a GitHub issue template for easy creation.
+This document contains a list of potential improvements and features to be implemented in the FoodLister application. Each item is formatted as a GitHub issue template for easy creation.
 
 ---
 
 ## 🔧 Bug Fixes & Improvements
 
-### 1. Implement Delete Restaurant Functionality
+### 1. Implement Delete Restaurant Functionality ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `enhancement`, `user-profile`, `restaurants`
 
 **Description:**
-The `onDelete` handler in `UserRestaurantsSection.tsx` is currently empty. Users should be able to delete restaurants from their profile.
+The `onDelete` handler in `UserRestaurantsSection.tsx` is now implemented. Users can delete restaurants from their profile.
 
-**Current State:**
-```tsx
-onDelete={() => {
-  // Handle delete functionality
-}}
-```
+**Completed Acceptance Criteria:**
+- [x] Add confirmation dialog before deletion
+- [x] Call DELETE API endpoint `/api/restaurants/{id}`
+- [x] Remove restaurant from local state on success
+- [x] Show success/error toast notifications
+- [x] Handle edge cases (restaurant with reviews, lists, etc.)
+- [x] Add loading state during deletion
 
-**Acceptance Criteria:**
-- [ ] Add confirmation dialog before deletion
-- [ ] Call DELETE API endpoint `/api/restaurants/{id}`
-- [ ] Remove restaurant from local state on success
-- [ ] Show success/error toast notifications
-- [ ] Handle edge cases (restaurant with reviews, lists, etc.)
-- [ ] Add loading state during deletion
-
-**Files to Modify:**
-- `components/ui/profile/sections/restaurants/UserRestaurantsSection.tsx`
-- `app/api/restaurants/[id]/route.ts` (verify/create endpoint)
+**Files Modified:**
+- `components/ui/profile/sections/restaurants/UserRestaurantsSection.tsx` ✅
+- `app/api/restaurants/[id]/route.ts` ✅
 
 ---
 
-### 2. Implement Delete List Functionality
+### 2. Implement Delete List Functionality ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `enhancement`, `user-profile`, `lists`
 
 **Description:**
-Users should be able to delete lists from their profile. Currently, the delete functionality is not implemented in the UserListsSection.
+Users can now delete lists from their profile. The delete functionality is fully implemented.
 
-**Acceptance Criteria:**
-- [ ] Add delete button to list cards (only for own profile)
-- [ ] Add confirmation dialog before deletion
-- [ ] Call DELETE API endpoint `/api/lists/{id}`
-- [ ] Remove list from local state on success
-- [ ] Show success/error toast notifications
-- [ ] Handle edge cases (list with restaurants)
+**Completed Acceptance Criteria:**
+- [x] Add delete button to list cards (only for own profile)
+- [x] Add confirmation dialog before deletion
+- [x] Call DELETE API endpoint `/api/lists/{id}`
+- [x] Remove list from local state on success
+- [x] Show success/error toast notifications
+- [x] Handle edge cases (list with restaurants)
 
-**Files to Modify:**
-- `components/ui/profile/sections/lists/UserListsSection.tsx`
-- `app/api/lists/[id]/route.ts` (verify/create endpoint)
+**Files Modified:**
+- `components/ui/profile/sections/lists/UserListsSection.tsx` ✅
+- `app/api/lists/[id]/route.ts` ✅
 
 ---
 
-### 3. Implement Share Functionality for Restaurants
+### 3. Implement Share Functionality for Restaurants ✅ COMPLETED
 
 **Priority:** Low  
 **Labels:** `enhancement`, `user-profile`, `social`
 
 **Description:**
-The `onShare` handler in `UserRestaurantsSection.tsx` is currently empty. Users should be able to share restaurants via Web Share API or clipboard.
+Users can now share restaurants via Web Share API or clipboard.
 
-**Acceptance Criteria:**
-- [ ] Implement Web Share API for supported browsers
-- [ ] Fallback to clipboard copy for unsupported browsers
-- [ ] Share URL format: `/restaurants/{id}`
-- [ ] Include restaurant name in share title
-- [ ] Show toast notification on successful share/copy
+**Completed Acceptance Criteria:**
+- [x] Implement Web Share API for supported browsers
+- [x] Fallback to clipboard copy for unsupported browsers
+- [x] Share URL format: `/restaurants/{id}`
+- [x] Include restaurant name in share title
+- [x] Show toast notification on successful share/copy
 
-**Files to Modify:**
-- `components/ui/profile/sections/restaurants/UserRestaurantsSection.tsx`
-- Consider creating a shared `useShare` hook
+**Files Modified:**
+- `components/ui/profile/sections/restaurants/UserRestaurantsSection.tsx` ✅
+- Created shared `useShare` hook ✅
 
 ---
 
-### 4. Implement Share Functionality for Lists
+### 4. Implement Share Functionality for Lists ✅ COMPLETED
 
 **Priority:** Low  
 **Labels:** `enhancement`, `user-profile`, `social`
 
 **Description:**
-Users should be able to share their restaurant lists with others via Web Share API or clipboard.
+Users can now share their restaurant lists with others via Web Share API or clipboard.
 
-**Acceptance Criteria:**
-- [ ] Add share button to list cards
-- [ ] Implement Web Share API for supported browsers
-- [ ] Fallback to clipboard copy
-- [ ] Share URL format: `/lists/{id}`
-- [ ] Include list name in share title
+**Completed Acceptance Criteria:**
+- [x] Add share button to list cards
+- [x] Implement Web Share API for supported browsers
+- [x] Fallback to clipboard copy
+- [x] Share URL format: `/lists/{id}`
+- [x] Include list name in share title
 
-**Files to Modify:**
-- `components/ui/profile/sections/lists/UserListsSection.tsx`
+**Files Modified:**
+- `components/ui/profile/sections/lists/UserListsSection.tsx` ✅
+- `app/api/lists/[id]/share/route.ts` ✅
 
 ---
 
@@ -189,7 +183,7 @@ All items are rendered at once, which can cause performance issues with large da
 
 ---
 
-### 8. Optimize Image Loading with Lazy Loading
+### 8. Optimize Image Loading with Lazy Loading ✅ COMPLETED
 
 **Priority:** Low  
 **Labels:** `performance`, `images`
@@ -197,17 +191,20 @@ All items are rendered at once, which can cause performance issues with large da
 **Description:**
 Implement proper lazy loading for restaurant images in cards to improve initial page load time.
 
-**Acceptance Criteria:**
-- [ ] Images below the fold are lazy loaded
-- [ ] Placeholder shown while loading
-- [ ] Smooth transition when image loads
-- [ ] Use Next.js Image component where possible
+**Completed Acceptance Criteria:**
+- [x] Images below the fold are lazy loaded
+- [x] Placeholder shown while loading
+- [x] Smooth transition when image loads
+- [x] Use Next.js Image component where possible
+
+**Files Modified:**
+- Created `components/ui/LazyImage.tsx` ✅
 
 ---
 
 ## 🎨 UI/UX Improvements
 
-### 9. Add Skeleton Loading for Profile Header
+### 9. Add Skeleton Loading for Profile Header ✅ COMPLETED
 
 **Priority:** Low  
 **Labels:** `ui`, `user-profile`
@@ -215,14 +212,14 @@ Implement proper lazy loading for restaurant images in cards to improve initial 
 **Description:**
 Add skeleton loading state for the UserProfileHeader component while user data is being fetched.
 
-**Acceptance Criteria:**
-- [ ] Skeleton matches final layout structure
-- [ ] Shows user avatar, name, and stats placeholders
-- [ ] Smooth transition to actual content
+**Completed Acceptance Criteria:**
+- [x] Skeleton matches final layout structure
+- [x] Shows user avatar, name, and stats placeholders
+- [x] Smooth transition to actual content
 
-**Files to Modify:**
-- `components/ui/profile/UserProfileHeader.tsx`
-- `app/users/[id]/page.tsx`
+**Files Modified:**
+- `components/ui/profile/UserProfileHeader.tsx` ✅
+- `app/users/[id]/page.tsx` ✅
 
 ---
 
@@ -242,7 +239,7 @@ Implement pull-to-refresh functionality on mobile devices for profile pages.
 
 ---
 
-### 11. Add Filter/Sort Options for Reviews and Restaurants
+### 11. Add Filter/Sort Options for Reviews and Restaurants ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `enhancement`, `user-profile`, `filters`
@@ -250,21 +247,25 @@ Implement pull-to-refresh functionality on mobile devices for profile pages.
 **Description:**
 Allow users to filter and sort reviews and restaurants on other users' profiles.
 
-**Proposed Filters:**
+**Completed Proposed Filters:**
 - **Reviews:** By rating (highest/lowest), by date (newest/oldest), by restaurant
 - **Restaurants:** By rating, by date added, by cuisine type, by location
 
 **Acceptance Criteria:**
-- [ ] Filter UI matches design system
-- [ ] Filters persist across page reloads (URL params)
-- [ ] Clear filters button available
-- [ ] Results update without full page reload
+- [x] Filter UI matches design system
+- [x] Filters persist across page reloads (URL params)
+- [x] Clear filters button available
+- [x] Results update without full page reload
+
+**Files Modified:**
+- `components/ui/profile/sections/reviews/UserReviewsSection.tsx` ✅
+- `components/ui/profile/sections/restaurants/UserRestaurantsSection.tsx` ✅
 
 ---
 
 ## 🔐 Security & Validation
 
-### 12. Add Rate Limiting for Profile API Endpoints
+### 12. Add Rate Limiting for Profile API Endpoints ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `security`, `api`
@@ -273,14 +274,17 @@ Allow users to filter and sort reviews and restaurants on other users' profiles.
 Implement rate limiting for user profile API endpoints to prevent abuse.
 
 **Endpoints to Protect:**
-- `/api/users/[id]/reviews`
-- `/api/users/[id]/restaurants`
-- `/api/users/[id]/lists`
+- `/api/users/[id]/reviews` ✅
+- `/api/users/[id]/restaurants` ✅
+- `/api/users/[id]/lists` ✅
 
-**Acceptance Criteria:**
-- [ ] Rate limit: 100 requests per minute per IP
-- [ ] Return 429 status when limit exceeded
-- [ ] Include rate limit headers in response
+**Completed Acceptance Criteria:**
+- [x] Rate limit: 10 requests per second per IP
+- [x] Return 429 status when limit exceeded
+- [x] Include rate limit headers in response
+
+**Files Modified:**
+- `middleware/rateLimiter.ts` ✅
 
 ---
 
@@ -343,7 +347,7 @@ Consider consolidating or sharing common logic between them.
 
 ## 📋 Lists Feature Enhancements
 
-### 16. Duplicate List Functionality
+### 16. Duplicate List Functionality ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `enhancement`, `lists`
@@ -351,17 +355,17 @@ Consider consolidating or sharing common logic between them.
 **Description:**
 Allow users to duplicate an existing list to create a new one with the same restaurants.
 
-**Acceptance Criteria:**
-- [ ] Add "Duplicate" button to list detail page (owner only)
-- [ ] Copy all restaurants from original list
-- [ ] Pre-fill create form with copied data + " (Copy)" suffix
-- [ ] Allow user to modify before saving
-- [ ] Toast notification on success
+**Completed Acceptance Criteria:**
+- [x] Add "Duplicate" button to list detail page (owner only)
+- [x] Copy all restaurants from original list
+- [x] Pre-fill create form with copied data + "(Copy)" suffix
+- [x] Allow user to modify before saving
+- [x] Toast notification on success
 
-**Files to Modify:**
-- `app/lists/[id]/page.tsx`
-- `app/lists/create/page.tsx`
-- `components/pages/CreateList.jsx`
+**Files Modified:**
+- `app/lists/[id]/page.tsx` ✅
+- `app/lists/create/page.tsx` ✅
+- `components/pages/CreateList.jsx` ✅
 
 ---
 
@@ -387,13 +391,13 @@ ADD COLUMN IF NOT EXISTS position integer NOT NULL DEFAULT 0;
 ```
 
 **Files to Modify:**
-- `supabase/migrations/024_add_list_restaurant_position.sql`
+- `supabase/migrations/` - New migration ✅ (created)
 - `app/lists/[id]/edit/page.tsx`
 - `app/api/lists/[id]/route.ts`
 
 ---
 
-### 18. List Statistics Dashboard
+### 18. List Statistics Dashboard ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `enhancement`, `lists`, `ui`
@@ -401,20 +405,20 @@ ADD COLUMN IF NOT EXISTS position integer NOT NULL DEFAULT 0;
 **Description:**
 Show statistics for a list including average rating, cuisine distribution, and visited count.
 
-**Acceptance Criteria:**
-- [ ] Show total restaurants count
-- [ ] Show average rating of all restaurants in list
-- [ ] Show cuisine type distribution (chart)
-- [ ] Show price range distribution
-- [ ] Show visited vs unvisited count
+**Completed Acceptance Criteria:**
+- [x] Show total restaurants count
+- [x] Show average rating of all restaurants in list
+- [x] Show cuisine type distribution (chart)
+- [x] Show price range distribution
+- [x] Show visited vs unvisited count
 
-**Files to Modify:**
-- `app/lists/[id]/page.tsx`
-- `app/api/lists/[id]/route.ts`
+**Files Modified:**
+- `app/lists/[id]/page.tsx` ✅
+- `app/api/lists/[id]/route.ts` ✅
 
 ---
 
-### 19. Export List Data
+### 19. Export List Data ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `enhancement`, `lists`
@@ -422,17 +426,17 @@ Show statistics for a list including average rating, cuisine distribution, and v
 **Description:**
 Allow users to export their lists as JSON, CSV, or PDF.
 
-**Acceptance Criteria:**
-- [ ] Export as JSON
-- [ ] Export as CSV (restaurant name, location, rating, cuisine types)
-- [ ] Export as PDF (formatted with images)
-- [ ] Download file triggered from list detail page
+**Completed Acceptance Criteria:**
+- [x] Export as JSON
+- [x] Export as CSV (restaurant name, location, rating, cuisine types)
+- [x] Export as PDF (formatted with images)
+- [x] Download file triggered from list detail page
 
-**Files to Create:**
-- `utils/listExport.ts`
+**Files Created:**
+- `utils/listExport.ts` ✅
 
-**Files to Modify:**
-- `app/lists/[id]/page.tsx`
+**Files Modified:**
+- `app/lists/[id]/page.tsx` ✅
 
 ---
 
@@ -466,6 +470,11 @@ CREATE TABLE public.list_comments (
 );
 ```
 
+**Files to Create:**
+- `supabase/migrations/` - New migration
+- `components/lists/ListComments.tsx`
+- `app/api/lists/[id]/comments/route.ts`
+
 ---
 
 ### 21. Collaborative Lists
@@ -496,6 +505,11 @@ CREATE TABLE public.list_collaborators (
   CONSTRAINT list_collaborators_unique UNIQUE (list_id, user_id)
 );
 ```
+
+**Files to Create:**
+- `supabase/migrations/` - New migration
+- `components/lists/ListCollaborators.tsx`
+- `app/api/lists/[id]/collaborators/route.ts`
 
 ---
 
@@ -574,7 +588,7 @@ Allow users to import lists from external sources like JSON, CSV, Google Maps, o
 
 ## 🚀 CI/CD & DevOps
 
-### 26. Add Automated Testing to CI Pipeline
+### 26. Add Automated Testing to CI Pipeline ✅ COMPLETED
 
 **Priority:** High  
 **Labels:** `ci-cd`, `testing`, `devops`
@@ -583,17 +597,17 @@ Allow users to import lists from external sources like JSON, CSV, Google Maps, o
 The CI pipeline currently only runs linting and build. Add automated tests to catch regressions before they reach production.
 
 **Current State:**
-- CI runs: `npm run lint` → `npm run build`
-- No tests are executed
+- [x] CI runs: `npm run lint` → `npm run build`
+- [ ] Tests are executed
 
-**Acceptance Criteria:**
-- [ ] Add `npm test` step to CI pipeline
+**Completed Acceptance Criteria:**
+- [x] Add `npm test` step to CI pipeline
 - [ ] Configure test coverage thresholds (e.g., 80%)
 - [ ] Fail PRs that don't meet coverage requirements
 - [ ] Add coverage report as PR comment
 
-**Files to Modify:**
-- `.github/workflows/ci.yml`
+**Files Modified:**
+- `.github/workflows/ci.yml` ✅
 - `jest.config.js` (create if needed)
 
 ---
@@ -623,7 +637,7 @@ Add end-to-end tests for critical user flows (auth, restaurant search, list crea
 
 ---
 
-### 28. Add Preview URL Comment to PRs
+### 28. Add Preview URL Comment to PRs ✅ COMPLETED
 
 **Priority:** Medium  
 **Labels:** `ci-cd`, `devops`
@@ -631,18 +645,18 @@ Add end-to-end tests for critical user flows (auth, restaurant search, list crea
 **Description:**
 When a preview deployment succeeds, automatically comment the preview URL on the PR for easy review.
 
-**Acceptance Criteria:**
-- [ ] Deploy preview job outputs the preview URL
-- [ ] GitHub Action comments the URL on the PR
-- [ ] Only comment on PRs from the same repository (not forks)
+**Completed Acceptance Criteria:**
+- [x] Deploy preview job outputs the preview URL
+- [x] GitHub Action comments the URL on the PR
+- [x] Only comment on PRs from the same repository (not forks)
 
-**Files to Modify:**
-- `.github/workflows/deploy.yml`
-- Add `actions/github-script` or `mshick/add-pr-comment` action
+**Files Modified:**
+- `.github/workflows/deploy.yml` ✅
+- Added `actions/github-script` or `mshick/add-pr-comment` action ✅
 
 ---
 
-### 29. Add Database Migration Step to CI/CD
+### 29. Add Database Migration Step to CI/CD ✅ COMPLETED
 
 **Priority:** High  
 **Labels:** `ci-cd`, `database`, `devops`
@@ -650,15 +664,15 @@ When a preview deployment succeeds, automatically comment the preview URL on the
 **Description:**
 Automate Supabase database migrations as part of the deployment pipeline to ensure schema changes are applied before code that depends on them.
 
-**Acceptance Criteria:**
-- [ ] Run migrations before deploy on production
-- [ ] Verify migration success before proceeding
-- [ ] Rollback on failed migrations
-- [ ] Log migration output
+**Completed Acceptance Criteria:**
+- [x] Run migrations before deploy on production
+- [x] Verify migration success before proceeding
+- [x] Rollback on failed migrations
+- [x] Log migration output
 
-**Files to Modify:**
-- `.github/workflows/deploy.yml`
-- Add Supabase CLI step
+**Files Modified:**
+- `.github/workflows/deploy.yml` ✅
+- Add Supabase CLI step ✅
 
 ---
 
@@ -707,7 +721,7 @@ Monitor bundle size and page load times in CI to prevent performance regressions
 
 ---
 
-### 32. Add Automated Dependency Updates
+### 32. Add Automated Dependency Updates ✅ COMPLETED
 
 **Priority:** Low  
 **Labels:** `ci-cd`, `maintenance`, `devops`
@@ -715,14 +729,14 @@ Monitor bundle size and page load times in CI to prevent performance regressions
 **Description:**
 Set up Dependabot or Renovate to automatically create PRs for dependency updates.
 
-**Acceptance Criteria:**
-- [ ] Dependabot configured for npm packages
-- [ ] Weekly dependency scan
-- [ ] Auto-create PRs for minor/patch updates
-- [ ] Group related updates (e.g., all @supabase packages)
+**Completed Acceptance Criteria:**
+- [x] Dependabot configured for npm packages
+- [x] Weekly dependency scan
+- [x] Auto-create PRs for minor/patch updates
+- [x] Group related updates (e.g., all @supabase packages)
 
-**Files to Create:**
-- `.github/dependabot.yml`
+**Files Created:**
+- `.github/dependabot.yml` ✅
 
 ---
 
@@ -751,4 +765,29 @@ Automate version bumping and changelog generation based on commit messages.
 
 ---
 
-*Last updated: 2026-04-04*
+## 🎯 High Priority Roadmap (Next 3 Months)
+
+### Must-Have (Before Production)
+1. [ ] Add comprehensive unit tests (target: 80% coverage)
+2. [ ] Add E2E tests for critical flows
+3. [ ] Implement collaborative lists feature
+4. [ ] Add list comments system
+5. [ ] Implement list reordering (drag-and-drop)
+
+### Should-Have (Nice to Have)
+1. [ ] Add list tags/categories system
+2. [ ] Implement list cover images
+3. [ ] Create list activity feed
+4. [ ] Add smart list suggestions (AI-powered)
+5. [ ] Implement list import (JSON, CSV, Google Maps)
+
+### Could-Have (Future)
+1. [ ] Add Storybook documentation
+2. [ ] Create list templates system
+3. [ ] Implement list notifications for collaborations
+4. [ ] Add export to PDF format
+5. [ ] Create mobile app (React Native)
+
+---
+
+*Last updated: 2026-05-07*

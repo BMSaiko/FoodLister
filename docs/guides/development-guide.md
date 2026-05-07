@@ -1,10 +1,10 @@
-# Development Guide
+# Development Guide#
 
-This guide provides detailed instructions for developers working on the FoodList application, including setup, development workflows, coding standards, and best practices.
+This guide provides detailed instructions for developers working on the FoodLister application, including setup, development workflows, coding standards, and best practices.
 
-## Getting Started
+## Getting Started#
 
-### Prerequisites
+### Prerequisites#
 
 Before starting development, ensure you have the following installed:
 
@@ -18,12 +18,12 @@ Before starting development, ensure you have the following installed:
   - ESLint
   - TypeScript Importer
 
-### Environment Setup
+### Environment Setup#
 
 1. **Clone the repository**
    ```bash
    git clone https://github.com/BMSaiko/FoodLister.git
-   cd foodlist
+   cd foodlister
    ```
 
 2. **Install dependencies**
@@ -33,8 +33,7 @@ Before starting development, ensure you have the following installed:
 
 3. **Set up environment variables**
 
-   Create a `.env.local` file in the root directory:
-
+   Create a `.env.local` file in the root directory (see `.env.local.example` for template):
    ```env
    # Supabase Configuration
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
@@ -44,19 +43,21 @@ Before starting development, ensure you have the following installed:
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your_nextauth_secret
 
-   # Cloudinary Configuration (optional)
+   # Cloudinary Configuration
    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
    ```
 
 4. **Set up Supabase database**
 
    - Create a new Supabase project at [supabase.com](https://supabase.com)
    - Copy your project URL and anon key to the environment variables
-   - Run the SQL migrations in your Supabase SQL editor (see Database Schema documentation)
+   - Run the SQL migrations in your Supabase SQL editor (see `docs/database/database-schema.md`)
 
-## Development Workflow
+## Development Workflow#
 
-### Starting the Development Server
+### Starting the Development Server#
 
 ```bash
 npm run dev
@@ -64,69 +65,124 @@ npm run dev
 
 The application will be available at `http://localhost:3000`.
 
-### Available Scripts
+### Available Scripts#
 
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+- `npm test` - Run Jest tests
+- `npm run test:watch` - Run tests in watch mode
 
-### Development with Turbopack
+### Development with Turbopack#
 
 The project uses Next.js Turbopack for fast development builds. Key benefits:
 - **Faster builds**: Significantly faster than Webpack
 - **Hot reloading**: Instant updates on file changes
 - **Better DX**: Improved developer experience
 
-## Project Structure
+## Project Structure#
 
-### Directory Organization
+### Directory Organization#
 
 ```
-foodlist/
+foodlister/
 ├── app/                          # Next.js App Router
 │   ├── api/                      # API routes
-│   ├── restaurants/              # Restaurant pages
-│   ├── lists/                    # List management pages
-│   ├── globals.css               # Global styles
-│   ├── layout.js                 # Root layout
-│   └── page.js                   # Home page
+│   │   ├── auth/session/         # Session management
+│   │   ├── cuisine-types/        # Reference data endpoints
+│   │   ├── dietary-options/      # Reference data endpoints
+│   │   ├── features/             # Reference data endpoints
+│   │   ├── health/               # Health check endpoint
+│   │   ├── lists/                # Lists CRUD + restaurants management
+│   │   ├── restaurants/          # Restaurants CRUD + visits
+│   │   ├── reviews/              # Reviews CRUD
+│   │   └── users/                # User profile + stats
+│   ├── auth/                     # Authentication pages (login, signup)
+│   ├── lists/                    # Lists pages (create, edit, view)
+│   ├── meals/                    # Meals scheduling pages
+│   ├── notifications/            # Notifications page
+│   ├── restaurants/              # Restaurants pages (create, edit, view)
+│   ├── users/                    # User profile pages
+│   ├── globals.css               # Global styles with CSS variables
+│   ├── layout.js                 # Root layout with fonts
+│   └── page.js                   # Homepage
 ├── components/                   # React components
-│   ├── layouts/                  # Layout components
+│   ├── layouts/                  # Layout components (ClientLayout, Navbar)
+│   ├── lists/                    # List-related components
 │   ├── pages/                    # Page-specific components
-│   ├── providers/                # Context providers
-│   └── ui/                       # Reusable UI components
+│   ├── restaurant/               # Restaurant-related components
+│   └── ui/                      # Reusable UI components
 ├── contexts/                     # React contexts
+│   ├── AuthContext.tsx            # Authentication state
+│   ├── FiltersContext.tsx         # Filters state
+│   └── ModalContext.tsx          # Modal state
 ├── hooks/                        # Custom React hooks
-├── libs/                         # External libraries setup
+│   ├── auth/                     # Authentication hooks (useAuth, useApiClient)
+│   ├── data/                     # Data fetching hooks (useRestaurants, useUserData)
+│   ├── forms/                    # Form hooks (useListForm, useRestaurantForm)
+│   ├── lists/                    # List-related hooks (useListFilters)
+│   ├── navigation/               # Navigation hooks
+│   ├── ui/                       # UI hooks (useImagePreview, useInfiniteScroll)
+│   └── utilities/                # Utility hooks
+├── libs/                         # External service integrations
+│   ├── api.ts                    # API endpoint definitions
+│   ├── apiClient.ts              # Centralized API client with caching
+│   ├── auth.ts                   # Auth utilities
+│   └── supabase/                 # Supabase client setup (server + client)
+├── middleware/                    # Middleware
+│   └── rateLimiter.ts            # Rate limiting middleware
 ├── public/                       # Static assets
+│   └── workers/                  # Web workers (if any)
+├── scripts/                       # Utility scripts
 ├── utils/                        # Utility functions
+│   ├── analytics.ts              # Analytics utilities
+│   ├── apiMonitor.ts             # API monitoring
+│   ├── auth.ts                   # Auth utilities (AuthLogger)
+│   ├── cloudinaryConverter.ts     # Cloudinary image management
+│   ├── dbMonitor.ts              # Database monitoring
+│   ├── filters.ts                # Filter logic
+│   ├── formatters.ts             # Data formatters
+│   ├── googleMapsExtractor.ts    # Google Maps integration
+│   ├── listExport.ts             # List export (ICS calendar)
+│   ├── logger.ts                 # Logging utilities
+│   ├── performanceMonitor.ts      # Performance monitoring
+│   └── search.ts                 # Search functionality
+├── types/                        # TypeScript definitions
+│   └── database.ts               # Database type definitions
+├── __tests__/                    # Test files (mirroring app/, components/, hooks/)
+├── supabase/                     # Supabase related files
+│   ├── migrations/               # Database migrations
+│   └── *.sql                    # SQL scripts
+├── memory-bank/                  # Project memory files
 └── docs/                         # Documentation
 ```
 
-### Component Organization
+### Component Organization#
 
-#### Page Components (`/app`)
+#### Page Components (`app/`)
 - Use **Server Components** by default for better performance
 - Add `'use client'` directive only when client-side interactivity is needed
 - Keep pages focused on data fetching and layout
 
-#### UI Components (`/components/ui`)
+#### UI Components (`components/`)
 - Small, reusable components
 - Follow atomic design principles
 - Use TypeScript interfaces for props
 - Implement responsive design with Tailwind classes
+- Use CSS variables for theming (see `globals.css`)
 
-#### Custom Hooks (`/hooks`)
+#### Custom Hooks (`hooks/`)
 - Extract complex logic from components
 - Follow naming convention: `use[Feature]`
 - Handle side effects and data fetching
+- Use barrel exports (`index.ts`) for clean imports
 
-## Coding Standards
+## Coding Standards#
 
-### TypeScript Guidelines
+### TypeScript Guidelines#
 
-#### Type Definitions
+#### Type Definitions#
 ```typescript
 // Good: Explicit interface definitions
 interface Restaurant {
@@ -142,7 +198,7 @@ function processData(data: any) {
 }
 ```
 
-#### Generic Types
+#### Generic Types#
 ```typescript
 // Use generics for reusable components
 interface SelectProps<T> {
@@ -152,10 +208,10 @@ interface SelectProps<T> {
 }
 ```
 
-### React Best Practices
+### React Best Practices#
 
-#### Component Structure
-```javascript
+#### Component Structure#
+```jsx
 // Good: Clear component structure
 function RestaurantCard({ restaurant }) {
   return (
@@ -173,8 +229,8 @@ function RestaurantCard({ restaurant }) {
 }
 ```
 
-#### State Management
-```javascript
+#### State Management#
+```jsx
 // Good: Local state for component-specific data
 function SearchComponent() {
   const [query, setQuery] = useState('');
@@ -185,19 +241,19 @@ function SearchComponent() {
 // Use Context for app-wide state
 function App() {
   return (
-    <FiltersProvider>
-      <RestaurantProvider>
+    <AuthProvider>
+      <FiltersProvider>
         {/* App content */}
-      </RestaurantProvider>
-    </FiltersProvider>
+      </FiltersProvider>
+    </AuthProvider>
   );
 }
 ```
 
-### Styling Guidelines
+### Styling Guidelines#
 
-#### Tailwind CSS
-```javascript
+#### Tailwind CSS with CSS Variables#
+```jsx
 // Good: Semantic class names and responsive design
 <div className="bg-white rounded-lg shadow-md p-4 md:p-6 hover:shadow-lg transition-shadow">
   <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -211,7 +267,7 @@ function App() {
 </div>
 ```
 
-#### CSS Custom Properties
+#### CSS Custom Properties (Design System)#
 ```css
 /* globals.css */
 :root {
@@ -222,9 +278,9 @@ function App() {
 }
 ```
 
-### Database Operations
+### Database Operations#
 
-#### Supabase Client Usage
+#### Supabase Client Usage#
 ```javascript
 // Good: Proper error handling
 const { data, error } = await supabase
@@ -240,7 +296,7 @@ if (error) {
 return data;
 ```
 
-#### Query Optimization
+#### Query Optimization#
 ```javascript
 // Good: Selective field selection
 const { data } = await supabase
@@ -254,9 +310,10 @@ const { data } = await supabase
   .select('*');
 ```
 
-## Testing Guidelines
+## Testing Guidelines#
 
-### Unit Testing
+### Unit Testing#
+
 ```javascript
 // Example test with Jest/React Testing Library
 import { render, screen } from '@testing-library/react';
@@ -272,7 +329,8 @@ describe('RestaurantCard', () => {
 });
 ```
 
-### Integration Testing
+### Integration Testing#
+
 ```javascript
 // Test component with Supabase mock
 import { createClient } from '@supabase/supabase-js';
@@ -296,9 +354,27 @@ describe('RestaurantList', () => {
 });
 ```
 
-## Git Workflow
+### Test Structure#
 
-### Branch Naming
+```
+__tests__/
+├── api/                         # API route tests
+│   ├── lists.test.js
+│   ├── restaurants.test.js
+│   └── reviews.test.js
+├── components/                   # Component tests
+│   ├── RestaurantCard.test.jsx
+│   ├── ListForm.test.jsx
+│   └── ReviewCard.test.jsx
+└── hooks/                        # Custom hooks tests
+    ├── useRestaurantForm.test.js
+    ├── useListForm.test.js
+    └── useAuth.test.js
+```
+
+## Git Workflow#
+
+### Branch Naming#
 ```bash
 # Feature branches
 git checkout -b feature/restaurant-filters
@@ -310,7 +386,10 @@ git checkout -b fix/restaurant-card-layout
 git checkout -b docs/api-documentation
 ```
 
-### Commit Messages
+### Commit Messages#
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
 ```bash
 # Good commit messages
 git commit -m "feat: add restaurant filtering by cuisine type"
@@ -325,11 +404,12 @@ git commit -m "fix stuff"
 git commit -m "update"
 ```
 
-### Pull Request Process
+### Pull Request Process#
+
 1. Create a feature branch from `main`
 2. Make your changes
 3. Test thoroughly (unit tests, integration tests, manual testing)
-4. Update documentation if needed
+4. Update documentation if needed (use `/docs` command)
 5. Create a pull request with:
    - Clear description of changes
    - Screenshots for UI changes
@@ -337,10 +417,10 @@ git commit -m "update"
 6. Code review and approval
 7. Merge to `main`
 
-## Performance Optimization
+## Performance Optimization#
 
-### Component Optimization
-```javascript
+### Component Optimization#
+```jsx
 // Use React.memo for expensive components
 const RestaurantCard = React.memo(function RestaurantCard({ restaurant }) {
   return (
@@ -356,8 +436,8 @@ const filteredRestaurants = useMemo(() => {
 }, [restaurants, searchQuery]);
 ```
 
-### Image Optimization
-```javascript
+### Image Optimization#
+```jsx
 // Use Next.js Image component
 import Image from 'next/image';
 
@@ -370,7 +450,7 @@ import Image from 'next/image';
 />
 ```
 
-### Bundle Analysis
+### Bundle Analysis#
 ```bash
 # Analyze bundle size
 npm install --save-dev @next/bundle-analyzer
@@ -379,14 +459,15 @@ npm install --save-dev @next/bundle-analyzer
 "analyze": "ANALYZE=true npm run build"
 ```
 
-## Debugging
+## Debugging#
 
-### Browser DevTools
+### Browser DevTools#
+
 - Use React DevTools for component inspection
 - Network tab for API call debugging
 - Console for error logging
 
-### Supabase Debugging
+### Supabase Debugging#
 ```javascript
 // Enable query logging
 const supabase = createClient(url, key, {
@@ -399,9 +480,9 @@ const supabase = createClient(url, key, {
 });
 ```
 
-### Common Issues
+### Common Issues#
 
-#### Database Connection Issues
+#### Database Connection Issues#
 ```bash
 # Check environment variables
 echo $NEXT_PUBLIC_SUPABASE_URL
@@ -412,7 +493,7 @@ curl -X GET 'https://your-project.supabase.co/rest/v1/restaurants' \
   -H 'apikey: your-anon-key'
 ```
 
-#### Build Issues
+#### Build Issues#
 ```bash
 # Clear Next.js cache
 rm -rf .next
@@ -422,9 +503,9 @@ npm run build
 npx tsc --noEmit
 ```
 
-## Deployment
+## Deployment#
 
-### Local Testing
+### Local Testing#
 ```bash
 # Build for production
 npm run build
@@ -433,22 +514,32 @@ npm run build
 npm run start
 ```
 
-### Environment Variables
+### Environment Variables#
+
 Ensure all production environment variables are set in your deployment platform:
 
-- Vercel: Project settings > Environment Variables
-- Netlify: Site settings > Environment variables
-- Railway: Project variables
+- **Vercel**: Project settings > Environment Variables
+- **Netlify**: Site settings > Environment variables
+- **Railway**: Project variables
 
-### Database Migrations
+Required variables:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+
+### Database Migrations#
+
 ```sql
 -- Run these in Supabase SQL editor for production
--- (See docs/database-schema.md for full migration scripts)
+-- (See docs/database/database-schema.md for full migration scripts)
 ```
 
-## Security Checklist
+## Security Checklist#
 
-### Before Deployment
+### Before Deployment#
+
 - [ ] Remove console.log statements
 - [ ] Validate environment variables
 - [ ] Test authentication flows
@@ -457,7 +548,7 @@ Ensure all production environment variables are set in your deployment platform:
 - [ ] Test input validation
 - [ ] Verify HTTPS everywhere
 
-### Code Security
+### Code Security#
 ```javascript
 // Good: Sanitize user input
 const sanitizedName = DOMPurify.sanitize(userInput);
@@ -467,13 +558,13 @@ const sanitizedName = DOMPurify.sanitize(userInput);
 const query = `SELECT * FROM restaurants WHERE name = '${userInput}'`;
 ```
 
-## Menu System Components
+## Menu System Components#
 
-The FoodList application includes advanced menu management components that allow restaurants to have multiple external links and uploaded images.
+The FoodLister application includes advanced menu management components that allow restaurants to have multiple external links and uploaded images.
 
-### MenuCarousel Component
+### MenuCarousel Component#
 
-**Location**: `components/ui/MenuCarousel.jsx`
+**Location**: `components/ui/MenuCarousel.tsx`
 
 **Purpose**: Displays restaurant menu images in an interactive carousel with modal viewer.
 
@@ -499,25 +590,9 @@ function RestaurantPage({ restaurant }) {
 }
 ```
 
-**Props**:
-- `images` (array): Array of image URLs to display
-- `className` (string, optional): Additional CSS classes
+### MenuManager Component#
 
-**Mobile Behavior**:
-- Shows 1 image per row
-- First click shows icon indicator
-- Second click opens modal
-- Swipe gestures for navigation
-
-**Desktop Behavior**:
-- Shows 2-3 images per row
-- Hover shows icon indicator
-- Click directly opens modal
-- Dots navigation for sets
-
-### MenuManager Component
-
-**Location**: `components/ui/MenuManager.jsx`
+**Location**: `components/ui/MenuManager.tsx`
 
 **Purpose**: Form component for managing restaurant menu links and images during creation/editing.
 
@@ -528,35 +603,9 @@ function RestaurantPage({ restaurant }) {
 - **Validation**: URL validation and duplicate checking
 - **Progress indicators**: Visual feedback on limits reached
 
-**Usage**:
-```jsx
-import MenuManager from '@/components/ui/MenuManager';
+### ImageUploader Component#
 
-function RestaurantForm({ formData, onMenuLinksChange, onMenuImagesChange }) {
-  return (
-    <div>
-      <MenuManager
-        menuLinks={formData.menu_links}
-        menuImages={formData.menu_images}
-        onMenuLinksChange={onMenuLinksChange}
-        onMenuImagesChange={onMenuImagesChange}
-        disabled={loading}
-      />
-    </div>
-  );
-}
-```
-
-**Props**:
-- `menuLinks` (array): Current menu links
-- `menuImages` (array): Current menu images
-- `onMenuLinksChange` (function): Callback for link updates
-- `onMenuImagesChange` (function): Callback for image updates
-- `disabled` (boolean): Disable form when submitting
-
-### ImageUploader Component
-
-**Location**: `components/ui/ImageUploader.jsx`
+**Location**: `components/ui/ImageUploader.tsx`
 
 **Purpose**: Handles image uploads to Cloudinary with progress feedback.
 
@@ -567,121 +616,11 @@ function RestaurantForm({ formData, onMenuLinksChange, onMenuImagesChange }) {
 - **Error handling**: Individual error handling per image
 - **Responsive design**: Optimized for mobile and desktop
 
-**Usage**:
-```jsx
-import ImageUploader from '@/components/ui/ImageUploader';
-
-function ImageUploadSection({ onImageUploaded, maxFiles }) {
-  return (
-    <ImageUploader
-      onImageUploaded={onImageUploaded}
-      maxFiles={maxFiles}
-    />
-  );
-}
-```
-
-**Props**:
-- `onImageUploaded` (function): Callback when image is uploaded
-- `className` (string, optional): Additional CSS classes
-- `disabled` (boolean): Disable uploader
-- `maxFiles` (number): Maximum files allowed (default: 10)
-
-### Menu Data Structure
-
-**Menu Links**:
-```javascript
-// Array of strings (URLs)
-const menuLinks = [
-  "https://restaurant.com/menu",
-  "https://menu.pdf"
-];
-```
-
-**Menu Images**:
-```javascript
-// Array of strings (Cloudinary URLs)
-const menuImages = [
-  "https://cloudinary.com/image1.jpg",
-  "https://cloudinary.com/image2.png"
-];
-```
-
-### Database Integration
-
-**Creating restaurant with menu**:
-```javascript
-const { data, error } = await supabase
-  .from('restaurants')
-  .insert({
-    name: 'Restaurant Name',
-    menu_links: ['https://menu.pdf'],
-    menu_images: ['https://cloudinary.com/image1.jpg'],
-    // ... other fields
-  });
-```
-
-**Updating menu data**:
-```javascript
-const { data, error } = await supabase
-  .from('restaurants')
-  .update({
-    menu_links: [...existingLinks, 'https://new-menu.pdf'],
-    menu_images: [...existingImages, 'https://cloudinary.com/new-image.jpg']
-  })
-  .eq('id', restaurantId);
-```
-
-### Best Practices
-
-#### Component Integration
-```jsx
-// Good: Proper state management
-function RestaurantForm() {
-  const [menuLinks, setMenuLinks] = useState([]);
-  const [menuImages, setMenuImages] = useState([]);
-
-  return (
-    <MenuManager
-      menuLinks={menuLinks}
-      menuImages={menuImages}
-      onMenuLinksChange={setMenuLinks}
-      onMenuImagesChange={setMenuImages}
-    />
-  );
-}
-```
-
-#### Performance Considerations
-- **Lazy loading**: Images are loaded as needed
-- **Progressive enhancement**: Works without JavaScript
-- **Memory management**: Proper cleanup of event listeners
-- **Bundle optimization**: Components are tree-shakable
-
-#### Accessibility
-- **Keyboard navigation**: Full keyboard support
-- **Screen readers**: Proper ARIA labels
-- **Focus management**: Logical tab order
-- **Color contrast**: WCAG compliant colors
-
-#### Error Handling
-```jsx
-// Proper error handling for uploads
-const handleImageUpload = async (imageUrl) => {
-  try {
-    setMenuImages(prev => [...prev, imageUrl]);
-  } catch (error) {
-    console.error('Upload failed:', error);
-    // Show user-friendly error message
-  }
-};
-```
-
-## User Profile Components
+## User Profile Components#
 
 The application includes a comprehensive user profile system that allows users to view and manage their reviews, restaurants, and lists, as well as view other users' profiles.
 
-### Profile Component Architecture
+### Profile Component Architecture#
 
 ```
 components/ui/profile/
@@ -713,44 +652,47 @@ components/ui/profile/
         └── UserListsSection.tsx   # Lists grid with pagination
 ```
 
-### Design Patterns
+### Design Patterns#
 
-#### Card Component Structure
+#### Card Component Structure#
+
 All profile cards follow a consistent structure:
 1. **Header**: Image/visual element with rating badge and action buttons
 2. **Content**: Description, comments, or main information
 3. **Footer**: Metadata badges (rating, price, date, location, tags)
 4. **Actions**: Edit, delete, share buttons (positioned over header image)
 
-#### Responsive Grid Layout
+#### Responsive Grid Layout#
 ```tsx
 // Standard grid pattern used across all sections
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
 ```
 
-#### Touch-Optimized Components
-- Minimum touch target: 44px (TouchButton md size)
+#### Touch-Optimized Components#
+
+- Minimum touch target: 44px (TouchButton min size)
 - Touch feedback with active states
 - Swipe gestures for mobile (future enhancement)
 
-### State Management
+### State Management#
 
 Profile sections use a combination of:
 - **Local state**: For UI state (editing, loading more)
 - **useSecureApiClient hook**: For authenticated API calls
 - **useUserCache hook**: For cache invalidation after mutations
 
-### API Endpoints
+### API Endpoints#
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
+| `/api/users/[id]` | GET | Fetch user profile with stats |
+| `/api/users/me` | GET | Fetch current user profile |
+| `/api/users/me/stats` | GET | Fetch user statistics |
 | `/api/users/[id]/reviews` | GET | Fetch user's reviews with pagination |
 | `/api/users/[id]/restaurants` | GET | Fetch user's restaurants with pagination |
 | `/api/users/[id]/lists` | GET | Fetch user's lists with pagination |
-| `/api/reviews/[id]` | PUT | Update a review |
-| `/api/reviews/[id]` | DELETE | Delete a review |
 
-### Accessibility
+### Accessibility#
 
 - Keyboard navigation (Enter, Space for card interaction)
 - ARIA labels on all interactive elements
@@ -758,19 +700,37 @@ Profile sections use a combination of:
 - `prefers-reduced-motion` support for animations
 - Screen reader friendly badge descriptions
 
-## Contributing
+## Monitoring & Analytics#
 
-### Code Review Guidelines
+### Monitoring Utilities#
+
+- **apiMonitor.ts**: API call monitoring and logging
+- **dbMonitor.ts**: Database query performance monitoring
+- **performanceMonitor.ts**: Frontend performance monitoring
+- **analytics.ts**: User behavior analytics
+- **logger.ts**: General logging utilities
+
+### Error Tracking#
+
+- **Client-side**: Console logging and error boundaries
+- **Server-side**: Supabase logs and error reporting
+- **AuthLogger**: Session event logging (session start/refresh/expire)
+
+## Contributing#
+
+### Code Review Guidelines#
+
 - Review for code quality and adherence to standards
 - Test functionality thoroughly
 - Check for performance implications
 - Verify responsive design
 - Ensure accessibility compliance
 
-### Documentation Updates
+### Documentation Updates#
+
 - Update README.md for new features
 - Add JSDoc comments for new functions
-- Update API documentation
+- Update API documentation (use `/docs` command)
 - Create migration guides for breaking changes
 
-This development guide should be updated as the project evolves and new patterns emerge.
+This development guide should be updated as the project evolves and new patterns emerge. Use the `/docs` command to automatically update all documentation.
