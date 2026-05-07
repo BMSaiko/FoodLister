@@ -70,7 +70,7 @@ export default function MapSelectorModal() {
   // Early return after hooks to maintain hook order
   if (!isMapModalOpen || !mapModalData) return null;
 
-  const { location, latitude, longitude } = mapModalData;
+  const { location, latitude, longitude, source_url } = mapModalData;
 
   // Enhanced coordinate validation with better error handling
   const hasValidCoords = (
@@ -97,42 +97,38 @@ export default function MapSelectorModal() {
 
   const encodedLocation = validLocation ? encodeURIComponent(location.trim()) : '';
 
-  // URLs for different map apps with proper validation
-  const mapOptions = [
-    {
-      name: 'Google Maps',
-      icon: MapPin,
-      url: hasValidCoords
-        ? `https://maps.google.com/?ll=${latitude},${longitude}`
-        : validLocation
-        ? `https://maps.google.com/?q=${encodedLocation}`
-        : 'https://maps.google.com/',
-      color: 'bg-[var(--blue-500)] hover:bg-[var(--blue-600)]',
-      textColor: 'text-[var(--primary-foreground)]'
-    },
-    {
-      name: 'Waze',
-      icon: Navigation,
-      url: hasValidCoords && validLocation
-        ? `https://waze.com/ul?ll=${latitude},${longitude}&q=${encodedLocation}&navigate=yes`
-        : validLocation
-        ? `https://waze.com/ul?q=${encodedLocation}&navigate=yes`
-        : 'https://waze.com/',
-      color: 'bg-[var(--purple-500)] hover:bg-[var(--purple-600)]',
-      textColor: 'text-[var(--primary-foreground)]'
-    },
-    {
-      name: 'Apple Maps',
-      icon: Globe,
-      url: hasValidCoords && validLocation
-        ? `https://maps.apple.com/?ll=${latitude},${longitude}&q=${encodedLocation}`
-        : validLocation
-        ? `https://maps.apple.com/?q=${encodedLocation}`
-        : 'https://maps.apple.com/',
-      color: 'bg-[var(--gray-500)] hover:bg-[var(--gray-600)]',
-      textColor: 'text-[var(--primary-foreground)]'
-    }
-  ];
+      // URLs for different map apps with proper validation
+      // Google Maps uses extracted source_url (original Google Maps link from creation)
+      // Waze and Apple Maps use only coordinates (no location string)
+      const mapOptions = [
+        {
+          name: 'Google Maps',
+          icon: MapPin,
+          url: source_url || (hasValidCoords
+            ? `https://maps.google.com/?ll=${latitude},${longitude}`
+            : 'https://maps.google.com/'),
+          color: 'bg-[var(--blue-500)] hover:bg-[var(--blue-600)]',
+          textColor: 'text-[var(--primary-foreground)]'
+        },
+        {
+          name: 'Waze',
+          icon: Navigation,
+          url: hasValidCoords
+            ? `https://waze.com/ul?ll=${latitude},${longitude}&navigate=yes`
+            : 'https://waze.com/',
+          color: 'bg-[var(--purple-500)] hover:bg-[var(--purple-600)]',
+          textColor: 'text-[var(--primary-foreground)]'
+        },
+        {
+          name: 'Apple Maps',
+          icon: Globe,
+          url: hasValidCoords
+            ? `https://maps.apple.com/?ll=${latitude},${longitude}`
+            : 'https://maps.apple.com/',
+          color: 'bg-[var(--gray-500)] hover:bg-[var(--gray-600)]',
+          textColor: 'text-[var(--primary-foreground)]'
+        }
+      ];
 
   const handleOpenMap = (url: string) => {
     try {

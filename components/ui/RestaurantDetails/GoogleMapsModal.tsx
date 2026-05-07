@@ -359,7 +359,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[var(--green-600)] to-[var(--emerald-600)] text-white rounded-xl hover:from-[var(--green-700)] hover:to-[var(--emerald-700)] font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[var(--green-600)] to-[var(--green-500)] text-white rounded-xl hover:from-[var(--green-700)] hover:to-[var(--green-600)] font-semibold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                 >
                   Usar estas informações
                 </button>
