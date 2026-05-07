@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
-import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Sparkles, Apple, MapPin, Coffee, Wine, Utensils, Save, Clock, TrendingUp, Target, Zap, Star, Shield, Heart, ShieldCheck, Users, Calendar, RefreshCw } from 'lucide-react';
+import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Sparkles, Apple, MapPin, Coffee, Wine, Utensils, Save, Clock, TrendingUp, Target, Zap, Star, Shield, Heart, ShieldCheck, Users, Calendar, RefreshCw, ArrowUp } from 'lucide-react';
 import Link from 'next/link';
 import RestaurantCard from '../RestaurantCard';
 import { toast } from 'react-toastify';
@@ -36,6 +36,17 @@ const RestaurantRoulette = () => {
   const [rotation, setRotation] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  
+  // Track scroll position to show/hide scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 100);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   // Filtros - usando o sistema de filtros lógicos
   const [showFilters, setShowFilters] = useState(false);
@@ -626,7 +637,16 @@ const RestaurantRoulette = () => {
           </div>
           
           {/* Botão de girar - Fixed no mobile, right-aligned on desktop */}
-          <div className="fixed bottom-4 left-4 right-4 z-[9999] flex justify-center sm:fixed sm:bottom-4 sm:right-4 sm:left-auto sm:w-auto sm:rounded-xl sm:z-[9999] sm:shadow-xl sm:bg-white sm:border sm:border-amber-500 sm:p-3">
+          <div className="fixed bottom-4 left-4 right-4 z-[9999] flex justify-center gap-2 sm:fixed sm:bottom-4 sm:right-4 sm:left-auto sm:w-auto sm:rounded-xl sm:z-[9999] sm:shadow-xl sm:bg-white sm:border sm:border-amber-500 sm:p-3">
+            {showScrollTop && (
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="px-4 py-3.5 sm:py-3 bg-[var(--gray-200)] text-[var(--gray-700)] rounded-full font-bold text-base sm:text-lg hover:bg-[var(--gray-300)] active:bg-[var(--gray-400)] transition-all flex items-center justify-center gap-2 shadow-lg min-h-[52px] sm:min-h-[48px]"
+                title="Voltar ao topo"
+              >
+                <ArrowUp className="h-5 w-5" />
+              </button>
+            )}
             <button
               onClick={handleSpin}
               disabled={spinning || availableCount === 0}
