@@ -1,13 +1,14 @@
 # API Documentation
 
-This document describes the API endpoints available in the FoodList application. The application primarily uses Supabase as the backend, so most data operations are handled through Supabase client queries rather than REST API endpoints.
+This document describes the API endpoints available in the FoodLister application. The application uses a hybrid approach with Next.js API routes for specific operations and Supabase client for direct database operations.
 
 ## Overview
 
-The FoodList application uses a hybrid architecture:
-- **Frontend**: Next.js application with client-side data fetching
-- **Backend**: Supabase (PostgreSQL database with real-time capabilities)
-- **API Routes**: Minimal custom API routes, primarily for specific integrations
+The FoodLister application uses the following architecture:
+- **Frontend**: Next.js 13+ with App Router
+- **Backend**: Next.js API Routes + Supabase (PostgreSQL database with RLS)
+- **Client**: Supabase client for direct database queries
+- **API Routes**: Custom endpoints for complex operations, session management, and aggregations
 
 ## Architecture
 
@@ -17,21 +18,120 @@ The FoodList application uses a hybrid architecture:
 │   (Frontend)    │                       │   Database       │
 └─────────────────┘                       └─────────────────┘
          │                                       │
-         │                                       │
-         ▼                                       ▼
+         │ API Routes                            │
+         ▼                                       │
 ┌─────────────────┐                     ┌─────────────────┐
 │   API Routes    │                     │  Real-time       │
-│   (Optional)    │                     │  Subscriptions   │
+│   /api/*        │                     │  Subscriptions   │
 └─────────────────┘                     └─────────────────┘
 ```
 
-## Available API Routes
+## Base URL
 
-### Lists API
+All API routes are relative to the application base URL:
+- Development: `http://localhost:3000/api/*`
+- Production: `https://your-domain.com/api/*`
 
-#### GET `/api/lists`
+## Authentication
 
-**Purpose**: Retrieves lists with optional search filtering and restaurant counts. Returns user's own lists + public lists for authenticated users, only public lists for unauthenticated users.
+Most API routes support optional or required authentication:
+- **Optional Auth**: Returns public data + user-specific data if authenticated
+- **Required Auth**: Returns 401 if not authenticated
+- **Session-based**: Uses cookies for session management (Supabase Auth)
+
+### Session Endpoint
+- **`GET /api/auth/session`** - Get current user session data (access token, refresh token, expiry, user info)
+
+## API Endpoints
+
+### Health Check
+
+#### `GET /api/health`
+**Purpose**: Simple health check for monitoring and load balancers
+
+**Authentication**: Not required
+
+**Response**:
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-01-15T10:30:00.000Z",
+  "uptime": 12345.67,
+  "environment": "production",
+  "version": "1.0.0"
+}
+```
+
+---
+
+### Reference Data Endpoints
+
+#### `GET /api/cuisine-types`
+**Purpose**: List all cuisine types available in the system
+
+**Authentication**: Not required
+
+**Response**:
+```json
+[
+  {
+    "id": "uuid",
+    "name": "Italian",
+    "description": "Italian cuisine",
+    "icon": "🍝",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+#### `POST /api/cuisine-types`
+**Purpose**: Create a new cuisine type
+
+**Authentication**: Required
+
+**Request Body**:
+```json
+{
+  "name": "Japanese",
+  "description": "Japanese cuisine",
+  "icon": "🍣"
+}
+```
+
+---
+
+#### `GET /api/dietary-options`
+**Purpose**: List all dietary options available in the system
+
+**Authentication**: Not required
+
+**Response**: Array of dietary option objects
+
+#### `POST /api/dietary-options`
+**Purpose**: Create a new dietary option
+
+**Authentication**: Required
+
+---
+
+#### `GET /api/features`
+**Purpose**: List all restaurant features available in the system
+
+**Authentication**: Not required
+
+**Response**: Array of feature objects
+
+#### `POST /api/features`
+**Purpose**: Create a new restaurant feature
+
+**Authentication**: Required
+
+---
+
+### Lists Endpoints
+
+#### `GET /api/lists`
+**Purpose**: Fetch lists with search filtering and restaurant counts
 
 **Authentication**: Optional (affects which lists are returned)
 
@@ -58,29 +158,35 @@ The FoodList application uses a hybrid architecture:
 }
 ```
 
-**Security**: 
+**Security**:
 - Authenticated users: See their own lists (public + private) + public lists from others
 - Unauthenticated users: See only public lists
-- Application-level filtering ensures `is_public` is respected
 
 **Caching**: `Cache-Control: public, s-maxage=60, stale-while-revalidate=120`
 
-**Usage**:
-```javascript
-// Get all lists (public only if not authenticated)
-fetch('/api/lists')
-  .then(response => response.json())
-  .then(data => console.log(data));
+#### `POST /api/lists`
+**Purpose**: Create a new list
 
-// Search lists
-fetch('/api/lists?search=favorite')
-  .then(response => response.json())
-  .then(data => console.log(data));
+**Authentication**: Required
+
+**Request Body**:
+```json
+{
+  "name": "My New List",
+  "description": "List description",
+  "is_public": true,
+  "filters": null
+}
 ```
 
-#### GET `/api/lists/[id]`
+**Response**: Created list object
 
-**Purpose**: Retrieves a specific list with all its restaurants, including cuisine types, features, and dietary options.
+---
+
+#### `GET /api/lists/[id]`
+**Purpose**: Retrieve a specific list with all its restaurants, including cuisine types, features, and dietary options
+
+**Authentication**: Optional (private lists only visible to owner)
 
 **Parameters**: List ID in URL path
 
@@ -97,49 +203,76 @@ fetch('/api/lists?search=favorite')
     "filters": null,
     "created_at": "2024-01-01T00:00:00Z",
     "updated_at": "2024-01-01T00:00:00Z",
-    "restaurants": [
-      {
-        "id": "uuid",
-        "name": "Restaurant Name",
-        "description": "Description",
-        "cuisine_types": [...],
-        "restaurant_restaurant_features": [...],
-        "restaurant_dietary_options_junction": [...]
-        // ... other restaurant fields
-      }
-    ]
+    "restaurants": [...]
   }
 }
 ```
 
 **Security**: Respects RLS policies - private lists only visible to owner
 
-**Caching**: `Cache-Control: public, s-maxage=60, stale-while-revalidate=120`
+#### `PUT /api/lists/[id]`
+**Purpose**: Update list details (name, description, public status)
 
-**Usage**:
-```javascript
-fetch('/api/lists/123e4567-e89b-12d3-a456-426614174000')
-  .then(response => response.json())
-  .then(data => console.log(data));
+**Authentication**: Required (only list owner)
+
+**Request Body**:
+```json
+{
+  "name": "Updated Name",
+  "description": "Updated description",
+  "is_public": false
+}
 ```
 
-#### ⚠️ Missing List API Endpoints
+#### `PATCH /api/lists/[id]`
+**Purpose**: Partially update list details
 
-The following endpoints are **not yet implemented**:
+**Authentication**: Required (only list owner)
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/lists` | POST | Create a new list |
-| `/api/lists/[id]` | PUT/PATCH | Update list details |
-| `/api/lists/[id]` | DELETE | Delete a list |
+#### `DELETE /api/lists/[id]`
+**Purpose**: Delete a list and its restaurant associations
 
-**Note**: List creation and updates are currently handled directly via the Supabase client in the frontend components. See `components/pages/CreateList.jsx` and `components/pages/EditList.jsx` for implementation details.
+**Authentication**: Required (only list owner)
 
-### Restaurants API
+---
 
-#### GET `/api/restaurants`
+#### `GET /api/lists/[id]/restaurants`
+**Purpose**: Get all restaurants in a specific list
 
-**Purpose**: Retrieves all restaurants with optional search filtering, including cuisine types and review counts
+**Authentication**: Optional (depends on list visibility)
+
+#### `POST /api/lists/[id]/restaurants`
+**Purpose**: Add a restaurant to a list
+
+**Authentication**: Required (only list owner)
+
+**Request Body**:
+```json
+{
+  "restaurant_id": "uuid"
+}
+```
+
+#### `DELETE /api/lists/[id]/restaurants/[restaurantId]`
+**Purpose**: Remove a restaurant from a list
+
+**Authentication**: Required (only list owner)
+
+---
+
+#### `POST /api/lists/[id]/share`
+**Purpose**: Share a list (generate share link or manage sharing)
+
+**Authentication**: Required (only list owner)
+
+---
+
+### Restaurants Endpoints
+
+#### `GET /api/restaurants`
+**Purpose**: Retrieve all restaurants with optional search filtering, including cuisine types and review counts
+
+**Authentication**: Not required (public data)
 
 **Parameters**:
 - `search` (optional): String to filter restaurants by name
@@ -160,44 +293,122 @@ The following endpoints are **not yet implemented**:
       "creator": "user_id",
       "menu_url": "https://...",
       "menu_links": ["https://menu1.pdf", "https://menu2.com"],
-      "menu_images": ["https://cloudinary.com/image1.jpg", "https://cloudinary.com/image2.png"],
+      "menu_images": ["https://cloudinary.com/image1.jpg"],
       "phone_numbers": ["+1234567890"],
       "visited": false,
       "created_at": "2024-01-01T00:00:00Z",
       "updated_at": "2024-01-01T00:00:00Z",
-      "cuisine_types": [
-        {
-          "id": "uuid",
-          "name": "Italian",
-          "description": "Italian cuisine",
-          "icon": "🍝",
-          "created_at": "2024-01-01T00:00:00Z"
-        }
-      ],
+      "cuisine_types": [...],
       "review_count": 3
     }
   ]
 }
 ```
 
-**Usage**:
-```javascript
-// Get all restaurants
-fetch('/api/restaurants')
-  .then(response => response.json())
-  .then(data => console.log(data));
+---
 
-// Search restaurants
-fetch('/api/restaurants?search=italian')
-  .then(response => response.json())
-  .then(data => console.log(data));
+#### `GET /api/restaurants/[id]`
+**Purpose**: Get a specific restaurant with all details
+
+**Authentication**: Not required
+
+#### `PUT /api/restaurants/[id]`
+**Purpose**: Update restaurant details
+
+**Authentication**: Required (only creator or admin)
+
+#### `DELETE /api/restaurants/[id]`
+**Purpose**: Delete a restaurant
+
+**Authentication**: Required (only creator)
+
+---
+
+#### `GET /api/restaurants/[id]/lists`
+**Purpose**: Get all lists that contain this restaurant
+
+**Authentication**: Optional
+
+---
+
+#### `GET /api/restaurants/visits`
+**Purpose**: Get visit data for multiple restaurants in a single request
+
+**Authentication**: Required (via Authorization header)
+
+**Request Body**:
+```json
+{
+  "restaurantIds": ["uuid1", "uuid2", "uuid3"]
+}
 ```
 
-### Reviews API
+**Response**:
+```json
+{
+  "uuid1": {
+    "visited": true,
+    "visitCount": 2
+  },
+  "uuid2": {
+    "visited": false,
+    "visitCount": 0
+  }
+}
+```
 
-#### GET `/api/reviews`
+#### `POST /api/restaurants/visits`
+**Purpose**: Record visits for multiple restaurants
 
-**Purpose**: Retrieves all reviews for a specific restaurant
+**Authentication**: Required
+
+---
+
+#### `GET /api/restaurants/[id]/visits`
+**Purpose**: Get visit data for a specific restaurant
+
+**Authentication**: Required
+
+**Response**:
+```json
+{
+  "visited": true,
+  "visitCount": 3
+}
+```
+
+#### `POST /api/restaurants/[id]/visits`
+**Purpose**: Record a visit to a restaurant (increments visit count)
+
+**Authentication**: Required
+
+**Response**:
+```json
+{
+  "visited": true,
+  "visitCount": 2
+}
+```
+
+#### `PATCH /api/restaurants/[id]/visits`
+**Purpose**: Update visit status (toggle visited/unvisited or adjust count)
+
+**Authentication**: Required
+
+**Request Body** (one of):
+```json
+{"action": "toggle_visited"}
+{"action": "remove_visit"}
+```
+
+---
+
+### Reviews Endpoints
+
+#### `GET /api/reviews`
+**Purpose**: Get all reviews for a specific restaurant
+
+**Authentication**: Not required
 
 **Parameters**:
 - `restaurant_id` (required): UUID of the restaurant
@@ -223,16 +434,8 @@ fetch('/api/restaurants?search=italian')
 }
 ```
 
-**Usage**:
-```javascript
-fetch('/api/reviews?restaurant_id=123e4567-e89b-12d3-a456-426614174000')
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
-
-#### POST `/api/reviews`
-
-**Purpose**: Creates a new review for a restaurant
+#### `POST /api/reviews`
+**Purpose**: Create a new review for a restaurant
 
 **Authentication**: Required
 
@@ -245,281 +448,94 @@ fetch('/api/reviews?restaurant_id=123e4567-e89b-12d3-a456-426614174000')
 }
 ```
 
-**Response**: Created review object
+---
 
-**Usage**:
-```javascript
-fetch('/api/reviews', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    restaurant_id: '123e4567-e89b-12d3-a456-426614174000',
-    rating: 4,
-    comment: 'Great experience!'
-  })
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
+#### `GET /api/reviews/[id]`
+**Purpose**: Get a specific review with user and restaurant details
 
-### Visits API
+**Authentication**: Not required
 
-#### GET `/api/restaurants/visits`
-
-**Purpose**: Retrieves visit data for multiple restaurants in a single request
-
-**Authentication**: Required (via Authorization header)
-
-**Parameters**:
-- `restaurantIds` (required): Array of restaurant UUIDs
-
-**Request Body**:
-```json
-{
-  "restaurantIds": [
-    "uuid1",
-    "uuid2",
-    "uuid3"
-  ]
-}
-```
-
-**Response**:
-```json
-{
-  "uuid1": {
-    "visited": true,
-    "visitCount": 2
-  },
-  "uuid2": {
-    "visited": false,
-    "visitCount": 0
-  },
-  "uuid3": {
-    "visited": true,
-    "visitCount": 1
-  }
-}
-```
-
-**Usage**:
-```javascript
-fetch('/api/restaurants/visits', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer your-jwt-token'
-  },
-  body: JSON.stringify({
-    restaurantIds: ['uuid1', 'uuid2', 'uuid3']
-  })
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
-
-#### GET `/api/restaurants/[id]/visits`
-
-**Purpose**: Retrieves visit data for a specific restaurant
-
-**Authentication**: Required (via Authorization header)
-
-**Parameters**: Restaurant ID in URL path
-
-**Response**:
-```json
-{
-  "visited": true,
-  "visitCount": 3
-}
-```
-
-**Usage**:
-```javascript
-fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
-  headers: {
-    'Authorization': 'Bearer your-jwt-token'
-  }
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
-
-#### POST `/api/restaurants/[id]/visits`
-
-**Purpose**: Records a visit to a restaurant (increments visit count)
-
-**Authentication**: Required (via Authorization header)
-
-**Parameters**: Restaurant ID in URL path
-
-**Response**:
-```json
-{
-  "visited": true,
-  "visitCount": 2
-}
-```
-
-**Usage**:
-```javascript
-fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer your-jwt-token'
-  }
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
-
-#### PATCH `/api/restaurants/[id]/visits`
-
-**Purpose**: Updates visit status for a restaurant (toggle visited/unvisited or adjust visit count)
-
-**Authentication**: Required (via Authorization header)
-
-**Parameters**: Restaurant ID in URL path
-
-**Request Body** (one of):
-```json
-// Toggle visited status
-{
-  "action": "toggle_visited"
-}
-
-// Remove one visit
-{
-  "action": "remove_visit"
-}
-```
-
-**Response**:
-```json
-{
-  "visited": true,
-  "visitCount": 1
-}
-```
-
-**Usage**:
-```javascript
-// Toggle visited status
-fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
-  method: 'PATCH',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer your-jwt-token'
-  },
-  body: JSON.stringify({
-    action: 'toggle_visited'
-  })
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-
-// Remove one visit
-fetch('/api/restaurants/123e4567-e89b-12d3-a456-426614174000/visits', {
-  method: 'PATCH',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer your-jwt-token'
-  },
-  body: JSON.stringify({
-    action: 'remove_visit'
-  })
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
-
-#### GET `/api/reviews/[id]`
-
-**Purpose**: Retrieves a specific review with user and restaurant details
-
-**Parameters**: Review ID in URL path
-
-**Response**: Single review object with expanded user and restaurant information
-
-**Usage**:
-```javascript
-fetch('/api/reviews/123e4567-e89b-12d3-a456-426614174000')
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
-
-#### PUT `/api/reviews/[id]`
-
-**Purpose**: Updates an existing review (user can only update their own reviews)
+#### `PUT /api/reviews/[id]`
+**Purpose**: Update an existing review (user can only update their own)
 
 **Authentication**: Required
 
-**Request Body**:
-```json
-{
-  "rating": 5,
-  "comment": "Even better than I thought!"
-}
-```
-
-**Response**: Updated review object
-
-**Usage**:
-```javascript
-fetch('/api/reviews/123e4567-e89b-12d3-a456-426614174000', {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    rating: 5,
-    comment: 'Even better than I thought!'
-  })
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
-```
-
-#### DELETE `/api/reviews/[id]`
-
-**Purpose**: Deletes a review (user can only delete their own reviews)
+#### `DELETE /api/reviews/[id]`
+**Purpose**: Delete a review (user can only delete their own)
 
 **Authentication**: Required
 
-**Response**: Success message
+---
 
-**Usage**:
-```javascript
-fetch('/api/reviews/123e4567-e89b-12d3-a456-426614174000', {
-  method: 'DELETE'
-})
-  .then(response => response.json())
-  .then(data => console.log(data));
+### User Endpoints
+
+#### `GET /api/users/me`
+**Purpose**: Get current user's profile and settings
+
+**Authentication**: Required
+
+**Response**:
+```json
+{
+  "user": {
+    "id": "uuid",
+    "name": "User Name",
+    "email": "user@example.com",
+    "avatar_url": "https://...",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+}
 ```
 
-## Database Operations
+#### `GET /api/users/me/lists`
+**Purpose**: Get all lists created by the current user
 
-While the application doesn't have many custom API routes, it performs extensive database operations through Supabase. Here are the main data operations:
+**Authentication**: Required
 
-### Restaurants
+#### `GET /api/users/me/stats`
+**Purpose**: Get current user's statistics (restaurants visited, lists created, reviews written, etc.)
 
-#### Fetch All Restaurants
+**Authentication**: Required
+
+**Response**:
+```json
+{
+  "restaurants_visited": 42,
+  "lists_created": 5,
+  "reviews_written": 12,
+  "total_visits": 60
+}
+```
+
+---
+
+## Supabase Direct Operations
+
+While the application has many API routes, it also performs direct database operations through the Supabase client for simpler CRUD operations.
+
+### Restaurant Operations
+
+#### Fetch Restaurants with Relations
 ```javascript
 import { createClient } from '@/libs/supabase/client';
 
 const supabase = createClient();
 
-// Fetch restaurants with cuisine types
 const { data, error } = await supabase
   .from('restaurants')
   .select(`
     *,
     cuisine_types:restaurant_cuisine_types(
       cuisine_type:cuisine_types(*)
+    ),
+    restaurant_restaurant_features(
+      feature:restaurant_features(*)
+    ),
+    restaurant_dietary_options_junction(
+      dietary_option:dietary_options(*)
     )
-  `);
+  `)
+  .order('created_at', { ascending: false });
 ```
 
 #### Create Restaurant
@@ -532,50 +548,29 @@ const { data, error } = await supabase
     location: 'Address',
     price_per_person: 25.50,
     rating: 4.5,
-    creator: userId
+    creator: userId,
+    menu_links: ['https://menu.pdf'],
+    menu_images: ['https://cloudinary.com/image.jpg'],
+    phone_numbers: ['+1234567890']
   })
-  .select();
+  .select()
+  .single();
 ```
 
-#### Update Restaurant
-```javascript
-const { data, error } = await supabase
-  .from('restaurants')
-  .update({
-    visited: true,
-    rating: 4.8
-  })
-  .eq('id', restaurantId);
-```
+---
 
-#### Delete Restaurant
-```javascript
-const { error } = await supabase
-  .from('restaurants')
-  .delete()
-  .eq('id', restaurantId);
-```
+### List Operations
 
-### Lists
-
-#### Fetch All Lists
+#### Fetch User Lists
 ```javascript
 const { data, error } = await supabase
   .from('lists')
-  .select('*')
+  .select(`
+    *,
+    list_restaurants(count)
+  `)
+  .eq('creator_id', userId)
   .order('created_at', { ascending: false });
-```
-
-#### Create List
-```javascript
-const { data, error } = await supabase
-  .from('lists')
-  .insert({
-    name: 'My Favorite Restaurants',
-    description: 'A collection of my favorite places',
-    creator: userId
-  })
-  .select();
 ```
 
 #### Add Restaurant to List
@@ -588,28 +583,46 @@ const { data, error } = await supabase
   });
 ```
 
-### Cuisine Types
+---
 
-#### Fetch All Cuisine Types
+## Menu System
+
+Restaurants can have multiple menu links and images stored in Cloudinary.
+
+### Menu Fields
+- **`menu_links`**: Array of external URLs (max 5 links) - PDFs, websites
+- **`menu_images`**: Array of Cloudinary image URLs (max 10 images) - scanned menus, photos
+- **`menu_url`**: Deprecated single URL field (maintained for backward compatibility)
+
+### Menu Validation
+- Maximum 5 external links per restaurant
+- Maximum 10 uploaded images per restaurant
+- Links must be valid HTTP/HTTPS URLs
+- Images must be valid Cloudinary URLs
+
+---
+
+## Image Upload
+
+### Cloudinary Integration
+The application uses Cloudinary for image storage with the following utility:
+
 ```javascript
-const { data, error } = await supabase
-  .from('cuisine_types')
-  .select('*')
-  .order('name');
+import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
+
+const imageUrl = await uploadToCloudinary(imageFile, {
+  maxRetries: 3,
+  delay: 1000
+});
 ```
 
-#### Fetch Restaurants by Cuisine
-```javascript
-const { data, error } = await supabase
-  .from('restaurants')
-  .select(`
-    *,
-    cuisine_types:restaurant_cuisine_types(
-      cuisine_type:cuisine_types(*)
-    )
-  `)
-  .eq('restaurant_cuisine_types.cuisine_type_id', cuisineTypeId);
-```
+Features:
+- Automatic URL optimization with transformations
+- Retry logic with progressive delay
+- Validation of Cloudinary URLs
+- Public ID extraction for management
+
+---
 
 ## Search and Filtering
 
@@ -621,293 +634,155 @@ const { data, error } = await supabase
   .ilike('name', `%${searchQuery}%`);
 ```
 
-### Advanced Filtering
-```javascript
-let query = supabase.from('restaurants').select('*');
-
-// Price filter
-if (maxPrice) {
-  query = query.lte('price_per_person', maxPrice);
-}
-
-// Rating filter
-if (minRating) {
-  query = query.gte('rating', minRating);
-}
-
-// Visit status filter
-if (visitedOnly) {
-  query = query.eq('visited', true);
-}
-
-const { data, error } = await query;
-```
-
-## Real-time Subscriptions
-
-The application uses Supabase real-time capabilities for live updates:
-
-### Restaurant Changes
-```javascript
-const subscription = supabase
-  .channel('restaurants')
-  .on('postgres_changes',
-    {
-      event: '*',
-      schema: 'public',
-      table: 'restaurants'
-    },
-    (payload) => {
-      console.log('Restaurant changed:', payload);
-      // Update UI accordingly
-    }
-  )
-  .subscribe();
-```
-
-### List Changes
-```javascript
-const subscription = supabase
-  .channel('lists')
-  .on('postgres_changes',
-    {
-      event: '*',
-      schema: 'public',
-      table: 'lists'
-    },
-    (payload) => {
-      console.log('List changed:', payload);
-      // Update UI accordingly
-    }
-  )
-  .subscribe();
-```
-
-## Error Handling
-
-All Supabase operations return an error object that should be handled:
+### Advanced Filtering with Hooks
+The application provides `useRestaurants` hook with built-in filtering:
 
 ```javascript
-const { data, error } = await supabase
-  .from('restaurants')
-  .select('*');
+import { useRestaurants } from '@/hooks/data';
 
-if (error) {
-  console.error('Error fetching restaurants:', error);
-  // Handle error (show toast, retry, etc.)
-} else {
-  // Process data
-  setRestaurants(data);
-}
-```
-
-## Authentication
-
-The application uses Supabase Auth for user management:
-
-### Sign Up
-```javascript
-const { data, error } = await supabase.auth.signUp({
-  email: 'user@example.com',
-  password: 'password'
+const { restaurants, loading, error } = useRestaurants({
+  search: 'italian',
+  maxPrice: 50,
+  minRating: 4.0,
+  visitedOnly: true,
+  cuisineTypes: ['uuid1', 'uuid2']
 });
 ```
 
-### Sign In
-```javascript
-const { data, error } = await supabase.auth.signInWithPassword({
-  email: 'user@example.com',
-  password: 'password'
-});
-```
-
-### Sign Out
-```javascript
-const { error } = await supabase.auth.signOut();
-```
-
-### Get Current User
-```javascript
-const { data: { user } } = await supabase.auth.getUser();
-```
-
-## File Uploads
-
-### Image Upload to Imgur (via utility function)
-```javascript
-import { uploadToImgur } from '@/utils/imgurConverter';
-
-const imageUrl = await uploadToImgur(imageFile);
-```
-
-## Google Maps Integration
-
-### Extract Data from Google Maps URL
-```javascript
-import { extractGoogleMapsData } from '@/utils/googleMapsExtractor';
-
-const restaurantData = extractGoogleMapsData(googleMapsUrl);
-// Returns: { name, location, url }
-```
-
-## Rate Limiting
-
-Supabase has built-in rate limiting, but additional client-side rate limiting may be implemented for:
-
-- Search operations
-- Bulk operations
-- External API calls (Imgur, Google Maps parsing)
+---
 
 ## Caching Strategy
 
-The application uses:
-- **Browser caching** for static assets
-- **Supabase caching** for database queries
-- **Service Worker** (if implemented) for offline functionality
+### API Routes
+- Health endpoint: No caching
+- Reference data (cuisine-types, dietary-options, features): `Cache-Control: public, s-maxage=300`
+- Lists: `Cache-Control: public, s-maxage=60, stale-while-revalidate=120`
+- Restaurants: `Cache-Control: public, s-maxage=60, stale-while-revalidate=120`
 
-## Menu System
+### Client-side Caching
+The `apiClient` in `libs/apiClient.ts` provides:
+- Response caching with TTL support (default 5 minutes)
+- Request deduplication to avoid duplicate simultaneous requests
+- Cache invalidation methods: `invalidateCache()`, `clearCache()`
 
-The FoodList application includes a comprehensive menu system allowing restaurants to have multiple external links and uploaded images.
+---
 
-### Menu Fields in Restaurant Objects
+## Rate Limiting
 
-When retrieving restaurants, the following menu-related fields are included:
+### Server-side
+- Middleware rate limiter in `middleware/rateLimiter.ts`
+- API routes have built-in protection
 
-- **`menu_links`**: Array of external URLs (max 5 links)
-- **`menu_images`**: Array of Cloudinary image URLs (max 10 images)
-- **`menu_url`**: Deprecated single URL field (for backward compatibility)
+### Client-side
+The `apiClient` includes:
+- Client-side rate limiter (max 10 requests/second)
+- Configurable request timeout (default 30 seconds)
+- Retry logic with exponential backoff
 
-### Creating Restaurants with Menus
+---
 
-```javascript
-const { data, error } = await supabase
-  .from('restaurants')
-  .insert({
-    name: 'Restaurant Name',
-    description: 'Description',
-    // ... other fields
-    menu_links: ['https://menu.pdf', 'https://restaurant.com/menu'],
-    menu_images: ['https://cloudinary.com/image1.jpg', 'https://cloudinary.com/image2.png']
-  })
-  .select();
+## Error Handling
+
+All API routes return standardized error responses:
+
+```json
+{
+  "error": "Error message",
+  "code": "ERROR_CODE",
+  "details": {}
+}
 ```
 
-### Updating Menu Information
+Common HTTP status codes:
+- `200`: Success
+- `201`: Created
+- `400`: Bad Request
+- `401`: Unauthorized
+- `403`: Forbidden
+- `404`: Not Found
+- `500`: Internal Server Error
 
+---
+
+## Security
+
+### Row Level Security (RLS)
+All database tables have RLS policies enabled:
+- Users can only modify their own data
+- Public data is readable by everyone
+- Private lists only visible to owners
+- Reviews can only be modified by their authors
+
+### Authentication
+- Supabase Auth with JWT tokens
+- Session management via cookies
+- API routes check authentication via `getUser()` from Supabase
+
+---
+
+## Testing API Endpoints
+
+### Using fetch
 ```javascript
-// Add a new menu link
-const { data, error } = await supabase
-  .from('restaurants')
-  .update({
-    menu_links: existingLinks.concat('https://new-menu.pdf')
-  })
-  .eq('id', restaurantId);
+// Get all restaurants
+const response = await fetch('/api/restaurants');
+const data = await response.json();
 
-// Add a new menu image
-const { data, error } = await supabase
-  .from('restaurants')
-  .update({
-    menu_images: existingImages.concat('https://cloudinary.com/new-image.jpg')
+// Create a list (authenticated)
+const response = await fetch('/api/lists', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer your-jwt-token'
+  },
+  body: JSON.stringify({
+    name: 'My List',
+    is_public: true
   })
-  .eq('id', restaurantId);
+});
 ```
 
-### Menu Validation Rules
-
-#### Menu Links
-- **Maximum**: 5 external links per restaurant
-- **Format**: Must be valid HTTP/HTTPS URLs
-- **Uniqueness**: Duplicate links within the same restaurant are not allowed
-- **Purpose**: PDFs, websites, menu pages
-
-#### Menu Images
-- **Maximum**: 10 uploaded images per restaurant
-- **Format**: Cloudinary URLs pointing to valid image files
-- **Size**: Individual images limited by Cloudinary upload limits
-- **Purpose**: Scanned menus, photos of menu boards
-
-### Menu Operations Examples
-
-#### Check Menu Limits
+### Using apiClient
 ```javascript
-const restaurant = await supabase
-  .from('restaurants')
-  .select('menu_links, menu_images')
-  .eq('id', restaurantId)
-  .single();
+import { apiClient } from '@/libs/apiClient';
 
-const canAddLink = restaurant.menu_links.length < 5;
-const canAddImage = restaurant.menu_images.length < 10;
+// GET request
+const data = await apiClient.get('/api/restaurants');
+
+// POST request with auth
+const data = await apiClient.post('/api/lists', {
+  name: 'My List',
+  is_public: true
+}, { requireAuth: true });
 ```
 
-#### Remove Menu Items
+---
+
+## Real-time Subscriptions
+
+The application can use Supabase real-time capabilities:
+
 ```javascript
-// Remove specific link
-const updatedLinks = restaurant.menu_links.filter(link => link !== linkToRemove);
-
-// Remove specific image
-const updatedImages = restaurant.menu_images.filter(img => img !== imageToRemove);
-
-await supabase
-  .from('restaurants')
-  .update({
-    menu_links: updatedLinks,
-    menu_images: updatedImages
+const subscription = supabase
+  .channel('restaurants')
+  .on('postgres_changes', {
+    event: '*',
+    schema: 'public',
+    table: 'restaurants'
+  }, (payload) => {
+    console.log('Restaurant changed:', payload);
   })
-  .eq('id', restaurantId);
+  .subscribe();
 ```
 
-#### Bulk Menu Updates
-```javascript
-await supabase
-  .from('restaurants')
-  .update({
-    menu_links: ['https://new-menu.pdf'],
-    menu_images: ['https://cloudinary.com/image1.jpg', 'https://cloudinary.com/image2.jpg']
-  })
-  .eq('id', restaurantId);
-```
+---
 
-## Future API Endpoints
+## Monitoring and Analytics
 
-Potential future API endpoints that could be added:
+The application includes:
+- API monitoring via `utils/apiMonitor.ts`
+- Performance monitoring via `utils/performanceMonitor.ts`
+- Database monitoring via `utils/dbMonitor.ts`
+- Analytics utilities via `utils/analytics.ts`
 
-### Analytics
-- `GET /api/analytics/restaurants` - Restaurant visit statistics
-- `GET /api/analytics/cuisines` - Popular cuisine types
-
-### Export
-- `GET /api/export/restaurants` - Export restaurants as CSV/JSON
-- `GET /api/export/lists` - Export lists with restaurant data
-
-### Integrations
-- `POST /api/integrations/google-places` - Google Places API integration
-- `POST /api/integrations/foursquare` - Foursquare API integration
-
-### Recommendations
-- `GET /api/recommendations` - AI-powered restaurant recommendations
-
-## Security Considerations
-
-- All database operations use Row Level Security (RLS)
-- API keys are stored as environment variables
-- Authentication is required for data modifications
-- Input validation is performed on the client and server
-- SQL injection protection via Supabase parameterized queries
-
-## Monitoring
-
-For production deployments, consider monitoring:
-- API response times
-- Error rates
-- Database query performance
-- Real-time subscription connections
-
-## Testing
-
-API testing can be performed using:
-- Supabase client in unit tests
-- Integration tests with test database
-- E2E tests with Cypress/Playwright
-
-This documentation will be updated as new API endpoints are added to the application.
+Use these for production monitoring and debugging.
