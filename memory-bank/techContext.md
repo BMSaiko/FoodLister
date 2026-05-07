@@ -4,7 +4,7 @@
 
 ### Frontend Framework
 - **Next.js 15.3.1** (App Router)
-  - React 19.0.0 / React DOM 19.0.0
+  - React 18.3.1 / React DOM 18.3.1
   - Server Components (default) and Client Components
   - Turbopack for development bundling
   - Image optimization with `next/image`
@@ -18,7 +18,7 @@
   - Path aliases: `@/*` maps to `./*`
 
 ### Styling & UI
-- **TailwindCSS 4.1.4**
+- **TailwindCSS 3.4.17** ✅ (Downgraded from v4 - see design system standardization)
   - PostCSS integration (`@tailwindcss/postcss`)
   - Dark mode support (class strategy via `next-themes`)
   - Custom theme extensions in `tailwind.config.js`
@@ -153,12 +153,12 @@ npm run lint:fix
 ```json
 {
   "next": "15.3.1",
-  "react": "19.0.0",
-  "react-dom": "19.0.0",
+  "react": "18.3.1",
+  "react-dom": "18.3.1",
   "typescript": "5.8.2",
   "@supabase/ssr": "^0.6.1",
   "@supabase/supabase-js": "^2.49.4",
-  "tailwindcss": "^4.1.4",
+  "tailwindcss": "^3.4.17",
   "@tailwindcss/postcss": "^4.1.4",
   "framer-motion": "^12.9.2",
   "lucide-react": "^0.487.0",
@@ -303,3 +303,27 @@ npm run lint:fix
 - **In-Memory Limiter**: `middleware/rateLimiter.ts`
 - **TTL Cleanup**: Automatic cleanup every 60 seconds
 - **Configurable**: Factory function for custom limiters
+
+## Design System Standardization (Completed ✅)
+
+### Issue Resolved
+- **Problem**: Tailwind CSS v4 syntax was being used with v3 installation
+- **Solution**: Downgraded to Tailwind CSS v3.4.17 and fixed all CSS syntax
+- **CSS Variables**: Added all necessary CSS variables to `app/globals.css`
+- **Build Status**: ✅ `npm run build` succeeds
+
+### Files Fixed
+- `postcss.config.mjs` - Updated to use v3 plugin
+- `app/globals.css` - Rewrote with valid v3 syntax and CSS variables
+- `tailwind.config.js` - Standardized border radius values
+- 45+ components - Fixed hardcoded colors to use CSS variables
+- 36+ files - Fixed remaining ~256 hardcoded color instances
+
+### CSS Variables Added
+- `--primary`, `--primary-light`, `--primary-dark`
+- `--gray-50` through `--gray-900`
+- `--amber-50` through `--amber-900`
+- `--error-50`, `--error-100`, `--error-500`, etc.
+- `--warning`, `--warning-light`
+- `--white`, `--black`
+- `--blue-500` (for Google Maps button)
