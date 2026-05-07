@@ -3,7 +3,8 @@
 ## Project Status Overview`
 
 **Current Version**: 0.1.0 (Private)
-**Latest Commit**: `a297bea562e4574ab28353fd4f455f19943726dc`
+**Latest Commit**: `ba1a15648013093cf2dabe519edee9147b3cce44`
+**Branch**: 76-design-ter-o-msm-design-em-toda-a-webapp
 **Total Database Migrations**: 38
 **Test Files**: 30+
 
@@ -149,6 +150,12 @@
 - [x] Turbopack for fast development
 
 ## In Progress`
+
+### ✅ Bug Fixes (100% complete)
+- [x] **Google Maps Modal Button CSS**: Fixed "Usar estas informações" button appearing white (incorrect CSS variable syntax)
+- [x] **Map Links Logic**: Google Maps now uses `source_url` (extracted URL), Waze/Apple Maps use coordinates only
+- [x] **Visit Status API Fix**: Fixed `app/api/restaurants/visits/route.ts` to properly count visits per restaurant
+- [x] **Navbar Verification**: Confirmed Navbar is present in EditList page (no fix needed)
 
 ### 🚧 Performance Optimization (60% complete)
 - [x] Database indexes on frequently queried columns

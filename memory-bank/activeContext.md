@@ -2,8 +2,8 @@
 
 ## Current Project State
 
-**Latest Commit**: `a297bea562e4574ab28353fd4f455f19943726dc`
-**Branch**: main
+**Latest Commit**: `ba1a15648013093cf2dabe519edee9147b3cce44`
+**Branch**: 76-design-ter-o-msm-design-em-toda-a-webapp
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
 ## Recent Fixes (Current Session)
@@ -53,6 +53,12 @@
 - ✅ **Conventional Commits**: Enforces type(scope): description format
 - ✅ **Logical Separation**: Commits separated by category (migrations, frontend, backend, docs, config)
 - ✅ **Project-Specific**: Follows FoodLister patterns (Supabase migrations, Server Components, etc.)
+
+### Bug Fixes (Current Session)
+- ✅ **Google Maps Modal Button CSS**: Fixed "Usar estas informações" button appearing white due to incorrect CSS variable syntax (`--green-600` → `var(--green-600)`)
+- ✅ **Map Links Logic**: Updated `MapSelectorModal.tsx` to use `source_url` (extracted Google Maps URL) for Google Maps, and only coordinates for Waze/Apple Maps
+- ✅ **Visit Status API Fix**: Fixed `app/api/restaurants/visits/route.ts` to properly count visits per restaurant (table has one row per visit, not a `visit_count` column)
+- ✅ **Navbar Verification**: Verified Navbar is present in `components/pages/EditList.jsx` and `app/lists/[id]/edit/page.tsx`
 
 ## Recently Applied Features
 
@@ -127,7 +133,7 @@
   - ✅ **Files Fixed**: `components/ui/Container.tsx`, `components/RestaurantsList.jsx`
   - ✅ **Result**: Grid now has consistent padding matching the `RouletteBanner` component
 
-### Map Modal Design Improvement (Current Session)
+### Map Modal Design Improvement (COMPLETED ✅)
 - ✅ **Google Maps Button Fix**: Added missing `--blue-500` CSS variable to `app/globals.css`
 - ✅ **Root Cause**: Button appeared white when not hovering because `--blue-500` was not defined
 - ✅ **Solution**: Added `--blue-500: #3b82f6` to CSS variables
@@ -148,6 +154,31 @@
 - ✅ **Removed Unused Code**: Removed handleSave function and desktop-only action div
 - ✅ **Build Verified**: `npm run build` succeeds
 - ✅ **Test File Created**: `__tests__/pages/settings.test.tsx` (note: has pre-existing infinite loop bug in component)
+
+### Visit Status Button Fix (COMPLETED ✅)
+- ✅ **Problem**: Visit status buttons on restaurant cards in individual list pages showed "not visited" incorrectly
+- ✅ **Root Cause**: `app/api/restaurants/visits/route.ts` was trying to access `visit.visit_count` column that doesn't exist in `user_restaurant_visits` table
+- ✅ **Solution**: Updated API to properly count visits by grouping rows by `restaurant_id` and calculating `visit_count` as the number of rows per restaurant
+- ✅ **Files Fixed**: `app/api/restaurants/visits/route.ts`
+- ✅ **Build Verified**: `npm run build` succeeds with the fix
+
+### Google Maps Modal Button CSS Fix (COMPLETED ✅)
+- ✅ **Problem**: "Usar estas informações" button appeared completely white
+- ✅ **Root Cause**: Incorrect CSS variable syntax `from-[--green-600]` instead of `from-[var(--green-600)]`
+- ✅ **Solution**: Fixed CSS in `components/ui/RestaurantDetails/GoogleMapsModal.tsx` line 362
+- ✅ **Build Verified**: `npm run build` succeeds
+
+### Map Links Logic Fix (COMPLETED ✅)
+- ✅ **Problem**: Map links were using location string for all map services
+- ✅ **Solution**: Updated `components/ui/RestaurantManagement/MapSelectorModal.tsx`:
+  - Google Maps now uses `source_url` (extracted Google Maps URL from creation)
+  - Waze and Apple Maps use only coordinates (no location string)
+- ✅ **Build Verified**: `npm run build` succeeds
+
+### Navbar Verification (COMPLETED ✅)
+- ✅ **Problem**: User reported navbar disappears when editing a list at `/lists/[id]/edit`
+- ✅ **Verification**: Confirmed Navbar is present in `components/pages/EditList.jsx` (lines 90, 107) and `app/lists/[id]/edit/page.tsx`
+- ✅ **Status**: No fix needed - Navbar is properly included
 
 ### From TASKS_5HOURS.md
 1. **Performance Optimization**
@@ -172,35 +203,39 @@
 
 ### High Priority
 1. **Verify Lists Fix**: Test list detail page at `/lists/[id]` (logged in and logged out)
-    - Ensure `supabase/fix-rls-recursion-final.sql` has been applied
-    - Verify lists load correctly without 404 errors
+   - Ensure `supabase/fix-rls-recursion-final.sql` has been applied
+   - Verify lists load correctly without 404 errors
 
 2. **Apply Migration 036** (Pending user action)
-    - Run `supabase/migrations/036_public_restaurant_access.sql` in Supabase SQL Editor
-    - Verify unlogged users can access `/restaurants` and `/restaurants/[id]`
-    - Verify logged-in users can create/edit restaurants and post reviews
-    - Verify review authors' public data is visible
+   - Run `supabase/migrations/036_public_restaurant_access.sql` in Supabase SQL Editor
+   - Verify unlogged users can access `/restaurants` and `/restaurants/[id]`
+   - Verify logged-in users can create/edit restaurants and post reviews
+   - Verify review authors' public data is visible
 
 3. **Complete Test Coverage**
-    - Add tests for newly implemented features (collaboration, comments, meal scheduling)
-    - Achieve 80%+ coverage target
+   - Add tests for newly implemented features (collaboration, comments, meal scheduling)
+   - Achieve 80%+ coverage target
 
 4. **Feature Polish**
-    - Improve error messages and user feedback
-    - Add loading skeletons for all async operations
-    - Enhance mobile experience
+   - Improve error messages and user feedback
+   - Add loading skeletons for all async operations
+   - Enhance mobile experience
 
 ### Medium Priority
 4. **Documentation**
-     - Update API documentation (docs/api/api-documentation.md)
-     - Create user guide for collaboration features
-     - Document filter preset system
-     - Memory bank organized in `memory-bank/` folder
-     - Documentation organized in `docs/` subdirectories (api/, architecture/, database/, features/, guides/, progress/, reference/, setup/, tasks/)
+   - Update API documentation (docs/api/api-documentation.md)
+   - Create user guide for collaboration features
+   - Document filter preset system
+   - Memory bank organized in `memory-bank/` folder
+   - Documentation organized in `docs/` subdirectories (api/, architecture/, database/, features/, guides/, progress/, reference/, setup/, tasks/)
 
 ### Recently Completed
 - ✅ **Sticky Submit Buttons**: Made submit buttons sticky on pages with create, edit, or spin actions (FormActions, ListForm, RestaurantForm, RestaurantRoulette, Settings)
 - ✅ **Settings Page**: Implemented sticky submit buttons with FormActions component
+- ✅ **Visit Status Fix**: Fixed API to properly count visits per restaurant
+- ✅ **Google Maps Button CSS**: Fixed incorrect CSS variable syntax
+- ✅ **Map Links Logic**: Google Maps uses source_url, others use coordinates only
+- ✅ **Navbar Verification**: Confirmed present in EditList page
 
 ## Current Focus Areas
 
@@ -266,7 +301,7 @@
 ## Session Context for AI Assistants
 
 When working on this project:
-1. **Always check**: Latest commit hash is `a297bea562e4574ab28353fd4f455f19943726dc` (branch: `main`)
+1. **Always check**: Latest commit hash is `ba1a15648013093cf2dabe519edee9147b3cce44` (branch: `76-design-ter-o-msm-design-em-toda-a-webapp`)
 2. **Database changes**: Use `supabase/migrations/` with sequential numbering
 3. **Component type**: Default to Server Components, add 'use client' only when needed
 4. **State management**: Use Context API (Auth, Filters, Modal) + custom hooks
