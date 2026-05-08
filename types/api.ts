@@ -61,10 +61,27 @@ export function isApiError(response: unknown): response is ApiError {
          typeof (response as ApiError).error === 'string';
 }
 
+// Mapping of ApiErrorType to user-friendly messages
+const ERROR_MESSAGES: Record<string, string> = {
+  'INTERNAL_ERROR': 'An internal server error occurred. Please try again later.',
+  'DATABASE_ERROR': 'A database error occurred. Please try again later.',
+  'AUTHENTICATION_ERROR': 'Authentication is required to access this resource.',
+  'AUTHORIZATION_ERROR': 'You do not have permission to perform this action.',
+  'VALIDATION_ERROR': 'The provided data is invalid. Please check your input.',
+  'NOT_FOUND': 'The requested resource was not found.',
+  'RATE_LIMITED': 'Too many requests. Please wait a moment and try again.',
+  'NETWORK_ERROR': 'A network error occurred. Please check your connection.',
+};
+
 /**
  * Extract error message from unknown error
  */
 export function getErrorMessage(error: unknown): string {
+  // Handle ApiErrorType strings
+  if (typeof error === 'string' && error in ERROR_MESSAGES) {
+    return ERROR_MESSAGES[error];
+  }
+  
   if (error instanceof Error) {
     return error.message;
   }
