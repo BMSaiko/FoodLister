@@ -295,7 +295,7 @@
 ## Session Context for AI Assistants
 
 When working on this project:
-1. **Always check**: Latest commit hash is `5c10a06546b2e2110f00f8723689bb1674aed4a7` (branch: `main`)
+1. **Always check**: Latest commit hash is `80f0efddb559e8ad4aa419652f34fe32a7de97b6` (branch: `main`)
 2. **Database changes**: Use `supabase/migrations/` with sequential numbering
 3. **Component type**: Default to Server Components, add 'use client' only when needed
 4. **State management**: Use Context API (Auth, Filters, Modal) + custom hooks
@@ -306,3 +306,5 @@ When working on this project:
 9. **Sticky Buttons**: Submit buttons use fixed positioning on mobile, right-aligned on desktop via FormActions component
 10. **/update Command**: Follow rules in `.clinerules/update-command.md` for memory bank updates, commits, and push
 11. **/docs Command**: Follow rules in `.clinerules/docs-command.md` for documentation updates
+12. **Type Safety**: Use types from `types/api.ts` and `libs/types.ts`, avoid `any` types
+13. **Error Handling**: Use `ApiErrorType` and `getErrorMessage()` from `types/api.ts` in API routes
