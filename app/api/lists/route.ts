@@ -1,6 +1,8 @@
 // app/api/lists/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,7 +57,11 @@ export async function GET(request: NextRequest) {
 
     if (listsError) {
       console.error('Error fetching lists:', listsError);
-      return NextResponse.json({ error: 'Failed to fetch lists' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     if (!listsData) {
@@ -95,8 +101,12 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({ lists: processedData });
     response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     return response;
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 }

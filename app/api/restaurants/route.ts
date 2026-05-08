@@ -1,6 +1,8 @@
 // app/api/restaurants/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 interface Restaurant {
   id: string;
@@ -54,13 +56,21 @@ export async function GET(request: NextRequest) {
       // Create a public client for unauthenticated access
       const publicClient = await getPublicServerClient();
       if (!publicClient) {
-        return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+        const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 500 }
+        );
       }
       client = publicClient;
     }
 
     if (!client) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     let query = client
@@ -90,7 +100,11 @@ export async function GET(request: NextRequest) {
 
     if (restaurantsError) {
       console.error('Error fetching restaurants:', restaurantsError);
-      return NextResponse.json({ error: 'Failed to fetch restaurants' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     // Transform data for easier client consumption
@@ -120,8 +134,9 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error('Unexpected error in restaurants API:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }
@@ -133,14 +148,22 @@ export async function POST(request: NextRequest) {
     const supabase = await getServerClient(request, response);
 
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
@@ -161,7 +184,11 @@ export async function POST(request: NextRequest) {
 
     // Basic validation
     if (!name || name.trim().length === 0) {
-      return NextResponse.json({ error: 'Restaurant name is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // Validate coordinates if provided
@@ -170,12 +197,20 @@ export async function POST(request: NextRequest) {
 
     if (latitude !== undefined && longitude !== undefined) {
       if (!isValidCoordinates(latitude, longitude)) {
-        return NextResponse.json({ error: 'Invalid coordinates provided' }, { status: 400 });
+        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 400 }
+        );
       }
       validatedLatitude = latitude;
       validatedLongitude = longitude;
     } else if (latitude !== undefined || longitude !== undefined) {
-      return NextResponse.json({ error: 'Both latitude and longitude must be provided together' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // Get user display name from profiles table or email
@@ -211,12 +246,20 @@ export async function POST(request: NextRequest) {
 
     if (restaurantError) {
       console.error('Error creating restaurant:', restaurantError);
-      return NextResponse.json({ error: 'Failed to create restaurant' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ restaurant: restaurantData }, { status: 201 });
   } catch (error) {
     console.error('Unexpected error in restaurant creation:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
   }
 }
