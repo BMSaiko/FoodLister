@@ -8,17 +8,18 @@ import { createClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
+import type { Restaurant } from '@/libs/types';
 
 export interface RestaurantFormData {
   name: string;
   description: string;
   image_url: string;
-  images: any[];
+  images: string[];
   display_image_index: number;
   location: string;
   source_url: string;
-  menu_links: any[];
-  menu_images: any[];
+  menu_links: string[];
+  menu_images: string[];
   phone_numbers: string[];
   creator?: string;
   selectedCuisineTypes: string[];
@@ -45,7 +46,7 @@ export interface Feature {
 
 export interface UseRestaurantFormOptions {
   restaurantId?: string;
-  onSuccess?: (restaurant: any) => void;
+  onSuccess?: (restaurant: Restaurant) => void;
   onError?: (error: Error) => void;
 }
 
@@ -223,7 +224,7 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
   }, [formData.name, formData.phone_numbers]);
 
   // Save restaurant (create or update)
-  const saveRestaurant = useCallback(async (isEdit: boolean = false): Promise<any | null> => {
+  const saveRestaurant = useCallback(async (isEdit: boolean = false): Promise<Restaurant | null> => {
     const validationError = validate();
     if (validationError) {
       toast.error(validationError, { position: "top-center", autoClose: 4000 });
@@ -261,7 +262,7 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
         await updateRelations(restaurantId);
 
         toast.success('Restaurante atualizado com sucesso!', { position: "top-center", autoClose: 3000 });
-        return { id: restaurantId };
+        return { id: restaurantId } as Restaurant;
       } else {
         // Create new restaurant
         const { data, error } = await (supabase
@@ -291,7 +292,7 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
         }
 
         toast.success('Restaurante criado com sucesso!', { position: "top-center", autoClose: 3000 });
-        return data;
+        return data as Restaurant;
       }
     } catch (error) {
       console.error('Error saving restaurant:', error);

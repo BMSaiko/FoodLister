@@ -71,7 +71,7 @@ const CACHE_KEYS = {
 };
 
 // Request deduplication cache
-const pendingRequests = new Map<string, Promise<any>>();
+const pendingRequests = new Map<string, Promise<unknown>>();
 
 export function useUserData(options: UseUserDataOptions) {
   const {

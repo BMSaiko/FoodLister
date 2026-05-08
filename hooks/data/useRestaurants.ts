@@ -1,31 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-interface Restaurant {
-  id: string;
-  name: string;
-  description?: string;
-  image_url?: string;
-  price_per_person?: number;
-  rating?: number;
-  location?: string;
-  source_url?: string;
-  creator?: string;
-  menu_url?: string;
-  phone_numbers?: string[];
-  visited: boolean;
-  created_at: string;
-  updated_at: string;
-  creator_id?: string;
-  creator_name?: string;
-  cuisine_types?: Array<{
-    id: string;
-    name: string;
-    description?: string;
-    icon?: string;
-  }>;
-}
+import type { RestaurantWithDetails } from '@/libs/types';
 
 interface PaginationInfo {
   page: number;
@@ -35,7 +11,7 @@ interface PaginationInfo {
 }
 
 interface UseRestaurantsReturn {
-  restaurants: Restaurant[];
+  restaurants: RestaurantWithDetails[];
   loading: boolean;
   error: string | null;
   pagination: PaginationInfo | null;
@@ -45,14 +21,14 @@ interface UseRestaurantsReturn {
 }
 
 interface SavedState {
-  restaurants: Restaurant[];
+  restaurants: RestaurantWithDetails[];
   hasMore: boolean;
   searchQuery: string | null;
   timestamp: number;
 }
 
 export function useRestaurants(searchQuery: string | null, savedState?: SavedState | null): UseRestaurantsReturn {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +60,7 @@ export function useRestaurants(searchQuery: string | null, savedState?: SavedSta
         throw new Error('Invalid response structure: missing restaurants data');
       }
 
-      const { restaurants: data } = responseData;
+      const { restaurants: data } = responseData as { restaurants: RestaurantWithDetails[] };
       if (!Array.isArray(data)) {
         throw new Error('Invalid response structure: restaurants data is not an array');
       }
