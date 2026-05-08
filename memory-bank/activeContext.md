@@ -2,25 +2,30 @@
 
 ## Current Project State
 
-**Latest Commit**: [TO_BE_UPDATED - after commit]
-**Branch**: main
+**Latest Commit**: 7f67e39 (after standardizing API error handling)
+**Branch**: dev
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
 ## Recently Completed (2026-05-08)
 
 ### 5-Hour Task Plan - COMPLETED ✅
 - ✅ **Step 1**: Fix TypeScript `any` types (types/api.ts, libs/api.ts, libs/auth.ts, utils/analytics.ts, utils/authLogger.ts)
-- ✅ **Step 2**: Standardize API Error Handling (reviews/route.ts, lists/[id]/route.ts, restaurants/[id]/route.ts)
+- ✅ **Step 2**: Standardize API Error Handling (15+ routes updated with getErrorMessage() and ApiErrorType)
+  - ✅ auth/session, lists/[id], lists/[id]/collaborators, lists/[id]/comments
+  - ✅ meals/schedule, meals/scheduled, meals/[id], meals/[id]/ics
+  - ✅ notifications, notifications/create, restaurants/[id]/visits
+  - ✅ cuisine-types, dietary-options, features, meals/participants
+  - ✅ users/me
 - ✅ **Step 3**: Add Empty States to Components (RestaurantGrid.jsx, RestaurantList/RestaurantGrid.tsx)
 - ✅ **Step 4**: Improve Accessibility (RestaurantCard/index.tsx - aria-label, keyboard nav)
 - ✅ **Step 5**: Create Contribution Guide (docs/guides/contribution-guide.md)
-- ✅ **Step 6**: Enhance User Error Messages (utils/error-messages.ts - fixed any type, added enhanced messages)
+- ✅ **Step 6**: Enhance User Error Messages (utils/error-messages.ts - fixed any type, added ENHANCED_ERROR_MESSAGES)
 - ✅ **Step 7**: Production Preparation (build ✅, lint ✅ 0 errors, tests ✅ 84 passing)
 - ✅ **Step 8**: Final Verification (all checks passed)
 
 ### Files Modified/Created:
 1. `types/database.ts` - Added missing columns (opening_hours, website, phone, menu, updated_at)
-2. `types/api.ts` - Fixed isApiError() parameter type
+2. `types/api.ts` - Fixed isApiError() parameter type, added ERROR_MESSAGES mapping
 3. `libs/api.ts` - Typed buildQueryString() params
 4. `libs/auth.ts` - Fixed all callback parameter types
 5. `utils/analytics.ts` - Typed event properties
@@ -29,10 +34,24 @@
 8. `app/api/reviews/route.ts` - Standardized error handling
 9. `app/api/lists/[id]/route.ts` - Standardized error handling
 10. `app/api/restaurants/[id]/route.ts` - Standardized error handling
-11. `components/ui/RestaurantGrid.jsx` - Added empty state
-12. `components/ui/RestaurantList/RestaurantGrid.tsx` - Added empty state
-13. `components/ui/RestaurantCard/index.tsx` - Added accessibility features
-14. `docs/guides/contribution-guide.md` - Created new file
+11. `app/api/auth/session/route.ts` - Standardized error handling
+12. `app/api/lists/[id]/collaborators/route.ts` - Standardized error handling
+13. `app/api/lists/[id]/comments/route.ts` - Standardized error handling
+14. `app/api/meals/schedule/route.ts` - Standardized error handling
+15. `app/api/meals/scheduled/route.ts` - Standardized error handling
+16. `app/api/meals/[id]/route.ts` - Standardized error handling
+17. `app/api/meals/[id]/ics/route.ts` - Standardized error handling
+18. `app/api/notifications/route.ts` - Standardized error handling
+19. `app/api/restaurants/[id]/visits/route.ts` - Standardized error handling
+20. `app/api/cuisine-types/route.ts` - Standardized error handling
+21. `app/api/dietary-options/route.ts` - Standardized error handling
+22. `app/api/features/route.ts` - Standardized error handling
+23. `app/api/meals/participants/route.ts` - Standardized error handling
+24. `app/api/users/me/route.ts` - Standardized error handling
+25. `components/ui/RestaurantGrid.jsx` - Added empty state
+26. `components/ui/RestaurantList/RestaurantGrid.tsx` - Added empty state
+27. `components/ui/RestaurantCard/index.tsx` - Added accessibility features
+28. `docs/guides/contribution-guide.md` - Created new file
 
 ## Recent Fixes (Current Session)
 
@@ -323,7 +342,7 @@
 ## Session Context for AI Assistants
 
 When working on this project:
-1. **Always check**: Latest commit hash is `80f0efddb559e8ad4aa419652f34fe32a7de97b6` (branch: `main`)
+1. **Always check**: Latest commit hash is `7f67e39` (branch: `dev`)
 2. **Database changes**: Use `supabase/migrations/` with sequential numbering
 3. **Component type**: Default to Server Components, add 'use client' only when needed
 4. **State management**: Use Context API (Auth, Filters, Modal) + custom hooks
@@ -335,4 +354,4 @@ When working on this project:
 10. **/update Command**: Follow rules in `.clinerules/update-command.md` for memory bank updates, commits, and push
 11. **/docs Command**: Follow rules in `.clinerules/docs-command.md` for documentation updates
 12. **Type Safety**: Use types from `types/api.ts` and `libs/types.ts`, avoid `any` types
-13. **Error Handling**: Use `ApiErrorType` and `getErrorMessage()` from `types/api.ts` in API routes
+13. **Error Handling**: Use `ApiErrorType` and `getErrorMessage()` from `types/api.ts` in API routes (15+ routes completed)

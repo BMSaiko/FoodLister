@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -7,12 +9,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Get authenticated user
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { id: restaurantId } = await params;
@@ -28,7 +32,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (visitError && visitError.code !== 'PGRST116') { // PGRST116 is "not found"
       console.error('Error fetching visit data:', visitError);
-      return NextResponse.json({ error: 'Failed to fetch visit data' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -37,7 +42,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     });
   } catch (error) {
     console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
 
@@ -47,12 +53,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     // Get authenticated user
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { id: restaurantId } = await params;
@@ -67,7 +75,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
       console.error('Error checking existing visit:', checkError);
-      return NextResponse.json({ error: 'Failed to check existing visit' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     if (existingVisit) {
@@ -86,7 +95,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
       if (updateError) {
         console.error('Error updating visit:', updateError);
-        return NextResponse.json({ error: 'Failed to update visit' }, { status: 500 });
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
       return NextResponse.json({
@@ -108,7 +118,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
       if (insertError) {
         console.error('Error creating visit:', insertError);
-        return NextResponse.json({ error: 'Failed to create visit' }, { status: 500 });
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
       return NextResponse.json({
@@ -118,7 +129,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
   } catch (error) {
     console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
 
@@ -128,12 +140,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     // Get authenticated user
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { id: restaurantId } = await params;
@@ -151,7 +165,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
         console.error('Error checking existing visit:', checkError);
-        return NextResponse.json({ error: 'Failed to check existing visit' }, { status: 500 });
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
       if (existingVisit) {
@@ -181,7 +196,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         if (updateError) {
           console.error('Error updating visit status:', updateError);
-          return NextResponse.json({ error: 'Failed to update visit status' }, { status: 500 });
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
         }
 
         return NextResponse.json({
@@ -203,7 +219,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         if (insertError) {
           console.error('Error creating visit:', insertError);
-          return NextResponse.json({ error: 'Failed to create visit' }, { status: 500 });
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
         }
 
         return NextResponse.json({
@@ -224,7 +241,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
         console.error('Error checking existing visit:', checkError);
-        return NextResponse.json({ error: 'Failed to check existing visit' }, { status: 500 });
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
       if (existingVisit) {
@@ -249,7 +267,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
           if (updateError) {
             console.error('Error removing visit:', updateError);
-            return NextResponse.json({ error: 'Failed to remove visit' }, { status: 500 });
+            const errorType = 'DATABASE_ERROR' as ApiErrorType;
+            return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
           }
 
           return NextResponse.json({
@@ -257,16 +276,20 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             visit_count: newVisitCount
           });
         } else {
-          return NextResponse.json({ error: 'Cannot remove visit: visit count is already 0' }, { status: 400 });
+          const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+          return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
         }
       } else {
-        return NextResponse.json({ error: 'No visit record found to remove' }, { status: 404 });
+        const errorType = 'NOT_FOUND' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 404 });
       }
     }
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
   } catch (error) {
     console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }

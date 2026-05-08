@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { logSessionStart, logSessionExpired, logTokenError, logAuthError } from '@/utils/authLogger';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +11,7 @@ export async function GET(request: NextRequest) {
     
     if (!supabase) {
       return NextResponse.json(
-        { error: 'Failed to initialize Supabase client' },
+        { error: getErrorMessage('INTERNAL_ERROR' as ApiErrorType), code: 'INTERNAL_ERROR' },
         { status: 500 }
       );
     }
@@ -23,7 +25,7 @@ export async function GET(request: NextRequest) {
     if (authError || !user) {
       logAuthError({ error: authError, userId: user?.id }, user?.id);
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage('AUTHENTICATION_ERROR' as ApiErrorType), code: 'AUTHENTICATION_ERROR' },
         { status: 401 }
       );
     }
@@ -69,9 +71,9 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in auth session GET:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+      return NextResponse.json(
+        { error: getErrorMessage('INTERNAL_ERROR' as ApiErrorType), code: 'INTERNAL_ERROR' },
+        { status: 500 }
+      );
   }
 }

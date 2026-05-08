@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,12 +9,14 @@ export async function GET(request: NextRequest) {
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -34,7 +38,8 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching notifications:', error);
-      return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     // Get unread count
@@ -50,7 +55,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error in notifications GET:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
 
@@ -60,12 +66,14 @@ export async function PATCH(request: NextRequest) {
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const body = await request.json();
@@ -82,7 +90,9 @@ export async function PATCH(request: NextRequest) {
         .single();
 
       if (error) {
-        return NextResponse.json({ error: 'Failed to update notification' }, { status: 500 });
+        console.error('Error updating notification:', error);
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
       return NextResponse.json({ data });
@@ -95,14 +105,17 @@ export async function PATCH(request: NextRequest) {
         .eq('read', false);
 
       if (error) {
-        return NextResponse.json({ error: 'Failed to update notifications' }, { status: 500 });
+        console.error('Error updating notifications:', error);
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
       return NextResponse.json({ message: 'All notifications marked as read' });
     }
   } catch (error) {
     console.error('Error in notifications PATCH:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
 
@@ -112,19 +125,22 @@ export async function DELETE(request: NextRequest) {
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const body = await request.json();
     const { notificationId } = body;
 
     if (!notificationId) {
-      return NextResponse.json({ error: 'notificationId is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
     }
 
     const { error } = await supabase
@@ -134,12 +150,15 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', user.id);
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to delete notification' }, { status: 500 });
+      console.error('Error deleting notification:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     return NextResponse.json({ message: 'Notification deleted' });
   } catch (error) {
     console.error('Error in notifications DELETE:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }

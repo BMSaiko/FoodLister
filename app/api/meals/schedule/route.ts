@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { generateGoogleCalendarUrl } from '@/utils/googleCalendar';
 import { createClient } from '@supabase/supabase-js';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,8 +11,9 @@ export async function POST(request: NextRequest) {
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
       );
     }
@@ -22,8 +25,9 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
       );
     }
@@ -41,8 +45,9 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!restaurantId || !mealDate || !mealTime || !mealType) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Missing required fields: restaurantId, mealDate, mealTime, mealType' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
@@ -50,8 +55,9 @@ export async function POST(request: NextRequest) {
     // Validate duration
     const duration = durationMinutes || 120;
     if (duration < 30 || duration > 480) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Duration must be between 30 and 480 minutes' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
@@ -61,8 +67,9 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     now.setMinutes(0, 0, 0);
     if (mealDateTime < now) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Cannot schedule meals in the past' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
@@ -75,8 +82,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (restaurantError || !restaurant) {
+      const errorType = 'NOT_FOUND' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Restaurant not found' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 404 }
       );
     }
@@ -104,8 +112,9 @@ export async function POST(request: NextRequest) {
 
     if (mealError) {
       console.error('Error creating scheduled meal:', mealError);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Failed to create scheduled meal' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
     }
@@ -203,8 +212,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in schedule meal:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }

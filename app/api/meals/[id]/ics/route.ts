@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { generateMealIcsContent } from '@/libs/ics-generator';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(
   request: NextRequest,
@@ -11,15 +13,17 @@ export async function GET(
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
       );
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { id: mealId } = await params;
@@ -53,8 +57,9 @@ export async function GET(
       .single();
 
     if (mealError || !meal) {
+      const errorType = 'NOT_FOUND' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Meal not found' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 404 }
       );
     }
@@ -66,8 +71,9 @@ export async function GET(
     );
 
     if (!isOrganizer && !isParticipant) {
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'You do not have access to this meal' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 403 }
       );
     }
@@ -114,8 +120,9 @@ export async function GET(
 
   } catch (error) {
     console.error('Error generating ICS:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }

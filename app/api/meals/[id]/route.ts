@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 // GET a single scheduled meal
 export async function GET(
@@ -12,12 +14,14 @@ export async function GET(
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { id } = await params;
@@ -56,7 +60,8 @@ export async function GET(
       .single();
 
     if (error || !meal) {
-      return NextResponse.json({ error: 'Meal not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 404 });
     }
 
     // Check if user has access (organizer or participant)
@@ -64,7 +69,8 @@ export async function GET(
     const isParticipant = meal.meal_participants?.some((p: any) => p.user_id === user.id);
 
     if (!isOrganizer && !isParticipant) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 403 });
     }
 
     // Transform data
@@ -109,7 +115,8 @@ export async function GET(
     return NextResponse.json({ data: transformedMeal });
   } catch (error) {
     console.error('Error fetching meal:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
 
@@ -123,12 +130,14 @@ export async function PATCH(
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { id } = await params;
@@ -142,11 +151,13 @@ export async function PATCH(
       .single();
 
     if (!meal) {
-      return NextResponse.json({ error: 'Meal not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 404 });
     }
 
     if (meal.organizer_id !== user.id) {
-      return NextResponse.json({ error: 'Only the organizer can update this meal' }, { status: 403 });
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 403 });
     }
 
     // Build update data
@@ -158,7 +169,8 @@ export async function PATCH(
       today.setHours(0, 0, 0, 0);
       const mealDate = new Date(body.mealDate + 'T00:00:00');
       if (mealDate < today) {
-        return NextResponse.json({ error: 'Meal date cannot be in the past' }, { status: 400 });
+        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
       }
       updateData.meal_date = body.mealDate;
     }
@@ -167,7 +179,8 @@ export async function PATCH(
       // Validate time format
       const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
       if (!timeRegex.test(body.mealTime)) {
-        return NextResponse.json({ error: 'Invalid time format. Use HH:MM' }, { status: 400 });
+        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
       }
       updateData.meal_time = body.mealTime;
     }
@@ -175,14 +188,16 @@ export async function PATCH(
     if (body.mealType !== undefined) {
       const validTypes = ['pequeno-almoco', 'almoco', 'brunch', 'lanche', 'jantar', 'ceia'];
       if (!validTypes.includes(body.mealType)) {
-        return NextResponse.json({ error: 'Invalid meal type' }, { status: 400 });
+        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
       }
       updateData.meal_type = body.mealType;
     }
 
     if (body.durationMinutes !== undefined) {
       if (body.durationMinutes < 15 || body.durationMinutes > 480) {
-        return NextResponse.json({ error: 'Duration must be between 15 and 480 minutes' }, { status: 400 });
+        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
       }
       updateData.duration_minutes = body.durationMinutes;
     }
@@ -197,7 +212,8 @@ export async function PATCH(
 
     if (updateError) {
       console.error('Error updating meal:', updateError);
-      return NextResponse.json({ error: 'Failed to update meal' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     // Get meal details with restaurant name for notification
@@ -249,6 +265,7 @@ export async function PATCH(
       // Use service role client for notifications to bypass RLS
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
       if (supabaseUrl && supabaseServiceKey) {
         const serviceSupabase = createClient(supabaseUrl, supabaseServiceKey);
         await serviceSupabase
@@ -260,7 +277,8 @@ export async function PATCH(
     return NextResponse.json({ data: updatedMeal, message: 'Meal updated successfully' });
   } catch (error) {
     console.error('Error in PATCH /api/meals/[id]:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
 
@@ -274,12 +292,14 @@ export async function DELETE(
     const supabase = await getServerClient(request, response) as any;
 
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
     const { id } = await params;
@@ -292,11 +312,13 @@ export async function DELETE(
       .single();
 
     if (!meal) {
-      return NextResponse.json({ error: 'Meal not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 404 });
     }
 
     if (meal.organizer_id !== user.id) {
-      return NextResponse.json({ error: 'Only the organizer can delete this meal' }, { status: 403 });
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 403 });
     }
 
     // Delete the meal (participants will be deleted by cascade)
@@ -307,12 +329,14 @@ export async function DELETE(
 
     if (deleteError) {
       console.error('Error deleting meal:', deleteError);
-      return NextResponse.json({ error: 'Failed to delete meal' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
     return NextResponse.json({ message: 'Meal deleted successfully' });
   } catch (error) {
     console.error('Error in DELETE /api/meals/[id]:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }

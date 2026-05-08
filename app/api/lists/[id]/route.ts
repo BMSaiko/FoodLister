@@ -55,7 +55,11 @@ export async function GET(
     }
 
     if (!listData) {
-      return NextResponse.json({ error: 'List not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 404 }
+      );
     }
 
     // Step 2: Fetch restaurant IDs from list_restaurants (ordered by position)
@@ -117,14 +121,14 @@ export async function GET(
     const response = NextResponse.json({ list: responseData });
     response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     return response;
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(
@@ -143,7 +147,11 @@ export async function DELETE(
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json({ error: 'List ID is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // Authenticate user
@@ -208,13 +216,13 @@ export async function DELETE(
       success: true, 
       message: 'List deleted successfully' 
     });
-    } catch (_error: unknown) {
-      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
+  } catch (_error: unknown) {
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(
@@ -224,19 +232,31 @@ export async function PUT(
   try {
     const supabase = await getServerClient();
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json({ error: 'List ID is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // Authenticate user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
 
     // Fetch the list to check ownership
@@ -272,14 +292,14 @@ export async function PUT(
         .update({ ...listUpdates, updated_at: new Date().toISOString() })
         .eq('id', id);
 
-    if (updateError) {
-      console.error('Error updating list:', updateError);
-      const errorType = 'DATABASE_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
+      if (updateError) {
+        console.error('Error updating list:', updateError);
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 500 }
+        );
+      }
     }
 
     // Update restaurant order if provided
@@ -302,10 +322,11 @@ export async function PUT(
       message: 'List updated successfully' 
     });
   } catch (_error: unknown) {
-    return NextResponse.json({ 
-      error: 'Internal server error', 
-      details: 'Unknown error' 
-    }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
   }
 }
 
@@ -316,19 +337,31 @@ export async function POST(
   try {
     const supabase = await getServerClient();
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json({ error: 'List ID is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // Authenticate user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
 
     // Fetch the original list
@@ -339,7 +372,11 @@ export async function POST(
       .single();
 
     if (listError || !originalList) {
-      return NextResponse.json({ error: 'List not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 404 }
+      );
     }
 
     const body = await request.json();
@@ -397,9 +434,10 @@ export async function POST(
       message: 'List duplicated successfully' 
     });
   } catch (_error: unknown) {
-    return NextResponse.json({ 
-      error: 'Internal server error', 
-      details: 'Unknown error' 
-    }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
   }
 }
