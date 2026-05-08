@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
-    
+
     // Get the authenticated user
     const {
       data: { user },
@@ -13,8 +15,9 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
       );
     }
@@ -103,8 +106,9 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error searching users:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Failed to search users' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
     }
@@ -134,8 +138,9 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in user search:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }

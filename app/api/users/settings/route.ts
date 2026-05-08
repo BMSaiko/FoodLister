@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
-    
+
     // Get the authenticated user
     const {
       data: { user },
@@ -13,8 +15,9 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
       );
     }
@@ -28,8 +31,9 @@ export async function GET(request: NextRequest) {
 
     if (profileError && profileError.code !== 'PGRST116') {
       console.error('Error fetching profile:', profileError);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Failed to fetch profile' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
     }
@@ -51,7 +55,8 @@ export async function GET(request: NextRequest) {
         total_reviews: 0,
         total_lists: 0,
         created_at: user.created_at,
-        updated_at: user.created_at
+        updated_at: user.created_at,
+        joinedDate: user.created_at
       });
     }
 
@@ -76,8 +81,9 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in settings profile GET:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }
@@ -87,7 +93,7 @@ export async function PUT(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
-    
+
     // Get the authenticated user
     const {
       data: { user },
@@ -95,18 +101,20 @@ export async function PUT(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
       );
     }
 
     const body = await request.json();
-    
+
     // Validate required fields
     if (!body.display_name || body.display_name.trim() === '') {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Display name is required' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
@@ -116,8 +124,9 @@ export async function PUT(request: NextRequest) {
       try {
         new URL(body.website);
       } catch {
+        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
         return NextResponse.json(
-          { error: 'Invalid website URL format' },
+          { error: getErrorMessage(errorType), code: errorType },
           { status: 400 }
         );
       }
@@ -125,8 +134,9 @@ export async function PUT(request: NextRequest) {
 
     // Validate public_profile field if provided
     if (body.public_profile !== undefined && typeof body.public_profile !== 'boolean') {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Public profile must be a boolean value' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
@@ -142,8 +152,10 @@ export async function PUT(request: NextRequest) {
     let profileError;
 
     if (checkError && checkError.code !== 'PGRST116') {
+      console.error('Error checking existing profile:', checkError);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Failed to check existing profile' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
     } else if (!existingProfile) {
@@ -162,7 +174,7 @@ export async function PUT(request: NextRequest) {
         })
         .select()
         .single();
-      
+
       profileData = data;
       profileError = error;
     } else {
@@ -170,27 +182,28 @@ export async function PUT(request: NextRequest) {
       const { data, error } = await supabase
         .from('profiles')
         .update({
-          display_name: body.display_name || null,
-          bio: body.bio || null,
-          avatar_url: body.avatar_url || null,
-          phone_number: body.phone_number || null,
-          website: body.website || null,
-          location: body.location || null,
+          display_name: body.display_name !== undefined ? body.display_name : existingProfile.display_name,
+          bio: body.bio !== undefined ? body.bio : existingProfile.bio,
+          avatar_url: body.avatar_url !== undefined ? body.avatar_url : existingProfile.avatar_url,
+          phone_number: body.phone_number !== undefined ? body.phone_number : existingProfile.phone_number,
+          website: body.website !== undefined ? body.website : existingProfile.website,
+          location: body.location !== undefined ? body.location : existingProfile.location,
           public_profile: body.public_profile !== undefined ? body.public_profile : existingProfile.public_profile,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id)
         .select()
         .single();
-      
+
       profileData = data;
       profileError = error;
     }
 
     if (profileError) {
       console.error('Error updating profile:', profileError);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Failed to update profile' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
     }
@@ -240,8 +253,9 @@ export async function PUT(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in settings profile PUT:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }
