@@ -1,4 +1,5 @@
 // Type definitions for the FoodList application
+import type { ApiError } from '@/types/api';
 
 // Basic entities
 export interface Restaurant {
@@ -114,8 +115,20 @@ export interface RestaurantWithDetails extends Restaurant {
 
 // API Response types
 export interface ApiResponse<T> {
-  data: T;
+  data?: T;
   error?: string;
+  message?: string;
+}
+
+/**
+ * Auth response type
+ */
+export interface AuthResponse {
+  data: {
+    user: AuthUser | null;
+    session: SupabaseSession | null;
+  } | null;
+  error: ApiError | null;
 }
 
 export interface PaginatedResponse<T> {
@@ -323,11 +336,11 @@ export interface SecureApiCallOptions {
 export interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
-  signUp: (email: string, password: string, metadata?: Record<string, any>) => Promise<{ data: any; error: any }>;
-  signIn: (email: string, password: string) => Promise<{ data: any; error: any }>;
-  signOut: () => Promise<{ error: any }>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
-  updatePassword: (newPassword: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<AuthResponse>;
+  signIn: (email: string, password: string) => Promise<AuthResponse>;
+  signOut: () => Promise<{ error: ApiError | null }>;
+  resetPassword: (email: string) => Promise<{ error: ApiError | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: ApiError | null }>;
   getAccessToken: () => Promise<string | null>;
 }
 

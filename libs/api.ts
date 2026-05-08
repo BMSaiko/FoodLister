@@ -16,6 +16,7 @@ import {
   PaginatedResponse,
   ApiResponse 
 } from './types';
+import type { ApiError } from '@/types/api';
 
 // ==================== API Endpoints ====================
 
@@ -302,33 +303,41 @@ export async function fetchWithRetry<T>(
   retries: number = 3,
   delayMs: number = 1000
 ): Promise<ApiResponse<T>> {
-  let lastError: any;
+  let lastError: ApiError | null = null;
   
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url, {
         method: options.method || HTTP_METHODS.GET,
         headers: createAuthHeaders(options.token),
-        body: options.body ? JSON.stringify(options.body) : undefined,
+        body: typeof options.body === 'string' ? options.body : JSON.stringify(options.body),
         signal: options.signal
       });
       
       const data = await response.json();
       
       if (!response.ok) {
-        throw { 
-          code: String(response.status), 
-          message: data.error || data.message || 'Request failed' 
+        const apiError: ApiError = { 
+          error: data.error || data.message || 'Request failed',
+          code: String(response.status),
+          status: response.status
         };
+        throw apiError;
       }
       
       return { data };
-    } catch (error: any) {
-      lastError = error;
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'error' in error) {
+        lastError = error as ApiError;
+      } else {
+        lastError = { 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        };
+      }
       
       // Don't retry auth errors
-      if (isAuthError(error)) {
-        return { data: null as any, error: error.message || 'Authentication failed' };
+      if (isAuthError(lastError)) {
+        return { data: undefined as T, error: lastError.error };
       }
       
       // Wait before retrying (exponential backoff)
@@ -339,7 +348,7 @@ export async function fetchWithRetry<T>(
   }
   
   return { 
-    data: null as any, 
-    error: lastError?.message || 'Request failed after retries' 
+    data: undefined as T, 
+    error: lastError?.error || 'Request failed after retries' 
   };
 }
