@@ -8,7 +8,7 @@
 export interface AuthEvent {
   type: 'session_start' | 'session_refresh' | 'session_expired' | 'token_error' | 'auth_error';
   timestamp: number;
-  details?: any;
+  details?: Record<string, unknown>;
   userId?: string;
 }
 
@@ -70,7 +70,7 @@ class AuthLogger {
 export const authLogger = new AuthLogger();
 
 // Convenience functions
-export const logSessionStart = (details?: any, userId?: string) => {
+export const logSessionStart = (details?: Record<string, unknown>, userId?: string) => {
   authLogger.log({
     type: 'session_start',
     timestamp: Date.now(),
@@ -79,7 +79,7 @@ export const logSessionStart = (details?: any, userId?: string) => {
   });
 };
 
-export const logSessionRefresh = (details?: any, userId?: string) => {
+export const logSessionRefresh = (details?: Record<string, unknown>, userId?: string) => {
   authLogger.log({
     type: 'session_refresh',
     timestamp: Date.now(),
@@ -88,7 +88,7 @@ export const logSessionRefresh = (details?: any, userId?: string) => {
   });
 };
 
-export const logSessionExpired = (details?: any, userId?: string) => {
+export const logSessionExpired = (details?: Record<string, unknown>, userId?: string) => {
   authLogger.log({
     type: 'session_expired',
     timestamp: Date.now(),
@@ -97,7 +97,7 @@ export const logSessionExpired = (details?: any, userId?: string) => {
   });
 };
 
-export const logTokenError = (details?: any, userId?: string) => {
+export const logTokenError = (details?: Record<string, unknown>, userId?: string) => {
   authLogger.log({
     type: 'token_error',
     timestamp: Date.now(),
@@ -106,7 +106,7 @@ export const logTokenError = (details?: any, userId?: string) => {
   });
 };
 
-export const logAuthError = (details?: any, userId?: string) => {
+export const logAuthError = (details?: Record<string, unknown>, userId?: string) => {
   authLogger.log({
     type: 'auth_error',
     timestamp: Date.now(),
@@ -116,7 +116,7 @@ export const logAuthError = (details?: any, userId?: string) => {
 };
 
 // Enhanced logging functions for debugging storage issues
-export const logStorageOperation = (operation: 'get' | 'set' | 'remove', key: string, value?: any, success: boolean = true) => {
+export const logStorageOperation = (operation: 'get' | 'set' | 'remove', key: string, value?: Record<string, unknown>, success: boolean = true) => {
   authLogger.log({
     type: 'auth_error',
     timestamp: Date.now(),
@@ -130,7 +130,7 @@ export const logStorageOperation = (operation: 'get' | 'set' | 'remove', key: st
   });
 };
 
-export const logSessionStorageCheck = (hasCookie: boolean, hasLocalStorage: boolean, cookieValue?: any, localStorageValue?: any) => {
+export const logSessionStorageCheck = (hasCookie: boolean, hasLocalStorage: boolean, cookieValue?: string, localStorageValue?: string) => {
   authLogger.log({
     type: 'session_expired',
     timestamp: Date.now(),
@@ -147,5 +147,5 @@ export const logSessionStorageCheck = (hasCookie: boolean, hasLocalStorage: bool
 
 // Export for debugging in browser console
 if (typeof window !== 'undefined') {
-  (window as any).__authLogger = authLogger;
+  (window as Record<string, unknown>).__authLogger = authLogger;
 }

@@ -290,7 +290,7 @@ export async function getUserReviewsData(
   accessLevel: 'OWNER' | 'PUBLIC' | 'PRIVATE',
   page: number = 1,
   limit: number = 10
-): Promise<{ data: any[]; total: number; hasMore: boolean }> {
+): Promise<{ data: Array<DbReview & { restaurants: DbRestaurant | null }>; total: number; hasMore: boolean }> {
   try {
     const offset = (page - 1) * limit;
 
@@ -326,7 +326,7 @@ export async function getUserReviewsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const reviews = (reviewsData as unknown as Array<DbReview & { restaurants: DbRestaurant | null }>)?.map((review) => ({
+    const reviews = (reviewsData as Array<DbReview & { restaurants: DbRestaurant | null }>)?.map((review) => ({
       id: review.id,
       rating: review.rating,
       comment: review.comment,
@@ -362,7 +362,7 @@ export async function getUserListsData(
   accessLevel: 'OWNER' | 'PUBLIC' | 'PRIVATE',
   page: number = 1,
   limit: number = 10
-): Promise<{ data: any[]; total: number; hasMore: boolean }> {
+): Promise<{ data: Array<DbList & { list_restaurants: DbListRestaurant[] | null }>; total: number; hasMore: boolean }> {
   try {
     const offset = (page - 1) * limit;
 
@@ -393,7 +393,7 @@ export async function getUserListsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const lists = (listsData as unknown as Array<DbList & { list_restaurants: DbListRestaurant[] | null }>)?.map((list) => ({
+    const lists = (listsData as Array<DbList & { list_restaurants: DbListRestaurant[] | null }>)?.map((list) => ({
       id: list.id,
       name: list.name,
       description: list.description,
@@ -421,7 +421,11 @@ export async function getUserRestaurantsData(
   targetUserId: string,
   page: number = 1,
   limit: number = 10
-): Promise<{ data: any[]; total: number; hasMore: boolean }> {
+): Promise<{ data: Array<DbRestaurant & { 
+  cuisine_types: Array<{ name: string }> | null;
+  restaurant_dietary_options_junction: Array<{ restaurant_dietary_options: { name: string } | null }> | null;
+  restaurant_restaurant_features: Array<{ restaurant_features: { name: string } | null }> | null;
+}>; total: number; hasMore: boolean }> {
   try {
     const offset = (page - 1) * limit;
 
@@ -471,7 +475,7 @@ export async function getUserRestaurantsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const restaurants = (restaurantsData as unknown as Array<DbRestaurant & { 
+    const restaurants = (restaurantsData as Array<DbRestaurant & { 
       cuisine_types: Array<{ name: string }> | null;
       restaurant_dietary_options_junction: Array<{ restaurant_dietary_options: { name: string } | null }> | null;
       restaurant_restaurant_features: Array<{ restaurant_features: { name: string } | null }> | null;
