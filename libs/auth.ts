@@ -326,18 +326,34 @@ export async function getUserReviewsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const reviews = (reviewsData as Array<DbReview & { restaurants: DbRestaurant | null }>)?.map((review) => ({
+    // Type for the query result (only fields we're selecting)
+    type ReviewQueryResult = {
+      id: string;
+      rating: number;
+      comment: string | null;
+      amount_spent: number | null;
+      created_at: string;
+      restaurants: Array<{
+        id: string;
+        name: string;
+        image_url: string | null;
+        rating: number;
+        location: string;
+      }> | null;
+    };
+
+    const reviews = (reviewsData as unknown as Array<ReviewQueryResult>)?.map((review) => ({
       id: review.id,
       rating: review.rating,
       comment: review.comment,
       amountSpent: review.amount_spent,
       createdAt: review.created_at,
-      restaurant: review.restaurants ? {
-        id: review.restaurants.id,
-        name: review.restaurants.name,
-        imageUrl: review.restaurants.image_url,
-        rating: review.restaurants.rating,
-        location: review.restaurants.location
+      restaurant: review.restaurants && review.restaurants.length > 0 ? {
+        id: review.restaurants[0].id,
+        name: review.restaurants[0].name,
+        imageUrl: review.restaurants[0].image_url,
+        rating: review.restaurants[0].rating,
+        location: review.restaurants[0].location
       } : null
     })) || [];
 
