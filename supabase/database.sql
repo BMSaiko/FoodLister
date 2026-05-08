@@ -210,6 +210,28 @@ CREATE TABLE public.schema_migrations (
   success boolean DEFAULT true,
   CONSTRAINT schema_migrations_pkey PRIMARY KEY (version)
 );
+CREATE TABLE public.user_activities (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  type text NOT NULL CHECK (type = ANY (ARRAY['recommendation'::text, 'visit'::text, 'review'::text, 'list_create'::text])),
+  content text NOT NULL,
+  restaurant_id uuid,
+  list_id uuid,
+  metadata jsonb DEFAULT '{}'::jsonb,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT user_activities_pkey PRIMARY KEY (id),
+  CONSTRAINT user_activities_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT user_activities_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id),
+  CONSTRAINT user_activities_list_id_fkey FOREIGN KEY (list_id) REFERENCES public.lists(id)
+);
+CREATE TABLE public.user_cuisine_types (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  name text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT user_cuisine_types_pkey PRIMARY KEY (id),
+  CONSTRAINT user_cuisine_types_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.user_restaurant_visits (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   user_id uuid NOT NULL,
