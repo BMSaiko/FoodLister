@@ -1,6 +1,8 @@
 // app/api/lists/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +12,11 @@ export async function GET(
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json({ error: 'List ID is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // Try authenticated access first, fall back to public client for unauthenticated users
@@ -18,7 +24,11 @@ export async function GET(
     const client = supabase || (await getPublicServerClient());
 
     if (!client) {
-      return NextResponse.json({ error: 'Failed to initialize database client' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     // Step 1: Fetch the list details
@@ -31,9 +41,17 @@ export async function GET(
     if (listError) {
       console.error('Error fetching list:', listError);
       if (listError.code === 'PGRST116') {
-        return NextResponse.json({ error: 'List not found' }, { status: 404 });
+        const errorType = 'NOT_FOUND' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 404 }
+        );
       }
-      return NextResponse.json({ error: 'Failed to fetch list details', details: listError.message }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     if (!listData) {
@@ -99,10 +117,14 @@ export async function GET(
     const response = NextResponse.json({ list: responseData });
     response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     return response;
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 }
 
 export async function DELETE(
@@ -112,7 +134,11 @@ export async function DELETE(
   try {
     const supabase = await getServerClient();
     if (!supabase) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
     const { id } = await params;
 
@@ -124,7 +150,11 @@ export async function DELETE(
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
 
     // Fetch the list to check ownership
@@ -137,14 +167,26 @@ export async function DELETE(
     if (listError) {
       console.error('Error fetching list for deletion:', listError);
       if (listError.code === 'PGRST116') {
-        return NextResponse.json({ error: 'List not found' }, { status: 404 });
+        const errorType = 'NOT_FOUND' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 404 }
+        );
       }
-      return NextResponse.json({ error: 'Failed to fetch list', details: listError.message }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     // Check if user is the creator
     if (listData.creator_id !== user.id) {
-      return NextResponse.json({ error: 'You can only delete your own lists' }, { status: 403 });
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 403 }
+      );
     }
 
     // Delete the list (cascade will handle list_restaurants)
@@ -155,19 +197,24 @@ export async function DELETE(
 
     if (deleteError) {
       console.error('Error deleting list:', deleteError);
-      return NextResponse.json({ error: 'Failed to delete list', details: deleteError.message }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ 
       success: true, 
       message: 'List deleted successfully' 
     });
-  } catch (_error: unknown) {
-    return NextResponse.json({ 
-      error: 'Internal server error', 
-      details: 'Unknown error' 
-    }, { status: 500 });
-  }
+    } catch (_error: unknown) {
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 }
 
 export async function PUT(
@@ -200,11 +247,19 @@ export async function PUT(
       .single();
 
     if (listError || !listData) {
-      return NextResponse.json({ error: 'List not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 404 }
+      );
     }
 
     if (listData.creator_id !== user.id) {
-      return NextResponse.json({ error: 'You can only update your own lists' }, { status: 403 });
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -217,10 +272,14 @@ export async function PUT(
         .update({ ...listUpdates, updated_at: new Date().toISOString() })
         .eq('id', id);
 
-      if (updateError) {
-        console.error('Error updating list:', updateError);
-        return NextResponse.json({ error: 'Failed to update list', details: updateError.message }, { status: 500 });
-      }
+    if (updateError) {
+      console.error('Error updating list:', updateError);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
     }
 
     // Update restaurant order if provided
@@ -302,7 +361,11 @@ export async function POST(
 
     if (createError || !newList) {
       console.error('Error duplicating list:', createError);
-      return NextResponse.json({ error: 'Failed to duplicate list', details: createError?.message }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     // Copy restaurants from original list

@@ -3,6 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import type { Database } from '@/types/database';
+type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
+type DbCuisineType = Database['public']['Tables']['cuisine_types']['Row'];
+type DbRestaurantFeature = Database['public']['Tables']['restaurant_features']['Row'];
+type DbDietaryOption = Database['public']['Tables']['restaurant_dietary_options']['Row'];
 
 interface Restaurant {
   id: string;
@@ -23,7 +28,9 @@ interface Restaurant {
   updated_at: string;
   creator_id?: string;
   creator_name?: string;
-  cuisine_types?: any[];
+  cuisine_types?: Array<{ id: string; name: string; icon?: string }>;
+  features?: Array<{ id: string; name: string; icon?: string }>;
+  dietary_options?: Array<{ id: string; name: string }>;
   review_count?: number;
   latitude?: number;
   longitude?: number;
@@ -109,17 +116,32 @@ export async function GET(request: NextRequest) {
 
     // Transform data for easier client consumption
     const restaurants: Restaurant[] = (restaurantsData || []).map((restaurant: any) => ({
-      ...restaurant,
-      cuisine_types: restaurant.cuisine_types
-        ? restaurant.cuisine_types.map((relation: any) => relation.cuisine_type)
-        : [],
-      features: restaurant.features
-        ? restaurant.features.map((relation: any) => relation.feature)
-        : [],
-      dietary_options: restaurant.dietary_options
-        ? restaurant.dietary_options.map((relation: any) => relation.dietary_option)
-        : [],
-      review_count: restaurant.reviews?.[0]?.count || 0
+      id: restaurant.id,
+      name: restaurant.name,
+      description: restaurant.description,
+      image_url: restaurant.image_url,
+      price_per_person: restaurant.price_per_person,
+      rating: restaurant.rating,
+      location: restaurant.location,
+      source_url: restaurant.source_url,
+      creator: restaurant.creator,
+      menu_url: restaurant.menu_url,
+      menu_links: restaurant.menu_links || [],
+      menu_images: restaurant.menu_images || [],
+      phone_numbers: restaurant.phone_numbers || [],
+      visited: restaurant.visited,
+      created_at: restaurant.created_at,
+      updated_at: restaurant.updated_at,
+      creator_id: restaurant.creator_id,
+      creator_name: restaurant.creator_name,
+      cuisine_types: restaurant.cuisine_types?.map((relation: any) => relation.cuisine_type).filter(Boolean) || [],
+      features: restaurant.features?.map((relation: any) => relation.feature).filter(Boolean) || [],
+      dietary_options: restaurant.dietary_options?.map((relation: any) => relation.dietary_option).filter(Boolean) || [],
+      review_count: restaurant.reviews?.[0]?.count || 0,
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude,
+      images: restaurant.images,
+      display_image_index: restaurant.display_image_index
     }));
 
     return NextResponse.json(

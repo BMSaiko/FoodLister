@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -46,12 +48,20 @@ export async function GET(request: NextRequest) {
     const restaurantId = searchParams.get('restaurant_id');
 
     if (!restaurantId) {
-      return NextResponse.json({ error: 'restaurant_id parameter is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // First get the reviews
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     const { data: reviewsData, error: reviewsError } = await supabase
@@ -60,19 +70,25 @@ export async function GET(request: NextRequest) {
       .eq('restaurant_id', restaurantId)
       .order('created_at', { ascending: false });
 
-    if (reviewsError) {
-      console.error('Error fetching reviews:', reviewsError);
-
-      // Check if the table doesn't exist (migration not run)
-      if (reviewsError.code === '42P01') {
-        return NextResponse.json({
-          error: 'Reviews table not found. Please run the database migration first.',
-          details: 'Execute supabase/migrations/003_add_reviews.sql in your Supabase SQL Editor'
-        }, { status: 500 });
+      if (reviewsError) {
+        console.error('Error fetching reviews:', reviewsError);
+      
+        // Check if the table doesn't exist (migration not run)
+        if (reviewsError.code === '42P01') {
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json({
+            error: getErrorMessage(errorType),
+            code: errorType,
+            details: 'Execute supabase/migrations/003_add_reviews.sql in your Supabase SQL Editor'
+          }, { status: 500 });
+        }
+      
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 500 }
+        );
       }
-
-      return NextResponse.json({ error: 'Failed to fetch reviews', details: reviewsError.message }, { status: 500 });
-    }
 
     if (!reviewsData || reviewsData.length === 0) {
       return NextResponse.json({ reviews: [] });
@@ -129,10 +145,14 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ reviews: processedData });
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -143,35 +163,46 @@ export async function POST(request: NextRequest) {
     const { restaurant_id, rating, comment, amount_spent } = body;
 
     if (!restaurant_id || !rating) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'restaurant_id and rating are required' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
 
     if (rating < 1 || rating > 5) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Rating must be between 1 and 5' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
 
     if (amount_spent !== undefined && amount_spent !== null && (amount_spent <= 0 || isNaN(amount_spent))) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Amount spent must be greater than 0' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
 
     // Get current user
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
 
     // Check if user already has a review for this restaurant
@@ -184,12 +215,17 @@ export async function POST(request: NextRequest) {
 
     if (checkError) {
       console.error('Error checking existing review:', checkError);
-      return NextResponse.json({ error: 'Failed to check existing review' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     if (existingReview) {
+      const errorType = 'CONFLICT' as ApiErrorType;
       return NextResponse.json(
-        { error: 'You have already reviewed this restaurant' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 409 }
       );
     }
@@ -221,7 +257,11 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating review:', error);
-      return NextResponse.json({ error: 'Failed to create review', details: error.message, code: error.code }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     // Update restaurant rating after successful review creation
@@ -239,8 +279,12 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json({ review: processedData }, { status: 201 });
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 }

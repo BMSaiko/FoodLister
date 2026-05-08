@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 // Valida se as coordenadas são válidas
 function isValidCoordinates(latitude: number, longitude: number): boolean {
@@ -22,14 +24,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json({ error: 'Restaurant ID is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
 
     // Use public client for unauthenticated access to restaurant details
     const supabase = await getPublicServerClient();
     
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     // Fetch restaurant details with features and dietary options
@@ -55,24 +65,38 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
       // Check if the table doesn't exist (migration not run)
       if (restaurantError.code === '42P01') {
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
         return NextResponse.json({
-          error: 'Restaurants table not found. Please run the database migration first.',
+          error: getErrorMessage(errorType),
+          code: errorType,
           details: 'Execute supabase/migrations/000_create_core_tables.sql in your Supabase SQL Editor'
         }, { status: 500 });
       }
-
-      return NextResponse.json({ error: 'Failed to fetch restaurant', details: restaurantError.message }, { status: 500 });
+      
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
 
     if (!restaurant) {
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ restaurant });
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -83,18 +107,30 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = await request.json();
 
     if (!id) {
-      return NextResponse.json({ error: 'Restaurant ID is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
-
+    
     // Get current user
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
-
+    
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-
+    
     if (userError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
 
     // Check if user owns the restaurant or is an admin
@@ -106,16 +142,28 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     if (restaurantError) {
       console.error('Error checking restaurant ownership:', restaurantError);
-      return NextResponse.json({ error: 'Failed to verify restaurant ownership' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
-
+    
     if (!restaurant) {
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 404 }
+      );
     }
-
+    
     // Only allow the creator to edit the restaurant
     if (restaurant.creator_id !== user.id) {
-      return NextResponse.json({ error: 'You can only edit restaurants you created' }, { status: 403 });
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 403 }
+      );
     }
 
     // Prepare update data
@@ -131,9 +179,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         .eq('restaurant_id', id)
         .single();
 
-      if (visitError && visitError.code !== 'PGRST116') { // PGRST116 = no rows returned
+    if (visitError && visitError.code !== 'PGRST116') { // PGRST116 = no rows returned
         console.error('Error checking visit status:', visitError);
-        return NextResponse.json({ error: 'Failed to check visit status' }, { status: 500 });
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 500 }
+        );
       }
 
       if (visitData) {
@@ -146,7 +198,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         if (deleteError) {
           console.error('Error removing visit:', deleteError);
-          return NextResponse.json({ error: 'Failed to remove visit' }, { status: 500 });
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json(
+            { error: getErrorMessage(errorType), code: errorType },
+            { status: 500 }
+          );
         }
 
         // Check if user has any visits left for this restaurant
@@ -158,7 +214,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         if (remainingError) {
           console.error('Error checking remaining visits:', remainingError);
-          return NextResponse.json({ error: 'Failed to check remaining visits' }, { status: 500 });
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json(
+            { error: getErrorMessage(errorType), code: errorType },
+            { status: 500 }
+          );
         }
 
         const visitCount = remainingVisits ? remainingVisits.length : 0;
@@ -176,7 +236,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         if (insertError) {
           console.error('Error adding visit:', insertError);
-          return NextResponse.json({ error: 'Failed to add visit' }, { status: 500 });
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json(
+            { error: getErrorMessage(errorType), code: errorType },
+            { status: 500 }
+          );
         }
 
         return NextResponse.json({ visited: true, visit_count: 1 });
@@ -189,22 +253,30 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         .eq('user_id', user.id)
         .eq('restaurant_id', id);
 
-      if (deleteError) {
-        console.error('Error removing visit:', deleteError);
-        return NextResponse.json({ error: 'Failed to remove visit' }, { status: 500 });
-      }
-
-      // Check if user has any visits left for this restaurant
-      const { data: remainingVisits, error: remainingError } = await supabase
-        .from('user_restaurant_visits')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('restaurant_id', id);
-
-      if (remainingError) {
-        console.error('Error checking remaining visits:', remainingError);
-        return NextResponse.json({ error: 'Failed to check remaining visits' }, { status: 500 });
-      }
+        if (deleteError) {
+          console.error('Error removing visit:', deleteError);
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json(
+            { error: getErrorMessage(errorType), code: errorType },
+            { status: 500 }
+          );
+        }
+        
+        // Check if user has any visits left for this restaurant
+        const { data: remainingVisits, error: remainingError } = await supabase
+          .from('user_restaurant_visits')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('restaurant_id', id);
+        
+        if (remainingError) {
+          console.error('Error checking remaining visits:', remainingError);
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json(
+            { error: getErrorMessage(errorType), code: errorType },
+            { status: 500 }
+          );
+        }
 
         const visitCount = remainingVisits ? remainingVisits.length : 0;
         const visited = visitCount > 0;
@@ -221,7 +293,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
         if (insertError) {
           console.error('Error adding visit:', insertError);
-          return NextResponse.json({ error: 'Failed to add visit' }, { status: 500 });
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json(
+            { error: getErrorMessage(errorType), code: errorType },
+            { status: 500 }
+          );
         }
 
         return NextResponse.json({ visited: true, visit_count: 1 });
@@ -274,7 +350,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       // Only update if there are fields to update
       if (Object.keys(updateData).length === 0) {
-        return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 400 }
+        );
       }
 
       const { data, error } = await supabase
@@ -286,15 +366,23 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
       if (error) {
         console.error('Error updating restaurant:', error);
-        return NextResponse.json({ error: 'Failed to update restaurant' }, { status: 500 });
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 500 }
+        );
       }
 
       return NextResponse.json({ restaurant: data });
     }
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -304,39 +392,63 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json({ error: 'Restaurant ID is required' }, { status: 400 });
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
     }
-
+    
     // Get current user
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
-
+    
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-
+    
     if (userError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
     }
-
+    
     // Check if user owns the restaurant or is an admin
     const { data: restaurant, error: restaurantError } = await supabase
       .from('restaurants')
       .select('creator_id')
       .eq('id', id)
       .single();
-
+    
     if (restaurantError) {
       console.error('Error checking restaurant ownership:', restaurantError);
-      return NextResponse.json({ error: 'Failed to verify restaurant ownership' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
-
+    
     if (!restaurant) {
-      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 });
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 404 }
+      );
     }
-
+    
     // Only allow the creator to delete the restaurant
     if (restaurant.creator_id !== user.id) {
-      return NextResponse.json({ error: 'You can only delete restaurants you created' }, { status: 403 });
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 403 }
+      );
     }
 
     // Delete the restaurant
@@ -347,12 +459,20 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
     if (error) {
       console.error('Error deleting restaurant:', error);
-      return NextResponse.json({ error: 'Failed to delete restaurant' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
-
+    
     return NextResponse.json({ message: 'Restaurant deleted successfully' });
   } catch (error) {
     console.error('Unexpected error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
   }
 }

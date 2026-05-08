@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import type { Database } from '@/types/database';
+type DbList = Database['public']['Tables']['lists']['Row'];
 
 export async function GET(request: NextRequest) {
   try {
@@ -80,7 +82,7 @@ export async function GET(request: NextRequest) {
     }
     
     const processedData = await Promise.all(
-      listsData.map(async (list: any) => {
+      listsData.map(async (list: DbList) => {
         const { count, error } = await resolvedCountClient
           .from('list_restaurants')
           .select('*', { count: 'exact', head: true })
