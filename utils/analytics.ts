@@ -2,12 +2,12 @@
 
 export type AnalyticsEvent = {
   event: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, string | number | boolean | undefined>;
   timestamp?: string;
 };
 
 // Track user actions
-export function trackEvent(eventName: string, properties?: Record<string, any>) {
+export function trackEvent(eventName: string, properties?: Record<string, string | number | boolean | undefined>) {
   const event: AnalyticsEvent = {
     event: eventName,
     properties,

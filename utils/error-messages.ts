@@ -6,7 +6,7 @@
 /**
  * Get a user-friendly error message based on the error type
  */
-export function getUserFriendlyError(error: any, context?: string): string {
+export function getUserFriendlyError(error: unknown, context?: string): string {
   // If it's already a string, return it
   if (typeof error === 'string') {
     return error;
@@ -19,11 +19,12 @@ export function getUserFriendlyError(error: any, context?: string): string {
 
   // If it's an API error response
   if (error && typeof error === 'object') {
-    if (error.error) {
-      return getMessageFromApiError(error.error, context);
+    const err = error as Record<string, unknown>;
+    if (err.error) {
+      return getMessageFromApiError(err.error as string, context);
     }
-    if (error.message) {
-      return getMessageFromError(new Error(error.message), context);
+    if (err.message) {
+      return getMessageFromError(new Error(err.message as string), context);
     }
   }
 
@@ -185,4 +186,60 @@ export function getSuccessMessage(action: 'create' | 'update' | 'delete', item: 
     delete: 'removido',
   };
   return `${item} ${actions[action]} com sucesso!`;
+}
+
+/**
+ * Enhanced error messages for common scenarios
+ */
+export const ENHANCED_ERROR_MESSAGES = {
+  // Network errors
+  NETWORK_ERROR: 'Não foi possível conectar. Verifique sua internet e tente novamente.',
+  TIMEOUT_ERROR: 'A operação expirou. Tente novamente.',
+  
+  // Authentication errors
+  AUTH_REQUIRED: 'Faça login para acessar este recurso.',
+  SESSION_EXPIRED: 'Sua sessão expirou. Faça login novamente.',
+  INVALID_CREDENTIALS: 'Email ou senha incorretos.',
+  EMAIL_IN_USE: 'Este email já está em uso. Tente fazer login.',
+  EMAIL_NOT_CONFIRMED: 'Confirme seu email antes de continuar.',
+  
+  // Authorization errors
+  UNAUTHORIZED: 'Você não tem permissão para realizar esta ação.',
+  LIST_NOT_OWNER: 'Você só pode modificar suas próprias listas.',
+  RESTAURANT_NOT_OWNER: 'Você só pode modificar restaurantes que criou.',
+  
+  // Not found errors
+  LIST_NOT_FOUND: 'Lista não encontrada. Pode ter sido removida.',
+  RESTAURANT_NOT_FOUND: 'Restaurante não encontrado. Pode ter sido removido.',
+  REVIEW_NOT_FOUND: 'Avaliação não encontrada.',
+  USER_NOT_FOUND: 'Usuário não encontrado.',
+  
+  // Validation errors
+  REQUIRED_FIELDS: 'Preencha todos os campos obrigatórios.',
+  INVALID_EMAIL: 'Digite um email válido.',
+  INVALID_RATING: 'A nota deve ser entre 1 e 5.',
+  INVALID_AMOUNT: 'O valor gasto deve ser maior que zero.',
+  DUPLICATE_REVIEW: 'Você já avaliou este restaurante.',
+  
+  // Feature-specific errors
+  LIST_CREATE_ERROR: 'Erro ao criar lista. Tente novamente.',
+  LIST_UPDATE_ERROR: 'Erro ao atualizar lista. Tente novamente.',
+  LIST_DELETE_ERROR: 'Erro ao remover lista. Tente novamente.',
+  RESTAURANT_CREATE_ERROR: 'Erro ao adicionar restaurante. Tente novamente.',
+  RESTAURANT_UPDATE_ERROR: 'Erro ao atualizar restaurante. Tente novamente.',
+  REVIEW_CREATE_ERROR: 'Erro ao enviar avaliação. Tente novamente.',
+  IMAGE_UPLOAD_ERROR: 'Erro ao enviar imagem. Tente outra imagem.',
+  IMAGE_SIZE_ERROR: 'A imagem é muito grande. Use uma imagem menor que 5MB.',
+  
+  // Generic fallback
+  UNKNOWN_ERROR: 'Ocorreu um erro inesperado. Tente novamente ou contate o suporte.',
+} as const;
+
+export type EnhancedErrorMessageKey = keyof typeof ENHANCED_ERROR_MESSAGES;
+
+/**
+ * Get enhanced error message by key
+ */
+export function getEnhancedErrorMessage(key: EnhancedErrorMessageKey): string {
+  return ENHANCED_ERROR_MESSAGES[key] || ENHANCED_ERROR_MESSAGES.UNKNOWN_ERROR;
 }

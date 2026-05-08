@@ -1,4 +1,9 @@
 import { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/database';
+type DbReview = Database['public']['Tables']['reviews']['Row'];
+type DbList = Database['public']['Tables']['lists']['Row'];
+type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
+type DbListRestaurant = Database['public']['Tables']['list_restaurants']['Row'];
 
 /**
  * Cria automaticamente um perfil para um usuário se não existir
@@ -321,19 +326,19 @@ export async function getUserReviewsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const reviews = reviewsData?.map((review: any) => ({
+    const reviews = (reviewsData as unknown as Array<DbReview & { restaurants: DbRestaurant | null }>)?.map((review) => ({
       id: review.id,
       rating: review.rating,
       comment: review.comment,
       amountSpent: review.amount_spent,
       createdAt: review.created_at,
-      restaurant: {
+      restaurant: review.restaurants ? {
         id: review.restaurants.id,
         name: review.restaurants.name,
         imageUrl: review.restaurants.image_url,
         rating: review.restaurants.rating,
         location: review.restaurants.location
-      }
+      } : null
     })) || [];
 
     return {
@@ -388,7 +393,7 @@ export async function getUserListsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const lists = listsData?.map((list: any) => ({
+    const lists = (listsData as unknown as Array<DbList & { list_restaurants: DbListRestaurant[] | null }>)?.map((list) => ({
       id: list.id,
       name: list.name,
       description: list.description,
@@ -429,7 +434,7 @@ export async function getUserRestaurantsData(
         description,
         image_url,
         location,
-        price_level,
+        price_per_person,
         rating,
         opening_hours,
         website,
@@ -466,13 +471,17 @@ export async function getUserRestaurantsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const restaurants = restaurantsData?.map((restaurant: any) => ({
+    const restaurants = (restaurantsData as unknown as Array<DbRestaurant & { 
+      cuisine_types: Array<{ name: string }> | null;
+      restaurant_dietary_options_junction: Array<{ restaurant_dietary_options: { name: string } | null }> | null;
+      restaurant_restaurant_features: Array<{ restaurant_features: { name: string } | null }> | null;
+    }>)?.map((restaurant) => ({
       id: restaurant.id,
       name: restaurant.name,
       description: restaurant.description,
       imageUrl: restaurant.image_url,
       location: restaurant.location,
-      priceLevel: restaurant.price_level,
+      priceLevel: restaurant.price_per_person,
       rating: restaurant.rating,
       openingHours: restaurant.opening_hours,
       website: restaurant.website,
@@ -480,9 +489,9 @@ export async function getUserRestaurantsData(
       menu: restaurant.menu,
       createdAt: restaurant.created_at,
       updatedAt: restaurant.updated_at,
-      cuisineTypes: restaurant.cuisine_types?.map((ct: any) => ct.name) || [],
-      dietaryOptions: restaurant.restaurant_dietary_options_junction?.map((junction: any) => junction.restaurant_dietary_options?.name).filter(Boolean) || [],
-      features: restaurant.restaurant_restaurant_features?.map((junction: any) => junction.restaurant_features?.name).filter(Boolean) || []
+      cuisineTypes: restaurant.cuisine_types?.map((ct: { name: string }) => ct.name).filter(Boolean) || [],
+      dietaryOptions: restaurant.restaurant_dietary_options_junction?.map((junction: { restaurant_dietary_options: { name: string } | null }) => junction.restaurant_dietary_options?.name).filter(Boolean) || [],
+      features: restaurant.restaurant_restaurant_features?.map((junction: { restaurant_features: { name: string } | null }) => junction.restaurant_features?.name).filter(Boolean) || []
     })) || [];
 
     return {

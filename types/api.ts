@@ -54,11 +54,11 @@ export interface PaginatedData<T> {
 /**
  * Type guard to check if response is an error
  */
-export function isApiError(response: any): response is ApiError {
+export function isApiError(response: unknown): response is ApiError {
   return response !== null && 
          typeof response === 'object' && 
          'error' in response && 
-         typeof response.error === 'string';
+         typeof (response as ApiError).error === 'string';
 }
 
 /**
@@ -72,10 +72,10 @@ export function getErrorMessage(error: unknown): string {
     return error;
   }
   if (error && typeof error === 'object' && 'message' in error) {
-    return String((error as any).message);
+    return String((error as { message: unknown }).message);
   }
   if (error && typeof error === 'object' && 'error' in error) {
-    return String((error as any).error);
+    return String((error as { error: unknown }).error);
   }
   return 'An unknown error occurred';
 }
@@ -117,7 +117,7 @@ export interface RestaurantData {
   updated_at: string;
   creator_id?: string;
   creator_name?: string;
-  cuisine_types?: any[];
+  cuisine_types?: Array<{ id: string; name: string; icon?: string }>;
   review_count?: number;
   latitude?: number;
   longitude?: number;

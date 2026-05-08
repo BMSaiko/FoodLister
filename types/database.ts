@@ -45,6 +45,7 @@ export interface Database {
           creator_id: string | null;
           creator_name: string | null;
           created_at: string;
+          updated_at: string;
           images: string[];
           display_image_index: number;
           menu_links: string[];
@@ -52,6 +53,10 @@ export interface Database {
           latitude: number | null;
           longitude: number | null;
           review_count: number;
+          opening_hours: string | null;
+          website: string | null;
+          phone: string | null;
+          menu: string | null;
         };
         Insert: Omit<Database['public']['Tables']['restaurants']['Row'], 'id' | 'created_at' | 'visited' | 'phone_numbers' | 'images' | 'display_image_index' | 'menu_links' | 'menu_images' | 'review_count'>;
         Update: Partial<Database['public']['Tables']['restaurants']['Insert']>;

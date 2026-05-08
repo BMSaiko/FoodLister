@@ -73,7 +73,7 @@ export type HttpMethod = typeof HTTP_METHODS[keyof typeof HTTP_METHODS];
 export interface ApiRequestOptions {
   method?: HttpMethod;
   headers?: Record<string, string>;
-  body?: any;
+  body?: unknown;
   token?: string;
   signal?: AbortSignal;
 }
@@ -91,12 +91,12 @@ export interface CreateRestaurantRequest {
   name: string;
   description?: string;
   image_url?: string;
-  images?: any[];
+  images?: string[];
   display_image_index?: number;
   location?: string;
   source_url?: string;
-  menu_links?: any[];
-  menu_images?: any[];
+  menu_links?: string[];
+  menu_images?: string[];
   phone_numbers?: string[];
   latitude?: number;
   longitude?: number;
@@ -228,7 +228,7 @@ export function createAuthHeaders(token?: string): Record<string, string> {
 /**
  * Builds query string from parameters
  */
-export function buildQueryString(params: Record<string, any>): string {
+export function buildQueryString(params: Record<string, string | number | boolean | undefined>): string {
   const searchParams = new URLSearchParams();
   
   Object.entries(params).forEach(([key, value]) => {
@@ -248,19 +248,19 @@ export function buildQueryString(params: Record<string, any>): string {
 /**
  * Builds restaurant filter query parameters
  */
-export function buildRestaurantFilterParams(filters: RestaurantFilters): Record<string, any> {
-  const params: Record<string, any> = {};
+export function buildRestaurantFilterParams(filters: RestaurantFilters): Record<string, string | undefined> {
+  const params: Record<string, string | undefined> = {};
   
   if (filters.search) params.search = filters.search;
   if (filters.cuisine_types?.length) params.cuisine_types = filters.cuisine_types.join(',');
   if (filters.features?.length) params.features = filters.features.join(',');
   if (filters.dietary_options?.length) params.dietary_options = filters.dietary_options.join(',');
-  if (filters.price_range?.min !== undefined) params.price_min = filters.price_range.min;
-  if (filters.price_range?.max !== undefined) params.price_max = filters.price_range.max;
-  if (filters.rating_range?.min !== undefined) params.rating_min = filters.rating_range.min;
-  if (filters.rating_range?.max !== undefined) params.rating_max = filters.rating_range.max;
-  if (filters.visited !== undefined) params.visited = filters.visited;
-  if (filters.not_visited !== undefined) params.not_visited = filters.not_visited;
+  if (filters.price_range?.min !== undefined) params.price_min = String(filters.price_range.min);
+  if (filters.price_range?.max !== undefined) params.price_max = String(filters.price_range.max);
+  if (filters.rating_range?.min !== undefined) params.rating_min = String(filters.rating_range.min);
+  if (filters.rating_range?.max !== undefined) params.rating_max = String(filters.rating_range.max);
+  if (filters.visited !== undefined) params.visited = String(filters.visited);
+  if (filters.not_visited !== undefined) params.not_visited = String(filters.not_visited);
   
   return params;
 }
@@ -268,23 +268,29 @@ export function buildRestaurantFilterParams(filters: RestaurantFilters): Record<
 /**
  * Checks if an error is an authentication error
  */
-export function isAuthError(error: any): boolean {
-  if (!error) return false;
+export function isAuthError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
   
+  const err = error as { code?: unknown; message?: unknown };
   const authErrorCodes = ['401', 'PGRST301', 'session_expired'];
   const authErrorMessages = ['invalid token', 'expired', 'not authenticated'];
   
+  const code = typeof err.code === 'string' ? err.code : '';
+  const message = typeof err.message === 'string' ? err.message.toLowerCase() : '';
+  
   return (
-    authErrorCodes.includes(error?.code) ||
-    authErrorMessages.some(msg => error?.message?.toLowerCase().includes(msg))
+    authErrorCodes.includes(code) ||
+    authErrorMessages.some(msg => message.includes(msg))
   );
 }
 
 /**
  * Checks if an error is a rate limit error
  */
-export function isRateLimitError(error: any): boolean {
-  return error?.code === '429' || error?.status === 429;
+export function isRateLimitError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const err = error as { code?: unknown; status?: unknown };
+  return err.code === '429' || err.status === 429;
 }
 
 /**
