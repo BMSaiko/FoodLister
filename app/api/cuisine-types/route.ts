@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPublicServerClient, getServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +10,11 @@ export async function GET(request: NextRequest) {
     const supabase = await getPublicServerClient();
     
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
     
     // Fetch all cuisine types
@@ -19,8 +25,9 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching cuisine types:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Failed to fetch cuisine types' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
     }
@@ -29,10 +36,11 @@ export async function GET(request: NextRequest) {
       data: data || [],
       total: data?.length || 0
     });
-  } catch (error) {
+    } catch (error) {
     console.error('Server error fetching cuisine types:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }
@@ -44,15 +52,20 @@ export async function POST(request: NextRequest) {
     const supabase = await getServerClient(request, response);
     
     if (!supabase) {
-      return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
     }
     
     // Check if user is authenticated
     const { data: { user }, error: userError } = await supabase.auth.getUser();
-
+    
     if (userError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
       );
     }
@@ -62,8 +75,9 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!name) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Cuisine type name is required' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
       );
     }
@@ -76,8 +90,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingCuisine) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Cuisine type with this name already exists' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 409 }
       );
     }
@@ -95,8 +110,9 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating cuisine type:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: 'Failed to create cuisine type' },
+        { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
     }
@@ -105,10 +121,11 @@ export async function POST(request: NextRequest) {
       data,
       message: 'Cuisine type created successfully'
     });
-  } catch (error) {
+    } catch (error) {
     console.error('Server error creating cuisine type:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: getErrorMessage(errorType), code: errorType },
       { status: 500 }
     );
   }
