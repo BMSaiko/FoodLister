@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
+import { incrementLoginAttempts, resetLoginAttempts, isAccountLocked } from '@/libs/verification';
 type DbReview = Database['public']['Tables']['reviews']['Row'];
 type DbList = Database['public']['Tables']['lists']['Row'];
 type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
@@ -47,20 +48,18 @@ export async function ensureUserProfileExists(
 
     let nextNumber = 1;
     if (maxCodeData && maxCodeData.length > 0) {
-      const lastCode = maxCodeData[0].user_id_code;
-      const lastNumber = parseInt(lastCode.replace('FL', ''), 10);
+      const lastCode = (maxCodeData[0] as { user_id_code: string | null }).user_id_code;
+      const lastNumber = lastCode ? parseInt(lastCode.replace('FL', ''), 10) : 0;
       nextNumber = lastNumber + 1;
     }
 
     const userCode = `FL${nextNumber.toString().padStart(6, '0')}`;
 
     // Criar o perfil usando service_role para contornar RLS policies
-    // Primeiro, vamos tentar obter o token service_role
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     
     if (serviceRoleKey) {
       console.log(`Creating profile for user ${userId} using service role`);
-      // Criar cliente com service_role para operações administrativas
       const { createClient } = await import('@supabase/supabase-js');
       const serviceSupabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -75,6 +74,11 @@ export async function ensureUserProfileExists(
           display_name: userEmail ? userEmail.split('@')[0] : 'Usuário',
           bio: 'Bem-vindo ao FoodList! Comece a explorar restaurantes e compartilhar suas experiências.',
           public_profile: true,
+          is_verified: false,
+          verified_at: null,
+          verification_method: null,
+          login_attempts: 0,
+          locked_until: null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
@@ -87,7 +91,7 @@ export async function ensureUserProfileExists(
       console.log(`Successfully created profile for user ${userId} using service role`);
       return true;
     } else {
-      // Fallback: tentar criar com o cliente atual (pode falhar se não houver autenticação)
+      // Fallback: tentar criar com o cliente atual
       console.warn('SUPABASE_SERVICE_ROLE_KEY not found, attempting profile creation with current client');
       
       const { error: insertError } = await supabase
@@ -98,13 +102,17 @@ export async function ensureUserProfileExists(
           display_name: userEmail ? userEmail.split('@')[0] : 'Usuário',
           bio: 'Bem-vindo ao FoodList! Comece a explorar restaurantes e compartilhar suas experiências.',
           public_profile: true,
+          is_verified: false,
+          verified_at: null,
+          verification_method: null,
+          login_attempts: 0,
+          locked_until: null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
 
       if (insertError) {
         console.error('Error creating user profile:', insertError);
-        // Se for erro de RLS, registrar mas não falhar completamente
         if (insertError.code === '42501') {
           console.warn('Profile creation blocked by RLS policy - this is expected for unauthenticated contexts');
           return false;
@@ -156,10 +164,8 @@ export async function validateProfileAccess(
   currentUserId?: string | null
 ): Promise<AccessValidationResult> {
   try {
-    // 1. Verificar se o ID é user_id_code ou UUID
     const isUserCode = /^[A-Z]{2}\d{6}$/.test(targetUserIdOrCode);
 
-    // 2. Buscar o perfil
     let profileQuery = supabase
       .from('profiles')
       .select('user_id, user_id_code, public_profile')
@@ -181,9 +187,9 @@ export async function validateProfileAccess(
       };
     }
 
-    const targetUserId = profile.user_id;
+    const typedProfile = profile as { user_id: string; user_id_code: string; public_profile: boolean };
+    const targetUserId = typedProfile.user_id;
 
-    // 3. Verificar se é o próprio dono
     if (currentUserId && currentUserId === targetUserId) {
       return {
         canAccess: true,
@@ -192,8 +198,7 @@ export async function validateProfileAccess(
       };
     }
 
-    // 4. Verificar se o perfil é público
-    if (profile.public_profile) {
+    if (typedProfile.public_profile) {
       return {
         canAccess: true,
         accessLevel: currentUserId ? 'PRIVATE' : 'PUBLIC',
@@ -201,7 +206,6 @@ export async function validateProfileAccess(
       };
     }
 
-    // 5. Perfil privado e não é o dono
     return {
       canAccess: false,
       accessLevel: 'NONE',
@@ -228,8 +232,7 @@ export async function getUserProfileData(
   accessLevel: 'OWNER' | 'PUBLIC' | 'PRIVATE'
 ): Promise<UserProfile | null> {
   try {
-    // Query base para todos os níveis de acesso
-    let query = supabase
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select(`
         user_id,
@@ -251,28 +254,27 @@ export async function getUserProfileData(
       .eq('user_id', targetUserId)
       .single();
 
-    const { data: profile, error } = await query;
-
     if (error || !profile) {
       return null;
     }
 
+    const p = profile as any;
     return {
-      user_id: profile.user_id,
-      user_id_code: profile.user_id_code,
-      display_name: profile.display_name,
-      avatar_url: profile.avatar_url,
-      location: profile.location,
-      bio: profile.bio,
-      website: profile.website,
-      phone_number: profile.phone_number || '',
-      public_profile: profile.public_profile,
-      created_at: profile.created_at,
-      updated_at: profile.updated_at,
-      total_restaurants_visited: profile.total_restaurants_visited || 0,
-      total_reviews: profile.total_reviews || 0,
-      total_lists: profile.total_lists || 0,
-      total_restaurants_added: profile.total_restaurants_added || 0
+      user_id: p.user_id,
+      user_id_code: p.user_id_code,
+      display_name: p.display_name,
+      avatar_url: p.avatar_url,
+      location: p.location,
+      bio: p.bio,
+      website: p.website,
+      phone_number: p.phone_number || '',
+      public_profile: p.public_profile,
+      created_at: p.created_at,
+      updated_at: p.updated_at,
+      total_restaurants_visited: p.total_restaurants_visited || 0,
+      total_reviews: p.total_reviews || 0,
+      total_lists: p.total_lists || 0,
+      total_restaurants_added: p.total_restaurants_added || 0
     };
 
   } catch (error) {
@@ -290,11 +292,10 @@ export async function getUserReviewsData(
   accessLevel: 'OWNER' | 'PUBLIC' | 'PRIVATE',
   page: number = 1,
   limit: number = 10
-): Promise<{ data: Array<DbReview & { restaurants: DbRestaurant | null }>; total: number; hasMore: boolean }> {
+): Promise<{ data: any[]; total: number; hasMore: boolean }> {
   try {
     const offset = (page - 1) * limit;
 
-    // Query para avaliações
     const { data: reviewsData, error: reviewsError } = await supabase
       .from('reviews')
       .select(`
@@ -315,7 +316,6 @@ export async function getUserReviewsData(
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    // Contagem total
     const { count } = await supabase
       .from('reviews')
       .select('id', { count: 'exact', head: true })
@@ -326,7 +326,6 @@ export async function getUserReviewsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    // Type for the query result (only fields we're selecting)
     type ReviewQueryResult = {
       id: string;
       rating: number;
@@ -378,11 +377,10 @@ export async function getUserListsData(
   accessLevel: 'OWNER' | 'PUBLIC' | 'PRIVATE',
   page: number = 1,
   limit: number = 10
-): Promise<{ data: Array<DbList & { list_restaurants: DbListRestaurant[] | null }>; total: number; hasMore: boolean }> {
+): Promise<{ data: any[]; total: number; hasMore: boolean }> {
   try {
     const offset = (page - 1) * limit;
 
-    // Query para listas
     const { data: listsData, error: listsError } = await supabase
       .from('lists')
       .select(`
@@ -398,7 +396,6 @@ export async function getUserListsData(
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    // Contagem total
     const { count } = await supabase
       .from('lists')
       .select('id', { count: 'exact', head: true })
@@ -409,7 +406,7 @@ export async function getUserListsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const lists = (listsData as Array<DbList & { list_restaurants: DbListRestaurant[] | null }>)?.map((list) => ({
+    const lists = (listsData as any[])?.map((list) => ({
       id: list.id,
       name: list.name,
       description: list.description,
@@ -437,15 +434,10 @@ export async function getUserRestaurantsData(
   targetUserId: string,
   page: number = 1,
   limit: number = 10
-): Promise<{ data: Array<DbRestaurant & { 
-  cuisine_types: Array<{ name: string }> | null;
-  restaurant_dietary_options_junction: Array<{ restaurant_dietary_options: { name: string } | null }> | null;
-  restaurant_restaurant_features: Array<{ restaurant_features: { name: string } | null }> | null;
-}>; total: number; hasMore: boolean }> {
+): Promise<{ data: any[]; total: number; hasMore: boolean }> {
   try {
     const offset = (page - 1) * limit;
 
-    // Query para restaurantes
     const { data: restaurantsData, error: restaurantsError } = await supabase
       .from('restaurants')
       .select(`
@@ -480,7 +472,6 @@ export async function getUserRestaurantsData(
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    // Contagem total
     const { count } = await supabase
       .from('restaurants')
       .select('id', { count: 'exact', head: true })
@@ -491,11 +482,7 @@ export async function getUserRestaurantsData(
       return { data: [], total: 0, hasMore: false };
     }
 
-    const restaurants = (restaurantsData as Array<DbRestaurant & { 
-      cuisine_types: Array<{ name: string }> | null;
-      restaurant_dietary_options_junction: Array<{ restaurant_dietary_options: { name: string } | null }> | null;
-      restaurant_restaurant_features: Array<{ restaurant_features: { name: string } | null }> | null;
-    }>)?.map((restaurant) => ({
+    const restaurants = (restaurantsData as any[])?.map((restaurant) => ({
       id: restaurant.id,
       name: restaurant.name,
       description: restaurant.description,

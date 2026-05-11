@@ -3,18 +3,22 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
-import { AuthUser } from '@/libs/types';
+import { AuthUser, VerificationStatus } from '@/libs/types';
 import { authLogger } from '@/utils/authLogger';
+import { checkVerificationStatus, sendVerificationEmail, incrementLoginAttempts, resetLoginAttempts, isAccountLocked } from '@/libs/verification';
 
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
+  verificationStatus: VerificationStatus | null;
   signUp: (email: string, password: string) => Promise<{ data: any; error: any }>;
   signIn: (email: string, password: string) => Promise<{ data: any; error: any }>;
   signOut: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
   getAccessToken: () => Promise<string | null>;
+  checkVerification: () => Promise<void>;
+  sendVerification: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -22,20 +26,29 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const supabase = getClient();
   const previousUserRef = useRef<AuthUser | null>(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      checkVerificationStatus(user.id).then(status => {
+        setVerificationStatus(status);
+      });
+    } else {
+      setVerificationStatus(null);
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     let subscription: any = null;
 
     const initializeAuth = async () => {
-      // Get initial session first
       const { data: { session } } = await supabase.auth.getSession();
       const initialUser = session?.user ?? null;
       setUser(initialUser);
       previousUserRef.current = initialUser;
-      
-      // Log session initialization for debugging
+
       authLogger.log({
         type: 'session_start',
         timestamp: Date.now(),
@@ -48,7 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userId: initialUser?.id || undefined
       });
 
-      // If user is already signed in on page load, mark toast as shown
       if (initialUser !== null) {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('loginToastShown', 'true');
@@ -56,7 +68,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setLoading(false);
 
-      // Now listen for auth changes
       const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           const newUser = session?.user ?? null;
@@ -64,7 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           previousUserRef.current = newUser;
           setLoading(false);
 
-          // Log auth state changes for debugging
           authLogger.log({
             type: event === 'SIGNED_OUT' ? 'session_expired' : 'session_refresh',
             timestamp: Date.now(),
@@ -106,7 +116,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) throw error;
 
-      // Create profile automatically with display_name as email prefix
       if (data.user) {
         try {
           const emailPrefix = email.split('@')[0];
@@ -120,10 +129,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               avatar_url: null,
               website: null,
               location: null,
-              phone_number: null
+              phone_number: null,
+              is_verified: false,
+              verified_at: null,
+              verification_method: null,
+              login_attempts: 0,
+              locked_until: null,
             });
 
-          if (profileError && profileError.code !== '23505') { // Ignore duplicate key error
+          if (profileError && profileError.code !== '23505') {
             // Don't throw here as the auth signup was successful
           }
         } catch (profileCreateError) {
@@ -150,9 +164,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      // Return the complete session data for proper redirect handling
+      // Reset login attempts on success
+      if (data.user) {
+        await resetLoginAttempts(data.user.id);
+      }
+
       return { data, session: data.session, user: data.user, error: null };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
@@ -165,7 +185,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      // Clear login toast flag when signing out
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('loginToastShown');
       }
@@ -211,7 +230,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Function to get current access token
   const getAccessToken = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -221,15 +239,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const checkVerification = async () => {
+    if (user?.id) {
+      const status = await checkVerificationStatus(user.id);
+      setVerificationStatus(status);
+    }
+  };
+
+  const sendVerification = async (email: string) => {
+    return await sendVerificationEmail(email);
+  };
+
   const value: AuthContextValue = {
     user,
     loading,
+    verificationStatus,
     signUp,
     signIn,
     signOut,
     resetPassword,
     updatePassword,
     getAccessToken,
+    checkVerification,
+    sendVerification,
   };
 
   return (
