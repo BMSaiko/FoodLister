@@ -6,28 +6,33 @@
 export interface Database {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          user_id: string;
-          display_name: string | null;
-          bio: string | null;
-          avatar_url: string | null;
-          website: string | null;
-          location: string | null;
-          created_at: string;
-          updated_at: string;
-          phone_number: string | null;
-          user_id_code: string | null;
-          public_profile: boolean;
-          total_restaurants_visited: number;
-          total_reviews: number;
-          total_lists: number;
-          total_restaurants_added: number;
-        };
-        Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'id'>;
-        Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
-      };
+       profiles: {
+         Row: {
+           id: string;
+           user_id: string;
+           display_name: string | null;
+           bio: string | null;
+           avatar_url: string | null;
+           website: string | null;
+           location: string | null;
+           created_at: string;
+           updated_at: string;
+           phone_number: string | null;
+           user_id_code: string | null;
+           public_profile: boolean;
+           total_restaurants_visited: number;
+           total_reviews: number;
+           total_lists: number;
+           total_restaurants_added: number;
+           is_verified: boolean;
+           verified_at: string | null;
+           verification_method: string | null;
+           login_attempts: number;
+           locked_until: string | null;
+         };
+         Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'id'>;
+         Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
+       };
       restaurants: {
         Row: {
           id: string;

@@ -348,3 +348,33 @@ export interface FiltersContextValue {
   clearTrigger: number;
   clearFilters: () => void;
 }
+
+// Verification types
+export interface VerificationStatus {
+  isVerified: boolean;
+  emailConfirmed: boolean;
+  verifiedAt: string | null;
+  verificationMethod: 'email' | null;
+}
+
+export interface AccountSecurity {
+  twoFactorEnabled: boolean;
+  lastPasswordChange: string | null;
+  activeSessions: number;
+  lastLogin: string | null;
+  loginAttempts: number;
+  lockedUntil: string | null;
+}
+
+export interface UserAccount extends User {
+  verification: VerificationStatus;
+  security: AccountSecurity;
+}
+
+export interface VerificationRequest {
+  userId: string;
+  method: 'email';
+  token: string;
+  expiresAt: string;
+  used: boolean;
+}
