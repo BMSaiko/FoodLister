@@ -147,5 +147,5 @@ export const logSessionStorageCheck = (hasCookie: boolean, hasLocalStorage: bool
 
 // Export for debugging in browser console
 if (typeof window !== 'undefined') {
-  (window as Record<string, unknown>).__authLogger = authLogger;
+  (window as unknown as Record<string, unknown>).__authLogger = authLogger;
 }
