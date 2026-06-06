@@ -22,7 +22,7 @@
 
 ## PRIORIDADE ALTA (Proximas 2 semanas)
 
-### T1 - Expandir Test Coverage para 80%+
+### T1 - Expandir Test Coverage para 80%+ (WIP)
 
 **Descricao:** O projeto tem apenas 40% de cobertura de testes.
 
@@ -33,7 +33,7 @@
 - [ ] T1.4 - Testes de settings page (useProfileForm, settings API)
 - [ ] T1.5 - Testes de verificacao de email (mock refinement)
 - [ ] T1.6 - Testes de hooks de admin (useAdminStats, useAdminUsers)
-- [ ] T1.7 - Adicionar npm test ao CI com coverage threshold de 80%
+- [x] T1.7 - Adicionar npm test ao CI com coverage threshold de 80%
 
 **Estimativa:** 3-4 dias
 
