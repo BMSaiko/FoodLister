@@ -16,6 +16,7 @@ import ListStatistics from '@/components/ui/lists/ListStatistics';
 import ListComments from '@/components/ui/lists/ListComments';
 import ListExportButtons from '@/components/ui/lists/ListExportButtons';
 import ListCollaborators from '@/components/ui/lists/ListCollaborators';
+import ListActivityFeed from '@/components/ui/lists/ListActivityFeed';
 
 interface Restaurant {
   id: string;
@@ -279,7 +280,12 @@ export default function ListDetails() {
             {Array(3).fill(0).map((_, index) => (
               <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
             ))}
-          </div>
+          
+
+          {/* Activity Feed */}
+          <div className="mt-6 sm:mt-8 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <ListActivityFeed listId={id as string} />
+          </div></div>
         </div>
       </div>
     );
@@ -483,7 +489,12 @@ export default function ListDetails() {
           )}
          </div>
        
-       {/* Roulette Modal */}
+                 {/* Activity Feed */}
+          <div className="mt-6 sm:mt-8 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+            <ListActivityFeed listId={id as string} />
+          </div>
+
+        {/* Roulette Modal */}
        {showRoulette && (
          <RestaurantRoulette 
            restaurants={restaurants} 

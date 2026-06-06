@@ -6,6 +6,26 @@
 **Branch**: main
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
+## Recently Completed (2026-06-06)
+
+### Sprint 1-2: Activity Feed + Testing + Performance + PWA + CI/CD (COMPLETED ✅)
+- **T2 - List Activity Feed**: Hook useListActivities, componente ListActivityFeed, logging em 4 API routes
+- **T1.7 - Coverage Threshold**: jest.config.js com threshold 80%
+- **T3 - E2E Testing**: Playwright instalado, 5 ficheiros de teste, CI job
+- **T5.1 - Virtual Scrolling**: Hook useVirtualScroll criado
+- **T5.2 - Bundle Analysis**: @next/bundle-analyzer instalado
+- **T5.4 - Lighthouse CI**: Configurado no CI com .lighthouserc.json
+- **T5.6 - Code Splitting**: Dynamic imports para RestaurantRoulette
+- **T6 - PWA**: next-pwa instalado, manifest.json criado, layout atualizado
+- **T7.2 - Lighthouse CI**: CI job com treosh/lighthouse-ci-action
+- **T7.3 - Semantic Release**: semantic-release instalado, .releaserc.json criado
+- **T7.4 - Environment Check**: CI job para verificar secrets
+- **T7.5 - Preview URL Comments**: GitHub script action no deploy.yml
+- **T12.3 - Remove Any Types**: Ficheiros novos limpos, activity.ts corrigido
+- **Ficheiros criados**: 16+
+- **Ficheiros modificados**: 15+
+- **Build**: ✓ Compiles successfully
+
 ## Recently Completed (2026-05-11)
 
 ### Email Verification & Account Security System (COMPLETED ✅)
@@ -99,6 +119,18 @@
 ### Medium Priority
 4. **Documentation**: Update API docs to include verification endpoints
 5. **Test Coverage**: Expand coverage for new verification features
+
+## Roadmap Criado (2026-06-06)
+
+Ficheiro: `docs/tasks/TASKS_ROADMAP.md`
+
+12 tarefas identificadas, organizadas por prioridade:
+- **ALTA**: T1 (Test Coverage 80%+), T2 (List Activity Feed), T3 (E2E Playwright)
+- **MEDIA**: T4 (Admin Dashboard), T5 (Performance), T6 (PWA), T7 (CI/CD), T8 (Notificacoes)
+- **BAIXA**: T9 (Monetizacao Stripe), T10 (Marketing AI), T11 (Advanced Search), T12 (Technical Debt)
+
+Quick Wins: T1.7, T2, T5.2, T7.5, T12.4
+Total estimado: ~35-50 dias de trabalho
 
 ## Current Focus Areas
 

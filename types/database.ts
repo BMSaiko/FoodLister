@@ -115,6 +115,18 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['list_collaborators']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['list_collaborators']['Insert']>;
       };
+      list_activities: {
+        Row: {
+          id: string;
+          list_id: string;
+          user_id: string;
+          action: string;
+          details: Record<string, unknown> | null;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['list_activities']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['list_activities']['Insert']>;
+      };
       reviews: {
         Row: {
           id: string;

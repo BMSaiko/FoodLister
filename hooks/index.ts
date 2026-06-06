@@ -36,3 +36,4 @@ export * from './ui';
 // Utility hooks
 export { useLocalStorage } from './utilities/useLocalStorage';
 export { useDebounce, useDebouncedCallback } from './utilities/useDebounce';
+export { useVirtualScroll } from './utilities/useVirtualScroll';

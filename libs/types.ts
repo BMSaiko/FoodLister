@@ -378,3 +378,22 @@ export interface VerificationRequest {
   expiresAt: string;
   used: boolean;
 }
+
+// Activity feed types
+export type ListActivityAction = 'restaurant_added' | 'restaurant_removed' | 'list_updated' | 'collaborator_added' | 'collaborator_removed' | 'list_duplicated';
+
+export interface ListActivity {
+  id: string;
+  list_id: string;
+  user_id: string;
+  action: ListActivityAction;
+  details: Record<string, any>;
+  created_at: string;
+}
+
+export interface ListActivityWithUser extends ListActivity {
+  profiles: {
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}

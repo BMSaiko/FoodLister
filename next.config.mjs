@@ -1,3 +1,17 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
+import withPWA from 'next-pwa';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
+const pwaConfig = withPWA({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Fix lockfile detection issue by setting the correct root for output file tracing
@@ -53,4 +67,4 @@ const nextConfig = {
   reactStrictMode: true,
 };
 
-export default nextConfig;
+export default pwaConfig(withBundleAnalyzer(nextConfig));

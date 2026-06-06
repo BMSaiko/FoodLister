@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { logActivity } from '@/libs/activity';
 
 // GET - List all collaborators
 export async function GET(
@@ -120,6 +121,14 @@ export async function POST(
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
+    // Log activity
+    if (user) {
+      await logActivity(supabase, id, user.id, 'collaborator_added', {
+        collaborator_user_id: targetUser.user_id,
+        collaborator_name: targetUser.display_name,
+      });
+    }
+
     return NextResponse.json({ collaborator, message: 'Collaborator added successfully' });
   } catch (_error: unknown) {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
@@ -175,6 +184,13 @@ export async function DELETE(
     if (deleteError) {
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+    }
+
+    // Log activity
+    if (user) {
+      await logActivity(supabase, id, user.id, 'collaborator_removed', {
+        removed_user_id: userId,
+      });
     }
 
     return NextResponse.json({ success: true, message: 'Collaborator removed successfully' });

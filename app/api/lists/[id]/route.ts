@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
+import { logActivity } from '@/libs/activity';
 import type { ApiErrorType } from '@/types/api';
 
 export async function GET(
@@ -317,6 +318,11 @@ export async function PUT(
       }
     }
 
+    // Log activity
+    if (user) {
+      await logActivity(supabase, id, user.id, 'list_updated', {});
+    }
+
     return NextResponse.json({ 
       success: true, 
       message: 'List updated successfully' 
@@ -428,10 +434,17 @@ export async function POST(
       }
     }
 
+    // Log activity
+    if (user && newList) {
+      await logActivity(supabase, newList.id, user.id, 'list_duplicated', {
+        original_list_id: id,
+      });
+    }
+
     return NextResponse.json({ 
       success: true, 
       list: newList,
-      message: 'List duplicated successfully' 
+      message: 'List duplicated successfully'
     });
   } catch (_error: unknown) {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
