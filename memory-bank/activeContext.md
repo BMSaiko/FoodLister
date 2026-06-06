@@ -2,8 +2,8 @@
 
 ## Current Project State
 
-**Latest Commit**: 1be57f403efbf1d14f165330c24e15071f0d5bf3
-**Branch**: main
+**Latest Commit**: 70445d2 (feat(activity): complete T2 - List Activity Feed with full CRUD, logging, and tests)
+**Branch**: dev
 **Repository**: https://github.com/BMSaiko/FoodLister.git
 
 ## Recently Completed (2026-06-06)

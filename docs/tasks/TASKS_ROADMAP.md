@@ -39,24 +39,24 @@
 
 ---
 
-### T2 - Implementar List Activity Feed
+### T2 - Implementar List Activity Feed COMPLETED
 
 **Descricao:** Feed de atividades que regista mudancas feitas numa lista.
 
 **Sub-tarefas:**
-- [ ] T2.1 - Migration 039_add_list_activities.sql
-- [ ] T2.2 - Atualizar types/database.ts
-- [ ] T2.3 - Atualizar libs/types.ts (ListActivity, ListActivityWithUser)
-- [ ] T2.4 - Criar libs/activity.ts com logActivity()
-- [ ] T2.5 - Criar API GET /api/lists/[id]/activities
-- [ ] T2.6 - Logging em POST restaurants
-- [ ] T2.7 - Logging em DELETE restaurants
-- [ ] T2.8 - Logging em PUT lists
-- [ ] T2.9 - Logging em POST collaborators
-- [ ] T2.10 - Criar hook useListActivities
-- [ ] T2.11 - Criar ListActivityFeed.tsx
-- [ ] T2.12 - Integrar em app/lists/[id]/page.tsx
-- [ ] T2.13 - Testes unitarios
+- [x] T2.1 - Migration 039_add_list_activities.sql
+- [x] T2.2 - Atualizar types/database.ts
+- [x] T2.3 - Atualizar libs/types.ts (ListActivity, ListActivityWithUser)
+- [x] T2.4 - Criar libs/activity.ts com logActivity()
+- [x] T2.5 - Criar API GET /api/lists/[id]/activities
+- [x] T2.6 - Logging em POST restaurants
+- [x] T2.7 - Logging em DELETE restaurants
+- [x] T2.8 - Logging em PUT lists
+- [x] T2.9 - Logging em POST collaborators
+- [x] T2.10 - Criar hook useListActivities
+- [x] T2.11 - Criar ListActivityFeed.tsx
+- [x] T2.12 - Integrar em app/lists/[id]/page.tsx
+- [x] T2.13 - Testes unitarios
 
 **Estimativa:** 2-3 dias | **Referencia:** implementation_plan.md
 

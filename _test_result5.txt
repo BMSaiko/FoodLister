@@ -1,0 +1,15 @@
+EXIT: 0
+STDOUT: 
+STDERR: PASS __tests__/utils/error-messages.test.ts
+PASS __tests__/utils/search.test.ts
+PASS __tests__/utils/formatters.test.ts
+PASS __tests__/libs/activity.test.ts
+PASS __tests__/hooks/useListActivities.test.tsx
+PASS __tests__/components/ListActivityFeed.test.tsx
+
+Test Suites: 6 passed, 6 total
+Tests:       77 passed, 77 total
+Snapshots:   0 total
+Time:        5.937 s
+Ran all test suites matching /formatters|error-messages|search|activity|ListActivityFeed|useListActivities/i.
+
