@@ -32,7 +32,7 @@ export async function sendVerificationEmail(email: string): Promise<{ error: any
     }
 
     return { error: null };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error sending verification email:', error);
     return { error };
   }
@@ -72,7 +72,7 @@ export async function verifyEmailToken(token: string): Promise<{ success: boolea
     }
 
     return { success: false, error: new Error('No user data returned from token verification') };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Unexpected error verifying email token:', error);
     return { success: false, error };
   }
@@ -88,10 +88,20 @@ export async function checkVerificationStatus(userId: string): Promise<Verificat
       .from('profiles')
       .select('is_verified, verified_at, verification_method')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
-    if (error || !data) {
-      console.error('Error checking verification status:', error);
+    if (error) {
+      console.error('Error checking verification status:', error?.message || error?.code || 'Unknown error');
+      return {
+        isVerified: false,
+        emailConfirmed: false,
+        verifiedAt: null,
+        verificationMethod: null,
+      };
+    }
+
+    // If no profile exists yet, return defaults
+    if (!data) {
       return {
         isVerified: false,
         emailConfirmed: false,
@@ -108,8 +118,8 @@ export async function checkVerificationStatus(userId: string): Promise<Verificat
       verifiedAt: profile.verified_at ?? null,
       verificationMethod: (profile.verification_method as 'email' | null) ?? null,
     };
-  } catch (error) {
-    console.error('Unexpected error checking verification status:', error);
+  } catch (error: any) {
+    console.error('Unexpected error checking verification status:', error?.message || error);
     return {
       isVerified: false,
       emailConfirmed: false,
@@ -129,7 +139,7 @@ export async function isAccountLocked(userId: string): Promise<{ locked: boolean
       .from('profiles')
       .select('login_attempts, locked_until')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return { locked: false, lockedUntil: null };
@@ -145,7 +155,7 @@ export async function isAccountLocked(userId: string): Promise<{ locked: boolean
     }
 
     return { locked: false, lockedUntil: null };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error checking account lock status:', error);
     return { locked: false, lockedUntil: null };
   }
@@ -161,7 +171,7 @@ export async function incrementLoginAttempts(userId: string): Promise<void> {
       .from('profiles')
       .select('login_attempts')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
     const profile = data as ProfileSecurity | null;
     const currentAttempts = (profile?.login_attempts ?? 0) + 1;
@@ -178,7 +188,7 @@ export async function incrementLoginAttempts(userId: string): Promise<void> {
       .from('profiles')
       .update(updateData)
       .eq('user_id', userId);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error incrementing login attempts:', error);
   }
 }
@@ -196,7 +206,7 @@ export async function resetLoginAttempts(userId: string): Promise<void> {
         locked_until: null,
       })
       .eq('user_id', userId);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error resetting login attempts:', error);
   }
 }

@@ -13,6 +13,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (pe) console.error('Admin DELETE review - profile error:', pe.message || pe);
     if (!profile?.is_admin) return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     const admin = createAdminClient();
+    if (!admin) return NextResponse.json({ error: 'Service role key not configured. Add SUPABASE_SERVICE_ROLE_KEY to .env.local' }, { status: 500 });
     const { error } = await admin.from('reviews').delete().eq('id', id);
     if (error) { console.error('Admin DELETE review - delete error:', error.message || error); return NextResponse.json({ error: error.message || 'Database error' }, { status: 500 }); }
     return NextResponse.json({ success: true });

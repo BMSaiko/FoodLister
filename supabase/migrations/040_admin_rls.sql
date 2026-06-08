@@ -1,54 +1,12 @@
--- Migration 040: RLS policy for admin read access to all profiles
--- Note: Admin API routes use service role key (bypasses RLS),
--- but this policy ensures direct Supabase client queries also work.
+-- Migration 040: RLS policies for admin access
+-- NOTE: Admin API routes use the service role key which bypasses ALL RLS.
+-- These policies are NOT needed because:
+--   1. Admin routes use createAdminClient() (service role key, bypasses RLS)
+--   2. profiles already has 'profiles_read_public' USING (true) for public reads
+--   3. Self-referencing policies cause infinite recursion (42P17)
+--
+-- DO NOT add policies with EXISTS(SELECT FROM profiles WHERE is_admin) ON profiles!
+-- That creates infinite recursion: policy evaluates itself recursively.
 
--- Allow admins to read all profiles via regular client
-CREATE POLICY "Admins can read all profiles"
-  ON public.profiles FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = auth.uid() AND is_admin = true
-    )
-  );
-
--- Allow admins to update any profile via regular client
-CREATE POLICY "Admins can update any profile"
-  ON public.profiles FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = auth.uid() AND is_admin = true
-    )
-  );
-
--- Allow admins to read all reviews
-CREATE POLICY "Admins can read all reviews"
-  ON public.reviews FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = auth.uid() AND is_admin = true
-    )
-  );
-
--- Allow admins to delete reviews (moderation)
-CREATE POLICY "Admins can delete any review"
-  ON public.reviews FOR DELETE
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = auth.uid() AND is_admin = true
-    )
-  );
-
--- Allow admins to read all restaurants
-CREATE POLICY "Admins can read all restaurants"
-  ON public.restaurants FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE user_id = auth.uid() AND is_admin = true
-    )
-  );
-
+-- This migration intentionally left empty to prevent recursion.
+-- Previous policies have been dropped (see fix-rls-recursion.js).

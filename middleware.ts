@@ -41,7 +41,9 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession();
 
   // Check if route requires admin access
-  const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
+  // API routes handle their own auth/admin checks internally
+  const isApiRoute = pathname.startsWith('/api');
+  const isAdminRoute = !isApiRoute && ADMIN_ROUTES.some(route => pathname.startsWith(route));
 
   if (isAdminRoute) {
     // Must be authenticated
@@ -57,7 +59,7 @@ export async function middleware(request: NextRequest) {
       .from('profiles')
       .select('is_admin')
       .eq('user_id', session.user.id)
-      .single();
+      .maybeSingle();
 
     if (error || !profile || !profile.is_admin) {
       // User is not an admin - redirect to unauthorized

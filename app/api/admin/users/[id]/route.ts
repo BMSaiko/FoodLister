@@ -13,6 +13,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (pe) console.error('Admin PUT user - profile error:', pe.message || pe);
     if (!profile?.is_admin) return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     const admin = createAdminClient();
+    if (!admin) return NextResponse.json({ error: 'Service role key not configured. Add SUPABASE_SERVICE_ROLE_KEY to .env.local' }, { status: 500 });
     const body = await request.json();
     const updates: Record<string, any> = {};
     if (typeof body.is_admin === 'boolean') updates.is_admin = body.is_admin;

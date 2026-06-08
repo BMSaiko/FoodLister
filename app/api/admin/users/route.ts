@@ -12,11 +12,12 @@ export async function GET(request: NextRequest) {
     if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { data: profile, error: profileError } = await supabase.from('profiles').select('is_admin').eq('user_id', user.id).single();
-    if (profileError) console.error('Admin users route - profile check error:', profileError.message || profileError);
+    if (profileError) console.error('Admin users route - profile check error:', profileError.message || profileError.code || JSON.stringify(profileError));
     if (!profile?.is_admin) return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
 
     // Use admin client to bypass RLS for reading all profiles
     const admin = createAdminClient();
+    if (!admin) return NextResponse.json({ error: 'Service role key not configured. Add SUPABASE_SERVICE_ROLE_KEY to .env.local' }, { status: 500 });
 
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page') || '1');
@@ -36,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data: users, total: count, page, limit });
   } catch (error: any) {
-    console.error('Admin users route - catch error:', error.message || error);
+    console.error('Admin users route - catch error:', error?.message || error?.code || error);
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
