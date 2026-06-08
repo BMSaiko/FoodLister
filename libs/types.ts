@@ -397,3 +397,82 @@ export interface ListActivityWithUser extends ListActivity {
     avatar_url: string | null;
   } | null;
 }
+
+// Admin Dashboard types
+export interface DashboardStats {
+  users: AdminUserStats;
+  restaurants: AdminRestaurantStats;
+  reviews: AdminReviewStats;
+  lists: AdminListStats;
+  meals: AdminMealStats;
+  growth: AdminGrowthStats;
+}
+
+export interface AdminUserStats {
+  total: number;
+  active: number;
+  newThisMonth: number;
+  newThisWeek: number;
+  admins: number;
+  growthRate: number;
+}
+
+export interface AdminRestaurantStats {
+  total: number;
+  averageRating: number;
+  newThisMonth: number;
+  byCuisine: { cuisine: string; count: number }[];
+}
+
+export interface AdminReviewStats {
+  total: number;
+  averageRating: number;
+  byRating: { rating: number; count: number }[];
+  newThisMonth: number;
+}
+
+export interface AdminListStats {
+  total: number;
+  public: number;
+  private: number;
+  collaborative: number;
+  totalItems: number;
+}
+
+export interface AdminMealStats {
+  total: number;
+  upcoming: number;
+  thisMonth: number;
+}
+
+export interface AdminGrowthStats {
+  users: { month: string; count: number }[];
+  restaurants: { month: string; count: number }[];
+  reviews: { month: string; count: number }[];
+}
+
+export interface RecentActivity {
+  id: string;
+  type: 'user_signup' | 'restaurant_created' | 'review_added' | 'list_created';
+  description: string;
+  timestamp: string;
+  userId?: string;
+  userName?: string;
+}
+
+export type AdminRoleType = 'super_admin' | 'moderator' | 'viewer';
+
+export interface AdminUser {
+  id: string;
+  user_id: string;
+  display_name: string | null;
+  email?: string;
+  avatar_url: string | null;
+  is_admin: boolean;
+  is_verified: boolean;
+  total_reviews: number;
+  total_lists: number;
+  total_restaurants_added: number;
+  created_at: string;
+  last_sign_in_at?: string;
+}

@@ -29,6 +29,7 @@ export interface Database {
            verification_method: string | null;
            login_attempts: number;
            locked_until: string | null;
+            is_admin: boolean;
          };
          Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'id'>;
          Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
@@ -231,7 +232,27 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['meal_participants']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['meal_participants']['Insert']>;
       };
+      admin_roles: {
+        Row: {
+          id: string;
+          user_id: string;
+          role: 'super_admin' | 'moderator' | 'viewer';
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['admin_roles']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['admin_roles']['Insert']>;
+      };
     };
+      admin_roles: {
+        Row: {
+          id: string;
+          user_id: string;
+          role: 'super_admin' | 'moderator' | 'viewer';
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['admin_roles']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['admin_roles']['Insert']>;
+      };
   };
 }
 
@@ -249,6 +270,7 @@ export type RestaurantDietaryOption = Database['public']['Tables']['restaurant_d
 export type RestaurantDietaryOptionJunction = Database['public']['Tables']['restaurant_dietary_options_junction']['Row'];
 export type RestaurantFeature = Database['public']['Tables']['restaurant_features']['Row'];
 export type RestaurantRestaurantFeature = Database['public']['Tables']['restaurant_restaurant_features']['Row'];
+export type AdminRole = Database['public']['Tables']['admin_roles']['Row'];
 
 // API response types
 export interface ApiResponse<T> {

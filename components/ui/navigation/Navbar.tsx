@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import SearchBar from './Searchbar';
 import NavbarActions from './NavbarActions';
-import { Menu, X, User, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, ChevronDown, Shield } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
 import NotificationsDropdown from './NotificationsDropdown';
@@ -16,6 +16,7 @@ interface ProfileData {
   display_name: string;
   avatar_url: string;
   user_id_code: string;
+  is_admin: boolean;
 }
 
 const Navbar = ({ clearFilters = null }) => {
@@ -36,7 +37,7 @@ const Navbar = ({ clearFilters = null }) => {
         try {
           const { data: profileData, error } = await supabase
             .from('profiles')
-            .select('display_name, avatar_url, user_id_code')
+            .select('display_name, avatar_url, user_id_code, is_admin')
             .eq('user_id', user.id)
             .single();
 
@@ -134,6 +135,19 @@ const Navbar = ({ clearFilters = null }) => {
             {/* Notificações (apenas se logado) */}
             {user && !loading && (
               <NotificationsDropdown />
+            )}
+
+            {/* Admin link - only visible to admins */}
+            {userProfile?.is_admin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1 px-2 py-1 rounded-md text-sm hover:opacity-80 transition-opacity"
+                style={{ color: 'var(--primary)' }}
+                title="Admin Dashboard"
+              >
+                <Shield className="h-4 w-4" />
+                <span className="hidden lg:inline">Admin</span>
+              </Link>
             )}
 
             {/* Menu do usuário (apenas se logado) */}

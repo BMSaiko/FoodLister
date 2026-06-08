@@ -2,10 +2,30 @@
 
 ## Current Project State
 
-**Latest Commit**: e751382 (test(utils): add formatters, error-messages, and search test suites - 77 tests)
+**Latest Commit**: (pending) feat(admin): add admin dashboard with statistics and user management
 **Branch**: dev
-**Total Test Files**: 19+ (was 16, added 3 new suites)
+**Total Test Files**: 19+
 **Repository**: https://github.com/BMSaiko/FoodLister.git
+
+## Recently Completed (2026-08-06)
+
+### T4 - Admin Dashboard (COMPLETED ✅)
+- **Migration 039**: Added `is_admin` column to profiles + `admin_roles` table with RLS
+- **Middleware**: Route protection for `/admin/*` — checks `is_admin` in profile
+- **API Routes (6)**: GET /admin/stats, GET /admin/users, PUT /admin/users/[id], GET /admin/restaurants, GET /admin/reviews, DELETE /admin/reviews/[id]
+- **libs/admin.ts**: getDashboardStats, getAdminUsers, updateUserAdminStatus, deleteReview
+- **Hooks (4)**: useAdminStats, useAdminUsers, useAdminRestaurants, useAdminReviews
+- **Components (8)**: StatsCard, DashboardStats, GrowthChart, RecentActivity, UsersTable, RestaurantsTable, ReviewsTable, AdminSidebar
+- **Pages (6)**: /admin (layout + dashboard), /admin/users, /admin/restaurants, /admin/reviews, /admin/statistics
+- **Navbar**: Shield icon + Admin link (visible only if `is_admin = true`)
+- **Unauthorized page**: /unauthorized with redirect for non-admin users
+- **Types**: DashboardStats, AdminUser, Admin*Stats interfaces in libs/types.ts; admin_roles in database.ts
+- **recharts**: Growth chart with 12-month cumulative data (users, restaurants, reviews)
+- **Files Created**: 25+
+- **Files Modified**: 3 (database.ts, types.ts, Navbar.tsx)
+- **Build**: ✅ npm run build — BUILD SUCCESS
+
+## Previously Completed (2026-06-06)
 
 ## Recently Completed (2026-06-06)
 

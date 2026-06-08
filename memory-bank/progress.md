@@ -5,7 +5,7 @@
 **Current Version**: 0.1.0 (Private)
 **Latest Commit**: `1be57f403efbf1d14f165330c24e15071f0d5bf3`
 **Branch**: main`
-**Total Database Migrations**: 38`
+**Total Database Migrations**: 39`
 **Test Files**: 30+`
 
 ## Completed Features`
@@ -149,6 +149,19 @@
 
 ## In Progress`
 
+### ✅ Admin Dashboard (COMPLETED - 2026-08-06)
+- [x] T4.1 - Migration: is_admin em profiles + admin_roles table
+- [x] T4.2 - Atualizar tipos (database.ts, libs/types.ts)
+- [x] T4.3 - Middleware /admin/* route protection
+- [x] T4.4 - API routes admin (stats, users, restaurants, reviews)
+- [x] T4.5 - libs/admin.ts (aggregation queries)
+- [x] T4.6 - Hooks admin (useAdminStats, useAdminUsers, useAdminRestaurants, useAdminReviews)
+- [x] T4.7 - 8 componentes admin
+- [x] T4.8 - 5 paginas admin + layout
+- [x] T4.9 - Navbar link (Shield icon, only for admins)
+- [x] T4.10 - Build verification (npm run build SUCCESS)
+
+
 ### ✅ Type Safety & Error Handling Session (2026-05-07 - COMPLETED)`
 - [x] Created comprehensive `implementation_plan.md``
 - [x] Created `types/api.ts` with ApiErrorType, ApiError, getErrorMessage()`
@@ -268,6 +281,19 @@
 - [x] **Test File Created**: `__tests__/pages/settings.test.tsx` (note: has pre-existing infinite loop bug in component)`
 
 ## Pending Features`
+
+### ✅ Admin Dashboard (COMPLETED - 2026-08-06)
+- [x] T4.1 - Migration: is_admin em profiles + admin_roles table
+- [x] T4.2 - Atualizar tipos (database.ts, libs/types.ts)
+- [x] T4.3 - Middleware /admin/* route protection
+- [x] T4.4 - API routes admin (stats, users, restaurants, reviews)
+- [x] T4.5 - libs/admin.ts (aggregation queries)
+- [x] T4.6 - Hooks admin (useAdminStats, useAdminUsers, useAdminRestaurants, useAdminReviews)
+- [x] T4.7 - 8 componentes admin
+- [x] T4.8 - 5 paginas admin + layout
+- [x] T4.9 - Navbar link (Shield icon, only for admins)
+- [x] T4.10 - Build verification (npm run build SUCCESS)
+
 
 ### 📋 High Priority (Target: Next 2 weeks)`
 
