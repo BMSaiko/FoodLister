@@ -14,7 +14,9 @@
     "analyze": "ANALYZE=true next build",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
-    "e2e:report": "playwright show-report"
+    "e2e:report": "playwright show-report",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@cloudinary/url-gen": "^1.22.0",
@@ -62,6 +64,19 @@
     "semantic-release": "^25.0.3",
     "ts-jest": "^29.2.5",
     "typescript": "5.8.2",
-    "undici": "^8.0.2"
+    "undici": "^8.0.2",
+    "storybook": "^10.4.4",
+    "@storybook/nextjs-vite": "^10.4.4",
+    "@chromatic-com/storybook": "^5.2.1",
+    "@storybook/addon-vitest": "^10.4.4",
+    "@storybook/addon-a11y": "^10.4.4",
+    "@storybook/addon-docs": "^10.4.4",
+    "@storybook/addon-mcp": "^0.6.0",
+    "vite": "^8.0.16",
+    "eslint-plugin-storybook": "^10.4.4",
+    "vitest": "^4.1.8",
+    "playwright": "^1.60.0",
+    "@vitest/browser-playwright": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.8"
   }
 }
