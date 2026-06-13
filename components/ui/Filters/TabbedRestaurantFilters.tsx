@@ -261,6 +261,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
       ) }
     ];
 
+    baseTabs.push({ id: 'open-now', title: 'Aberto Agora', icon: <span className="text-2xl">🕐</span> });
+    baseTabs.push({ id: 'sort', title: 'Ordenar', icon: <span className="text-2xl">📊</span> });
+
     if (user) {
       baseTabs.push({ id: 'visits', title: 'Visitas', icon: <Users className="h-6 w-6" /> });
     }
@@ -859,6 +862,89 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           </div>
         );
 
+      case 'open-now':
+        return (
+          <div className="space-y-6">
+            <label className="block text-lg font-semibold text-[var(--foreground)]">Disponibilidade</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button
+                onClick={() => setFilters((prev: any) => ({ ...prev, open_now: !prev.open_now }))}
+                className={`p-6 rounded-[var(--radius-xl)] border-2 transition-all duration-300 ${
+                  filters.open_now
+                    ? 'border-[var(--primary)] bg-[var(--primary-50)] shadow-xl shadow-[var(--primary)]/20'
+                    : 'border-[var(--card-border)]/60 hover:border-[var(--primary-light)]/60 bg-[var(--background-secondary)] hover:shadow-lg'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl">🕐</span>
+                  <span className={`font-semibold text-lg ${filters.open_now ? 'text-[var(--primary-dark)]' : 'text-[var(--foreground)]'}`}>
+                    Aberto Agora
+                  </span>
+                  {filters.open_now && (
+                    <div className="ml-auto w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center">
+                      <Check className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-[var(--foreground-secondary)] text-left">
+                  Mostra apenas restaurantes que estão abertos neste momento
+                </p>
+              </button>
+            </div>
+            {filters.open_now && (
+              <div className="bg-[var(--primary-50)] border border-[var(--primary-light)]/60 rounded-[var(--radius-xl)] p-4">
+                <div className="text-sm text-[var(--primary-dark)]">
+                  <span className="font-semibold">Nota:</span> Baseado no horário de funcionamento registado.
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'sort':
+        return (
+          <div className="space-y-6">
+            <label className="block text-lg font-semibold text-[var(--foreground)]">Ordenar Por</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { id: 'rating', label: 'Avaliação', icon: '⭐' },
+                { id: 'price', label: 'Preço', icon: '💰' },
+                { id: 'name', label: 'Nome', icon: '🔤' },
+                { id: 'review_count', label: 'Popularidade', icon: '🔥' },
+              ].map((option) => {
+                const isSelected = filters.sort_by === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => {
+                      setFilters((prev: any) => ({
+                        ...prev,
+                        sort_by: option.id,
+                        sort_direction: prev.sort_by === option.id && prev.sort_direction === 'asc' ? 'desc' : 'asc',
+                      }));
+                    }}
+                    className={`p-4 rounded-[var(--radius-xl)] border-2 flex items-center gap-3 transition-all ${
+                      isSelected
+                        ? 'border-[var(--primary)] bg-[var(--primary-50)] shadow-lg'
+                        : 'border-[var(--card-border)]/60 hover:border-[var(--primary-light)]/60 bg-[var(--background-secondary)]'
+                    }`}
+                  >
+                    <span className="text-xl">{option.icon}</span>
+                    <span className={`font-semibold ${isSelected ? 'text-[var(--primary-dark)]' : 'text-[var(--foreground)]'}`}>
+                      {option.label}
+                    </span>
+                    {isSelected && (
+                      <span className="ml-auto text-xs font-medium text-[var(--primary)]">
+                        {filters.sort_direction === 'asc' ? '↑ Crescente' : '↓ Decrescente'}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -883,6 +969,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
       setFilters((prev: any) => ({ ...prev, dietary_options: [] }));
     } else if (field === 'visits') {
       setFilters((prev: any) => ({ ...prev, visit_count: { min: 0, max: 100 }, visited: false, not_visited: false }));
+    } else if (field === 'open_now') {
+      setFilters((prev: any) => ({ ...prev, open_now: false }));
+    } else if (field === 'sort') {
+      setFilters((prev: any) => ({ ...prev, sort_by: null, sort_direction: null }));
     }
   }, [setFilters]);
 
@@ -996,6 +1086,18 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                 <FilterChip 
                   label={`Visitas: ${filters.visit_count?.min ?? 1} - ${filters.visit_count?.max ?? 50} vezes`} 
                   onRemove={() => clearSpecificFilter('visits')} 
+                />
+              )}
+              {filters.open_now && (
+                <FilterChip 
+                  label="Aberto Agora" 
+                  onRemove={() => clearSpecificFilter('open_now')} 
+                />
+              )}
+              {filters.sort_by && (
+                <FilterChip 
+                  label={`Ordenar: ${filters.sort_by}`} 
+                  onRemove={() => clearSpecificFilter('sort')} 
                 />
               )}
             </div>

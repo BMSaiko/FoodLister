@@ -32,7 +32,20 @@ function RestaurantsContent({ showHeader = true }) {
   const [scrollRestored, setScrollRestored] = React.useState(false);
   const gridRef = React.useRef(null);
 
-  const { restaurants, loading } = useRestaurants(searchQuery);
+  // Server-side filter params from UI filters
+  const serverFilters = React.useMemo(() => {
+    const sf = { searchQuery };
+    if (filters.price_range && (filters.price_range.min > 0 || filters.price_range.max < 100)) {
+      sf.priceMin = filters.price_range.min > 0 ? filters.price_range.min : null;
+      sf.priceMax = filters.price_range.max < 100 ? filters.price_range.max : null;
+    }
+    if (filters.open_now) sf.openNow = true;
+    if (filters.sort_by) sf.sortBy = filters.sort_by;
+    if (filters.sort_direction) sf.sortDirection = filters.sort_direction;
+    return sf;
+  }, [filters, searchQuery]);
+
+  const { restaurants, loading } = useRestaurants(serverFilters);
   const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
   const { filters, setFilters, filteredRestaurants, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
 
