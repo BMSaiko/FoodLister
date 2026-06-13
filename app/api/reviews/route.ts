@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     const { data: reviewsData, error: reviewsError } = await supabase
       .from('reviews')
-      .select('*')
+      .select('id, restaurant_id, user_id, rating, comment, amount_spent, created_at, updated_at, user_name')
       .eq('restaurant_id', restaurantId)
       .order('created_at', { ascending: false });
 

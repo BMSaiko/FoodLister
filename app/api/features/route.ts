@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPublicServerClient, getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { cacheOrSet } from '@/libs/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,20 +18,16 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Fetch all restaurant features
-    const { data, error } = await supabase
-      .from('restaurant_features')
-      .select('*')
-      .order('name', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching features:', error);
-      const errorType = 'DATABASE_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
+    // Fetch all restaurant features (cached for 5 minutes)
+    const cacheKey = 'features:all';
+    const data = await cacheOrSet(cacheKey, async () => {
+      const { data, error } = await supabase
+        .from('restaurant_features')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      return data;
+    }, 300);
 
     return NextResponse.json({
       data: data || [],

@@ -46,15 +46,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { data: restaurant, error: restaurantError } = await supabase
       .from('restaurants')
       .select(`
-        *,
+        id, name, description, image_url, price_per_person, rating,
+        location, source_url, creator, menu_url, menu_links, menu_images,
+        phone_numbers, visited, created_at, updated_at, creator_id,
+        creator_name, latitude, longitude, images, display_image_index,
         cuisine_types:restaurant_cuisine_types(
-          cuisine_type:cuisine_types(*)
+          cuisine_type:cuisine_types(id, name, icon)
         ),
         features:restaurant_restaurant_features(
-          feature:restaurant_features(*)
+          feature:restaurant_features(id, name, icon)
         ),
         dietary_options:restaurant_dietary_options_junction(
-          dietary_option:restaurant_dietary_options(*)
+          dietary_option:restaurant_dietary_options(id, name, icon)
         )
       `)
       .eq('id', id)

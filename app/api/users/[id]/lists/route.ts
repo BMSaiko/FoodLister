@@ -75,7 +75,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { data: listsData, error: listsError } = await supabase
       .from('lists')
       .select(`
-        *,
+        id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at,
         list_restaurants (
           restaurant_id
         )

@@ -70,8 +70,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ lists: [] });
     }
 
-    // Fetch individual counts for each list
-    // Use the appropriate client based on whether user is authenticated
+    // Fetch all list restaurant counts in a single query to avoid N+1 pattern
     let resolvedCountClient = supabase;
     if (!resolvedCountClient) {
       const { createClient } = await import('@supabase/supabase-js');
@@ -80,24 +79,27 @@ export async function GET(request: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
       );
     }
-    
-    const processedData = await Promise.all(
-      listsData.map(async (list: DbList) => {
-        const { count, error } = await resolvedCountClient
-          .from('list_restaurants')
-          .select('*', { count: 'exact', head: true })
-          .eq('list_id', list.id);
 
-        if (error) {
-          console.error('Error fetching count for list:', list.id, error);
-        }
+    const listIds = listsData.map((list: DbList) => list.id);
+    const countsMap = new Map<string, number>();
 
-        return {
-          ...list,
-          restaurantCount: count || 0
-        };
-      })
-    );
+    if (listIds.length > 0) {
+      const { data: allListRestaurants } = await resolvedCountClient
+        .from('list_restaurants')
+        .select('list_id')
+        .in('list_id', listIds);
+
+      if (allListRestaurants) {
+        allListRestaurants.forEach((lr: { list_id: string }) => {
+          countsMap.set(lr.list_id, (countsMap.get(lr.list_id) || 0) + 1);
+        });
+      }
+    }
+
+    const processedData = listsData.map((list: DbList) => ({
+      ...list,
+      restaurantCount: countsMap.get(list.id) || 0
+    }));
 
     // Add caching headers for better performance
     const response = NextResponse.json({ lists: processedData });

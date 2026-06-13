@@ -35,7 +35,7 @@ export async function GET(
     // Step 1: Fetch the list details
     const { data: listData, error: listError } = await client
       .from('lists')
-      .select('*')
+      .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
       .eq('id', id)
       .single();
 
@@ -91,16 +91,13 @@ export async function GET(
       const { data: restaurantData, error: restaurantError } = await client
         .from('restaurants')
         .select(`
-          *,
-          restaurant_restaurant_features(
-            restaurant_features(*)
-          ),
-          restaurant_dietary_options_junction(
-            restaurant_dietary_options(*)
-          ),
-          restaurant_cuisine_types(
-            cuisine_types(*)
-          )
+          id, name, description, image_url, price_per_person, rating,
+          location, source_url, creator, menu_url, menu_links, menu_images,
+          phone_numbers, visited, created_at, updated_at, creator_id,
+          creator_name, latitude, longitude, images, display_image_index,
+          restaurant_restaurant_features(restaurant_features(id, name, icon)),
+          restaurant_dietary_options_junction(restaurant_dietary_options(id, name, icon)),
+          restaurant_cuisine_types(cuisine_types(id, name, icon))
         `)
         .in('id', restaurantIds);
 
