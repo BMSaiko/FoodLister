@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import {
-  stripe,
   createStripeCustomer,
   createCheckoutSession,
 } from '@/libs/stripe';

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/libs/supabase/admin';
-import { stripe, STRIPE_WEBHOOK_SECRET } from '@/libs/stripe';
+import { getStripe, STRIPE_WEBHOOK_SECRET } from '@/libs/stripe';
 import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, sig, STRIPE_WEBHOOK_SECRET);
+      event = getStripe().webhooks.constructEvent(body, sig, STRIPE_WEBHOOK_SECRET);
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
 
         if (userId && subscriptionId) {
           // Get subscription details from Stripe
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          const priceId = subscription.items.data[0]?.price.id;
+          const subscription = await getStripe().subscriptions.retrieve(subscriptionId) as any;
+          const priceId = subscription.items?.data[0]?.price?.id;
 
           // Find the plan by price ID
           const { data: plan } = await supabase
@@ -57,17 +57,18 @@ export async function POST(request: NextRequest) {
               : 'free';
 
             // Upsert subscription
+            const sub = subscription as any;
             await supabase
               .from('user_subscriptions')
               .upsert({
                 user_id: userId,
                 plan_id: plan.id,
-                status: subscription.status === 'active' ? 'active' : 'trialing',
+                status: sub.status === 'active' ? 'active' : 'trialing',
                 stripe_subscription_id: subscriptionId,
                 stripe_customer_id: customerId,
-                current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-                cancel_at_period_end: subscription.cancel_at_period_end,
+                current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
+                current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+                cancel_at_period_end: sub.cancel_at_period_end,
               });
 
             // Update profile tier
@@ -84,33 +85,33 @@ export async function POST(request: NextRequest) {
       }
 
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription;
-        const customerId = subscription.customer as string;
+        const sub = event.data.object as any;
+        const customerId = sub.customer as string;
 
         // Find subscription by Stripe ID
         const { data: existingSub } = await supabase
           .from('user_subscriptions')
           .select('*')
-          .eq('stripe_subscription_id', subscription.id)
+          .eq('stripe_subscription_id', sub.id)
           .maybeSingle();
 
         if (existingSub) {
           await supabase
             .from('user_subscriptions')
             .update({
-              status: subscription.status === 'active' ? 'active'
-                : subscription.status === 'canceled' ? 'canceled'
-                : subscription.status === 'past_due' ? 'past_due'
+              status: sub.status === 'active' ? 'active'
+                : sub.status === 'canceled' ? 'canceled'
+                : sub.status === 'past_due' ? 'past_due'
                 : 'trialing',
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              cancel_at_period_end: subscription.cancel_at_period_end,
+              current_period_start: new Date(sub.current_period_start * 1000).toISOString(),
+              current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+              cancel_at_period_end: sub.cancel_at_period_end,
               updated_at: new Date().toISOString(),
             })
             .eq('id', existingSub.id);
 
           // If canceled, downgrade to free
-          if (subscription.status === 'canceled') {
+          if (sub.status === 'canceled') {
             await supabase
               .from('profiles')
               .update({
