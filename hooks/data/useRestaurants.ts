@@ -1,52 +1,76 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { RestaurantWithDetails } from '@/libs/types';
 
-interface PaginationInfo {
-  page: number;
-  limit: number;
-  total: number;
-  hasMore: boolean;
+interface UseRestaurantsOptions {
+  searchQuery?: string | null;
+  priceMin?: number | null;
+  priceMax?: number | null;
+  openNow?: boolean | null;
+  sortBy?: string | null;
+  sortDirection?: string | null;
+  savedState?: any;
 }
 
 interface UseRestaurantsReturn {
   restaurants: RestaurantWithDetails[];
   loading: boolean;
   error: string | null;
-  pagination: PaginationInfo | null;
+  pagination: any;
   loadMore: () => void;
   loadingMore: boolean;
   hasMore: boolean;
+  refetch: () => void;
 }
 
-interface SavedState {
-  restaurants: RestaurantWithDetails[];
-  hasMore: boolean;
-  searchQuery: string | null;
-  timestamp: number;
-}
+// Support both old signature (searchQuery: string | null, savedState?: any)
+// and new signature (options: UseRestaurantsOptions)
+export function useRestaurants(
+  searchQueryOrOptions?: string | null | UseRestaurantsOptions,
+  savedState?: any
+): UseRestaurantsReturn {
+  let options: UseRestaurantsOptions;
 
-export function useRestaurants(searchQuery: string | null, savedState?: SavedState | null): UseRestaurantsReturn {
+  if (typeof searchQueryOrOptions === 'string' || searchQueryOrOptions === null || searchQueryOrOptions === undefined) {
+    // Old signature
+    options = { searchQuery: searchQueryOrOptions ?? null, savedState };
+  } else {
+    // New signature
+    options = searchQueryOrOptions;
+  }
+
+  const {
+    searchQuery = null,
+    priceMin = null,
+    priceMax = null,
+    openNow = null,
+    sortBy: sortByParam = null,
+    sortDirection = null,
+  } = options;
+
   const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRestaurants = async () => {
+  const fetchRestaurants = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
       const params = new URLSearchParams();
-      if (searchQuery) {
-        params.append('search', searchQuery);
-      }
+      if (searchQuery) params.append('search', searchQuery);
+      if (priceMin !== null && priceMin !== undefined) params.append('priceMin', String(priceMin));
+      if (priceMax !== null && priceMax !== undefined) params.append('priceMax', String(priceMax));
+      if (openNow !== null && openNow !== undefined && openNow !== false) params.append('openNow', 'true');
+      if (sortByParam) params.append('sortBy', sortByParam);
+      if (sortDirection) params.append('sortDirection', sortDirection);
 
       const response = await fetch(`/api/restaurants?${params.toString()}`);
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
-        throw new Error(`Failed to fetch restaurants: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`Failed to fetch restaurants: ${response.status} ${errorText}`);
       }
 
       let responseData;
@@ -55,14 +79,14 @@ export function useRestaurants(searchQuery: string | null, savedState?: SavedSta
       } catch (jsonError) {
         throw new Error(`Invalid JSON response: ${(jsonError as Error).message}`);
       }
-
-      if (!responseData || typeof responseData !== 'object' || !('restaurants' in responseData)) {
-        throw new Error('Invalid response structure: missing restaurants data');
+      if (!responseData || typeof responseData !== 'object') {
+        throw new Error('Invalid response structure');
       }
 
-      const { restaurants: data } = responseData as { restaurants: RestaurantWithDetails[] };
+      // Support both { restaurants: [...] } and direct array formats
+      const data = responseData.restaurants || responseData.data || (Array.isArray(responseData) ? responseData : []);
       if (!Array.isArray(data)) {
-        throw new Error('Invalid response structure: restaurants data is not an array');
+        throw new Error('Invalid response structure');
       }
 
       setRestaurants(data);
@@ -73,35 +97,25 @@ export function useRestaurants(searchQuery: string | null, savedState?: SavedSta
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, priceMin, priceMax, openNow, sortByParam, sortDirection]);
 
   useEffect(() => {
-    // Check if we have a search query from session storage (for page refreshes)
-    const sessionSearchQuery = sessionStorage.getItem('currentSearchQuery');
-    const shouldUseSessionSearch = searchQuery === null && sessionSearchQuery !== null;
-    
-    // If we have saved state and it matches current search query, use it
     if (savedState && savedState.searchQuery === searchQuery) {
       setRestaurants(savedState.restaurants);
       setLoading(false);
-    } else if (shouldUseSessionSearch && savedState && savedState.searchQuery === sessionSearchQuery) {
-      // Use saved state if it matches the session search query
-      setRestaurants(savedState.restaurants);
-      setLoading(false);
     } else {
-      // Fetch data when searchQuery changes or when we don't have matching saved state
       fetchRestaurants();
     }
-  }, [searchQuery, savedState]);
+  }, [searchQuery, priceMin, priceMax, openNow, sortByParam, sortDirection, fetchRestaurants, savedState]);
 
-  // Simplified return - no more pagination
   return {
     restaurants,
     loading,
     error,
     pagination: null,
-    loadMore: () => {}, // No-op function
+    loadMore: () => {},
     loadingMore: false,
-    hasMore: false
+    hasMore: false,
+    refetch: fetchRestaurants,
   };
 }
