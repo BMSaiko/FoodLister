@@ -127,7 +127,7 @@ describe('useRestaurants', () => {
   it('handles missing restaurants in response', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({ data: [] }),
+      json: () => Promise.resolve({ data: 'not-an-array' }),
     })
 
     render(<TestWrapper searchQuery={null} />)
