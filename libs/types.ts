@@ -476,3 +476,107 @@ export interface AdminUser {
   created_at: string;
   last_sign_in_at?: string;
 }
+
+// Subscription types
+export type SubscriptionTier = 'free' | 'premium' | 'pro';
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string | null;
+  priceMonthly: number;
+  priceYearly: number | null;
+  currency: string;
+  features: string[];
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export interface UserSubscription {
+  id: string;
+  userId: string;
+  planId: string;
+  status: 'active' | 'canceled' | 'past_due' | 'trialing';
+  stripeSubscriptionId: string | null;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  plan?: SubscriptionPlan;
+}
+
+export interface FeatureGate {
+  feature: string;
+  requiredTier: SubscriptionTier;
+  currentTier: SubscriptionTier;
+  hasAccess: boolean;
+}
+
+// Marketing AI types
+export type MarketingCampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
+export type SocialPlatform = 'twitter' | 'instagram' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube';
+export type PostType = 'restaurant_promo' | 'list_digest' | 'review_highlight' | 'general';
+export type PostStatus = 'draft' | 'scheduled' | 'publishing' | 'published' | 'failed';
+export type WorkflowTrigger = 'new_restaurant' | 'new_review' | 'weekly_digest' | 'top_rated' | 'manual';
+
+export interface MarketingCampaign {
+  id: string;
+  userId: string;
+  name: string;
+  description: string | null;
+  status: MarketingCampaignStatus;
+  startDate: string | null;
+  endDate: string | null;
+  budget: number | null;
+  targetPlatforms: string[];
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface SocialMediaPost {
+  id: string;
+  campaignId: string | null;
+  restaurantId: string | null;
+  listId: string | null;
+  content: string;
+  platform: SocialPlatform;
+  postType: PostType;
+  mediaUrls: string[];
+  scheduledFor: string | null;
+  publishedAt: string | null;
+  status: PostStatus;
+  externalPostId: string | null;
+  engagementData: Record<string, number>;
+  aiGenerated: boolean;
+  aiPrompt: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface AiWorkflow {
+  id: string;
+  name: string;
+  description: string | null;
+  triggerType: WorkflowTrigger;
+  isActive: boolean;
+  platform: string;
+  promptTemplate: string;
+  scheduleCron: string | null;
+  lastRunAt: string | null;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface ContentGenerationLog {
+  id: string;
+  workflowId: string | null;
+  postId: string | null;
+  prompt: string;
+  aiResponse: string | null;
+  status: 'pending' | 'success' | 'failed';
+  errorMessage: string | null;
+  tokensUsed: number | null;
+  modelUsed: string;
+  createdAt: string;
+}

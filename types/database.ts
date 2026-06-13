@@ -29,7 +29,9 @@ export interface Database {
            verification_method: string | null;
            login_attempts: number;
            locked_until: string | null;
-            is_admin: boolean;
+           is_admin: boolean;
+           subscription_tier: 'free' | 'premium' | 'pro';
+           subscription_expires_at: string | null;
          };
          Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'id'>;
          Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
@@ -233,26 +235,41 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['meal_participants']['Insert']>;
       };
       admin_roles: {
-        Row: {
-          id: string;
-          user_id: string;
-          role: 'super_admin' | 'moderator' | 'viewer';
-          created_at: string;
-        };
-        Insert: Omit<Database['public']['Tables']['admin_roles']['Row'], 'id' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['admin_roles']['Insert']>;
+        Row: { id: string; user_id: string; role: 'super_admin' | 'moderator' | 'viewer'; created_at: string; };
+        Insert: { id?: string; user_id: string; role: 'super_admin' | 'moderator' | 'viewer'; };
+        Update: Partial<{ role: 'super_admin' | 'moderator' | 'viewer' }>;
+      };
+      subscription_plans: {
+        Row: { id: string; name: string; description: string | null; price_monthly: number; price_yearly: number | null; currency: string; features: string[] | null; stripe_price_monthly_id: string | null; stripe_price_yearly_id: string | null; is_active: boolean; sort_order: number; created_at: string; };
+        Insert: { id?: string; name: string; description?: string | null; price_monthly: number; price_yearly?: number | null; currency?: string; features?: string[] | null; stripe_price_monthly_id?: string | null; stripe_price_yearly_id?: string | null; is_active?: boolean; sort_order?: number; };
+        Update: Partial<{ name?: string; description?: string | null; price_monthly?: number; price_yearly?: number | null; currency?: string; features?: string[] | null; is_active?: boolean; sort_order?: number; }>;
+      };
+      user_subscriptions: {
+        Row: { id: string; user_id: string; plan_id: string; status: 'active' | 'canceled' | 'past_due' | 'trialing'; stripe_subscription_id: string | null; stripe_customer_id: string | null; current_period_start: string | null; current_period_end: string | null; cancel_at_period_end: boolean; created_at: string; updated_at: string | null; };
+        Insert: { id?: string; user_id: string; plan_id: string; status: 'active' | 'canceled' | 'past_due' | 'trialing'; stripe_subscription_id?: string | null; stripe_customer_id?: string | null; current_period_start?: string | null; current_period_end?: string | null; cancel_at_period_end?: boolean; };
+        Update: Partial<{ status?: 'active' | 'canceled' | 'past_due' | 'trialing'; cancel_at_period_end?: boolean; current_period_end?: string | null; }>;
+      };
+      marketing_campaigns: {
+        Row: { id: string; user_id: string; name: string; description: string | null; status: 'draft' | 'active' | 'paused' | 'completed'; start_date: string | null; end_date: string | null; budget: number | null; target_platforms: string[] | null; created_at: string; updated_at: string | null; };
+        Insert: { id?: string; user_id: string; name: string; description?: string | null; status?: 'draft' | 'active' | 'paused' | 'completed'; start_date?: string | null; end_date?: string | null; budget?: number | null; target_platforms?: string[] | null; };
+        Update: Partial<{ name?: string; description?: string | null; status?: 'draft' | 'active' | 'paused' | 'completed'; start_date?: string | null; end_date?: string | null; budget?: number | null; target_platforms?: string[] | null; }>;
+      };
+      social_media_posts: {
+        Row: { id: string; campaign_id: string | null; restaurant_id: string | null; list_id: string | null; content: string; platform: 'twitter' | 'instagram' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube'; post_type: 'restaurant_promo' | 'list_digest' | 'review_highlight' | 'general'; media_urls: string[] | null; scheduled_for: string | null; published_at: string | null; status: 'draft' | 'scheduled' | 'publishing' | 'published' | 'failed'; external_post_id: string | null; engagement_data: any; ai_generated: boolean | null; ai_prompt: string | null; created_by: string; created_at: string; updated_at: string | null; };
+        Insert: { id?: string; campaign_id?: string | null; restaurant_id?: string | null; list_id?: string | null; content: string; platform: 'twitter' | 'instagram' | 'facebook' | 'linkedin' | 'tiktok' | 'youtube'; post_type?: 'restaurant_promo' | 'list_digest' | 'review_highlight' | 'general'; media_urls?: string[] | null; scheduled_for?: string | null; status?: 'draft' | 'scheduled' | 'publishing' | 'published' | 'failed'; ai_generated?: boolean; ai_prompt?: string | null; created_by: string; };
+        Update: Partial<{ content?: string; status?: 'draft' | 'scheduled' | 'publishing' | 'published' | 'failed'; scheduled_for?: string | null; }>;
+      };
+      ai_workflows: {
+        Row: { id: string; name: string; description: string | null; trigger_type: 'new_restaurant' | 'new_review' | 'weekly_digest' | 'top_rated' | 'manual'; is_active: boolean | null; platform: string; prompt_template: string; schedule_cron: string | null; last_run_at: string | null; created_by: string; created_at: string; updated_at: string | null; };
+        Insert: { id?: string; name: string; description?: string | null; trigger_type: 'new_restaurant' | 'new_review' | 'weekly_digest' | 'top_rated' | 'manual'; platform: string; prompt_template: string; schedule_cron?: string | null; created_by: string; };
+        Update: Partial<{ name?: string; description?: string | null; trigger_type?: 'new_restaurant' | 'new_review' | 'weekly_digest' | 'top_rated' | 'manual'; is_active?: boolean; platform?: string; prompt_template?: string; schedule_cron?: string | null; }>;
+      };
+      content_generation_logs: {
+        Row: { id: string; workflow_id: string | null; post_id: string | null; prompt: string; ai_response: string | null; status: 'pending' | 'success' | 'failed'; error_message: string | null; tokens_used: number | null; model_used: string | null; created_at: string; };
+        Insert: { id?: string; workflow_id?: string | null; post_id?: string | null; prompt: string; ai_response?: string | null; status?: 'pending' | 'success' | 'failed'; error_message?: string | null; tokens_used?: number | null; model_used?: string; };
+        Update: Partial<{ status?: 'pending' | 'success' | 'failed'; error_message?: string | null; }>;
       };
     };
-      admin_roles: {
-        Row: {
-          id: string;
-          user_id: string;
-          role: 'super_admin' | 'moderator' | 'viewer';
-          created_at: string;
-        };
-        Insert: Omit<Database['public']['Tables']['admin_roles']['Row'], 'id' | 'created_at'>;
-        Update: Partial<Database['public']['Tables']['admin_roles']['Insert']>;
-      };
   };
 }
 
@@ -270,7 +287,6 @@ export type RestaurantDietaryOption = Database['public']['Tables']['restaurant_d
 export type RestaurantDietaryOptionJunction = Database['public']['Tables']['restaurant_dietary_options_junction']['Row'];
 export type RestaurantFeature = Database['public']['Tables']['restaurant_features']['Row'];
 export type RestaurantRestaurantFeature = Database['public']['Tables']['restaurant_restaurant_features']['Row'];
-export type AdminRole = Database['public']['Tables']['admin_roles']['Row'];
 
 // API response types
 export interface ApiResponse<T> {
