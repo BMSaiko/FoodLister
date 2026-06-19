@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
   if (isAdminRoute) {
     // Must be authenticated
     if (!session) {
-      const redirectUrl = new URL('/auth/login', request.url);
+      const redirectUrl = new URL('/auth/signin', request.url);
       redirectUrl.searchParams.set('redirect', pathname);
       redirectUrl.searchParams.set('reason', 'auth_required');
       return NextResponse.redirect(redirectUrl);
