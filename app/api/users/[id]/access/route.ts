@@ -6,7 +6,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
-    
+
+    if (!supabase) {
+      return NextResponse.json(
+        { canAccess: false, accessLevel: 'NONE', reason: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     // Get the authenticated user (optional)
     let currentUserId = null;
     try {

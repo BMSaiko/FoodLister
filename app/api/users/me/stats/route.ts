@@ -8,8 +8,8 @@ export async function GET(request: NextRequest) {
 
     if (!supabase) {
       return NextResponse.json(
-        { error: 'Failed to initialize Supabase client' },
-        { status: 500 }
+        { error: 'Authentication required' },
+        { status: 401 }
       );
     }
 

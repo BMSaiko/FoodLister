@@ -28,9 +28,6 @@ jest.mock('next/server', () => {
     NextRequest: MockNextRequest,
     NextResponse: MockNextResponse,
   };
-      next: () => ({ headers: new Map() }),
-    },
-  };
 });
 
 const mockUser = { id: 'user-123', email: 'test@example.com', user_metadata: {}, created_at: '2024-01-01' };

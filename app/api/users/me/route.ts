@@ -9,6 +9,14 @@ export async function GET(request: NextRequest) {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
 
+    if (!supabase) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
+    }
+
     // Get the authenticated user
     const {
       data: { user },
@@ -107,6 +115,14 @@ export async function PUT(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
+
+    if (!supabase) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
+    }
 
     // Get the authenticated user
     const {

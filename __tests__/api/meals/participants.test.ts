@@ -105,9 +105,18 @@ describe('Meals Participants API', () => {
     });
 
     it('returns 200 on successful participant add', async () => {
-      mockSupabaseClient.from.mockImplementation(() => createChainableMock({
-        data: [{ id: 'p1', user_id: 'u2', status: 'pending', profiles: null }],
+      // First call: check organizer, Second call: insert participants
+      mockSupabaseClient.from.mockImplementationOnce(() => createChainableMock({
+        data: { organizer_id: 'user-123' },
         error: null,
+      }));
+      mockSupabaseClient.from.mockImplementationOnce(() => ({
+        insert: jest.fn(() => ({
+          select: jest.fn(() => Promise.resolve({
+            data: [{ id: 'p1', user_id: 'u2', status: 'pending', profiles: null }],
+            error: null,
+          })),
+        })),
       }));
       const { POST } = await import('@/app/api/meals/participants/route');
       const { NextRequest } = require('next/server');

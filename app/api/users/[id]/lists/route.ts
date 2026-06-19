@@ -6,7 +6,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
-    
+
+    if (!supabase) {
+      return NextResponse.json(
+        { data: [], total: 0, page: 1, limit: 12, hasMore: false }
+      );
+    }
+
     // Get the authenticated user (optional for public profiles)
     let user = null;
     let authError = null;

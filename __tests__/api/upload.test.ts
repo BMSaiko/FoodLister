@@ -1,3 +1,25 @@
+// Polyfill File for Node.js test environment
+class MockFile {
+  name: string;
+  type: string;
+  size: number;
+  private _content: ArrayBuffer;
+  constructor(content: string[], name: string, options: { type: string }) {
+    const str = content[0] || '';
+    this.name = name;
+    this.type = options.type;
+    this.size = str.length;
+    const buf = Buffer.from(str);
+    this._content = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  }
+  arrayBuffer() { return Promise.resolve(this._content); }
+  stream() { return new ReadableStream(); }
+  text() { return Promise.resolve(new TextDecoder().decode(this._content)); }
+  slice() { return this; }
+  get [Symbol.toStringTag]() { return 'File'; }
+}
+global.File = MockFile as any;
+
 // Mock next/server
 jest.mock('next/server', () => {
   class MockNextRequest {
@@ -5,24 +27,27 @@ jest.mock('next/server', () => {
     public nextUrl: URL;
     public url: string;
     public headers: Map<string, string>;
-    constructor(input: string | URL, init?: { method?: string; headers?: Record<string, string>; body?: any }) {
+    public _mockFormData: any = null;
+    constructor(input: string | URL, init?: { method?: string; headers?: Record<string, string>; body?: any; __mockFormData?: any }) {
       const urlStr = input instanceof URL ? input.toString() : input;
       this.url = urlStr;
       this.nextUrl = new URL(urlStr);
       this.method = init?.method || 'POST';
       this.headers = new Map(Object.entries(init?.headers || {}));
       this._body = init?.body;
-      this._formData = init?.body instanceof FormData ? init.body : undefined;
+      // Store mock formData if body is a special marker
+      if (init?.__mockFormData) {
+        this._mockFormData = init.__mockFormData;
+      }
     }
     async json() {
       if (typeof this._body === 'string') return JSON.parse(this._body);
       return this._body;
     }
     async formData() {
-      return this._formData;
+      return this._mockFormData;
     }
     private _body: any;
-    private _formData: FormData | undefined;
   }
   function MockNextResponse(this: any) {}
   (MockNextResponse as any).json = (body: any, init?: { status?: number }) => ({
@@ -66,29 +91,26 @@ describe('Upload API', () => {
   });
 
   it('returns 400 for multipart upload with no file', async () => {
-    const formData = new FormData();
     const { POST } = await import('@/app/api/upload/route');
     const { NextRequest } = require('next/server');
     const req = new NextRequest('http://localhost/api/upload', {
       method: 'POST',
       headers: { 'content-type': 'multipart/form-data' },
-      body: formData,
-    });
+      __mockFormData: { get: () => null },
+    } as any);
     const res = await POST(req);
     expect(res.status).toBe(400);
   });
 
   it('returns 400 for non-image file type', async () => {
-    const formData = new FormData();
-    const file = new File(['test'], 'test.txt', { type: 'text/plain' });
-    formData.append('file', file);
+    const mockFile = new File(['test'], 'test.txt', { type: 'text/plain' });
     const { POST } = await import('@/app/api/upload/route');
     const { NextRequest } = require('next/server');
     const req = new NextRequest('http://localhost/api/upload', {
       method: 'POST',
       headers: { 'content-type': 'multipart/form-data' },
-      body: formData,
-    });
+      __mockFormData: { get: () => mockFile },
+    } as any);
     const res = await POST(req);
     expect(res.status).toBe(400);
   });
@@ -107,6 +129,7 @@ describe('Upload API', () => {
 
   it('returns 500 when Cloudinary config missing', async () => {
     delete process.env.CLOUDINARY_CLOUD_NAME;
+    delete process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const { POST } = await import('@/app/api/upload/route');
     const { NextRequest } = require('next/server');
     const req = new NextRequest('http://localhost/api/upload', {

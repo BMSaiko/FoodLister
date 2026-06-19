@@ -21,19 +21,19 @@ export async function GET(request: NextRequest) {
     if (supabase) {
       // User is authenticated: fetch their own lists + public lists from others
       // We need to get the user's ID to filter properly
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
       
       if (user) {
         // Fetch lists that are either public OR owned by the current user
         listsQuery = supabase
           .from('lists')
-          .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
+          .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
           .or(`is_public.eq.true,creator_id.eq.${user.id}`);
       } else {
         // Fallback: if we can't get user, only show public lists
         listsQuery = supabase
           .from('lists')
-          .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
+          .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
           .eq('is_public', true);
       }
     } else {
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       // For unauthenticated users, only fetch public lists
       listsQuery = publicSupabase
         .from('lists')
-        .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
+        .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
         .eq('is_public', true);
     }
 
@@ -59,12 +59,13 @@ export async function GET(request: NextRequest) {
     // Fallback: retry without updated_at if migration 050 not applied
     if (listsError && listsError.code === '42703') {
       console.warn('lists: updated_at missing (migration 050 not applied):', listsError.message);
-      const fallbackClient = supabase || (() => {
+      let fallbackClient = supabase;
+      if (!fallbackClient) {
         const { createClient } = await import('@supabase/supabase-js');
-        return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '');
-      })();
+        fallbackClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '');
+      }
       let fallbackQuery = fallbackClient.from('lists')
-        .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at');
+        .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at');
       if (supabase) {
         const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
         if (user) fallbackQuery = fallbackQuery.or(`is_public.eq.true,creator_id.eq.${user.id}`);
@@ -74,7 +75,8 @@ export async function GET(request: NextRequest) {
       }
       if (search) fallbackQuery = fallbackQuery.ilike('name', `%${search}%`);
       const fallback = await fallbackQuery;
-      listsData = fallback.data?.map((l: any) => ({ ...l, updated_at: l.created_at })) || null;
+      const fallbackData = fallback.data?.map((l: any) => ({ ...l, creator: l.creator ?? l.creator_name ?? null })) || null;
+      listsData = fallbackData as unknown as typeof listsData;
       listsError = fallback.error;
     }
     if (listsError) {

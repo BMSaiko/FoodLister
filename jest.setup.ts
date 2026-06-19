@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom'
 
+// Ensure React is in development mode for tests (act() support)
+if (typeof process !== 'undefined') {
+  process.env.NODE_ENV = 'test';
+}
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter: () => ({

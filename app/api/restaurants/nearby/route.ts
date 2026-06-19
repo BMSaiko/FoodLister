@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch all restaurants with valid coordinates (with fallback for missing columns)
     const nearbyColumns = 'id, name, description, image_url, price_per_person, rating, location, source_url, creator, menu_url, visited, phone_numbers, creator_id, creator_name, created_at, updated_at, images, display_image_index, menu_links, menu_images, latitude, longitude, review_count, opening_hours';
-    const nearbyColumnsFallback = 'id, name, description, image_url, price_per_person, rating, location, source_url, creator, menu_url, visited, phone_numbers, creator_id, creator_name, created_at, images, display_image_index, menu_links, menu_images, latitude, longitude';
+    const nearbyColumnsFallback = 'id, name, description, image_url, price_per_person, rating, location, source_url, creator, menu_url, visited, phone_numbers, creator_id, creator_name, created_at, updated_at, images, display_image_index, menu_links, menu_images, latitude, longitude, review_count, opening_hours';
     let { data: restaurantsData, error: dbError } = await client
       .from('restaurants')
       .select(nearbyColumns)

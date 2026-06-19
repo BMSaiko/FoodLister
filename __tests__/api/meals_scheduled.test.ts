@@ -20,7 +20,6 @@ jest.mock('next/server', () => {
   return {
     NextRequest: MockNextRequest,
     NextResponse: MockNextResponse,
-    },
   };
 });
 

@@ -52,7 +52,30 @@ const defaultMockSupabase = {
 const mockGetServerClient = jest.fn(async () => defaultMockSupabase);
 
 jest.mock('@/libs/supabase/server', () => ({
-  getServerClient: (...args: any[]) => mockGetServerClient(...args),
+  getServerClient: (...args: any[]) => mockGetServerClient(...(args as any)),
+}));
+
+jest.mock('@/libs/auth', () => ({
+  validateProfileAccess: jest.fn(async () => ({ canAccess: true, accessLevel: 'OWNER', targetUserId: 'user-123' })),
+  getUserProfileData: jest.fn(async () => ({
+    user_id: 'user-123',
+    user_id_code: 'FL000001',
+    display_name: 'Test User',
+    avatar_url: null,
+    location: null,
+    bio: null,
+    website: null,
+    phone_number: null,
+    public_profile: true,
+    total_restaurants_visited: 0,
+    total_reviews: 0,
+    total_lists: 0,
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01',
+  })),
+  getUserReviewsData: jest.fn(async () => ({ data: [] })),
+  getUserListsData: jest.fn(async () => ({ data: [] })),
+  ensureUserProfileExists: jest.fn(async () => true),
 }));
 
 describe('Users Me API', () => {

@@ -26,31 +26,44 @@ jest.mock('next/server', () => {
 const mockUser = { id: 'user-123', email: 'test@example.com' };
 
 jest.mock('@/libs/supabase/server', () => ({
-  getServerClient: jest.fn(async () => ({
-    from: jest.fn(() => {
+  getServerClient: jest.fn(async () => {
+    // Create a flexible mock chain that handles all Supabase query patterns
+    const createChain = (finalResult?: any) => {
       const chain: any = {};
-      chain.select = jest.fn(() => chain);
-      chain.eq = jest.fn(() => chain);
-      chain.single = jest.fn(() => Promise.resolve({ data: { is_admin: true }, error: null }));
-      chain.not = jest.fn(() => chain);
-      chain.order = jest.fn(() => Promise.resolve({ data: [], error: null }));
-      chain.limit = jest.fn(() => chain);
-      chain.gte = jest.fn(() => chain);
-      chain.lte = jest.fn(() => chain);
-      // For count queries (head: true)
-      const countResult = { count: 5, data: [], error: null };
-      // Return count result for count queries, data for others
-      const origSelect = chain.select;
+      let isCount = false;
       chain.select = jest.fn((...args: any[]) => {
         if (args[1] && args[1].head) {
-          return { ...chain, data: [], ...countResult };
+          isCount = true;
+          const countResult = { count: 5, data: [], error: null, eq: jest.fn(() => countResult), gte: jest.fn(() => countResult), lte: jest.fn(() => countResult) };
+          return countResult;
         }
-        return origSelect(...args);
+        return chain;
       });
+      chain.eq = jest.fn(() => chain);
+      chain.neq = jest.fn(() => chain);
+      chain.gt = jest.fn(() => chain);
+      chain.gte = jest.fn(() => chain);
+      chain.lt = jest.fn(() => chain);
+      chain.lte = jest.fn(() => chain);
+      chain.like = jest.fn(() => chain);
+      chain.ilike = jest.fn(() => chain);
+      chain.in = jest.fn(() => chain);
+      chain.is = jest.fn(() => chain);
+      chain.not = jest.fn(() => chain);
+      chain.or = jest.fn(() => chain);
+      chain.order = jest.fn(() => chain);
+      chain.limit = jest.fn(() => chain);
+      chain.range = jest.fn(() => chain);
+      chain.single = jest.fn(() => Promise.resolve({ data: finalResult || { is_admin: true }, error: null }));
+      chain.maybeSingle = jest.fn(() => Promise.resolve({ data: finalResult || { is_admin: true }, error: null }));
+      chain.then = jest.fn((resolve: any) => resolve({ data: finalResult || [], error: null }));
       return chain;
-    }),
-    auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
-  })),
+    };
+    return {
+      from: jest.fn(() => createChain()),
+      auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
+    };
+  }),
 }));
 
 describe('Admin Stats API', () => {
