@@ -1,0 +1,290 @@
+// app/api/reviews/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getClient } from '@/libs/supabase/client';
+import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
+
+// Helper function to update restaurant rating based on reviews
+async function updateRestaurantRating(restaurantId: string) {
+  const supabase = getClient();
+
+  try {
+    // Calculate average rating from all reviews for this restaurant
+    const { data: reviews, error: reviewsError } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('restaurant_id', restaurantId);
+
+    if (reviewsError) {
+      console.error('Error fetching reviews for rating calculation:', reviewsError);
+      return;
+    }
+
+    let averageRating = 0;
+    if (reviews && reviews.length > 0) {
+      const totalRating = (reviews as any[]).reduce((sum, review) => sum + review.rating, 0);
+      averageRating = totalRating / reviews.length;
+    }
+
+    // Update the restaurant's rating
+    const { error: updateError } = await (supabase as any)
+      .from('restaurants')
+      .update({ rating: averageRating })
+      .eq('id', restaurantId);
+
+    if (updateError) {
+      console.error('Error updating restaurant rating:', updateError);
+    }
+  } catch (error) {
+    console.error('Error in updateRestaurantRating:', error);
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await getPublicServerClient();
+    const { searchParams } = new URL(request.url);
+    const restaurantId = searchParams.get('restaurant_id');
+
+    if (!restaurantId) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
+    }
+
+    // First get the reviews
+    if (!supabase) {
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
+
+    const { data: reviewsData, error: reviewsError } = await supabase
+      .from('reviews')
+      .select('id, restaurant_id, user_id, rating, comment, amount_spent, created_at, updated_at, user_name')
+      .eq('restaurant_id', restaurantId)
+      .order('created_at', { ascending: false });
+
+      if (reviewsError) {
+        console.error('Error fetching reviews:', reviewsError);
+      
+        // Check if the table doesn't exist (migration not run)
+        if (reviewsError.code === '42P01') {
+          const errorType = 'DATABASE_ERROR' as ApiErrorType;
+          return NextResponse.json({
+            error: getErrorMessage(errorType),
+            code: errorType,
+            details: 'Execute supabase/migrations/003_add_reviews.sql in your Supabase SQL Editor'
+          }, { status: 500 });
+        }
+      
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json(
+          { error: getErrorMessage(errorType), code: errorType },
+          { status: 500 }
+        );
+      }
+
+    if (!reviewsData || reviewsData.length === 0) {
+      return NextResponse.json({ reviews: [] });
+    }
+
+    // Get unique user IDs to fetch their profile images from profiles table
+    const userIds = [...new Set(reviewsData.map((review: any) => review.user_id))];
+
+    // Fetch user profiles from profiles table (public data only)
+    const userProfiles = new Map();
+
+    if (userIds.length > 0) {
+      // Get profile data including user_id_code
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, avatar_url, user_id_code')
+        .in('user_id', userIds);
+
+      if (!profilesError && profilesData) {
+        profilesData.forEach((profile: any) => {
+          userProfiles.set(profile.user_id, {
+            displayName: profile.display_name || null,
+            avatarUrl: profile.avatar_url || null,
+            userIdCode: profile.user_id_code || null
+          });
+        });
+      }
+
+      // Ensure all users have an entry in the map
+      userIds.forEach(userId => {
+        if (!userProfiles.has(userId)) {
+          userProfiles.set(userId, {
+            displayName: null,
+            avatarUrl: null,
+            userIdCode: null
+          });
+        }
+      });
+    }
+
+    // Transform user data consistently across all endpoints
+    const processedData = reviewsData.map((review: any) => {
+      const profile = userProfiles.get(review.user_id) || { displayName: null, avatarUrl: null, userIdCode: null };
+
+      return {
+        ...review,
+        user: {
+          id: review.user_id,
+          name: profile.displayName || review.user_name || 'Anonymous User',
+          profileImage: profile.avatarUrl || null,
+          userIdCode: profile.userIdCode || null
+        }
+      };
+    });
+
+    return NextResponse.json({ reviews: processedData });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const response = NextResponse.next();
+    const supabase = await getServerClient(request, response);
+    const body = await request.json();
+    const { restaurant_id, rating, comment, amount_spent } = body;
+
+    if (!restaurant_id || !rating) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
+    }
+
+    if (rating < 1 || rating > 5) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
+    }
+
+    if (amount_spent !== undefined && amount_spent !== null && (amount_spent <= 0 || isNaN(amount_spent))) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
+    }
+
+    // Get current user
+    if (!supabase) {
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
+    }
+
+    // Check if user already has a review for this restaurant
+    const { data: existingReview, error: checkError } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('restaurant_id', restaurant_id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('Error checking existing review:', checkError);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
+
+    if (existingReview) {
+      const errorType = 'CONFLICT' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 409 }
+      );
+    }
+
+    // Get user's profile data from profiles table including user_id_code
+    const { data: userProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('display_name, avatar_url, user_id_code')
+      .eq('user_id', user.id)
+      .single();
+
+    const userDisplayName = (!profileError && (userProfile as any)?.display_name) ? (userProfile as any).display_name : (user.email?.split('@')[0] || 'Anonymous User');
+    const userProfileImage = (!profileError && (userProfile as any)?.avatar_url) ? (userProfile as any).avatar_url : null;
+    const userUserIdCode = (!profileError && (userProfile as any)?.user_id_code) ? (userProfile as any).user_id_code : null;
+
+    // Create the review
+    const { data, error } = await (supabase as any)
+      .from('reviews')
+      .insert({
+        restaurant_id,
+        user_id: user.id,
+        user_name: userDisplayName,
+        rating,
+        comment: comment || null,
+        amount_spent: amount_spent || null
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Error creating review:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
+
+    // Update restaurant rating after successful review creation
+    await updateRestaurantRating(restaurant_id);
+
+    // Transform user data using display_name from profiles table
+    const processedData = {
+      ...(data as any),
+      user: {
+        id: user.id,
+        name: userDisplayName,
+        profileImage: userProfileImage,
+        userIdCode: userUserIdCode
+      }
+    };
+
+    return NextResponse.json({ review: processedData }, { status: 201 });
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
+}

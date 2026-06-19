@@ -1,0 +1,79 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerClient } from '@/libs/supabase/server';
+import { logSessionStart, logSessionExpired, logTokenError, logAuthError } from '@/utils/authLogger';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
+
+export async function GET(request: NextRequest) {
+  try {
+    const response = new NextResponse();
+    const supabase = await getServerClient(request, response);
+    
+    if (!supabase) {
+      return NextResponse.json(
+        { error: getErrorMessage('INTERNAL_ERROR' as ApiErrorType), code: 'INTERNAL_ERROR' },
+        { status: 500 }
+      );
+    }
+    
+    // Get the authenticated user
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      logAuthError({ error: authError, userId: user?.id }, user?.id);
+      return NextResponse.json(
+        { error: getErrorMessage('AUTHENTICATION_ERROR' as ApiErrorType), code: 'AUTHENTICATION_ERROR' },
+        { status: 401 }
+      );
+    }
+
+    // Get session information
+    const { data: session, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      logTokenError({ error: sessionError, userId: user.id }, user.id);
+      console.error('Error fetching session:', sessionError);
+      return NextResponse.json(
+        { error: 'Failed to fetch session' },
+        { status: 500 }
+      );
+    }
+
+    // Log session information
+    if (session.session) {
+      logSessionStart({ 
+        hasAccessToken: !!session.session.access_token,
+        hasRefreshToken: !!session.session.refresh_token,
+        expiresAt: session.session.expires_at,
+        userId: user.id 
+      }, user.id);
+    }
+
+    // Return session data
+    return NextResponse.json({
+      access_token: session.session?.access_token || null,
+      refresh_token: session.session?.refresh_token || null,
+      expires_in: session.session?.expires_in || null,
+      expires_at: session.session?.expires_at || null,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        app_metadata: user.app_metadata,
+        user_metadata: user.user_metadata,
+        created_at: user.created_at,
+        updated_at: user.updated_at
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in auth session GET:', error);
+      return NextResponse.json(
+        { error: getErrorMessage('INTERNAL_ERROR' as ApiErrorType), code: 'INTERNAL_ERROR' },
+        { status: 500 }
+      );
+  }
+}

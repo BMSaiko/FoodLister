@@ -1,0 +1,12 @@
+-- Migration 040: RLS policies for admin access
+-- NOTE: Admin API routes use the service role key which bypasses ALL RLS.
+-- These policies are NOT needed because:
+--   1. Admin routes use createAdminClient() (service role key, bypasses RLS)
+--   2. profiles already has 'profiles_read_public' USING (true) for public reads
+--   3. Self-referencing policies cause infinite recursion (42P17)
+--
+-- DO NOT add policies with EXISTS(SELECT FROM profiles WHERE is_admin) ON profiles!
+-- That creates infinite recursion: policy evaluates itself recursively.
+
+-- This migration intentionally left empty to prevent recursion.
+-- Previous policies have been dropped (see fix-rls-recursion.js).

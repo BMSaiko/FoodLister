@@ -1,0 +1,164 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerClient } from '@/libs/supabase/server';
+import { getErrorMessage } from '@/types/api';
+import type { ApiErrorType } from '@/types/api';
+
+export async function GET(request: NextRequest) {
+  try {
+    const response = new NextResponse();
+    const supabase = await getServerClient(request, response) as any;
+
+    if (!supabase) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const unreadOnly = searchParams.get('unreadOnly') === 'true';
+
+    let query = supabase
+      .from('notifications')
+      .select('id, user_id, type, title, message, link, read, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (unreadOnly) {
+      query = query.eq('read', false);
+    }
+
+    const { data: notifications, error } = await query;
+
+    if (error) {
+      console.error('Error fetching notifications:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+    }
+
+    // Get unread count
+    const { count: unreadCount } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('read', false);
+
+    return NextResponse.json({
+      data: notifications || [],
+      unreadCount: unreadCount || 0
+    });
+  } catch (error) {
+    console.error('Error in notifications GET:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const response = new NextResponse();
+    const supabase = await getServerClient(request, response) as any;
+
+    if (!supabase) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { notificationId, read } = body;
+
+    if (notificationId) {
+      // Mark single notification as read
+      const { data, error } = await supabase
+        .from('notifications')
+        .update({ read: read !== undefined ? read : true })
+        .eq('id', notificationId)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating notification:', error);
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+      }
+
+      return NextResponse.json({ data });
+    } else {
+      // Mark all notifications as read
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', user.id)
+        .eq('read', false);
+
+      if (error) {
+        console.error('Error updating notifications:', error);
+        const errorType = 'DATABASE_ERROR' as ApiErrorType;
+        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+      }
+
+      return NextResponse.json({ message: 'All notifications marked as read' });
+    }
+  } catch (error) {
+    console.error('Error in notifications PATCH:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const response = new NextResponse();
+    const supabase = await getServerClient(request, response) as any;
+
+    if (!supabase) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { notificationId } = body;
+
+    if (!notificationId) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', notificationId)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error deleting notification:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: 'Notification deleted' });
+  } catch (error) {
+    console.error('Error in notifications DELETE:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+  }
+}
