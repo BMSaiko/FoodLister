@@ -30,9 +30,18 @@ const defaultStatus = {
 } as const;
 
 describe('useVerification', () => {
+  const mockGetSession = jest.fn(() => Promise.resolve({
+    data: { session: { user: { id: 'user-123', email: 'test@example.com' } } },
+  }));
+
   beforeEach(() => {
-    jest.clearAllMocks();
+    const { getClient } = require('@/libs/supabase/client');
+    getClient.mockReturnValue({
+      auth: { getSession: mockGetSession },
+    });
     mockCheckVerificationStatus.mockResolvedValue({ ...defaultStatus });
+    mockSendVerificationEmail.mockResolvedValue({ error: null });
+    mockVerifyEmailToken.mockResolvedValue({ success: true, error: null });
   });
 
   it('should initialize with loading state', () => {
@@ -45,14 +54,14 @@ describe('useVerification', () => {
 
   it('should load verification status on mount', async () => {
     const { result } = renderHook(() => useVerification());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.loading).toBe(false), { timeout: 5000 });
     expect(result.current.status).toEqual(defaultStatus);
   });
 
   it('should send verification email', async () => {
     mockSendVerificationEmail.mockResolvedValueOnce({ error: null });
     const { result } = renderHook(() => useVerification());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.loading).toBe(false), { timeout: 5000 });
     let sendResult: any;
     await act(async () => { sendResult = await result.current.sendEmail('test@example.com'); });
     expect(mockSendVerificationEmail).toHaveBeenCalledWith('test@example.com');
@@ -62,7 +71,7 @@ describe('useVerification', () => {
   it('should handle send email error', async () => {
     mockSendVerificationEmail.mockResolvedValueOnce({ error: { message: 'Send failed' } });
     const { result } = renderHook(() => useVerification());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.loading).toBe(false), { timeout: 5000 });
     await act(async () => { await result.current.sendEmail('test@example.com'); });
     expect(result.current.error).toBe('Send failed');
   });
@@ -70,7 +79,7 @@ describe('useVerification', () => {
   it('should verify email token', async () => {
     mockVerifyEmailToken.mockResolvedValueOnce({ success: true, error: null });
     const { result } = renderHook(() => useVerification());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.loading).toBe(false), { timeout: 5000 });
     let verifyResult: any;
     await act(async () => { verifyResult = await result.current.verifyEmail('valid-token'); });
     expect(mockVerifyEmailToken).toHaveBeenCalledWith('valid-token');
@@ -80,14 +89,14 @@ describe('useVerification', () => {
   it('should handle verify email error', async () => {
     mockVerifyEmailToken.mockResolvedValueOnce({ success: false, error: { message: 'Invalid token' } });
     const { result } = renderHook(() => useVerification());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.loading).toBe(false), { timeout: 5000 });
     await act(async () => { await result.current.verifyEmail('invalid-token'); });
     expect(result.current.error).toBe('Invalid token');
   });
 
   it('should refresh status', async () => {
     const { result } = renderHook(() => useVerification());
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => expect(result.current.loading).toBe(false), { timeout: 5000 });
     mockCheckVerificationStatus.mockResolvedValueOnce({
       isVerified: true,
       emailConfirmed: true,

@@ -39,6 +39,8 @@ describe('ensureUserProfileExists', () => {
   });
 
   it('handles PGRST116 as "no rows" and continues', async () => {
+    const savedKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
     const mockSingle = jest.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116', message: 'no rows' } });
     const mockEq = jest.fn().mockReturnValue({ single: mockSingle });
     const mockLimit = jest.fn().mockResolvedValue({ data: [] });
@@ -51,6 +53,7 @@ describe('ensureUserProfileExists', () => {
     const result = await ensureUserProfileExists({ from: mockFrom } as any, 'user-1', 'test@example.com');
     expect(result).toBe(false); // RLS error blocks creation
     consoleSpy.mockRestore();
+    if (savedKey) process.env.SUPABASE_SERVICE_ROLE_KEY = savedKey;
   });
 });
 
