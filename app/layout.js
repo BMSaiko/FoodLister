@@ -8,6 +8,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/layouts/ClientLayout";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
+import GlobalSearch from "@/components/ui/GlobalSearch";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({ children }) {
       <body className="antialiased">
         <ErrorBoundary>
           <ClientLayout>{children}</ClientLayout>
+          <GlobalSearch />
         </ErrorBoundary>
       </body>
     </html>
