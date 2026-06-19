@@ -141,10 +141,12 @@ function SignInForm() {
                       type="email"
                       autoComplete="email"
                       required
+                      aria-required="true"
                       className="appearance-none relative block w-full pl-12 pr-4 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px]"
                       placeholder="Endereço de email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      aria-label="Endereço de email"
                     />
                   </div>
                 </div>
@@ -164,10 +166,12 @@ function SignInForm() {
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="current-password"
                       required
+                      aria-required="true"
                       className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px]"
                       placeholder="Sua senha"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      aria-label="Senha"
                     />
                     <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
                       <button
@@ -205,6 +209,7 @@ function SignInForm() {
                   type="submit"
                   disabled={isLoading}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 min-h-[48px]"
+                  aria-label={isLoading ? 'A entrar...' : 'Entrar'}
                 >
                   {isLoading ? (
                     <div className="flex items-center">

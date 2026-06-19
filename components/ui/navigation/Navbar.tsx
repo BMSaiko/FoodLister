@@ -75,7 +75,7 @@ const Navbar = ({ clearFilters = null }) => {
   };
 
   return (
-    <nav className="bg-[var(--card-bg)] shadow-md sticky top-0 z-50">
+    <nav className="bg-[var(--card-bg)] shadow-md sticky top-0 z-50" role="navigation" aria-label="Navegação principal">
       <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
         {/* Versão desktop */}
         <div className="hidden md:flex md:items-center md:justify-between md:gap-4">
@@ -129,35 +129,39 @@ const Navbar = ({ clearFilters = null }) => {
 
           {/* Botões de ações e menu do usuário */}
           <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Botão de criar */}
-            <NavbarActions activeSection={activeSection} showLogin={true} showSignout={false} />
+          {/* Botão de criar */}
+          <NavbarActions activeSection={activeSection} showLogin={true} showSignout={false} />
 
-            {/* Notificações (apenas se logado) */}
-            {user && !loading && (
-              <NotificationsDropdown />
-            )}
+          {/* Notificações (apenas se logado) */}
+          {user && !loading && (
+            <NotificationsDropdown />
+          )}
 
-            {/* Admin link - only visible to admins */}
-            {userProfile?.is_admin && (
-              <Link
-                href="/admin"
-                className="flex items-center gap-1 px-2 py-1 rounded-md text-sm hover:opacity-80 transition-opacity"
-                style={{ color: 'var(--primary)' }}
-                title="Admin Dashboard"
+          {/* Admin link - only visible to admins */}
+          {userProfile?.is_admin && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-1 px-2 py-1 rounded-md text-sm hover:opacity-80 transition-opacity"
+              style={{ color: 'var(--primary)' }}
+              title="Admin Dashboard"
+              aria-label="Admin Dashboard"
+            >
+              <Shield className="h-4 w-4" />
+              <span className="hidden lg:inline">Admin</span>
+            </Link>
+          )}
+
+          {/* Menu do usuário (apenas se logado) */}
+          {user && !loading && (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[40px]"
+                title="Menu do usuário"
+                aria-label="Menu do usuário"
+                aria-expanded={userMenuOpen}
+                aria-haspopup="true"
               >
-                <Shield className="h-4 w-4" />
-                <span className="hidden lg:inline">Admin</span>
-              </Link>
-            )}
-
-            {/* Menu do usuário (apenas se logado) */}
-            {user && !loading && (
-              <div className="relative">
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[40px]"
-                  title="Menu do usuário"
-                >
                   <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
                     {userProfile?.avatar_url ? (
                       <img
@@ -216,6 +220,7 @@ const Navbar = ({ clearFilters = null }) => {
                           href={`/users/${userProfile?.user_id_code || user.id}`}
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                          aria-label="Meu Perfil"
                         >
                           <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
                             <User className="h-4 w-4 text-[var(--primary-dark)]" />
@@ -234,6 +239,7 @@ const Navbar = ({ clearFilters = null }) => {
                           href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                          aria-label="Configurações"
                         >
                           <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
                             <Settings className="h-4 w-4 text-[var(--primary-dark)]" />
@@ -244,13 +250,12 @@ const Navbar = ({ clearFilters = null }) => {
                         <button
                           onClick={async () => {
                             setUserMenuOpen(false);
-                            // Clear all filters before logout
                             clearFiltersFromContext();
-                            // Sign out and redirect to root page
                             await signOut();
                             router.push('/');
                           }}
                           className="flex items-center gap-4 w-full px-4 py-3 text-sm text-[var(--error)] hover:bg-[var(--error-light)] hover:text-[var(--error)] transition-colors active:bg-[var(--error-light)]"
+                          aria-label="Sair da conta"
                         >
                           <div className="w-8 h-8 rounded-lg bg-[var(--error-light)] flex items-center justify-center flex-shrink-0">
                             <LogOut className="h-4 w-4 text-[var(--error)]" />
@@ -285,8 +290,8 @@ const Navbar = ({ clearFilters = null }) => {
            <div className="flex items-center gap-2">
              {!user && !loading && (
                <Link href="/auth/signin">
-                 <button className="flex items-center justify-center bg-[var(--primary)] text-[var(--primary-foreground)] px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)] transition-colors min-h-[44px] min-w-[44px] text-sm font-medium">
-                   <User className="h-4 w-4" />
+               <button className="flex items-center justify-center bg-[var(--primary)] text-[var(--primary-foreground)] px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)] transition-colors min-h-[44px] min-w-[44px] text-sm font-medium" aria-label="Entrar">
+                 <User className="h-4 w-4" />
                    <span className="hidden sm:inline ml-1">Entrar</span>
                  </button>
                </Link>
@@ -400,7 +405,8 @@ const Navbar = ({ clearFilters = null }) => {
             <button
               onClick={toggleMobileMenu}
               className="p-2 text-primary hover:text-primary-hover focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label="Toggle menu"
+              aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
