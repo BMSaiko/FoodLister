@@ -57,6 +57,11 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  // Optimize bundle by tree-shaking unused exports from large packages
+  optimizePackageImports: [
+    'lucide-react',
+    '@supabase/supabase-js',
+  ],
 };
 
 export default withBundleAnalyzer(nextConfig);

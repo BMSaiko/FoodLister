@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/layouts/ClientLayout";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +39,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased">
-        <ClientLayout>{children}</ClientLayout>
+        <ErrorBoundary>
+          <ClientLayout>{children}</ClientLayout>
+        </ErrorBoundary>
       </body>
     </html>
   );
