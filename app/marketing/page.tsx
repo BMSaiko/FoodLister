@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { useMarketing } from '@/hooks/marketing/useMarketing';
 import { useSubscription } from '@/hooks/subscription/useSubscription';
 import FeatureGate from '@/components/subscription/FeatureGate';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
 type Tab = 'campaigns' | 'posts' | 'workflows';
 

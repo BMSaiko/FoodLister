@@ -1,21 +1,27 @@
-// Mock next/server
 jest.mock('next/server', () => {
-  class MockNextRequest {
-    constructor(input) {
+  const MockNextRequest = class {
+    public method: string;
+    public nextUrl: URL;
+    public url: string;
+    public headers: Map<string, string>;
+    constructor(input: string | URL) {
       const urlStr = input instanceof URL ? input.toString() : input;
       this.url = urlStr;
       this.nextUrl = new URL(urlStr);
       this.method = 'GET';
       this.headers = new Map();
     }
-  }
-  function MockNextResponse(this: any) {}
-  (MockNextResponse as any).next = () => ({ headers: new Map() });
-  (MockNextResponse as any).json = (body: any, init?: { status?: number }) => ({
-    status: init?.status || 200,
-    json: () => Promise.resolve(body),
-  });
-  return { NextRequest: MockNextRequest, NextResponse: MockNextResponse };
+  };
+  return {
+    NextRequest: MockNextRequest,
+    NextResponse: {
+      json: (body: unknown, init?: { status?: number }) => ({
+        status: init?.status ?? 200,
+        json: () => Promise.resolve(body),
+      }),
+      next: () => ({ headers: new Map() }),
+    },
+  };
 });
 
 const mockLists = [{ id: '1', name: 'Test', creator_id: 'user-123', is_public: true }];
@@ -23,14 +29,16 @@ const mockUser = { id: 'user-123', email: 'test@example.com' };
 
 jest.mock('@/libs/supabase/server', () => ({
   getServerClient: jest.fn(async () => ({
-    from: jest.fn(() => {
-      const chain = {};
-      chain.select = jest.fn(() => chain);
-      chain.or = jest.fn(() => chain);
-      chain.ilike = jest.fn(() => chain);
-      chain.eq = jest.fn(() => chain);
-      return chain;
-    }),
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        or: jest.fn(() => ({
+          ilike: jest.fn(() => Promise.resolve({ data: mockLists, error: null })),
+        })),
+        eq: jest.fn(() => ({
+          ilike: jest.fn(() => Promise.resolve({ data: mockLists, error: null })),
+        })),
+      })),
+    })),
     auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
   })),
 }));

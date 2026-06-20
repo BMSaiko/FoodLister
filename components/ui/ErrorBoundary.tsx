@@ -7,6 +7,7 @@ import Link from 'next/link';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  pageName?: string;
 }
 
 interface State {
@@ -25,7 +26,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error(`[${this.props.pageName || 'Unknown'}] ErrorBoundary caught:`, error, errorInfo);
   }
 
   private handleReset = () => {

@@ -1,26 +1,32 @@
-// Mock next/server BEFORE any imports
 jest.mock('next/server', () => {
-  class MockNextRequest {
+  const MockNextRequest = class {
     public method: string;
-    public headers: Map<string, string>;
     public nextUrl: URL;
     public url: string;
-    constructor(input: string | URL, _init?: RequestInit) {
+    public headers: Map<string, string>;
+    private _body: unknown;
+    constructor(input: string | URL, init?: { method?: string; body?: unknown }) {
       const urlStr = input instanceof URL ? input.toString() : input;
       this.url = urlStr;
       this.nextUrl = new URL(urlStr);
-      this.method = 'GET';
+      this.method = init?.method || 'GET';
       this.headers = new Map();
+      this._body = init?.body;
     }
-  }
-  function MockNextResponse(this: any) {}
-  (MockNextResponse as any).next = () => ({ headers: new Map(), headers: { set: jest.fn() } });
-  (MockNextResponse as any).json = (body: any, init?: { status?: number; headers?: Record<string, string> }) => ({
-    status: init?.status || 200,
-    json: () => Promise.resolve(body),
-    headers: { set: jest.fn() },
-  });
-  return { NextRequest: MockNextRequest, NextResponse: MockNextResponse };
+    async json() {
+      return typeof this._body === 'string' ? JSON.parse(this._body) : this._body;
+    }
+  };
+  return {
+    NextRequest: MockNextRequest,
+    NextResponse: {
+      json: (body: unknown, init?: { status?: number }) => ({
+        status: init?.status ?? 200,
+        json: () => Promise.resolve(body),
+      }),
+      next: () => ({ headers: new Map() }),
+    },
+  };
 });
 
 jest.mock('@/libs/supabase/client', () => ({
@@ -92,8 +98,10 @@ describe('Reviews API', () => {
     it('returns 400 when restaurant_id is missing', async () => {
       const { POST } = await import('@/app/api/reviews/route');
       const { NextRequest } = require('next/server');
-      const request = new NextRequest('http://localhost:3000/api/reviews');
-      (request as any).json = jest.fn(() => Promise.resolve({ rating: 5 }));
+      const request = new NextRequest('http://localhost:3000/api/reviews', {
+        method: 'POST',
+        body: JSON.stringify({ rating: 5 }),
+      });
       const response = await POST(request);
       expect(response.status).toBe(400);
     });
@@ -101,8 +109,10 @@ describe('Reviews API', () => {
     it('returns 400 when rating is out of range', async () => {
       const { POST } = await import('@/app/api/reviews/route');
       const { NextRequest } = require('next/server');
-      const request = new NextRequest('http://localhost:3000/api/reviews');
-      (request as any).json = jest.fn(() => Promise.resolve({ restaurant_id: 'rest-1', rating: 6 }));
+      const request = new NextRequest('http://localhost:3000/api/reviews', {
+        method: 'POST',
+        body: JSON.stringify({ restaurant_id: 'rest-1', rating: 6 }),
+      });
       const response = await POST(request);
       expect(response.status).toBe(400);
     });
@@ -118,8 +128,10 @@ describe('Reviews API', () => {
       });
       const { POST } = await import('@/app/api/reviews/route');
       const { NextRequest } = require('next/server');
-      const request = new NextRequest('http://localhost:3000/api/reviews');
-      (request as any).json = jest.fn(() => Promise.resolve({ restaurant_id: 'rest-1', rating: 4 }));
+      const request = new NextRequest('http://localhost:3000/api/reviews', {
+        method: 'POST',
+        body: JSON.stringify({ restaurant_id: 'rest-1', rating: 4 }),
+      });
       const response = await POST(request);
       expect(response.status).toBe(401);
     });

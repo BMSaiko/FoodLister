@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Calendar, Clock, Users, Utensils, Download, ArrowLeft, Loader2, Check, X, ExternalLink, Edit, Trash2 } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { useAuth } from '@/hooks/auth/useAuth';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { toast } from 'react-toastify';
 
 interface Meal {
@@ -260,41 +261,46 @@ export default function MealDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
-            <span className="ml-3 text-gray-600">A carregar detalhes da refeição...</span>
+      <ErrorBoundary pageName="MealDetails">
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
+              <span className="ml-3 text-gray-600">A carregar detalhes da refeição...</span>
+            </div>
           </div>
         </div>
-      </div>
+      </ErrorBoundary>
     );
   }
 
   if (!meal) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-20">
-            <Utensils className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Refeição não encontrada</h2>
-            <p className="text-gray-500 mb-6">A refeição que procuras não existe ou foi removida.</p>
-            <Link
-              href="/users/me"
-              className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar ao perfil
-            </Link>
+      <ErrorBoundary pageName="MealDetails">
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <div className="container mx-auto px-4 py-8">
+            <div className="text-center py-20">
+              <Utensils className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Refeição não encontrada</h2>
+              <p className="text-gray-500 mb-6">A refeição que procuras não existe ou foi removida.</p>
+              <Link
+                href="/users/me"
+                className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Voltar ao perfil
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </ErrorBoundary>
     );
   }
 
   return (
+    <ErrorBoundary pageName="MealDetails">
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -648,5 +654,6 @@ export default function MealDetailsPage() {
         </div>
       )}
     </div>
+    </ErrorBoundary>
   );
 }

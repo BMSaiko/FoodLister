@@ -1,6 +1,7 @@
 'use client';
 
 import { useAdminStats } from '@/hooks/admin/useAdminStats';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import DashboardStats from '@/components/admin/DashboardStats';
 import GrowthChart from '@/components/admin/GrowthChart';
 import Link from 'next/link';
@@ -10,6 +11,7 @@ export default function AdminDashboardPage() {
   const { stats, loading, error, refresh } = useAdminStats();
 
   return (
+    <ErrorBoundary pageName="Admin">
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Dashboard</h1>
@@ -66,6 +68,7 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }
 

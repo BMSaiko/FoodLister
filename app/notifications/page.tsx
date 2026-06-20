@@ -7,6 +7,7 @@ import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useAllNotifications, Notification } from '@/hooks/data/useAllNotifications';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { toast } from 'react-toastify';
 
 export default function NotificationsPage() {
@@ -72,6 +73,7 @@ export default function NotificationsPage() {
   };
 
   return (
+    <ErrorBoundary pageName="Notifications">
     <div className="min-h-screen bg-background-secondary">
       <Navbar />
       <Container variant="narrow" className="py-6 sm:py-8">
@@ -176,5 +178,6 @@ export default function NotificationsPage() {
         </div>
       </Container>
     </div>
+    </ErrorBoundary>
   );
 }

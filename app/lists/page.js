@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Plus, Search as SearchIcon, ListChecks } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 
 // Component to handle the search params logic
 function ListsContent() {
@@ -144,14 +145,16 @@ function ListsLoading() {
 // Main component with Suspense
 export default function ListsPage() {
   return (
-    <main className="min-h-screen bg-background-secondary">
-      <Navbar />
-      
-      <Container variant="wide" className="py-6 sm:py-8">
-        <Suspense fallback={<ListsLoading />}>
-          <ListsContent />
-        </Suspense>
-      </Container>
-    </main>
+    <ErrorBoundary pageName="Lists">
+      <main className="min-h-screen bg-background-secondary">
+        <Navbar />
+
+        <Container variant="wide" className="py-6 sm:py-8">
+          <Suspense fallback={<ListsLoading />}>
+            <ListsContent />
+          </Suspense>
+        </Container>
+      </main>
+    </ErrorBoundary>
   );
 }

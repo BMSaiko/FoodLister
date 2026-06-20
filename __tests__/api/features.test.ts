@@ -1,11 +1,11 @@
-// Mock next/server
 jest.mock('next/server', () => {
-  class MockNextRequest {
+  const MockNextRequest = class {
     public method: string;
     public nextUrl: URL;
     public url: string;
     public headers: Map<string, string>;
-    constructor(input: string | URL, init?: { method?: string; body?: any }) {
+    private _body: unknown;
+    constructor(input: string | URL, init?: { method?: string; body?: unknown }) {
       const urlStr = input instanceof URL ? input.toString() : input;
       this.url = urlStr;
       this.nextUrl = new URL(urlStr);
@@ -14,18 +14,19 @@ jest.mock('next/server', () => {
       this._body = init?.body;
     }
     async json() {
-      if (typeof this._body === 'string') return JSON.parse(this._body);
-      return this._body;
+      return typeof this._body === 'string' ? JSON.parse(this._body) : this._body;
     }
-    private _body: any;
-  }
-  function MockNextResponse(this: any) {}
-  (MockNextResponse as any).json = (body: any, init?: { status?: number }) => ({
-    status: init?.status || 200,
-    json: () => Promise.resolve(body),
-  });
-  (MockNextResponse as any).next = () => ({ headers: new Map() });
-  return { NextRequest: MockNextRequest, NextResponse: MockNextResponse };
+  };
+  return {
+    NextRequest: MockNextRequest,
+    NextResponse: {
+      json: (body: unknown, init?: { status?: number }) => ({
+        status: init?.status ?? 200,
+        json: () => Promise.resolve(body),
+      }),
+      next: () => ({ headers: new Map() }),
+    },
+  };
 });
 
 const mockUser = { id: 'user-123', email: 'test@example.com' };
@@ -35,18 +36,18 @@ const mockFeatures = [
 ];
 
 const mockGetServerClient = jest.fn(async () => ({
-  from: jest.fn(() => {
-    const chain: any = {};
-    chain.select = jest.fn(() => chain);
-    chain.eq = jest.fn(() => chain);
-    chain.single = jest.fn(() => Promise.resolve({ data: null, error: { code: 'PGRST116' } }));
-    chain.insert = jest.fn(() => ({
+  from: jest.fn(() => ({
+    select: jest.fn(() => ({
+      eq: jest.fn(() => ({
+        single: jest.fn(() => Promise.resolve({ data: null, error: { code: 'PGRST116' } })),
+      })),
+    })),
+    insert: jest.fn(() => ({
       select: jest.fn(() => ({
         single: jest.fn(() => Promise.resolve({ data: mockFeatures[0], error: null })),
       })),
-    }));
-    return chain;
-  }),
+    })),
+  })),
   auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
 }));
 
@@ -59,26 +60,26 @@ const mockGetPublicServerClient = jest.fn(async () => ({
 }));
 
 jest.mock('@/libs/supabase/server', () => ({
-  getServerClient: (...args: any[]) => mockGetServerClient(...args),
-  getPublicServerClient: (...args: any[]) => mockGetPublicServerClient(...args),
+  getServerClient: (...args: unknown[]) => mockGetServerClient(...args),
+  getPublicServerClient: (...args: unknown[]) => mockGetPublicServerClient(...args),
 }));
 
 describe('Features API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetServerClient.mockResolvedValue({
-      from: jest.fn(() => {
-        const chain: any = {};
-        chain.select = jest.fn(() => chain);
-        chain.eq = jest.fn(() => chain);
-        chain.single = jest.fn(() => Promise.resolve({ data: null, error: { code: 'PGRST116' } }));
-        chain.insert = jest.fn(() => ({
+      from: jest.fn(() => ({
+        select: jest.fn(() => ({
+          eq: jest.fn(() => ({
+            single: jest.fn(() => Promise.resolve({ data: null, error: { code: 'PGRST116' } })),
+          })),
+        })),
+        insert: jest.fn(() => ({
           select: jest.fn(() => ({
             single: jest.fn(() => Promise.resolve({ data: mockFeatures[0], error: null })),
           })),
-        }));
-        return chain;
-      }),
+        })),
+      })),
       auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
     });
     mockGetPublicServerClient.mockResolvedValue({
@@ -122,7 +123,7 @@ describe('Features API', () => {
       const { NextRequest } = require('next/server');
       const req = new NextRequest('http://localhost/api/features', {
         method: 'POST',
-        body: { name: 'New Feature' },
+        body: JSON.stringify({ name: 'New Feature' }),
       });
       const res = await POST(req);
       expect(res.status).toBe(401);
@@ -133,7 +134,7 @@ describe('Features API', () => {
       const { NextRequest } = require('next/server');
       const req = new NextRequest('http://localhost/api/features', {
         method: 'POST',
-        body: { description: 'No name' },
+        body: JSON.stringify({ description: 'No name' }),
       });
       const res = await POST(req);
       expect(res.status).toBe(400);
@@ -144,7 +145,7 @@ describe('Features API', () => {
       const { NextRequest } = require('next/server');
       const req = new NextRequest('http://localhost/api/features', {
         method: 'POST',
-        body: { name: 'New Feature', description: 'Test', icon: '⭐' },
+        body: JSON.stringify({ name: 'New Feature', description: 'Test', icon: '⭐' }),
       });
       const res = await POST(req);
       expect(res.status).toBe(200);

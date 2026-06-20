@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
 import { useVisitsData } from '@/hooks/data/useVisitsData';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import ListStatistics from '@/components/ui/lists/ListStatistics';
 import ListComments from '@/components/ui/lists/ListComments';
 import ListExportButtons from '@/components/ui/lists/ListExportButtons';
@@ -271,41 +272,45 @@ export default function ListDetails() {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
-          <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array(3).fill(0).map((_, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
-            ))}
-          
+      <ErrorBoundary pageName="ListDetails">
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+
+          <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+            <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array(3).fill(0).map((_, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
+              ))}
+
 
           {/* Activity Feed */}
           <div className="mt-6 sm:mt-8 bg-white p-4 sm:p-6 rounded-lg shadow-md">
             <ListActivityFeed listId={id as string} />
           </div></div>
         </div>
-      </div>
+      </ErrorBoundary>
     );
   }
-  
+
   if (!list) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Lista não encontrada</h2>
-          <Link href="/lists" className="mt-4 inline-block text-amber-600 hover:underline">
-            Voltar para a página de listas
-          </Link>
+      <ErrorBoundary pageName="ListDetails">
+        <div className="min-h-screen bg-gray-50">
+          <Navbar />
+          <div className="container mx-auto px-4 py-8 text-center">
+            <h2 className="text-2xl font-bold text-gray-800">Lista não encontrada</h2>
+            <Link href="/lists" className="mt-4 inline-block text-amber-600 hover:underline">
+              Voltar para a página de listas
+            </Link>
+          </div>
         </div>
-      </div>
+      </ErrorBoundary>
     );
   }
-  
+
   return (
+    <ErrorBoundary pageName="ListDetails">
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
@@ -502,5 +507,6 @@ export default function ListDetails() {
          />
        )}
      </div>
-   );
- }
+    </ErrorBoundary>
+  );
+}

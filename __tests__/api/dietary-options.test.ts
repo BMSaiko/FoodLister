@@ -1,11 +1,11 @@
-// Mock next/server
 jest.mock('next/server', () => {
-  class MockNextRequest {
+  const MockNextRequest = class {
     public method: string;
     public nextUrl: URL;
     public url: string;
     public headers: Map<string, string>;
-    constructor(input: string | URL, init?: { method?: string; body?: string }) {
+    private _body: unknown;
+    constructor(input: string | URL, init?: { method?: string; body?: unknown }) {
       const urlStr = input instanceof URL ? input.toString() : input;
       this.url = urlStr;
       this.nextUrl = new URL(urlStr);
@@ -16,15 +16,17 @@ jest.mock('next/server', () => {
     async json() {
       return typeof this._body === 'string' ? JSON.parse(this._body) : this._body;
     }
-    private _body: any;
-  }
-  function MockNextResponse(this: any) {}
-  (MockNextResponse as any).json = (body: any, init?: { status?: number }) => ({
-    status: init?.status || 200,
-    json: () => Promise.resolve(body),
-  });
-  (MockNextResponse as any).next = () => ({ headers: new Map() });
-  return { NextRequest: MockNextRequest, NextResponse: MockNextResponse };
+  };
+  return {
+    NextRequest: MockNextRequest,
+    NextResponse: {
+      json: (body: unknown, init?: { status?: number }) => ({
+        status: init?.status ?? 200,
+        json: () => Promise.resolve(body),
+      }),
+      next: () => ({ headers: new Map() }),
+    },
+  };
 });
 
 const mockDietaryOptions = [
@@ -41,18 +43,18 @@ jest.mock('@/libs/supabase/server', () => ({
     })),
   })),
   getServerClient: jest.fn(async () => ({
-    from: jest.fn(() => {
-      const chain: any = {};
-      chain.select = jest.fn(() => chain);
-      chain.eq = jest.fn(() => chain);
-      chain.single = jest.fn(() => Promise.resolve({ data: null, error: { code: 'PGRST116' } }));
-      chain.insert = jest.fn(() => ({
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          single: jest.fn(() => Promise.resolve({ data: null, error: { code: 'PGRST116' } })),
+        })),
+      })),
+      insert: jest.fn(() => ({
         select: jest.fn(() => ({
           single: jest.fn(() => Promise.resolve({ data: mockDietaryOptions[0], error: null })),
         })),
-      }));
-      return chain;
-    }),
+      })),
+    })),
     auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: { id: 'user-123' } }, error: null })) },
   })),
 }));
