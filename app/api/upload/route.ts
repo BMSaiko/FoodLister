@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
 
     let imageBuffer: Buffer;
     let mimeType: string;
-    let fileName: string;
 
     // Handle multipart/form-data uploads (traditional file upload)
     if (contentType.includes('multipart/form-data')) {
@@ -52,7 +51,6 @@ export async function POST(request: NextRequest) {
       const arrayBuffer = await file.arrayBuffer();
       imageBuffer = Buffer.from(arrayBuffer);
       mimeType = file.type;
-      fileName = file.name;
 
     } else if (contentType.includes('application/json')) {
       // Handle base64 uploads
@@ -73,7 +71,6 @@ export async function POST(request: NextRequest) {
       try {
         imageBuffer = Buffer.from(imageData, 'base64');
         mimeType = providedMimeType;
-        fileName = providedFileName || 'uploaded_image.jpg';
       } catch (conversionError) {
         console.error('Base64 conversion failed:', conversionError);
         return NextResponse.json(

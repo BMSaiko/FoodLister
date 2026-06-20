@@ -1,5 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import storybook from "eslint-plugin-storybook";
+import nextPlugin from "@next/eslint-plugin-next";
 
 import js from "@eslint/js";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
@@ -9,7 +10,7 @@ export default [// Ignore build output and other generated files
 {
   ignores: [
     ".next/**",
-    "node_modules/**",
+    "**/node_modules/**",
     "out/**",
     "dist/**",
     "scripts/run-database-fixes.js",
@@ -21,6 +22,10 @@ export default [// Ignore build output and other generated files
     "public/workbox-*.js",
     "public/sw.js",
   ],
+}, {
+  plugins: {
+    "@next/next": nextPlugin,
+  },
 }, {
   files: ["scripts/**/*.js"],
   languageOptions: {
@@ -67,11 +72,15 @@ export default [// Ignore build output and other generated files
   },
   plugins: {
     "@typescript-eslint": typescriptEslint,
+    "@next/next": nextPlugin,
   },
   rules: {
-    // TypeScript rules - off for development
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-explicit-any": "off",
+    // TypeScript rules
+    "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-empty-interface": "off",
+    // Next.js core web vitals
+    ...nextPlugin.configs.recommended.rules,
+    ...nextPlugin.configs["core-web-vitals"].rules,
   },
 }, ...storybook.configs["flat/recommended"]];

@@ -30,6 +30,7 @@ export default function FormActions({
         type="submit"
         onClick={onSubmit}
         disabled={loading}
+        aria-busy={loading}
         className="flex-1 md:flex-none px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md font-medium min-h-[44px]"
       >
         {loading ? (

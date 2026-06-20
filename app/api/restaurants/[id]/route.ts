@@ -1,6 +1,5 @@
 // app/api/restaurants/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getClient } from '@/libs/supabase/client';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';

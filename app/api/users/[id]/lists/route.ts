@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
-import { ensureUserProfileExists } from '@/libs/auth';
+
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -15,12 +15,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Get the authenticated user (optional for public profiles)
     let user = null;
-    let authError = null;
     
     try {
       const authResult = await supabase.auth.getUser();
       user = authResult.data?.user;
-      authError = authResult.error;
     } catch (error) {
       console.warn('Authentication check failed:', error);
     }

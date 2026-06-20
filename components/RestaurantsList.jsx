@@ -12,16 +12,11 @@ import { RestaurantsHeader } from '@/components/ui/RestaurantList/RestaurantsHea
 import { RestaurantGrid } from '@/components/ui/RestaurantGrid';
 import { EmptyState } from '@/components/ui/common/EmptyState';
 import { FilterStats } from '@/components/ui/Filters/FilterStats';
+import Skeleton from '@/components/ui/Skeleton';
 
 // Component para mostrar loading
 function RestaurantsLoading() {
-  return (
-    <div className="grid-responsive">
-      {Array(6).fill(0).map((_, index) => (
-        <div key={index} className="card h-56 sm:h-64 md:h-72 skeleton" />
-      ))}
-    </div>
-  );
+  return <Skeleton variant="restaurant-card" count={6} />;
 }
 
 // Component to handle the search params logic and filtering

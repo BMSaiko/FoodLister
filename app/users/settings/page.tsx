@@ -333,7 +333,9 @@ const ProfileSettingsPage = () => {
                   type="text"
                   value={profile.name || ''}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     formErrors.display_name ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Seu nome de exibição"
@@ -369,7 +371,9 @@ const ProfileSettingsPage = () => {
                   type="tel"
                   value={profile.phoneNumber || ''}
                   onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="+351 912 345 678"
                 />
                 <p className="text-xs sm:text-sm text-gray-500 mt-2">Número de telefone para contato</p>
@@ -385,7 +389,9 @@ const ProfileSettingsPage = () => {
                   type="text"
                   value={profile.location || ''}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors"
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Lisboa, Portugal"
                 />
                 <p className="text-xs sm:text-sm text-gray-500 mt-2">Sua localização para recomendações personalizadas</p>
@@ -401,7 +407,9 @@ const ProfileSettingsPage = () => {
                   type="url"
                   value={profile.website || ''}
                   onChange={(e) => handleInputChange('website', e.target.value)}
-                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors ${
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     formErrors.website ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="https://seusite.com"
@@ -422,7 +430,9 @@ const ProfileSettingsPage = () => {
                   value={profile.bio || ''}
                   onChange={(e) => handleInputChange('bio', e.target.value)}
                   rows={4}
-                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors resize-none ${
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
                     formErrors.bio ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Conte um pouco sobre você, seus gostos culinários, etc..."
