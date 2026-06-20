@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { FileJson, FileSpreadsheet, FileText } from 'lucide-react';
+import { FileJson, FileSpreadsheet, FileText, Download } from 'lucide-react';
 import { exportListAsJSON, exportListAsCSV, exportListAsPDF } from '@/utils/listExport';
 
 interface ListExportButtonsProps {
@@ -21,8 +21,13 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
     }
   };
 
+  const handleApiDownload = (format: 'json' | 'csv' | 'html') => {
+    window.open(`/api/lists/${list.id}/export?format=${format}`, '_blank');
+  };
+
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label="Opções de exportação">
+      {/* Client-side export buttons */}
       <button
         type="button"
         onClick={() => handleExport('json', exportListAsJSON)}
@@ -54,6 +59,42 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
       >
         <FileText className="h-4 w-4" />
         <span className="hidden sm:inline">PDF</span>
+      </button>
+
+      {/* Server-side API download buttons */}
+      <div className="w-px h-8 bg-[var(--gray-200)] self-center mx-1" aria-hidden="true" />
+
+      <button
+        type="button"
+        onClick={() => handleApiDownload('json')}
+        className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--gray-600)] hover:bg-[var(--gray-700)] text-white rounded-lg transition-colors text-sm"
+        title="Download JSON via API"
+        aria-label="Download JSON via API server-side"
+      >
+        <Download className="h-4 w-4" />
+        <span className="hidden sm:inline">API JSON</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => handleApiDownload('csv')}
+        className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--gray-600)] hover:bg-[var(--gray-700)] text-white rounded-lg transition-colors text-sm"
+        title="Download CSV via API"
+        aria-label="Download CSV via API server-side"
+      >
+        <Download className="h-4 w-4" />
+        <span className="hidden sm:inline">API CSV</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => handleApiDownload('html')}
+        className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--gray-600)] hover:bg-[var(--gray-700)] text-white rounded-lg transition-colors text-sm"
+        title="Download HTML via API"
+        aria-label="Download HTML via API server-side"
+      >
+        <Download className="h-4 w-4" />
+        <span className="hidden sm:inline">API HTML</span>
       </button>
     </div>
   );
