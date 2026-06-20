@@ -40,10 +40,14 @@ export async function middleware(request: NextRequest) {
   // Refresh session
   const { data: { session } } = await supabase.auth.getSession();
 
-  // Check if route requires admin access
-  // API routes handle their own auth/admin checks internally
+  // API routes handle their own auth/admin checks internally — skip middleware
   const isApiRoute = pathname.startsWith('/api');
-  const isAdminRoute = !isApiRoute && ADMIN_ROUTES.some(route => pathname.startsWith(route));
+  if (isApiRoute) {
+    return response;
+  }
+
+  // Check if route requires admin access
+  const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
 
   if (isAdminRoute) {
     // Must be authenticated
