@@ -47,18 +47,19 @@ jobs:
           echo "Running smoke test on ${{ env.PREVIEW_URL }}"
           # Wait for deployment to be ready
           sleep 15
-          # Test homepage returns 200
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PREVIEW_URL }}")
-          if [ "$STATUS" != "200" ]; then
-            echo "❌ Smoke test failed: homepage returned $STATUS"
+          # Test API health endpoint (public, no auth required)
+          API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PREVIEW_URL }}/api/health")
+          if [ "$API_STATUS" != "200" ]; then
+            echo "❌ Smoke test failed: /api/health returned $API_STATUS"
             exit 1
           fi
-          # Test API health endpoint
-          API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PREVIEW_URL }}/api/health" || echo "404")
-          if [ "$API_STATUS" != "200" ] && [ "$API_STATUS" != "404" ]; then
-            echo "⚠️ API health check returned $API_STATUS (non-critical)"
+          # Test homepage returns a valid response (200, 302, or 401 are all acceptable)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PREVIEW_URL }}")
+          if [ "$STATUS" -ge 500 ]; then
+            echo "❌ Smoke test failed: homepage returned $STATUS (server error)"
+            exit 1
           fi
-          echo "✅ Smoke test passed!"
+          echo "✅ Smoke test passed! (health: $API_STATUS, homepage: $STATUS)"
 
   deploy-production:
     name: Deploy Production
@@ -96,9 +97,16 @@ jobs:
         run: |
           echo "Running smoke test on production..."
           sleep 15
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PROD_URL }}")
-          if [ "$STATUS" != "200" ]; then
-            echo "❌ Production smoke test failed: returned $STATUS"
+          # Test API health endpoint (public, no auth required)
+          API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PROD_URL }}/api/health")
+          if [ "$API_STATUS" != "200" ]; then
+            echo "❌ Production smoke test failed: /api/health returned $API_STATUS"
             exit 1
           fi
-          echo "✅ Production smoke test passed!"
+          # Test homepage returns a valid response (200, 302, or 401 are all acceptable)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PROD_URL }}")
+          if [ "$STATUS" -ge 500 ]; then
+            echo "❌ Production smoke test failed: homepage returned $STATUS (server error)"
+            exit 1
+          fi
+          echo "✅ Production smoke test passed! (health: $API_STATUS, homepage: $STATUS)"
