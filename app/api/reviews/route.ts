@@ -4,13 +4,27 @@ import { getClient } from '@/libs/supabase/client';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/libs/supabase/client';
+
+type DbClient = SupabaseClient<Database>;
+type ReviewRow = Database['public']['Tables']['reviews']['Row'];
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+
+interface ProcessedReview extends ReviewRow {
+  user: {
+    id: string;
+    name: string;
+    profileImage: string | null;
+    userIdCode: string | null;
+  };
+}
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
   const supabase = getClient();
 
   try {
-    // Calculate average rating from all reviews for this restaurant
     const { data: reviews, error: reviewsError } = await supabase
       .from('reviews')
       .select('rating')
@@ -23,12 +37,11 @@ async function updateRestaurantRating(restaurantId: string) {
 
     let averageRating = 0;
     if (reviews && reviews.length > 0) {
-      const totalRating = (reviews as any[]).reduce((sum, review) => sum + review.rating, 0);
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
       averageRating = totalRating / reviews.length;
     }
 
-    // Update the restaurant's rating
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('restaurants')
       .update({ rating: averageRating })
       .eq('id', restaurantId);
@@ -55,7 +68,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // First get the reviews
     if (!supabase) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
       return NextResponse.json(
@@ -70,45 +82,43 @@ export async function GET(request: NextRequest) {
       .eq('restaurant_id', restaurantId)
       .order('created_at', { ascending: false });
 
-      if (reviewsError) {
-        console.error('Error fetching reviews:', reviewsError);
-      
-        // Check if the table doesn't exist (migration not run)
-        if (reviewsError.code === '42P01') {
-          const errorType = 'DATABASE_ERROR' as ApiErrorType;
-          return NextResponse.json({
-            error: getErrorMessage(errorType),
-            code: errorType,
-            details: 'Execute supabase/migrations/003_add_reviews.sql in your Supabase SQL Editor'
-          }, { status: 500 });
-        }
-      
+    if (reviewsError) {
+      console.error('Error fetching reviews:', reviewsError);
+
+      if (reviewsError.code === '42P01') {
         const errorType = 'DATABASE_ERROR' as ApiErrorType;
-        return NextResponse.json(
-          { error: getErrorMessage(errorType), code: errorType },
-          { status: 500 }
-        );
+        return NextResponse.json({
+          error: getErrorMessage(errorType),
+          code: errorType,
+          details: 'Execute supabase/migrations/003_add_reviews.sql in your Supabase SQL Editor'
+        }, { status: 500 });
       }
+
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
 
     if (!reviewsData || reviewsData.length === 0) {
       return NextResponse.json({ reviews: [] });
     }
 
-    // Get unique user IDs to fetch their profile images from profiles table
-    const userIds = [...new Set(reviewsData.map((review: any) => review.user_id))];
+    const reviewsRows = reviewsData as ReviewRow[];
 
-    // Fetch user profiles from profiles table (public data only)
-    const userProfiles = new Map();
+    const userIds = Array.from(new Set(reviewsRows.map((review) => review.user_id)));
+
+    const userProfiles = new Map<string, { displayName: string | null; avatarUrl: string | null; userIdCode: string | null }>();
 
     if (userIds.length > 0) {
-      // Get profile data including user_id_code
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, display_name, avatar_url, user_id_code')
         .in('user_id', userIds);
 
       if (!profilesError && profilesData) {
-        profilesData.forEach((profile: any) => {
+        (profilesData as ProfileRow[]).forEach((profile) => {
           userProfiles.set(profile.user_id, {
             displayName: profile.display_name || null,
             avatarUrl: profile.avatar_url || null,
@@ -117,8 +127,7 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      // Ensure all users have an entry in the map
-      userIds.forEach(userId => {
+      userIds.forEach((userId) => {
         if (!userProfiles.has(userId)) {
           userProfiles.set(userId, {
             displayName: null,
@@ -129,8 +138,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Transform user data consistently across all endpoints
-    const processedData = reviewsData.map((review: any) => {
+    const processedData: ProcessedReview[] = reviewsRows.map((review) => {
       const profile = userProfiles.get(review.user_id) || { displayName: null, avatarUrl: null, userIdCode: null };
 
       return {
@@ -145,22 +153,25 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ reviews: processedData });
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
-    const body = await request.json();
-    const { restaurant_id, rating, comment, amount_spent } = body;
+    const body: Record<string, unknown> = await request.json();
+    const restaurant_id = body.restaurant_id as string | undefined;
+    const rating = body.rating as number | undefined;
+    const comment = body.comment as string | undefined;
+    const amount_spent = body.amount_spent as number | undefined;
 
     if (!restaurant_id || !rating) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -186,7 +197,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get current user
     if (!supabase) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
       return NextResponse.json(
@@ -205,7 +215,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already has a review for this restaurant
     const { data: existingReview, error: checkError } = await supabase
       .from('reviews')
       .select('id')
@@ -230,19 +239,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user's profile data from profiles table including user_id_code
     const { data: userProfile, error: profileError } = await supabase
       .from('profiles')
       .select('display_name, avatar_url, user_id_code')
       .eq('user_id', user.id)
       .single();
 
-    const userDisplayName = (!profileError && (userProfile as any)?.display_name) ? (userProfile as any).display_name : (user.email?.split('@')[0] || 'Anonymous User');
-    const userProfileImage = (!profileError && (userProfile as any)?.avatar_url) ? (userProfile as any).avatar_url : null;
-    const userUserIdCode = (!profileError && (userProfile as any)?.user_id_code) ? (userProfile as any).user_id_code : null;
+    const profileRow = userProfile as ProfileRow | null;
+    const userDisplayName = (!profileError && profileRow?.display_name)
+      ? profileRow.display_name
+      : (user.email?.split('@')[0] || 'Anonymous User');
+    const userProfileImage = (!profileError && profileRow?.avatar_url) ? profileRow.avatar_url : null;
+    const userUserIdCode = (!profileError && profileRow?.user_id_code) ? profileRow.user_id_code : null;
 
-    // Create the review
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (supabase as unknown as { from: (table: string) => { insert: (obj: Record<string, unknown>) => { select: (cols: string) => { single: () => Promise<{ data: ReviewRow | null; error: { code: string; message: string; details?: string; hint?: string } | null }> } } } })
       .from('reviews')
       .insert({
         restaurant_id,
@@ -264,12 +274,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update restaurant rating after successful review creation
     await updateRestaurantRating(restaurant_id);
 
-    // Transform user data using display_name from profiles table
-    const processedData = {
-      ...(data as any),
+    const reviewData = data as ReviewRow;
+    const processedData: ProcessedReview = {
+      ...reviewData,
       user: {
         id: user.id,
         name: userDisplayName,
@@ -279,12 +288,12 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json({ review: processedData }, { status: 201 });
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+    return NextResponse.json(
+      { error: getErrorMessage(errorType), code: errorType },
+      { status: 500 }
+    );
+  }
 }

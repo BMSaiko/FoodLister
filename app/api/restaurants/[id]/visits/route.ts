@@ -2,12 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import type { Database } from '@/libs/supabase/client';
+
+type UserRestaurantVisitRow = Database['public']['Tables']['user_restaurant_visits']['Row'];
+type UserRestaurantVisitUpdate = Database['public']['Tables']['user_restaurant_visits']['Update'];
+
+interface VisitResponse {
+  visited: boolean;
+  visit_count: number;
+}
+
+function visitRowToResponse(row: UserRestaurantVisitRow | null): VisitResponse {
+  return {
+    visited: row ? row.visited : false,
+    visit_count: row ? row.visit_count : 0,
+  };
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await getServerClient(request, undefined);
 
-    // Get authenticated user
     if (!supabase) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
@@ -21,8 +36,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const { id: restaurantId } = await params;
 
-    // Get the visit record for this user and restaurant
-    // Add explicit user_id filter for reliability
     const { data: visitData, error: visitError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
@@ -30,16 +43,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .eq('restaurant_id', restaurantId)
       .single();
 
-    if (visitError && visitError.code !== 'PGRST116') { // PGRST116 is "not found"
+    if (visitError && visitError.code !== 'PGRST116') {
       console.error('Error fetching visit data:', visitError);
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
-    return NextResponse.json({
-      visited: visitData ? (visitData as any).visited : false,
-      visit_count: visitData ? (visitData as any).visit_count : 0
-    });
+    return NextResponse.json(visitRowToResponse(visitData as UserRestaurantVisitRow | null));
   } catch (error) {
     console.error('Unexpected error:', error);
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
@@ -51,7 +61,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const supabase = await getServerClient(request, undefined);
 
-    // Get authenticated user
     if (!supabase) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
@@ -65,7 +74,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const { id: restaurantId } = await params;
 
-    // Check if visit record already exists
     const { data: existingVisit, error: checkError } = await supabase
       .from('user_restaurant_visits')
       .select('*')
@@ -73,19 +81,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .eq('restaurant_id', restaurantId)
       .single();
 
-    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
+    if (checkError && checkError.code !== 'PGRST116') {
       console.error('Error checking existing visit:', checkError);
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
 
-    if (existingVisit) {
-      // Update existing record
-      const { data: updatedVisit, error: updateError } = await (supabase as any)
+    const existingVisitRow = existingVisit as UserRestaurantVisitRow | null;
+
+    if (existingVisitRow) {
+      const { data: updatedVisit, error: updateError } = await supabase
         .from('user_restaurant_visits')
         .update({
           visited: true,
-          visit_count: (existingVisit as any).visit_count + 1,
+          visit_count: existingVisitRow.visit_count + 1,
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id)
@@ -99,13 +108,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
+      const updatedRow = updatedVisit as UserRestaurantVisitRow;
       return NextResponse.json({
         visited: true,
-        visit_count: (updatedVisit as any).visit_count
+        visit_count: updatedRow.visit_count
       });
     } else {
-      // Create new record with explicit user_id
-      const { data: newVisit, error: insertError } = await (supabase as any)
+      const { data: newVisit, error: insertError } = await supabase
         .from('user_restaurant_visits')
         .insert({
           user_id: user.id,
@@ -138,7 +147,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const supabase = await getServerClient(request, undefined);
 
-    // Get authenticated user
     if (!supabase) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
@@ -151,11 +159,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     const { id: restaurantId } = await params;
-    const body = await request.json();
-    const { action } = body;
+    const body: Record<string, unknown> = await request.json();
+    const action = body.action as string;
 
     if (action === 'toggle_visited') {
-      // Check if visit record exists
       const { data: existingVisit, error: checkError } = await supabase
         .from('user_restaurant_visits')
         .select('*')
@@ -163,30 +170,29 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         .eq('restaurant_id', restaurantId)
         .single();
 
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (checkError && checkError.code !== 'PGRST116') {
         console.error('Error checking existing visit:', checkError);
         const errorType = 'DATABASE_ERROR' as ApiErrorType;
         return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
-      if (existingVisit) {
-        // Update existing record - toggle visited status
-        const currentVisited = (existingVisit as any).visited;
-        const currentVisitCount = (existingVisit as any).visit_count;
+      const existingVisitRow = existingVisit as UserRestaurantVisitRow | null;
+
+      if (existingVisitRow) {
+        const currentVisited = existingVisitRow.visited;
+        const currentVisitCount = existingVisitRow.visit_count;
         const newVisitedStatus = !currentVisited;
 
-        // Prepare update data
-        const updateData: any = {
+        const updateData: UserRestaurantVisitUpdate = {
           visited: newVisitedStatus,
           updated_at: new Date().toISOString()
         };
 
-        // If marking as visited and visit_count is 0, set it to 1
         if (newVisitedStatus && currentVisitCount === 0) {
           updateData.visit_count = 1;
         }
 
-        const { data: updatedVisit, error: updateError } = await (supabase as any)
+        const { data: updatedVisit, error: updateError } = await supabase
           .from('user_restaurant_visits')
           .update(updateData)
           .eq('user_id', user.id)
@@ -200,13 +206,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
         }
 
+        const updatedRow = updatedVisit as UserRestaurantVisitRow;
         return NextResponse.json({
           visited: newVisitedStatus,
-          visit_count: (updatedVisit as any).visit_count
+          visit_count: updatedRow.visit_count
         });
       } else {
-        // Create new record with visited = true and explicit user_id
-        const { data: newVisit, error: insertError } = await (supabase as any)
+        const { data: newVisit, error: insertError } = await supabase
           .from('user_restaurant_visits')
           .insert({
             user_id: user.id,
@@ -231,7 +237,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     if (action === 'remove_visit') {
-      // Check if visit record exists
       const { data: existingVisit, error: checkError } = await supabase
         .from('user_restaurant_visits')
         .select('*')
@@ -239,25 +244,26 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         .eq('restaurant_id', restaurantId)
         .single();
 
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "not found"
+      if (checkError && checkError.code !== 'PGRST116') {
         console.error('Error checking existing visit:', checkError);
         const errorType = 'DATABASE_ERROR' as ApiErrorType;
         return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
       }
 
-      if (existingVisit) {
-        const currentVisitCount = (existingVisit as any).visit_count;
+      const existingVisitRow = existingVisit as UserRestaurantVisitRow | null;
 
-        // Only allow removing visit if count is greater than 0
+      if (existingVisitRow) {
+        const currentVisitCount = existingVisitRow.visit_count;
+
         if (currentVisitCount > 0) {
           const newVisitCount = currentVisitCount - 1;
           const shouldMarkUnvisited = newVisitCount === 0;
 
-          const { data: updatedVisit, error: updateError } = await (supabase as any)
+          const { data: updatedVisit, error: updateError } = await supabase
             .from('user_restaurant_visits')
             .update({
               visit_count: newVisitCount,
-              visited: shouldMarkUnvisited ? false : (existingVisit as any).visited,
+              visited: shouldMarkUnvisited ? false : existingVisitRow.visited,
               updated_at: new Date().toISOString()
             })
             .eq('user_id', user.id)
@@ -271,9 +277,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
           }
 
+          const updatedRow = updatedVisit as UserRestaurantVisitRow;
           return NextResponse.json({
-            visited: shouldMarkUnvisited ? false : (existingVisit as any).visited,
-            visit_count: newVisitCount
+            visited: shouldMarkUnvisited ? false : existingVisitRow.visited,
+            visit_count: updatedRow.visit_count
           });
         } else {
           const errorType = 'VALIDATION_ERROR' as ApiErrorType;

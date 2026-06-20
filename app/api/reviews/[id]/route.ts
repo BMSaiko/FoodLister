@@ -3,6 +3,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
 import { getServerClient } from '@/libs/supabase/server';
 import { ensureUserProfileExists } from '@/libs/auth';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/libs/supabase/client';
+
+type DbClient = SupabaseClient<Database>;
+type ReviewRow = Database['public']['Tables']['reviews']['Row'];
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+
+interface UserProfileData {
+  displayName: string | null;
+  avatarUrl: string | null;
+  email: string | null;
+  userIdCode: string | null;
+}
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(restaurantId: string) {
@@ -14,7 +27,6 @@ async function updateRestaurantRating(restaurantId: string) {
   }
 
   try {
-    // Calculate average rating from all reviews for this restaurant
     const { data: reviews, error: reviewsError } = await supabase
       .from('reviews')
       .select('rating')
@@ -27,12 +39,11 @@ async function updateRestaurantRating(restaurantId: string) {
 
     let averageRating = 0;
     if (reviews && reviews.length > 0) {
-      const totalRating = (reviews as any[]).reduce((sum, review) => sum + review.rating, 0);
+      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
       averageRating = totalRating / reviews.length;
     }
 
-    // Update the restaurant's rating
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('restaurants')
       .update({ rating: averageRating })
       .eq('id', restaurantId);
@@ -46,40 +57,38 @@ async function updateRestaurantRating(restaurantId: string) {
 }
 
 // Helper function to get user profile data consistently
-async function getUserProfileData(supabase: any, userId: string) {
+async function getUserProfileData(supabase: DbClient | null, userId: string): Promise<UserProfileData> {
   if (!supabase) {
     return { displayName: null, avatarUrl: null, email: null, userIdCode: null };
   }
 
   try {
-    // Get profile data including user_id_code
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('display_name, avatar_url, user_id_code')
       .eq('user_id', userId)
       .single();
 
-    // Get user email
     const { data: userData, error: userError } = await supabase
       .from('auth.users')
       .select('email')
       .eq('id', userId)
       .single();
 
-    const displayName = (!profileError && (profileData as any)?.display_name) 
-      ? (profileData as any).display_name 
+    const displayName = (!profileError && profileData !== null)
+      ? (profileData as ProfileRow).display_name
       : null;
-    
-    const avatarUrl = (!profileError && (profileData as any)?.avatar_url) 
-      ? (profileData as any).avatar_url 
+
+    const avatarUrl = (!profileError && profileData !== null)
+      ? (profileData as ProfileRow).avatar_url
       : null;
-    
-    const email = (!userError && (userData as any)?.email) 
-      ? (userData as any).email 
+
+    const email = (!userError && userData !== null)
+      ? (userData as { email: string }).email
       : null;
-    
-    const userIdCode = (!profileError && (profileData as any)?.user_id_code) 
-      ? (profileData as any).user_id_code 
+
+    const userIdCode = (!profileError && profileData !== null)
+      ? (profileData as ProfileRow).user_id_code
       : null;
 
     return { displayName, avatarUrl, email, userIdCode };
@@ -90,8 +99,7 @@ async function getUserProfileData(supabase: any, userId: string) {
 }
 
 // Helper function to transform review data with consistent user information
-function transformReviewData(review: any, userProfile: { displayName: string | null; avatarUrl: string | null; email: string | null; userIdCode: string | null }) {
-  // Check if review is null or undefined
+function transformReviewData(review: ReviewRow, userProfile: UserProfileData) {
   if (!review) {
     throw new Error('Review data is null or undefined');
   }
@@ -119,7 +127,11 @@ export async function GET(
     const supabase = await getServerClient(request, response);
     const { id: reviewId } = await params;
 
-    const { data, error } = await (supabase as any)
+    if (!supabase) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    const { data, error } = await supabase
       .from('reviews')
       .select(`
         *,
@@ -139,35 +151,32 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to fetch review' }, { status: 500 });
     }
 
-    // Check if data is null
     if (!data) {
       return NextResponse.json({ error: 'Review not found' }, { status: 404 });
     }
 
-    // Ensure profile exists for the user who wrote this review
+    const reviewData = data as ReviewRow;
+
     if (supabase) {
       try {
-        // Get user email for profile creation
         const { data: userData, error: userError } = await supabase
           .from('auth.users')
           .select('email')
-          .eq('id', (data as any).user_id)
+          .eq('id', reviewData.user_id)
           .single();
 
-        const userEmail = (!userError && (userData as any)?.email) ? (userData as any).email : null;
-        
-        // Ensure profile exists for this user
-        await ensureUserProfileExists(supabase, (data as any).user_id, userEmail);
-      } catch (error) {
-        console.error(`Error ensuring profile exists for user ${(data as any).user_id}:`, error);
+        const userEmail = (!userError && userData !== null)
+          ? (userData as { email: string }).email
+          : null;
+
+        await ensureUserProfileExists(supabase, reviewData.user_id, userEmail);
+      } catch (ensureError) {
+        console.error(`Error ensuring profile exists for user ${reviewData.user_id}:`, ensureError);
       }
     }
 
-    // Get user profile data consistently using the review's user_id
-    const userProfile = await getUserProfileData(supabase, (data as any).user_id);
-    
-    // Transform review data with consistent user information
-    const processedData = transformReviewData(data as any, userProfile);
+    const userProfile = await getUserProfileData(supabase, reviewData.user_id);
+    const processedData = transformReviewData(reviewData, userProfile);
 
     return NextResponse.json({ review: processedData });
   } catch (error) {
@@ -185,15 +194,17 @@ export async function PUT(
     const supabase = await getServerClient(request, response);
     const resolvedParams = await params;
     const reviewId = resolvedParams.id;
-    const body = await request.json();
-    
+    const body: Record<string, unknown> = await request.json();
+
     console.log('PUT review request:', {
       reviewId,
       body,
       timestamp: new Date().toISOString()
     });
 
-    const { rating, comment, amount_spent } = body;
+    const rating = body.rating as number | undefined;
+    const comment = body.comment as string | undefined;
+    const amount_spent = body.amount_spent as number | undefined;
 
     if (!rating) {
       return NextResponse.json({ error: 'Rating is required' }, { status: 400 });
@@ -213,7 +224,6 @@ export async function PUT(
       );
     }
 
-    // Get current user
     if (!supabase) {
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
@@ -224,8 +234,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    // Check if the review exists and belongs to the current user
-    const { data: existingReview, error: fetchError } = await (supabase as any)
+    const { data: existingReview, error: fetchError } = await supabase
       .from('reviews')
       .select('restaurant_id')
       .eq('id', reviewId)
@@ -236,8 +245,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Review not found or access denied' }, { status: 404 });
     }
 
-    // Update the review
-    const { data, error } = await (supabase as any)
+    const existingReviewData = existingReview as { restaurant_id: string };
+
+    const { data, error } = await supabase
       .from('reviews')
       .update({
         rating,
@@ -255,7 +265,6 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update review' }, { status: 500 });
     }
 
-    // Check if the update was successful and data is not null
     if (!data) {
       console.error('Review update returned null data');
       return NextResponse.json({ error: 'Failed to update review - no data returned' }, { status: 500 });
@@ -268,36 +277,31 @@ export async function PUT(
       timestamp: new Date().toISOString()
     });
 
-    // Update restaurant rating after successful review update
-    await updateRestaurantRating((existingReview as any).restaurant_id);
+    await updateRestaurantRating(existingReviewData.restaurant_id);
 
-    // Ensure profile exists for the authenticated user
     if (supabase) {
       try {
-        // Get user email for profile creation
         const { data: userData, error: userError } = await supabase
           .from('auth.users')
           .select('email')
           .eq('id', user.id)
           .single();
 
-        const userEmail = (!userError && (userData as any)?.email) ? (userData as any).email : null;
-        
-        // Ensure profile exists for this user
+        const userEmail = (!userError && userData !== null)
+          ? (userData as { email: string }).email
+          : null;
+
         await ensureUserProfileExists(supabase, user.id, userEmail);
-      } catch (error) {
-        console.error(`Error ensuring profile exists for user ${user.id}:`, error);
+      } catch (ensureError) {
+        console.error(`Error ensuring profile exists for user ${user.id}:`, ensureError);
       }
     }
 
-    // Get user profile data for the review's user (not necessarily the authenticated user)
-    const reviewUserProfile = await getUserProfileData(supabase, (data as any).user_id);
-    
-    // Transform review data with consistent user information
-    const processedData = transformReviewData(data as any, reviewUserProfile);
+    const updatedReviewData = data as ReviewRow;
+    const reviewUserProfile = await getUserProfileData(supabase, updatedReviewData.user_id);
+    const processedData = transformReviewData(updatedReviewData, reviewUserProfile);
 
-    // Return the updated review with fresh data
-    return NextResponse.json({ 
+    return NextResponse.json({
       review: processedData,
       message: 'Review updated successfully'
     });
@@ -317,7 +321,6 @@ export async function DELETE(
     const resolvedParams = await params;
     const reviewId = resolvedParams.id;
 
-    // Get current user
     if (!supabase) {
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
@@ -328,8 +331,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    // Check if the review exists and belongs to the current user
-    const { data: existingReview, error: fetchError } = await (supabase as any)
+    const { data: existingReview, error: fetchError } = await supabase
       .from('reviews')
       .select('restaurant_id')
       .eq('id', reviewId)
@@ -340,8 +342,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Review not found or access denied' }, { status: 404 });
     }
 
-    // Delete the review
-    const { error } = await (supabase as any)
+    const existingReviewData = existingReview as { restaurant_id: string };
+
+    const { error } = await supabase
       .from('reviews')
       .delete()
       .eq('id', reviewId)
@@ -352,9 +355,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Failed to delete review' }, { status: 500 });
     }
 
-    // Update restaurant rating after successful review deletion
     if (supabase) {
-      await updateRestaurantRating((existingReview as any).restaurant_id);
+      await updateRestaurantRating(existingReviewData.restaurant_id);
     }
 
     return NextResponse.json({ message: 'Review deleted successfully' });
