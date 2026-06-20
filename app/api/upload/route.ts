@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       imageBuffer = Buffer.from(arrayBuffer);
       mimeType = file.type;
 
-    } else if
+    } else if (contentType.includes('application/json')) {
       // Handle base64 uploads
 
       const body = await request.json();
@@ -71,7 +71,6 @@ export async function POST(request: NextRequest) {
       try {
         imageBuffer = Buffer.from(imageData, 'base64');
         mimeType = providedMimeType;
-        fileName = providedFileName || 'uploaded_image.jpg';
       } catch (conversionError) {
         console.error('Base64 conversion failed:', conversionError);
         return NextResponse.json(
