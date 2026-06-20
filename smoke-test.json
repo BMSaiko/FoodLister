@@ -1,4 +1,0 @@
-{
-  "name": "FoodLister Smoke Test",
-  "description": "Verifies /api/health and homepage respond correctly"
-}
