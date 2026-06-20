@@ -35,31 +35,31 @@ jest.mock('next/server', () => {
 
 const mockUser = { id: 'user-123', email: 'test@example.com' };
 
+const mockSearchResults = [
+  {
+    user_id: 'u1', user_id_code: 'FL000001', display_name: 'Test User',
+    avatar_url: null, location: 'Lisbon', bio: null, public_profile: true,
+    total_restaurants_visited: 5, total_reviews: 10, total_lists: 3,
+    created_at: '2024-01-01',
+  },
+];
+
 jest.mock('@/libs/supabase/server', () => ({
   getServerClient: jest.fn(async () => ({
     from: jest.fn(() => ({
-      select: jest.fn(() => ({
-        eq: jest.fn(() => ({
-          ilike: jest.fn(() => ({
-            gte: jest.fn(() => ({
-              lte: jest.fn(() => ({
-                range: jest.fn(() => Promise.resolve({
-                  data: [
-                    {
-                      user_id: 'u1', user_id_code: 'FL000001', display_name: 'Test User',
-                      avatar_url: null, location: 'Lisbon', bio: null, public_profile: true,
-                      total_restaurants_visited: 5, total_reviews: 10, total_lists: 3,
-                      created_at: '2024-01-01',
-                    },
-                  ],
-                  error: null,
-                  count: 1,
-                })),
-              })),
-            })),
-          })),
-        })),
-      })),
+      select: jest.fn(() => {
+        const chain: Record<string, jest.Mock> = {};
+        chain.eq = jest.fn(() => chain);
+        chain.ilike = jest.fn(() => chain);
+        chain.gte = jest.fn(() => chain);
+        chain.lte = jest.fn(() => chain);
+        chain.range = jest.fn(() => Promise.resolve({
+          data: mockSearchResults,
+          error: null,
+          count: 1,
+        }));
+        return chain;
+      }),
     })),
     auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
   })),
