@@ -4,9 +4,6 @@ import { createServerClient } from '@supabase/ssr';
 // Routes that require admin access
 const ADMIN_ROUTES = ['/admin'];
 
-// Routes that are public (no auth required)
-const PUBLIC_ROUTES = ['/', '/auth', '/api/health'];
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -36,12 +33,6 @@ export async function middleware(request: NextRequest) {
       },
     },
   });
-
-  // API routes handle their own auth/admin checks internally — skip middleware
-  const isApiRoute = pathname.startsWith('/api');
-  if (isApiRoute) {
-    return response;
-  }
 
   // Refresh session
   const { data: { session } } = await supabase.auth.getSession();
@@ -78,14 +69,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico (favicon)
-     * - public assets (svg, png, etc.)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Match all paths EXCEPT:
+    // - _next/static, _next/image, favicon.ico, static assets
+    // - /api/* (API routes handle their own auth)
+    '/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
-
