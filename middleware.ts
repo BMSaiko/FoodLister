@@ -37,14 +37,14 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Refresh session
-  const { data: { session } } = await supabase.auth.getSession();
-
   // API routes handle their own auth/admin checks internally — skip middleware
   const isApiRoute = pathname.startsWith('/api');
   if (isApiRoute) {
     return response;
   }
+
+  // Refresh session
+  const { data: { session } } = await supabase.auth.getSession();
 
   // Check if route requires admin access
   const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
