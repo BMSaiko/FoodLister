@@ -142,7 +142,9 @@ function SignInForm() {
                       autoComplete="email"
                       required
                       aria-required="true"
-                      className="appearance-none relative block w-full pl-12 pr-4 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px]"
+                      disabled={isLoading}
+                      aria-busy={isLoading}
+                      className="appearance-none relative block w-full pl-12 pr-4 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Endereço de email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -167,7 +169,9 @@ function SignInForm() {
                       autoComplete="current-password"
                       required
                       aria-required="true"
-                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px]"
+                      disabled={isLoading}
+                      aria-busy={isLoading}
+                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-input-border placeholder-foreground-muted text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary bg-white/50 backdrop-blur-sm transition-all duration-200 min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Sua senha"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -208,6 +212,7 @@ function SignInForm() {
                 <button
                   type="submit"
                   disabled={isLoading}
+                  aria-busy={isLoading}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 min-h-[48px]"
                   aria-label={isLoading ? 'A entrar...' : 'Entrar'}
                 >

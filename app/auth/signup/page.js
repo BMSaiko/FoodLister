@@ -114,7 +114,9 @@ export default function SignUpPage() {
                       type="email"
                       autoComplete="email"
                       required
-                      className="appearance-none relative block w-full pl-12 pr-4 py-3 border border-[var(--primary-light)] placeholder-[var(--primary-light)] text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-white/50 backdrop-blur-sm transition-all duration-200"
+                      disabled={isLoading}
+                      aria-busy={isLoading}
+                      className="appearance-none relative block w-full pl-12 pr-4 py-3 border border-[var(--primary-light)] placeholder-[var(--primary-light)] text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-white/50 backdrop-blur-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Endereço de email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -135,7 +137,9 @@ export default function SignUpPage() {
                       type={showPassword ? 'text' : 'password'}
                       autoComplete="new-password"
                       required
-                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-[var(--primary-light)] placeholder-[var(--primary-light)] text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-white/50 backdrop-blur-sm transition-all duration-200"
+                      disabled={isLoading}
+                      aria-busy={isLoading}
+                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-[var(--primary-light)] placeholder-[var(--primary-light)] text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-white/50 backdrop-blur-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Senha forte"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -169,7 +173,9 @@ export default function SignUpPage() {
                       type={showConfirmPassword ? 'text' : 'password'}
                       autoComplete="new-password"
                       required
-                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-[var(--primary-light)] placeholder-[var(--primary-light)] text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-white/50 backdrop-blur-sm transition-all duration-200"
+                      disabled={isLoading}
+                      aria-busy={isLoading}
+                      className="appearance-none relative block w-full pl-12 pr-12 py-3 border border-[var(--primary-light)] placeholder-[var(--primary-light)] text-foreground rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-white/50 backdrop-blur-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       placeholder="Confirmar senha"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
@@ -195,6 +201,7 @@ export default function SignUpPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
+                  aria-busy={isLoading}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-[var(--primary)] to-[var(--primary-hover)] hover:from-[var(--primary-hover)] hover:to-[var(--primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
                 >
                   {isLoading ? (
