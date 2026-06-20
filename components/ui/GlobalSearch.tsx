@@ -178,11 +178,11 @@ export default function GlobalSearch() {
 
   // Group results by type
   const groupedResults: GroupedResults[] = results.length > 0
-    ? [
-        { type: 'restaurant', label: 'Restaurantes', results: results.filter(r => r.type === 'restaurant') },
-        { type: 'list', label: 'Listas', results: results.filter(r => r.type === 'list') },
-        { type: 'user', label: 'Utilizadores', results: results.filter(r => r.type === 'user') },
-      ].filter(g => g.results.length > 0)
+    ? ([
+        { type: 'restaurant' as const, label: 'Restaurantes', results: results.filter(r => r.type === 'restaurant') },
+        { type: 'list' as const, label: 'Listas', results: results.filter(r => r.type === 'list') },
+        { type: 'user' as const, label: 'Utilizadores', results: results.filter(r => r.type === 'user') },
+      ] as GroupedResults[]).filter(g => g.results.length > 0)
     : [];
 
   if (!isOpen) return null;

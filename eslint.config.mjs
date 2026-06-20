@@ -18,6 +18,8 @@ export default [// Ignore build output and other generated files
     "agents/**",
     "instructions/**",
     "**/[id]/**",
+    "public/workbox-*.js",
+    "public/sw.js",
   ],
 }, {
   files: ["scripts/**/*.js"],

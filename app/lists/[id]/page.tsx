@@ -282,12 +282,13 @@ export default function ListDetails() {
               {Array(3).fill(0).map((_, index) => (
                 <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
               ))}
+            </div>
 
-
-          {/* Activity Feed */}
-          <div className="mt-6 sm:mt-8 bg-white p-4 sm:p-6 rounded-lg shadow-md">
-            <ListActivityFeed listId={id as string} />
-          </div></div>
+            {/* Activity Feed */}
+            <div className="mt-6 sm:mt-8 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+              <ListActivityFeed listId={id as string} />
+            </div>
+          </div>
         </div>
       </ErrorBoundary>
     );
@@ -311,8 +312,8 @@ export default function ListDetails() {
 
   return (
     <ErrorBoundary pageName="ListDetails">
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
       
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-6">
