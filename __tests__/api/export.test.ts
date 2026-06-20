@@ -3,7 +3,7 @@
  */
 
 jest.mock('next/server', () => {
-  const MockNextRequest = class {
+  class MockNextRequest {
     public method: string;
     public nextUrl: URL;
     public url: string;
@@ -15,16 +15,27 @@ jest.mock('next/server', () => {
       this.method = 'GET';
       this.headers = new Map();
     }
-  };
+  }
+  class MockNextResponse {
+    public status: number;
+    public headers: Record<string, string>;
+    public body: unknown;
+    constructor(body: unknown, init?: { status?: number; headers?: Record<string, string> }) {
+      this.body = body;
+      this.status = init?.status ?? 200;
+      this.headers = init?.headers ?? {};
+    }
+    json() {
+      return Promise.resolve(this.body);
+    }
+    static json(body: unknown, init?: { status?: number }) {
+      const res = new MockNextResponse(body, { status: init?.status ?? 200 });
+      return res;
+    }
+  }
   return {
     NextRequest: MockNextRequest,
-    NextResponse: {
-      json: (body: unknown, init?: { status?: number }) => ({
-        status: init?.status ?? 200,
-        json: () => Promise.resolve(body),
-      }),
-      next: () => ({ headers: new Map() }),
-    },
+    NextResponse: MockNextResponse,
   };
 });
 

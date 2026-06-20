@@ -58,7 +58,7 @@ describe('GlobalSearch', () => {
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByLabelText(/pesquisa global/i)).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Pesquisa global');
   });
 
   it('renders search input with correct aria attributes', () => {
@@ -125,7 +125,7 @@ describe('GlobalSearch', () => {
 
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
 
-    const input = screen.getByLabelText(/pesquisa global/i);
+    const input = screen.getByPlaceholderText(/pesquisar restaurantes, listas, utilizadores/i);
     fireEvent.change(input, { target: { value: 'xyznonexistent' } });
 
     await waitFor(() => {
