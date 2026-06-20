@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
 
 interface MapModalData {
   location: string;
@@ -41,6 +41,27 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     setIsMapModalOpen(false);
     setMapModalData(null);
   }, []);
+
+  // Set aria-hidden on main content when modal is open
+  useEffect(() => {
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+      if (isMapModalOpen) {
+        mainContent.setAttribute('aria-hidden', 'true');
+        mainContent.setAttribute('inert', '');
+      } else {
+        mainContent.removeAttribute('aria-hidden');
+        mainContent.removeAttribute('inert');
+      }
+    }
+    return () => {
+      const main = document.querySelector('main');
+      if (main) {
+        main.removeAttribute('aria-hidden');
+        main.removeAttribute('inert');
+      }
+    };
+  }, [isMapModalOpen]);
 
   const value = {
     isMapModalOpen,

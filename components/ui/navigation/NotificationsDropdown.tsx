@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Bell, X, Check, Trash2, Utensils, Loader2 } from 'lucide-react';
@@ -11,6 +11,8 @@ export default function NotificationsDropdown() {
   const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const bellButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -22,6 +24,28 @@ export default function NotificationsDropdown() {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Keyboard navigation for dropdown
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsOpen(false);
+      bellButtonRef.current?.focus();
+    }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      if (!items || items.length === 0) return;
+      const currentIndex = Array.from(items).indexOf(document.activeElement as HTMLElement);
+      let nextIndex: number;
+      if (e.key === 'ArrowDown') {
+        nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+      } else {
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+      }
+      items[nextIndex]?.focus();
+    }
   }, []);
 
   const handleNotificationClick = async (notification: Notification) => {
@@ -49,7 +73,7 @@ export default function NotificationsDropdown() {
     switch (type) {
       case 'meal_invitation':
         return <Utensils className="h-4 w-4 text-[var(--amber-600)]" />;
-       default:
+      default:
         return <Bell className="h-4 w-4 text-[var(--gray-600)]" />;
     }
   };
@@ -70,14 +94,17 @@ export default function NotificationsDropdown() {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef} onKeyDown={handleKeyDown}>
       <button
+        ref={bellButtonRef}
         onClick={() => {
           setIsOpen(!isOpen);
           if (!isOpen) fetchNotifications(true);
         }}
         className="relative p-2 text-[var(--gray-600)] hover:text-[var(--amber-600)] hover:bg-[var(--gray-100)] rounded-lg transition-colors"
-        aria-label="Notificações"
+        aria-label={`Notificações${unreadCount > 0 ? `, ${unreadCount} não lidas` : ''}`}
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
@@ -90,25 +117,31 @@ export default function NotificationsDropdown() {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow-lg)] border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
+          <div
+            ref={menuRef}
+            className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow-lg)] border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200"
+            role="menu"
+            aria-label="Notificações"
+          >
             {/* Header */}
-              <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] px-4 py-3 border-b border-[var(--gray-100)]">
+            <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] px-4 py-3 border-b border-[var(--gray-100)]">
               <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-[var(--gray-900)]">Notificações</h3>
+                <h3 className="font-semibold text-[var(--gray-900)]">Notificações</h3>
                 {unreadCount > 0 && (
-                    <button
-                      onClick={handleMarkAllRead}
-                      className="text-xs text-[var(--amber-600)] hover:text-[var(--amber-700)] flex items-center gap-1"
-                    >
-                      <Check className="h-3 w-3" />
-                      Marcar todas como lidas
-                    </button>
+                  <button
+                    onClick={handleMarkAllRead}
+                    className="text-xs text-[var(--amber-600)] hover:text-[var(--amber-700)] flex items-center gap-1"
+                    role="menuitem"
+                  >
+                    <Check className="h-3 w-3" />
+                    Marcar todas como lidas
+                  </button>
                 )}
               </div>
             </div>
 
             {/* Notifications List */}
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-80 overflow-y-auto" role="presentation" aria-live="polite" aria-relevant="additions removals">
               {loading && notifications.length === 0 ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 text-[var(--amber-500)] animate-spin" />
@@ -122,8 +155,16 @@ export default function NotificationsDropdown() {
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
+                    role="menuitem"
+                    tabIndex={0}
                     onClick={() => handleNotificationClick(notification)}
-                    className={`flex items-start gap-3 px-4 py-3 border-b border-[var(--gray-100)] cursor-pointer transition-colors ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleNotificationClick(notification);
+                      }
+                    }}
+                    className={`flex items-start gap-3 px-4 py-3 border-b border-[var(--gray-100)] cursor-pointer transition-colors focus:outline-none focus:bg-[var(--amber-50)] ${
                       notification.read ? 'bg-[var(--card-bg)]' : 'bg-[rgba(var(--amber-50),0.5)]'
                     } hover:bg-[var(--gray-50)] ${notification.link ? 'hover:bg-[var(--amber-50)]' : ''}`}
                   >
@@ -147,6 +188,8 @@ export default function NotificationsDropdown() {
                     <button
                       onClick={(e) => handleDelete(e, notification.id)}
                       className="flex-shrink-0 p-1 text-[var(--gray-400)] hover:text-[var(--red-500)] transition-colors"
+                      aria-label="Apagar notificação"
+                      title="Apagar notificação"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -156,7 +199,7 @@ export default function NotificationsDropdown() {
             </div>
 
             {/* Footer */}
-              <div className="px-4 py-2 border-t border-[var(--gray-100)] bg-[var(--gray-50)]">
+            <div className="px-4 py-2 border-t border-[var(--gray-100)] bg-[var(--gray-50)]">
               <Link
                 href="/notifications"
                 onClick={() => setIsOpen(false)}

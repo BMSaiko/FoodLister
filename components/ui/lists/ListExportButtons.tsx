@@ -22,12 +22,13 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
   };
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Opções de exportação">
       <button
         type="button"
         onClick={() => handleExport('json', exportListAsJSON)}
         className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--blue-600)] hover:bg-[var(--blue-700)] text-white rounded-lg transition-colors text-sm"
         title="Exportar como JSON"
+        aria-label="Exportar lista como JSON"
       >
         <FileJson className="h-4 w-4" />
         <span className="hidden sm:inline">JSON</span>
@@ -38,6 +39,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
         onClick={() => handleExport('csv', exportListAsCSV)}
         className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--green-600)] hover:bg-[var(--green-700)] text-white rounded-lg transition-colors text-sm"
         title="Exportar como CSV"
+        aria-label="Exportar lista como CSV"
       >
         <FileSpreadsheet className="h-4 w-4" />
         <span className="hidden sm:inline">CSV</span>
@@ -48,6 +50,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
         onClick={() => handleExport('pdf', exportListAsPDF)}
         className="inline-flex items-center gap-2 px-3 py-2 bg-[var(--purple-600)] hover:bg-[var(--purple-700)] text-white rounded-lg transition-colors text-sm"
         title="Exportar como PDF"
+        aria-label="Exportar lista como PDF (HTML)"
       >
         <FileText className="h-4 w-4" />
         <span className="hidden sm:inline">PDF</span>

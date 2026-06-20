@@ -49,9 +49,9 @@ const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="relative w-full">
+    <form onSubmit={handleSearch} className="relative w-full" role="search" aria-label="Pesquisa">
       <input
-        type="search" // Use search type for better mobile UX
+        type="search"
         placeholder={`Procurar ${searchType === 'restaurants' ? 'restaurantes' : 'listas'}...`}
         value={query}
         onChange={handleInputChange}
@@ -62,7 +62,12 @@ const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck="false"
+        aria-label={`Procurar ${searchType === 'restaurants' ? 'restaurantes' : 'listas'}`}
+        aria-describedby="search-hint"
       />
+      <span id="search-hint" className="sr-only">
+        Pressione Enter para pesquisar. Use Cmd+K para pesquisa global.
+      </span>
       
       {/* Submit Button */}
       <button 

@@ -1,7 +1,7 @@
 // components/layouts/Navbar.tsx (versão responsiva)
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import SearchBar from './Searchbar';
@@ -29,6 +29,47 @@ const Navbar = ({ clearFilters = null }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const userMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Keyboard navigation for user dropdown
+  const handleUserMenuKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setUserMenuOpen(false);
+      userMenuButtonRef.current?.focus();
+    }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const items = userMenuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      if (!items || items.length === 0) return;
+      const currentIndex = Array.from(items).indexOf(document.activeElement as HTMLElement);
+      let nextIndex: number;
+      if (e.key === 'ArrowDown') {
+        nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+      } else {
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+      }
+      items[nextIndex]?.focus();
+    }
+  }, []);
+
+  // Focus trap: keep Tab within dropdown when open
+  const handleUserMenuTab = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Tab' && userMenuOpen) {
+      const items = userMenuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      if (!items || items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, [userMenuOpen]);
   
   // Fetch user profile data when user changes
   useEffect(() => {
@@ -153,14 +194,15 @@ const Navbar = ({ clearFilters = null }) => {
 
           {/* Menu do usuário (apenas se logado) */}
           {user && !loading && (
-            <div className="relative">
+            <div className="relative" onKeyDown={handleUserMenuKeyDown}>
               <button
+                ref={userMenuButtonRef}
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
                 className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[40px]"
-                title="Menu do usuário"
-                aria-label="Menu do usuário"
+                title="Menu do usuário (⌘K pesquisa)"
+                aria-label={`Menu do usuário${userProfile?.display_name ? ', ' + userProfile.display_name : ''}`}
                 aria-expanded={userMenuOpen}
-                aria-haspopup="true"
+                aria-haspopup="menu"
               >
                   <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
                     {userProfile?.avatar_url ? (
@@ -186,7 +228,13 @@ const Navbar = ({ clearFilters = null }) => {
                       className="fixed inset-0 z-10"
                       onClick={() => setUserMenuOpen(false)}
                     />
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-xl border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
+                    <div
+                      ref={userMenuRef}
+                      className="absolute right-0 top-full mt-2 w-64 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-xl border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200"
+                      role="menu"
+                      aria-label="Opções do utilizador"
+                      onKeyDown={handleUserMenuTab}
+                    >
                       {/* Header com avatar e informações */}
                       <div className="bg-gradient-to-r from-[var(--primary-50)] to-[var(--orange-50)] px-4 py-4 border-b border-[var(--gray-100)]">
                         <div className="flex items-center gap-3">
@@ -220,6 +268,8 @@ const Navbar = ({ clearFilters = null }) => {
                           href={`/users/${userProfile?.user_id_code || user.id}`}
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                          role="menuitem"
+                          tabIndex={0}
                           aria-label="Meu Perfil"
                         >
                           <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
@@ -239,6 +289,8 @@ const Navbar = ({ clearFilters = null }) => {
                           href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                          role="menuitem"
+                          tabIndex={0}
                           aria-label="Configurações"
                         >
                           <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
@@ -255,6 +307,8 @@ const Navbar = ({ clearFilters = null }) => {
                             router.push('/');
                           }}
                           className="flex items-center gap-4 w-full px-4 py-3 text-sm text-[var(--error)] hover:bg-[var(--error-light)] hover:text-[var(--error)] transition-colors active:bg-[var(--error-light)]"
+                          role="menuitem"
+                          tabIndex={0}
                           aria-label="Sair da conta"
                         >
                           <div className="w-8 h-8 rounded-lg bg-[var(--error-light)] flex items-center justify-center flex-shrink-0">
@@ -304,6 +358,9 @@ const Navbar = ({ clearFilters = null }) => {
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                    className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[44px]"
                   title="Menu do usuário"
+                  aria-label="Menu do usuário"
+                  aria-expanded={userMenuOpen}
+                  aria-haspopup="menu"
                 >
                   <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
                     {userProfile?.avatar_url ? (
