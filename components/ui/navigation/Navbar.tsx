@@ -163,7 +163,7 @@ const Navbar = ({ clearFilters = null }) => {
             </div>
             
             {/* Barra de pesquisa */}
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md" title="Pesquisa (⌘K)">
               <SearchBar searchType={activeSection} />
             </div>
           </div>

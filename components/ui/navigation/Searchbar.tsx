@@ -86,6 +86,12 @@ const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
           <Search className="h-4 w-4 sm:h-5 sm:w-5" />
         )}
       </button>
+
+      {/* ⌘K shortcut indicator */}
+      <div className="absolute right-12 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 pointer-events-none" aria-hidden="true">
+        <kbd className="px-1.5 py-0.5 rounded bg-[var(--background-secondary)] border border-[var(--gray-200)] text-[var(--foreground-muted)] font-mono text-[10px] leading-none">⌘</kbd>
+        <kbd className="px-1.5 py-0.5 rounded bg-[var(--background-secondary)] border border-[var(--gray-200)] text-[var(--foreground-muted)] font-mono text-[10px] leading-none">K</kbd>
+      </div>
     </form>
   );
 };
