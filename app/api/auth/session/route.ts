@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
-import { logSessionStart, logSessionExpired, logTokenError, logAuthError } from '@/utils/authLogger';
+import { logSessionStart, logTokenError, logAuthError } from '@/utils/authLogger';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 
