@@ -39,7 +39,26 @@ jobs:
       - name: Deploy to Vercel Preview
         run: |
           DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "PREVIEW_URL=$DEPLOY_URL" >> $GITHUB_ENV
           echo "Preview URL: $DEPLOY_URL"
+
+      - name: Smoke Test Preview
+        run: |
+          echo "Running smoke test on ${{ env.PREVIEW_URL }}"
+          # Wait for deployment to be ready
+          sleep 15
+          # Test homepage returns 200
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PREVIEW_URL }}")
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Smoke test failed: homepage returned $STATUS"
+            exit 1
+          fi
+          # Test API health endpoint
+          API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PREVIEW_URL }}/api/health" || echo "404")
+          if [ "$API_STATUS" != "200" ] && [ "$API_STATUS" != "404" ]; then
+            echo "⚠️ API health check returned $API_STATUS (non-critical)"
+          fi
+          echo "✅ Smoke test passed!"
 
   deploy-production:
     name: Deploy Production
@@ -70,4 +89,16 @@ jobs:
       - name: Deploy to Vercel Production
         run: |
           DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "PROD_URL=$DEPLOY_URL" >> $GITHUB_ENV
           echo "Production URL: $DEPLOY_URL"
+
+      - name: Smoke Test Production
+        run: |
+          echo "Running smoke test on production..."
+          sleep 15
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ env.PROD_URL }}")
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Production smoke test failed: returned $STATUS"
+            exit 1
+          fi
+          echo "✅ Production smoke test passed!"

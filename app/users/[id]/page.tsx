@@ -145,12 +145,8 @@ const UserProfilePage = () => {
     }
   }, [searchParams]);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/signin');
-    }
-  }, [user, authLoading, router]);
+  // NOTE: No redirect here — profiles are publicly viewable.
+  // Action buttons (edit/delete) are gated by isOwnProfile checks below.
 
   // Check if user is trying to access their own profile
   const isOwnProfile = user && userId === user.id;

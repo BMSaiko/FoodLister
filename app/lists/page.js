@@ -10,6 +10,7 @@ import { Plus, Search as SearchIcon, ListChecks } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import Skeleton from '@/components/ui/Skeleton';
 
 // Component to handle the search params logic
 function ListsContent() {
@@ -133,13 +134,7 @@ function ListsContent() {
 
 // Loading fallback for Suspense
 function ListsLoading() {
-  return (
-    <div className="grid-responsive">
-      {Array(6).fill(0).map((_, index) => (
-        <div key={index} className="card h-48 skeleton" />
-      ))}
-    </div>
-  );
+  return <Skeleton variant="list-card" count={6} />;
 }
 
 // Main component with Suspense

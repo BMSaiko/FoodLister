@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
 import { useVisitsData } from '@/hooks/data/useVisitsData';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import Skeleton from '@/components/ui/Skeleton';
 import ListStatistics from '@/components/ui/lists/ListStatistics';
 import ListComments from '@/components/ui/lists/ListComments';
 import ListExportButtons from '@/components/ui/lists/ListExportButtons';
@@ -278,16 +279,8 @@ export default function ListDetails() {
 
           <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
             <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array(3).fill(0).map((_, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-md h-72 animate-pulse" />
-              ))}
-
-
-          {/* Activity Feed */}
-          <div className="mt-6 sm:mt-8 bg-white p-4 sm:p-6 rounded-lg shadow-md">
-            <ListActivityFeed listId={id as string} />
-          </div></div>
+            <Skeleton variant="restaurant-card" count={3} />
+          </div>
         </div>
       </ErrorBoundary>
     );

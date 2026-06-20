@@ -4,8 +4,7 @@ import {
   validateProfileAccess, 
   getUserProfileData, 
   getUserReviewsData, 
-  getUserListsData,
-  ensureUserProfileExists
+  getUserListsData
 } from '@/libs/auth';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
