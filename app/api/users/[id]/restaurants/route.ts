@@ -66,21 +66,13 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
           rating,
           location,
           source_url,
-          creator_id,
+          creator,
           menu_url,
           visited,
           phone_numbers,
+          creator_id,
+          creator_name,
           created_at,
-          updated_at,
-          images,
-          display_image_index,
-          menu_links,
-          menu_images,
-          latitude,
-          longitude,
-          cuisine_types,
-          dietary_options,
-          features,
           profiles!restaurants_creator_id_fkey(display_name)
         `)
         .eq('creator_id', targetUserId)
@@ -178,23 +170,14 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       rating: row.rating,
       location: row.location,
       sourceUrl: row.source_url,
-      creator: row.profiles?.display_name || row.creator,
+      creator: row.creator,
       menuUrl: row.menu_url,
       visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
       creatorName: row.profiles?.display_name || row.creator_name,
       createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      images: row.images,
-      displayImageIndex: row.display_image_index,
-      menuLinks: row.menu_links,
-      menuImages: row.menu_images,
-      latitude: row.latitude,
-      longitude: row.longitude,
-      cuisineTypes: row.cuisine_types || [],
-      dietaryOptions: row.dietary_options || [],
-      features: row.features || []
+      updatedAt: row.updated_at
     }));
 
     return NextResponse.json({
@@ -319,21 +302,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           rating,
           location,
           source_url,
-          creator_id,
+          creator,
           menu_url,
           visited,
           phone_numbers,
+          creator_id,
+          creator_name,
           created_at,
-          updated_at,
-          images,
-          display_image_index,
-          menu_links,
-          menu_images,
-          latitude,
-          longitude,
-          cuisine_types,
-          dietary_options,
-          features,
           profiles!restaurants_creator_id_fkey(display_name)
         `)
         .eq('creator_id', targetUserId)
@@ -431,23 +406,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       rating: row.rating,
       location: row.location,
       sourceUrl: row.source_url,
-      creator: row.profiles?.display_name || row.creator,
+      creator: row.creator,
       menuUrl: row.menu_url,
       visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
       creatorName: row.profiles?.display_name || row.creator_name,
       createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      images: row.images,
-      displayImageIndex: row.display_image_index,
-      menuLinks: row.menu_links,
-      menuImages: row.menu_images,
-      latitude: row.latitude,
-      longitude: row.longitude,
-      cuisineTypes: row.cuisine_types || [],
-      dietaryOptions: row.dietary_options || [],
-      features: row.features || []
+      updatedAt: row.updated_at
     }));
 
     return NextResponse.json({
