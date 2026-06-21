@@ -132,7 +132,10 @@ const ProfileSettingsPage = () => {
 
     try {
       const imageUrl = await uploadImage(file);
-      // Update profile with new image
+      // Update profile with new image + update local state immediately
+      if (localProfile) {
+        setLocalProfile({ ...localProfile, profileImage: imageUrl });
+      }
       await saveProfile({ profileImage: imageUrl });
     } catch (error) {
       console.error('Error uploading image:', error);
