@@ -3,7 +3,8 @@ import { toast } from 'react-toastify';
 
 interface UserProfile {
   id: string;
-  userIdCode: string;
+  userId?: string;
+  userIdCode?: string;
   name: string;
   profileImage?: string;
   location?: string;
@@ -13,16 +14,20 @@ interface UserProfile {
   publicProfile: boolean;
   createdAt: string;
   updatedAt: string;
-  stats: {
+  totalRestaurantsVisited?: number;
+  totalReviews?: number;
+  totalLists?: number;
+  joinedDate?: string;
+  stats?: {
     totalRestaurantsVisited: number;
     totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;
     joinedDate: string;
   };
-  recentReviews: any[];
-  recentLists: any[];
-  isOwnProfile: boolean;
+  recentReviews?: any[];
+  recentLists?: any[];
+  isOwnProfile?: boolean;
 }
 
 interface UseSettingsResult {

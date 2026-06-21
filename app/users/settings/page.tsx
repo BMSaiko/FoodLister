@@ -36,7 +36,8 @@ interface FormErrors {
 
 interface UserProfile {
   id: string;
-  userIdCode: string;
+  userId?: string;
+  userIdCode?: string;
   name: string;
   profileImage?: string;
   location?: string;
@@ -46,16 +47,20 @@ interface UserProfile {
   publicProfile: boolean;
   createdAt: string;
   updatedAt: string;
-  stats: {
+  totalRestaurantsVisited?: number;
+  totalReviews?: number;
+  totalLists?: number;
+  joinedDate?: string;
+  stats?: {
     totalRestaurantsVisited: number;
     totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;
     joinedDate: string;
   };
-  recentReviews: any[];
-  recentLists: any[];
-  isOwnProfile: boolean;
+  recentReviews?: any[];
+  recentLists?: any[];
+  isOwnProfile?: boolean;
 }
 
 const ProfileSettingsPage = () => {
@@ -110,11 +115,11 @@ const ProfileSettingsPage = () => {
 
     try {
       const success = await saveProfile({
-        publicProfile: !profile.publicProfile
+        publicProfile: !localProfile?.publicProfile
       });
       
       if (success) {
-        toast.success(profile.publicProfile ? 'Perfil agora é privado!' : 'Perfil agora é público!');
+        toast.success(localProfile?.publicProfile ? 'Perfil agora é privado!' : 'Perfil agora é público!');
       }
     } catch (error) {
       toast.error('Erro ao atualizar privacidade do perfil');
@@ -137,19 +142,19 @@ const ProfileSettingsPage = () => {
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
 
-    if (!profile?.name || profile.name.trim() === '') {
+    if (!localProfile?.name || localProfile.name.trim() === '') {
       errors.display_name = 'Nome de exibição é obrigatório';
     }
 
-    if (profile?.website && profile.website.trim() !== '') {
+    if (localProfile?.website && localProfile.website.trim() !== '') {
       try {
-        new URL(profile.website);
+        new URL(localProfile.website);
       } catch {
         errors.website = 'Formato de URL do website inválido';
       }
     }
 
-    if (profile?.bio && profile.bio.length > 500) {
+    if (localProfile?.bio && localProfile.bio.length > 500) {
       errors.bio = 'A biografia deve ter no máximo 500 caracteres';
     }
 
@@ -168,7 +173,7 @@ const ProfileSettingsPage = () => {
     setIsSubmitting(true);
 
     try {
-      const profileToSave = localProfile || profile;
+      const profileToSave = localProfile;
       const success = await saveProfile({
         name: profileToSave?.name || '',
         bio: profileToSave?.bio || '',
@@ -265,7 +270,7 @@ const ProfileSettingsPage = () => {
             {/* Ver Perfil Público button - Desktop Only */}
             <div className="hidden md:block">
               <Link 
-                href={`/users/${profile.userIdCode}`}
+                href={`/users/${localProfile?.userIdCode}`}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <Eye className="h-4 w-4" />
@@ -280,10 +285,10 @@ const ProfileSettingsPage = () => {
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="lg:w-32 lg:h-32 w-24 h-24 relative flex-shrink-0">
               <div className="w-full h-full rounded-full bg-gradient-to-br from-amber-400 to-orange-400 shadow-xl flex items-center justify-center overflow-hidden ring-4 ring-white">
-                {profile.profileImage ? (
+                {localProfile?.profileImage ? (
                   <img
-                    src={profile.profileImage}
-                    alt={profile.name}
+                    src={localProfile?.profileImage}
+                    alt={localProfile?.name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -302,12 +307,12 @@ const ProfileSettingsPage = () => {
             </div>
             
             <div className="flex-1">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{profile.name}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{localProfile?.name}</h2>
               <p className="text-gray-600 mt-1 text-sm sm:text-base">{user.email}</p>
               <div className="flex flex-wrap gap-2 mt-3">
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm bg-amber-100 text-amber-800">
                   <User className="h-4 w-4 mr-1.5" />
-                  {profile.userIdCode}
+                  {localProfile?.userIdCode}
                 </span>
                 <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm bg-green-100 text-green-800">
                   <CheckCircle className="h-4 w-4 mr-1.5" />
@@ -331,7 +336,7 @@ const ProfileSettingsPage = () => {
                 </label>
                 <input
                   type="text"
-                  value={profile.name || ''}
+                  value={localProfile?.name || ''}
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   disabled={isSubmitting}
                   aria-busy={isSubmitting}
@@ -369,7 +374,7 @@ const ProfileSettingsPage = () => {
                 </label>
                 <input
                   type="tel"
-                  value={profile.phoneNumber || ''}
+                  value={localProfile?.phoneNumber || ''}
                   onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
                   disabled={isSubmitting}
                   aria-busy={isSubmitting}
@@ -387,7 +392,7 @@ const ProfileSettingsPage = () => {
                 </label>
                 <input
                   type="text"
-                  value={profile.location || ''}
+                  value={localProfile?.location || ''}
                   onChange={(e) => handleInputChange('location', e.target.value)}
                   disabled={isSubmitting}
                   aria-busy={isSubmitting}
@@ -405,7 +410,7 @@ const ProfileSettingsPage = () => {
                 </label>
                 <input
                   type="url"
-                  value={profile.website || ''}
+                  value={localProfile?.website || ''}
                   onChange={(e) => handleInputChange('website', e.target.value)}
                   disabled={isSubmitting}
                   aria-busy={isSubmitting}
@@ -427,7 +432,7 @@ const ProfileSettingsPage = () => {
                   Sobre Você
                 </label>
                 <textarea
-                  value={profile.bio || ''}
+                  value={localProfile?.bio || ''}
                   onChange={(e) => handleInputChange('bio', e.target.value)}
                   rows={4}
                   disabled={isSubmitting}
@@ -440,7 +445,7 @@ const ProfileSettingsPage = () => {
                 />
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-2">
                   <p className="text-xs sm:text-sm text-gray-500">Compartilhe informações sobre seus gostos culinários</p>
-                  <span className="text-xs sm:text-sm text-gray-400">{(profile.bio || '').length}/500</span>
+                  <span className="text-xs sm:text-sm text-gray-400">{(localProfile?.bio || '').length}/500</span>
                 </div>
                 {formErrors.bio && (
                   <p className="text-red-500 text-sm mt-1">{formErrors.bio}</p>
@@ -460,7 +465,7 @@ const ProfileSettingsPage = () => {
                     </div>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {profile.publicProfile 
+                    {localProfile?.publicProfile 
                       ? 'Seu perfil está público. Outros usuários podem encontrar e visualizar seu perfil.'
                       : 'Seu perfil está privado. Apenas você pode visualizar seu perfil.'
                     }
@@ -471,12 +476,12 @@ const ProfileSettingsPage = () => {
                   onClick={handlePrivacyToggle}
                   disabled={isSubmitting}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors min-w-[140px] ${
-                    profile.publicProfile 
+                    localProfile?.publicProfile 
                       ? 'bg-red-100 text-red-700 hover:bg-red-200'
                       : 'bg-green-100 text-green-700 hover:bg-green-200'
                   } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {profile.publicProfile ? 'Tornar Privado' : 'Tornar Público'}
+                  {localProfile?.publicProfile ? 'Tornar Privado' : 'Tornar Público'}
                 </button>
               </div>
             </div>
