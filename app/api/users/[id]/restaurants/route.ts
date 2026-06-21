@@ -92,13 +92,19 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       nextPage = null;
       nextCursor = null;
     } else if (cursor) {
-      // Cursor-based pagination using the optimized function
+      // Cursor-based pagination using direct query
+      const offset = (page - 1) * limit;
       const { data, error } = await supabase
-        .rpc('get_user_restaurants_paginated', {
-          p_user_id: targetUserId,
-          p_limit: limit,
-          p_cursor: cursor
-        });
+        .from('restaurants')
+        .select(`
+          id, name, description, image_url, price_per_person, rating,
+          location, source_url, creator, menu_url, visited, phone_numbers,
+          creator_id, creator_name, created_at,
+          profiles!restaurants_creator_id_fkey(display_name)
+        `)
+        .eq('creator_id', targetUserId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (error) {
         console.error('Error fetching user restaurants with cursor:', error);
@@ -108,22 +114,25 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         );
       }
 
-      result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
+      result = data || [];
+      total = result.length;
+      hasMore = result.length === limit;
+      nextPage = hasMore ? page + 1 : null;
+      nextCursor = null;
     } else {
-      // Standard pagination using the optimized function
+      // Standard pagination using direct query
+      const offset = (page - 1) * limit;
       const { data, error } = await supabase
-        .rpc('get_user_restaurants_paginated', {
-          p_user_id: targetUserId,
-          p_limit: limit,
-          p_cursor: null
-        });
+        .from('restaurants')
+        .select(`
+          id, name, description, image_url, price_per_person, rating,
+          location, source_url, creator, menu_url, visited, phone_numbers,
+          creator_id, creator_name, created_at,
+          profiles!restaurants_creator_id_fkey(display_name)
+        `)
+        .eq('creator_id', targetUserId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (error) {
         console.error('Error fetching user restaurants:', error);
@@ -133,14 +142,11 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         );
       }
 
-      result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
+      result = data || [];
+      total = result.length;
+      hasMore = result.length === limit;
+      nextPage = hasMore ? page + 1 : null;
+      nextCursor = null;
     }
 
     if (!result || result.length === 0) {
@@ -328,13 +334,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       nextPage = null;
       nextCursor = null;
     } else if (cursor) {
-      // Cursor-based pagination using the optimized function
+      // Cursor-based pagination using direct query
+      const offset = (page - 1) * limit;
       const { data, error } = await supabase
-        .rpc('get_user_restaurants_paginated', {
-          p_user_id: targetUserId,
-          p_limit: limit,
-          p_cursor: cursor
-        });
+        .from('restaurants')
+        .select(`
+          id, name, description, image_url, price_per_person, rating,
+          location, source_url, creator, menu_url, visited, phone_numbers,
+          creator_id, creator_name, created_at,
+          profiles!restaurants_creator_id_fkey(display_name)
+        `)
+        .eq('creator_id', targetUserId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (error) {
         console.error('Error fetching user restaurants with cursor:', error);
@@ -344,22 +356,25 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         );
       }
 
-      result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
+      result = data || [];
+      total = result.length;
+      hasMore = result.length === limit;
+      nextPage = hasMore ? page + 1 : null;
+      nextCursor = null;
     } else {
-      // Standard pagination using the optimized function
+      // Standard pagination using direct query
+      const offset = (page - 1) * limit;
       const { data, error } = await supabase
-        .rpc('get_user_restaurants_paginated', {
-          p_user_id: targetUserId,
-          p_limit: limit,
-          p_cursor: null
-        });
+        .from('restaurants')
+        .select(`
+          id, name, description, image_url, price_per_person, rating,
+          location, source_url, creator, menu_url, visited, phone_numbers,
+          creator_id, creator_name, created_at,
+          profiles!restaurants_creator_id_fkey(display_name)
+        `)
+        .eq('creator_id', targetUserId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (error) {
         console.error('Error fetching user restaurants:', error);
@@ -369,14 +384,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         );
       }
 
-      result = data;
-      if (result && result.length > 0) {
-        const firstRow = result[0];
-        total = firstRow.total_count || 0;
-        nextCursor = firstRow.next_cursor || null;
-        hasMore = nextCursor !== null;
-        nextPage = hasMore ? page + 1 : null;
-      }
+      result = data || [];
+      total = result.length;
+      hasMore = result.length === limit;
+      nextPage = hasMore ? page + 1 : null;
+      nextCursor = null;
     }
 
     if (!result || result.length === 0) {
