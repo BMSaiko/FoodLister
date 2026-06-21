@@ -37,18 +37,20 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
   const { user } = useAuth();
   const { openMapModal } = useModal();
   const [isSharing, setIsSharing] = useState(false);
+  const restaurant = review.restaurant || review.restaurant_data || null;
 
   const handleOpenMapModal = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Only open map modal if location data is available
-    if (review.restaurant.location || (review.restaurant.latitude && review.restaurant.longitude)) {
+    if (!restaurant) return;
+
+    if (restaurant.location || (restaurant.latitude && restaurant.longitude)) {
       openMapModal({
-        location: review.restaurant.location || '',
-        latitude: review.restaurant.latitude,
-        longitude: review.restaurant.longitude,
-        source_url: review.restaurant.source_url
+        location: restaurant.location || '',
+        latitude: restaurant.latitude,
+        longitude: restaurant.longitude,
+        source_url: restaurant.source_url
       });
     }
   };
@@ -60,12 +62,14 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
     setIsSharing(true);
     
     try {
-      const reviewUrl = `${window.location.origin}/restaurants/${review.restaurant.id}?review=${review.id}`;
+      const restaurantId = restaurant?.id || review.restaurant_id;
+      const restaurantName = restaurant?.name || 'Restaurante';
+      const reviewUrl = `${window.location.origin}/restaurants/${restaurantId}?review=${review.id}`;
       
       if (navigator.share && !navigator.userAgent.includes('Firefox')) {
         try {
           await navigator.share({
-            title: `Avaliação de ${review.restaurant.name} - FoodList`,
+            title: `Avaliação de ${restaurantName} - FoodList`,
             text: `Confira minha avaliação deste restaurante no FoodList!`,
             url: reviewUrl,
           });
@@ -116,7 +120,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
   return (
     <div className={`absolute top-3 right-3 flex flex-col gap-2 ${className}`}>
       {/* Map Button - Available for all users */}
-      {review.restaurant.location && (
+      {restaurant?.location && (
         <button
           onClick={handleOpenMapModal}
           className="bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
