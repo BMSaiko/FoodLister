@@ -10,6 +10,7 @@ interface SearchResult {
   type: 'restaurant' | 'list' | 'user';
   title: string;
   subtitle?: string;
+  userIdCode?: string;
 }
 
 interface GroupedResults {
@@ -121,6 +122,7 @@ export default function GlobalSearch() {
           type: 'user' as const,
           title: u.display_name,
           subtitle: u.user_id_code ? `#${u.user_id_code}` : undefined,
+          userIdCode: u.user_id_code || undefined,
         })),
       ];
       setResults(combined);
@@ -146,7 +148,7 @@ export default function GlobalSearch() {
     } else if (result.type === 'list') {
       router.push(`/lists/${result.id}`);
     } else if (result.type === 'user') {
-      router.push(`/users/${result.id}`);
+      router.push(`/users/${result.userIdCode || result.id}`);
     }
   };
 

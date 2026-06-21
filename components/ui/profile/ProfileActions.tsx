@@ -6,6 +6,7 @@ interface ProfileActionsProps {
   profile: {
     id: string;
     name: string;
+    userIdCode?: string;
   };
   isOwnProfile: boolean;
   onEdit?: () => void;
@@ -21,7 +22,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
   const [copySuccess, setCopySuccess] = React.useState(false);
 
   const handleCopyProfileLink = () => {
-    const profileUrl = `${window.location.origin}/users/${profile.id}`;
+    const profileUrl = `${window.location.origin}/users/${profile.userIdCode || profile.id}`;
     navigator.clipboard.writeText(profileUrl).then(() => {
       setCopySuccess(true);
       toast.success('Link do perfil copiado!');
@@ -35,7 +36,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
         await navigator.share({
           title: `${profile.name} - Perfil FoodList`,
           text: `Confira o perfil de ${profile.name} no FoodList!`,
-          url: `${window.location.origin}/users/${profile.id}`,
+          url: `${window.location.origin}/users/${profile.userIdCode || profile.id}`,
         });
       } catch (error) {
       }

@@ -149,7 +149,7 @@ const UserProfilePage = () => {
   // Action buttons (edit/delete) are gated by isOwnProfile checks below.
 
   // Check if user is trying to access their own profile
-  const isOwnProfile = user && userId === user.id;
+  const isOwnProfile = user && (userId === user.id || (profile && profile.id === user.id));
 
   // Enhanced error validation
   const shouldShowNotFoundError = () => {
@@ -239,7 +239,7 @@ const UserProfilePage = () => {
   };
 
   const handleCopyProfileLink = () => {
-    const profileUrl = `${window.location.origin}/users/${userId}`;
+    const profileUrl = `${window.location.origin}/users/${profile?.userIdCode || userId}`;
     navigator.clipboard.writeText(profileUrl).then(() => {
       setCopySuccess(true);
       toast.success('Link do perfil copiado!');
@@ -253,7 +253,7 @@ const UserProfilePage = () => {
         await navigator.share({
           title: `${profile?.name} - Perfil FoodList`,
           text: `Confira o perfil de ${profile?.name} no FoodList!`,
-          url: `${window.location.origin}/users/${userId}`,
+          url: `${window.location.origin}/users/${profile?.userIdCode || userId}`,
         });
       } catch (error) {
       }
