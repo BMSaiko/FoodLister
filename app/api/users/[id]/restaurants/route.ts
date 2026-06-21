@@ -98,8 +98,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at,
-          profiles!restaurants_creator_id_fkey(display_name)
+          creator_id, creator_name, created_at
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
@@ -126,8 +125,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at,
-          profiles!restaurants_creator_id_fkey(display_name)
+          creator_id, creator_name, created_at
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
@@ -339,8 +337,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at,
-          profiles!restaurants_creator_id_fkey(display_name)
+          creator_id, creator_name, created_at
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
@@ -367,8 +364,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at,
-          profiles!restaurants_creator_id_fkey(display_name)
+          creator_id, creator_name, created_at
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
