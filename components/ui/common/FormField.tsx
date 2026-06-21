@@ -4,80 +4,89 @@ import { LucideIcon } from 'lucide-react';
 interface FormFieldProps {
   label: string;
   name: string;
-  type: 'text' | 'textarea' | 'url' | 'email' | 'number';
+  type: 'text' | 'textarea' | 'url' | 'email' | 'number' | 'tel' | 'date' | 'time';
   value: string | null;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   required?: boolean;
   placeholder?: string;
   rows?: number;
   icon?: LucideIcon;
   helperText?: string;
   children?: React.ReactNode;
+  error?: string;
+  disabled?: boolean;
 }
 
-export default function FormField({ 
-  label, 
-  name, 
-  type, 
-  value, 
-  onChange, 
+export default function FormField({
+  label,
+  name,
+  type,
+  value,
+  onChange,
   required = false,
   placeholder,
   rows = 4,
   icon: Icon,
   helperText,
-  children 
+  children,
+  error,
+  disabled = false
 }: FormFieldProps) {
-  const inputProps = {
-    name,
-    value: value ?? '',
-    onChange,
-    required,
-    placeholder,
-    className: "w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all text-sm"
-  };
+  const inputClasses = `w-full px-4 py-3 min-h-[48px] bg-white/[0.03] border rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${error ? 'border-red-500/70' : 'border-white/10'}`;
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
+      <label htmlFor={name} className="block text-sm font-medium text-white/60">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-red-400 ml-1">*</span>}
       </label>
-      
+
       <div className="relative">
         {Icon && (
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Icon className="h-4 w-4 text-gray-400" />
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+            <Icon className="h-4 w-4 text-white/30" />
           </div>
         )}
-        
+
         {type === 'textarea' ? (
           <textarea
-            {...inputProps}
+            id={name}
+            name={name}
+            value={value ?? ''}
+            onChange={onChange}
+            required={required}
+            placeholder={placeholder}
             rows={rows}
-            style={{
-              paddingLeft: Icon ? '2.5rem' : '0.75rem'
-            }}
+            disabled={disabled}
+            className={`${inputClasses} resize-none ${Icon ? 'pl-10' : ''}`}
           />
         ) : (
           <input
-            {...inputProps}
+            id={name}
+            name={name}
             type={type}
-            style={{
-              paddingLeft: Icon ? '2.5rem' : '0.75rem'
-            }}
+            value={value ?? ''}
+            onChange={onChange}
+            required={required}
+            placeholder={placeholder}
+            disabled={disabled}
+            className={`${inputClasses} ${Icon ? 'pl-10' : ''}`}
           />
         )}
-        
+
         {children && (
           <div className="absolute right-0 top-0 bottom-0 flex items-center pr-3">
             {children}
           </div>
         )}
       </div>
-      
-      {helperText && (
-        <p className="text-xs text-gray-500">{helperText}</p>
+
+      {helperText && !error && (
+        <p className="text-xs text-white/40">{helperText}</p>
+      )}
+
+      {error && (
+        <p className="text-xs text-red-400">{error}</p>
       )}
     </div>
   );

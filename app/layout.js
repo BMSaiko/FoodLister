@@ -1,7 +1,3 @@
-// app/layout.js (com meta viewport)
-// Adicione ou atualize a tag meta viewport no cabeçalho
-
-// Prevent static prerendering - this layout requires runtime env vars
 export const dynamic = 'force-dynamic';
 
 import { Geist, Geist_Mono } from "next/font/google";
@@ -34,12 +30,13 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: 'cover',
+  themeColor: '#050505',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased">
+    <html lang="pt" data-theme="dark" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased mesh-gradient-bg">
         <ErrorBoundary>
           <ClientLayout>{children}</ClientLayout>
           <GlobalSearch />
