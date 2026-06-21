@@ -72,7 +72,15 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
           phone_numbers,
           creator_id,
           creator_name,
-          created_at
+          created_at,
+          updated_at,
+          images,
+          display_image_index,
+          menu_links,
+          menu_images,
+          restaurant_cuisine_types(cuisine_types(name)),
+          restaurant_dietary_options_junction(restaurant_dietary_options(name)),
+          restaurant_restaurant_features(restaurant_features(name))
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false });
@@ -98,7 +106,11 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at
+          creator_id, creator_name, created_at, updated_at, images, display_image_index,
+          menu_links, menu_images,
+          restaurant_cuisine_types(cuisine_types(name)),
+          restaurant_dietary_options_junction(restaurant_dietary_options(name)),
+          restaurant_restaurant_features(restaurant_features(name))
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
@@ -125,7 +137,11 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at
+          creator_id, creator_name, created_at, updated_at, images, display_image_index,
+          menu_links, menu_images,
+          restaurant_cuisine_types(cuisine_types(name)),
+          restaurant_dietary_options_junction(restaurant_dietary_options(name)),
+          restaurant_restaurant_features(restaurant_features(name))
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
@@ -180,7 +196,14 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       creatorId: row.creator_id,
       creatorName: row.creator_name,
       createdAt: row.created_at,
-      updatedAt: row.updated_at
+      updatedAt: row.updated_at || row.created_at,
+      cuisineTypes: row.restaurant_cuisine_types?.map((ct: any) => ct.cuisine_types?.name).filter(Boolean) || [],
+      dietaryOptions: row.restaurant_dietary_options_junction?.map((doj: any) => doj.restaurant_dietary_options?.name).filter(Boolean) || [],
+      features: row.restaurant_restaurant_features?.map((rf: any) => rf.restaurant_features?.name).filter(Boolean) || [],
+      images: row.images || [],
+      displayImageIndex: row.display_image_index ?? 0,
+      menuLinks: row.menu_links || [],
+      menuImages: row.menu_images || []
     }));
 
     return NextResponse.json({
@@ -311,7 +334,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           phone_numbers,
           creator_id,
           creator_name,
-          created_at
+          created_at,
+          updated_at,
+          images,
+          display_image_index,
+          menu_links,
+          menu_images,
+          restaurant_cuisine_types(cuisine_types(name)),
+          restaurant_dietary_options_junction(restaurant_dietary_options(name)),
+          restaurant_restaurant_features(restaurant_features(name))
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false });
@@ -337,7 +368,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at
+          creator_id, creator_name, created_at, updated_at, images, display_image_index,
+          menu_links, menu_images,
+          restaurant_cuisine_types(cuisine_types(name)),
+          restaurant_dietary_options_junction(restaurant_dietary_options(name)),
+          restaurant_restaurant_features(restaurant_features(name))
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
@@ -364,7 +399,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .select(`
           id, name, description, image_url, price_per_person, rating,
           location, source_url, creator, menu_url, visited, phone_numbers,
-          creator_id, creator_name, created_at
+          creator_id, creator_name, created_at, updated_at, images, display_image_index,
+          menu_links, menu_images,
+          restaurant_cuisine_types(cuisine_types(name)),
+          restaurant_dietary_options_junction(restaurant_dietary_options(name)),
+          restaurant_restaurant_features(restaurant_features(name))
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false })
@@ -419,7 +458,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       creatorId: row.creator_id,
       creatorName: row.creator_name,
       createdAt: row.created_at,
-      updatedAt: row.updated_at
+      updatedAt: row.updated_at || row.created_at,
+      cuisineTypes: row.restaurant_cuisine_types?.map((ct: any) => ct.cuisine_types?.name).filter(Boolean) || [],
+      dietaryOptions: row.restaurant_dietary_options_junction?.map((doj: any) => doj.restaurant_dietary_options?.name).filter(Boolean) || [],
+      features: row.restaurant_restaurant_features?.map((rf: any) => rf.restaurant_features?.name).filter(Boolean) || [],
+      images: row.images || [],
+      displayImageIndex: row.display_image_index ?? 0,
+      menuLinks: row.menu_links || [],
+      menuImages: row.menu_images || []
     }));
 
     return NextResponse.json({
