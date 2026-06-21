@@ -287,37 +287,38 @@ const Navbar = ({ clearFilters = null }) => {
                           <p className="font-medium">Configurações</p>
                         </Link>
 
-                        {/* Admin — only visible to admins */}
+                        {/* Admin / Sair — conditional based on current path */}
                         {userProfile?.is_admin && (
-                          <Link
-                            href="/admin"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                            role="menuitem"
-                            tabIndex={0}
-                            aria-label="Admin Dashboard"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                              <Shield className="h-4 w-4 text-[var(--primary-dark)]" />
-                            </div>
-                            <p className="font-medium">Admin Dashboard</p>
-                          </Link>
+                          pathname?.startsWith('/admin') ? (
+                            <Link
+                              href="/restaurants"
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                              role="menuitem"
+                              tabIndex={0}
+                              aria-label="Sair do Dashboard"
+                            >
+                              <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                                <LogOut className="h-4 w-4 text-[var(--primary-dark)]" />
+                              </div>
+                              <p className="font-medium">Sair do Dashboard</p>
+                            </Link>
+                          ) : (
+                            <Link
+                              href="/admin"
+                              onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                              role="menuitem"
+                              tabIndex={0}
+                              aria-label="Admin Dashboard"
+                            >
+                              <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                                <Shield className="h-4 w-4 text-[var(--primary-dark)]" />
+                              </div>
+                              <p className="font-medium">Admin Dashboard</p>
+                            </Link>
+                          )
                         )}
-
-                        {/* Sair do Dashboard — volta à app principal */}
-                        <Link
-                          href="/restaurants"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                          role="menuitem"
-                          tabIndex={0}
-                          aria-label="Sair do Dashboard"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                            <LogOut className="h-4 w-4 text-[var(--primary-dark)]" />
-                          </div>
-                          <p className="font-medium">Sair do Dashboard</p>
-                        </Link>
 
                         {/* Divider */}
                         <div className="border-t border-[var(--gray-200)] mx-4 my-1" />
