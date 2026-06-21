@@ -178,19 +178,7 @@ const Navbar = ({ clearFilters = null }) => {
             <NotificationsDropdown />
           )}
 
-          {/* Admin link - only visible to admins */}
-          {userProfile?.is_admin && (
-            <Link
-              href="/admin"
-              className="flex items-center gap-1 px-2 py-1 rounded-md text-sm hover:opacity-80 transition-opacity"
-              style={{ color: 'var(--primary)' }}
-              title="Admin Dashboard"
-              aria-label="Admin Dashboard"
-            >
-              <Shield className="h-4 w-4" />
-              <span className="hidden lg:inline">Admin</span>
-            </Link>
-          )}
+          {/* Admin link moved to dropdown */}
 
           {/* Menu do usuário (apenas se logado) */}
           {user && !loading && (
@@ -299,6 +287,42 @@ const Navbar = ({ clearFilters = null }) => {
                           <p className="font-medium">Configurações</p>
                         </Link>
 
+                        {/* Admin — only visible to admins */}
+                        {userProfile?.is_admin && (
+                          <Link
+                            href="/admin"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                            role="menuitem"
+                            tabIndex={0}
+                            aria-label="Admin Dashboard"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                              <Shield className="h-4 w-4 text-[var(--primary-dark)]" />
+                            </div>
+                            <p className="font-medium">Admin Dashboard</p>
+                          </Link>
+                        )}
+
+                        {/* Sair do Dashboard — volta à app principal */}
+                        <Link
+                          href="/restaurants"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
+                          role="menuitem"
+                          tabIndex={0}
+                          aria-label="Sair do Dashboard"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
+                            <LogOut className="h-4 w-4 text-[var(--primary-dark)]" />
+                          </div>
+                          <p className="font-medium">Sair do Dashboard</p>
+                        </Link>
+
+                        {/* Divider */}
+                        <div className="border-t border-[var(--gray-200)] mx-4 my-1" />
+
+                        {/* Sair da conta — logout */}
                         <button
                           onClick={async () => {
                             setUserMenuOpen(false);
@@ -314,7 +338,7 @@ const Navbar = ({ clearFilters = null }) => {
                           <div className="w-8 h-8 rounded-lg bg-[var(--error-light)] flex items-center justify-center flex-shrink-0">
                             <LogOut className="h-4 w-4 text-[var(--error)]" />
                           </div>
-                          <p className="font-medium">Sair</p>
+                          <p className="font-medium">Sair da Conta</p>
                         </button>
                       </div>
                     </div>

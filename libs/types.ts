@@ -470,6 +470,7 @@ export interface AdminUser {
   avatar_url: string | null;
   is_admin: boolean;
   is_verified: boolean;
+  is_active?: boolean;
   total_reviews: number;
   total_lists: number;
   total_restaurants_added: number;

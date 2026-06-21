@@ -5,70 +5,97 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import DashboardStats from '@/components/admin/DashboardStats';
 import GrowthChart from '@/components/admin/GrowthChart';
 import Link from 'next/link';
-import { Users, UtensilsCrossed, Star } from 'lucide-react';
+import { Users, UtensilsCrossed, Star, ArrowUpRight } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { stats, loading, error, refresh } = useAdminStats();
 
   return (
     <ErrorBoundary pageName="Admin">
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--foreground)' }}>Dashboard</h1>
-        <button onClick={refresh} className="px-4 py-2 rounded-lg text-sm" style={{ backgroundColor: 'var(--primary)', color: 'white' }}>
-          Atualizar
-        </button>
-      </div>
+      <div className="space-y-8 max-w-7xl mx-auto" style={{ animation: 'fadeUp 600ms ease forwards' }}>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-amber-400/60 mb-2">Painel de Administração</p>
+            <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
+          </div>
+          <button
+            onClick={refresh}
+            className="group flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] active:scale-[0.98]"
+          >
+            <span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" style={{ animationDuration: '1s' }} />
+            Atualizar
+          </button>
+        </div>
 
-      {error && <p className="text-red-500 text-sm">Erro: {error}</p>}
-
-      <DashboardStats stats={stats} loading={loading} />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {stats?.growth && <GrowthChart data={stats.growth} />}
-        {stats?.reviews && (
-          <div className="rounded-xl border p-6" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-            <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--foreground)' }}>Distribuição de Ratings</h3>
-            <div className="space-y-2">
-              {stats.reviews.byRating.map(r => (
-                <div key={r.rating} className="flex items-center gap-2">
-                  <span className="text-sm w-8" style={{ color: 'var(--muted-foreground)' }}>{'⭐'.repeat(r.rating)}</span>
-                  <div className="flex-1 h-6 rounded" style={{ backgroundColor: 'var(--muted)' }}>
-                    <div className="h-full rounded" style={{ backgroundColor: 'var(--primary)', width: `${stats.reviews.total ? (r.count / stats.reviews.total * 100) : 0}%` }} />
-                  </div>
-                  <span className="text-sm w-12 text-right" style={{ color: 'var(--foreground)' }}>{r.count}</span>
-                </div>
-              ))}
-            </div>
+        {error && (
+          <div className="p-4 rounded-2xl bg-red-500/10 ring-1 ring-red-500/20 text-red-400 text-sm">
+            Erro: {error}
           </div>
         )}
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link href="/admin/users" className="flex items-center gap-3 p-4 rounded-xl border transition-colors hover:opacity-80" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-          <Users className="h-5 w-5" style={{ color: 'var(--primary)' }} />
-          <div>
-            <p className="font-medium" style={{ color: 'var(--foreground)' }}>Gerir Utilizadores</p>
-            <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{stats?.users.total || 0} utilizadores</p>
+        {/* Stats Cards — Bento Grid */}
+        <DashboardStats stats={stats} loading={loading} />
+
+        {/* Charts + Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            {stats?.growth && <GrowthChart data={stats.growth} />}
           </div>
-        </Link>
-        <Link href="/admin/restaurants" className="flex items-center gap-3 p-4 rounded-xl border transition-colors hover:opacity-80" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-          <UtensilsCrossed className="h-5 w-5" style={{ color: 'var(--primary)' }} />
-          <div>
-            <p className="font-medium" style={{ color: 'var(--foreground)' }}>Gerir Restaurantes</p>
-            <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{stats?.restaurants.total || 0} restaurantes</p>
+
+          {/* Quick Actions */}
+          <div
+            className="group relative p-1.5 rounded-[2rem]"
+            style={{ animation: 'fadeUp 800ms ease forwards', opacity: 0, animationDelay: '500ms' }}
+          >
+            <div className="absolute inset-0 rounded-[2rem] bg-white/[0.05] ring-1 ring-white/10 backdrop-blur-xl" />
+            <div className="relative rounded-[calc(2rem-0.375rem)] p-6 bg-gradient-to-br from-[#0a0a0a] to-[#111111] shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
+              <h3 className="text-sm font-medium uppercase tracking-[0.15em] text-white/40 mb-6">Ações Rápidas</h3>
+              <div className="space-y-3">
+                <Link
+                  href="/admin/users"
+                  className="group/item flex items-center gap-4 p-3 rounded-xl bg-white/[0.03] ring-1 ring-white/5 hover:bg-white/[0.08] hover:ring-white/15 transition-all duration-300"
+                >
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
+                    <Users className="h-4 w-4 text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">Gerir Utilizadores</p>
+                    <p className="text-xs text-white/30">{stats?.users.total || 0} utilizadores</p>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-white/20 group-hover/item:text-amber-400 group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all" />
+                </Link>
+                <Link
+                  href="/admin/restaurants"
+                  className="group/item flex items-center gap-4 p-3 rounded-xl bg-white/[0.03] ring-1 ring-white/5 hover:bg-white/[0.08] hover:ring-white/15 transition-all duration-300"
+                >
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <UtensilsCrossed className="h-4 w-4 text-emerald-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">Gerir Restaurantes</p>
+                    <p className="text-xs text-white/30">{stats?.restaurants.total || 0} restaurantes</p>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-white/20 group-hover/item:text-emerald-400 group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all" />
+                </Link>
+                <Link
+                  href="/admin/reviews"
+                  className="group/item flex items-center gap-4 p-3 rounded-xl bg-white/[0.03] ring-1 ring-white/5 hover:bg-white/[0.08] hover:ring-white/15 transition-all duration-300"
+                >
+                  <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <Star className="h-4 w-4 text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white">Moderar Reviews</p>
+                    <p className="text-xs text-white/30">{stats?.reviews.total || 0} reviews</p>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-white/20 group-hover/item:text-blue-400 group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all" />
+                </Link>
+              </div>
+            </div>
           </div>
-        </Link>
-        <Link href="/admin/reviews" className="flex items-center gap-3 p-4 rounded-xl border transition-colors hover:opacity-80" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
-          <Star className="h-5 w-5" style={{ color: 'var(--primary)' }} />
-          <div>
-            <p className="font-medium" style={{ color: 'var(--foreground)' }}>Moderar Reviews</p>
-            <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{stats?.reviews.total || 0} reviews</p>
-          </div>
-        </Link>
+        </div>
       </div>
-    </div>
     </ErrorBoundary>
   );
 }
-
