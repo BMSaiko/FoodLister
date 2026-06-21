@@ -116,7 +116,7 @@ const Navbar = ({ clearFilters = null }) => {
   };
 
   return (
-    <nav className="bg-[var(--card-bg)] shadow-md sticky top-0 z-50" role="navigation" aria-label="Navegação principal">
+    <nav className="bg-[var(--card-bg)]/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50" role="navigation" aria-label="Navegação principal">
       <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
         {/* Versão desktop */}
         <div className="hidden md:flex md:items-center md:justify-between md:gap-4">
@@ -142,7 +142,7 @@ const Navbar = ({ clearFilters = null }) => {
                 <button
                   className={`px-3 sm:px-4 py-2 rounded-md transition-colors text-sm sm:text-base min-h-[40px] ${
                     activeSection === 'restaurants' 
-                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      ? 'bg-white/5 text-amber-400' 
                       : 'text-primary hover:text-primary-hover'
                   }`}
                 >
@@ -153,7 +153,7 @@ const Navbar = ({ clearFilters = null }) => {
                 <button
                   className={`px-3 sm:px-4 py-2 rounded-md transition-colors text-sm sm:text-base min-h-[40px] ${
                     activeSection === 'lists' 
-                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      ? 'bg-white/5 text-amber-400' 
                       : 'text-primary hover:text-primary-hover'
                   }`}
                 >
@@ -218,7 +218,7 @@ const Navbar = ({ clearFilters = null }) => {
                     />
                     <div
                       ref={userMenuRef}
-                      className="absolute right-0 top-full mt-2 w-64 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-xl border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200"
+                      className="absolute right-0 top-full mt-2 w-64 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-lg border border-white/10 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200"
                       role="menu"
                       aria-label="Opções do utilizador"
                       onKeyDown={handleUserMenuTab}
@@ -321,7 +321,7 @@ const Navbar = ({ clearFilters = null }) => {
                         )}
 
                         {/* Divider */}
-                        <div className="border-t border-[var(--gray-200)] mx-4 my-1" />
+                        <div className="border-t border-white/10 mx-4 my-1" />
 
                         {/* Sair da conta — logout */}
                         <button
@@ -410,7 +410,7 @@ const Navbar = ({ clearFilters = null }) => {
                       className="fixed inset-0 z-10"
                       onClick={() => setUserMenuOpen(false)}
                     />
-                    <div className="absolute right-2 top-full mt-2 w-72 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-xl border border-[var(--gray-200)] overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-2 top-full mt-2 w-72 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-lg border border-white/10 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
                       {/* Header com avatar e informações */}
                       <div className="bg-gradient-to-r from-[var(--primary-50)] to-[var(--orange-50)] px-4 py-4 border-b border-[var(--gray-100)]">
                         <div className="flex items-center gap-3">
@@ -501,13 +501,13 @@ const Navbar = ({ clearFilters = null }) => {
 
         {/* Menu mobile expandido */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 pb-3 space-y-3 border-t border-[var(--gray-200)] pt-3">
+          <div className="md:hidden mt-3 pb-3 space-y-3 border-t border-white/10 pt-3">
             <div className="flex bg-[var(--background-secondary)] rounded-lg p-1 justify-center">
               <Link href="/restaurants" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
                 <button
                   className={`w-full px-4 py-2.5 rounded-md transition-colors text-sm min-h-[44px] ${
                     activeSection === 'restaurants' 
-                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      ? 'bg-white/5 text-amber-400' 
                       : 'text-primary hover:text-primary-hover'
                   }`}
                 >
@@ -518,7 +518,7 @@ const Navbar = ({ clearFilters = null }) => {
                 <button
                   className={`w-full px-4 py-2.5 rounded-md transition-colors text-sm min-h-[44px] ${
                     activeSection === 'lists' 
-                      ? 'bg-[var(--card-bg)] shadow-sm text-primary' 
+                      ? 'bg-white/5 text-amber-400' 
                       : 'text-primary hover:text-primary-hover'
                   }`}
                 >

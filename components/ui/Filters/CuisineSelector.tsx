@@ -33,57 +33,54 @@ export default function CuisineSelector({
 
   const handleToggleCuisine = (cuisineTypeId: string) => {
     onToggleCuisine(cuisineTypeId);
-    // Clear search when selecting/deselecting a category
     setSearchQuery('');
   };
 
   return (
     <div className={`mb-6 ${className}`}>
-      <label className="flex items-center text-[var(--gray-700)] font-medium mb-3">
+      <label className="flex items-center text-[var(--gray-300)] font-medium mb-3">
         <Tag className="h-4 w-4 mr-2" />
         Tipos de Culinária
       </label>
 
-      {/* Campo de busca para tipos de culinária */}
       <div className="relative mb-3">
         <input
           type="text"
           placeholder="Buscar tipos de culinária..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-8 pr-3 py-2 border border-[var(--gray-300)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors"
+          className="w-full pl-8 pr-3 py-2 bg-[var(--card-bg)] border border-[var(--gray-200)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors placeholder-[var(--gray-500)]"
         />
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--gray-400)]" />
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--gray-500)]" />
       </div>
 
-      {/* Lista de tipos de culinária disponíveis */}
       {loading ? (
-        <div className="text-center py-6 text-[var(--gray-500)] bg-[var(--gray-50)] rounded-lg border border-[var(--gray-200)]">
+        <div className="text-center py-6 text-[var(--gray-500)] bg-[var(--card-bg)] rounded-lg border border-[var(--gray-200)]">
           Carregando tipos de culinária...
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto bg-[var(--gray-50)] p-4 rounded-lg border border-[var(--gray-200)] mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto bg-[var(--card-bg)] p-4 rounded-lg border border-[var(--gray-200)] mb-4">
           {filteredCuisineTypes.length > 0 ? (
             filteredCuisineTypes.map(cuisineType => (
               <div
                 key={cuisineType.id}
                 className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-all ${
                   selectedCuisineTypes.includes(cuisineType.id)
-                    ? 'bg-[var(--primary)] border border-[var(--primary)] text-white shadow-sm'
-                    : 'bg-white border border-[var(--gray-200)] hover:bg-[var(--gray-100)] hover:border-[var(--gray-300)]'
+                    ? 'bg-[var(--primary)] border border-[var(--primary)] text-black shadow-sm'
+                    : 'bg-[var(--background-secondary)] border border-[var(--gray-200)] hover:bg-[var(--background-tertiary)] hover:border-[var(--gray-300)]'
                 }`}
                 onClick={() => handleToggleCuisine(cuisineType.id)}
               >
                 <span className={`text-sm flex-grow truncate ${
-                  selectedCuisineTypes.includes(cuisineType.id) ? 'text-white' : 'text-[var(--gray-700)]'
+                  selectedCuisineTypes.includes(cuisineType.id) ? 'text-black' : 'text-[var(--gray-300)]'
                 }`}>
                   <span className="mr-2">{cuisineType.icon || '🍽️'}</span>
                   {cuisineType.name}
                 </span>
                 {selectedCuisineTypes.includes(cuisineType.id) ? (
-                  <Check className="h-4 w-4 text-white flex-shrink-0 ml-2" />
+                  <Check className="h-4 w-4 text-black flex-shrink-0 ml-2" />
                 ) : (
-                  <Plus className="h-4 w-4 text-[var(--gray-400)] flex-shrink-0 ml-2" />
+                  <Plus className="h-4 w-4 text-[var(--gray-500)] flex-shrink-0 ml-2" />
                 )}
               </div>
             ))
@@ -95,9 +92,8 @@ export default function CuisineSelector({
         </div>
       )}
 
-      {/* Tipos de culinária selecionados */}
       <div>
-        <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
+        <label className="block text-sm font-medium text-[var(--gray-300)] mb-2">
           Tipos Selecionados ({selectedCuisineTypes.length})
         </label>
 
@@ -106,14 +102,14 @@ export default function CuisineSelector({
             {selectedCuisineTypesInOrder.map(cuisineType => (
               <div
                 key={cuisineType.id}
-                className="flex items-center bg-[var(--primary)] text-white px-2 py-0.5 rounded-full text-xs font-medium shadow-sm"
+                className="flex items-center bg-[var(--primary)] text-black px-2 py-0.5 rounded-full text-xs font-medium shadow-sm"
               >
                 <span className="mr-1">{cuisineType.icon || '🍽️'}</span>
                 <span>{cuisineType.name}</span>
                 <button
                   type="button"
                   onClick={() => handleToggleCuisine(cuisineType.id)}
-                  className="ml-1 text-white hover:text-[var(--gray-200)] transition-colors"
+                  className="ml-1 text-black hover:text-[var(--gray-800)] transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>
@@ -121,7 +117,7 @@ export default function CuisineSelector({
             ))}
           </div>
         ) : (
-          <div className="text-sm text-[var(--gray-500)] bg-[var(--gray-50)] px-3 py-2 rounded-lg border border-[var(--gray-200)]">
+          <div className="text-sm text-[var(--gray-500)] bg-[var(--card-bg)] px-3 py-2 rounded-lg border border-[var(--gray-200)]">
             Nenhum tipo de culinária selecionado
           </div>
         )}

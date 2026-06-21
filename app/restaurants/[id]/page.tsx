@@ -493,7 +493,7 @@ export default function RestaurantDetails() {
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
-          theme: "light",
+          theme: "dark",
           className: "text-sm sm:text-base"
         }
       );
@@ -508,7 +508,7 @@ export default function RestaurantDetails() {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        theme: "light",
+        theme: "dark",
         className: "text-sm sm:text-base"
       });
     } finally {
@@ -530,7 +530,7 @@ export default function RestaurantDetails() {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        theme: "light",
+        theme: "dark",
         className: "text-sm sm:text-base"
       });
     } catch (err) {
@@ -544,7 +544,7 @@ export default function RestaurantDetails() {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        theme: "light",
+        theme: "dark",
         className: "text-sm sm:text-base"
       });
     }
@@ -564,7 +564,7 @@ export default function RestaurantDetails() {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        theme: "light",
+        theme: "dark",
         className: "text-sm sm:text-base"
       });
     } catch (err) {
@@ -578,7 +578,7 @@ export default function RestaurantDetails() {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        theme: "light",
+        theme: "dark",
         className: "text-sm sm:text-base"
       });
     }
@@ -615,19 +615,19 @@ export default function RestaurantDetails() {
     const priceColorClass = getPriceColorClass(priceCategory.level);
     
     return (
-      <div className="flex items-center mt-4 bg-gray-50 p-3 rounded-lg">
+      <div className="flex items-center mt-4 bg-white/5 p-3 rounded-lg ring-1 ring-white/10">
         <div className="flex items-center">
           {Array(priceCategory.level).fill(0).map((_, i) => (
             <Euro key={i} className={`h-4 w-4 ${priceColorClass}`} fill="currentColor" />
           ))}
           {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-            <Euro key={i + priceCategory.level} className="h-4 w-4 text-gray-300" />
+            <Euro key={i + priceCategory.level} className="h-4 w-4 text-white/20" />
           ))}
         </div>
         <span className={`ml-2 text-sm ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
         <div className="ml-auto text-amber-600 font-semibold">
           {formatPrice(price)}
-          <span className="text-sm text-gray-500 ml-1">por pessoa</span>
+          <span className="text-sm text-white/40 ml-1">por pessoa</span>
         </div>
       </div>
     );
@@ -635,11 +635,11 @@ export default function RestaurantDetails() {
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
         <Navbar />
         <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse bg-white rounded-xl shadow-md h-96 mb-6"></div>
-          <div className="animate-pulse bg-white p-6 rounded-lg shadow-md h-24 mb-6"></div>
+          <div className="animate-pulse rounded-xl h-96 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}></div>
+          <div className="animate-pulse p-6 rounded-lg h-24 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}></div>
         </div>
       </div>
     );
@@ -647,10 +647,10 @@ export default function RestaurantDetails() {
   
     if (!restaurant) {
       return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
           <Navbar />
           <div className="container mx-auto px-4 py-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-800">Restaurante não encontrado</h2>
+            <h2 className="text-2xl font-bold text-white/90">Restaurante não encontrado</h2>
             <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
               Voltar para a página de restaurantes
             </Link>
@@ -796,7 +796,7 @@ export default function RestaurantDetails() {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
 
       {/* Notification */}
@@ -804,8 +804,8 @@ export default function RestaurantDetails() {
         <div className="fixed top-4 right-4 z-50 max-w-sm">
           <div className={`px-4 py-3 rounded-lg shadow-lg border-l-4 ${
             notification.type === 'success'
-              ? 'bg-green-50 border-green-500 text-green-800'
-              : 'bg-red-50 border-red-500 text-red-800'
+              ? 'bg-green-500/10 border-green-500 text-green-400 ring-1 ring-green-500/20'
+              : 'bg-red-500/10 border-red-500 text-red-400 ring-1 ring-red-500/20'
           }`}>
             <div className="flex items-center">
               <div className="flex-1 text-sm font-medium">
@@ -814,10 +814,10 @@ export default function RestaurantDetails() {
               <button
                 onClick={() => setNotification(null)}
                 className={`ml-3 text-sm font-medium hover:underline ${
-                  notification.type === 'success' ? 'text-green-700' : 'text-red-700'
+                  notification.type === 'success' ? 'text-green-400 hover:text-green-300' : 'text-red-400 hover:text-red-300'
                 }`}
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>

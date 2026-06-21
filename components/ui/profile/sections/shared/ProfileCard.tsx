@@ -21,8 +21,8 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   touchTarget = false
 }) => {
   const baseClasses = `
-    bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg
-    transition-all duration-200 group
+    bg-[var(--card-bg)] rounded-xl shadow-md overflow-hidden hover:shadow-lg
+    transition-all duration-200 group border border-[var(--card-border)]
     ${hoverEffect ? 'hover:-translate-y-1' : ''}
     ${touchTarget ? 'min-h-[60px] min-w-[60px]' : ''}
   `;
@@ -65,7 +65,7 @@ interface MetadataItemProps {
 export const MetadataItem: React.FC<MetadataItemProps> = ({ icon, children, className = '' }) => (
   <div className={`flex items-center gap-1 sm:gap-2 ${className}`}>
     {icon}
-    <span className="text-sm font-medium text-gray-700">{children}</span>
+    <span className="text-sm font-medium text-[var(--gray-300)]">{children}</span>
   </div>
 );
 
@@ -77,7 +77,7 @@ interface RatingBadgeProps {
 export const RatingBadge: React.FC<RatingBadgeProps> = ({ rating, type = 'restaurant' }) => (
   <div className="flex items-center gap-1">
     <Star className={`h-4 w-4 ${type === 'review' ? 'text-amber-500 fill-current' : 'text-orange-500'}`} />
-    <span className="font-semibold">{rating.toFixed(1)}/5</span>
+    <span className="font-semibold text-[var(--foreground)]">{rating.toFixed(1)}/5</span>
   </div>
 );
 
@@ -90,8 +90,8 @@ export const PriceLevelBadge: React.FC<PriceLevelBadgeProps> = ({ priceLevel }) 
   
   return (
     <div className="flex items-center gap-1">
-      <DollarSign className="h-4 w-4 text-green-600" />
-      <span className="text-sm font-medium text-gray-700">
+      <DollarSign className="h-4 w-4 text-[var(--success)]" />
+      <span className="text-sm font-medium text-[var(--gray-300)]">
         {'$'.repeat(priceLevel)}
       </span>
     </div>
@@ -103,7 +103,7 @@ interface LocationBadgeProps {
 }
 
 export const LocationBadge: React.FC<LocationBadgeProps> = ({ location }) => (
-  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-blue-100 text-blue-700">
+  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-[var(--blue-100)] text-[var(--blue-700)]">
     <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
     {location}
   </span>
@@ -114,7 +114,7 @@ interface CuisineBadgeProps {
 }
 
 export const CuisineBadge: React.FC<CuisineBadgeProps> = ({ cuisineType }) => (
-  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-orange-100 text-orange-700">
+  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-[var(--orange-100)] text-[var(--orange-800)]">
     <Utensils className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
     {cuisineType}
   </span>
@@ -126,7 +126,7 @@ interface DateBadgeProps {
 }
 
 export const DateBadge: React.FC<DateBadgeProps> = ({ date, prefix = 'Adicionado em' }) => (
-  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-green-100 text-green-700">
+  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-[var(--green-100)] text-[var(--green-800)]">
     <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
     {prefix} {formatDate(date)}
   </span>
@@ -138,8 +138,8 @@ interface RestaurantCountBadgeProps {
 }
 
 export const RestaurantCountBadge: React.FC<RestaurantCountBadgeProps> = ({ count, icon }) => (
-  <div className="bg-white rounded-lg px-3 py-1 border border-gray-200">
-    <span className="text-sm font-medium text-gray-700">
+  <div className="bg-[var(--card-bg)] rounded-lg px-3 py-1 border border-[var(--gray-200)]">
+    <span className="text-sm font-medium text-[var(--gray-300)]">
       {icon || <Utensils className="h-4 w-4 inline mr-1" />}
       {count} {count === 1 ? 'restaurante' : 'restaurantes'}
     </span>
@@ -163,7 +163,7 @@ export const AmountBadge: React.FC<AmountBadgeProps> = ({ amount }) => {
   return (
     <div className="flex items-center gap-1">
       <Euro className="h-4 w-4" />
-      <span>{formatAmount(amount)}</span>
+      <span className="text-[var(--foreground)]">{formatAmount(amount)}</span>
     </div>
   );
 };
@@ -173,7 +173,7 @@ interface ListIconBadgeProps {
 }
 
 export const ListIconBadge: React.FC<ListIconBadgeProps> = ({ count }) => (
-  <div className="bg-amber-500 text-white p-2 rounded-lg">
+  <div className="bg-[var(--primary)] text-black p-2 rounded-lg">
     <ListIcon className="h-5 w-5" />
   </div>
 );
@@ -183,7 +183,7 @@ interface UserIconBadgeProps {
 }
 
 export const UserIconBadge: React.FC<UserIconBadgeProps> = ({ count }) => (
-  <div className="bg-blue-500 text-white p-2 rounded-lg">
+  <div className="bg-[var(--blue-500)] text-white p-2 rounded-lg">
     <Users className="h-5 w-5" />
   </div>
 );

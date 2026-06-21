@@ -129,7 +129,7 @@ export default function MealCard({
       {/* Content */}
       <div className="px-4 py-3 space-y-3">
         {/* Date and Time */}
-        <div className="flex items-center space-x-4 text-sm text-[var(--gray-600)]">
+        <div className="flex items-center space-x-4 text-sm text-[var(--gray-400)]">
           <div className="flex items-center space-x-2">
             <Calendar className="h-4 w-4 text-[var(--amber-500)]" />
             <span className="capitalize">{formatDatePT(meal.mealDate)}</span>
@@ -143,7 +143,7 @@ export default function MealCard({
 
         {/* Location */}
         {meal.restaurant?.location && (
-          <div className="flex items-center space-x-2 text-sm text-[var(--gray-600)]">
+          <div className="flex items-center space-x-2 text-sm text-[var(--gray-400)]">
             <MapPin className="h-4 w-4 text-[var(--amber-500)]" />
             <span>{meal.restaurant.location}</span>
           </div>
@@ -151,7 +151,7 @@ export default function MealCard({
 
         {/* Organizer */}
         {!meal.isOrganizer && meal.organizer && (
-          <div className="text-sm text-[var(--gray-600)]">
+          <div className="text-sm text-[var(--gray-400)]">
             Organizado por <span className="font-medium text-[var(--gray-900)]">{meal.organizer.displayName || 'Utilizador'}</span>
           </div>
         )}
@@ -159,7 +159,7 @@ export default function MealCard({
         {/* Participants */}
         {meal.participants.length > 0 && (
           <div className="space-y-2">
-            <div className="flex items-center space-x-2 text-sm text-[var(--gray-600)]">
+            <div className="flex items-center space-x-2 text-sm text-[var(--gray-400)]">
               <Users className="h-4 w-4 text-[var(--amber-500)]" />
               <span>{meal.participants.length} participante(s)</span>
             </div>
@@ -167,7 +167,7 @@ export default function MealCard({
               {meal.participants.slice(0, 5).map((participant) => (
                 <div
                   key={participant.id}
-                  className="flex items-center space-x-2 bg-[var(--gray-50)] rounded-full px-3 py-1"
+                  className="flex items-center space-x-2 bg-[var(--background-secondary)] rounded-full px-3 py-1"
                 >
                   {participant.profile?.avatarUrl ? (
                     <img
@@ -180,7 +180,7 @@ export default function MealCard({
                       {participant.profile?.displayName?.charAt(0) || '?'}
                     </div>
                   )}
-                  <span className="text-xs text-[var(--gray-700)] truncate max-w-[100px]">
+                  <span className="text-xs text-[var(--gray-300)] truncate max-w-[100px]">
                     {participant.profile?.displayName || 'Utilizador'}
                   </span>
                   <div
@@ -204,7 +204,7 @@ export default function MealCard({
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-3 border-t border-[var(--gray-100)]">
+        <div className="flex items-center justify-between pt-3 border-t border-[var(--gray-200)]">
           <div className="flex items-center space-x-2">
             {/* View Details */}
             <Link
@@ -220,7 +220,7 @@ export default function MealCard({
             {onDownloadIcs && (
               <button
                 onClick={() => onDownloadIcs(meal.id)}
-                className="flex items-center space-x-1 px-3 py-1.5 text-sm text-[var(--gray-700)] bg-[var(--gray-100)] hover:bg-[var(--gray-200)] rounded-lg transition-colors"
+                className="flex items-center space-x-1 px-3 py-1.5 text-sm text-[var(--gray-300)] bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg transition-colors"
                 title="Descarregar .ics"
               >
                 <Download className="h-4 w-4" />

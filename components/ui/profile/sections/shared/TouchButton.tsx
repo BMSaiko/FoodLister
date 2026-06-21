@@ -34,28 +34,28 @@ export const TouchButton: React.FC<TouchButtonProps> = ({
   `;
 
   const sizeClasses = {
-    sm: 'px-3 py-2 text-sm min-h-[36px] min-w-[120px]',
+    sm: 'px-3 py-2 text-sm min-h-[44px] min-w-[120px]',
     md: 'px-4 sm:px-6 py-3 text-base min-h-[44px] min-w-[140px]',
     lg: 'px-6 sm:px-8 py-4 text-lg min-h-[48px] min-w-[160px]'
   };
 
   const variantClasses = {
     primary: `
-      bg-amber-500 text-white shadow-md hover:shadow-lg
-      hover:bg-amber-600 active:bg-amber-700
-      focus:ring-amber-500 focus:ring-offset-2
+      bg-[var(--primary)] text-black shadow-md hover:shadow-lg
+      hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)]
+      focus:ring-[var(--primary)] focus:ring-offset-2
       touch-feedback
     `,
     secondary: `
-      bg-white text-gray-700 border border-gray-300
-      hover:bg-gray-50 active:bg-gray-100
-      focus:ring-gray-400 focus:ring-offset-2
+      bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--gray-200)]
+      hover:bg-[var(--background-secondary)] active:bg-[var(--background-tertiary)]
+      focus:ring-[var(--gray-400)] focus:ring-offset-2
       touch-feedback
     `,
     ghost: `
-      bg-transparent text-gray-600
-      hover:bg-gray-100 active:bg-gray-200
-      focus:ring-gray-300 focus:ring-offset-2
+      bg-transparent text-[var(--foreground-secondary)]
+      hover:bg-[var(--background-secondary)] active:bg-[var(--background-tertiary)]
+      focus:ring-[var(--gray-400)] focus:ring-offset-2
       touch-feedback
     `
   };
@@ -70,7 +70,7 @@ export const TouchButton: React.FC<TouchButtonProps> = ({
   const content = (
     <>
       {loading && (
-        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+        <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>
       )}
       {icon && !loading && icon}
       {children}
@@ -129,26 +129,26 @@ export const TouchIconButton: React.FC<TouchIconButtonProps> = ({
   `;
 
   const sizeClasses = {
-    sm: 'p-2 min-h-[36px] min-w-[36px]',
+    sm: 'p-2 min-h-[44px] min-w-[44px]',
     md: 'p-2.5 min-h-[44px] min-w-[44px]',
     lg: 'p-3 min-h-[48px] min-w-[48px]'
   };
 
   const variantClasses = {
     primary: `
-      bg-amber-500 text-white
-      hover:bg-amber-600 active:bg-amber-700
-      focus:ring-amber-500 focus:ring-offset-2
+      bg-[var(--primary)] text-black
+      hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)]
+      focus:ring-[var(--primary)] focus:ring-offset-2
     `,
     secondary: `
-      bg-white text-gray-700 border border-gray-300
-      hover:bg-gray-50 active:bg-gray-100
-      focus:ring-gray-400 focus:ring-offset-2
+      bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--gray-200)]
+      hover:bg-[var(--background-secondary)] active:bg-[var(--background-tertiary)]
+      focus:ring-[var(--gray-400)] focus:ring-offset-2
     `,
     ghost: `
-      bg-transparent text-gray-600
-      hover:bg-gray-100 active:bg-gray-200
-      focus:ring-gray-300 focus:ring-offset-2
+      bg-transparent text-[var(--foreground-secondary)]
+      hover:bg-[var(--background-secondary)] active:bg-[var(--background-tertiary)]
+      focus:ring-[var(--gray-400)] focus:ring-offset-2
     `
   };
 
@@ -199,21 +199,21 @@ export const TouchLink: React.FC<TouchLinkProps> = ({
   `;
 
   const sizeClasses = {
-    sm: 'px-3 py-2 text-sm min-h-[36px] min-w-[120px]',
+    sm: 'px-3 py-2 text-sm min-h-[44px] min-w-[120px]',
     md: 'px-4 sm:px-6 py-3 text-base min-h-[44px] min-w-[140px]',
     lg: 'px-6 sm:px-8 py-4 text-lg min-h-[48px] min-w-[160px]'
   };
 
   const variantClasses = {
     primary: `
-      bg-amber-500 text-white shadow-md hover:shadow-lg
-      hover:bg-amber-600 active:bg-amber-700
-      focus:ring-amber-500 focus:ring-offset-2
+      bg-[var(--primary)] text-black shadow-md hover:shadow-lg
+      hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)]
+      focus:ring-[var(--primary)] focus:ring-offset-2
     `,
     secondary: `
-      bg-white text-gray-700 border border-gray-300
-      hover:bg-gray-50 active:bg-gray-100
-      focus:ring-gray-400 focus:ring-offset-2
+      bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--gray-200)]
+      hover:bg-[var(--background-secondary)] active:bg-[var(--background-tertiary)]
+      focus:ring-[var(--gray-400)] focus:ring-offset-2
     `
   };
 

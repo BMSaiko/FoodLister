@@ -32,7 +32,7 @@ export default function PricingCard({ plan, isCurrentPlan, isPopular, onSubscrib
   return (
     <div className={`relative card overflow-hidden transition-all duration-300 ${isPopular ? 'ring-2 ring-primary shadow-xl scale-105' : 'hover:shadow-lg'}`}>
       {isPopular && (
-        <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+        <div className="absolute top-0 right-0 bg-primary text-black text-xs font-bold px-3 py-1 rounded-bl-lg">
           Mais Popular
         </div>
       )}
@@ -41,7 +41,7 @@ export default function PricingCard({ plan, isCurrentPlan, isPopular, onSubscrib
 
       <div className="p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${gradient} flex items-center justify-center text-white`}>
+          <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${gradient} flex items-center justify-center text-black`}>
             {icon}
           </div>
           <div>
@@ -94,7 +94,7 @@ export default function PricingCard({ plan, isCurrentPlan, isPopular, onSubscrib
             <button
               onClick={() => onSubscribe(plan.id, 'monthly')}
               disabled={loading}
-              className="w-full py-3 px-4 bg-primary text-white font-semibold rounded-[var(--radius-lg)] hover:bg-primary-dark transition-colors disabled:opacity-50"
+              className="w-full py-3 px-4 bg-primary text-black font-semibold rounded-[var(--radius-lg)] hover:bg-primary-dark transition-colors disabled:opacity-50"
             >
               {loading ? 'A processar...' : 'Subscrever Mensal'}
             </button>

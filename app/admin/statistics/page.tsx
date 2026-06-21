@@ -8,16 +8,16 @@ import { Users, UtensilsCrossed, Star, List, Calendar, Shield } from 'lucide-rea
 export default function AdminStatisticsPage() {
   const { stats, loading, error } = useAdminStats();
 
-  if (loading) return <p style={{ color: 'rgba(255,255,255,0.4)' }}>A carregar estatísticas...</p>;
-  if (error) return <p className="text-red-500">Erro: {error}</p>;
-  if (!stats) return <p style={{ color: 'rgba(255,255,255,0.4)' }}>Sem dados disponíveis</p>;
+  if (loading) return <p className="text-foreground-muted">A carregar estatísticas...</p>;
+  if (error) return <p className="text-red-400">Erro: {error}</p>;
+  if (!stats) return <p className="text-foreground-muted">Sem dados disponíveis</p>;
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.85)' }}>Estatísticas Detalhadas</h1>
+      <h1 className="text-2xl font-bold text-foreground">Estatísticas Detalhadas</h1>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.85)' }}>Utilizadores</h2>
+        <h2 className="text-lg font-semibold mb-3 text-foreground">Utilizadores</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard title="Total" value={stats.users.total} icon={Users} />
           <StatsCard title="Novos este mês" value={stats.users.newThisMonth} />
@@ -26,7 +26,7 @@ export default function AdminStatisticsPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.85)' }}>Restaurantes</h2>
+        <h2 className="text-lg font-semibold mb-3 text-foreground">Restaurantes</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard title="Total" value={stats.restaurants.total} icon={UtensilsCrossed} />
           <StatsCard title="Rating médio" value={stats.restaurants.averageRating} />
@@ -35,7 +35,7 @@ export default function AdminStatisticsPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.85)' }}>Reviews</h2>
+        <h2 className="text-lg font-semibold mb-3 text-foreground">Reviews</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatsCard title="Total" value={stats.reviews.total} icon={Star} />
           <StatsCard title="Rating médio" value={stats.reviews.averageRating} />
@@ -44,7 +44,7 @@ export default function AdminStatisticsPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3" style={{ color: 'rgba(255,255,255,0.85)' }}>Listas</h2>
+        <h2 className="text-lg font-semibold mb-3 text-foreground">Listas</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <StatsCard title="Total" value={stats.lists.total} icon={List} />
           <StatsCard title="Públicas" value={stats.lists.public} />
@@ -57,4 +57,3 @@ export default function AdminStatisticsPage() {
     </div>
   );
 }
-

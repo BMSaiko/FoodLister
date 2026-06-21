@@ -30,8 +30,8 @@ export default function ContactInfoCard({
   }
 
   return (
-      <div className="bg-white rounded-xl shadow-lg border border-[var(--gray-100)] p-4 sm:p-6 mb-4">
-        <div className="flex items-center text-[var(--gray-700)] text-xs sm:text-sm font-medium mb-3 sm:mb-4">
+      <div className="bg-[var(--card-bg)] rounded-xl shadow-lg border border-[var(--card-border)] p-4 sm:p-6 mb-4">
+        <div className="flex items-center text-[var(--gray-300)] text-xs sm:text-sm font-medium mb-3 sm:mb-4">
           <Phone className="h-4 w-4 sm:h-5 w-5 mr-2 sm:mr-3 text-[var(--amber-500)]" />
         <span className="text-sm sm:text-base font-semibold">Telefones para contato</span>
       </div>
@@ -44,7 +44,7 @@ export default function ContactInfoCard({
           return (
             <div
               key={index}
-                className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-[var(--gray-50)] to-[var(--gray-100)] rounded-lg border border-[var(--gray-200)] hover:border-[var(--amber-300)] transition-all duration-200 group hover:shadow-md"
+                className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-[var(--background-secondary)] to-[var(--background-tertiary)] rounded-lg border border-[var(--gray-200)] hover:border-[var(--amber-300)] transition-all duration-200 group hover:shadow-md"
             >
               <div className="flex-shrink-0 bg-white rounded-full p-2 sm:p-3 shadow-sm mr-2 sm:mr-4 group-hover:scale-110 transition-transform duration-200">
                   <PhoneIcon className="h-4 w-4 sm:h-5 w-5 text-[var(--amber-500)]" />
@@ -52,8 +52,8 @@ export default function ContactInfoCard({
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm sm:text-base font-medium text-[var(--gray-800)]">{phone}</span>
-                  <span className="text-xs text-[var(--gray-500)] bg-[var(--amber-100)] px-2 sm:px-3 py-0.5 sm:py-1.5 rounded-full font-medium">
+                  <span className="text-sm sm:text-base font-medium text-[var(--gray-200)]">{phone}</span>
+                  <span className="text-xs text-[var(--gray-400)] bg-[var(--amber-100)] px-2 sm:px-3 py-0.5 sm:py-1.5 rounded-full font-medium">
                     {phoneType === 'mobile' ? 'móvel' : 'fixo'}
                   </span>
                 </div>
