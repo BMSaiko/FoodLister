@@ -21,7 +21,7 @@ export default function GrowthChart({ data }: GrowthChartProps) {
 
   return (
     <div
-      className="group relative p-1.5 rounded-[2rem] transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]"
+      className="group relative p-1.5 rounded-[2rem] transition-opacity duration-150"
       style={{ animation: 'fadeUp 800ms ease forwards', opacity: 0, animationDelay: '400ms' }}
     >
       {/* Outer Shell */}

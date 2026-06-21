@@ -17,7 +17,12 @@ export async function GET(request: NextRequest) {
     const limit = Number(searchParams.get('limit') || '20');
     const from = (page - 1) * limit;
     const to = from + limit - 1;
-    const { data: reviews, count, error } = await admin.from('reviews').select('id, restaurant_id, user_id, rating, comment, user_name, created_at', { count: 'exact' }).order('created_at', { ascending: false }).range(from, to);
+    const search = searchParams.get('search') || '';
+    let query = admin.from('reviews').select('id, restaurant_id, user_id, rating, comment, user_name, created_at, restaurants(name, image_url)', { count: 'exact'});
+    if (search) {
+      query = query.or('user_name.ilike.%${search}%,comment.ilike.%${search}%');
+    }
+    const { data: reviews, count, error } = await query.order('created_at', { ascending: false }).range(from, to);
     if (error) { console.error('Admin reviews - query error:', error.message || error); return NextResponse.json({ error: error.message || 'Database error' }, { status: 500 }); }
     return NextResponse.json({ data: reviews, total: count, page, limit });
   } catch (error: any) {

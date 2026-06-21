@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
-    let query = admin.from('profiles').select('id, user_id, display_name, avatar_url, is_admin, is_verified, total_reviews, total_lists, total_restaurants_added, created_at', { count: 'exact' }).order('created_at', { ascending: false }).range(from, to);
+    let query = admin.from('profiles').select('id, user_id, display_name, avatar_url, is_admin, is_verified, is_active, total_reviews, total_lists, total_restaurants_added, created_at', { count: 'exact' }).order('created_at', { ascending: false }).range(from, to);
     if (search) query = query.ilike('display_name', `%${search}%`);
 
     const { data: users, count, error } = await query;

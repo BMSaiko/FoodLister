@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { deleteReview } from '@/libs/admin';
 
-export function useAdminReviews(page = 1, limit = 20) {
+export function useAdminReviews(page = 1, limit = 20, search = '') {
   const [reviews, setReviews] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -14,6 +14,7 @@ export function useAdminReviews(page = 1, limit = 20) {
     setError(null);
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+      if (search) params.set('search', search);
       const res = await fetch(`/api/admin/reviews?${params}`, { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch reviews');
       const { data, total: t } = await res.json();
@@ -23,7 +24,7 @@ export function useAdminReviews(page = 1, limit = 20) {
     } finally {
       setLoading(false);
     }
-  }, [page, limit]);
+  }, [page, limit, search]);
 
   const handleDelete = useCallback(async (reviewId: string) => {
     const success = await deleteReview(reviewId);
@@ -35,4 +36,3 @@ export function useAdminReviews(page = 1, limit = 20) {
 
   return { reviews, total, loading, error, refresh: fetchReviews, deleteReview: handleDelete };
 }
-

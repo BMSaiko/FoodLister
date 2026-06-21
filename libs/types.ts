@@ -468,6 +468,7 @@ export interface AdminUser {
   display_name: string | null;
   email?: string;
   avatar_url: string | null;
+  user_id_code?: string;
   is_admin: boolean;
   is_verified: boolean;
   is_active?: boolean;

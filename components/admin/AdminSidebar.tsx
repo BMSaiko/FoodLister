@@ -10,6 +10,7 @@ const navItems = [
   { href: '/admin/restaurants', label: 'Restaurantes', icon: UtensilsCrossed },
   { href: '/admin/reviews', label: 'Reviews', icon: Star },
   { href: '/admin/statistics', label: 'Estatísticas', icon: BarChart3 },
+  { href: '/restaurants', label: 'Voltar à App', icon: ArrowLeft, external: true },
 ];
 
 export default function AdminSidebar() {
@@ -20,7 +21,7 @@ export default function AdminSidebar() {
       {/* Logo */}
       <div className="mb-10">
         <Link href="/admin" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-shadow duration-300">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:shadow-amber-500/40 transition-colors duration-150">
             <span className="text-white text-lg font-bold">F</span>
           </div>
           <div>
@@ -38,7 +39,7 @@ export default function AdminSidebar() {
             <Link
               key={href}
               href={href}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
                 isActive
                   ? 'bg-white/10 text-white shadow-lg shadow-white/5'
                   : 'text-white/50 hover:text-white/80 hover:bg-white/5'
@@ -52,16 +53,6 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      {/* Back to App */}
-      <div className="absolute bottom-6 left-6 right-6">
-        <Link
-          href="/restaurants"
-          className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/40 hover:text-white/70 hover:bg-white/5 transition-all duration-300"
-        >
-          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-          Voltar à App
-        </Link>
-      </div>
     </aside>
   );
 }

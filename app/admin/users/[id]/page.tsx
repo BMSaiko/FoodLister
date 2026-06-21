@@ -65,7 +65,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
             {user.isActive !== false && (
               <button
                 onClick={() => setShowDeactivateModal(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 ring-1 ring-red-500/20 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-all duration-300"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 ring-1 ring-red-500/20 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-colors duration-150"
               >
                 <UserX className="h-4 w-4" />
                 Desativar

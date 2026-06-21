@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { createAdminClient } from '@/libs/supabase/admin';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { userId } = await request.json();
+    const { userId, action = 'deactivate' } = await request.json();
 
     if (!userId) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -55,10 +56,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Soft delete: set is_active = false (NEVER hard delete)
-    const { error: updateError } = await supabase
+    // Use admin client to bypass RLS for updating other users
+    const admin = createAdminClient();
+    if (!admin) {
+      const errorType = 'SERVICE_ROLE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: 'Admin client not configured', code: errorType },
+        { status: 500 }
+      );
+    }
+
+    // Determine is_active based on action
+    const isActive = action === 'reactivate';
+
+    // Soft delete: set is_active (NEVER hard delete)
+    const { error: updateError } = await admin
       .from('profiles')
-      .update({ is_active: false, updated_at: new Date().toISOString() })
+      .update({ is_active: isActive, updated_at: new Date().toISOString() })
       .eq('user_id', userId);
 
     if (updateError) {
@@ -71,9 +85,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      message: 'Utilizador desativado com sucesso',
+      message: isActive ? 'Utilizador reativado com sucesso' : 'Utilizador desativado com sucesso',
       userId,
-      isActive: false,
+      isActive,
     });
 
   } catch (error) {

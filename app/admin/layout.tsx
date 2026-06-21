@@ -1,8 +1,8 @@
-import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export const metadata = {
-  title: 'Admin Dashboard - FoodLister',
-  description: 'Painel de administração do FoodLister',
+  title: "Admin Dashboard - FoodLister",
+  description: "Painel de administração do FoodLister",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -17,6 +17,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <AdminSidebar />
       <main className="flex-1 p-8 overflow-auto relative z-10">
+        <header
+          className="flex items-center justify-between px-6 py-4 mb-6 rounded-xl border"
+          style={{
+            background: "rgba(10,10,10,0.8)",
+            backdropFilter: "blur(12px)",
+            borderColor: "rgba(255,255,255,0.08)",
+          }}
+        >
+          <h1 className="text-lg font-semibold text-[#f5f5f5]">FoodLister Admin</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-[#a0a0a0]">Administrador</span>
+            <a
+              href="/api/auth/signout"
+              className="text-sm text-[#f5f5f5] hover:text-amber-400 transition-colors"
+            >
+              Sair
+            </a>
+          </div>
+        </header>
         {children}
       </main>
     </div>
