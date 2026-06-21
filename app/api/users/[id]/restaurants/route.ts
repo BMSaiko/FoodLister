@@ -54,9 +54,9 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
     let nextCursor = null;
 
     if (loadAll) {
-      // Load all restaurants at once using the optimized view
+      // Load all restaurants with creator profile data
       const { data, error } = await supabase
-        .from('restaurant_data_view')
+        .from('restaurants')
         .select(`
           id,
           name,
@@ -66,13 +66,12 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
           rating,
           location,
           source_url,
-          creator,
+          creator_id,
           menu_url,
           visited,
           phone_numbers,
-          creator_id,
-          creator_name,
           created_at,
+          updated_at,
           images,
           display_image_index,
           menu_links,
@@ -81,7 +80,8 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
           longitude,
           cuisine_types,
           dietary_options,
-          features
+          features,
+          profiles!restaurants_creator_id_fkey(display_name)
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false });
@@ -178,12 +178,12 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       rating: row.rating,
       location: row.location,
       sourceUrl: row.source_url,
-      creator: row.creator,
+      creator: row.profiles?.display_name || row.creator,
       menuUrl: row.menu_url,
       visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
-      creatorName: row.creator_name,
+      creatorName: row.profiles?.display_name || row.creator_name,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       images: row.images,
@@ -307,9 +307,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     let nextCursor = null;
 
     if (loadAll) {
-      // Load all restaurants at once using the optimized view
+      // Load all restaurants with creator profile data
       const { data, error } = await supabase
-        .from('restaurant_data_view')
+        .from('restaurants')
         .select(`
           id,
           name,
@@ -319,13 +319,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           rating,
           location,
           source_url,
-          creator,
+          creator_id,
           menu_url,
           visited,
           phone_numbers,
-          creator_id,
-          creator_name,
           created_at,
+          updated_at,
           images,
           display_image_index,
           menu_links,
@@ -334,7 +333,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           longitude,
           cuisine_types,
           dietary_options,
-          features
+          features,
+          profiles!restaurants_creator_id_fkey(display_name)
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false });
@@ -431,12 +431,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       rating: row.rating,
       location: row.location,
       sourceUrl: row.source_url,
-      creator: row.creator,
+      creator: row.profiles?.display_name || row.creator,
       menuUrl: row.menu_url,
       visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
-      creatorName: row.creator_name,
+      creatorName: row.profiles?.display_name || row.creator_name,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       images: row.images,
