@@ -72,8 +72,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
           phone_numbers,
           creator_id,
           creator_name,
-          created_at,
-          profiles!restaurants_creator_id_fkey(display_name)
+          created_at
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false });
@@ -181,7 +180,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
-      creatorName: row.profiles?.display_name || row.creator_name,
+      creatorName: row.creator_name,
       createdAt: row.created_at,
       updatedAt: row.updated_at
     }));
@@ -314,8 +313,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           phone_numbers,
           creator_id,
           creator_name,
-          created_at,
-          profiles!restaurants_creator_id_fkey(display_name)
+          created_at
         `)
         .eq('creator_id', targetUserId)
         .order('created_at', { ascending: false });
@@ -423,7 +421,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
-      creatorName: row.profiles?.display_name || row.creator_name,
+      creatorName: row.creator_name,
       createdAt: row.created_at,
       updatedAt: row.updated_at
     }));
