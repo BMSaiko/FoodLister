@@ -58,7 +58,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   className = ''
 }) => {
   const isEditing = editingReviewId === review.id;
-  const restaurant = review.restaurant || review.restaurant_data || null;
+  const restaurant = review.restaurant || null;
   const hasImage = restaurant?.imageUrl || (restaurant?.images && restaurant?.images.length > 0);
 
   // Function to categorize price level

@@ -176,7 +176,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   };
 
   const handleShareReview = (review: any) => {
-    const restaurant = review.restaurant || review.restaurant_data || {};
+    const restaurant = review.restaurant || {};
     const reviewUrl = `${window.location.origin}/restaurants/${restaurant.id}?review=${review.id}`;
     
     if (navigator.share && !navigator.userAgent.includes('Firefox')) {

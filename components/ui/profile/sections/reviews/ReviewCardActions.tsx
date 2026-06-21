@@ -37,7 +37,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
   const { user } = useAuth();
   const { openMapModal } = useModal();
   const [isSharing, setIsSharing] = useState(false);
-  const restaurant = review.restaurant || review.restaurant_data || null;
+  const restaurant = review.restaurant || null;
 
   const handleOpenMapModal = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,7 +62,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
     setIsSharing(true);
     
     try {
-      const restaurantId = restaurant?.id || review.restaurant_id;
+      const restaurantId = restaurant?.id;
       const restaurantName = restaurant?.name || 'Restaurante';
       const reviewUrl = `${window.location.origin}/restaurants/${restaurantId}?review=${review.id}`;
       
