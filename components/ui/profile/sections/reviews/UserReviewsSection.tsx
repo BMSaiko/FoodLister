@@ -176,11 +176,12 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   };
 
   const handleShareReview = (review: any) => {
-    const reviewUrl = `${window.location.origin}/restaurants/${review.restaurant.id}?review=${review.id}`;
+    const restaurant = review.restaurant || review.restaurant_data || {};
+    const reviewUrl = `${window.location.origin}/restaurants/${restaurant.id}?review=${review.id}`;
     
     if (navigator.share && !navigator.userAgent.includes('Firefox')) {
       navigator.share({
-        title: `Avaliação de ${review.restaurant.name} - FoodList`,
+        title: `Avaliação de ${restaurant.name || 'Restaurante'} - FoodList`,
         text: `Confira minha avaliação deste restaurante no FoodList!`,
         url: reviewUrl,
       }).catch(() => {

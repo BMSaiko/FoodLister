@@ -58,7 +58,8 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   className = ''
 }) => {
   const isEditing = editingReviewId === review.id;
-  const hasImage = review.restaurant.imageUrl || (review.restaurant.images && review.restaurant.images.length > 0);
+  const restaurant = review.restaurant || review.restaurant_data || null;
+  const hasImage = restaurant?.imageUrl || (restaurant?.images && restaurant.images.length > 0);
 
   // Function to categorize price level
   const categorizePriceLevel = (price: number) => {
@@ -112,7 +113,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
     }
 
     // Navigate to restaurant page with review parameter
-    window.location.href = `/restaurants/${review.restaurant.id}?review=${review.id}`;
+    window.location.href = `/restaurants/${restaurant.id}?review=${review.id}`;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -120,7 +121,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
     if (e.key === 'Enter' || e.key === ' ') {
       if (!isEditing) {
         e.preventDefault();
-        window.location.href = `/restaurants/${review.restaurant.id}?review=${review.id}`;
+        window.location.href = `/restaurants/${restaurant.id}?review=${review.id}`;
       }
     }
   };
@@ -139,7 +140,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      aria-label={`Avaliação de ${review.restaurant.name} - ${review.rating.toFixed(1)}/5 estrelas`}
+      aria-label={`Avaliação de ${restaurant.name} - ${review.rating.toFixed(1)}/5 estrelas`}
     >
       {/* Restaurant Image Section - Clickable for navigation */}
       <div 
@@ -148,8 +149,8 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
       >
         {hasImage ? (
           <img
-            src={convertCloudinaryUrl(review.restaurant.imageUrl || (review.restaurant.images && review.restaurant.images[0]) || '')}
-            alt={review.restaurant.name}
+            src={convertCloudinaryUrl(restaurant.imageUrl || (restaurant.images && restaurant.images[0]) || '')}
+            alt={restaurant.name}
             className="w-full h-full object-cover"
             style={{
               minWidth: '100%',
@@ -165,11 +166,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         )}
 
         {/* Restaurant Rating Badge */}
-        {review.restaurant.rating && (
-          <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(review.restaurant.rating)}`}>
+        {restaurant.rating && (
+          <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(restaurant.rating)}`}>
             <div className="flex items-center gap-1">
               <Star className="h-3 w-3" fill="currentColor" />
-              <span className="font-semibold text-xs">{(review.restaurant.rating ?? 0).toFixed(1)}/5</span>
+              <span className="font-semibold text-xs">{(restaurant.rating ?? 0).toFixed(1)}/5</span>
             </div>
           </div>
         )}
@@ -178,7 +179,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
         <div className="absolute bottom-3 left-3 right-3">
           <div className="bg-[var(--white)]/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
             <h3 className="text-lg font-bold text-[var(--gray-900)] line-clamp-1">
-              {review.restaurant.name}
+              {restaurant.name}
             </h3>
           </div>
         </div>
