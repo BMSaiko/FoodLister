@@ -1,22 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
-import { 
-  validateProfileAccess, 
-  getUserProfileData, 
-  getUserReviewsData, 
+import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import {
+  validateProfileAccess,
+  getUserProfileData,
+  getUserReviewsData,
   getUserListsData
 } from '@/libs/auth';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const response = new NextResponse();
-    const supabase = await getServerClient(request, response) as any;
+    const { id: userId } = await params;
 
-    if (!supabase) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: 'Invalid user ID' },
+        { status: 400 }
       );
+    }
+
+    // Try authenticated client first
+    const response = new NextResponse();
+    let supabase = await getServerClient(request, response) as any;
+
+    // If no auth, use public client for public profiles
+    if (!supabase) {
+      supabase = await getPublicServerClient();
+      if (!supabase) {
+        return NextResponse.json(
+          { error: 'Service unavailable' },
+          { status: 503 }
+        );
+      }
     }
 
     // Get the authenticated user (optional for public profiles)
@@ -27,19 +41,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         currentUserId = authResult.data.user.id;
       }
     } catch (error) {
-      console.warn('Authentication check failed:', error);
+      // Ignore auth errors for public access
     }
 
-    const { id: userId } = await params;
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Invalid user ID' },
-        { status: 400 }
-      );
-    }
-
-    // 1. Validar acesso ao perfil
+    // 1. Validate profile access
     const accessValidation = await validateProfileAccess(
       supabase,
       userId,
@@ -47,7 +52,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
 
     if (!accessValidation.canAccess) {
-      // Para não revelar a existência de perfis privados, retornamos 404
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -63,7 +67,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    // 2. Buscar dados do perfil
+    // 2. Get profile data
     const profileData = await getUserProfileData(
       supabase,
       targetUserId,
@@ -77,19 +81,19 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    // 3. Buscar dados adicionais baseados no nível de acesso
+    // 3. Get additional data based on access level
     const [reviewsData, listsData] = await Promise.all([
       getUserReviewsData(supabase, targetUserId, accessLevel as 'OWNER' | 'PUBLIC' | 'PRIVATE', 1, 12),
       getUserListsData(supabase, targetUserId, accessLevel as 'OWNER' | 'PUBLIC' | 'PRIVATE', 1, 12)
     ]);
 
-    // 4. Contagem de restaurantes criados (sempre público)
+    // 4. Count created restaurants (always public)
     const { count: restaurantsCount } = await supabase
       .from('restaurants')
       .select('id', { count: 'exact', head: true })
       .eq('creator_id', targetUserId);
 
-    // 5. Transformar a resposta para corresponder à interface frontend
+    // 5. Build response
     const userProfile = {
       id: profileData.user_id,
       userIdCode: profileData.user_id_code,
@@ -98,7 +102,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       location: profileData.location,
       bio: profileData.bio,
       website: profileData.website,
-      phoneNumber: profileData.phone_number, // Adicionado phoneNumber
+      phoneNumber: profileData.phone_number,
       publicProfile: profileData.public_profile,
       createdAt: profileData.created_at,
       updatedAt: profileData.updated_at,
