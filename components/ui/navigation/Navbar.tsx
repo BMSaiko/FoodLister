@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
 import SearchBar from './Searchbar';
@@ -143,6 +143,17 @@ export default function Navbar() {
               </Link>
             )}
 
+            {/* Roulette button (logged in) */}
+            {user && (
+              <Link
+                href="/roulette"
+                className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 hover:border-purple-500/30 transition-all duration-200 hover:scale-110"
+                title="Roleta de Restaurantes"
+              >
+                <Shuffle className="w-4 h-4 text-purple-400" />
+              </Link>
+            )}
+
             {/* User Menu */}
             {user ? (
               <div className="relative" ref={userMenuRef}>
@@ -252,6 +263,7 @@ export default function Navbar() {
           {[
             { id: 'home', icon: Menu, label: 'Home', href: '/' },
             { id: 'restaurants', icon: Search, label: 'Restaurantes', href: '/restaurants' },
+            { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
             { id: 'profile', icon: User, label: 'Perfil', href: user ? `/users/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
           ].map((item) => (
