@@ -51,9 +51,9 @@ export default function NotificationsPage() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'meal_invitation':
-        return <Utensils className="h-5 w-5 text-primary" />;
+        return <Utensils className="h-5 w-5 text-purple-400" />;
       default:
-        return <Bell className="h-5 w-5 text-foreground-secondary" />;
+        return <Bell className="h-5 w-5 text-white/90-secondary" />;
     }
   };
 
@@ -74,7 +74,7 @@ export default function NotificationsPage() {
 
   return (
     <ErrorBoundary pageName="Notifications">
-    <div className="min-h-screen bg-background-secondary">
+    <div className="min-h-screen bg-[var(--background)]">
       <Navbar />
       <Container variant="narrow" className="py-6 sm:py-8">
         <PageHeader
@@ -100,8 +100,8 @@ export default function NotificationsPage() {
             onClick={() => setShowUnreadOnly(!showUnreadOnly)}
             className={`flex items-center space-x-2 px-4 py-2.5 rounded-[var(--radius-lg)] transition-colors text-sm font-medium min-h-[44px] ${
               showUnreadOnly
-                ? 'bg-primary-lighter text-primary-dark'
-                : 'bg-gray-100 text-foreground-secondary hover:bg-gray-200'
+                ? 'bg-primary-lighter text-purple-400-dark'
+                : 'bg-white/[0.04] text-white/50 hover:bg-white/[0.08]'
             }`}
           >
             <Filter className="h-4 w-4" />
@@ -113,16 +113,16 @@ export default function NotificationsPage() {
         <div className="space-y-3">
           {loading && displayNotifications.length === 0 ? (
             <div className="card p-8 flex items-center justify-center">
-              <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              <span className="ml-3 text-foreground-secondary">A carregar notificações...</span>
+              <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
+              <span className="ml-3 text-white/90-secondary">A carregar notificações...</span>
             </div>
           ) : displayNotifications.length === 0 ? (
             <div className="card p-8 text-center">
               <Bell className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+              <h3 className="text-lg font-semibold text-white/90 mb-2">
                 {showUnreadOnly ? 'Sem notificações não lidas' : 'Sem notificações'}
               </h3>
-              <p className="text-foreground-secondary text-sm">
+              <p className="text-white/90-secondary text-sm">
                 {showUnreadOnly
                   ? 'Todas as notificações já foram lidas.'
                   : 'Ainda não tens notificações.'}
@@ -133,7 +133,7 @@ export default function NotificationsPage() {
               <div
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}
-                className={`card p-4 cursor-pointer transition-all hover:shadow-lg ${
+                className={`p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all ${
                   notification.read ? '' : 'border-primary-light'
                 }`}
               >
@@ -141,7 +141,7 @@ export default function NotificationsPage() {
                   {/* Icon */}
                   <div className="flex-shrink-0 mt-1">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      notification.read ? 'bg-gray-100' : 'bg-primary-lighter'
+                      notification.read ? 'bg-white/[0.02]' : 'bg-purple-500/10'
                     }`}>
                       {getNotificationIcon(notification.type)}
                     </div>
@@ -151,14 +151,14 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-foreground">{notification.title}</p>
-                        <p className="text-sm text-foreground-secondary mt-1">{notification.message}</p>
-                        <p className="text-xs text-foreground-muted mt-2">{formatTimeAgo(notification.created_at)}</p>
+                        <p className="text-sm font-semibold text-white/90">{notification.title}</p>
+                        <p className="text-sm text-white/90-secondary mt-1">{notification.message}</p>
+                        <p className="text-xs text-white/90-muted mt-2">{formatTimeAgo(notification.created_at)}</p>
                       </div>
                       {/* Delete button */}
                       <button
                         onClick={(e) => handleDelete(e, notification.id)}
-                        className="flex-shrink-0 p-2 text-foreground-muted hover:text-error transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        className="flex-shrink-0 p-2 text-white/90-muted hover:text-error transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                         aria-label="Eliminar notificação"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -166,7 +166,7 @@ export default function NotificationsPage() {
                     </div>
                     {/* Status badge */}
                     {!notification.read && (
-                      <span className="inline-block mt-2 px-2.5 py-1 bg-primary-lighter text-primary-dark text-xs font-medium rounded-full">
+                      <span className="inline-block mt-2 px-2.5 py-1 bg-primary-lighter text-purple-400-dark text-xs font-medium rounded-full">
                         Não lida
                       </span>
                     )}

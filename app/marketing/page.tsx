@@ -27,30 +27,30 @@ export default function MarketingPage() {
 
   return (
     <FeatureGate feature="marketing_dashboard" currentTier="free" fallback={
-      <div className="min-h-screen bg-background-secondary">
+      <div className="min-h-screen bg-[var(--background)]">
         <Navbar />
         <Container variant="narrow" className="py-16">
-          <div className="card p-8 text-center max-w-md mx-auto">
-            <Zap className="h-12 w-12 text-primary mx-auto mb-4" />
+          <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] text-center max-w-md mx-auto">
+            <Zap className="h-12 w-12 text-purple-400 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-foreground mb-2">Marketing AI</h1>
             <p className="text-foreground-secondary mb-6">
               Cria conteúdo para redes sociais com IA, gere campanhas e automatize a tua presença digital.
             </p>
-            <button onClick={handleUpgrade} className="btn btn-primary">
+            <button onClick={handleUpgrade} className="btn bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
               Upgrade para Premium
             </button>
           </div>
         </Container>
       </div>
     }>
-      <div className="min-h-screen bg-background-secondary">
+      <div className="min-h-screen bg-[var(--background)]">
         <Navbar />
         <Container variant="wide" className="py-6">
           <PageHeader
             title="Marketing AI"
             subtitle="Cria conteúdo para redes sociaux com IA"
             action={
-              <button className="btn btn-primary btn-sm">
+              <button className="btn bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all btn-sm">
                 <Plus className="h-4 w-4" />
                 Nova Campanha
               </button>
@@ -70,7 +70,7 @@ export default function MarketingPage() {
                 className={`flex items-center gap-2 px-4 py-2 rounded-[var(--radius-lg)] text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-foreground-secondary hover:bg-gray-200'
+                    : 'bg-white/[0.04] text-white/50 hover:bg-white/[0.08]'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -81,7 +81,7 @@ export default function MarketingPage() {
 
           {/* Content */}
           {loading ? (
-            <div className="card p-8 flex items-center justify-center">
+            <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : activeTab === 'campaigns' ? (
@@ -98,8 +98,8 @@ export default function MarketingPage() {
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold text-foreground">{campaign.name}</h3>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        campaign.status === 'active' ? 'bg-green-100 text-green-700' :
-                        campaign.status === 'draft' ? 'bg-gray-100 text-gray-600' :
+                        campaign.status === 'active' ? 'bg-emerald-500/10 text-emerald-400' :
+                        campaign.status === 'draft' ? 'bg-white/[0.04] text-white/40' :
                         campaign.status === 'paused' ? 'bg-yellow-100 text-yellow-700' :
                         'bg-blue-100 text-blue-700'
                       }`}>
@@ -112,7 +112,7 @@ export default function MarketingPage() {
                     {campaign.targetPlatforms && campaign.targetPlatforms.length > 0 && (
                       <div className="flex gap-1 flex-wrap">
                         {campaign.targetPlatforms.map((p) => (
-                          <span key={p} className="text-xs bg-primary-lighter text-primary-dark px-2 py-0.5 rounded">
+                          <span key={p} className="text-xs bg-primary-lighter text-purple-400-dark px-2 py-0.5 rounded">
                             {p}
                           </span>
                         ))}
@@ -134,19 +134,19 @@ export default function MarketingPage() {
                 {posts.map((post) => (
                   <div key={post.id} className="card p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-primary">{post.platform}</span>
+                      <span className="text-xs font-medium text-purple-400">{post.platform}</span>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        post.status === 'published' ? 'bg-green-100 text-green-700' :
+                        post.status === 'published' ? 'bg-emerald-500/10 text-emerald-400' :
                         post.status === 'scheduled' ? 'bg-blue-100 text-blue-700' :
                         post.status === 'failed' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-600'
+                        'bg-white/[0.04] text-white/40'
                       }`}>
                         {post.status}
                       </span>
                     </div>
                     <p className="text-sm text-foreground-secondary line-clamp-3 mb-3">{post.content}</p>
                     {post.aiGenerated && (
-                      <span className="text-xs bg-primary-lighter text-primary-dark px-2 py-0.5 rounded">
+                      <span className="text-xs bg-primary-lighter text-purple-400-dark px-2 py-0.5 rounded">
                         ✨ AI Generated
                       </span>
                     )}
@@ -168,7 +168,7 @@ export default function MarketingPage() {
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold text-foreground">{wf.name}</h3>
                       <span className={`text-xs px-2 py-1 rounded-full ${
-                        wf.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                        wf.isActive ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/[0.04] text-white/40'
                       }`}>
                         {wf.isActive ? 'Ativo' : 'Inativo'}
                       </span>

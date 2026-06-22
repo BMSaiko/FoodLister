@@ -98,10 +98,10 @@ export default function AuthDebugPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[var(--background)] py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">Auth Debug Page</h1>
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6">
+          <h1 className="text-2xl font-bold text-white/95 mb-6">Auth Debug Page</h1>
           
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -111,7 +111,7 @@ export default function AuthDebugPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Session Information */}
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
               <h2 className="text-lg font-semibold mb-4">Session Information</h2>
               {loading ? (
                 <p className="text-gray-600">Loading...</p>
@@ -129,7 +129,7 @@ export default function AuthDebugPage() {
             </div>
 
             {/* Actions */}
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
               <h2 className="text-lg font-semibold mb-4">Actions</h2>
               <div className="space-y-2">
                 <button
@@ -163,7 +163,7 @@ export default function AuthDebugPage() {
           {/* Authentication History */}
           <div className="mt-8">
             <h2 className="text-lg font-semibold mb-4">Authentication History</h2>
-            <div className="bg-gray-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 max-h-64 overflow-y-auto">
               {authHistory.length > 0 ? (
                 <div className="space-y-2">
                   {authHistory.map((event, index) => (

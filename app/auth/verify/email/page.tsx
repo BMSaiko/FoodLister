@@ -43,7 +43,7 @@ export default function VerifyEmailPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
+        <h1 className="text-2xl font-bold text-white/85 text-center mb-6">
           Verificação de Email
         </h1>
 
@@ -90,7 +90,7 @@ export default function VerifyEmailPage() {
               </Link>
               <Link
                 href="/"
-                className="block w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-center"
+                className="block w-full px-4 py-2 border border-gray-300 text-white/70 rounded-md hover:bg-gray-50 text-center"
               >
                 Página Inicial
               </Link>

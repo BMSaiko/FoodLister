@@ -80,7 +80,7 @@ export default function PricingPage() {
   const popularPlanId = plans.find(p => p.name.toLowerCase().includes('premium'))?.id;
 
   return (
-    <div className="min-h-screen bg-background-secondary">
+    <div className="min-h-screen bg-[var(--background)]">
       <Navbar />
       <Container variant="wide" className="py-12">
         <PageHeader
@@ -89,9 +89,9 @@ export default function PricingPage() {
           backLink="/"
         />
 
-        <div className="flex items-center gap-2 justify-center mb-8 p-4 bg-primary-lighter/30 rounded-[var(--radius-lg)]">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <p className="text-sm text-primary-dark font-medium">
+        <div className="flex items-center gap-2 justify-center mb-8 p-4 bg-purple-500/10 rounded-2xl">
+          <Sparkles className="h-5 w-5 text-purple-400" />
+          <p className="text-sm text-purple-300 font-medium">
             Todos os planos incluem acesso ao suporte da comunidade
           </p>
         </div>
@@ -99,7 +99,7 @@ export default function PricingPage() {
         {fetching ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[1, 2, 3].map(i => (
-              <div key={i} className="card h-96 skeleton" />
+              <div key={i} className="h-96 rounded-2xl bg-white/[0.03] border border-white/[0.06] animate-pulse" />
             ))}
           </div>
         ) : (
@@ -119,7 +119,7 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="max-w-3xl mx-auto mt-16">
-          <h2 className="text-2xl font-bold text-center text-foreground mb-8">Perguntas Frequentes</h2>
+          <h2 className="text-2xl font-bold text-center text-white/90 mb-8">Perguntas Frequentes</h2>
           <div className="space-y-4">
             {[
               {
@@ -135,9 +135,9 @@ export default function PricingPage() {
                 a: 'Sim, podes fazer upgrade ou downgrade do teu plano a qualquer momento.',
               },
             ].map((faq, i) => (
-              <div key={i} className="card p-6">
-                <h3 className="font-semibold text-foreground mb-2">{faq.q}</h3>
-                <p className="text-sm text-foreground-secondary">{faq.a}</p>
+              <div key={i} className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+                <h3 className="font-semibold text-white/90 mb-2">{faq.q}</h3>
+                <p className="text-sm text-white/90-secondary">{faq.a}</p>
               </div>
             ))}
           </div>

@@ -13,7 +13,7 @@ export default function VerifySuccessPage() {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-3">
+        <h1 className="text-2xl font-bold text-white/85 mb-3">
           Email Verificado!
         </h1>
 
@@ -30,7 +30,7 @@ export default function VerifySuccessPage() {
           </Link>
           <Link
             href="/"
-            className="block w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+            className="block w-full px-4 py-2 border border-gray-300 text-white/70 rounded-md hover:bg-gray-50 transition-colors"
           >
             Ir para Página Inicial
           </Link>

@@ -262,12 +262,12 @@ export default function MealDetailsPage() {
   if (loading) {
     return (
       <ErrorBoundary pageName="MealDetails">
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[var(--background)]">
           <Navbar />
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
-              <span className="ml-3 text-gray-600">A carregar detalhes da refeição...</span>
+              <span className="ml-3 text-white/50">A carregar detalhes da refeição...</span>
             </div>
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function MealDetailsPage() {
   if (!meal) {
     return (
       <ErrorBoundary pageName="MealDetails">
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[var(--background)]">
           <Navbar />
           <div className="container mx-auto px-4 py-8">
             <div className="text-center py-20">
@@ -301,21 +301,21 @@ export default function MealDetailsPage() {
 
   return (
     <ErrorBoundary pageName="MealDetails">
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--background)]">
       <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         {/* Back button */}
         <button
           onClick={() => router.back()}
-          className="flex items-center text-gray-600 hover:text-amber-600 mb-6 transition-colors"
+          className="flex items-center text-white/50 hover:text-amber-600 mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Voltar
         </button>
 
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-8">
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden mb-6">
+          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-6 py-8">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-amber-100 rounded-xl">
@@ -360,21 +360,21 @@ export default function MealDetailsPage() {
           {/* Details */}
           <div className="px-6 py-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 text-gray-700">
+              <div className="flex items-center space-x-3 text-white/70">
                 <Calendar className="h-5 w-5 text-amber-500" />
                 <div>
                   <p className="text-sm text-gray-500">Data</p>
                   <p className="font-medium">{formatDate(meal.mealDate)}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 text-gray-700">
+              <div className="flex items-center space-x-3 text-white/70">
                 <Clock className="h-5 w-5 text-amber-500" />
                 <div>
                   <p className="text-sm text-gray-500">Hora</p>
                   <p className="font-medium">{meal.mealTime}</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 text-gray-700">
+              <div className="flex items-center space-x-3 text-white/70">
                 <Clock className="h-5 w-5 text-amber-500" />
                 <div>
                   <p className="text-sm text-gray-500">Duração</p>
@@ -382,7 +382,7 @@ export default function MealDetailsPage() {
                 </div>
               </div>
               {meal.restaurant?.location && (
-                <div className="flex items-center space-x-3 text-gray-700">
+                <div className="flex items-center space-x-3 text-white/70">
                   <svg className="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -398,7 +398,7 @@ export default function MealDetailsPage() {
         </div>
 
         {/* Organizer */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Organizador</h2>
           <div className="flex items-center space-x-3">
             {meal.organizer?.avatarUrl ? (
@@ -425,7 +425,7 @@ export default function MealDetailsPage() {
 
         {/* Participants */}
         {meal.participants.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6 mb-6">
             <div className="flex items-center space-x-2 mb-4">
               <Users className="h-5 w-5 text-amber-500" />
               <h2 className="text-lg font-semibold text-gray-900">
@@ -443,7 +443,7 @@ export default function MealDetailsPage() {
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600">
+                      <div className="h-8 w-8 rounded-full bg-white/[0.06] flex items-center justify-center text-sm font-medium text-white/50">
                         {participant.profile?.displayName?.charAt(0) || '?'}
                       </div>
                     )}
@@ -464,7 +464,7 @@ export default function MealDetailsPage() {
         )}
 
         {/* Actions */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Ações</h2>
           <div className="space-y-3">
             {/* Download ICS */}
@@ -480,7 +480,7 @@ export default function MealDetailsPage() {
             {meal.googleCalendarLink && (
               <button
                 onClick={handleGoogleCalendar}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-white border-2 border-amber-500 text-amber-600 rounded-lg hover:bg-amber-50 transition-colors font-medium"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-white border-2 border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors font-medium"
               >
                 <ExternalLink className="h-5 w-5" />
                 <span>Adicionar ao Google Calendar</span>
@@ -540,13 +540,13 @@ export default function MealDetailsPage() {
       {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4">
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 px-6 py-4 rounded-t-xl border-b border-gray-100">
+          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] max-w-lg w-full mx-4">
+            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-6 py-4 rounded-t-xl border-b border-white/[0.06]">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-gray-900">Editar Refeição</h3>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-white/50"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -554,7 +554,7 @@ export default function MealDetailsPage() {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-gray-700 font-semibold mb-2 text-sm">Data</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">Data</label>
                 <input
                   type="date"
                   value={editForm.mealDate}
@@ -564,7 +564,7 @@ export default function MealDetailsPage() {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2 text-sm">Hora</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">Hora</label>
                 <input
                   type="time"
                   value={editForm.mealTime}
@@ -573,7 +573,7 @@ export default function MealDetailsPage() {
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2 text-sm">Tipo de refeição</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">Tipo de refeição</label>
                 <select
                   value={editForm.mealType}
                   onChange={(e) => setEditForm(prev => ({ ...prev, mealType: e.target.value }))}
@@ -588,7 +588,7 @@ export default function MealDetailsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-gray-700 font-semibold mb-2 text-sm">Duração (minutos)</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">Duração (minutos)</label>
                 <select
                   value={editForm.durationMinutes}
                   onChange={(e) => setEditForm(prev => ({ ...prev, durationMinutes: Number(e.target.value) }))}
@@ -603,10 +603,10 @@ export default function MealDetailsPage() {
                 </select>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-gray-100 flex justify-end space-x-3">
+            <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end space-x-3">
               <button
                 onClick={() => setShowEditModal(false)}
-                className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                className="px-6 py-2.5 bg-white/[0.04] text-white/70 rounded-lg hover:bg-white/[0.06] transition-colors font-medium"
               >
                 Cancelar
               </button>
@@ -625,19 +625,19 @@ export default function MealDetailsPage() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] max-w-md w-full mx-4">
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="h-6 w-6 text-red-600" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar refeição?</h3>
-              <p className="text-gray-600 text-sm mb-6">
+              <p className="text-white/50 text-sm mb-6">
                 Esta ação irá eliminar a refeição e todas as participações associadas. Esta ação não pode ser desfeita.
               </p>
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  className="flex-1 px-6 py-2.5 bg-white/[0.04] text-white/70 rounded-lg hover:bg-white/[0.06] transition-colors font-medium"
                 >
                   Cancelar
                 </button>
