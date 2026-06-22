@@ -1,63 +1,118 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/auth/useAuth';
+import type { Notification, NotificationType } from '@/types/notification';
 
-export interface Notification {
-  id: string;
-  user_id: string;
-  type: string;
-  title: string;
-  message: string;
-  link: string | null;
-  read: boolean;
-  created_at: string;
-  updated_at: string;
+interface UseNotificationsOptions {
+  unreadOnly?: boolean;
+  types?: NotificationType[];
+  limit?: number;
+  polling?: boolean;
+  pollingInterval?: number;
 }
 
-export function useNotifications() {
+interface UseNotificationsReturn {
+  notifications: Notification[];
+  unreadCount: number;
+  loading: boolean;
+  error: string | null;
+  fetchNotifications: (append?: boolean) => Promise<void>;
+  markAsRead: (notificationId: string) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
+  deleteNotification: (notificationId: string) => Promise<void>;
+  hasMore: boolean;
+  loadMore: () => Promise<void>;
+}
+
+export function useNotifications(options: UseNotificationsOptions = {}): UseNotificationsReturn {
+  const {
+    unreadOnly = false,
+    types,
+    limit = 50,
+    polling = true,
+    pollingInterval = 30000,
+  } = options;
+
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const offsetRef = useRef(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const fetchNotifications = useCallback(async (unreadOnly = false) => {
+  const buildUrl = useCallback((currentLimit: number, currentOffset: number) => {
+    const params = new URLSearchParams();
+    params.set('limit', String(currentLimit));
+    params.set('offset', String(currentOffset));
+    if (unreadOnly) params.set('unreadOnly', 'true');
+    if (types && types.length > 0) types.forEach(t => params.append('type', t));
+    return `/api/notifications?${params.toString()}`;
+  }, [unreadOnly, types]);
+
+  const fetchNotifications = useCallback(async (append = false) => {
     if (!user) return;
 
     setLoading(true);
-    try {
-      const response = await fetch(
-        `/api/notifications?unreadOnly=${unreadOnly}`
-      );
+    setError(null);
 
-      if (response.ok) {
-        const result = await response.json();
-        setNotifications(result.data || []);
-        setUnreadCount(result.unreadCount || 0);
+    const currentOffset = append ? offsetRef.current : 0;
+
+    try {
+      const response = await fetch(buildUrl(limit, currentOffset), {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.status}`);
       }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
+
+      const result = await response.json();
+      const newNotifications: Notification[] = result.data || [];
+
+      if (append) {
+        setNotifications(prev => [...prev, ...newNotifications]);
+      } else {
+        setNotifications(newNotifications);
+      }
+
+      setUnreadCount(result.unreadCount || 0);
+      setHasMore(newNotifications.length >= limit);
+      offsetRef.current = currentOffset + newNotifications.length;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro ao carregar notificações';
+      setError(msg);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, buildUrl, limit]);
+
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+    await fetchNotifications(true);
+  }, [loading, hasMore, fetchNotifications]);
 
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
       const response = await fetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notificationId, read: true })
+        credentials: 'include',
+        body: JSON.stringify({ notificationId, read: true }),
       });
 
-      if (response.ok) {
-        setNotifications(prev =>
-          prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
-        );
-        setUnreadCount(prev => Math.max(0, prev - 1));
+      if (!response.ok) {
+        throw new Error('Failed to mark as read');
       }
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
+
+      setNotifications(prev =>
+        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
     }
   }, []);
 
@@ -66,15 +121,18 @@ export function useNotifications() {
       const response = await fetch('/api/notifications', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
+        credentials: 'include',
+        body: JSON.stringify({}),
       });
 
-      if (response.ok) {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-        setUnreadCount(0);
+      if (!response.ok) {
+        throw new Error('Failed to mark all as read');
       }
-    } catch (error) {
-      console.error('Error marking all as read:', error);
+
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Error marking all as read:', err);
     }
   }, []);
 
@@ -83,47 +141,75 @@ export function useNotifications() {
       const response = await fetch('/api/notifications', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notificationId })
+        credentials: 'include',
+        body: JSON.stringify({ notificationId }),
       });
 
-      if (response.ok) {
-        setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      if (!response.ok) {
+        throw new Error('Failed to delete');
       }
-    } catch (error) {
-      console.error('Error deleting notification:', error);
+
+      setNotifications(prev => {
+        const removed = prev.find(n => n.id === notificationId);
+        if (removed && !removed.read) {
+          setUnreadCount(p => Math.max(0, p - 1));
+        }
+        return prev.filter(n => n.id !== notificationId);
+      });
+    } catch (err) {
+      console.error('Error deleting notification:', err);
     }
   }, []);
 
-  // Poll for unread count every 30 seconds (for the badge)
+  // Initial fetch
   useEffect(() => {
-    if (!user) return;
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const fetchUnreadCount = async () => {
-      try {
-        const response = await fetch('/api/notifications?unreadOnly=true');
-        if (response.ok) {
-          const result = await response.json();
-          setUnreadCount(result.unreadCount || 0);
+  // Smart polling with visibility check
+  useEffect(() => {
+    if (!user || !polling) return;
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
         }
-      } catch (error) {
-        console.error('Error fetching unread count:', error);
+      } else {
+        if (!intervalRef.current) {
+          intervalRef.current = setInterval(() => {
+            fetchNotifications(false);
+          }, pollingInterval);
+        }
       }
     };
 
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000);
+    intervalRef.current = setInterval(() => {
+      fetchNotifications(false);
+    }, pollingInterval);
 
-    return () => clearInterval(interval);
-  }, [user]);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [user, polling, pollingInterval]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     notifications,
     unreadCount,
     loading,
+    error,
     fetchNotifications,
     markAsRead,
     markAllAsRead,
-    deleteNotification
+    deleteNotification,
+    hasMore,
+    loadMore,
   };
 }
 

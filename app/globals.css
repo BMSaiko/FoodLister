@@ -592,3 +592,14 @@ html {
 .particle-burst {
   animation: particle-burst 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* === NOTIFICATIONS DESIGN SYSTEM === */
+.notification-unread-dot {
+  background: var(--primary);
+}
+.notification-bg-unread {
+  background: rgba(245, 158, 11, 0.04);
+}
+.notification-border-unread {
+  border-color: rgba(245, 158, 11, 0.15);
+}
