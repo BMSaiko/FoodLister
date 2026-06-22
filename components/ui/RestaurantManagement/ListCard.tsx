@@ -1,13 +1,16 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Utensils, User, Globe, Lock, ArrowRight, Trash2, Tag, Image as ImageIcon } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Globe, Lock, Trash2, User, Tag } from 'lucide-react';
 import { toast } from 'react-toastify';
 import type { List } from '@/libs/types';
+import ListCardCover from '@/components/ui/lists/ListCardCover';
+import ListHoverPreview from '@/components/ui/lists/ListHoverPreview';
 
 interface ListCardProps {
-  list: List;
+  list: List & { restaurants?: any[] };
   restaurantCount?: number;
   isOwner?: boolean;
   onDelete?: (listId: string) => void;
@@ -15,11 +18,9 @@ interface ListCardProps {
 
 const ListCard = ({ list, restaurantCount = 0, isOwner = false, onDelete }: ListCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
-  const isPublic = (list as any).is_public !== false;
+
+  const isPublic = list.is_public !== false;
   const tags = (list as any).tags as string[] | undefined;
-  const coverImageUrl = (list as any).cover_image_url as string | undefined;
   const createdDate = new Date(list.created_at).toLocaleDateString('pt-PT', {
     day: '2-digit',
     month: 'short',
@@ -29,178 +30,100 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, onDelete }: List
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/lists/${list.id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete list');
-      }
-
-      toast.success('Lista eliminada com sucesso!');
+      const response = await fetch(`/api/lists/${list.id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to delete');
+      toast.success('Lista eliminada!');
       onDelete?.(list.id);
-    } catch (error: any) {
-      console.error('Error deleting list:', error);
-      toast.error(error.message || 'Erro ao eliminar lista');
+    } catch {
+      toast.error('Erro ao eliminar lista');
     } finally {
       setIsDeleting(false);
-      setShowDeleteConfirm(false);
     }
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowDeleteConfirm(true);
-  };
-
   return (
-    <div className="group relative h-full">
-      <Link href={`/lists/${list.id}`} className="block h-full">
-        <div className="bg-[var(--card-bg)] rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full w-full flex flex-col border border-[var(--gray-100)]">
-          {/* Cover image if available */}
-          {coverImageUrl && (
-            <div className="relative h-32 overflow-hidden">
-              <img 
-                src={coverImageUrl} 
-                alt={list.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-[rgba(0,0,0,0.5)]" />
-              <div className="absolute bottom-2 left-3 flex items-center gap-1 text-[var(--primary-foreground)] text-xs">
-                <ImageIcon className="h-3 w-3" />
-                <span>Capa personalizada</span>
-              </div>
-            </div>
-          )}
-           
-          {/* Top section with icon and badge */}
-          <div className={`p-4 sm:p-5 ${coverImageUrl ? 'pt-3' : 'pb-0'}`}>
-            <div className="flex justify-between items-start mb-3">
-              <div className="bg-gradient-to-br from-[var(--amber-100)] to-[var(--orange-100)] rounded-xl p-3 w-12 h-12 flex items-center justify-center shadow-sm">
-                <Utensils className="h-5 w-5 text-[var(--amber-600)]" />
-              </div>
-               
-              <div className="flex items-center gap-1">
-                {/* Privacy indicator */}
-                <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium shadow-sm ${
-                  isPublic 
-                    ? 'bg-gradient-to-r from-[var(--green-100)] to-[var(--green-200)] text-[var(--green-700)]' 
-                    : 'bg-gradient-to-r from-[var(--red-100)] to-[var(--red-50)] text-[var(--red-700)]'
+    <ListHoverPreview restaurants={list.restaurants || []}>
+      <motion.article
+        whileHover={{ y: -4 }}
+        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="group relative h-full"
+      >
+        <Link href={`/lists/${list.id}`} className="block h-full">
+          <div className="rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-150 h-full flex flex-col">
+            {/* Cover */}
+            <ListCardCover name={list.name} className="h-28 sm:h-32" />
+
+            {/* Content */}
+            <div className="p-4 sm:p-5 flex-1 flex flex-col">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h3 className="font-bold text-[var(--foreground)] line-clamp-1 group-hover:text-[var(--primary)] transition-colors">
+                  {list.name}
+                </h3>
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0 ${
+                  isPublic
+                    ? 'bg-emerald-500/10 text-emerald-400'
+                    : 'bg-red-500/10 text-red-400'
                 }`}>
-                  {isPublic ? (
-                    <><Globe className="h-3 w-3" /> Pública</>
-                  ) : (
-                    <><Lock className="h-3 w-3" /> Privada</>
-                  )}
+                  {isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+                  {isPublic ? 'Pública' : 'Privada'}
                 </span>
-                
-                {/* Delete button for owners */}
-                {isOwner && (
-                  <button
-                    onClick={handleDeleteClick}
-                    className="p-1.5 rounded-full bg-[var(--red-50)] text-[var(--red-500)] hover:bg-[var(--red-100)] transition-colors opacity-0 group-hover:opacity-100"
-                    title="Eliminar lista"
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                )}
               </div>
-            </div>
-          </div>
-           
-          {/* Content section */}
-          <div className="px-4 sm:px-5 pb-4 sm:pb-5 flex-grow flex flex-col">
-            <h3 className="font-bold text-base sm:text-lg text-[var(--gray-800)] line-clamp-1 group-hover:text-[var(--amber-600)] transition-colors">
-              {list.name}
-            </h3>
-            <p className="text-[var(--gray-500)] mt-2 flex-grow text-sm sm:text-base line-clamp-2 leading-relaxed">
-              {list.description || 'Sem descrição'}
-            </p>
-             
-            {/* Tags */}
-            {tags && tags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {tags.slice(0, 3).map((tag: string, index: number) => (
-                  <span 
-                    key={index}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--amber-50)] text-[var(--amber-700)] rounded-full text-xs font-medium"
-                  >
-                    <Tag className="h-2.5 w-2.5" />
-                    {tag}
-                  </span>
-                ))}
-                {tags.length > 3 && (
-                  <span className="text-xs text-[var(--gray-500)] px-1">+{tags.length - 3}</span>
-                )}
-              </div>
-            )}
-             
-            {/* Bottom section with stats */}
-            <div className="mt-4 pt-4 border-t border-[var(--gray-100)]">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                <div className="flex items-center gap-3 text-xs text-[var(--gray-500)]">
-                  <span className="bg-[var(--amber-50)] text-[var(--amber-700)] px-2 py-0.5 rounded-full font-medium">
+
+              {/* Description */}
+              {list.description && (
+                <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2 mb-3 flex-1">
+                  {list.description}
+                </p>
+              )}
+
+              {/* Tags */}
+              {tags && tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {tags.slice(0, 3).map((tag: string, i: number) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-medium">
+                      <Tag className="w-2.5 h-2.5" />
+                      {tag}
+                    </span>
+                  ))}
+                  {tags.length > 3 && (
+                    <span className="text-[10px] text-[var(--foreground-muted)] px-1">+{tags.length - 3}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-[var(--foreground-muted)]">
+                  <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">
                     {restaurantCount} {restaurantCount === 1 ? 'restaurante' : 'restaurantes'}
                   </span>
-                  <span className="text-[var(--gray-400)]">•</span>
                   <span>{createdDate}</span>
                 </div>
-                
+
                 {list.creator && (
-                  <div className="flex items-center text-xs text-[var(--gray-500)]">
-                    <User className="h-3 w-3 mr-1 text-[var(--gray-400)]" />
-                    <span className="truncate max-w-[120px]">{list.creator}</span>
+                  <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
+                    <User className="w-3 h-3" />
+                    <span className="truncate max-w-[80px]">{list.creator}</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
-           
-          {/* Hover indicator */}
-          <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
-            <div className="flex items-center text-[var(--amber-600)] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-              Ver lista <ArrowRight className="h-4 w-4 ml-1" />
-            </div>
-          </div>
-        </div>
-      </Link>
-       
-      {/* Delete confirmation modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-50 p-4">
-          <div className="bg-[var(--card-bg)] rounded-2xl p-6 max-w-sm w-full shadow-xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-[var(--red-100)] rounded-full p-2">
-                <Trash2 className="h-5 w-5 text-[var(--red-600)]" />
-              </div>
-              <h3 className="font-bold text-lg text-[var(--gray-800)]">Eliminar Lista</h3>
-            </div>
-            <p className="text-[var(--gray-600)] mb-6">
-              Tem a certeza que deseja eliminar a lista <strong>"{list.name}"</strong>? Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 bg-[var(--gray-100)] text-[var(--gray-700)] rounded-lg hover:bg-[var(--gray-200)] transition-colors font-medium"
-                disabled={isDeleting}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleDelete}
-                className="flex-1 px-4 py-2 bg-[var(--red-600)] text-[var(--primary-foreground)] rounded-lg hover:bg-[var(--red-700)] transition-colors font-medium disabled:opacity-50"
-                disabled={isDeleting}
-              >
-                {isDeleting ? 'A eliminar...' : 'Eliminar'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        </Link>
+
+        {/* Delete button */}
+        {isOwner && (
+          <button
+            onClick={(e) => { e.preventDefault(); handleDelete(); }}
+            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            title="Eliminar lista"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-white/80" />
+          </button>
+        )}
+      </motion.article>
+    </ListHoverPreview>
   );
 };
 

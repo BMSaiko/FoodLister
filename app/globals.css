@@ -485,3 +485,51 @@ html {
 .fab-pulse {
   animation: fab-pulse 2s ease-in-out infinite;
 }
+
+
+/* === LISTS PAGE CREATIVE === */
+
+/* Masonry grid for lists */
+.lists-grid {
+  columns: 1;
+  column-gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .lists-grid { columns: 2; }
+}
+
+@media (min-width: 1024px) {
+  .lists-grid { columns: 3; }
+}
+
+.lists-grid > * {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}
+
+/* Tag filter scroll snap */
+.tag-filter-scroll {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tag-filter-scroll > * {
+  scroll-snap-align: start;
+}
+
+/* List card hover lift */
+@keyframes card-lift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+
+/* Empty state animation */
+@keyframes empty-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.empty-state-icon {
+  animation: empty-bounce 3s ease-in-out infinite;
+}
