@@ -878,7 +878,6 @@ export default function RestaurantDetails() {
               reviews={reviews}
               reviewCount={reviewCount}
               user={user}
-              userProfile={userProfile}
               loading={loadingReviews}
               onReviewSubmitted={handleReviewSubmitted}
               onEditReview={handleEditReview}
