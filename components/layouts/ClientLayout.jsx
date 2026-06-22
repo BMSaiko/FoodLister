@@ -3,6 +3,8 @@
 
 import React from 'react';
 import { AuthProvider, FiltersProvider } from "@/contexts";
+import { SearchProvider } from "@/contexts/SearchContext";
+import GlobalSearchModal from "@/components/ui/GlobalSearchModal";
 import { ModalProvider } from "@/contexts/ModalContext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
