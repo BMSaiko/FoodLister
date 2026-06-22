@@ -14,23 +14,15 @@ interface RestaurantInfoSectionProps {
   source_url?: string;
 }
 
-// Helper function to detect if a number is mobile or fixed
 const detectPhoneType = (phoneNumber: string): string => {
-  // Clean the number removing spaces, hyphens, parentheses
   const cleanNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
-
-  // Remove country code if exists (+351 or 351)
   let numberWithoutCountry = cleanNumber;
   if (cleanNumber.startsWith('+351')) {
     numberWithoutCountry = cleanNumber.substring(4);
   } else if (cleanNumber.startsWith('351')) {
     numberWithoutCountry = cleanNumber.substring(3);
   }
-
-  // Check first 2 digits (area code)
   const areaCode = numberWithoutCountry.substring(0, 2);
-
-  // Mobile codes in Portugal: 91, 92, 93, 96
   const mobileCodes = ['91', '92', '93', '96'];
   return mobileCodes.includes(areaCode) ? 'mobile' : 'landline';
 };
@@ -45,10 +37,9 @@ export default function RestaurantInfoSection({
   longitude,
   source_url
 }: RestaurantInfoSectionProps) {
-  
+
   const { openMapModal } = useModal();
-  
-  // Check if we have any information to display
+
   const hasInfo = location || sourceUrl || menuLinks.length > 0 || menuImages.length > 0 || phoneNumbers.length > 0;
 
   if (!hasInfo) {
@@ -56,138 +47,116 @@ export default function RestaurantInfoSection({
   }
 
   return (
-    <div className="bg-[var(--card-bg)] rounded-xl shadow-lg border border-[var(--card-border)] p-4 sm:p-6 mb-4">
-      <h3 className="text-base sm:text-lg font-semibold text-[var(--foreground)] mb-3 sm:mb-4 flex items-center">
-        <span className="mr-2">📋</span>
-        Informações do Restaurante
+    <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 sm:p-6 mb-4">
+      <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
+        Informacoes
       </h3>
-      
-      <div className="space-y-3 sm:space-y-4">
-        {/* Location - Available for all users */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {location && (
           <div
-            className="flex items-center p-2 sm:p-4 bg-[var(--info-light)] rounded-lg sm:rounded-xl border border-[var(--info-light)] hover:bg-[var(--info-light)]/70 active:bg-[var(--info-light)] transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
+            className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl ring-1 ring-white/10 hover:bg-white/[0.05] transition-colors duration-150 cursor-pointer min-h-[48px]"
             onClick={() => openMapModal({ location, latitude, longitude, source_url })}
           >
-            <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-4">
-              <MapPin className="h-4 w-4 sm:h-5 w-5 text-[var(--info)]" />
+            <div className="flex-shrink-0 bg-amber-500/10 rounded-lg p-2">
+              <MapPin className="h-4 w-4 text-amber-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs sm:text-sm font-medium text-[var(--foreground)] mb-1">Localização</div>
-              <p className="text-xs sm:text-sm text-[var(--foreground-secondary)] truncate">{location}</p>
-            </div>
-            <div className="flex-shrink-0 text-[var(--info)] text-xs sm:text-sm font-medium">
-              Abrir no mapa
+              <div className="text-xs font-medium text-white/40 mb-0.5">Localizacao</div>
+              <p className="text-sm text-white/80 truncate">{location}</p>
             </div>
           </div>
         )}
 
-        {/* Phone Numbers */}
-        {phoneNumbers.length > 0 && (
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center text-[var(--foreground-secondary)] text-xs sm:text-sm font-medium mb-1 sm:mb-2">
-              <Phone className="h-3 w-3 sm:h-4 w-4 mr-1 sm:mr-2 text-primary" />
-              Telefones para contato
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-              {phoneNumbers.map((phone, index) => {
-                const phoneType = detectPhoneType(phone);
-                const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
-
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center p-2 sm:p-3 bg-[var(--background-secondary)] rounded-lg border border-[var(--card-border)] hover:border-primary transition-all duration-200 group hover:shadow-md"
-                  >
-                    <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-3 group-hover:scale-110 transition-transform duration-200">
-                      <PhoneIcon className="h-3 w-3 sm:h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs sm:text-sm font-medium text-[var(--foreground-secondary)]">{phone}</span>
-                        <span className="text-xs text-[var(--foreground-muted)] bg-[var(--primary-lighter)] px-1 sm:px-2 py-0.5 rounded-full">
-                          {phoneType === 'mobile' ? 'móvel' : 'fixo'}
-                        </span>
-                      </div>
-                    </div>
-                    <a
-                      href={`tel:${phone}`}
-                      className="ml-1 sm:ml-2 p-0.5 sm:p-1 hover:bg-[var(--primary-lighter)] rounded-full transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                        <svg className="h-3 w-3 sm:h-4 w-4 text-primary-hover" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                    </a>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        
-        {/* Source URL */}
-        {sourceUrl && (
-          <div 
-            className="flex items-center p-2 sm:p-4 bg-[var(--background-secondary)] rounded-lg sm:rounded-xl border border-[var(--card-border)] hover:bg-[var(--background-tertiary)] active:bg-[var(--background-tertiary)] transition-all duration-200 cursor-pointer min-h-[48px] sm:min-h-[64px]"
-            onClick={() => window.open(sourceUrl, '_blank', 'noopener,noreferrer')}
+        {(sourceUrl || source_url) && (
+          <a
+            href={sourceUrl || source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl ring-1 ring-white/10 hover:bg-white/[0.05] transition-colors duration-150 min-h-[48px]"
           >
-            <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-4">
-              <Globe className="h-4 w-4 sm:h-5 w-5 text-[var(--foreground-muted)]" />
+            <div className="flex-shrink-0 bg-blue-500/10 rounded-lg p-2">
+              <Globe className="h-4 w-4 text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs sm:text-sm font-medium text-[var(--foreground)] mb-1">Fonte Original</div>
-              <p className="text-xs sm:text-sm text-[var(--foreground-secondary)] truncate">{sourceUrl}</p>
+              <div className="text-xs font-medium text-white/40 mb-0.5">Website</div>
+              <p className="text-sm text-blue-400 truncate">Abrir site</p>
             </div>
-            <a 
-              href={sourceUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:text-primary-hover hover:underline text-xs sm:text-sm font-medium"
-              onClick={(e) => e.stopPropagation()}
-            >
-              Visitar site
-            </a>
-          </div>
+          </a>
         )}
 
-        {/* Menu Links */}
-        {menuLinks.length > 0 && (
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex items-center text-[var(--foreground-secondary)] text-xs sm:text-sm font-medium">
-              <Globe className="h-3 w-3 sm:h-4 w-4 mr-1 sm:mr-2 text-primary" />
-              Links de Menus ({menuLinks.length})
+        {menuLinks && menuLinks.length > 0 && (
+          <a
+            href={menuLinks[0]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl ring-1 ring-white/10 hover:bg-white/[0.05] transition-colors duration-150 min-h-[48px]"
+          >
+            <div className="flex-shrink-0 bg-orange-500/10 rounded-lg p-2">
+              <FileText className="h-4 w-4 text-orange-400" />
             </div>
-            <div className="space-y-1 sm:space-y-2">
-              {menuLinks.map((link, index) => (
-                <div
-                  key={index}
-                  className="flex items-center p-2 sm:p-3 bg-[var(--primary-lighter)] rounded-lg border border-primary hover:bg-[var(--primary-light)] transition-all duration-200 cursor-pointer min-h-[44px] sm:min-h-[56px]"
-                  onClick={() => window.open(link, '_blank', 'noopener,noreferrer')}
-                >
-                  <div className="flex-shrink-0 bg-white rounded-full p-1 sm:p-2 shadow-sm mr-2 sm:mr-3">
-                    <FileText className="h-3 w-3 sm:h-4 w-4 text-primary-hover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm text-[var(--foreground-secondary)] truncate">{link}</p>
-                  </div>
-                  <span className="text-primary hover:text-primary-hover hover:underline text-xs sm:text-sm font-medium ml-1 sm:ml-2">
-                    Ver menu
-                  </span>
-                </div>
-              ))}
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-white/40 mb-0.5">Menu</div>
+              <p className="text-sm text-orange-400 truncate">Ver menu</p>
             </div>
-          </div>
+          </a>
         )}
 
-        {/* Menu Images */}
-        {menuImages.length > 0 && (
+        {phoneNumbers && phoneNumbers.length > 0 && (
+          <a
+            href={'tel:' + phoneNumbers[0]}
+            className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl ring-1 ring-white/10 hover:bg-white/[0.05] transition-colors duration-150 min-h-[48px]"
+          >
+            <div className="flex-shrink-0 bg-green-500/10 rounded-lg p-2">
+              {detectPhoneType(phoneNumbers[0]) === 'mobile' ? (
+                <Smartphone className="h-4 w-4 text-green-400" />
+              ) : (
+                <Phone className="h-4 w-4 text-green-400" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-white/40 mb-0.5">Telefone</div>
+              <p className="text-sm text-green-400 truncate">{phoneNumbers[0]}</p>
+            </div>
+          </a>
+        )}
+      </div>
+
+      {menuImages && menuImages.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-white/[0.06]">
+          <div className="flex items-center mb-3">
+            <div className="bg-purple-500/10 rounded-lg p-1.5 mr-2">
+              <ImageIcon className="h-4 w-4 text-purple-400" />
+            </div>
+            <span className="text-sm font-medium text-white/70">Fotos do Menu</span>
+          </div>
           <HorizontalImageList
             images={menuImages}
             title="Imagens do Menu"
           />
-        )}
-      </div>
+        </div>
+      )}
+
+      {phoneNumbers && phoneNumbers.length > 1 && (
+        <div className="mt-4 pt-4 border-t border-white/[0.06] space-y-2">
+          {phoneNumbers.slice(1).map((phone, index) => (
+            <a
+              key={index}
+              href={'tel:' + phone}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors duration-150"
+            >
+              <div className="bg-white/[0.05] rounded-full p-1.5">
+                {detectPhoneType(phone) === 'mobile' ? (
+                  <Smartphone className="h-3 w-3 text-white/40" />
+                ) : (
+                  <Phone className="h-3 w-3 text-white/40" />
+                )}
+              </div>
+              <span className="text-sm text-white/60">{phone}</span>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
