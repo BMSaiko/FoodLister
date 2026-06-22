@@ -29,8 +29,8 @@ interface ReviewCardProps {
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, onDelete, onShare, className = "" }) => {
-  const restaurant = review.restaurant;
-  const hasImage = !!restaurant?.imageUrl;
+  const restaurant = review.restaurant || {};
+  const hasImage = !!(restaurant as any).imageUrl;
 
   return (
     <div className={`p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-200 hover:scale-[1.01] ${className}`}>

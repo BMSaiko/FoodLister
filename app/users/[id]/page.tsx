@@ -241,14 +241,14 @@ const UserProfilePage = () => {
                           <div key={review.id} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <p className="font-medium text-white/80 text-sm">{review.restaurant.name}</p>
+                                <p className="font-medium text-white/80 text-sm">{review.restaurant?.name || "Restaurante"}</p>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-amber-400 text-sm font-semibold">{review.rating}/5</span>
                                   <span className="text-white/25 text-xs">{new Date(review.createdAt).toLocaleDateString("pt-PT")}</span>
                                 </div>
                               </div>
-                              {review.restaurant.imageUrl && (
-                                <img src={review.restaurant.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                              {review.restaurant?.imageUrl && (
+                                <img src={review.restaurant?.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover" />
                               )}
                             </div>
                             {review.comment && <p className="text-white/40 text-sm line-clamp-2">{review.comment}</p>}
