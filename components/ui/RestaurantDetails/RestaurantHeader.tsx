@@ -136,7 +136,7 @@ export default function RestaurantHeader({
             </div>
           </div>
 
-          <div className="hidden md:flex flex-col gap-3">
+          <div className="flex flex-col gap-3">
             {showActions && (
               <div className="flex items-center gap-3">
                 <button

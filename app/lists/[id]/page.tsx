@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/auth/useAuth";
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
@@ -61,6 +61,7 @@ interface List {
 
 export default function ListDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const { user } = useAuth();
   const [list, setList] = useState<List | null>(null);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -117,7 +118,7 @@ export default function ListDetails() {
     try {
       const res = await fetch(`/api/lists/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: `${list.name} (Copia)` }), credentials: "include" });
       const data = await res.json();
-      if (res.ok) { toast.success("Lista duplicada!"); window.location.href = `/lists/${data.list.id}`; }
+      if (res.ok) { toast.success("Lista duplicada!"); router.push(`/lists/${data.list.id}`); }
       else toast.error(data.error || "Erro ao duplicar");
     } catch { toast.error("Erro ao duplicar"); }
     finally { setDuplicating(false); }
@@ -132,7 +133,7 @@ export default function ListDetails() {
       console.log("Delete response status:", res.status);
       const data = await res.json().catch(() => ({}));
       console.log("Delete response data:", data);
-      if (res.ok) { toast.success("Lista eliminada!"); window.location.href = "/lists"; }
+      if (res.ok) { toast.success("Lista eliminada!"); router.push("/lists"); }
       else toast.error(data.error || `Erro ao eliminar (${res.status})`);
     } catch (e) { console.error("Delete error:", e); toast.error("Erro ao eliminar"); }
     finally { setDeleting(false); }

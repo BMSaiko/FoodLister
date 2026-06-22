@@ -347,34 +347,38 @@ export default function RestaurantDetails() {
 
   // Handle scroll to review when reviewId is present
   useEffect(() => {
-    if (reviewId && allDataLoaded && reviewsSectionRef.current) {
-      // Find the review element by ID
+    if (!reviewId || !allDataLoaded) return;
+
+    const scrollToReview = () => {
       const reviewElement = document.getElementById(`review-${reviewId}`);
       if (reviewElement) {
-        // Scroll to the review with smooth animation
         reviewElement.scrollIntoView({ 
           behavior: 'smooth', 
           block: 'center',
           inline: 'nearest'
         });
-        
-        // Add a temporary highlight effect
-        reviewElement.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+        reviewElement.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-2xl');
         setTimeout(() => {
-          reviewElement.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-lg');
+          reviewElement.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-2xl');
         }, 3000);
+        return true;
       }
+      return false;
+    };
+
+    if (!scrollToReview()) {
+      const t1 = setTimeout(() => scrollToReview(), 300);
+      const t2 = setTimeout(() => scrollToReview(), 800);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
     }
   }, [reviewId, allDataLoaded]);
 
   // Track when all data is loaded
   useEffect(() => {
-    if (!loading && !loadingReviews && restaurant && reviews.length >= 0) {
+    if (!loading && !loadingReviews && restaurant) {
       setAllDataLoaded(true);
-    } else {
-      setAllDataLoaded(false);
     }
-  }, [loading, loadingReviews, restaurant, reviews.length]);
+  }, [loading, loadingReviews, restaurant]);
 
 
 

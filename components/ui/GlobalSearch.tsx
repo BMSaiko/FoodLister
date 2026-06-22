@@ -135,16 +135,13 @@ export default function GlobalSearch() {
   }, [query, search]);
 
   const handleSelect = (result: SearchResult) => {
-    // Close modal immediately, then navigate
     setIsOpen(false);
     setQuery("");
     setActiveIndex(-1);
-    // Use requestAnimationFrame to ensure DOM updates before navigation
-    requestAnimationFrame(() => {
-      if (result.type === "restaurant") router.push(`/restaurants/${result.id}`);
-      else if (result.type === "list") router.push(`/lists/${result.id}`);
-      else if (result.type === "user") router.push(`/users/${result.userIdCode || result.id}`);
-    });
+    // Navigate directly — useEffect with pathname closes modal on route change
+    if (result.type === "restaurant") router.push(`/restaurants/${result.id}`);
+    else if (result.type === "list") router.push(`/lists/${result.id}`);
+    else if (result.type === "user") router.push(`/users/${result.userIdCode || result.id}`);
   };
 
   if (!isOpen) return null;
@@ -159,7 +156,7 @@ export default function GlobalSearch() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh]"
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[5vh] md:pt-[10vh]"
       role="dialog"
       aria-modal="true"
       aria-label="Pesquisa global"
@@ -172,7 +169,7 @@ export default function GlobalSearch() {
         aria-hidden="true"
       />
       {/* Modal */}
-      <div className="relative w-full max-w-lg mx-4 bg-[#0a0a0a] rounded-2xl shadow-2xl border border-white/[0.08] overflow-hidden">
+      <div className="relative w-full max-w-lg mx-3 sm:mx-4 bg-[#0a0a0a] rounded-2xl shadow-2xl border border-white/[0.08] overflow-hidden">
         {/* Input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]">
           {loading ? (

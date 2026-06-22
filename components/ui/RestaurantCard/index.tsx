@@ -29,8 +29,14 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   const [visited, setVisited] = useState(visitsData?.visited || false);
 
   const isLarge = variant === 'large';
-  const hasImage = restaurant.image_url || (restaurant.images && restaurant.images.length > 0);
-  const imageUrl = restaurant.images?.[0] || restaurant.image_url || '';
+  const isValidUrl = (url: string | null | undefined): boolean => {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim();
+    if (!trimmed || trimmed === '/placeholder-restaurant.jpg' || trimmed.startsWith('data:image')) return false;
+    return trimmed.startsWith('http');
+  };
+  const hasImage = isValidUrl(restaurant.image_url) || (restaurant.images?.some(img => isValidUrl(img)) ?? false);
+  const imageUrl = restaurant.images?.find(img => isValidUrl(img)) || (isValidUrl(restaurant.image_url) ? restaurant.image_url : '');
 
   return (
     <motion.article
