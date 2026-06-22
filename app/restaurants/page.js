@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
@@ -14,8 +14,8 @@ import { useSearchParams } from 'next/navigation';
 
 import HeroRestaurantCard from '@/components/ui/RestaurantList/HeroRestaurantCard';
 import { RestaurantGrid } from '@/components/ui/RestaurantList/RestaurantGrid';
-import TabbedRestaurantFilters from '@/components/ui/Filters/TabbedRestaurantFilters';
-import { FilterStats } from '@/components/ui/Filters/FilterStats';
+import RestaurantFilters from '@/components/ui/Filters/RestaurantFilters';
+
 import Skeleton from '@/components/ui/Skeleton';
 
 function RestaurantsContent() {
@@ -24,7 +24,8 @@ function RestaurantsContent() {
   const { user } = useAuth();
   const { restaurants, loading } = useRestaurants({ searchQuery });
   const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
-  const { filters, setFilters, filteredRestaurants, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
+  const { filters, setFilters, filteredRestaurants: _, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
+  const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -34,16 +35,9 @@ function RestaurantsContent() {
 
         {/* Filters */}
         <div className="mb-6 md:mb-8">
-          <TabbedRestaurantFilters
-            filters={filters}
-            setFilters={setFilters}
-            activeFilters={activeFilters}
-            clearFilters={clearFilters}
-          />
-          <FilterStats
-            total={restaurants.length}
-            filtered={filteredRestaurants.length}
-            activeFilters={activeFilters}
+          <RestaurantFilters
+            restaurants={restaurants}
+            onFiltered={(filtered) => setFilteredRestaurants(filtered)}
           />
         </div>
 
