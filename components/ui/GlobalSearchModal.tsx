@@ -16,8 +16,10 @@ interface SearchResult {
 import { useSearch } from "@/contexts/SearchContext";
 
 export default function GlobalSearchModal() {
-  const { setSearchOpen } = useSearch();
+  const { searchOpen, setSearchOpen } = useSearch();
   const onClose = () => setSearchOpen(false);
+
+  if (!searchOpen) return null;
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
