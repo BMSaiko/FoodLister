@@ -7,7 +7,7 @@ import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'mot
 import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
-import GlobalSearch from '../GlobalSearch';
+import GlobalSearchModal from '../GlobalSearchModal';
 import NotificationsDropdown from './NotificationsDropdown';
 
 interface ProfileData {
@@ -53,18 +53,7 @@ export default function Navbar() {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    const SearchTrigger = () => (
-    <button
-      onClick={() => setSearchOpen(true)}
-      className="hidden md:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.08] hover:bg-white/[0.08] transition-colors cursor-text group"
-    >
-      <Search className="h-4 w-4 text-white/25 flex-shrink-0" />
-      <span className="text-sm text-white/25 truncate flex-1 text-left">Pesquisar...</span>
-      <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-white/20 bg-white/[0.04] border border-white/[0.06]">⌘K</kbd>
-    </button>
-  );
-
-  return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Fetch user profile
@@ -154,6 +143,9 @@ export default function Navbar() {
           <div className="hidden md:block flex-1 max-w-[280px]">
             <SearchTrigger />
           </div>
+
+          {/* Global Search Modal */}
+          {searchOpen && <GlobalSearchModal onClose={() => setSearchOpen(false)} />}
 
           {/* Actions */}
           <div className="flex items-center gap-1.5">
