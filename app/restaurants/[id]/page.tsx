@@ -24,14 +24,10 @@ import ScheduleMealModal from "@/components/ui/RestaurantDetails/ScheduleMealMod
 import { useModal } from "@/contexts/ModalContext";
 
 import Link from "next/link";
-import { Share2, Calendar, Edit, MapPin, Globe, FileText, ImageIcon, Phone, Check, X, Plus, Star, Tag, User, Clock, ListChecks, Smartphone, Home, Euro } from "lucide-react";
-import { formatDescription, categorizePriceLevel, getRatingClass, formatDate, formatPrice } from "@/utils/formatters";
-import { convertCloudinaryUrl } from "@/utils/cloudinaryConverter";
+import { Share2, Calendar, Edit, MapPin, Globe, FileText, Phone, Check, X, Plus, Star, ListChecks, Smartphone, Euro } from "lucide-react";
+import { categorizePriceLevel, getRatingClass, formatDate, formatPrice } from "@/utils/formatters";
 import { logError, logWarn, logInfo } from "@/utils/logger";
 import { toast } from "react-toastify";
-import Image from "next/image";
-import RestaurantCarousel from "@/components/ui/RestaurantList/RestaurantCarousel";
-import RestaurantImagePlaceholder from "@/components/ui/RestaurantManagement/RestaurantImagePlaceholder";
 
 interface Restaurant {
   id: string;
