@@ -429,3 +429,59 @@ html {
   from { height: 56px; }
   to { height: 72px; }
 }
+
+
+/* === RESTAURANTS PAGE CREATIVE === */
+
+/* Masonry grid */
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-rows: 1px;
+  gap: 1.5rem;
+}
+
+/* Hover reveal animation */
+@keyframes hover-reveal-slide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hover-reveal-enter {
+  animation: hover-reveal-slide 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Card image zoom on hover */
+.card-image-zoom {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.group:hover .card-image-zoom {
+  transform: scale(1.05);
+}
+
+/* Scroll snap filters */
+.scroll-snap-filters {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.scroll-snap-filters > * {
+  scroll-snap-align: start;
+}
+
+/* Floating action button pulse */
+@keyframes fab-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 4px 30px rgba(245, 158, 11, 0.5); }
+}
+
+.fab-pulse {
+  animation: fab-pulse 2s ease-in-out infinite;
+}
