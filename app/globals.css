@@ -533,3 +533,62 @@ html {
 .empty-state-icon {
   animation: empty-bounce 3s ease-in-out infinite;
 }
+
+
+/* === CREATE RESTAURANT WIZARD === */
+
+/* Wizard step transition */
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.wizard-step-enter {
+  animation: step-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Progress bar glow */
+.progress-glow {
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+/* Form section hover */
+.form-section-hover {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.form-section-hover:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Live preview card */
+.preview-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-card.updating {
+  transform: scale(0.98);
+  opacity: 0.8;
+}
+
+/* Celebration particles */
+@keyframes particle-burst {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+.particle-burst {
+  animation: particle-burst 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
