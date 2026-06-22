@@ -46,7 +46,7 @@ const ReviewCardHeader: React.FC<ReviewCardHeaderProps> = ({
   };
 
   const imageUrl = getDisplayImage();
-  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '';
+  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '' && !imageUrl.startsWith('data:image');
 
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {

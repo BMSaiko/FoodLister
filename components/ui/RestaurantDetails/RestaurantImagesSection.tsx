@@ -35,7 +35,7 @@ export default function RestaurantImagesSection({
 
   const hasImages = restaurant.images && restaurant.images.length > 0;
   const imageUrl = getDisplayImage();
-  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '';
+  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '' && !imageUrl.startsWith('data:image');
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-4">

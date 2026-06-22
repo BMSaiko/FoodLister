@@ -44,7 +44,7 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   };
 
   const imageUrl = getDisplayImage();
-  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '';
+  const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '' && !imageUrl.startsWith('data:image');
 
   // Function to render prices with € icons
   const renderPriceCategory = (price: number) => {
