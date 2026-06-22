@@ -77,7 +77,7 @@ export default function ListDetails() {
       if (!id) return;
       setLoading(true);
       try {
-        const response = await fetch(`/api/lists/${id}`);
+        const response = await fetch(`/api/lists/${id}`, { credentials: "include" });
         if (!response.ok) {
           const errorText = await response.text().catch(() => "Unknown error");
           throw new Error(`Failed: ${response.status} - ${errorText}`);
@@ -115,7 +115,7 @@ export default function ListDetails() {
     if (!list) return;
     setDuplicating(true);
     try {
-      const res = await fetch(`/api/lists/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: `${list.name} (Copia)` }) });
+      const res = await fetch(`/api/lists/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: `${list.name} (Copia)` }), credentials: "include" });
       const data = await res.json();
       if (res.ok) { toast.success("Lista duplicada!"); window.location.href = `/lists/${data.list.id}`; }
       else toast.error(data.error || "Erro ao duplicar");
@@ -127,11 +127,14 @@ export default function ListDetails() {
     if (!confirm(`Tem certeza que deseja eliminar a lista "${list?.name}"?`)) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/lists/${id}`, { method: "DELETE" });
-      const data = await res.json();
+      console.log("Deleting list:", id, "user:", user?.id, "list creator:", list?.creator_id);
+      const res = await fetch(`/api/lists/${id}`, { method: "DELETE", credentials: "include" });
+      console.log("Delete response status:", res.status);
+      const data = await res.json().catch(() => ({}));
+      console.log("Delete response data:", data);
       if (res.ok) { toast.success("Lista eliminada!"); window.location.href = "/lists"; }
-      else toast.error(data.error || "Erro ao eliminar");
-    } catch { toast.error("Erro ao eliminar"); }
+      else toast.error(data.error || `Erro ao eliminar (${res.status})`);
+    } catch (e) { console.error("Delete error:", e); toast.error("Erro ao eliminar"); }
     finally { setDeleting(false); }
   };
 
