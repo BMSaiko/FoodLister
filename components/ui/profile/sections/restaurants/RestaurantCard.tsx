@@ -1,12 +1,8 @@
-// components/ui/profile/sections/RestaurantCard.tsx
 "use client";
 
-import React from 'react';
-import { Star } from 'lucide-react';
-import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
-import RestaurantCardContent from './RestaurantCardContent';
-import RestaurantCardFooter from './RestaurantCardFooter';
-import RestaurantCardActions from './RestaurantCardActions';
+import React from "react";
+import { Star, MapPin } from "lucide-react";
+import Link from "next/link";
 
 interface RestaurantCardProps {
   restaurant: {
@@ -17,138 +13,107 @@ interface RestaurantCardProps {
     images?: string[];
     display_image_index?: number;
     location?: string;
-    priceLevel?: number;
+    price_per_person?: number;
     rating?: number;
-    createdAt: string;
-    cuisineTypes: string[];
-    dietaryOptions: string[];
-    features: string[];
+    cuisine_types?: any[];
+    dietary_options?: any[];
+    features?: any[];
   };
-  isOwnRestaurant: boolean;
+  isOwnRestaurant?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   onShare?: () => void;
   className?: string;
-  dataRestaurantId?: string;
 }
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({
-  restaurant,
-  isOwnRestaurant,
-  onEdit,
-  onDelete,
-  onShare,
-  className = '',
-  dataRestaurantId
+  restaurant, isOwnRestaurant, onEdit, onDelete, onShare, className = "",
 }) => {
-  const hasImage = restaurant.imageUrl || (restaurant.images && restaurant.images.length > 0);
-
-  // Style of rating based on value
-  const getRatingStyle = (rating: number) => {
-    if (rating >= 4.5) return 'bg-[var(--green-50)] text-[var(--green-700)]';
-    if (rating >= 3.5) return 'bg-[var(--amber-50)] text-[var(--amber-700)]';
-    if (rating >= 2.5) return 'bg-[var(--yellow-50)] text-[var(--yellow-700)]';
-    return 'bg-[var(--red-50)] text-[var(--red-700)]';
-  };
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Check if the click target is an interactive element
-    const target = e.target as HTMLElement;
-    const interactiveElements = ['button', 'a', 'input', 'textarea', 'select'];
-    
-    if (interactiveElements.includes(target.tagName.toLowerCase()) || 
-        target.closest('button') || 
-        target.closest('a')) {
-      return;
-    }
-
-    // Navigate to restaurant page
-    window.location.href = `/restaurants/${restaurant.id}`;
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Allow keyboard navigation for accessibility
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      window.location.href = `/restaurants/${restaurant.id}`;
-    }
-  };
+  const hasImage = !!restaurant.imageUrl;
+  const hasCuisines = (restaurant.cuisine_types || []).length > 0;
+  const hasFeatures = (restaurant.features || []).length > 0;
 
   return (
-    <div 
-      className={`bg-[var(--white)] rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 group ${className}`}
-      role="button"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-      aria-label={`Restaurante ${restaurant.name}`}
-      data-restaurant-id={dataRestaurantId}
-    >
-      {/* Restaurant Image Section - Clickable for navigation */}
-      <div 
-        className="relative h-72 sm:h-80 lg:h-96 w-full min-w-[280px] max-w-[380px] sm:max-w-[500px] lg:max-w-[600px] min-h-[288px] sm:min-h-[320px] lg:min-h-[384px] aspect-[4/3] sm:aspect-[16/9] cursor-pointer group-hover:scale-[1.02] transition-transform duration-200"
-        onClick={handleCardClick}
-      >
-        {hasImage ? (
-          <img
-            src={convertCloudinaryUrl(restaurant.imageUrl || (restaurant.images && restaurant.images[0]) || '')}
-            alt={restaurant.name}
-            className="w-full h-full object-cover"
-            style={{
-              minWidth: '100%',
-              minHeight: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[var(--gray-200)] to-[var(--gray-300)] flex items-center justify-center">
-            <Star className="h-12 w-12 text-[var(--gray-400)]" />
-          </div>
-        )}
-
-        {/* Restaurant Rating Badge */}
-        {restaurant.rating && (
-          <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(restaurant.rating)}`}>
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3" fill="currentColor" />
-              <span className="font-semibold text-xs">{restaurant.rating.toFixed(1)}/5</span>
+    <div className={`p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:scale-[1.02] transition-all duration-200 group ${className}`}>
+      <div className="rounded-xl bg-white/[0.03] overflow-hidden">
+        {/* Image */}
+        <Link href={`/restaurants/${restaurant.id}`}  className="block relative h-32 overflow-hidden">
+          {hasImage ? (
+            <img src={restaurant.imageUrl} alt={restaurant.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center">
+              <span className="text-4xl">🍽️</span>
             </div>
-          </div>
-        )}
+          )}
+          {/* Rating badge */}
+          {restaurant.rating != null && (
+            <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-lg px-2 py-1">
+              <Star className="h-3 w-3 text-amber-400 fill-current" />
+              <span className="text-xs font-semibold text-white">{restaurant.rating.toFixed(1)}</span>
+            </div>
+          )}
+          {/* Price badge */}
+          {restaurant.price_per_person != null && (
+            <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm rounded-lg px-2 py-1">
+              <span className="text-xs font-semibold text-white">€{restaurant.price_per_person.toFixed(0)}</span>
+            </div>
+          )}
+        </Link>
 
-        {/* Restaurant Name Overlay */}
-        <div className="absolute bottom-3 left-3 right-3">
-          <div className="bg-[var(--white)]/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
-            <h3 className="text-lg font-bold text-[var(--gray-900)] line-clamp-1">
-              {restaurant.name}
-            </h3>
-          </div>
+        {/* Content */}
+        <div className="p-4">
+          <Link href={`/restaurants/${restaurant.id}`}  className="font-semibold text-white/85 hover:text-purple-400 transition-colors text-sm line-clamp-1">
+            {restaurant.name}
+          </Link>
+
+          {restaurant.location && (
+            <p className="text-xs text-white/30 mt-1 flex items-center gap-1">
+              <MapPin className="h-3 w-3" />{restaurant.location}
+            </p>
+          )}
+
+          {/* Tags */}
+          {hasCuisines && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {(restaurant.cuisine_types || []).slice(0, 3).map((c: any, i: number) => (
+                <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/70 border border-amber-500/10">
+                  {c.cuisine_type?.name || c.name || "Outro"}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {hasFeatures && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {(restaurant.features || []).slice(0, 2).map((f: any, i: number) => (
+                <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/30 border border-white/[0.06]">
+                  {f.feature?.name || f.name || "Outro"}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Actions */}
+          {isOwnRestaurant && (onEdit || onDelete || onShare) && (
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.04]">
+              {onEdit && (
+                <button onClick={onEdit} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/45 hover:text-white/70 hover:bg-white/[0.08] transition-all text-xs font-medium">
+                  Editar
+                </button>
+              )}
+              {onDelete && (
+                <button onClick={onDelete} className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-xs font-medium">
+                  Eliminar
+                </button>
+              )}
+              {onShare && (
+                <button onClick={onShare} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/45 hover:text-white/70 hover:bg-white/[0.08] transition-all text-xs font-medium">
+                  Partilhar
+                </button>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Restaurant Actions - Positioned over the image */}
-        <RestaurantCardActions
-          restaurant={restaurant}
-          isOwnRestaurant={isOwnRestaurant}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onShare={onShare}
-          className="absolute top-3 right-3"
-        />
-      </div>
-
-      {/* Content Area */}
-      <div className="p-4" onClick={handleCardClick}>
-        {/* Description - Similar to ReviewCard comment section */}
-        <RestaurantCardContent 
-          restaurant={restaurant} 
-          centered={false}
-        />
-
-        {/* Footer - Metadata and tags, similar to ReviewCardFooter */}
-        <RestaurantCardFooter 
-          restaurant={restaurant} 
-          centered={false}
-        />
       </div>
     </div>
   );

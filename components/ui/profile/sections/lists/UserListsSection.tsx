@@ -126,7 +126,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
             className="touch-space"
             href={`/lists/${list.id}`}
             hoverEffect={true}
-            touchTarget={true}
+            
           >
             {/* List Header with Icon */}
             <div className="relative h-48 sm:h-56 lg:h-64 w-full rounded-t-xl overflow-hidden bg-gradient-to-br from-[var(--amber-50)] to-[var(--amber-100)]">

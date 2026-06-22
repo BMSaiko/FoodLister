@@ -32,8 +32,8 @@ interface UserRestaurantsSectionProps {
     priceLevel?: number;
     rating?: number;
     createdAt: string;
-    cuisineTypes: string[];
-    dietaryOptions: string[];
+    cuisine_types: string[];
+    dietary_options: string[];
     features: string[];
   }>;
   initialTotal: number;
@@ -368,8 +368,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
               onShare={() => {
                 handleShareRestaurant(restaurant.id, restaurant.name);
               }}
-              dataRestaurantId={restaurant.id}
-            />
+                          />
           ))}
         </div>
 

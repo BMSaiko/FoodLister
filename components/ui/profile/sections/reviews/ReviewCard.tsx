@@ -1,14 +1,9 @@
-// components/ui/profile/sections/ReviewCard.tsx
 "use client";
 
-import React from 'react';
-import { Star, MapPin, Euro, Clock, MessageCircle } from 'lucide-react';
-import { formatDate } from '@/utils/formatters';
-import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
-import { TouchButton } from '../shared';
-import ReviewCardHeader from './ReviewCardHeader';
-import ReviewCardFooter from './ReviewCardFooter';
-import ReviewCardActions from './ReviewCardActions';
+import React from "react";
+import { Star, MapPin, Euro, MessageCircle } from "lucide-react";
+import { formatDate } from "@/utils/formatters";
+import Link from "next/link";
 
 interface ReviewCardProps {
   review: {
@@ -21,319 +16,82 @@ interface ReviewCardProps {
       id: string;
       name: string;
       imageUrl?: string;
-      images?: string[];
-      display_image_index?: number;
       location?: string;
       price_per_person?: number;
       rating?: number;
     };
   };
-  isOwnReview: boolean;
+  isOwnReview?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   onShare?: () => void;
-  editingReviewId?: string | null;
-  editingData?: {
-    rating: number;
-    comment: string;
-    amountSpent: number;
-  };
-  onEditChange?: (field: string, value: any) => void;
-  onSaveEdit?: (e: React.MouseEvent) => void;
-  onCancelEdit?: (e: React.MouseEvent) => void;
   className?: string;
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({
-  review,
-  isOwnReview,
-  onEdit,
-  onDelete,
-  onShare,
-  editingReviewId,
-  editingData,
-  onEditChange,
-  onSaveEdit,
-  onCancelEdit,
-  className = ''
-}) => {
-  const isEditing = editingReviewId === review.id;
-  const restaurant = review.restaurant || null;
-  const hasImage = restaurant?.imageUrl || (restaurant?.images && restaurant?.images.length > 0);
-
-  // Function to categorize price level
-  const categorizePriceLevel = (price: number) => {
-    if (price <= 10) return { label: 'Econômico', level: 1 };
-    if (price <= 20) return { label: 'Moderado', level: 2 };
-    if (price <= 50) return { label: 'Elevado', level: 3 };
-    return { label: 'Luxo', level: 4 };
-  };
-
-  // Get color class based on price level
-  const getPriceColorClass = (level: number): string => {
-    switch(level) {
-      case 1: return 'text-[var(--amber-400)]';
-      case 2: return 'text-[var(--amber-500)]';
-      case 3: return 'text-[var(--amber-600)]';
-      case 4: return 'text-[var(--amber-800)]';
-      default: return 'text-[var(--amber-400)]';
-    }
-  };
-
-  const getPriceLabelClass = (level: number): string => {
-    switch(level) {
-      case 1: return 'text-[var(--amber-400)] font-bold';
-      case 2: return 'text-[var(--amber-500)] font-bold';
-      case 3: return 'text-[var(--amber-600)] font-bold';
-      case 4: return 'text-[var(--amber-800)] font-bold';
-      default: return 'text-[var(--amber-400)] font-medium';
-    }
-  };
-
-  // Style of rating based on value
-  const getRatingStyle = (rating: number) => {
-    if (rating >= 4.5) return 'bg-[var(--green-50)] text-[var(--green-700)] border-[var(--green-200)]';
-    if (rating >= 3.5) return 'bg-[var(--amber-50)] text-[var(--amber-700)] border-[var(--amber-200)]';
-    if (rating >= 2.5) return 'bg-[var(--yellow-50)] text-[var(--yellow-700)] border-[var(--yellow-200)]';
-    return 'bg-[var(--red-50)] text-[var(--red-700)] border-[var(--red-200)]';
-  };
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Don't navigate if we're in edit mode or if clicking on interactive elements
-    if (isEditing) return;
-    
-    // Check if the click target is an interactive element
-    const target = e.target as HTMLElement;
-    const interactiveElements = ['button', 'a', 'input', 'textarea', 'select'];
-    
-    if (interactiveElements.includes(target.tagName.toLowerCase()) || 
-        target.closest('button') || 
-        target.closest('a')) {
-      return;
-    }
-
-    // Navigate to restaurant page with review parameter
-    window.location.href = `/restaurants/${restaurant?.id}?review=${review.id}`;
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Allow keyboard navigation for accessibility
-    if (e.key === 'Enter' || e.key === ' ') {
-      if (!isEditing) {
-        e.preventDefault();
-        window.location.href = `/restaurants/${restaurant?.id}?review=${review.id}`;
-      }
-    }
-  };
-
-  const formatAmount = (amount?: number) => {
-    if (!amount) return null;
-    return new Intl.NumberFormat('pt-PT', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  };
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, onDelete, onShare, className = "" }) => {
+  const restaurant = review.restaurant;
+  const hasImage = !!restaurant?.imageUrl;
 
   return (
-    <div 
-      className={`bg-[var(--white)] rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 group ${className}`}
-      role="button"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-      aria-label={`Avaliação de ${restaurant?.name} - ${review.rating.toFixed(1)}/5 estrelas`}
-    >
-      {/* Restaurant Image Section - Clickable for navigation */}
-      <div 
-        className="relative h-72 sm:h-80 lg:h-96 w-full min-w-[280px] max-w-[380px] sm:max-w-[500px] lg:max-w-[600px] min-h-[288px] sm:min-h-[320px] lg:min-h-[384px] aspect-[4/3] sm:aspect-[16/9] cursor-pointer group-hover:scale-[1.02] transition-transform duration-200"
-        onClick={handleCardClick}
-      >
-        {hasImage ? (
-          <img
-            src={convertCloudinaryUrl(restaurant?.imageUrl || (restaurant?.images && restaurant?.images[0]) || '')}
-            alt={restaurant?.name}
-            className="w-full h-full object-cover"
-            style={{
-              minWidth: '100%',
-              minHeight: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[var(--gray-200)] to-[var(--gray-300)] flex items-center justify-center">
-            <Star className="h-12 w-12 text-[var(--gray-400)]" />
-          </div>
-        )}
-
-        {/* Restaurant Rating Badge */}
-        {restaurant?.rating && (
-          <div className={`absolute top-3 left-3 px-2 py-1 rounded-full ${getRatingStyle(restaurant?.rating)}`}>
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3" fill="currentColor" />
-              <span className="font-semibold text-xs">{(restaurant?.rating ?? 0).toFixed(1)}/5</span>
+    <div className={`p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-200 hover:scale-[1.01] ${className}`}>
+      <div className="p-4 rounded-xl bg-white/[0.03] flex flex-col sm:flex-row gap-4">
+        {/* Restaurant Image */}
+        <Link href={`/restaurants/${restaurant?.id}`} className="flex-shrink-0">
+          {hasImage ? (
+            <img src={restaurant.imageUrl} alt={restaurant.name} className="w-16 h-16 rounded-xl object-cover" />
+          ) : (
+            <div className="w-16 h-16 rounded-xl bg-white/[0.04] flex items-center justify-center">
+              <span className="text-2xl">🍽️</span>
             </div>
-          </div>
-        )}
+          )}
+        </Link>
 
-        {/* Restaurant Name Overlay */}
-        <div className="absolute bottom-3 left-3 right-3">
-          <div className="bg-[var(--white)]/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm">
-            <h3 className="text-lg font-bold text-[var(--gray-900)] line-clamp-1">
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <Link href={`/restaurants/${restaurant?.id}`} className="font-medium text-white/80 hover:text-purple-400 transition-colors text-sm truncate">
               {restaurant?.name}
-            </h3>
-          </div>
-        </div>
-
-        {/* Review Actions - Positioned over the image */}
-        <ReviewCardActions
-          review={review}
-          isOwnReview={isOwnReview}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onShare={onShare}
-          className="absolute top-3 right-3"
-        />
-      </div>
-
-      {/* Content Area */}
-      <div className="p-4" onClick={handleCardClick}>
-        {/* Review Header - Rating and Amount Spent */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full ${getRatingStyle(review.rating)}`}>
-              <Star className="h-4 w-4" fill="currentColor" />
-              <span className="font-semibold text-sm">{review.rating.toFixed(1)}/5</span>
+            </Link>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <Star className="h-3.5 w-3.5 text-amber-400 fill-current" />
+              <span className="text-sm font-semibold text-amber-400">{review.rating}</span>
             </div>
-            {review.amountSpent && (
-              <div className={`flex items-center gap-2 px-2 py-1 rounded border ${getPriceColorClass(categorizePriceLevel(review.amountSpent).level)}`}>
-                <span className="font-semibold">
-                  {formatAmount(review.amountSpent)}
-                </span>
-                {/* Price Category Label */}
-                <span className="text-xs font-medium">
-                  {categorizePriceLevel(review.amountSpent).label}
-                </span>
-              </div>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-white/30 mb-2">
+            <span>{formatDate(review.createdAt)}</span>
+            {restaurant?.location && (
+              <span className="flex items-center gap-1 truncate"><MapPin className="h-3 w-3" />{restaurant.location}</span>
+            )}
+            {review.amountSpent != null && review.amountSpent > 0 && (
+              <span className="flex items-center gap-1"><Euro className="h-3 w-3" />{review.amountSpent.toFixed(2)}</span>
             )}
           </div>
-          <div className="flex items-center gap-1 px-2 py-1 rounded border border-[var(--gray-200)]">
-            <Clock className="h-4 w-4" />
-            <span>{new Date(review.createdAt).toLocaleDateString('pt-PT')}</span>
-          </div>
+
+          {review.comment && (
+            <p className="text-sm text-white/45 line-clamp-2 leading-relaxed">{review.comment}</p>
+          )}
+
+          {isOwnReview && (onEdit || onDelete || onShare) && (
+            <div className="flex items-center gap-2 mt-3">
+              {onEdit && (
+                <button onClick={onEdit} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/45 hover:text-white/70 hover:bg-white/[0.08] transition-all text-xs font-medium">
+                  Editar
+                </button>
+              )}
+              {onDelete && (
+                <button onClick={onDelete} className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-xs font-medium">
+                  Eliminar
+                </button>
+              )}
+              {onShare && (
+                <button onClick={onShare} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/45 hover:text-white/70 hover:bg-white/[0.08] transition-all text-xs font-medium">
+                  Partilhar
+                </button>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Review Content */}
-        {isEditing ? (
-          // Edit Mode - Not clickable for redirection
-          <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
-            <div>
-              <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
-                Avaliação
-              </label>
-              <div className="flex gap-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditChange?.('rating', star);
-                    }}
-                    className="text-2xl transition-colors"
-                  >
-                    <Star
-                      className={`h-6 w-6 ${
-                        star <= (editingData?.rating || 0)
-                          ? 'text-[var(--amber-400)] fill-current'
-                          : 'text-[var(--gray-300)]'
-                      }`}
-                    />
-                  </button>
-                ))}
-                <span className="ml-2 text-sm text-[var(--gray-600)] font-medium">
-                  {(editingData?.rating || 0)}/5
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
-                Comentário
-              </label>
-              <textarea
-                value={editingData?.comment || ''}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  onEditChange?.('comment', e.target.value);
-                }}
-                rows={4}
-                className="w-full px-3 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent resize-none"
-                placeholder="Descreva sua experiência..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[var(--gray-700)] mb-2">
-                Valor Gasto (EUR)
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-2 text-[var(--gray-500)]">€</span>
-                <input
-                  type="number"
-                  value={editingData?.amountSpent || ''}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    onEditChange?.('amountSpent', parseFloat(e.target.value) || 0);
-                  }}
-                  step="0.01"
-                  min="0"
-                  className="w-full pl-8 pr-3 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent"
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <TouchButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCancelEdit?.(e);
-                }}
-                variant="secondary"
-                size="sm"
-              >
-                Cancelar
-              </TouchButton>
-              <TouchButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSaveEdit?.(e);
-                }}
-                variant="primary"
-                size="sm"
-              >
-                Salvar
-              </TouchButton>
-            </div>
-          </div>
-        ) : (
-          // View Mode - Clickable for redirection
-          <div>
-            {/* Review Comment */}
-            {review.comment && (
-              <div className="bg-[var(--white)] rounded-lg p-3 sm:p-4 border border-[var(--gray-200)] mb-4">
-                <p className="text-[var(--gray-700)] leading-relaxed text-sm sm:text-base line-clamp-3">
-                  {review.comment}
-                </p>
-              </div>
-            )}
-
-            {/* Review Footer - Metadata and tags, similar to RestaurantCardFooter */}
-            <ReviewCardFooter 
-              review={review} 
-              centered={false}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

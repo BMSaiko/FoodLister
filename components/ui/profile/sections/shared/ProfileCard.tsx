@@ -1,7 +1,5 @@
-import React from 'react';
-import { Star, Utensils, Clock, MapPin, Euro, DollarSign, Users, List as ListIcon } from 'lucide-react';
-import { formatDate } from '@/utils/formatters';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
 interface ProfileCardProps {
   children: React.ReactNode;
@@ -9,181 +7,32 @@ interface ProfileCardProps {
   href?: string;
   onClick?: () => void;
   hoverEffect?: boolean;
-  touchTarget?: boolean;
 }
 
 export const ProfileCard: React.FC<ProfileCardProps> = ({
-  children,
-  className = '',
-  href,
-  onClick,
-  hoverEffect = true,
-  touchTarget = false
+  children, className = "", href, onClick, hoverEffect = true,
 }) => {
-  const baseClasses = `
-    bg-[var(--card-bg)] rounded-xl shadow-md overflow-hidden hover:shadow-lg
-    transition-all duration-200 group border border-[var(--card-border)]
-    ${hoverEffect ? 'hover:-translate-y-1' : ''}
-    ${touchTarget ? 'min-h-[60px] min-w-[60px]' : ''}
-  `;
+  const baseClasses = `p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] transition-all duration-200 ${
+    hoverEffect ? "hover:bg-white/[0.04] hover:scale-[1.02]" : ""
+  } ${className}`;
 
-  const content = (
-    <div className={`${baseClasses} ${className}`}>
-      {children}
-    </div>
-  );
+  const inner = <div className="p-4 rounded-xl bg-white/[0.03]">{children}</div>;
 
   if (href) {
     return (
-      <Link href={href} className="block">
-        {content}
+      <Link href={href} className={`block ${baseClasses}`}>
+        {inner}
       </Link>
     );
   }
 
   if (onClick) {
     return (
-      <button
-        onClick={onClick}
-        className="block w-full text-left"
-        disabled={!onClick}
-      >
-        {content}
+      <button onClick={onClick} className={`block w-full text-left ${baseClasses}`}>
+        {inner}
       </button>
     );
   }
 
-  return content;
+  return <div className={baseClasses}>{inner}</div>;
 };
-
-interface MetadataItemProps {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const MetadataItem: React.FC<MetadataItemProps> = ({ icon, children, className = '' }) => (
-  <div className={`flex items-center gap-1 sm:gap-2 ${className}`}>
-    {icon}
-    <span className="text-sm font-medium text-[var(--gray-300)]">{children}</span>
-  </div>
-);
-
-interface RatingBadgeProps {
-  rating: number;
-  type?: 'restaurant' | 'review';
-}
-
-export const RatingBadge: React.FC<RatingBadgeProps> = ({ rating, type = 'restaurant' }) => (
-  <div className="flex items-center gap-1">
-    <Star className={`h-4 w-4 ${type === 'review' ? 'text-amber-500 fill-current' : 'text-orange-500'}`} />
-    <span className="font-semibold text-[var(--foreground)]">{rating.toFixed(1)}/5</span>
-  </div>
-);
-
-interface PriceLevelBadgeProps {
-  priceLevel?: number;
-}
-
-export const PriceLevelBadge: React.FC<PriceLevelBadgeProps> = ({ priceLevel }) => {
-  if (!priceLevel) return null;
-  
-  return (
-    <div className="flex items-center gap-1">
-      <DollarSign className="h-4 w-4 text-[var(--success)]" />
-      <span className="text-sm font-medium text-[var(--gray-300)]">
-        {'$'.repeat(priceLevel)}
-      </span>
-    </div>
-  );
-};
-
-interface LocationBadgeProps {
-  location: string;
-}
-
-export const LocationBadge: React.FC<LocationBadgeProps> = ({ location }) => (
-  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-[var(--blue-100)] text-[var(--blue-700)]">
-    <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-    {location}
-  </span>
-);
-
-interface CuisineBadgeProps {
-  cuisineType: string;
-}
-
-export const CuisineBadge: React.FC<CuisineBadgeProps> = ({ cuisineType }) => (
-  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-[var(--orange-100)] text-[var(--orange-800)]">
-    <Utensils className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-    {cuisineType}
-  </span>
-);
-
-interface DateBadgeProps {
-  date: string;
-  prefix?: string;
-}
-
-export const DateBadge: React.FC<DateBadgeProps> = ({ date, prefix = 'Adicionado em' }) => (
-  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs sm:text-sm bg-[var(--green-100)] text-[var(--green-800)]">
-    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-    {prefix} {formatDate(date)}
-  </span>
-);
-
-interface RestaurantCountBadgeProps {
-  count: number;
-  icon?: React.ReactNode;
-}
-
-export const RestaurantCountBadge: React.FC<RestaurantCountBadgeProps> = ({ count, icon }) => (
-  <div className="bg-[var(--card-bg)] rounded-lg px-3 py-1 border border-[var(--gray-200)]">
-    <span className="text-sm font-medium text-[var(--gray-300)]">
-      {icon || <Utensils className="h-4 w-4 inline mr-1" />}
-      {count} {count === 1 ? 'restaurante' : 'restaurantes'}
-    </span>
-  </div>
-);
-
-interface AmountBadgeProps {
-  amount?: number;
-}
-
-export const AmountBadge: React.FC<AmountBadgeProps> = ({ amount }) => {
-  if (!amount) return null;
-  
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('pt-PT', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  };
-
-  return (
-    <div className="flex items-center gap-1">
-      <Euro className="h-4 w-4" />
-      <span className="text-[var(--foreground)]">{formatAmount(amount)}</span>
-    </div>
-  );
-};
-
-interface ListIconBadgeProps {
-  count: number;
-}
-
-export const ListIconBadge: React.FC<ListIconBadgeProps> = ({ count }) => (
-  <div className="bg-[var(--primary)] text-black p-2 rounded-lg">
-    <ListIcon className="h-5 w-5" />
-  </div>
-);
-
-interface UserIconBadgeProps {
-  count: number;
-}
-
-export const UserIconBadge: React.FC<UserIconBadgeProps> = ({ count }) => (
-  <div className="bg-[var(--blue-500)] text-white p-2 rounded-lg">
-    <Users className="h-5 w-5" />
-  </div>
-);
