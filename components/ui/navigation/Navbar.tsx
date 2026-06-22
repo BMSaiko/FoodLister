@@ -29,7 +29,7 @@ export default function Navbar() {
   const router = useRouter();
   const supabase = getClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const { searchOpen, setSearchOpen } = useSearch();
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
@@ -328,9 +328,6 @@ export default function Navbar() {
           ))}
         </nav>
       </motion.div>
-
-      {/* Global Search Modal */}
-      {searchOpen && <GlobalSearchModal onClose={() => setSearchOpen(false)} />}
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>

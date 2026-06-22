@@ -9,11 +9,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import MapSelectorModal from '@/components/ui/RestaurantManagement/MapSelectorModal';
 
 export default function ClientLayout({ children }) {
+  
   return (
     <AuthProvider>
       <FiltersProvider>
         <ModalProvider>
-          {children}
+          <SearchProvider>{children}</SearchProvider>
+      <GlobalSearchModal />
           <MapSelectorModal />
           <ToastContainer
             position="top-center"

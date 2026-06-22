@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+
 import { Search, X, Loader2, UtensilsCrossed, List, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
@@ -12,7 +13,11 @@ interface SearchResult {
   subtitle?: string;
 }
 
-export default function GlobalSearchModal({ onClose }: { onClose: () => void }) {
+import { useSearch } from "@/contexts/SearchContext";
+
+export default function GlobalSearchModal() {
+  const { setSearchOpen } = useSearch();
+  const onClose = () => setSearchOpen(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,7 +71,7 @@ export default function GlobalSearchModal({ onClose }: { onClose: () => void }) 
   let flatIndex = -1;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center pt-[15vh] px-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4" onClick={onClose}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
