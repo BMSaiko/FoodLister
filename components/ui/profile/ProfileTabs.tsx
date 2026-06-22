@@ -1,52 +1,58 @@
-import React from 'react';
-import { Star, List, Utensils, Clock } from 'lucide-react';
+"use client";
 
-interface TabConfig {
-  key: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  count?: number;
-}
+import React from "react";
+import { motion } from "motion/react";
+import { Star, List, UtensilsCrossed, Calendar, Clock } from "lucide-react";
+
+const TAB_CONFIG = [
+  { key: "reviews", label: "Reviews", icon: Star },
+  { key: "lists", label: "Listas", icon: List },
+  { key: "restaurants", label: "Restaurantes", icon: UtensilsCrossed },
+  { key: "meals", label: "Refeições", icon: Calendar },
+  { key: "activity", label: "Atividade", icon: Clock },
+] as const;
 
 interface ProfileTabsProps {
-  tabs: TabConfig[];
   activeTab: string;
-  onTabChange: (tabKey: string) => void;
-  className?: string;
+  onTabChange: (tab: string) => void;
+  counts: Record<string, number>;
 }
 
-const ProfileTabs: React.FC<ProfileTabsProps> = ({
-  tabs,
-  activeTab,
-  onTabChange,
-  className = ''
-}) => {
+export default function ProfileTabs({ activeTab, onTabChange, counts }: ProfileTabsProps) {
   return (
-    <div className={`border-b border-[var(--gray-200)] ${className}`}>
-      <div className="flex overflow-x-auto">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => onTabChange(tab.key)}
-            className={`flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-w-[120px] ${
-              activeTab === tab.key
-                ? 'border-[var(--primary)] text-[var(--primary-dark)] bg-[var(--primary-50)]'
-                : 'border-transparent text-[var(--gray-500)] hover:text-[var(--gray-700)] hover:bg-[var(--gray-50)]'
-            }`}
-          >
-            <tab.icon className="h-4 w-4" />
-            <span className="hidden sm:inline">{tab.label}</span>
-            <span className="sm:hidden">{tab.label.substring(0, 8)}{tab.label.length > 8 ? '...' : ''}</span>
-            {tab.count !== undefined && (
-              <span className="ml-1 sm:ml-2 px-2 py-1 bg-[var(--gray-100)] text-[var(--gray-600)] rounded-full text-xs">
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
+    <div className="border-b border-white/[0.06] mb-0">
+      <div className="flex overflow-x-auto scrollbar-hide">
+        {TAB_CONFIG.map(tab => {
+          const isActive = activeTab === tab.key;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => onTabChange(tab.key)}
+              className={`relative flex items-center gap-2 px-4 md:px-5 py-3.5 text-sm font-medium transition-colors whitespace-nowrap min-h-[48px] ${
+                isActive ? "text-purple-400" : "text-white/35 hover:text-white/60"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              <span>{tab.label}</span>
+              {(counts[tab.key] ?? 0) > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                  isActive ? "bg-purple-500/15 text-purple-400" : "bg-white/[0.06] text-white/30"
+                }`}>
+                  {counts[tab.key]}
+                </span>
+              )}
+              {isActive && (
+                <motion.div
+                  layoutId="profile-tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500 rounded-full"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
-};
-
-export default ProfileTabs;
+}

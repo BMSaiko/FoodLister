@@ -1,182 +1,129 @@
-import React from 'react';
-import { User, MapPin, Globe, Calendar, Eye, EyeOff, Camera, Shield, CheckCircle } from 'lucide-react';
-import PrivacyToggle from './PrivacyToggle';
-import ProfileActions from './ProfileActions';
+"use client";
+
+import React from "react";
+import { User, MapPin, Globe, Calendar, Copy, Share2, Edit, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 interface UserProfileHeaderProps {
-  profile: {
-    id: string;
-    userIdCode: string;
-    name: string;
-    profileImage?: string;
-    location?: string;
-    bio?: string;
-    website?: string;
-    publicProfile: boolean;
-    createdAt: string;
-    stats?: {
-      totalRestaurantsVisited: number;
-      totalReviews: number;
-      totalLists: number;
-      totalRestaurantsAdded: number;
-      joinedDate: string;
-    };
-  };
+  name: string;
+  userIdCode: string;
+  profileImage?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  joinedDate?: string;
+  isPublic: boolean;
   isOwnProfile: boolean;
-  onPrivacyToggle?: (isPublic: boolean) => void;
-  onImageUpload?: (file: File) => void;
-  isLoading?: boolean;
-  className?: string;
+  onCopyLink: () => void;
+  onShare: () => void;
+  onPrivacyToggle: () => void;
+  copySuccess: boolean;
+  isUpdatingPrivacy: boolean;
 }
 
-const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({
-  profile,
-  isOwnProfile,
-  onPrivacyToggle,
-  onImageUpload,
-  isLoading = false,
-  className = ''
-}) => {
-  const formatJoinedDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-PT', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && onImageUpload) {
-      onImageUpload(file);
-    }
+export default function UserProfileHeader({
+  name, userIdCode, profileImage, bio, location, website, joinedDate,
+  isPublic, isOwnProfile, onCopyLink, onShare, onPrivacyToggle, copySuccess, isUpdatingPrivacy
+}: UserProfileHeaderProps) {
+  // Generate gradient from name hash
+  const getGradient = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    const h1 = Math.abs(hash % 360);
+    const h2 = (h1 + 60) % 360;
+    return `linear-gradient(135deg, hsl(${h1},50%,12%) 0%, hsl(${h2},40%,10%) 100%)`;
   };
 
   return (
-    <div className={`bg-[var(--card-bg)] rounded-2xl shadow-[var(--card-shadow-lg)] border border-[var(--gray-100)] p-4 sm:p-6 ${className}`}>
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Profile Image and Basic Info */}
-        <div className="flex-1 flex flex-col lg:flex-row gap-4 lg:gap-6">
-          <div className="lg:w-32 lg:h-32 w-24 h-24 relative flex-shrink-0">
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-[var(--amber-400)] to-[var(--orange-500)] shadow-xl flex items-center justify-center overflow-hidden ring-4 ring-[var(--card-bg)]">
-              {profile.profileImage ? (
-                <img
-                  src={profile.profileImage}
-                  alt={profile.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="h-12 w-12 sm:h-16 sm:w-16 text-[var(--primary-foreground)] opacity-80" />
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-              <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-900)]">{profile.name}</h2>
-              <div className="flex flex-wrap gap-2">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-[var(--amber-100)] text-[var(--amber-800)]">
-                  <User className="h-4 w-4 mr-1.5" />
-                  {profile.userIdCode}
-                </span>
-                {isOwnProfile && onPrivacyToggle && (
-                  <PrivacyToggle
-                    isPublic={profile.publicProfile}
-                    onToggle={onPrivacyToggle}
-                    isLoading={isLoading}
-                  />
-                )}
-              </div>
-            </div>
-            
-            {profile.bio && (
-              <p className="text-[var(--gray-700)] mb-3 line-clamp-3 text-sm sm:text-base">{profile.bio}</p>
-            )}
-            
-            <div className="flex flex-wrap gap-2">
-              {profile.location && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm bg-[var(--gray-100)] text-[var(--gray-700)]">
-                  <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                  {profile.location}
-                </span>
-              )}
-              {profile.website && (
-                <a
-                  href={profile.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm bg-[var(--blue-100)] text-[var(--blue-700)] hover:bg-[var(--blue-200)] transition-colors"
-                >
-                  <Globe className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                  Website
-                </a>
-              )}
-              {profile.stats?.joinedDate && (
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm bg-[var(--green-100)] text-[var(--green-700)]">
-                  <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                  Membro desde {formatJoinedDate(profile.stats.joinedDate)}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Stats - Mobile optimized */}
-        <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-           <div className="bg-gradient-to-br from-[var(--amber-50)] to-[var(--orange-50)] rounded-lg p-3 sm:p-4 border border-[var(--amber-200)] hover:shadow-md transition-all duration-200">
-             <div className="flex items-center justify-between">
-               <div>
-                 <p className="text-xs sm:text-sm text-[var(--gray-600)]">Restaurantes Visitados</p>
-                 <p className="text-xl sm:text-2xl font-bold text-[var(--amber-600)]">{profile.stats?.totalRestaurantsVisited ?? 0}</p>
-               </div>
-               <User className="h-6 sm:h-8 w-6 sm:w-8 text-[var(--amber-500)] opacity-80" />
-            </div>
-          </div>
-          
-           <div className="bg-gradient-to-br from-[var(--orange-50)] to-[var(--red-50)] rounded-lg p-3 sm:p-4 border border-[var(--orange-200)] hover:shadow-md transition-all duration-200">
-             <div className="flex items-center justify-between">
-               <div>
-                 <p className="text-xs sm:text-sm text-[var(--gray-600)]">Avaliações</p>
-                 <p className="text-xl sm:text-2xl font-bold text-[var(--orange-600)]">{profile.stats?.totalReviews ?? 0}</p>
-               </div>
-               <User className="h-6 sm:h-8 w-6 sm:w-8 text-[var(--orange-500)] opacity-80" />
-            </div>
-          </div>
-          
-           <div className="bg-gradient-to-br from-[var(--yellow-50)] to-[var(--amber-50)] rounded-lg p-3 sm:p-4 border border-[var(--yellow-200)] hover:shadow-md transition-all duration-200">
-             <div className="flex items-center justify-between">
-               <div>
-                 <p className="text-xs sm:text-sm text-[var(--gray-600)]">Listas Criadas</p>
-                 <p className="text-xl sm:text-2xl font-bold text-[var(--yellow-600)]">{profile.stats?.totalLists ?? 0}</p>
-               </div>
-               <User className="h-6 sm:h-8 w-6 sm:w-8 text-[var(--yellow-500)] opacity-80" />
-            </div>
-          </div>
-          
-           <div className="bg-gradient-to-br from-[var(--green-50)] to-[var(--teal-50)] rounded-lg p-3 sm:p-4 border border-[var(--green-200)] hover:shadow-md transition-all duration-200">
-             <div className="flex items-center justify-between">
-               <div>
-                 <p className="text-xs sm:text-sm text-[var(--gray-600)]">Restaurantes Adicionados</p>
-                 <p className="text-xl sm:text-2xl font-bold text-[var(--green-600)]">{profile.stats?.totalRestaurantsAdded ?? 0}</p>
-               </div>
-               <User className="h-6 sm:h-8 w-6 sm:w-8 text-[var(--success)] opacity-80" />
-            </div>
-          </div>
-        </div>
+    <section className="relative mb-6">
+      {/* Cover */}
+      <div className="w-full h-32 md:h-44 rounded-3xl overflow-hidden relative" style={{ background: getGradient(name) }}>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/60 to-transparent" />
+        {/* Decorative orbs */}
+        <div className="absolute top-4 right-8 w-24 h-24 bg-purple-500/[0.08] rounded-full blur-2xl" />
+        <div className="absolute bottom-4 left-8 w-20 h-20 bg-pink-500/[0.06] rounded-full blur-2xl" />
       </div>
 
-      {/* Actions */}
-      {isOwnProfile && (
-        <div className="flex flex-wrap gap-2 sm:gap-3 mt-4 sm:mt-6">
-          <ProfileActions
-            profile={profile}
-            isOwnProfile={isOwnProfile}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
+      {/* Avatar + Info */}
+      <div className="px-4 md:px-6 -mt-12 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-end gap-4">
+          {/* Avatar */}
+          <div className="relative flex-shrink-0">
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/[0.03] ring-4 ring-[#050505] overflow-hidden shadow-xl">
+              {profileImage ? (
+                <img src={profileImage} alt={name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                  <User className="h-10 w-10 text-white/20" />
+                </div>
+              )}
+            </div>
+            {/* Online indicator */}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 ring-2 ring-[#050505]" />
+          </div>
 
-export default UserProfileHeader;
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{name}</h1>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/[0.06] border border-white/[0.08] text-white/40 uppercase tracking-wider">
+                {userIdCode}
+              </span>
+            </div>
+
+            {/* Meta */}
+            <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-white/35">
+              {location && (
+                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{location}</span>
+              )}
+              {website && (
+                <a href={website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-purple-400/70 hover:text-purple-400 transition-colors">
+                  <Globe className="h-3.5 w-3.5" />Website
+                </a>
+              )}
+              {joinedDate && (
+                <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />Membro desde {new Date(joinedDate).toLocaleDateString("pt-PT", { month: "short", year: "numeric" })}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {isOwnProfile && (
+              <Link href="/users/settings" className="flex items-center gap-2 px-4 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium min-h-[44px]">
+                <Edit className="h-4 w-4" /><span className="hidden sm:inline">Editar</span>
+              </Link>
+            )}
+            <button onClick={onCopyLink} className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] text-white/55 rounded-xl hover:bg-white/[0.08] transition-all text-sm font-medium min-h-[44px]">
+              <Copy className="h-4 w-4" /><span className="hidden sm:inline">{copySuccess ? "Copiado!" : "Copiar"}</span>
+            </button>
+            <button onClick={onShare} className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] text-white/55 rounded-xl hover:bg-white/[0.08] transition-all text-sm font-medium min-h-[44px]">
+              <Share2 className="h-4 w-4" /><span className="hidden sm:inline">Partilhar</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Bio */}
+        {bio && (
+          <p className="text-sm text-white/45 mt-4 max-w-2xl leading-relaxed">{bio}</p>
+        )}
+
+        {/* Privacy toggle (own profile) */}
+        {isOwnProfile && (
+          <button
+            onClick={onPrivacyToggle}
+            disabled={isUpdatingPrivacy}
+            className={`mt-3 flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              isPublic
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : "bg-red-500/10 text-red-400 border border-red-500/20"
+            } disabled:opacity-50`}
+          >
+            {isPublic ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+            {isPublic ? "Perfil Publico" : "Perfil Privado"}
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
