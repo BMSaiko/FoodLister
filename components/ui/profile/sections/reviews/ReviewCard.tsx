@@ -36,7 +36,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, on
     <div className={`p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-200 hover:scale-[1.01] ${className}`}>
       <div className="p-4 rounded-xl bg-white/[0.03] flex flex-col sm:flex-row gap-4">
         {/* Restaurant Image */}
-        <Link href={`/restaurants/${restaurant?.id}`} className="flex-shrink-0">
+        <Link href={`/restaurants/${restaurant?.id}?review=${review.id}`} className="flex-shrink-0">
           {hasImage ? (
             <img src={restaurant.imageUrl} alt={restaurant.name} className="w-16 h-16 rounded-xl object-cover" />
           ) : (
@@ -49,7 +49,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, on
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <Link href={`/restaurants/${restaurant?.id}`} className="font-medium text-white/80 hover:text-purple-400 transition-colors text-sm truncate">
+            <Link href={`/restaurants/${restaurant?.id}?review=${review.id}`} className="font-medium text-white/80 hover:text-purple-400 transition-colors text-sm truncate">
               {restaurant?.name}
             </Link>
             <div className="flex items-center gap-1 flex-shrink-0">
