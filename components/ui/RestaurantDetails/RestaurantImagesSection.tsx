@@ -62,9 +62,7 @@ export default function RestaurantImagesSection({
           </div>
         ) : (
           <RestaurantImagePlaceholder
-            iconSize="80"
-            textSize="text-lg"
-            showText={true}
+            name="Restaurante"
             className="h-48 sm:h-56 md:h-96 lg:h-[28rem]"
           />
         )}

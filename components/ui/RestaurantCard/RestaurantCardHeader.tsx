@@ -106,7 +106,7 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
           }}
         />
       ) : (
-        <RestaurantImagePlaceholder />
+        <RestaurantImagePlaceholder name={restaurant.name} />
       )}
 
       {/* Dark overlay for image */}
