@@ -7,7 +7,7 @@ import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'mot
 import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
-import SearchBar from './Searchbar';
+import GlobalSearch from '../GlobalSearch';
 import NotificationsDropdown from './NotificationsDropdown';
 
 interface ProfileData {
@@ -29,6 +29,8 @@ export default function Navbar() {
   const router = useRouter();
   const supabase = getClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
   const [hasNotifications, setHasNotifications] = useState(false);
@@ -51,7 +53,18 @@ export default function Navbar() {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    const SearchTrigger = () => (
+    <button
+      onClick={() => setSearchOpen(true)}
+      className="hidden md:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.08] hover:bg-white/[0.08] transition-colors cursor-text group"
+    >
+      <Search className="h-4 w-4 text-white/25 flex-shrink-0" />
+      <span className="text-sm text-white/25 truncate flex-1 text-left">Pesquisar...</span>
+      <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-white/20 bg-white/[0.04] border border-white/[0.06]">⌘K</kbd>
+    </button>
+  );
+
+  return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Fetch user profile
@@ -81,6 +94,17 @@ export default function Navbar() {
     await signOut();
     router.push('/');
   };
+
+  const SearchTrigger = () => (
+    <button
+      onClick={() => setSearchOpen(true)}
+      className="hidden md:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.08] hover:bg-white/[0.08] transition-colors cursor-text group"
+    >
+      <Search className="h-4 w-4 text-white/25 flex-shrink-0" />
+      <span className="text-sm text-white/25 truncate flex-1 text-left">Pesquisar...</span>
+      <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-white/20 bg-white/[0.04] border border-white/[0.06]">⌘K</kbd>
+    </button>
+  );
 
   return (
     <>
@@ -126,9 +150,9 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Search */}
-          <div className="hidden md:block flex-1 max-w-[200px]">
-            <SearchBar searchType={activeSection} />
+          {/* Search — opens global search modal */}
+          <div className="hidden md:block flex-1 max-w-[280px]">
+            <SearchTrigger />
           </div>
 
           {/* Actions */}
@@ -335,7 +359,13 @@ export default function Navbar() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-4">
-                <SearchBar searchType={activeSection} />
+                <button
+                  onClick={() => { setMobileMenuOpen(false); setSearchOpen(true); }}
+                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08] text-left"
+                >
+                  <Search className="h-4 w-4 text-white/25" />
+                  <span className="text-sm text-white/25">Pesquisar...</span>
+                </button>
               </div>
               <div className="space-y-1">
                 {NAV_ITEMS.map((item) => (
