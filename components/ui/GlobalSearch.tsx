@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { registerSearchOpener } from '@/utils/searchTrigger';
 import { Search, X, Loader2, Utensils, List, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -154,20 +153,16 @@ export default function GlobalSearch() {
   }, [query, search]);
 
   const handleSelect = (result: SearchResult) => {
-    // Reset state before navigation to ensure portal unmounts cleanly
     setIsOpen(false);
     setQuery('');
     setActiveIndex(-1);
-    // Use setTimeout to ensure state is reset before navigation
-    setTimeout(() => {
-      if (result.type === 'restaurant') {
-        router.push(`/restaurants/${result.id}`);
-      } else if (result.type === 'list') {
-        router.push(`/lists/${result.id}`);
-      } else if (result.type === 'user') {
-        router.push(`/users/${result.userIdCode || result.id}`);
-      }
-    }, 0);
+    if (result.type === 'restaurant') {
+      router.push(`/restaurants/${result.id}`);
+    } else if (result.type === 'list') {
+      router.push(`/lists/${result.id}`);
+    } else if (result.type === 'user') {
+      router.push(`/users/${result.userIdCode || result.id}`);
+    }
   };
 
   const getResultIcon = (type: string) => {
