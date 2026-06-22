@@ -51,9 +51,10 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
     setDisplayText("");
     setSpinCount(p => p + 1);
 
-    let idx = 0;
-    let speed = 40;
-    const totalSpins = 25 + Math.floor(Math.random() * 10);
+    // Start from random position, not always 0
+    let idx = Math.floor(Math.random() * restaurants.length);
+    let speed = 50 + Math.floor(Math.random() * 30); // Random start speed
+    const totalSpins = 30 + Math.floor(Math.random() * 20); // More randomness
     let completed = 0;
 
     const animate = () => {
@@ -61,8 +62,16 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
       setCurrentIndex(idx);
       completed++;
       if (completed < totalSpins) {
-        if (completed > totalSpins * 0.6) speed += 20;
-        else if (completed > totalSpins * 0.4) speed += 8;
+        // Progressive slowdown with randomness
+        if (completed > totalSpins * 0.7) {
+          speed += 25 + Math.floor(Math.random() * 10);
+        } else if (completed > totalSpins * 0.5) {
+          speed += 10 + Math.floor(Math.random() * 5);
+        } else if (completed > totalSpins * 0.3) {
+          speed += 3;
+        }
+        // Ensure minimum speed to prevent infinite loops
+        speed = Math.min(speed, 400);
         setTimeout(animate, speed);
       } else {
         setIsSpinning(false);
