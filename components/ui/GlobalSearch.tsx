@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { registerSearchOpener } from '@/utils/searchTrigger';
 import { Search, X, Loader2, Utensils, List, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getClient } from '@/libs/supabase/client';
@@ -21,6 +23,10 @@ interface GroupedResults {
 
 export default function GlobalSearch() {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    registerSearchOpener(() => setIsOpen(true));
+  }, []);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);

@@ -6,9 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
 import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
-import { useSearch } from '@/contexts/SearchContext';
+import { openGlobalSearch } from '@/utils/searchTrigger';
 import { getClient } from '@/libs/supabase/client';
-import GlobalSearchModal from '../GlobalSearchModal';
 import NotificationsDropdown from './NotificationsDropdown';
 
 interface ProfileData {
@@ -30,7 +29,7 @@ export default function Navbar() {
   const router = useRouter();
   const supabase = getClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { searchOpen, setSearchOpen } = useSearch();
+  
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
@@ -87,7 +86,7 @@ export default function Navbar() {
 
   const SearchTrigger = () => (
     <button
-      onClick={() => { console.log("SearchTrigger clicked"); setSearchOpen(true); }}
+      onClick={() => openGlobalSearch()}
       className="hidden md:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.08] hover:bg-white/[0.08] transition-colors cursor-text group"
     >
       <Search className="h-4 w-4 text-white/25 flex-shrink-0" />
@@ -350,7 +349,7 @@ export default function Navbar() {
             >
               <div className="mb-4">
                 <button
-                  onClick={() => { setMobileMenuOpen(false); setSearchOpen(true); }}
+                  onClick={() => { setMobileMenuOpen(false); openGlobalSearch(); }}
                   className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08] text-left"
                 >
                   <Search className="h-4 w-4 text-white/25" />
