@@ -1,223 +1,187 @@
-"use client";
+import React, { useMemo } from "react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { Star, Euro, MapPin, CheckCircle2, XCircle, TrendingUp, UtensilsCrossed } from "lucide-react";
 
-import React from "react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import {
-  MapPin,
-  Star,
-  CheckCircle2,
-  XCircle,
-  UtensilsCrossed,
-} from "lucide-react";
-
-interface CuisineType {
-  id: string;
-  name: string;
-  icon?: string;
-}
-
-interface Restaurant {
-  id: string;
-  name: string;
-  rating?: number;
-  price_per_person?: number;
-  location?: string;
-  visited: boolean;
-  cuisine_types: CuisineType[];
-}
+const COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#ec4899", "#f97316", "#14b8a6"];
 
 interface ListStatisticsProps {
-  restaurants: Restaurant[];
+  restaurants: any[];
 }
 
-  const COLORS = [
-    "var(--primary)",
-    "var(--green-500)",
-    "var(--blue-600)",
-    "#8b5cf6",
-    "var(--red-500)",
-    "#ec4899",
-    "var(--orange-500)",
-    "#14b8a6"
-  ];
-
-const getPriceLevel = (price?: number): string => {
-  if (!price) return "€";
-  if (price < 15) return "€";
-  if (price < 30) return "€€";
-  if (price < 50) return "€€€";
-  return "€€€€";
-};
-
 export default function ListStatistics({ restaurants }: ListStatisticsProps) {
-  if (!restaurants || restaurants.length === 0) {
-    return null;
-  }
+  const stats = useMemo(() => {
+    if (!restaurants.length) return null;
+    const ratings = restaurants.filter(r => r.rating != null).map(r => r.rating);
+    const prices = restaurants.filter(r => r.price_per_person != null).map(r => r.price_per_person);
+    const locations = [...new Set(restaurants.filter(r => r.location).map(r => r.location))];
+    const visitedCount = restaurants.filter(r => r.visited).length;
 
-  // Total count
-  const total = restaurants.length;
-
-  // Average rating
-  const ratedRestaurants = restaurants.filter((r) => r.rating != null && r.rating > 0);
-  const avgRating =
-    ratedRestaurants.length > 0
-      ? ratedRestaurants.reduce((sum, r) => sum + (r.rating || 0), 0) / ratedRestaurants.length
-      : 0;
-
-  // Visited vs unvisited
-  const visitedCount = restaurants.filter((r) => r.visited).length;
-  const unvisitedCount = total - visitedCount;
-
-  // Cuisine type distribution
-  const cuisineCount: Record<string, number> = {};
-  restaurants.forEach((r) => {
-    r.cuisine_types?.forEach((ct) => {
-      const name = ct.name || "Outro";
-      cuisineCount[name] = (cuisineCount[name] || 0) + 1;
+    // Cuisine distribution
+    const cuisineCount: Record<string, number> = {};
+    restaurants.forEach(r => {
+      (r.cuisine_types || []).forEach((c: any) => {
+        const name = c.cuisine_type?.name || c.name || "Outro";
+        cuisineCount[name] = (cuisineCount[name] || 0) + 1;
+      });
     });
-  });
-  const cuisineData = Object.entries(cuisineCount)
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 8);
+    const cuisineData = Object.entries(cuisineCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([name, value]) => ({ name, value }));
 
-  // Price range distribution
-  const priceCount: Record<string, number> = { "€": 0, "€€": 0, "€€€": 0, "€€€€": 0 };
-  restaurants.forEach((r) => {
-    const level = getPriceLevel(r.price_per_person);
-    priceCount[level] = (priceCount[level] || 0) + 1;
-  });
-  const priceData = Object.entries(priceCount)
-    .map(([name, value]) => ({ name, value }))
-    .filter((d) => d.value > 0);
+    // Price distribution
+    const priceRanges = [
+      { label: "€", min: 0, max: 15, count: 0 },
+      { label: "€€", min: 15, max: 30, count: 0 },
+      { label: "€€€", min: 30, max: 50, count: 0 },
+      { label: "€€€€", min: 50, max: Infinity, count: 0 },
+    ];
+    prices.forEach(p => {
+      const range = priceRanges.find(r => p >= r.min && p < r.max);
+      if (range) range.count++;
+    });
+
+    return {
+      avgRating: ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null,
+      avgPrice: prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : null,
+      minPrice: prices.length ? Math.min(...prices) : null,
+      maxPrice: prices.length ? Math.max(...prices) : null,
+      uniqueLocations: locations.length,
+      visitedCount,
+      totalRestaurants: restaurants.length,
+      visitProgress: restaurants.length > 0 ? (visitedCount / restaurants.length) * 100 : 0,
+      cuisineData,
+      priceRanges: priceRanges.filter(r => r.count > 0),
+    };
+  }, [restaurants]);
+
+  if (!stats) return null;
 
   return (
-    <div className="space-y-6">
-      {/* Top Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Total Restaurants */}
-        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--primary-light)] rounded-full">
-            <UtensilsCrossed className="h-5 w-5 text-[var(--primary-dark)]" />
+    <section className="mb-8">
+      <h2 className="text-xl md:text-2xl font-bold text-white mb-5">Estatisticas</h2>
+
+      {/* Top metrics row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-amber-500/10 rounded-lg p-1.5"><Star className="h-4 w-4 text-amber-400" /></div>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Rating medio</span>
+            </div>
+            <div className="text-2xl font-bold text-amber-400">{stats.avgRating ? stats.avgRating.toFixed(1) : "—"}</div>
+            <div className="flex items-center gap-0.5 mt-1">
+              {Array(5).fill(0).map((_, i) => (
+                <Star key={i} className={"h-3 w-3 " + (i < Math.round(stats.avgRating || 0) ? "text-amber-400 fill-current" : "text-white/15")} />
+              ))}
+            </div>
           </div>
-          <p className="text-2xl font-bold text-[var(--gray-900)]">{total}</p>
-          <p className="text-xs text-[var(--gray-500)]">Restaurantes</p>
         </div>
 
-        {/* Average Rating */}
-        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--warning-light)] rounded-full">
-            <Star className="h-5 w-5 text-[var(--warning)]" fill="currentColor" />
+        <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-orange-500/10 rounded-lg p-1.5"><Euro className="h-4 w-4 text-orange-400" /></div>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Preco medio</span>
+            </div>
+            <div className="text-2xl font-bold text-orange-400">{stats.avgPrice ? "€" + stats.avgPrice.toFixed(0) : "—"}</div>
+            {stats.minPrice != null && stats.maxPrice != null && (
+              <div className="text-xs text-white/30 mt-1">€{stats.minPrice} — €{stats.maxPrice}</div>
+            )}
           </div>
-          <p className="text-2xl font-bold text-[var(--gray-900)]">
-            {avgRating > 0 ? avgRating.toFixed(1) : "N/A"}
-          </p>
-          <p className="text-xs text-[var(--gray-500)]">Rating Médio</p>
         </div>
 
-        {/* Visited */}
-        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--success-light)] rounded-full">
-            <CheckCircle2 className="h-5 w-5 text-[var(--success)]" />
+        <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-emerald-500/10 rounded-lg p-1.5"><MapPin className="h-4 w-4 text-emerald-400" /></div>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Locais</span>
+            </div>
+            <div className="text-2xl font-bold text-emerald-400">{stats.uniqueLocations}</div>
+            <div className="text-xs text-white/30 mt-1">{stats.totalRestaurants} restaurantes</div>
           </div>
-          <p className="text-2xl font-bold text-[var(--gray-900)]">{visitedCount}</p>
-          <p className="text-xs text-[var(--gray-500)]">Visitados</p>
         </div>
 
-        {/* Unvisited */}
-        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-4 text-center">
-          <div className="flex items-center justify-center w-10 h-10 mx-auto mb-2 bg-[var(--blue-600)]/20 rounded-full">
-            <XCircle className="h-5 w-5 text-[var(--blue-600)]" />
+        <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="bg-blue-500/10 rounded-lg p-1.5"><CheckCircle2 className="h-4 w-4 text-blue-400" /></div>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Visitados</span>
+            </div>
+            <div className="text-2xl font-bold text-blue-400">{stats.visitedCount}<span className="text-sm text-white/30">/{stats.totalRestaurants}</span></div>
+            <div className="w-full h-1.5 bg-white/[0.06] rounded-full mt-2 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500" style={{ width: stats.visitProgress + "%" }} />
+            </div>
           </div>
-          <p className="text-2xl font-bold text-[var(--gray-900)]">{unvisitedCount}</p>
-          <p className="text-xs text-[var(--gray-500)]">Por Visitar</p>
         </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Cuisine Type Distribution */}
-          {cuisineData.length > 0 && (
-            <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
-              <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-4 flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-[var(--primary)]" />
-                Tipos de Cozinha
-              </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={cuisineData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {cuisineData.map((_entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+      {/* Bottom row: charts */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Cuisine pie chart */}
+        {stats.cuisineData.length > 0 && (
+          <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="p-4 rounded-2xl bg-white/[0.03]">
+              <div className="flex items-center gap-2 mb-3">
+                <UtensilsCrossed className="h-4 w-4 text-amber-400" />
+                <span className="text-sm font-semibold text-white/75">Culinarias</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="w-28 h-28 flex-shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={stats.cuisineData} cx="50%" cy="50%" innerRadius={25} outerRadius={45} paddingAngle={3} dataKey="value">
+                        {stats.cuisineData.map((_, i) => (
+                          <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", fontSize: "12px" }}
+                        itemStyle={{ color: "#fff" }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  {stats.cuisineData.slice(0, 5).map((c, i) => (
+                    <div key={c.name} className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                      <span className="text-xs text-white/60 truncate">{c.name}</span>
+                      <span className="text-xs text-white/30 ml-auto">{c.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Price Range Distribution */}
-          {priceData.length > 0 && (
-            <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
-              <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-4 flex items-center gap-2">
-                <span className="text-[var(--primary)]">€</span>
-                Faixa de Preços
-              </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={priceData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={2}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {priceData.map((_entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+        {/* Price distribution */}
+        {stats.priceRanges.length > 0 && (
+          <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="p-4 rounded-2xl bg-white/[0.03]">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="h-4 w-4 text-orange-400" />
+                <span className="text-sm font-semibold text-white/75">Distribuicao de precos</span>
+              </div>
+              <div className="space-y-2.5">
+                {stats.priceRanges.map(r => {
+                  const pct = (r.count / stats.totalRestaurants) * 100;
+                  return (
+                    <div key={r.label} className="flex items-center gap-3">
+                      <span className="text-sm font-semibold text-white/60 w-8">{r.label}</span>
+                      <div className="flex-1 h-3 bg-white/[0.05] rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-orange-500/60 to-amber-500/40 rounded-full transition-all duration-500" style={{ width: pct + "%" }} />
+                      </div>
+                      <span className="text-xs text-white/30 w-6 text-right">{r.count}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
       </div>
-
-      {/* Visited Progress Bar */}
-        <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
-          <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-3">Progresso de Visitas</h3>
-          <div className="w-full bg-[var(--gray-200)] rounded-full h-4 overflow-hidden">
-            <div
-              className="bg-gradient-to-r from-[var(--success-light)] to-[var(--success)] h-4 rounded-full transition-all duration-500"
-              style={{ width: `${total > 0 ? (visitedCount / total) * 100 : 0}%` }}
-            />
-          </div>
-          <p className="text-sm text-[var(--gray-500)] mt-2 text-center">
-            {total > 0 ? Math.round((visitedCount / total) * 100) : 0}% visitado ({visitedCount} de {total})
-          </p>
-        </div>
-    </div>
+    </section>
   );
 }
