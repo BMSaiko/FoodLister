@@ -36,6 +36,14 @@ export default function GlobalSearch() {
   const router = useRouter();
 
   // Cmd+K keyboard shortcut
+  // Close modal on navigation
+  useEffect(() => {
+    if (!isOpen) return;
+    const handlePopState = () => setIsOpen(false);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isOpen]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -146,16 +154,20 @@ export default function GlobalSearch() {
   }, [query, search]);
 
   const handleSelect = (result: SearchResult) => {
+    // Reset state before navigation to ensure portal unmounts cleanly
     setIsOpen(false);
     setQuery('');
     setActiveIndex(-1);
-    if (result.type === 'restaurant') {
-      router.push(`/restaurants/${result.id}`);
-    } else if (result.type === 'list') {
-      router.push(`/lists/${result.id}`);
-    } else if (result.type === 'user') {
-      router.push(`/users/${result.userIdCode || result.id}`);
-    }
+    // Use setTimeout to ensure state is reset before navigation
+    setTimeout(() => {
+      if (result.type === 'restaurant') {
+        router.push(`/restaurants/${result.id}`);
+      } else if (result.type === 'list') {
+        router.push(`/lists/${result.id}`);
+      } else if (result.type === 'user') {
+        router.push(`/users/${result.userIdCode || result.id}`);
+      }
+    }, 0);
   };
 
   const getResultIcon = (type: string) => {
