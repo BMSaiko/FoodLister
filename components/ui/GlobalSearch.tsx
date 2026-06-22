@@ -126,12 +126,16 @@ export default function GlobalSearch() {
   }, [query, search]);
 
   const handleSelect = (result: SearchResult) => {
+    // Close modal immediately, then navigate
     setIsOpen(false);
     setQuery("");
     setActiveIndex(-1);
-    if (result.type === "restaurant") router.push(`/restaurants/${result.id}`);
-    else if (result.type === "list") router.push(`/lists/${result.id}`);
-    else if (result.type === "user") router.push(`/users/${result.userIdCode || result.id}`);
+    // Use requestAnimationFrame to ensure DOM updates before navigation
+    requestAnimationFrame(() => {
+      if (result.type === "restaurant") router.push(`/restaurants/${result.id}`);
+      else if (result.type === "list") router.push(`/lists/${result.id}`);
+      else if (result.type === "user") router.push(`/users/${result.userIdCode || result.id}`);
+    });
   };
 
   if (!isOpen) return null;
