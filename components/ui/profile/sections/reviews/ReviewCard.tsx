@@ -36,22 +36,34 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, on
     <div className={`p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all duration-200 hover:scale-[1.01] ${className}`}>
       <div className="p-4 rounded-xl bg-white/[0.03] flex flex-col sm:flex-row gap-4">
         {/* Restaurant Image */}
-        <Link href={`/restaurants/${restaurant?.id}?review=${review.id}`} className="flex-shrink-0">
-          {hasImage ? (
-            <img src={restaurant.imageUrl} alt={restaurant.name} className="w-16 h-16 rounded-xl object-cover" />
-          ) : (
+        {restaurant?.id ? (
+          <Link href={`/restaurants/${restaurant.id}?review=${review.id}`} className="flex-shrink-0">
+            {hasImage ? (
+              <img src={restaurant.imageUrl} alt={restaurant.name} className="w-16 h-16 rounded-xl object-cover" />
+            ) : (
+              <div className="w-16 h-16 rounded-xl bg-white/[0.04] flex items-center justify-center">
+                <span className="text-2xl">🍽️</span>
+              </div>
+            )}
+          </Link>
+        ) : (
+          <div className="flex-shrink-0">
             <div className="w-16 h-16 rounded-xl bg-white/[0.04] flex items-center justify-center">
               <span className="text-2xl">🍽️</span>
             </div>
-          )}
-        </Link>
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-            <Link href={`/restaurants/${restaurant?.id}?review=${review.id}`} className="font-medium text-white/80 hover:text-purple-400 transition-colors text-sm truncate">
-              {restaurant?.name}
-            </Link>
+            {restaurant?.id ? (
+              <Link href={`/restaurants/${restaurant.id}?review=${review.id}`} className="font-medium text-white/80 hover:text-purple-400 transition-colors text-sm truncate">
+                {restaurant?.name || "Restaurante"}
+              </Link>
+            ) : (
+              <span className="font-medium text-white/80 text-sm truncate">{restaurant?.name || "Restaurante"}</span>
+            )}
             <div className="flex items-center gap-1 flex-shrink-0">
               <Star className="h-3.5 w-3.5 text-amber-400 fill-current" />
               <span className="text-sm font-semibold text-amber-400">{review.rating}</span>
