@@ -1,39 +1,37 @@
 // app/restaurants/[id]/page.tsx
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
-import { usePublicApiClient } from '@/hooks/auth/usePublicApiClient';
-import { createClient } from '@/libs/supabase/client';
-import Navbar from '@/components/ui/navigation/Navbar';
-import { Review } from '@/libs/types';
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { useSecureApiClient } from "@/hooks/auth/useSecureApiClient";
+import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
+import { createClient } from "@/libs/supabase/client";
+import Navbar from "@/components/ui/navigation/Navbar";
+import { Review } from "@/libs/types";
 
-// Import new components
-import RestaurantHeader from '@/components/ui/RestaurantDetails/RestaurantHeader';
-import RestaurantImagesSection from '@/components/ui/RestaurantDetails/RestaurantImagesSection';
-import RestaurantCategoriesSection from '@/components/ui/RestaurantDetails/RestaurantCategoriesSection';
-import RestaurantInfoSection from '@/components/ui/RestaurantDetails/RestaurantInfoSection';
-import RestaurantReviewsSection from '@/components/ui/RestaurantDetails/RestaurantReviewsSection';
-import RestaurantListsSection from '@/components/ui/RestaurantDetails/RestaurantListsSection';
-import ContactInfoCard from '@/components/ui/RestaurantDetails/ContactInfoCard';
-import RestaurantStickyNavbar from '@/components/ui/RestaurantDetails/RestaurantStickyNavbar';
-import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
+// New creative components
+import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
+import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
+import CategoryChips from "@/components/ui/RestaurantDetails/CategoryChips";
+import VisitIsland from "@/components/ui/RestaurantDetails/VisitIsland";
+import ReviewsFeed from "@/components/ui/RestaurantDetails/ReviewsFeed";
+import ListsSection from "@/components/ui/RestaurantDetails/ListsSection";
+import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 
-// Import existing components
-import ScheduleMealModal from '@/components/ui/RestaurantDetails/ScheduleMealModal';
-import { useModal } from '@/contexts/ModalContext';
+// Existing components
+import ScheduleMealModal from "@/components/ui/RestaurantDetails/ScheduleMealModal";
+import { useModal } from "@/contexts/ModalContext";
 
-import Link from 'next/link';
-import { Share2, Calendar, Edit, MapPin, Globe, FileText, ImageIcon, Phone, Check, X, Plus, Star, Tag, User, Clock, ListChecks, Smartphone, Home, Euro } from 'lucide-react';
-import { formatDescription, categorizePriceLevel, getRatingClass, formatDate, formatPrice } from '@/utils/formatters';
-import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
-import { logError, logWarn, logInfo } from '@/utils/logger';
-import { toast } from 'react-toastify';
-import Image from 'next/image';
-import RestaurantCarousel from '@/components/ui/RestaurantList/RestaurantCarousel';
-import RestaurantImagePlaceholder from '@/components/ui/RestaurantManagement/RestaurantImagePlaceholder';
+import Link from "next/link";
+import { Share2, Calendar, Edit, MapPin, Globe, FileText, ImageIcon, Phone, Check, X, Plus, Star, Tag, User, Clock, ListChecks, Smartphone, Home, Euro } from "lucide-react";
+import { formatDescription, categorizePriceLevel, getRatingClass, formatDate, formatPrice } from "@/utils/formatters";
+import { convertCloudinaryUrl } from "@/utils/cloudinaryConverter";
+import { logError, logWarn, logInfo } from "@/utils/logger";
+import { toast } from "react-toastify";
+import Image from "next/image";
+import RestaurantCarousel from "@/components/ui/RestaurantList/RestaurantCarousel";
+import RestaurantImagePlaceholder from "@/components/ui/RestaurantManagement/RestaurantImagePlaceholder";
 
 interface Restaurant {
   id: string;
@@ -795,6 +793,7 @@ export default function RestaurantDetails() {
     }
   };
   
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
@@ -802,21 +801,14 @@ export default function RestaurantDetails() {
       {/* Notification */}
       {notification && (
         <div className="fixed top-4 right-4 z-50 max-w-sm">
-          <div className={`px-4 py-3 rounded-lg shadow-lg border-l-4 ${
+          <div className={`px-4 py-3 rounded-xl backdrop-blur-lg border ${
             notification.type === 'success'
-              ? 'bg-green-500/10 border-green-500 text-green-400 ring-1 ring-green-500/20'
-              : 'bg-red-500/10 border-red-500 text-red-400 ring-1 ring-red-500/20'
+              ? 'bg-green-500/10 border-green-500/20 text-green-400'
+              : 'bg-red-500/10 border-red-500/20 text-red-400'
           }`}>
             <div className="flex items-center">
-              <div className="flex-1 text-sm font-medium">
-                {notification.message}
-              </div>
-              <button
-                onClick={() => setNotification(null)}
-                className={`ml-3 text-sm font-medium hover:underline ${
-                  notification.type === 'success' ? 'text-green-400 hover:text-green-300' : 'text-red-400 hover:text-red-300'
-                }`}
-              >
+              <span className="flex-1 text-sm font-medium">{notification.message}</span>
+              <button onClick={() => setNotification(null)} className="ml-3">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -824,97 +816,95 @@ export default function RestaurantDetails() {
         </div>
       )}
 
-      {/* Sticky Navbar for Mobile */}
-      <RestaurantStickyNavbar
-        visited={visitData.visited}
-        visitCount={visitData.visit_count}
-        onShare={handleShareClick}
-        onSchedule={() => setIsScheduleModalOpen(true)}
-        onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
-        onToggleVisited={handleToggleVisited}
-        onAddVisit={handleAddVisit}
-        onRemoveVisit={handleRemoveVisit}
-        isUpdating={isUpdating}
-        loadingVisits={false}
-        user={user}
-        restaurant={restaurant}
-      />
+      {loading ? (
+        <div className="min-h-[60dvh] flex items-center justify-center">
+          <div className="animate-pulse space-y-4 w-full max-w-3xl px-4">
+            <div className="h-8 bg-white/[0.06] rounded-lg w-1/3" />
+            <div className="h-64 bg-white/[0.06] rounded-2xl" />
+            <div className="h-32 bg-white/[0.06] rounded-2xl" />
+          </div>
+        </div>
+      ) : !restaurant ? (
+        <div className="min-h-[60dvh] flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-white/70 mb-4">Restaurante nao encontrado</h2>
+            <Link href="/restaurants" className="text-amber-400 hover:text-amber-300 transition-colors">
+              Voltar aos restaurantes
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Hero Section */}
+          <HeroSection
+            restaurant={restaurant}
+            onShare={handleShareClick}
+            onSchedule={() => setIsScheduleModalOpen(true)}
+            onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
+            isOwner={!!(user && restaurant?.creator_id === user.id)}
+          />
 
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
-        {/* Restaurant Header */}
-        <RestaurantHeader
-          restaurant={restaurant}
-          onShare={handleShareClick}
-          onSchedule={() => setIsScheduleModalOpen(true)}
-          onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
-          user={user}
-          showActions={true}
-          visited={visitData.visited}
-          visitCount={visitData.visit_count}
-          onToggleVisited={handleToggleVisited}
-          onAddVisit={handleAddVisit}
-          onRemoveVisit={handleRemoveVisit}
-          isUpdating={isUpdating}
-          loadingVisits={false}
-        />
+          <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+            {/* Bento Info Grid */}
+            <InfoBento
+              location={restaurant.location}
+              sourceUrl={restaurant.source_url}
+              menuLinks={restaurant.menu_links}
+              menuImages={restaurant.menu_images}
+              phoneNumbers={restaurant.phone_numbers}
+              latitude={restaurant.latitude}
+              longitude={restaurant.longitude}
+            />
 
-        {/* Restaurant Images Section */}
-        <RestaurantImagesSection
-          restaurant={restaurant}
-        />
+            {/* Category Chips */}
+            <CategoryChips
+              cuisineTypes={cuisineTypes}
+              dietaryOptions={restaurant.dietary_options || []}
+              features={restaurant.features || []}
+            />
 
-        {/* Restaurant Categories Section */}
-        <RestaurantCategoriesSection
-          cuisineTypes={cuisineTypes}
-          dietaryOptions={restaurant.dietary_options || []}
-          features={restaurant.features || []}
-        />
+            {/* Visit Island */}
+            {user && (
+              <VisitIsland
+                visited={visitData.visited}
+                visitCount={visitData.visit_count}
+                onToggleVisited={handleToggleVisited}
+                onAddVisit={handleAddVisit}
+                onRemoveVisit={handleRemoveVisit}
+                isUpdating={isUpdating}
+              />
+            )}
 
-        {/* Restaurant Info Section */}
-        <RestaurantInfoSection
-          location={restaurant.location || ''}
-          sourceUrl={restaurant.source_url || ''}
-          menuLinks={restaurant.menu_links || []}
-          menuImages={restaurant.menu_images || []}
-          phoneNumbers={restaurant.phone_numbers || []}
-          latitude={restaurant.latitude}
-          longitude={restaurant.longitude}
-        />
+            {/* Reviews Feed */}
+            <ReviewsFeed
+              ref={reviewsSectionRef}
+              restaurantId={id}
+              reviews={reviews}
+              reviewCount={reviewCount}
+              user={user}
+              userProfile={userProfile}
+              loading={loadingReviews}
+              onReviewSubmitted={handleReviewSubmitted}
+              onEditReview={handleEditReview}
+              onDeleteReview={handleDeleteReview}
+              restaurantRating={restaurant.rating}
+            />
 
-        {/* Restaurant Reviews Section */}
-        <RestaurantReviewsSection
-          ref={reviewsSectionRef}
-          restaurantId={id}
-          reviews={reviews}
-          reviewCount={reviewCount}
-          user={user}
-          userProfile={userProfile}
-          loading={loadingReviews}
-          onReviewSubmitted={handleReviewSubmitted}
-          onEditReview={handleEditReview}
-          onDeleteReview={handleDeleteReview}
-          onScrollToForm={() => {
-            if (reviewFormRef.current) {
-              reviewFormRef.current.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center',
-                inline: 'nearest'
-              });
-            }
-          }}
-        />
-      </div>
+            {/* Lists */}
+            <ListsSection lists={lists} />
+          </div>
+        </>
+      )}
 
       <ScheduleMealModal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
-        restaurantName={restaurant?.name || ''}
-        restaurantLocation={restaurant?.location || ''}
-        restaurantDescription={restaurant?.description || ''}
+        restaurantName={restaurant?.name || ""}
+        restaurantLocation={restaurant?.location || ""}
+        restaurantDescription={restaurant?.description || ""}
         restaurantId={restaurant?.id}
       />
 
-      {/* ScrollToTopButton - only appears on desktop */}
       <ScrollToTopButton />
     </div>
   );
