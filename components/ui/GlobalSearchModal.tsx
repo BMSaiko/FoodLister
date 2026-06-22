@@ -19,7 +19,6 @@ export default function GlobalSearchModal() {
   const { searchOpen, setSearchOpen } = useSearch();
   const onClose = () => setSearchOpen(false);
 
-  if (!searchOpen) return null;
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -71,6 +70,8 @@ export default function GlobalSearchModal() {
   ].filter(g => g.items.length > 0);
 
   let flatIndex = -1;
+
+  if (!searchOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4" onClick={onClose}>
