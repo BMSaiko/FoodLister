@@ -87,7 +87,7 @@ export default function Navbar() {
 
   const SearchTrigger = () => (
     <button
-      onClick={() => setSearchOpen(true)}
+      onClick={() => { console.log("SearchTrigger clicked"); setSearchOpen(true); }}
       className="hidden md:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.08] hover:bg-white/[0.08] transition-colors cursor-text group"
     >
       <Search className="h-4 w-4 text-white/25 flex-shrink-0" />
