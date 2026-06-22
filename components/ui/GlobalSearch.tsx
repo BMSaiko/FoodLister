@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Search, X, Loader2, Utensils, List, User } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
 
 interface SearchResult {
@@ -32,6 +32,15 @@ export default function GlobalSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const pathname = usePathname();
+
+  // Close modal on any route change
+  useEffect(() => {
+    setIsOpen(false);
+    setQuery("");
+    setActiveIndex(-1);
+  }, [pathname]);
 
   // Register opener
   useEffect(() => {
