@@ -29,7 +29,9 @@ interface ReviewCardProps {
 }
 
 const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, onDelete, onShare, className = "" }) => {
-  const restaurant = review.restaurant || {};
+  // Normalize: API returns 'restaurants' (plural) from Supabase join, card expects 'restaurant' (singular)
+  const raw = review.restaurant || (review as any).restaurants || {};
+  const restaurant = Array.isArray(raw) ? raw[0] : raw;
   const hasImage = !!(restaurant as any).imageUrl;
 
   return (
