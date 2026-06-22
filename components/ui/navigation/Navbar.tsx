@@ -144,9 +144,6 @@ export default function Navbar() {
             <SearchTrigger />
           </div>
 
-          {/* Global Search Modal */}
-          {searchOpen && <GlobalSearchModal onClose={() => setSearchOpen(false)} />}
-
           {/* Actions */}
           <div className="flex items-center gap-1.5">
             {/* Create button (logged in) */}
@@ -331,6 +328,9 @@ export default function Navbar() {
           ))}
         </nav>
       </motion.div>
+
+      {/* Global Search Modal */}
+      {searchOpen && <GlobalSearchModal onClose={() => setSearchOpen(false)} />}
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
