@@ -4,10 +4,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
 import SearchBar from './Searchbar';
+import NotificationsDropdown from './NotificationsDropdown';
 
 interface ProfileData {
   display_name: string;
@@ -154,6 +155,13 @@ export default function Navbar() {
               </Link>
             )}
 
+            {/* Notifications (logged in) */}
+            {user && (
+              <div className="hidden md:block">
+                <NotificationsDropdown />
+              </div>
+            )}
+
             {/* User Menu */}
             {user ? (
               <div className="relative" ref={userMenuRef}>
@@ -217,6 +225,29 @@ export default function Navbar() {
                             className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                           >
                             <Shield className="w-4 h-4" /> Admin
+                          </Link>
+                        )}
+                        <Link
+                          href="/meals"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
+                        >
+                          <Calendar className="w-4 h-4" /> Refeições
+                        </Link>
+                        <Link
+                          href="/pricing"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
+                        >
+                          <Sparkles className="w-4 h-4" /> Premium
+                        </Link>
+                        {userProfile?.is_admin && (
+                          <Link
+                            href="/marketing"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
+                          >
+                            <Megaphone className="w-4 h-4" /> Marketing
                           </Link>
                         )}
                         <div className="border-t border-white/[0.06] my-1" />
