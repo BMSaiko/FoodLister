@@ -50,6 +50,7 @@ function ListsContent() {
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
+      <Navbar />
       <Container className="py-6 sm:py-8">
         {/* Header */}
         <div className="flex items-end justify-between mb-8">
