@@ -15,7 +15,7 @@ import { useSearchParams } from 'next/navigation';
 import HeroRestaurantCard from '@/components/ui/RestaurantList/HeroRestaurantCard';
 import { RestaurantGrid } from '@/components/ui/RestaurantList/RestaurantGrid';
 import TabbedRestaurantFilters from '@/components/ui/Filters/TabbedRestaurantFilters';
-import FilterStats from '@/components/ui/Filters/FilterStats';
+import { FilterStats } from '@/components/ui/Filters/FilterStats';
 import Skeleton from '@/components/ui/Skeleton';
 
 function RestaurantsContent() {
