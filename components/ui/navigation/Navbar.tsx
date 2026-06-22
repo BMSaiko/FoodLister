@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
 import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
+import { useSearch } from '@/contexts/SearchContext';
 import { getClient } from '@/libs/supabase/client';
 import GlobalSearchModal from '../GlobalSearchModal';
 import NotificationsDropdown from './NotificationsDropdown';
