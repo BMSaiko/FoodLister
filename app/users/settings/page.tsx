@@ -1,32 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
-import { useRouter } from 'next/navigation';
-import { useSettings } from '@/hooks/data/useSettings';
-import { useProfileForm } from '@/hooks/forms/useProfileForm';
-import { useProfileActions } from '@/hooks/forms/useProfileActions';
-import { toast } from 'react-toastify';
-import { 
-  Mail, 
-  Globe, 
-  MapPin, 
-  FileText, 
-  Camera, 
-  Eye, 
-  EyeOff, 
-  Shield, 
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-  User,
-  Phone
-} from 'lucide-react';
-import Link from 'next/link';
-import Navbar from '@/components/ui/navigation/Navbar';
-import UserProfileHeader from '@/components/ui/profile/UserProfileHeader';
-import ScrollToTopButton from '@/components/ui/common/ScrollToTopButton';
-import FormActions from '@/components/ui/common/FormActions';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { useRouter } from "next/navigation";
+import { useSettings } from "@/hooks/data/useSettings";
+import { toast } from "react-toastify";
+import {
+  Mail, Globe, MapPin, FileText, Camera, Eye, EyeOff,
+  Shield, AlertCircle, CheckCircle, Loader2, User, Phone,
+  Star, List, UtensilsCrossed, Sparkles
+} from "lucide-react";
+import Link from "next/link";
+import Navbar from "@/components/ui/navigation/Navbar";
+import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
+import FormSection from "@/components/ui/common/FormSection";
 
 interface FormErrors {
   display_name?: string;
@@ -47,10 +34,6 @@ interface UserProfile {
   publicProfile: boolean;
   createdAt: string;
   updatedAt: string;
-  totalRestaurantsVisited?: number;
-  totalReviews?: number;
-  totalLists?: number;
-  joinedDate?: string;
   stats?: {
     totalRestaurantsVisited: number;
     totalReviews: number;
@@ -58,180 +41,117 @@ interface UserProfile {
     totalRestaurantsAdded: number;
     joinedDate: string;
   };
-  recentReviews?: any[];
-  recentLists?: any[];
-  isOwnProfile?: boolean;
 }
 
-const ProfileSettingsPage = () => {
+const SECTION_ICONS: Record<number, React.ReactNode> = {
+  1: <User className="w-5 h-5" />,
+  2: <Shield className="w-5 h-5" />,
+  3: <Sparkles className="w-5 h-5" />,
+};
+
+export default function ProfileSettingsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const { 
-    profile, 
-    loading: profileLoading, 
-    error, 
-    saveProfile, 
-    uploadImage, 
-    refreshProfile 
-  } = useSettings();
+  const { profile, loading: profileLoading, error, saveProfile, uploadImage, refreshProfile } = useSettings();
 
+  const [currentStep, setCurrentStep] = useState(1);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localProfile, setLocalProfile] = useState<UserProfile | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
 
-  // Initialize local profile when profile data loads
   useEffect(() => {
     if (profile && (!localProfile || profile.id !== localProfile.id)) {
       setLocalProfile(profile);
     }
   }, [profile, localProfile]);
 
-  // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/signin');
-    }
+    if (!authLoading && !user) router.push("/auth/signin");
   }, [user, authLoading, router]);
 
-  // Load profile data on mount
   useEffect(() => {
-    if (user) {
-      refreshProfile();
-    }
+    if (user) refreshProfile();
   }, [user, refreshProfile]);
 
   const handleInputChange = (field: string, value: string) => {
-    // Update local state for immediate feedback
-    if (localProfile) {
-      setLocalProfile({
-        ...localProfile,
-        [field]: value
-      });
-    }
+    if (localProfile) setLocalProfile({ ...localProfile, [field]: value });
   };
 
   const handlePrivacyToggle = async () => {
     if (!profile) return;
-
     try {
-      const success = await saveProfile({
-        publicProfile: !localProfile?.publicProfile
-      });
-      
+      const success = await saveProfile({ publicProfile: !localProfile?.publicProfile });
       if (success) {
-        toast.success(localProfile?.publicProfile ? 'Perfil agora é privado!' : 'Perfil agora é público!');
+        toast.success(localProfile?.publicProfile ? "Perfil agora e privado!" : "Perfil agora e publico!");
+        if (localProfile) setLocalProfile({ ...localProfile, publicProfile: !localProfile.publicProfile });
       }
-    } catch (error) {
-      toast.error('Erro ao atualizar privacidade do perfil');
-    }
+    } catch { toast.error("Erro ao atualizar privacidade"); }
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     try {
       const imageUrl = await uploadImage(file);
-      // Update profile with new image + update local state immediately
-      if (localProfile) {
-        setLocalProfile({ ...localProfile, profileImage: imageUrl });
-      }
+      if (localProfile) setLocalProfile({ ...localProfile, profileImage: imageUrl });
       await saveProfile({ profileImage: imageUrl });
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
+      toast.success("Imagem atualizada!");
+    } catch { toast.error("Erro ao carregar imagem"); }
   };
 
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
-
-    if (!localProfile?.name || localProfile.name.trim() === '') {
-      errors.display_name = 'Nome de exibição é obrigatório';
+    if (!localProfile?.name || localProfile.name.trim() === "") errors.display_name = "Nome de exibicao e obrigatorio";
+    if (localProfile?.website && localProfile.website.trim() !== "") {
+      try { new URL(localProfile.website); } catch { errors.website = "Formato de URL invalido"; }
     }
-
-    if (localProfile?.website && localProfile.website.trim() !== '') {
-      try {
-        new URL(localProfile.website);
-      } catch {
-        errors.website = 'Formato de URL do website inválido';
-      }
-    }
-
-    if (localProfile?.bio && localProfile.bio.length > 500) {
-      errors.bio = 'A biografia deve ter no máximo 500 caracteres';
-    }
-
+    if (localProfile?.bio && localProfile.bio.length > 500) errors.bio = "A biografia deve ter no maximo 500 caracteres";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      toast.error('Por favor, corrija os erros no formulário');
-      return;
-    }
-
+    if (!validateForm()) { toast.error("Por favor, corrija os erros"); return; }
     setIsSubmitting(true);
-
     try {
-      const profileToSave = localProfile;
+      const p = localProfile;
       const success = await saveProfile({
-        name: profileToSave?.name || '',
-        bio: profileToSave?.bio || '',
-        profileImage: profileToSave?.profileImage || '',
-        phoneNumber: profileToSave?.phoneNumber || '',
-        website: profileToSave?.website || '',
-        location: profileToSave?.location || '',
-        publicProfile: profileToSave?.publicProfile || true
+        name: p?.name || "", bio: p?.bio || "", profileImage: p?.profileImage || "",
+        phoneNumber: p?.phoneNumber || "", website: p?.website || "",
+        location: p?.location || "", publicProfile: p?.publicProfile || true,
       });
-
       if (success) {
-        toast.success('Perfil atualizado com sucesso!');
-        // Redirect to restaurants page after successful save
-        setTimeout(() => {
-          router.push('/restaurants');
-        }, 2000);
+        setShowCelebration(true);
+        setTimeout(() => { router.push("/restaurants"); }, 2500);
       }
-    } catch (error) {
-      console.error('Error saving profile:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch { toast.error("Erro ao salvar perfil"); }
+    finally { setIsSubmitting(false); }
   };
 
-
-  const handleCancel = () => {
-    router.back();
-  };
-
+  // Loading
   if (authLoading || profileLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-amber-500" />
-          <p className="mt-4 text-gray-600">Carregando perfil...</p>
+          <Loader2 className="h-10 w-10 animate-spin mx-auto text-purple-500" />
+          <p className="mt-3 text-white/30 text-sm">Carregando perfil...</p>
         </div>
       </div>
     );
   }
 
-  if (!user) {
-    return null; // Will redirect
-  }
+  if (!user) return null;
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
-          <h1 className="text-2xl font-bold text-gray-800 mt-4">Erro ao carregar perfil</h1>
-          <p className="text-gray-600 mt-2">{error}</p>
-          <button
-            onClick={refreshProfile}
-            className="mt-4 bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors"
-          >
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <div className="text-center max-w-sm">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
+          <h1 className="text-xl font-bold text-white/80 mt-4">Erro ao carregar perfil</h1>
+          <p className="text-white/40 mt-2 text-sm">{error}</p>
+          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium">
             Tentar Novamente
           </button>
         </div>
@@ -241,15 +161,11 @@ const ProfileSettingsPage = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
-          <h1 className="text-2xl font-bold text-gray-800 mt-4">Perfil não encontrado</h1>
-          <p className="text-gray-600 mt-2">Não foi possível carregar os dados do seu perfil.</p>
-          <button
-            onClick={refreshProfile}
-            className="mt-4 bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600 transition-colors"
-          >
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+        <div className="text-center max-w-sm">
+          <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
+          <h1 className="text-xl font-bold text-white/80 mt-4">Perfil nao encontrado</h1>
+          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium">
             Tentar Novamente
           </button>
         </div>
@@ -258,253 +174,337 @@ const ProfileSettingsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 pb-24 md:pb-8">
-      {/* Navbar */}
+    <div className="min-h-screen bg-[var(--background)] pb-24 md:pb-8">
       <Navbar />
 
-      <div className="container mx-auto px-4 py-6">
+      {/* Celebration */}
+      {showCelebration && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050505]/95 backdrop-blur-xl p-4">
+          <div className="text-center max-w-sm w-full p-8 rounded-3xl bg-white/[0.03] border border-white/[0.08]">
+            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-purple-500/20">
+              <Sparkles className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-white tracking-tight mb-2">Perfil Atualizado!</h2>
+            <p className="text-white/40 text-sm">As suas informacoes foram salvas com sucesso.</p>
+          </div>
+        </div>
+      )}
+
+      <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Header */}
-        <div className="mb-6" id="settings-header">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">Configurações da Conta</h1>
-              <p className="text-gray-600">Gerencie suas informações pessoais</p>
-            </div>
-            {/* Ver Perfil Público button - Desktop Only */}
-            <div className="hidden md:block">
-              <Link 
-                href={`/users/${localProfile?.userIdCode}`}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <Eye className="h-4 w-4" />
-                <span className="font-medium">Ver Perfil Público</span>
-              </Link>
-            </div>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">Configuracoes</h1>
+          <p className="text-white/35 mt-1 text-sm">Gerencia as suas informacoes pessoais e privacidade</p>
         </div>
 
-        {/* Profile Header */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            <div className="lg:w-32 lg:h-32 w-24 h-24 relative flex-shrink-0">
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-amber-400 to-orange-400 shadow-xl flex items-center justify-center overflow-hidden ring-4 ring-white">
-                {localProfile?.profileImage ? (
-                  <img
-                    src={localProfile?.profileImage}
-                    alt={localProfile?.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="h-12 w-12 sm:h-16 sm:w-16 text-white opacity-80" />
-                )}
-              </div>
-              <label className="absolute bottom-0 right-0 bg-amber-500 hover:bg-amber-600 text-white p-2 rounded-full cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-110">
-                <Camera className="h-4 w-4" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            
-            <div className="flex-1">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{localProfile?.name}</h2>
-              <p className="text-gray-600 mt-1 text-sm sm:text-base">{user.email}</p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm bg-amber-100 text-amber-800">
-                  <User className="h-4 w-4 mr-1.5" />
-                  {localProfile?.userIdCode}
-                </span>
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-sm bg-green-100 text-green-800">
-                  <CheckCircle className="h-4 w-4 mr-1.5" />
-                  Verificado
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* Step indicator */}
+        <div className="flex items-center gap-2 mb-6">
+          {[1, 2, 3].map(step => (
+            <button
+              key={step}
+              onClick={() => setCurrentStep(step)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                currentStep === step
+                  ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25"
+                  : "bg-white/[0.03] text-white/30 hover:bg-white/[0.06]"
+              }`}
+            >
+              {SECTION_ICONS[step]}
+              <span className="hidden sm:inline">{step === 1 ? "Perfil" : step === 2 ? "Privacidade" : "Estatisticas"}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 sm:p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Personal Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {/* Display Name */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <User className="h-4 w-4 inline mr-2 text-amber-500" />
-                  Nome de Exibição <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={localProfile?.name || ''}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  disabled={isSubmitting}
-                  aria-busy={isSubmitting}
-                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                    formErrors.display_name ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Seu nome de exibição"
-                  required
-                />
-                {formErrors.display_name && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.display_name}</p>
-                )}
-              </div>
-
-              {/* Email (Read-only) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Mail className="h-4 w-4 inline mr-2 text-amber-500" />
-                  Endereço de Email
-                </label>
-                <input
-                  type="email"
-                  value={user.email || ''}
-                  readOnly
-                  className="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
-                />
-                <p className="text-xs sm:text-sm text-gray-500 mt-2">O email não pode ser alterado</p>
-              </div>
-
-              {/* Phone Number */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Phone className="h-4 w-4 inline mr-2 text-amber-500" />
-                  Número de Telefone
-                </label>
-                <input
-                  type="tel"
-                  value={localProfile?.phoneNumber || ''}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  disabled={isSubmitting}
-                  aria-busy={isSubmitting}
-                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="+351 912 345 678"
-                />
-                <p className="text-xs sm:text-sm text-gray-500 mt-2">Número de telefone para contato</p>
-              </div>
-
-              {/* Location */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <MapPin className="h-4 w-4 inline mr-2 text-amber-500" />
-                  Localização
-                </label>
-                <input
-                  type="text"
-                  value={localProfile?.location || ''}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  disabled={isSubmitting}
-                  aria-busy={isSubmitting}
-                  className="w-full px-3 sm:px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  placeholder="Lisboa, Portugal"
-                />
-                <p className="text-xs sm:text-sm text-gray-500 mt-2">Sua localização para recomendações personalizadas</p>
-              </div>
-
-              {/* Website */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <Globe className="h-4 w-4 inline mr-2 text-amber-500" />
-                  Website
-                </label>
-                <input
-                  type="url"
-                  value={localProfile?.website || ''}
-                  onChange={(e) => handleInputChange('website', e.target.value)}
-                  disabled={isSubmitting}
-                  aria-busy={isSubmitting}
-                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                    formErrors.website ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="https://seusite.com"
-                />
-                {formErrors.website && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.website}</p>
-                )}
-                <p className="text-xs sm:text-sm text-gray-500 mt-2">Seu site pessoal ou blog gastronômico</p>
-              </div>
-
-              {/* Description */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FileText className="h-4 w-4 inline mr-2 text-amber-500" />
-                  Sobre Você
-                </label>
-                <textarea
-                  value={localProfile?.bio || ''}
-                  onChange={(e) => handleInputChange('bio', e.target.value)}
-                  rows={4}
-                  disabled={isSubmitting}
-                  aria-busy={isSubmitting}
-                  className={`w-full px-3 sm:px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
-                    formErrors.bio ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Conte um pouco sobre você, seus gostos culinários, etc..."
-                  maxLength={500}
-                />
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-2">
-                  <p className="text-xs sm:text-sm text-gray-500">Compartilhe informações sobre seus gostos culinários</p>
-                  <span className="text-xs sm:text-sm text-gray-400">{(localProfile?.bio || '').length}/500</span>
+        <form onSubmit={handleSubmit}>
+          {/* Step 1: Personal Info */}
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              {/* Avatar Card */}
+              <FormSection title="Foto de Perfil" icon={<Camera className="w-5 h-5" />}>
+                <div className="flex items-center gap-5">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-2 ring-white/[0.08] flex items-center justify-center overflow-hidden">
+                      {localProfile?.profileImage ? (
+                        <img src={localProfile.profileImage} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-8 w-8 text-white/20" />
+                      )}
+                    </div>
+                    <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-purple-500 hover:bg-purple-400 flex items-center justify-center cursor-pointer transition-colors shadow-lg">
+                      <Camera className="h-3.5 w-3.5 text-white" />
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    </label>
+                  </div>
+                  <div>
+                    <p className="text-sm text-white/60">Clique no icone para alterar a foto</p>
+                    <p className="text-xs text-white/25 mt-0.5">JPG, PNG ou GIF. Max 5MB.</p>
+                  </div>
                 </div>
-                {formErrors.bio && (
-                  <p className="text-red-500 text-sm mt-1">{formErrors.bio}</p>
-                )}
-              </div>
-            </div>
+              </FormSection>
 
-            {/* Privacy Settings */}
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Privacidade</h3>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Shield className="h-5 w-5 text-amber-600" />
+              {/* Personal Info */}
+              <FormSection title="Informacoes Pessoais" icon={<User className="w-5 h-5" />}>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">Nome de Exibicao *</label>
+                      <input
+                        type="text"
+                        value={localProfile?.name || ""}
+                        onChange={e => handleInputChange("name", e.target.value)}
+                        disabled={isSubmitting}
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50 ${
+                          formErrors.display_name ? "border-red-500/50" : "border-white/[0.08]"
+                        }`}
+                        placeholder="O seu nome"
+                        required
+                      />
+                      {formErrors.display_name && <p className="text-red-400 text-xs mt-1">{formErrors.display_name}</p>}
+                    </div>
+
                     <div>
-                      <p className="font-medium text-gray-900">Privacidade do Perfil</p>
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                        <Mail className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Email
+                      </label>
+                      <input
+                        type="email"
+                        value={user.email || ""}
+                        readOnly
+                        className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.04] rounded-xl text-white/30 cursor-not-allowed"
+                      />
+                      <p className="text-[10px] text-white/20 mt-1">O email nao pode ser alterado</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                        <Phone className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Telefone
+                      </label>
+                      <input
+                        type="tel"
+                        value={localProfile?.phoneNumber || ""}
+                        onChange={e => handleInputChange("phoneNumber", e.target.value)}
+                        disabled={isSubmitting}
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50"
+                        placeholder="+351 912 345 678"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                        <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Localizacao
+                      </label>
+                      <input
+                        type="text"
+                        value={localProfile?.location || ""}
+                        onChange={e => handleInputChange("location", e.target.value)}
+                        disabled={isSubmitting}
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50"
+                        placeholder="Porto, Portugal"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                        <Globe className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Website
+                      </label>
+                      <input
+                        type="url"
+                        value={localProfile?.website || ""}
+                        onChange={e => handleInputChange("website", e.target.value)}
+                        disabled={isSubmitting}
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50 ${
+                          formErrors.website ? "border-red-500/50" : "border-white/[0.08]"
+                        }`}
+                        placeholder="https://o-seu-site.com"
+                      />
+                      {formErrors.website && <p className="text-red-400 text-xs mt-1">{formErrors.website}</p>}
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                        <FileText className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Bio
+                      </label>
+                      <textarea
+                        value={localProfile?.bio || ""}
+                        onChange={e => handleInputChange("bio", e.target.value)}
+                        rows={3}
+                        disabled={isSubmitting}
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all resize-none disabled:opacity-50 ${
+                          formErrors.bio ? "border-red-500/50" : "border-white/[0.08]"
+                        }`}
+                        placeholder="Conte um pouco sobre si..."
+                        maxLength={500}
+                      />
+                      <div className="flex justify-between mt-1">
+                        <p className="text-[10px] text-white/20">Maximo 500 caracteres</p>
+                        <span className="text-[10px] text-white/25">{(localProfile?.bio || "").length}/500</span>
+                      </div>
+                      {formErrors.bio && <p className="text-red-400 text-xs mt-1">{formErrors.bio}</p>}
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    {localProfile?.publicProfile 
-                      ? 'Seu perfil está público. Outros usuários podem encontrar e visualizar seu perfil.'
-                      : 'Seu perfil está privado. Apenas você pode visualizar seu perfil.'
-                    }
-                  </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={handlePrivacyToggle}
-                  disabled={isSubmitting}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors min-w-[140px] ${
-                    localProfile?.publicProfile 
-                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                      : 'bg-green-100 text-green-700 hover:bg-green-200'
-                  } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {localProfile?.publicProfile ? 'Tornar Privado' : 'Tornar Público'}
-                </button>
-              </div>
+              </FormSection>
             </div>
+          )}
 
-            {/* Form Actions - Sticky */}
-            <FormActions
-              onCancel={handleCancel}
-              onSubmit={handleSubmit}
-              submitText="Salvar Alterações"
-              loading={isSubmitting}
-            />
-          </form>
-        </div>
+          {/* Step 2: Privacy */}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <FormSection title="Privacidade do Perfil" icon={<Shield className="w-5 h-5" />} description="Escolha quem pode ver o seu perfil.">
+                <div className="space-y-3">
+                  {/* Public option */}
+                  <button
+                    type="button"
+                    onClick={() => { if (!localProfile?.publicProfile) handlePrivacyToggle(); }}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 text-left ${
+                      localProfile?.publicProfile
+                        ? "border-emerald-500/30 bg-emerald-500/5"
+                        : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      localProfile?.publicProfile ? "bg-emerald-500/15 text-emerald-400" : "bg-white/[0.04] text-white/30"
+                    }`}>
+                      <Globe className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-white/80">Perfil Publico</p>
+                      <p className="text-xs text-white/35 mt-0.5">Qualquer pessoa pode encontrar e ver o seu perfil</p>
+                    </div>
+                    {localProfile?.publicProfile && <CheckCircle className="h-5 w-5 text-emerald-400" />}
+                  </button>
+
+                  {/* Private option */}
+                  <button
+                    type="button"
+                    onClick={() => { if (localProfile?.publicProfile) handlePrivacyToggle(); }}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 text-left ${
+                      !localProfile?.publicProfile
+                        ? "border-red-500/30 bg-red-500/5"
+                        : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                      !localProfile?.publicProfile ? "bg-red-500/15 text-red-400" : "bg-white/[0.04] text-white/30"
+                    }`}>
+                      <EyeOff className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-white/80">Perfil Privado</p>
+                      <p className="text-xs text-white/35 mt-0.5">Apenas voce pode ver o seu perfil</p>
+                    </div>
+                    {!localProfile?.publicProfile && <CheckCircle className="h-5 w-5 text-red-400" />}
+                  </button>
+                </div>
+              </FormSection>
+
+              {/* View profile link */}
+              {localProfile?.userIdCode && (
+                <Link
+                  href={`/users/${localProfile.userIdCode}`}
+                  className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                    <Eye className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-white/70">Ver Perfil Publico</p>
+                    <p className="text-xs text-white/30">Como outros utilizadores veem o seu perfil</p>
+                  </div>
+                </Link>
+              )}
+            </div>
+          )}
+
+          {/* Step 3: Stats */}
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <FormSection title="Estatisticas" icon={<Sparkles className="w-5 h-5" />} description="O seu impacto na comunidade FoodLister.">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                    <div className="p-4 rounded-xl bg-white/[0.03] text-center">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                        <UtensilsCrossed className="h-5 w-5 text-amber-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-amber-400">{localProfile?.stats?.totalRestaurantsVisited || 0}</p>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Visitados</p>
+                    </div>
+                  </div>
+                  <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                    <div className="p-4 rounded-xl bg-white/[0.03] text-center">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                        <Star className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-blue-400">{localProfile?.stats?.totalReviews || 0}</p>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Reviews</p>
+                    </div>
+                  </div>
+                  <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                    <div className="p-4 rounded-xl bg-white/[0.03] text-center">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                        <List className="h-5 w-5 text-emerald-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-emerald-400">{localProfile?.stats?.totalLists || 0}</p>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Listas</p>
+                    </div>
+                  </div>
+                  <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                    <div className="p-4 rounded-xl bg-white/[0.03] text-center">
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                        <User className="h-5 w-5 text-purple-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-purple-400">{localProfile?.stats?.totalRestaurantsAdded || 0}</p>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Adicionados</p>
+                    </div>
+                  </div>
+                </div>
+              </FormSection>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between mt-6 pt-4">
+            <button
+              type="button"
+              onClick={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : router.back()}
+              className="px-4 py-2.5 text-sm font-medium text-white/40 hover:text-white/70 transition-colors min-h-[44px]"
+            >
+              {currentStep === 1 ? "Cancelar" : "Anterior"}
+            </button>
+
+            <span className="text-xs text-white/20">{currentStep} de 3</span>
+
+            {currentStep < 3 ? (
+              <button
+                type="button"
+                onClick={() => setCurrentStep(currentStep + 1)}
+                className="px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-all min-h-[44px]"
+              >
+                Proximo
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 min-h-[44px]"
+              >
+                {isSubmitting ? (
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <CheckCircle className="w-4 h-4" />
+                )}
+                {isSubmitting ? "A salvar..." : "Salvar Alteracoes"}
+              </button>
+            )}
+          </div>
+
+          {error && (
+            <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+          )}
+        </form>
       </div>
-      
-      {/* Desktop Scroll to Top Button */}
+
       <ScrollToTopButton />
-      
     </div>
   );
-};
-
-export default ProfileSettingsPage;
+}
