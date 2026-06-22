@@ -1,17 +1,14 @@
-// components/layouts/Navbar.tsx (versão responsiva)
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import SearchBar from './Searchbar';
-import NavbarActions from './NavbarActions';
-import { Menu, X, User, LogOut, Settings, ChevronDown, Shield } from 'lucide-react';
+import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
+import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { getClient } from '@/libs/supabase/client';
-import NotificationsDropdown from './NotificationsDropdown';
+import SearchBar from './Searchbar';
 
-// Define the profile data interface
 interface ProfileData {
   display_name: string;
   avatar_url: string;
@@ -19,526 +16,318 @@ interface ProfileData {
   is_admin: boolean;
 }
 
-const Navbar = ({ clearFilters = null }) => {
+const NAV_ITEMS = [
+  { id: 'restaurants', label: 'Restaurantes', href: '/restaurants' },
+  { id: 'lists', label: 'Listas', href: '/lists' },
+] as const;
+
+export default function Navbar() {
   const { user, signOut, loading } = useAuth();
   const { clearFilters: clearFiltersFromContext } = useFilters();
   const pathname = usePathname();
   const router = useRouter();
   const supabase = getClient();
-  const [activeSection, setActiveSection] = useState<'restaurants' | 'lists'>('restaurants');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
+  const [hasNotifications, setHasNotifications] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Keyboard navigation for user dropdown
-  const handleUserMenuKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      setUserMenuOpen(false);
-      userMenuButtonRef.current?.focus();
-    }
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      const items = userMenuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
-      if (!items || items.length === 0) return;
-      const currentIndex = Array.from(items).indexOf(document.activeElement as HTMLElement);
-      let nextIndex: number;
-      if (e.key === 'ArrowDown') {
-        nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
-      } else {
-        nextIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+  // Scroll-driven transform
+  const { scrollY } = useScroll();
+  const navbarHeight = useTransform(scrollY, [0, 100], [64, 52]);
+  const springHeight = useSpring(navbarHeight, { stiffness: 120, damping: 20 });
+
+  // Active section
+  const activeSection = pathname?.includes('/lists') ? 'lists' : 'restaurants';
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
       }
-      items[nextIndex]?.focus();
-    }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Focus trap: keep Tab within dropdown when open
-  const handleUserMenuTab = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Tab' && userMenuOpen) {
-      const items = userMenuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
-      if (!items || items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  }, [userMenuOpen]);
-  
-  // Fetch user profile data when user changes
+  // Fetch user profile
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    const fetchProfile = async () => {
       if (user && !loading) {
         try {
-          const { data: profileData, error } = await supabase
+          const { data } = await supabase
             .from('profiles')
             .select('display_name, avatar_url, user_id_code, is_admin')
             .eq('user_id', user.id)
             .single();
-
-          if (!error && profileData) {
-            setUserProfile(profileData);
-          } else {
-            setUserProfile(null);
-          }
-        } catch (error) {
-          console.error('Error fetching user profile for navbar:', error);
+          setUserProfile(data);
+        } catch {
           setUserProfile(null);
         }
       } else {
         setUserProfile(null);
       }
     };
-
-    fetchUserProfile();
+    fetchProfile();
   }, [user, loading, supabase]);
 
-  // Determina a seção ativa com base na URL atual
-  useEffect(() => {
-    if (pathname.includes('/lists')) {
-      setActiveSection('lists');
-    } else if (pathname.includes('/restaurants')) {
-      setActiveSection('restaurants');
-    } else {
-      // Na página inicial, mantém a seleção atual ou define um padrão
-      setActiveSection(activeSection || 'restaurants');
-    }
-  }, [pathname]);
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+  const handleSignOut = async () => {
+    setUserMenuOpen(false);
+    clearFiltersFromContext();
+    await signOut();
+    router.push('/');
   };
 
   return (
-    <nav className="bg-[var(--card-bg)]/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50" role="navigation" aria-label="Navegação principal">
-      <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
-        {/* Versão desktop */}
-        <div className="hidden md:flex md:items-center md:justify-between md:gap-4">
-          {/* Logo/Nome do site */}
-          <Link
-            href="/restaurants"
-            className="flex items-center text-lg sm:text-xl font-bold text-primary flex-shrink-0"
-            onClick={(e) => {
-              if (pathname === '/' || pathname === '/restaurants') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-primary"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
-            <span className="whitespace-nowrap">FoodLister</span>
+    <>
+      {/* Desktop: Floating Pill Navbar */}
+      <motion.header
+        style={{ height: springHeight }}
+        className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-4xl"
+      >
+        <motion.nav
+          className="navbar-glass h-full rounded-2xl px-3 sm:px-5 flex items-center justify-between gap-3"
+        >
+          {/* Logo */}
+          <Link href="/restaurants" className="flex items-center gap-2 flex-shrink-0 animate-logo-breathe">
+            <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center">
+              <span className="text-black font-bold text-sm">F</span>
+            </div>
+            <span className="font-bold text-[var(--foreground)] hidden sm:inline text-sm">FoodLister</span>
           </Link>
 
-          {/* Seção central com botões e pesquisa */}
-          <div className="flex items-center space-x-3 sm:space-x-4 flex-1 justify-center max-w-2xl">
-              <div className="flex bg-[var(--background-secondary)] rounded-lg p-1">
-              <Link href="/restaurants">
-                <button
-                  className={`px-3 sm:px-4 py-2 rounded-md transition-colors text-sm sm:text-base min-h-[40px] ${
-                    activeSection === 'restaurants' 
-                      ? 'bg-white/5 text-amber-400' 
-                      : 'text-primary hover:text-primary-hover'
+          {/* Nav Items with Animated Indicator */}
+          <div className="hidden md:flex items-center gap-0.5 bg-white/[0.03] rounded-full p-1 relative">
+            {NAV_ITEMS.map((item) => (
+              <Link key={item.id} href={item.href} className="relative z-10">
+                <motion.span
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 ${
+                    activeSection === item.id
+                      ? 'text-black'
+                      : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
                   }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  Restaurantes
-                </button>
+                  {item.label}
+                  {activeSection === item.id && (
+                    <motion.div
+                      layoutId="nav-indicator"
+                      className="absolute inset-0 bg-[var(--primary)] rounded-full -z-10"
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                </motion.span>
               </Link>
-              <Link href="/lists">
-                <button
-                  className={`px-3 sm:px-4 py-2 rounded-md transition-colors text-sm sm:text-base min-h-[40px] ${
-                    activeSection === 'lists' 
-                      ? 'bg-white/5 text-amber-400' 
-                      : 'text-primary hover:text-primary-hover'
-                  }`}
-                >
-                  Listas
-                </button>
-              </Link>
-            </div>
-            
-            {/* Barra de pesquisa */}
-            <div className="flex-1 max-w-md" title="Pesquisa (⌘K)">
-              <SearchBar searchType={activeSection} />
-            </div>
+            ))}
           </div>
 
-          {/* Botões de ações e menu do usuário */}
-          <div className="flex items-center gap-3 flex-shrink-0">
-          {/* Botão de criar */}
-          <NavbarActions activeSection={activeSection} showLogin={true} showSignout={false} />
+          {/* Search */}
+          <div className="hidden md:block flex-1 max-w-[200px]">
+            <SearchBar searchType={activeSection} />
+          </div>
 
-          {/* Notificações (apenas se logado) */}
-          {user && !loading && (
-            <NotificationsDropdown />
-          )}
-
-          {/* Admin link moved to dropdown */}
-
-          {/* Menu do usuário (apenas se logado) */}
-          {user && !loading && (
-            <div className="relative" onKeyDown={handleUserMenuKeyDown}>
-              <button
-                ref={userMenuButtonRef}
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[40px]"
-                title="Menu do usuário (⌘K pesquisa)"
-                aria-label={`Menu do usuário${userProfile?.display_name ? ', ' + userProfile.display_name : ''}`}
-                aria-expanded={userMenuOpen}
-                aria-haspopup="menu"
+          {/* Actions */}
+          <div className="flex items-center gap-1.5">
+            {/* Create button (logged in) */}
+            {user && (
+              <Link
+                href="/restaurants/create"
+                className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+                title="Criar restaurante"
               >
-                  <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
-                    {userProfile?.avatar_url ? (
-                      <img
-                        src={userProfile.avatar_url}
-                        alt="Avatar"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-white text-xs font-semibold">
-                        {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
+                <Plus className="w-4 h-4 text-[var(--foreground)]" />
+              </Link>
+            )}
+
+            {/* User Menu */}
+            {user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  ref={userMenuButtonRef}
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                    hasNotifications ? 'animate-notification-glow' : ''
+                  }`}
+                  aria-label="Menu do usuário"
+                  aria-expanded={userMenuOpen}
+                >
+                  {userProfile?.avatar_url ? (
+                    <img src={userProfile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full rounded-full bg-[var(--primary)] flex items-center justify-center">
+                      <span className="text-black text-xs font-bold">
+                        {(userProfile?.display_name || 'U').charAt(0).toUpperCase()}
                       </span>
-                    )}
-                  </div>
-                  <ChevronDown className={`h-4 w-4 text-primary transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  )}
                 </button>
 
-                {/* Dropdown do usuário */}
-                {userMenuOpen && (
-                  <>
-                    {/* Overlay para fechar ao clicar fora */}
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setUserMenuOpen(false)}
-                    />
-                    <div
-                      ref={userMenuRef}
-                      className="absolute right-0 top-full mt-2 w-64 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-lg border border-white/10 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200"
-                      role="menu"
-                      aria-label="Opções do utilizador"
-                      onKeyDown={handleUserMenuTab}
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute right-0 top-full mt-2 w-56 rounded-2xl bg-[var(--card-bg)] border border-white/[0.08] shadow-xl overflow-hidden z-50"
                     >
-                      {/* Header com avatar e informações */}
-                      <div className="bg-gradient-to-r from-[var(--primary-50)] to-[var(--orange-50)] px-4 py-4 border-b border-[var(--gray-100)]">
-                        <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0 ring-2 ring-[var(--primary-foreground)] shadow-sm">
-                            {userProfile?.avatar_url ? (
-                              <img
-                                src={userProfile.avatar_url}
-                                alt="Avatar"
-                                className="w-full h-full rounded-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-white text-sm font-semibold">
-                                {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[var(--foreground)] truncate">
-                              {userProfile?.display_name || user.email?.split('@')[0] || 'Usuário'}
-                            </p>
-                            <p className="text-xs text-primary truncate">
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
+                      {/* Header */}
+                      <div className="p-3 border-b border-white/[0.06]">
+                        <p className="text-sm font-medium text-[var(--foreground)] truncate">
+                          {userProfile?.display_name || user.email}
+                        </p>
+                        <p className="text-xs text-[var(--foreground-muted)] truncate">{user.email}</p>
                       </div>
 
-                      {/* Menu Options */}
-                      <div className="py-2">
+                      {/* Menu Items */}
+                      <div className="py-1">
                         <Link
                           href={`/users/${userProfile?.user_id_code || user.id}`}
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                          role="menuitem"
-                          tabIndex={0}
-                          aria-label="Meu Perfil"
+                          className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                            <User className="h-4 w-4 text-[var(--primary-dark)]" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium">Meu Perfil</p>
-                            {userProfile?.user_id_code && (
-                              <p className="text-xs text-gray-500 truncate">
-                                #{userProfile.user_id_code}
-                              </p>
-                            )}
-                          </div>
+                          <User className="w-4 h-4" /> Meu Perfil
                         </Link>
-
                         <Link
                           href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                          role="menuitem"
-                          tabIndex={0}
-                          aria-label="Configurações"
+                          className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                            <Settings className="h-4 w-4 text-[var(--primary-dark)]" />
-                          </div>
-                          <p className="font-medium">Configurações</p>
+                          <Settings className="w-4 h-4" /> Configurações
                         </Link>
-
-                        {/* Admin / Sair — conditional based on current path */}
                         {userProfile?.is_admin && (
-                          pathname?.startsWith('/admin') ? (
-                            <Link
-                              href="/restaurants"
-                              onClick={() => setUserMenuOpen(false)}
-                              className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                              role="menuitem"
-                              tabIndex={0}
-                              aria-label="Sair do Dashboard"
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                                <LogOut className="h-4 w-4 text-[var(--primary-dark)]" />
-                              </div>
-                              <p className="font-medium">Sair do Dashboard</p>
-                            </Link>
-                          ) : (
-                            <Link
-                              href="/admin"
-                              onClick={() => setUserMenuOpen(false)}
-                              className="flex items-center gap-4 px-4 py-3 text-sm text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                              role="menuitem"
-                              tabIndex={0}
-                              aria-label="Admin Dashboard"
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                                <Shield className="h-4 w-4 text-[var(--primary-dark)]" />
-                              </div>
-                              <p className="font-medium">Admin Dashboard</p>
-                            </Link>
-                          )
+                          <Link
+                            href="/admin"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
+                          >
+                            <Shield className="w-4 h-4" /> Admin
+                          </Link>
                         )}
-
-                        {/* Divider */}
-                        <div className="border-t border-white/10 mx-4 my-1" />
-
-                        {/* Sair da conta — logout */}
+                        <div className="border-t border-white/[0.06] my-1" />
                         <button
-                          onClick={async () => {
-                            setUserMenuOpen(false);
-                            clearFiltersFromContext();
-                            await signOut();
-                            router.push('/');
-                          }}
-                          className="flex items-center gap-4 w-full px-4 py-3 text-sm text-[var(--error)] hover:bg-[var(--error-light)] hover:text-[var(--error)] transition-colors active:bg-[var(--error-light)]"
-                          role="menuitem"
-                          tabIndex={0}
-                          aria-label="Sair da conta"
+                          onClick={handleSignOut}
+                          className="magnetic-hover flex items-center gap-3 w-full px-3 py-2.5 text-sm text-[var(--error)] hover:bg-[var(--error-light)]"
                         >
-                          <div className="w-8 h-8 rounded-lg bg-[var(--error-light)] flex items-center justify-center flex-shrink-0">
-                            <LogOut className="h-4 w-4 text-[var(--error)]" />
-                          </div>
-                          <p className="font-medium">Sair da Conta</p>
+                          <LogOut className="w-4 h-4" /> Sair
                         </button>
                       </div>
-                    </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link
+                href="/auth/signin"
+                className="px-4 py-1.5 bg-[var(--primary)] text-black text-sm font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors min-h-[36px] flex items-center"
+              >
+                Entrar
+              </Link>
+            )}
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden w-8 h-8 rounded-full bg-white/[0.03] flex items-center justify-center"
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4 text-[var(--foreground)]" /> : <Menu className="w-4 h-4 text-[var(--foreground)]" />}
+            </button>
+          </div>
+        </motion.nav>
+      </motion.header>
+
+      {/* Mobile: Bottom Tab Bar */}
+      <motion.div
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        transition={{ delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="md:hidden fixed bottom-3 left-3 right-3 z-50"
+      >
+        <nav className="bottom-tab-bar rounded-2xl bg-[var(--card-bg)]/90 backdrop-blur-2xl border border-white/[0.08] px-1 py-1.5 flex items-center justify-around">
+          {[
+            { id: 'home', icon: Menu, label: 'Home', href: '/' },
+            { id: 'restaurants', icon: Search, label: 'Restaurantes', href: '/restaurants' },
+            { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
+            { id: 'profile', icon: User, label: 'Perfil', href: user ? `/users/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
+          ].map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              className={`bottom-tab-item relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl ${
+                (item.id === 'home' && pathname === '/') ||
+                (item.id === 'restaurants' && pathname?.includes('/restaurants')) ||
+                (item.id === 'lists' && pathname?.includes('/lists')) ||
+                (item.id === 'profile' && pathname?.includes('/users'))
+                  ? 'active' : ''
+              }`}
+            >
+              <item.icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+      </motion.div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute top-4 left-4 right-4 rounded-2xl bg-[var(--card-bg)] border border-white/[0.08] p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-4">
+                <SearchBar searchType={activeSection} />
+              </div>
+              <div className="space-y-1">
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                      activeSection === item.id
+                        ? 'bg-[var(--primary)] text-black'
+                        : 'text-[var(--foreground)] hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                {user && (
+                  <>
+                    <div className="border-t border-white/[0.06] my-2" />
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-[var(--error)] hover:bg-[var(--error-light)]"
+                    >
+                      Sair
+                    </button>
                   </>
                 )}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Versão mobile */}
-        <div className="md:hidden flex items-center justify-between">
-          <Link
-            href="/restaurants"
-            className="flex items-center text-lg font-bold text-primary flex-shrink-0"
-            onClick={(e) => {
-              if (pathname === '/' || pathname === '/restaurants') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }
-            }}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1.5 text-primary"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path></svg>
-            <span className="whitespace-nowrap">FoodLister</span>
-          </Link>
-
-           <div className="flex items-center gap-2">
-             {!user && !loading && (
-               <Link href="/auth/signin">
-               <button className="flex items-center justify-center bg-[var(--primary)] text-[var(--primary-foreground)] px-3 py-2 rounded-[var(--radius-md)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)] transition-colors min-h-[44px] min-w-[44px] text-sm font-medium" aria-label="Entrar">
-                 <User className="h-4 w-4" />
-                   <span className="hidden sm:inline ml-1">Entrar</span>
-                 </button>
-               </Link>
-             )}
-             {user && !loading && (
-               <>
-                 {/* Notificações mobile */}
-                 <NotificationsDropdown />
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                   className="flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg px-3 py-2 transition-colors min-h-[44px]"
-                  title="Menu do usuário"
-                  aria-label="Menu do usuário"
-                  aria-expanded={userMenuOpen}
-                  aria-haspopup="menu"
-                >
-                  <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
-                    {userProfile?.avatar_url ? (
-                      <img
-                        src={userProfile.avatar_url}
-                        alt="Avatar"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-white text-xs font-semibold">
-                        {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                </button>
-
-                {/* Dropdown do usuário - Mobile */}
-                {userMenuOpen && (
-                  <>
-                    {/* Overlay para fechar ao clicar fora */}
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setUserMenuOpen(false)}
-                    />
-                    <div className="absolute right-2 top-full mt-2 w-72 bg-[var(--card-bg)] rounded-[var(--radius-xl)] shadow-lg border border-white/10 overflow-hidden z-20 animate-in slide-in-from-top-2 duration-200">
-                      {/* Header com avatar e informações */}
-                      <div className="bg-gradient-to-r from-[var(--primary-50)] to-[var(--orange-50)] px-4 py-4 border-b border-[var(--gray-100)]">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0 ring-2 ring-[var(--primary-foreground)] shadow-sm">
-                            {userProfile?.avatar_url ? (
-                              <img
-                                src={userProfile.avatar_url}
-                                alt="Avatar"
-                                className="w-full h-full rounded-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-white text-lg font-semibold">
-                                {(userProfile?.display_name || user.email || 'U').charAt(0).toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[var(--foreground)] truncate">
-                              {userProfile?.display_name || user.email?.split('@')[0] || 'Usuário'}
-                            </p>
-                             <p className="text-xs text-primary truncate">
-                              {user.email}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Menu Options */}
-                      <div className="py-2">
-                        <Link
-                          href={`/users/${userProfile?.user_id_code || user.id}`}
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center justify-center w-full px-4 py-3 text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                          title="Meu Perfil"
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                            <User className="h-5 w-5 text-[var(--primary-dark)]" />
-                          </div>
-                        </Link>
-
-                        <Link
-                          href="/users/settings"
-                          onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center justify-center w-full px-4 py-3 text-primary hover:bg-[var(--primary-lighter)] hover:text-primary-dark transition-colors active:bg-[var(--primary-light)]"
-                          title="Configurações"
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-[var(--primary-light)] flex items-center justify-center flex-shrink-0">
-                            <Settings className="h-5 w-5 text-[var(--primary-dark)]" />
-                          </div>
-                        </Link>
-
-                        <button
-                          onClick={async () => {
-                            setUserMenuOpen(false);
-                            // Clear all filters before logout
-                            clearFiltersFromContext();
-                            // Sign out and redirect to root page
-                            await signOut();
-                            router.push('/');
-                          }}
-                          className="flex items-center justify-center w-full px-4 py-3 text-[var(--error)] hover:bg-[var(--error-light)] hover:text-[var(--error)] transition-colors active:bg-[var(--error-light)]"
-                          title="Sair"
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-[var(--error-light)] flex items-center justify-center flex-shrink-0">
-                            <LogOut className="h-5 w-5 text-[var(--error)]" />
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-            <button
-              onClick={toggleMobileMenu}
-              className="p-2 text-primary hover:text-primary-hover focus:outline-none min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label={mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
-              aria-expanded={mobileMenuOpen}
-            >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Menu mobile expandido */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-3 pb-3 space-y-3 border-t border-white/10 pt-3">
-            <div className="flex bg-[var(--background-secondary)] rounded-lg p-1 justify-center">
-              <Link href="/restaurants" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                <button
-                  className={`w-full px-4 py-2.5 rounded-md transition-colors text-sm min-h-[44px] ${
-                    activeSection === 'restaurants' 
-                      ? 'bg-white/5 text-amber-400' 
-                      : 'text-primary hover:text-primary-hover'
-                  }`}
-                >
-                  Restaurantes
-                </button>
-              </Link>
-              <Link href="/lists" className="flex-1" onClick={() => setMobileMenuOpen(false)}>
-                <button
-                  className={`w-full px-4 py-2.5 rounded-md transition-colors text-sm min-h-[44px] ${
-                    activeSection === 'lists' 
-                      ? 'bg-white/5 text-amber-400' 
-                      : 'text-primary hover:text-primary-hover'
-                  }`}
-                >
-                  Listas
-                </button>
-              </Link>
-            </div>
-            
-            <div className="px-1">
-              <SearchBar searchType={activeSection} />
-            </div>
-            
-            <div className="flex justify-center px-1">
-              <NavbarActions activeSection={activeSection} showLogin={false} showSignout={false} />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
-      </div>
-    </nav>
-  );
-};
+      </AnimatePresence>
 
-export default Navbar;
+      {/* Spacer for floating navbar */}
+      <div className="h-20 md:h-16" />
+    </>
+  );
+}

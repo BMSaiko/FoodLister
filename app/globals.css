@@ -342,3 +342,90 @@ html { scroll-behavior: smooth; }
 html {
   scroll-behavior: smooth;
 }
+
+
+/* === NAVBAR CREATIVE === */
+
+/* Logo breathing animation */
+@keyframes logo-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-logo-breathe {
+  animation: logo-breathe 4s ease-in-out infinite;
+}
+
+/* Notification glow pulse */
+@keyframes notification-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.15); }
+}
+
+.animate-notification-glow {
+  animation: notification-glow 2s ease-in-out infinite;
+}
+
+/* Magnetic hover effect */
+.magnetic-hover {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.magnetic-hover:hover {
+  transform: translateY(-1px);
+}
+
+/* Bottom tab bar (mobile) */
+.bottom-tab-bar {
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.bottom-tab-item {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--foreground-muted);
+}
+
+.bottom-tab-item:active {
+  transform: scale(0.92);
+}
+
+.bottom-tab-item.active {
+  color: var(--primary);
+}
+
+.bottom-tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+/* Nav indicator slide */
+@keyframes nav-indicator-slide {
+  from { opacity: 0; transform: translateX(var(--from-x)); }
+  to { opacity: 1; transform: translateX(var(--to-x)); }
+}
+
+/* Navbar glass effect */
+.navbar-glass {
+  background: rgba(10, 10, 10, 0.8);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Navbar shrink animation */
+@keyframes navbar-shrink {
+  from { height: 72px; }
+  to { height: 56px; }
+}
+
+@keyframes navbar-expand {
+  from { height: 56px; }
+  to { height: 72px; }
+}
