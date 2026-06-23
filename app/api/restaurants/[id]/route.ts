@@ -46,6 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         location, source_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, visited, created_at, updated_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
+        review_count:reviews(count),
         cuisine_types:restaurant_cuisine_types(
           cuisine_type:cuisine_types(id, name, icon)
         ),
@@ -54,11 +55,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         ),
         dietary_options:restaurant_dietary_options_junction(
           dietary_option:restaurant_dietary_options(id, name, icon)
+        ),
+        lists:list_restaurants(
+          list:lists(id, name, is_public, creator_name, created_at)
         )`;
     const restaurantColumnsFallback = `id, name, description, image_url, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, visited, created_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
+        review_count:reviews(count),
         cuisine_types:restaurant_cuisine_types(
           cuisine_type:cuisine_types(id, name, icon)
         ),
@@ -67,6 +72,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         ),
         dietary_options:restaurant_dietary_options_junction(
           dietary_option:restaurant_dietary_options(id, name, icon)
+        ),
+        lists:list_restaurants(
+          list:lists(id, name, is_public, creator_name, created_at)
         )`;
     let { data: restaurant, error: restaurantError } = await supabase
       .from('restaurants')
@@ -102,6 +110,22 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         { error: getErrorMessage(errorType), code: errorType },
         { status: 404 }
       );
+    }
+
+    // Normalize review_count (Supabase returns array for count)
+    if (restaurant) {
+      if (Array.isArray(restaurant.review_count)) {
+        (restaurant as any).review_count = restaurant.review_count[0]?.count ?? 0;
+      } else if (restaurant.review_count && typeof restaurant.review_count === 'object') {
+        (restaurant as any).review_count = (restaurant.review_count as any).count ?? 0;
+      }
+    }
+
+    // Normalize lists (extract from nested list_restaurants)
+    if (restaurant && restaurant.lists) {
+      restaurant.lists = restaurant.lists
+        .map((lr: any) => lr.list)
+        .filter(Boolean);
     }
 
     return NextResponse.json({ restaurant });

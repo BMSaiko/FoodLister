@@ -107,14 +107,13 @@ export default function RestaurantDetails() {
     setLoading(true);
 
     try {
-      // Fetch restaurant, reviews, and list relations in parallel
-      const [restaurantResponse, reviewsResponse, listRelationsRes] = await Promise.all([
+      // Fetch restaurant (with review_count + lists) and reviews in parallel
+      const [restaurantResponse, reviewsResponse] = await Promise.all([
         getPublic(`/api/restaurants/${id}`),
         getPublic(`/api/reviews?restaurant_id=${id}`).catch(() => null),
-        supabase.from('list_restaurants').select('list_id').eq('restaurant_id', id),
       ]);
 
-      // Process restaurant data
+      // Process restaurant data (includes review_count + lists from API)
       const restaurantData = await restaurantResponse.json();
       if (!restaurantResponse.ok || !restaurantData.restaurant) {
         throw new Error(restaurantData.error || 'Failed to fetch restaurant details');
@@ -122,6 +121,10 @@ export default function RestaurantDetails() {
       setRestaurant(restaurantData.restaurant);
       if (restaurantData.restaurant.cuisine_types) {
         setCuisineTypes(restaurantData.restaurant.cuisine_types);
+      }
+      // Lists now come from the API route (nested join)
+      if (restaurantData.restaurant.lists && Array.isArray(restaurantData.restaurant.lists)) {
+        setLists(restaurantData.restaurant.lists);
       }
 
       // Process reviews data
@@ -131,20 +134,6 @@ export default function RestaurantDetails() {
           setReviews(reviewsData.reviews);
           setReviewCount(reviewsData.reviews.length);
         }
-      }
-
-      // Process list relations (already resolved by Promise.all)
-      const listRelations = listRelationsRes.data;
-      if (listRelationsRes.error) {
-        logError('Error fetching list relations', listRelationsRes.error);
-      } else if (listRelations && listRelations.length > 0) {
-        const listIds = (listRelations as any[]).map((item: any) => item.list_id);
-        const { data: listDetails, error: listDetailsError } = await supabase
-          .from('lists')
-          .select('*')
-          .in('id', listIds);
-        if (listDetailsError) logError('Error fetching list details', listDetailsError);
-        if (listDetails) setLists(listDetails);
       }
     } catch (error) {
       let errorMessage = 'Unknown error';
