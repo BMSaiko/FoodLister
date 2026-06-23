@@ -307,25 +307,37 @@ export default function Navbar() {
           {[
             { id: 'home', icon: Menu, label: 'Home', href: '/' },
             { id: 'restaurants', icon: Search, label: 'Restaurantes', href: '/restaurants' },
+            { id: 'search', icon: Search, label: 'Search', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
             { id: 'profile', icon: User, label: 'Perfil', href: user ? `/users/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
-          ].map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`bottom-tab-item relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl ${
-                (item.id === 'home' && pathname === '/') ||
-                (item.id === 'restaurants' && pathname?.includes('/restaurants')) ||
-                (item.id === 'lists' && pathname?.includes('/lists')) ||
-                (item.id === 'profile' && pathname?.includes('/users'))
-                  ? 'active' : ''
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          ))}
+          ].map((item) => {
+            const isActive =
+              (item.id === 'home' && pathname === '/') ||
+              (item.id === 'restaurants' && pathname?.includes('/restaurants')) ||
+              (item.id === 'lists' && pathname?.includes('/lists')) ||
+              (item.id === 'profile' && pathname?.includes('/users'));
+            const baseClass = `bottom-tab-item relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl ${isActive ? 'active' : ''}`;
+            if ('action' in item && item.action === 'search') {
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => openGlobalSearch()}
+                  className={baseClass}
+                  aria-label="Pesquisar"
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">{item.label}</span>
+                </button>
+              );
+            }
+            return (
+              <Link key={item.id} href={item.href!} className={baseClass}>
+                <item.icon className="w-5 h-5" />
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
         </nav>
       </motion.div>
 
