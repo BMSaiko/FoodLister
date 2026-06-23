@@ -12,7 +12,7 @@ interface SkeletonProps {
 
 function RestaurantCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden animate-pulse">
+    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden animate-pulse">
       {/* Image placeholder */}
       <div className="h-40 sm:h-48 bg-gray-200 dark:bg-gray-800" />
       <div className="p-4 space-y-3">
@@ -41,7 +41,7 @@ function RestaurantCardSkeleton() {
 
 function ListCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-5 animate-pulse">
+    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 sm:p-5 animate-pulse">
       <div className="flex items-start gap-4">
         {/* Icon */}
         <div className="h-12 w-12 bg-gray-200 dark:bg-gray-800 rounded-lg flex-shrink-0" />
@@ -64,7 +64,7 @@ function ListCardSkeleton() {
 
 function ReviewSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 p-4 sm:p-5 animate-pulse">
+    <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 sm:p-5 animate-pulse">
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="h-10 w-10 bg-gray-200 dark:bg-gray-800 rounded-full flex-shrink-0" />

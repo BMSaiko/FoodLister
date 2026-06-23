@@ -23,7 +23,7 @@ export default function HorizontalImageList({
 
   if (!images || images.length === 0) {
     return (
-      <div className={`bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-4 ${className}`}>
+      <div className={`bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 sm:p-6 mb-4 ${className}`}>
         <div className="flex items-center mb-3 sm:mb-4">
           <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4">
             <ImageIcon className="h-5 w-5 sm:h-6 w-6 text-amber-600" />
@@ -89,7 +89,7 @@ export default function HorizontalImageList({
   }, [isModalOpen, nextImage, prevImage, closeModal]);
 
   return (
-    <div className={`bg-white rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 mb-4 ${className}`}>
+    <div className={`bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 sm:p-6 mb-4 ${className}`}>
       <div className="flex items-center mb-3 sm:mb-4">
         <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4">
           <ImageIcon className="h-5 w-5 sm:h-6 w-6 text-amber-600" />
@@ -128,13 +128,13 @@ export default function HorizontalImageList({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 {/* Badge do número */}
-                <div className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm text-amber-800 px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
+                <div className="absolute top-2 left-2 bg-black/80 backdrop-blur-sm text-amber-200 px-2 py-1 rounded-full text-xs font-semibold shadow-lg">
                   {index + 1}
                 </div>
                 
                 {/* Ícone de visualização */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-white/95 backdrop-blur-sm rounded-full p-2 shadow-lg">
+                  <div className="bg-black/80 backdrop-blur-sm rounded-full p-2 shadow-lg">
                     <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                   </div>
                 </div>

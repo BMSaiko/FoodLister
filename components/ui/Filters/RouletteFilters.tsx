@@ -189,8 +189,8 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
       
       <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${
         isActive
-          ? 'bg-white/20 shadow-lg'
-          : 'bg-white/60 group-hover:bg-white/80'
+          ? 'bg-white/[0.1] shadow-lg'
+          : 'bg-white/[0.06] group-hover:bg-white/[0.1]'
       }`}>
         <div className={`w-6 h-6 ${isActive ? 'text-white' : 'text-[var(--amber-600)]'}`}>
           {icon}
@@ -204,27 +204,27 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
       )}
       
       {id === 'location' && filters.location?.city?.trim() && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-white/[0.1] text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
           {filters.location.city}
         </span>
       )}
       {id === 'price-rating' && ((filters.price_range?.min !== 0 || filters.price_range?.max !== 100) || (filters.rating_range?.min !== 0 || filters.rating_range?.max !== 5)) && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-white/[0.1] text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
           {((filters.price_range?.min !== 0 || filters.price_range?.max !== 100) ? '€' : '') + ((filters.rating_range?.min !== 0 || filters.rating_range?.max !== 5) ? '★' : '')}
         </span>
       )}
       {id === 'cuisine' && filters.cuisine_types && filters.cuisine_types.length > 0 && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-white/[0.1] text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
           {filters.cuisine_types.length}
         </span>
       )}
       {id === 'features' && filters.features && filters.features.length > 0 && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-white/[0.1] text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
           {filters.features.length}
         </span>
       )}
       {id === 'dietary' && filters.dietary_options && filters.dietary_options.length > 0 && (
-        <span className="ml-3 px-2.5 py-1 bg-white/20 text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
+        <span className="ml-3 px-2.5 py-1 bg-white/[0.1] text-white text-sm font-medium rounded-full backdrop-blur-sm border border-white/30">
           {filters.dietary_options.length}
         </span>
       )}
@@ -448,7 +448,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                             <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto ${
                               isSelected 
                                 ? 'bg-white/80 shadow-lg' 
-                                : 'bg-white/60 group-hover:bg-white/80'
+                                : 'bg-white/[0.06] group-hover:bg-white/[0.1]'
                             }`}>
                               <div className={`w-6 h-6 ${isSelected ? 'text-[var(--amber-600)]' : 'text-[var(--gray-600)]'}`}>
                                 <span className="text-2xl">{item.icon || '🍽️'}</span>
@@ -557,7 +557,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                             <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto ${
                               isSelected 
                                 ? 'bg-white/80 shadow-lg' 
-                                : 'bg-white/60 group-hover:bg-white/80'
+                                : 'bg-white/[0.06] group-hover:bg-white/[0.1]'
                             }`}>
                               <div className={`w-6 h-6 ${isSelected ? 'text-[var(--amber-600)]' : 'text-[var(--gray-600)]'}`}>
                                 <span className="text-2xl">{item.icon || '✨'}</span>
@@ -666,7 +666,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                             <div className={`flex items-center justify-center w-12 h-12 rounded-xl mb-4 mx-auto ${
                               isSelected 
                                 ? 'bg-white/80 shadow-lg' 
-                                : 'bg-white/60 group-hover:bg-white/80'
+                                : 'bg-white/[0.06] group-hover:bg-white/[0.1]'
                             }`}>
                               <div className={`w-6 h-6 ${isSelected ? 'text-[var(--amber-600)]' : 'text-[var(--gray-600)]'}`}>
                                 <span className="text-2xl">{item.icon || '🥗'}</span>
@@ -797,7 +797,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
   }, [setFilters]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-[var(--gray-100)]/50 backdrop-blur-sm overflow-hidden">
+    <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.06] backdrop-blur-sm overflow-hidden">
       <div className="border-b border-[var(--gray-100)]/50 bg-[var(--amber-50)]/80">
         <div className="flex items-center justify-between p-6">
           <div className="flex items-center space-x-6">
@@ -818,7 +818,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                 <span className="block text-2xl font-bold text-[var(--gray-800)] group-hover:text-[var(--gray-900)] transition-colors duration-300">Filtros da Roleta</span>
                 {activeFiltersCount > 0 && (
                   <div className="flex items-center space-x-3 mt-2">
-                    <span className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full border border-white/60 shadow-sm">
+                    <span className="inline-flex items-center px-4 py-2 bg-white/[0.06] backdrop-blur-sm rounded-full border border-white/[0.1] shadow-sm">
                       <span className="w-3 h-3 bg-[var(--amber-400)] rounded-full mr-2 animate-pulse"></span>
                       <span className="text-sm font-semibold text-[var(--gray-700)]">{activeFiltersCount} filtros ativos</span>
                     </span>

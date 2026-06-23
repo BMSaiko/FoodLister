@@ -113,7 +113,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
+      <div className="bg-[#0a0a0a] border border-white/[0.06] rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-[var(--amber-500)] to-[var(--amber-600)] px-6 py-5 text-white sticky top-0 z-10">
           <div className="flex justify-between items-center">

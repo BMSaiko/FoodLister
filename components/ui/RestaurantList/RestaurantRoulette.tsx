@@ -436,7 +436,7 @@ const RestaurantRoulette = () => {
   return (
     <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 pb-6 sm:pb-8 relative overflow-hidden">
       {/* Header com Filtros */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-4 sm:mb-6">
+      <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-800)] flex items-center">
             <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-[var(--amber-500)]" />
@@ -470,7 +470,7 @@ const RestaurantRoulette = () => {
               </p>
               <button
                 onClick={() => setSelectedRestaurantsForRoulette([])}
-                className="text-xs text-[var(--gray-500)] hover:text-[var(--gray-700)] underline mt-1"
+                className="text-xs text-white/50 hover:text-white/70 underline mt-1"
               >
                 Limpar seleção
               </button>
@@ -480,7 +480,7 @@ const RestaurantRoulette = () => {
             <p className="text-sm sm:text-base text-[var(--gray-600)]">
               <span className="font-semibold text-[var(--amber-600)]">{availableCount}</span> restaurante{availableCount !== 1 ? 's' : ''} disponível{availableCount !== 1 ? 'eis' : ''}
               {totalCount !== availableCount && (
-                <span className="text-[var(--gray-500)]"> de {totalCount} total</span>
+                <span className="text-white/50"> de {totalCount} total</span>
               )}
             </p>
           ) : (
@@ -622,7 +622,7 @@ const RestaurantRoulette = () => {
             
             {/* Texto central */}
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-              <div className={`bg-white rounded-full flex items-center justify-center shadow-lg border-2 sm:border-4 border-[var(--amber-500)] ${
+              <div className={`bg-white/[0.05] rounded-full flex items-center justify-center border-2 sm:border-4 border-[var(--amber-500)] ${
                 filteredRestaurants.length > 20 ? 'w-12 h-12 sm:w-20 sm:h-20' : 
                 filteredRestaurants.length > 15 ? 'w-14 h-14 sm:w-22 sm:h-22' : 
                 'w-16 h-16 sm:w-24 sm:h-24'
@@ -641,7 +641,7 @@ const RestaurantRoulette = () => {
             {showScrollTop && (
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="px-4 py-3.5 sm:py-3 bg-[var(--gray-200)] text-[var(--gray-700)] rounded-full font-bold text-base sm:text-lg hover:bg-[var(--gray-300)] active:bg-[var(--gray-400)] transition-all flex items-center justify-center gap-2 shadow-lg min-h-[52px] sm:min-h-[48px]"
+                className="px-4 py-3.5 sm:py-3 bg-[var(--gray-200)] text-white/70 rounded-full font-bold text-base sm:text-lg hover:bg-[var(--gray-300)] active:bg-[var(--gray-400)] transition-all flex items-center justify-center gap-2 shadow-lg min-h-[52px] sm:min-h-[48px]"
                 title="Voltar ao topo"
               >
                 <ArrowUp className="h-5 w-5" />
@@ -680,7 +680,7 @@ const RestaurantRoulette = () => {
           </div>
           
           <div className="relative z-10 text-center mb-4 sm:mb-6">
-            <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-3 sm:mb-4 border border-[var(--amber-200)]/50 shadow-md">
+            <div className="inline-flex items-center gap-3 bg-white/[0.06] backdrop-blur-sm rounded-full px-4 py-2 mb-3 sm:mb-4 border border-amber-500/20">
               <Sparkles className="h-5 w-5 text-[var(--amber-500)] animate-pulse" />
               <h3 className="text-xl sm:text-2xl font-bold text-[var(--gray-800)]">
                 🎉 Restaurante Escolhido! 🎉
@@ -716,7 +716,7 @@ const RestaurantRoulette = () => {
       )}
       
       {loading && (
-        <div className="text-center py-8 text-[var(--gray-500)]">
+        <div className="text-center py-8 text-white/50">
           Carregando restaurantes...
         </div>
       )}
@@ -724,7 +724,7 @@ const RestaurantRoulette = () => {
       {/* Modal de Presets de Filtros */}
       {showPresets && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-[var(--gray-100)]">
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.06] max-w-2xl w-full max-h-[90vh] overflow-hidden border border-white/[0.06]">
             <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] p-4 sm:p-6 border-b border-[var(--amber-100)]">
               <div className="flex justify-between items-start sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
@@ -740,7 +740,7 @@ const RestaurantRoulette = () => {
                 </div>
                 <button
                   onClick={() => setShowPresets(false)}
-                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-[var(--gray-100)] rounded-full p-2 transition-colors flex-shrink-0"
+                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
@@ -755,7 +755,7 @@ const RestaurantRoulette = () => {
                   <input
                     type="text"
                     placeholder="Nome do filtro..."
-                    className="flex-1 px-3 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent text-sm"
+                    className="flex-1 px-3 py-2 border border-white/[0.1] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent text-sm"
                   />
                   <button
                     onClick={(e) => {
@@ -773,12 +773,12 @@ const RestaurantRoulette = () => {
               </div>
               
               {/* Lista de presets */}
-              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-[var(--gray-50)]/30">
+              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-white/[0.04]/30">
                 {filterPresets.length > 0 ? (
                   filterPresets.map((preset, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-3 sm:p-4 border-b border-[var(--gray-100)] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px]"
+                      className="flex items-center justify-between p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px]"
                       onClick={() => loadFilterPreset(preset)}
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -789,7 +789,7 @@ const RestaurantRoulette = () => {
                           <div className="font-semibold text-[var(--gray-900)] text-sm sm:text-base truncate">
                             {preset.name}
                           </div>
-                          <div className="text-xs sm:text-sm text-[var(--gray-500)] truncate">
+                          <div className="text-xs sm:text-sm text-white/50 truncate">
                             {new Date(preset.timestamp).toLocaleDateString('pt-BR')}
                           </div>
                         </div>
@@ -817,7 +817,7 @@ const RestaurantRoulette = () => {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-12 text-[var(--gray-500)] text-sm sm:text-base">
+                  <div className="text-center py-12 text-white/50 text-sm sm:text-base">
                     <Save className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-[var(--gray-300)]" />
                     <p>Nenhum filtro salvo ainda</p>
                     <p className="text-xs text-[var(--gray-400)] mt-1">Salve filtros para usar rapidamente</p>
@@ -827,7 +827,7 @@ const RestaurantRoulette = () => {
               
               {/* Ações */}
               {filterPresets.length > 0 && (
-                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-[var(--gray-200)] flex-shrink-0 bg-[var(--gray-50)]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-[var(--gray-200)] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
                   <button
                     onClick={clearAllPresets}
                     className="w-full sm:w-auto px-4 py-2 text-sm text-[var(--red-600)] bg-[var(--red-50)] border border-[var(--red-200)] rounded-lg hover:bg-[var(--red-100)] active:bg-[var(--red-200)] transition-all duration-200 font-medium"
@@ -844,7 +844,7 @@ const RestaurantRoulette = () => {
       {/* Modal de Histórico de Roletas */}
       {showSpinHistory && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-[var(--gray-100)]">
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.06] max-w-3xl w-full max-h-[90vh] overflow-hidden border border-white/[0.06]">
             <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] p-4 sm:p-6 border-b border-[var(--amber-100)]">
               <div className="flex justify-between items-start sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
@@ -860,7 +860,7 @@ const RestaurantRoulette = () => {
                 </div>
                 <button
                   onClick={() => setShowSpinHistory(false)}
-                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-[var(--gray-100)] rounded-full p-2 transition-colors flex-shrink-0"
+                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
@@ -869,12 +869,12 @@ const RestaurantRoulette = () => {
             
             <div className="p-4 sm:p-6 flex flex-col max-h-[calc(90vh-120px)]">
               {/* Lista de histórico */}
-              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-[var(--gray-50)]/30">
+              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-white/[0.04]/30">
                 {spinHistory.length > 0 ? (
                   spinHistory.map((entry, index) => (
                     <div
                       key={index}
-                      className="p-3 sm:p-4 border-b border-[var(--gray-100)] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] transition-all duration-200"
+                      className="p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] transition-all duration-200"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -886,7 +886,7 @@ const RestaurantRoulette = () => {
                               {entry.restaurant.name}
                             </div>
                           </div>
-                          <div className="text-xs sm:text-sm text-[var(--gray-500)] mb-2">
+                          <div className="text-xs sm:text-sm text-white/50 mb-2">
                             {new Date(entry.timestamp).toLocaleString('pt-BR')}
                           </div>
                           <div className="flex flex-wrap gap-1">
@@ -924,7 +924,7 @@ const RestaurantRoulette = () => {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-12 text-[var(--gray-500)] text-sm sm:text-base">
+                  <div className="text-center py-12 text-white/50 text-sm sm:text-base">
                     <Clock className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-[var(--gray-300)]" />
                     <p>Nenhum histórico ainda</p>
                     <p className="text-xs text-[var(--gray-400)] mt-1">Gire a roleta para começar a registrar</p>
@@ -934,7 +934,7 @@ const RestaurantRoulette = () => {
               
               {/* Ações */}
               {spinHistory.length > 0 && (
-                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-[var(--gray-200)] flex-shrink-0 bg-[var(--gray-50)]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-[var(--gray-200)] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
                   <button
                     onClick={clearSpinHistory}
                     className="w-full sm:w-auto px-4 py-2 text-sm text-[var(--red-600)] bg-[var(--red-50)] border border-[var(--red-200)] rounded-lg hover:bg-[var(--red-100)] active:bg-[var(--red-200)] transition-all duration-200 font-medium"
@@ -951,7 +951,7 @@ const RestaurantRoulette = () => {
       {/* Modal de seleção de restaurantes */}
       {showRestaurantSelector && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden border border-[var(--gray-100)]">
+          <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.06] max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden border border-white/[0.06]">
             <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] p-4 sm:p-6 border-b border-[var(--amber-100)]">
               <div className="flex justify-between items-start sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
@@ -970,7 +970,7 @@ const RestaurantRoulette = () => {
                     resetRestaurantSelector();
                     setShowRestaurantSelector(false);
                   }}
-                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-[var(--gray-100)] rounded-full p-2 transition-colors flex-shrink-0"
+                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
@@ -985,13 +985,13 @@ const RestaurantRoulette = () => {
                   placeholder="Buscar restaurantes..."
                   value={restaurantSearchQuery}
                   onChange={(e) => setRestaurantSearchQuery(e.target.value)}
-                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent text-base sm:text-sm min-h-[44px] sm:min-h-0"
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-2 border border-white/[0.1] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent text-base sm:text-sm min-h-[44px] sm:min-h-0"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-[var(--gray-400)]" />
               </div>
               
               {/* Lista de restaurantes */}
-              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-[var(--gray-50)]/30">
+              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-white/[0.04]/30">
                 {(() => {
                   const filteredRestaurants = restaurants.filter(restaurant => {
                     // Robust null/undefined checks and type safety for restaurant name
@@ -1023,7 +1023,7 @@ const RestaurantRoulette = () => {
                         return (
                           <div
                             key={restaurant.id}
-                            className={`flex items-center justify-between p-3 sm:p-4 border-b border-[var(--gray-100)] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px] group ${
+                            className={`flex items-center justify-between p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px] group ${
                               isSelected ? 'bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] border-[var(--amber-200)]' : ''
                             }`}
                             onClick={() => {
@@ -1040,7 +1040,7 @@ const RestaurantRoulette = () => {
                               <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
                                 isSelected
                                   ? 'bg-[var(--amber-500)] border-[var(--amber-500)] shadow-md'
-                                  : 'border-[var(--gray-300)] group-hover:border-[var(--amber-400)] group-hover:shadow-sm'
+                                  : 'border-white/[0.1] group-hover:border-[var(--amber-400)] group-hover:shadow-sm'
                               }`}>
                                 {isSelected && <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />}
                               </div>
@@ -1049,7 +1049,7 @@ const RestaurantRoulette = () => {
                                   {restaurant.name}
                                 </div>
                                 {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
-                                  <div className="text-xs sm:text-sm text-[var(--gray-500)] truncate flex items-center gap-1">
+                                  <div className="text-xs sm:text-sm text-white/50 truncate flex items-center gap-1">
                                     <span className="inline-block w-1.5 h-1.5 bg-[var(--amber-400)] rounded-full"></span>
                                     {restaurant.cuisine_types.map(type => type.name).join(', ')}
                                   </div>
@@ -1088,14 +1088,14 @@ const RestaurantRoulette = () => {
                         );
                       })}
                       {filteredRestaurants.length === 0 && (
-                        <div className="text-center py-12 text-[var(--gray-500)] text-sm sm:text-base">
+                        <div className="text-center py-12 text-white/50 text-sm sm:text-base">
                           <Search className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-[var(--gray-300)]" />
                           <p>Nenhum restaurante encontrado</p>
                           <p className="text-xs text-[var(--gray-400)] mt-1">Tente ajustar sua busca</p>
                         </div>
                       )}
                       {displayedRestaurants.length < filteredRestaurants.length && (
-                        <div className="text-center p-4 border-t border-[var(--gray-100)]">
+                        <div className="text-center p-4 border-t border-white/[0.06]">
                           <button
                             onClick={() => setDisplayLimit(prev => prev + 50)}
                             className="px-4 py-2 bg-[var(--amber-500)] text-white rounded-lg hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] transition-colors text-sm font-medium"
@@ -1112,7 +1112,7 @@ const RestaurantRoulette = () => {
               {/* Restaurantes selecionados */}
               {selectedRestaurantsForRoulette.length > 0 && (
                 <div className="mt-3 sm:mt-4 flex-shrink-0">
-                  <h4 className="font-medium text-[var(--gray-700)] mb-2 text-sm sm:text-base">
+                  <h4 className="font-medium text-white/70 mb-2 text-sm sm:text-base">
                     Selecionados ({selectedRestaurantsForRoulette.length}):
                   </h4>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2 max-h-20 sm:max-h-24 overflow-y-auto">
@@ -1140,13 +1140,13 @@ const RestaurantRoulette = () => {
               )}
               
               {/* Botões */}
-              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-[var(--gray-200)] flex-shrink-0 bg-[var(--gray-50)]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-[var(--gray-200)] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
                 <button
                   onClick={() => {
                     setSelectedRestaurantsForRoulette([]);
                     setShowRestaurantSelector(false);
                   }}
-                  className="w-full sm:w-auto px-6 py-3 sm:py-2.5 text-sm sm:text-base text-[var(--gray-700)] bg-white border border-[var(--gray-300)] rounded-lg hover:bg-[var(--gray-50)] hover:border-[var(--gray-400)] active:bg-[var(--gray-100)] transition-all duration-200 min-h-[48px] sm:min-h-[0] font-medium shadow-sm hover:shadow-md"
+                  className="w-full sm:w-auto px-6 py-3 sm:py-2.5 text-sm sm:text-base text-white/70 bg-white border border-white/[0.1] rounded-lg hover:bg-white/[0.04] hover:border-white/[0.15] active:bg-[var(--gray-100)] transition-all duration-200 min-h-[48px] sm:min-h-[0] font-medium shadow-sm hover:shadow-md"
                 >
                   Usar Todos
                 </button>

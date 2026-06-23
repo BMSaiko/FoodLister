@@ -123,7 +123,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
       {restaurant?.location && (
         <button
           onClick={handleOpenMapModal}
-          className="bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
+          className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
           title="Abrir mapa"
         >
           <MapPin className="h-4 w-4 text-gray-600" />
@@ -135,7 +135,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
       <button
         onClick={handleShareReview}
         disabled={isSharing}
-        className={`bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1 ${
+        className={`bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1 ${
           isSharing ? 'opacity-50 cursor-not-allowed' : ''
         }`}
         title={isSharing ? 'Compartilhando...' : 'Compartilhar avaliação'}
@@ -154,7 +154,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
       {user && isOwnReview && onEdit && (
         <button
           onClick={handleEditReview}
-          className="bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
+          className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
           title="Editar avaliação"
         >
           <Edit className="h-4 w-4 text-amber-600" />
@@ -166,7 +166,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
       {user && isOwnReview && onDelete && (
         <button
           onClick={handleDeleteReview}
-          className="bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-full shadow-md transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
+          className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
           title="Excluir avaliação"
         >
           <Trash2 className="h-4 w-4 text-red-600" />

@@ -46,7 +46,7 @@ export default function ContactInfoCard({
               key={index}
                 className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-[var(--background-secondary)] to-[var(--background-tertiary)] rounded-lg border border-[var(--gray-200)] hover:border-[var(--amber-300)] transition-all duration-200 group hover:shadow-md"
             >
-              <div className="flex-shrink-0 bg-white rounded-full p-2 sm:p-3 shadow-sm mr-2 sm:mr-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="flex-shrink-0 bg-white/[0.05] rounded-full p-2 sm:p-3 mr-2 sm:mr-4 group-hover:scale-110 transition-transform duration-200">
                   <PhoneIcon className="h-4 w-4 sm:h-5 w-5 text-[var(--amber-500)]" />
               </div>
               
