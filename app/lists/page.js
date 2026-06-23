@@ -49,7 +49,7 @@ function ListsContent() {
     : lists;
 
   return (
-    <main className="min-min-h-[100dvh] bg-[var(--background)]">
+    <main className="min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
       <Container className="py-6 sm:py-8">
         {/* Header */}
@@ -184,7 +184,7 @@ function ListsContent() {
 
 export default function ListsPage() {
   return (
-    <Suspense fallback={<div className="min-min-h-[100dvh] bg-[var(--background)]" />}>
+    <Suspense fallback={<div className="min-h-[100dvh] bg-[var(--background)]" />}>
       <ListsContent />
     </Suspense>
   );

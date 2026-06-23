@@ -29,7 +29,7 @@ const UserErrorPage = ({ error, reset }: { error: Error; reset: () => void }) =>
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
+    <div className="min-min-h-[100dvh] bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
       {/* Navbar */}
       <Navbar />
 

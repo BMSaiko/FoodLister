@@ -25,7 +25,7 @@ const ProfileNotFoundPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-900/30 via-orange-900/20 to-yellow-900/25">
+    <div className="min-min-h-[100dvh] bg-gradient-to-br from-amber-900/30 via-orange-900/20 to-yellow-900/25">
       {/* Navbar */}
       <Navbar />
 

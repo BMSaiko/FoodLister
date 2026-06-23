@@ -133,7 +133,7 @@ export default function ProfileSettingsPage() {
   // Loading
   if (authLoading || profileLoading) {
     return (
-      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin mx-auto text-purple-500" />
           <p className="mt-3 text-white/30 text-sm">Carregando perfil...</p>
@@ -146,7 +146,7 @@ export default function ProfileSettingsPage() {
 
   if (error) {
     return (
-      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
           <h1 className="text-xl font-bold text-white/80 mt-4">Erro ao carregar perfil</h1>
@@ -161,7 +161,7 @@ export default function ProfileSettingsPage() {
 
   if (!profile) {
     return (
-      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
           <h1 className="text-xl font-bold text-white/80 mt-4">Perfil nao encontrado</h1>
@@ -174,7 +174,7 @@ export default function ProfileSettingsPage() {
   }
 
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)] pb-24 md:pb-8">
+    <div className="min-h-[100dvh] bg-[var(--background)] pb-24 md:pb-8">
       <Navbar />
 
       {/* Celebration */}

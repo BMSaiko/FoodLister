@@ -8,7 +8,7 @@ import { Container } from '@/components/ui/Container';
 
 export default function SubscribeSuccessPage() {
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)]">
+    <div className="min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
       <Container variant="narrow" className="py-16">
         <div className="card p-8 text-center max-w-md mx-auto">

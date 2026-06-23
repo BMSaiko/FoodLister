@@ -226,7 +226,7 @@ export default function NotificationsPage() {
 
   return (
     <ErrorBoundary pageName="Notifications">
-      <div className="min-min-h-[100dvh] bg-[var(--background)] mesh-gradient-bg">
+      <div className="min-h-[100dvh] bg-[var(--background)] mesh-gradient-bg">
         <Navbar />
         <Container variant="narrow" className="py-6 sm:py-10">
 

@@ -42,7 +42,7 @@ export default function VerifyEmailPage() {
   }, [searchParams, verifyEmail, router]);
 
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
+    <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
       {/* Mesh gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/[0.04] rounded-full blur-[120px]" />

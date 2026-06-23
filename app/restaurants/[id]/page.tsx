@@ -633,7 +633,7 @@ export default function RestaurantDetails() {
   
   if (loading) {
     return (
-      <div className="min-min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
+      <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse rounded-xl h-96 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}></div>
@@ -645,7 +645,7 @@ export default function RestaurantDetails() {
   
     if (!restaurant) {
       return (
-        <div className="min-min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
+        <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
           <Navbar />
           <div className="container mx-auto px-4 py-8 text-center">
             <h2 className="text-2xl font-bold text-white/90">Restaurante não encontrado</h2>
@@ -795,7 +795,7 @@ export default function RestaurantDetails() {
   
 
   return (
-    <div className="min-min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
+    <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
 
       {/* Notification */}

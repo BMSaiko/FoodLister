@@ -157,7 +157,7 @@ const UserProfilePage = () => {
   // Error
   if (error || !profile) {
     return (
-      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400/60 mx-auto" />
           <h1 className="text-xl font-bold text-white/70 mt-4">{error || "Perfil nao encontrado"}</h1>
@@ -178,7 +178,7 @@ const UserProfilePage = () => {
   };
 
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)]">
+    <div className="min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
 
       <div className="max-w-5xl mx-auto px-4 py-6">

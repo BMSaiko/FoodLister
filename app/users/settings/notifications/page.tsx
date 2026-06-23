@@ -49,7 +49,7 @@ export default function NotificationPreferencesPage() {
   const { preferences, loading, togglePreference } = useNotificationPreferences();
 
   return (
-    <div className="min-min-h-[100dvh] bg-[#050505]">
+    <div className="min-h-[100dvh] bg-[#050505]">
       <Navbar />
       <Container variant="narrow" className="py-6 sm:py-8">
         <PageHeader

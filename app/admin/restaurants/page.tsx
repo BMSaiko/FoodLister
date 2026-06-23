@@ -19,7 +19,7 @@ export default function AdminRestaurantsPage() {
         placeholder="Pesquisar restaurantes..."
         value={search}
         onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-        className="w-full max-w-sm px-4 py-2 rounded-lg border text-sm mb-4 bg-card border-white/10 text-foreground placeholder:text-foreground-muted"
+        className="w-full max-w-sm px-4 py-2 rounded-lg border text-sm mb-4 bg-[var(--card-bg)] border-white/10 text-foreground placeholder:text-foreground-muted"
       />
       <div className="rounded-xl border border-white/10 bg-card">
         {loading ? <p className="p-6 text-foreground-muted">A carregar...</p> : <RestaurantsTable restaurants={restaurants} />}

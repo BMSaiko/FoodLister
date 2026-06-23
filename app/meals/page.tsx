@@ -30,7 +30,7 @@ export default function MealsPage() {
 
   if (!user) {
     return (
-      <div className="min-min-h-[100dvh] bg-[var(--background)]">
+      <div className="min-h-[100dvh] bg-[var(--background)]">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <p className="text-white/50">Precisa de estar autenticado para ver as suas refeicoes.</p>
@@ -40,7 +40,7 @@ export default function MealsPage() {
   }
 
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)]">
+    <div className="min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}

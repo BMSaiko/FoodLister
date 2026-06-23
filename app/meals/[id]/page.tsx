@@ -262,7 +262,7 @@ export default function MealDetailsPage() {
   if (loading) {
     return (
       <ErrorBoundary pageName="MealDetails">
-        <div className="min-min-h-[100dvh] bg-[var(--background)]">
+        <div className="min-h-[100dvh] bg-[var(--background)]">
           <Navbar />
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center py-20">
@@ -278,7 +278,7 @@ export default function MealDetailsPage() {
   if (!meal) {
     return (
       <ErrorBoundary pageName="MealDetails">
-        <div className="min-min-h-[100dvh] bg-[var(--background)]">
+        <div className="min-h-[100dvh] bg-[var(--background)]">
           <Navbar />
           <div className="container mx-auto px-4 py-8">
             <div className="text-center py-20">
@@ -301,7 +301,7 @@ export default function MealDetailsPage() {
 
   return (
     <ErrorBoundary pageName="MealDetails">
-    <div className="min-min-h-[100dvh] bg-[var(--background)]">
+    <div className="min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         {/* Back button */}

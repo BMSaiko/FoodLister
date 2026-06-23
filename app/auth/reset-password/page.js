@@ -65,7 +65,7 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
+    <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
       {/* Mesh gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/3 w-72 h-72 bg-purple-500/[0.04] rounded-full blur-[120px]" />
@@ -226,7 +226,7 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
       </div>
     }>

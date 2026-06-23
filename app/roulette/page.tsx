@@ -160,7 +160,7 @@ export default function RoulettePage() {
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
   return (
-    <div className="min-min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
+    <div className="min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">

@@ -98,7 +98,7 @@ export default function AuthDebugPage() {
   };
 
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)] py-8">
+    <div className="min-h-[100dvh] bg-[var(--background)] py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6">
           <h1 className="text-2xl font-bold text-white/95 mb-6">Auth Debug Page</h1>

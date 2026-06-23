@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function UnauthorizedPage() {
   return (
-    <div className="min-min-h-[100dvh] flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+    <div className="min-h-[100dvh] flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
       <div className="text-center max-w-md mx-auto p-8">
         <div className="text-6xl mb-6">🔒</div>
         <h1 className="text-2xl font-bold mb-3" style={{ color: 'var(--foreground)' }}>
