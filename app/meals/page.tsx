@@ -30,7 +30,7 @@ export default function MealsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[var(--background)]">
+      <div className="min-min-h-[100dvh] bg-[var(--background)]">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <p className="text-white/50">Precisa de estar autenticado para ver as suas refeicoes.</p>
@@ -40,7 +40,7 @@ export default function MealsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
@@ -60,7 +60,7 @@ export default function MealsPage() {
             </div>
             <h3 className="text-lg font-semibold text-white/60 mb-2">Nenhuma refeicao agendada</h3>
             <p className="text-sm text-white/30 mb-4">Agenda uma refeicao a partir de qualquer restaurante.</p>
-            <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium">
+            <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
               Explorar Restaurantes <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -70,7 +70,7 @@ export default function MealsPage() {
               <Link
                 key={meal.id}
                 href={`/meals/${meal.id}`}
-                className="block p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:scale-[1.01] transition-all"
+                className="block p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:scale-[1.01] transition-colors"
               >
                 <div className="p-4 rounded-xl bg-white/[0.03] flex items-center gap-4">
                   {/* Date badge */}

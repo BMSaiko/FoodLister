@@ -160,7 +160,7 @@ export default function RoulettePage() {
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
+    <div className="min-min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -186,7 +186,7 @@ export default function RoulettePage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => handleSourceChange("all")}
-                className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
                   source === "all"
                     ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
                     : "bg-white/[0.04] text-white/50 border border-white/[0.06] hover:bg-white/[0.08]"
@@ -199,7 +199,7 @@ export default function RoulettePage() {
                   key={list.id}
                   onClick={() => handleSourceChange(list.id)}
                   disabled={listLoading === list.id}
-                  className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
                     source === list.id
                       ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
                       : "bg-white/[0.04] text-white/50 border border-white/[0.06] hover:bg-white/[0.08]"
@@ -223,7 +223,7 @@ export default function RoulettePage() {
           <div className="flex items-center justify-between">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
                 showFilters || activeFilterCount > 0
                   ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25"
                   : "bg-white/[0.04] text-white/50 border border-white/[0.06] hover:bg-white/[0.08]"
@@ -234,7 +234,7 @@ export default function RoulettePage() {
               {activeFilterCount > 0 && (
                 <span className="w-5 h-5 rounded-full bg-purple-500 text-white text-[10px] font-bold flex items-center justify-center">{activeFilterCount}</span>
               )}
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${showFilters ? "rotate-180" : ""}`} />
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${showFilters ? "rotate-180" : ""}`} />
             </button>
 
             {activeFilterCount > 0 && (
@@ -262,7 +262,7 @@ export default function RoulettePage() {
                             ? f.cuisines.filter(c => c !== name)
                             : [...f.cuisines, name]
                         }))}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-150 ${
                           filters.cuisines.includes(name)
                             ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
                             : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
@@ -311,7 +311,7 @@ export default function RoulettePage() {
                     <button
                       key={r}
                       onClick={() => setFilters(f => ({ ...f, ratingMin: f.ratingMin === r ? null : r }))}
-                      className={`flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      className={`flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors duration-150 ${
                         filters.ratingMin === r
                           ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
                           : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
@@ -327,7 +327,7 @@ export default function RoulettePage() {
               <div>
                 <button
                   onClick={() => setFilters(f => ({ ...f, visitedOnly: !f.visitedOnly }))}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
                     filters.visitedOnly
                       ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/25"
                       : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
@@ -349,7 +349,7 @@ export default function RoulettePage() {
             <button
               onClick={() => setShowRoulette(true)}
               disabled={filteredRestaurants.length === 0}
-              className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-base transition-all duration-300 min-h-[52px] ${
+              className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-base transition-colors duration-300 min-h-[52px] ${
                 filteredRestaurants.length === 0
                   ? "bg-white/[0.04] text-white/20 cursor-not-allowed"
                   : "bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 text-white hover:shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"

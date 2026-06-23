@@ -42,7 +42,7 @@ export default function VerifyEmailPage() {
   }, [searchParams, verifyEmail, router]);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
+    <div className="min-min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
       {/* Mesh gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/[0.04] rounded-full blur-[120px]" />
@@ -100,13 +100,13 @@ export default function VerifyEmailPage() {
                 <div className="space-y-3">
                   <Link
                     href="/auth/signin"
-                    className="block w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-center min-h-[48px]"
+                    className="block w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors text-center min-h-[48px]"
                   >
                     Ir para Login
                   </Link>
                   <Link
                     href="/"
-                    className="block w-full py-3 bg-white/[0.03] border border-white/[0.08] text-white/70 rounded-xl hover:bg-white/[0.06] transition-all text-center min-h-[48px]"
+                    className="block w-full py-3 bg-white/[0.03] border border-white/[0.08] text-white/70 rounded-xl hover:bg-white/[0.06] transition-colors text-center min-h-[48px]"
                   >
                     Página Inicial
                   </Link>

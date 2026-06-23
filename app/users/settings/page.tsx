@@ -133,7 +133,7 @@ export default function ProfileSettingsPage() {
   // Loading
   if (authLoading || profileLoading) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin mx-auto text-purple-500" />
           <p className="mt-3 text-white/30 text-sm">Carregando perfil...</p>
@@ -146,12 +146,12 @@ export default function ProfileSettingsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
           <h1 className="text-xl font-bold text-white/80 mt-4">Erro ao carregar perfil</h1>
           <p className="text-white/40 mt-2 text-sm">{error}</p>
-          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium">
+          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
             Tentar Novamente
           </button>
         </div>
@@ -161,11 +161,11 @@ export default function ProfileSettingsPage() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
+      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
           <h1 className="text-xl font-bold text-white/80 mt-4">Perfil nao encontrado</h1>
-          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium">
+          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
             Tentar Novamente
           </button>
         </div>
@@ -174,7 +174,7 @@ export default function ProfileSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] pb-24 md:pb-8">
+    <div className="min-min-h-[100dvh] bg-[var(--background)] pb-24 md:pb-8">
       <Navbar />
 
       {/* Celebration */}
@@ -203,7 +203,7 @@ export default function ProfileSettingsPage() {
             <button
               key={step}
               onClick={() => setCurrentStep(step)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-150 ${
                 currentStep === step
                   ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25"
                   : "bg-white/[0.03] text-white/30 hover:bg-white/[0.06]"
@@ -253,7 +253,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.name || ""}
                         onChange={e => handleInputChange("name", e.target.value)}
                         disabled={isSubmitting}
-                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50 ${
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50 ${
                           formErrors.display_name ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
                         placeholder="O seu nome"
@@ -284,7 +284,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.phoneNumber || ""}
                         onChange={e => handleInputChange("phoneNumber", e.target.value)}
                         disabled={isSubmitting}
-                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50"
                         placeholder="+351 912 345 678"
                       />
                     </div>
@@ -298,7 +298,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.location || ""}
                         onChange={e => handleInputChange("location", e.target.value)}
                         disabled={isSubmitting}
-                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50"
                         placeholder="Porto, Portugal"
                       />
                     </div>
@@ -312,7 +312,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.website || ""}
                         onChange={e => handleInputChange("website", e.target.value)}
                         disabled={isSubmitting}
-                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all disabled:opacity-50 ${
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50 ${
                           formErrors.website ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
                         placeholder="https://o-seu-site.com"
@@ -329,7 +329,7 @@ export default function ProfileSettingsPage() {
                         onChange={e => handleInputChange("bio", e.target.value)}
                         rows={3}
                         disabled={isSubmitting}
-                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all resize-none disabled:opacity-50 ${
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors resize-none disabled:opacity-50 ${
                           formErrors.bio ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
                         placeholder="Conte um pouco sobre si..."
@@ -356,7 +356,7 @@ export default function ProfileSettingsPage() {
                   <button
                     type="button"
                     onClick={() => { if (!localProfile?.publicProfile) handlePrivacyToggle(); }}
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 text-left ${
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors duration-150 text-left ${
                       localProfile?.publicProfile
                         ? "border-emerald-500/30 bg-emerald-500/5"
                         : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
@@ -378,7 +378,7 @@ export default function ProfileSettingsPage() {
                   <button
                     type="button"
                     onClick={() => { if (localProfile?.publicProfile) handlePrivacyToggle(); }}
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 text-left ${
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors duration-150 text-left ${
                       !localProfile?.publicProfile
                         ? "border-red-500/30 bg-red-500/5"
                         : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
@@ -402,7 +402,7 @@ export default function ProfileSettingsPage() {
               {localProfile?.userIdCode && (
                 <Link
                   href={`/users/${localProfile.userIdCode}`}
-                  className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all"
+                  className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
                 >
                   <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
                     <Eye className="h-5 w-5 text-purple-400" />
@@ -478,7 +478,7 @@ export default function ProfileSettingsPage() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep + 1)}
-                className="px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-all min-h-[44px]"
+                className="px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-colors min-h-[44px]"
               >
                 Proximo
               </button>
@@ -486,7 +486,7 @@ export default function ProfileSettingsPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 min-h-[44px]"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-colors disabled:opacity-50 min-h-[44px]"
               >
                 {isSubmitting ? (
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

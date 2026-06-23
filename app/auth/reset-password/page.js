@@ -65,7 +65,7 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
+    <div className="min-min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
       {/* Mesh gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/3 w-72 h-72 bg-purple-500/[0.04] rounded-full blur-[120px]" />
@@ -105,14 +105,14 @@ function ResetPasswordForm() {
                       </div>
                       <input
                         id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
-                        className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all disabled:opacity-50 min-h-[48px]"
+                        className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
                         placeholder="Endereco de email"
                         value={email} onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
                   </div>
                   <button type="submit" disabled={isLoading}
-                    className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
                     {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Enviar Codigo <ArrowRight className="h-4 w-4" /></>}
                   </button>
@@ -139,13 +139,13 @@ function ResetPasswordForm() {
                     <label htmlFor="otpCode" className="sr-only">Codigo</label>
                     <input
                       id="otpCode" name="otpCode" type="text" maxLength={6} required disabled={isLoading}
-                      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all disabled:opacity-50 min-h-[48px] text-center text-2xl tracking-[0.5em] font-mono"
+                      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px] text-center text-2xl tracking-[0.5em] font-mono"
                       placeholder="000000"
                       value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
                     />
                   </div>
                   <button type="submit" disabled={isLoading}
-                    className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
                     {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Verificar <ArrowRight className="h-4 w-4" /></>}
                   </button>
@@ -176,7 +176,7 @@ function ResetPasswordForm() {
                       </div>
                       <input
                         id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required disabled={isLoading}
-                        className="w-full pl-12 pr-12 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all disabled:opacity-50 min-h-[48px]"
+                        className="w-full pl-12 pr-12 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
                         placeholder="Nova password (min. 6 caracteres)"
                         value={password} onChange={(e) => setPassword(e.target.value)}
                       />
@@ -193,14 +193,14 @@ function ResetPasswordForm() {
                       </div>
                       <input
                         id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required disabled={isLoading}
-                        className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all disabled:opacity-50 min-h-[48px]"
+                        className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
                         placeholder="Confirmar password"
                         value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
                       />
                     </div>
                   </div>
                   <button type="submit" disabled={isLoading}
-                    className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
                     {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Atualizar Password <CheckCircle className="h-4 w-4" /></>}
                   </button>
@@ -226,7 +226,7 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+      <div className="min-min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
       </div>
     }>

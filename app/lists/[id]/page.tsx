@@ -191,7 +191,7 @@ export default function ListDetails() {
   if (loading) {
     return (
       <ErrorBoundary pageName="ListDetails">
-        <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
+        <div className="min-min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
           <Navbar />
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="animate-pulse h-[40dvh] rounded-3xl bg-white/[0.04] mb-6" />
@@ -208,7 +208,7 @@ export default function ListDetails() {
   if (!list) {
     return (
       <ErrorBoundary pageName="ListDetails">
-        <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
+        <div className="min-min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
           <Navbar />
           <div className="min-h-[60dvh] flex items-center justify-center">
             <div className="text-center">
@@ -223,7 +223,7 @@ export default function ListDetails() {
 
   return (
     <ErrorBoundary pageName="ListDetails">
-      <div className="min-h-screen" style={{ backgroundColor: "var(--background)" }}>
+      <div className="min-min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
         <Navbar />
 
         <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">

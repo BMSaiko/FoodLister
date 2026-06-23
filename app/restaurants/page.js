@@ -28,7 +28,7 @@ function RestaurantsContent() {
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
 
   return (
-    <main className="min-h-screen bg-[var(--background)]">
+    <main className="min-min-h-[100dvh] bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {/* Hero Card */}
         {!loading && <HeroRestaurantCard restaurants={restaurants} />}
@@ -84,7 +84,7 @@ export default function RestaurantsPage() {
   return (
     <FiltersProvider>
       <Navbar />
-      <Suspense fallback={<div className="min-h-screen bg-[var(--background)]" />}>
+      <Suspense fallback={<div className="min-min-h-[100dvh] bg-[var(--background)]" />}>
         <RestaurantsContent />
       </Suspense>
     </FiltersProvider>

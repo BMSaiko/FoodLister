@@ -93,7 +93,7 @@ function NotificationItem({ notification, onDelete, onRead }: {
     <motion.div
       variants={ITEM_VARIANTS}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }}
-      className={`group relative rounded-2xl border transition-all duration-200 ${
+      className={`group relative rounded-2xl border transition-colors duration-150 ${
         notification.read
           ? 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.08]'
           : 'bg-[rgba(245,158,11,0.03)] border-[rgba(245,158,11,0.12)] hover:bg-[rgba(245,158,11,0.05)]'
@@ -142,7 +142,7 @@ function NotificationItem({ notification, onDelete, onRead }: {
               {!notification.read && (
                 <button
                   onClick={(e) => { e.stopPropagation(); onRead(notification.id); }}
-                  className="p-2 rounded-lg text-white/20 hover:text-[var(--primary)] hover:bg-white/[0.04] transition-all"
+                  className="p-2 rounded-lg text-white/20 hover:text-[var(--primary)] hover:bg-white/[0.04] transition-colors"
                   aria-label="Marcar como lida"
                 >
                   <Check className="h-4 w-4" />
@@ -150,7 +150,7 @@ function NotificationItem({ notification, onDelete, onRead }: {
               )}
               <button
                 onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }}
-                className="p-2 rounded-lg text-white/20 hover:text-[var(--error)] hover:bg-white/[0.04] transition-all"
+                className="p-2 rounded-lg text-white/20 hover:text-[var(--error)] hover:bg-white/[0.04] transition-colors"
                 aria-label="Apagar notificação"
               >
                 <Trash2 className="h-4 w-4" />
@@ -226,7 +226,7 @@ export default function NotificationsPage() {
 
   return (
     <ErrorBoundary pageName="Notifications">
-      <div className="min-h-screen bg-[var(--background)] mesh-gradient-bg">
+      <div className="min-min-h-[100dvh] bg-[var(--background)] mesh-gradient-bg">
         <Navbar />
         <Container variant="narrow" className="py-6 sm:py-10">
 
@@ -263,7 +263,7 @@ export default function NotificationsPage() {
                   <button
                     key={tab.key}
                     onClick={() => setActiveFilter(tab.key)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 min-h-[40px] ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors duration-150 min-h-[40px] ${
                       isActive
                         ? 'bg-[var(--primary)] text-black'
                         : 'bg-white/[0.04] text-white/40 hover:bg-white/[0.08] hover:text-white/60'

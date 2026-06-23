@@ -80,7 +80,7 @@ export default function PricingPage() {
   const popularPlanId = plans.find(p => p.name.toLowerCase().includes('premium'))?.id;
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
       <Container variant="wide" className="py-12">
         <PageHeader

@@ -37,9 +37,9 @@ function PreferenceToggle({ id, label, description, icon, checked, onChange, dis
         aria-checked={checked}
         onClick={onChange}
         disabled={disabled}
-        className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed ${checked ? 'bg-amber-500' : 'bg-white/10'}`}
+        className={`relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed ${checked ? 'bg-amber-500' : 'bg-white/10'}`}
       >
-        <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+        <span className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-150 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
       </button>
     </div>
   );
@@ -49,7 +49,7 @@ export default function NotificationPreferencesPage() {
   const { preferences, loading, togglePreference } = useNotificationPreferences();
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-min-h-[100dvh] bg-[#050505]">
       <Navbar />
       <Container variant="narrow" className="py-6 sm:py-8">
         <PageHeader
