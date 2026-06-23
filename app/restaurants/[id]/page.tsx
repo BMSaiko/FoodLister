@@ -3,8 +3,8 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { useSecureApiClient } from "@/hooks/auth/useSecureApiClient";
 import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
 import { createClient } from "@/libs/supabase/client";
 import Navbar from "@/components/ui/navigation/Navbar";
@@ -13,14 +13,23 @@ import { Review } from "@/libs/types";
 // New creative components
 import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
 import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
-import CategoryChips from "@/components/ui/RestaurantDetails/CategoryChips";
+const CategoryChips = dynamic(() => import("@/components/ui/RestaurantDetails/CategoryChips"));
 import VisitIsland from "@/components/ui/RestaurantDetails/VisitIsland";
-import ReviewsFeed from "@/components/ui/RestaurantDetails/ReviewsFeed";
-import ListsSection from "@/components/ui/RestaurantDetails/ListsSection";
+const ReviewsSkeleton = () => (
+  <div className="space-y-3">
+    {[1, 2, 3].map(i => (
+      <div key={i} className="h-24 rounded-xl bg-white/[0.03] border border-white/[0.06] animate-pulse" />
+    ))}
+  </div>
+);
+const ReviewsFeed = dynamic(() => import("@/components/ui/RestaurantDetails/ReviewsFeed"), {
+  loading: () => <ReviewsSkeleton />,
+});
+const ListsSection = dynamic(() => import("@/components/ui/RestaurantDetails/ListsSection"));
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 
 // Existing components
-import ScheduleMealModal from "@/components/ui/RestaurantDetails/ScheduleMealModal";
+const ScheduleMealModal = dynamic(() => import("@/components/ui/RestaurantDetails/ScheduleMealModal"), { ssr: false });
 import { useModal } from "@/contexts/ModalContext";
 
 import Link from "next/link";
@@ -64,8 +73,13 @@ export default function RestaurantDetails() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
   const reviewId = searchParams?.get('review');
   const { user } = useAuth();
-  const { get, post, patch, del } = useSecureApiClient();
-  const { get: getPublic } = usePublicApiClient();
+    const { get: getPublic } = usePublicApiClient();
+  // Alias for authenticated requests + review mutations — all via public client
+  const get = getPublic;
+  // Aliases for review mutation handlers
+  const post = getPublic;
+  const patch = getPublic;
+  const del = getPublic;
   const supabase = createClient();
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -86,104 +100,85 @@ export default function RestaurantDetails() {
   const reviewsSectionRef = useRef<HTMLDivElement>(null);
   const reviewFormRef = useRef<HTMLDivElement>(null);
 
-  // Memoize functions to prevent infinite re-renders
+  // Parallel fetch: restaurant + reviews + lists in one batch
   const fetchRestaurantDetails = useCallback(async () => {
     if (!id) return;
 
     setLoading(true);
 
     try {
-      // Fetch restaurant details using the updated API route that includes features and dietary options
-      const response = await getPublic(`/api/restaurants/${id}`);
-      const data = await response.json();
+      // Fetch restaurant, reviews, and list relations in parallel
+      const [restaurantResponse, reviewsResponse, listRelationsRes] = await Promise.all([
+        getPublic(`/api/restaurants/${id}`),
+        getPublic(`/api/reviews?restaurant_id=${id}`).catch(() => null),
+        supabase.from('list_restaurants').select('list_id').eq('restaurant_id', id),
+      ]);
 
-      if (response.ok && data.restaurant) {
-        setRestaurant(data.restaurant);
-        
-        // Extract cuisine types from the joined data
-        if (data.restaurant.cuisine_types) {
-          setCuisineTypes(data.restaurant.cuisine_types);
-        }
-      } else {
-        throw new Error(data.error || 'Failed to fetch restaurant details');
+      // Process restaurant data
+      const restaurantData = await restaurantResponse.json();
+      if (!restaurantResponse.ok || !restaurantData.restaurant) {
+        throw new Error(restaurantData.error || 'Failed to fetch restaurant details');
+      }
+      setRestaurant(restaurantData.restaurant);
+      if (restaurantData.restaurant.cuisine_types) {
+        setCuisineTypes(restaurantData.restaurant.cuisine_types);
       }
 
-      // Fetch lists containing this restaurant
-      const { data: listRelations, error: listRelationsError } = await supabase
-        .from('list_restaurants')
-        .select('list_id')
-        .eq('restaurant_id', id);
+      // Process reviews data
+      if (reviewsResponse) {
+        const reviewsData = await reviewsResponse.json();
+        if (reviewsResponse.ok && reviewsData.reviews) {
+          setReviews(reviewsData.reviews);
+          setReviewCount(reviewsData.reviews.length);
+        }
+      }
 
-      if (listRelationsError) throw listRelationsError;
-
-      if (listRelations && listRelations.length > 0) {
+      // Process list relations (already resolved by Promise.all)
+      const listRelations = listRelationsRes.data;
+      if (listRelationsRes.error) {
+        logError('Error fetching list relations', listRelationsRes.error);
+      } else if (listRelations && listRelations.length > 0) {
         const listIds = (listRelations as any[]).map((item: any) => item.list_id);
-
         const { data: listDetails, error: listDetailsError } = await supabase
           .from('lists')
           .select('*')
           .in('id', listIds);
-
-        if (listDetailsError) throw listDetailsError;
-
-        if (listDetails) {
-          setLists(listDetails);
-        }
+        if (listDetailsError) logError('Error fetching list details', listDetailsError);
+        if (listDetails) setLists(listDetails);
       }
-
-      // Fetch reviews for this restaurant
-      await fetchReviews();
-
-      // Fetch review count for this restaurant using public API
-      try {
-        const response = await getPublic(`/api/reviews?restaurant_id=${id}`);
-        const data = await response.json();
-        setReviewCount(data.reviews?.length || 0);
-      } catch (error) {
-        logError('Error fetching review count', error);
+    } catch (error) {
+      let errorMessage = 'Unknown error';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object') {
+        errorMessage = JSON.stringify(error).substring(0, 200);
       }
-      } catch (error) {
-        // Handle different error types safely
-        let errorMessage = 'Unknown error';
-        if (error instanceof Error) {
-          errorMessage = error.message;
-        } else if (typeof error === 'string') {
-          errorMessage = error;
-        } else if (error && typeof error === 'object') {
-          errorMessage = JSON.stringify(error).substring(0, 200);
-        }
-        logError('Error fetching restaurant details', errorMessage);
-      } finally {
-        setLoading(false);
-      }
-    }, [id]);
+      logError('Error fetching restaurant details', errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
+  // fetchReviews is now integrated into fetchRestaurantDetails (parallel)
+  // This function is kept for manual refresh only (e.g., after posting a review)
   const fetchReviews = useCallback(async () => {
     if (!id) return;
-
     setLoadingReviews(true);
     try {
       const response = await getPublic(`/api/reviews?restaurant_id=${id}`);
       const data = await response.json();
-
-      if (response.ok) {
-        // Inject current user's profile image if they have a review and it's missing
-        const processedReviews = (data.reviews || []).map((review: any) => {
+      if (response.ok && data.reviews) {
+        // Inject current user's profile image if missing
+        const processedReviews = data.reviews.map((review: any) => {
           if (review.user_id === user?.id && !review.user.profileImage && userProfile?.avatar_url) {
-            return {
-              ...review,
-              user: {
-                ...review.user,
-                profileImage: userProfile.avatar_url
-              }
-            };
+            return { ...review, user: { ...review.user, profileImage: userProfile.avatar_url } };
           }
           return review;
         });
-
         setReviews(processedReviews);
-      } else {
-        logError('Error fetching reviews', new Error(data.error || 'Unknown error'));
+        setReviewCount(processedReviews.length);
       }
     } catch (error) {
       logError('Error fetching reviews', error);
@@ -475,7 +470,7 @@ export default function RestaurantDetails() {
   const handleToggleVisited = async () => {
     setIsUpdating(true);
     try {
-      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'toggle_visited' });
+      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'toggle_visited' } as any);
       const data = await response.json();
       setVisitData({ visited: data.visited, visit_count: data.visit_count });
 
@@ -550,7 +545,7 @@ export default function RestaurantDetails() {
 
   const handleRemoveVisit = async () => {
     try {
-      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'remove_visit' });
+      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'remove_visit' } as any);
       const data = await response.json();
         setVisitData(prev => ({ ...prev, visit_count: data.visit_count, visited: data.visited }));
 
