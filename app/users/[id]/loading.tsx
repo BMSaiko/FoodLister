@@ -9,7 +9,7 @@ const ShimmerBlock = ({ className = "" }: { className?: string }) => (
 
 const UserLoadingPage = () => {
   return (
-    <div className="min-min-h-[100dvh] bg-[var(--background)]">
+    <div className="min-h-[100dvh] bg-[var(--background)]">
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
