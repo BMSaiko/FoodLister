@@ -16,7 +16,7 @@ export default function RoulettePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-amber-900/20 via-orange-900/10 to-yellow-900/15 relative overflow-hidden">
       {/* Elementos decorativos de fundo - estilo landing page */}
       <div className="absolute inset-0 opacity-80 pointer-events-none">
         {/* Elementos principais - visíveis em todos os dispositivos */}

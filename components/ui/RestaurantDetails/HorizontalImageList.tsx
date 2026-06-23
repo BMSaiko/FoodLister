@@ -114,7 +114,7 @@ export default function HorizontalImageList({
               onClick={() => openModal(index)}
             >
               {/* Container da Imagem */}
-              <div className="relative w-64 sm:w-80 lg:w-96 h-48 sm:h-64 lg:h-72 rounded-lg overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-active:scale-95">
+              <div className="relative w-64 sm:w-80 lg:w-96 h-48 sm:h-64 lg:h-72 rounded-lg overflow-hidden bg-gradient-to-br from-amber-700/20 to-orange-800/20 shadow-md hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] group-active:scale-95">
                 <Image
                   src={image}
                   alt={`Imagem do menu ${index + 1}`}

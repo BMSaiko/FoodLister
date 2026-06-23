@@ -283,7 +283,7 @@ export default function MealDetailsPage() {
           <div className="container mx-auto px-4 py-8">
             <div className="text-center py-20">
               <Utensils className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Refeição não encontrada</h2>
+              <h2 className="text-xl font-semibold text-white/90 mb-2">Refeição não encontrada</h2>
               <p className="text-gray-500 mb-6">A refeição que procuras não existe ou foi removida.</p>
               <Link
                 href="/users/me"
@@ -322,7 +322,7 @@ export default function MealDetailsPage() {
                   <Utensils className="h-6 w-6 text-amber-600" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  <h1 className="text-2xl font-bold text-white/90">
                     {meal.restaurant?.name || 'Restaurante'}
                   </h1>
                   <p className="text-amber-700 font-medium">
@@ -398,9 +398,10 @@ export default function MealDetailsPage() {
         </div>
 
         {/* Organizer */}
-        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Organizador</h2>
-          <div className="flex items-center space-x-3">
+        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
+          <div className="bg-white/[0.03] rounded-xl p-4">
+            <h2 className="text-lg font-semibold text-white/90 mb-4">Organizador</h2>
+            <div className="flex items-center space-x-3">
             {meal.organizer?.avatarUrl ? (
               <img
                 src={meal.organizer.avatarUrl}
@@ -413,7 +414,7 @@ export default function MealDetailsPage() {
               </div>
             )}
             <div>
-              <p className="font-medium text-gray-900">
+              <p className="font-medium text-white/90">
                 {meal.organizer?.displayName || 'Utilizador'}
               </p>
               {meal.organizer?.userIdCode && (
@@ -421,14 +422,16 @@ export default function MealDetailsPage() {
               )}
             </div>
           </div>
+          </div>
         </div>
 
         {/* Participants */}
         {meal.participants.length > 0 && (
-          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6 mb-6">
-            <div className="flex items-center space-x-2 mb-4">
+          <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
+            <div className="bg-white/[0.03] rounded-xl p-4">
+              <div className="flex items-center space-x-2 mb-4">
               <Users className="h-5 w-5 text-amber-500" />
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-white/90">
                 Participantes ({meal.participants.length})
               </h2>
             </div>
@@ -448,7 +451,7 @@ export default function MealDetailsPage() {
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-white/90">
                         {participant.profile?.displayName || 'Utilizador'}
                       </p>
                       {participant.profile?.userIdCode && (
@@ -459,14 +462,16 @@ export default function MealDetailsPage() {
                   {getStatusBadge(participant.status)}
                 </div>
               ))}
+              </div>
             </div>
           </div>
         )}
 
         {/* Actions */}
-        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Ações</h2>
-          <div className="space-y-3">
+        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
+          <div className="bg-white/[0.03] rounded-xl p-4">
+            <h2 className="text-lg font-semibold text-white/90 mb-4">Ações</h2>
+            <div className="space-y-3">
             {/* Download ICS */}
             <button
               onClick={handleDownloadIcs}
@@ -480,7 +485,7 @@ export default function MealDetailsPage() {
             {meal.googleCalendarLink && (
               <button
                 onClick={handleGoogleCalendar}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-white border-2 border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors font-medium"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-[#0a0a0a] border border-white/[0.06] border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors font-medium"
               >
                 <ExternalLink className="h-5 w-5" />
                 <span>Adicionar ao Google Calendar</span>
@@ -522,6 +527,7 @@ export default function MealDetailsPage() {
               </div>
             )}
           </div>
+          </div>
         </div>
 
         {/* View Restaurant Link */}
@@ -543,7 +549,7 @@ export default function MealDetailsPage() {
           <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] max-w-lg w-full mx-4">
             <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-6 py-4 rounded-t-xl border-b border-white/[0.06]">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-gray-900">Editar Refeição</h3>
+                <h3 className="text-xl font-bold text-white/90">Editar Refeição</h3>
                 <button
                   onClick={() => setShowEditModal(false)}
                   className="text-gray-400 hover:text-white/50"
@@ -559,7 +565,7 @@ export default function MealDetailsPage() {
                   type="date"
                   value={editForm.mealDate}
                   onChange={(e) => setEditForm(prev => ({ ...prev, mealDate: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
@@ -569,7 +575,7 @@ export default function MealDetailsPage() {
                   type="time"
                   value={editForm.mealTime}
                   onChange={(e) => setEditForm(prev => ({ ...prev, mealTime: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
                 />
               </div>
               <div>
@@ -577,7 +583,7 @@ export default function MealDetailsPage() {
                 <select
                   value={editForm.mealType}
                   onChange={(e) => setEditForm(prev => ({ ...prev, mealType: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
                 >
                   <option value="pequeno-almoco">Pequeno Almoço</option>
                   <option value="almoco">Almoço</option>
@@ -592,7 +598,7 @@ export default function MealDetailsPage() {
                 <select
                   value={editForm.durationMinutes}
                   onChange={(e) => setEditForm(prev => ({ ...prev, durationMinutes: Number(e.target.value) }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
                 >
                   <option value={30}>30 minutos</option>
                   <option value={60}>1 hora</option>
@@ -630,7 +636,7 @@ export default function MealDetailsPage() {
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="h-6 w-6 text-red-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Eliminar refeição?</h3>
+              <h3 className="text-lg font-bold text-white/90 mb-2">Eliminar refeição?</h3>
               <p className="text-white/50 text-sm mb-6">
                 Esta ação irá eliminar a refeição e todas as participações associadas. Esta ação não pode ser desfeita.
               </p>

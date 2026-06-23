@@ -1,39 +1,51 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
+import { CheckCircle, ArrowRight, Home } from "lucide-react";
 
 export default function VerifySuccessPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8 text-center">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
+      {/* Mesh gradient orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-green-500/[0.04] rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-emerald-500/[0.03] rounded-full blur-[100px]" />
+      </div>
+
+      <div className="max-w-md mx-auto w-full relative z-10">
+        {/* Premium success icon with gradient */}
+        <div className="text-center mb-8">
+          <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 ring-1 ring-green-500/20 flex items-center justify-center mb-6">
+            <CheckCircle className="h-10 w-10 text-green-400" />
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
+            Email Verificado!
+          </h1>
         </div>
 
-        <h1 className="text-2xl font-bold text-white/85 mb-3">
-          Email Verificado!
-        </h1>
+        {/* Double-Bezel card */}
+        <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03] text-center">
+            <p className="text-white/60 mb-8 leading-relaxed">
+              O seu email foi verificado com sucesso. Agora tem acesso a todas as funcionalidades do FoodLister.
+            </p>
 
-        <p className="text-gray-600 mb-6">
-          O seu email foi verificado com sucesso. Agora tem acesso a todas as funcionalidades do FoodLister.
-        </p>
-
-        <div className="space-y-3">
-          <Link
-            href="/auth/signin"
-            className="block w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Fazer Login
-          </Link>
-          <Link
-            href="/"
-            className="block w-full px-4 py-2 border border-gray-300 text-white/70 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Ir para Página Inicial
-          </Link>
+            <div className="space-y-3">
+              <Link
+                href="/auth/signin"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all min-h-[48px]"
+              >
+                Fazer Login <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-white/[0.03] border border-white/[0.08] text-white/70 rounded-xl hover:bg-white/[0.06] transition-all min-h-[48px]"
+              >
+                <Home className="h-4 w-4" /> Ir para Página Inicial
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

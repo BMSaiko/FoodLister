@@ -167,7 +167,7 @@ export default function AuthDebugPage() {
               {authHistory.length > 0 ? (
                 <div className="space-y-2">
                   {authHistory.map((event, index) => (
-                    <div key={index} className="text-sm border-b border-gray-300 pb-2">
+                    <div key={index} className="text-sm border-b border-white/[0.06] pb-2">
                       <div className="font-medium">{event.type.toUpperCase()}</div>
                       <div className="text-gray-600">{new Date(event.timestamp).toLocaleString()}</div>
                       {event.details && (
