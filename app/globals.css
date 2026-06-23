@@ -578,3 +578,40 @@ html { scroll-behavior: smooth; }
 .notification-border-unread {
   border-color: rgba(245, 158, 11, 0.15);
 }
+
+
+/* Page loader animations */
+@keyframes loader-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loader-spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes loader-pulse {
+  0%, 100% { opacity: 0.1; transform: scale(0.95); }
+  50% { opacity: 0.2; transform: scale(1.05); }
+}
+
+.loader-spin {
+  animation: loader-spin 1s linear infinite;
+}
+
+.loader-spin-reverse {
+  animation: loader-spin-reverse 0.8s linear infinite;
+}
+
+.loader-pulse {
+  animation: loader-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-spin,
+  .loader-spin-reverse,
+  .loader-pulse {
+    animation: none;
+  }
+}

@@ -5,6 +5,7 @@ import "./globals.css";
 import ClientLayout from "@/components/layouts/ClientLayout";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import GlobalSearch from "@/components/ui/GlobalSearch";
+import LoadingProvider from "@/components/loading/LoadingProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,8 +39,10 @@ export default function RootLayout({ children }) {
     <html lang="pt" data-theme="dark" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="antialiased mesh-gradient-bg">
         <ErrorBoundary>
-          <ClientLayout>{children}</ClientLayout>
-          <GlobalSearch />
+          <LoadingProvider>
+            <ClientLayout>{children}</ClientLayout>
+            <GlobalSearch />
+          </LoadingProvider>
         </ErrorBoundary>
       </body>
     </html>
