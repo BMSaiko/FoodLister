@@ -128,7 +128,7 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-shrink-0">
                   {restaurant.rating != null && (
                     <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-xl shadow-[0_0_20px_rgba(245,158,11,0.12)]">
                       <Star className="h-5 w-5 text-amber-400 fill-current" />
@@ -138,10 +138,10 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
                   {restaurant.price_per_person && restaurant.price_per_person > 0 && (
                     <div className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-white/[0.05] border border-white/[0.08] backdrop-blur-xl">
                       {Array(priceCategory.level).fill(0).map((_, i) => (
-                        <Euro key={i} className="h-4 w-4 text-amber-400" fill="currentColor" />
+                        <Euro key={i} className="h-3 w-3 sm:h-4 sm:w-4 text-amber-400" fill="currentColor" />
                       ))}
                       {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-                        <Euro key={`e-${i}`} className="h-4 w-4 text-white/15" />
+                        <Euro key={`e-${i}`} className="h-3 w-3 sm:h-4 sm:w-4 text-white/15" />
                       ))}
                       <span className="ml-1 text-sm text-white/50 font-medium">{priceCategory.label}</span>
                       <span className="ml-2 text-sm font-semibold text-amber-400">€{restaurant.price_per_person.toFixed(0)}</span>
