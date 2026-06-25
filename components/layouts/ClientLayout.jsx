@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { AuthProvider, FiltersProvider } from "@/contexts";
-import GlobalSearch from "@/components/ui/GlobalSearch";
+
 import { ModalProvider } from "@/contexts/ModalContext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,7 +15,6 @@ export default function ClientLayout({ children }) {
       <FiltersProvider>
         <ModalProvider>
           {children}
-            <GlobalSearch />
           <MapSelectorModal />
           <ToastContainer
             position="top-center"

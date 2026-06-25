@@ -89,7 +89,7 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     <LoadingContext.Provider value={{ showLoading, hideLoading, isLoading: loading }}>
       {children}
       <AnimatePresence>
-        {loading && <PageLoader key="global-loader" text={loadingText} />}
+        {loading && <PageLoader key="global-loader" variant="bar" />}
       </AnimatePresence>
     </LoadingContext.Provider>
   );
