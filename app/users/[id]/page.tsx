@@ -7,7 +7,6 @@ import { useUserData } from "@/hooks/data/useUserData";
 import { toast } from "react-toastify";
 import { AlertCircle, Loader2, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
-import ProfileStickyNavbar from "@/components/ui/navigation/ProfileStickyNavbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import UserProfileHeader from "@/components/ui/profile/UserProfileHeader";
 import ProfileStats from "@/components/ui/profile/ProfileStats";
@@ -268,13 +267,7 @@ const UserProfilePage = () => {
 
       <ScrollToTopButton />
 
-      <ProfileStickyNavbar
-        onShare={handleShareProfile}
-        onCopyLink={handleCopyProfileLink}
-        onEdit={() => router.push("/users/settings")}
-        isOwnProfile={isOwnProfile}
-        profile={profile}
-      />
+
     </div>
   );
 };
