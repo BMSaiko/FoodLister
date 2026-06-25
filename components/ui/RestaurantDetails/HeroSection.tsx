@@ -94,15 +94,15 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
         <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 lg:p-12">
           <div className="max-w-7xl mx-auto">
             {/* Actions row */}
-            <div className="flex items-center justify-end gap-2 mb-5">
-              <button onClick={onShare} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
+            <div className="flex flex-wrap items-center justify-end gap-2 mb-5">
+              <button onClick={onShare} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
                 <Share2 className="h-4 w-4" /><span className="hidden sm:inline">Partilhar</span>
               </button>
-              <button onClick={onSchedule} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 text-black hover:bg-amber-400 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
+              <button onClick={onSchedule} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-amber-500 text-black hover:bg-amber-400 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
                 <Calendar className="h-4 w-4" /><span className="hidden sm:inline">Agendar</span>
               </button>
               {isOwner && onEdit && (
-                <button onClick={onEdit} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 text-black hover:bg-amber-400 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
+                <button onClick={onEdit} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-amber-500 text-black hover:bg-amber-400 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
                   <Edit className="h-4 w-4" /><span className="hidden sm:inline">Editar</span>
                 </button>
               )}
