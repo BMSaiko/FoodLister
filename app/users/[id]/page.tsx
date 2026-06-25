@@ -178,7 +178,7 @@ const UserProfilePage = () => {
 
   return (
     <div className="min-h-[100dvh] bg-[var(--background)]">
-      <Navbar hideBottomNav />
+      <Navbar />
 
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* Header */}
