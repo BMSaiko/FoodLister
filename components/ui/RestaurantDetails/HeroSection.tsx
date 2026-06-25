@@ -84,7 +84,7 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
 
         {/* Floating image count */}
         {hasImages && allImages.length > 1 && (
-          <button onClick={() => openLightbox(0)} className="absolute top-5 right-5 z-10 flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/30 backdrop-blur-xl border border-white/[0.1] text-white/90 hover:bg-black/50 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
+          <button onClick={() => openLightbox(0)} className="absolute top-5 left-5 sm:left-auto sm:right-5 z-10 flex items-center gap-2 px-4 py-2.5 rounded-full bg-black/30 backdrop-blur-xl border border-white/[0.1] text-white/90 hover:bg-black/50 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
             <ZoomIn className="h-4 w-4" />
             <span>{allImages.length} fotos</span>
           </button>
