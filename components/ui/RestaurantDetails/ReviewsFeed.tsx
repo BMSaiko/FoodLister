@@ -5,6 +5,7 @@ import { formatDate } from "@/utils/formatters";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import ReviewForm from "./ReviewForm";
+import TruncateText from "@/components/ui/common/TruncateText";
 
 interface ReviewsFeedProps {
   restaurantId: string;
@@ -143,7 +144,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
                       )}
                     </div>
                   </div>
-                  {review.comment && <p className="text-sm text-white/50 leading-relaxed">{review.comment}</p>}
+                  {review.comment && <TruncateText text={review.comment} maxLength={150} className="text-sm text-white/50 leading-relaxed" />}
                 </div>
               </div>
             </div>
