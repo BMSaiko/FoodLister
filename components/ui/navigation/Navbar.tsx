@@ -22,7 +22,7 @@ const NAV_ITEMS = [
   { id: 'lists', label: 'Listas', href: '/lists' },
 ] as const;
 
-export default function Navbar() {
+export default function Navbar({ hideBottomNav = false }: { hideBottomNav?: boolean }) {
   const { user, signOut, loading } = useAuth();
   const { clearFilters: clearFiltersFromContext } = useFilters();
   const pathname = usePathname();
@@ -297,6 +297,7 @@ export default function Navbar() {
       </motion.header>
 
       {/* Mobile: Bottom Tab Bar */}
+      {!hideBottomNav && (
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
@@ -340,6 +341,7 @@ export default function Navbar() {
           })}
         </nav>
       </motion.div>
+      )}
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
