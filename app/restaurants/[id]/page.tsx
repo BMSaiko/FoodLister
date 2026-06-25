@@ -33,7 +33,7 @@ const ScheduleMealModal = dynamic(() => import("@/components/ui/RestaurantDetail
 import { useModal } from "@/contexts/ModalContext";
 
 import Link from "next/link";
-import { Share2, Calendar, Edit, MapPin, Globe, FileText, Phone, Check, X, Plus, Star, ListChecks, Smartphone, DollarSign } from "lucide-react";
+import { Share2, Calendar, Edit, MapPin, Globe, FileText, Phone, Check, X, Plus, Star, ListChecks, Smartphone, Euro } from "lucide-react";
 import { categorizePriceLevel, getRatingClass, formatDate, formatPrice } from "@/utils/formatters";
 import { logError, logWarn, logInfo } from "@/utils/logger";
 import { toast } from "react-toastify";
@@ -591,7 +591,7 @@ export default function RestaurantDetails() {
     }
   };
 
-  // Renderiza o nível de preço com ícones de Dólar
+  // Renderiza o nível de preço com ícones de Euro
   const renderPriceLevel = (price: number): React.ReactNode => {
     const priceCategory = categorizePriceLevel(price);
     const priceColorClass = getPriceColorClass(priceCategory.level);
@@ -600,15 +600,15 @@ export default function RestaurantDetails() {
       <div className="flex items-center mt-4 bg-white/5 p-3 rounded-lg ring-1 ring-white/10">
         <div className="flex items-center">
           {Array(priceCategory.level).fill(0).map((_, i) => (
-            <DollarSign key={i} className={`h-4 w-4 ${priceColorClass}`} fill="currentColor" />
+            <Euro key={i} className={`h-4 w-4 ${priceColorClass}`} fill="currentColor" />
           ))}
           {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-            <DollarSign key={i + priceCategory.level} className="h-4 w-4 text-white/20" />
+            <Euro key={i + priceCategory.level} className="h-4 w-4 text-white/20" />
           ))}
         </div>
         <span className={`ml-2 text-sm ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
         <div className="ml-auto text-amber-600 font-semibold">
-          {`$${price.toFixed(2)}`}
+          {formatPrice(price)}
           <span className="text-sm text-white/40 ml-1">por pessoa</span>
         </div>
       </div>

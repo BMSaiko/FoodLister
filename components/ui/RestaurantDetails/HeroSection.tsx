@@ -144,6 +144,7 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
                         <Euro key={`e-${i}`} className="h-4 w-4 text-white/15" />
                       ))}
                       <span className="ml-1 text-sm text-white/50 font-medium">{priceCategory.label}</span>
+                      <span className="ml-2 text-sm font-semibold text-amber-400">€{restaurant.price_per_person.toFixed(0)}</span>
                     </div>
                   )}
                 </div>
