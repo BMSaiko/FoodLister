@@ -307,7 +307,7 @@ export default function Navbar() {
         <nav className="bottom-tab-bar rounded-2xl bg-[var(--card-bg)]/90 backdrop-blur-2xl border border-white/[0.08] px-1 py-1.5 flex items-center justify-around">
           {[
             { id: 'home', icon: Menu, label: 'Home', href: '/' },
-            { id: 'restaurants', icon: Search, label: 'Restaurantes', href: '/restaurants' },
+            { id: 'restaurants', icon: Utensils, label: 'Restaurantes', href: '/restaurants' },
             { id: 'search', icon: Search, label: 'Search', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
