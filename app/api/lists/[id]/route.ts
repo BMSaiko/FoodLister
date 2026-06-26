@@ -319,18 +319,15 @@ export async function PUT(
       }
     }
 
-    // Update restaurant order if provided
-    if (restaurantOrder && Array.isArray(restaurantOrder)) {
-      for (let i = 0; i < restaurantOrder.length; i++) {
-        const { error: orderError } = await supabase
-          .from('list_restaurants')
-          .update({ position: i })
-          .eq('list_id', id)
-          .eq('restaurant_id', restaurantOrder[i]);
+    // Update restaurant order if provided — batch update via RPC
+    if (restaurantOrder && Array.isArray(restaurantOrder) && restaurantOrder.length > 0) {
+      const { error: orderError } = await supabase.rpc('update_list_restaurant_positions', {
+        p_list_id: id,
+        p_restaurant_ids: restaurantOrder,
+      });
 
-        if (orderError) {
-          console.error('Error updating restaurant order:', orderError);
-        }
+      if (orderError) {
+        console.error('Error updating restaurant order:', orderError);
       }
     }
 

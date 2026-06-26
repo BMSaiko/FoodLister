@@ -4,6 +4,7 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import type { Database } from '@/types/database';
+import { parsePaginationFromRequest } from '@/libs/utils/pagination';
 type DbList = Database['public']['Tables']['lists']['Row'];
 
 export async function GET(request: NextRequest) {
@@ -12,6 +13,7 @@ export async function GET(request: NextRequest) {
     const supabase = await getServerClient(request, responseObj);
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
+    const { page, limit, from, to } = parsePaginationFromRequest(request, { defaultLimit: 50 });
 
     // Get lists with search filter if provided
     // SECURITY: Explicitly filter by is_public and user ownership
@@ -55,7 +57,7 @@ export async function GET(request: NextRequest) {
       listsQuery = listsQuery.ilike('name', `%${search}%`);
     }
 
-    let { data: listsData, error: listsError } = await listsQuery;
+    let { data: listsData, error: listsError } = await listsQuery.range(from, to);
     // Fallback: retry without updated_at if migration 050 not applied
     if (listsError && listsError.code === '42703') {
       console.warn('lists: updated_at missing (migration 050 not applied):', listsError.message);
@@ -74,7 +76,7 @@ export async function GET(request: NextRequest) {
         fallbackQuery = fallbackQuery.eq('is_public', true);
       }
       if (search) fallbackQuery = fallbackQuery.ilike('name', `%${search}%`);
-      const fallback = await fallbackQuery;
+      const fallback = await fallbackQuery.range(from, to);
       const fallbackData = fallback.data?.map((l: any) => ({ ...l, creator: l.creator ?? l.creator_name ?? null })) || null;
       listsData = fallbackData as unknown as typeof listsData;
       listsError = fallback.error;
@@ -124,7 +126,10 @@ export async function GET(request: NextRequest) {
     }));
 
     // Add caching headers for better performance
-    const response = NextResponse.json({ lists: processedData });
+    const response = NextResponse.json({
+      lists: processedData,
+      pagination: { page, limit, returned: processedData.length, hasNext: processedData.length === limit },
+    });
     response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     return response;
     } catch (error) {

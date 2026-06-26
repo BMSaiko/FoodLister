@@ -7,6 +7,7 @@ import type { ApiErrorType } from '@/types/api';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/libs/supabase/types';
 import { checkRateLimit } from '@/libs/rate-limit';
+import { parsePaginationFromRequest } from '@/libs/utils/pagination';
 
 type DbClient = SupabaseClient<Database>;
 // Database type is incomplete — use explicit query types
@@ -70,6 +71,7 @@ export async function GET(request: NextRequest) {
     const supabase = await getPublicServerClient();
     const { searchParams } = new URL(request.url);
     const restaurantId = searchParams.get('restaurant_id');
+    const { page, limit, from, to } = parsePaginationFromRequest(request, { defaultLimit: 20 });
 
     if (!restaurantId) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -91,7 +93,8 @@ export async function GET(request: NextRequest) {
       .from('reviews')
       .select('id, restaurant_id, user_id, rating, comment, amount_spent, created_at, updated_at, user_name')
       .eq('restaurant_id', restaurantId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(from, to);
 
     if (reviewsError) {
       console.error('Error fetching reviews:', reviewsError);
@@ -163,7 +166,10 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ reviews: processedData });
+    return NextResponse.json({
+      reviews: processedData,
+      pagination: { page, limit, returned: processedData.length, hasNext: processedData.length === limit },
+    });
   } catch (error) {
     console.error('Unexpected error:', error);
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;

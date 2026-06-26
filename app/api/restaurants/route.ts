@@ -6,6 +6,7 @@ import type { ApiErrorType } from '@/types/api';
 import { cacheOrSet } from '@/libs/cache';
 import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
+import { parsePaginationFromRequest, paginatedResponse } from '@/libs/utils/pagination';
 
 type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
@@ -79,6 +80,7 @@ export async function GET(request: NextRequest) {
     const priceMax = searchParams.get('price_max');
     const sortByParam = (searchParams.get('sort_by') || 'name') as RestaurantSortBy;
     const sortDirectionParam = (searchParams.get('sort_direction') || 'asc') as SortDirection;
+    const { page, limit, from, to } = parsePaginationFromRequest(request, { defaultLimit: 25 });
     let client = supabase;
     let isPublicRequest = !supabase;
     if (!supabase) {
@@ -103,7 +105,7 @@ export async function GET(request: NextRequest) {
       'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
       'reviews:reviews(count)';
     // Try with new columns first; fall back to base columns if migration 050 not yet applied
-    let query = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours', { count: 'exact' });
+    let query = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours', { count: 'exact' }).range(from, to);
     if (search && search.trim()) query = query.ilike('name', '%' + search.trim() + '%');
     if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v) && v >= 0) query = query.gte('price_per_person', v); }
     if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v) && v >= 0) query = query.lte('price_per_person', v); }
@@ -113,7 +115,7 @@ export async function GET(request: NextRequest) {
     // Fallback: retry without updated_at/opening_hours if migration 050 not applied
     if (restaurantsError && restaurantsError.code === '42703') {
       console.warn('Missing column in restaurants (migration 050 not applied), retrying without it:', restaurantsError.message);
-      const fallbackQuery = client.from('restaurants').select(baseColumns, { count: 'exact' });
+      const fallbackQuery = client.from('restaurants').select(baseColumns, { count: 'exact' }).range(from, to);
       if (search && search.trim()) fallbackQuery.ilike('name', '%' + search.trim() + '%');
       if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v) && v >= 0) fallbackQuery.gte('price_per_person', v); }
       if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v) && v >= 0) fallbackQuery.lte('price_per_person', v); }
@@ -151,13 +153,22 @@ export async function GET(request: NextRequest) {
     } else if (openNowParam === 'false') {
       restaurants = restaurants.filter((r) => r.opening_hours && isCurrentlyOpen(r.opening_hours) === false);
     }
-    return NextResponse.json(
-      { restaurants, meta: { count: restaurants.length, filters: {
-        search: search || null, open_now: openNowParam,
-        price_min: priceMin ? parseFloat(priceMin) : null,
-        price_max: priceMax ? parseFloat(priceMax) : null,
-        sort_by: sortByParam, sort_direction: sortDirectionParam,
-      }}},
+    return NextResponse.json({
+      restaurants,
+      pagination: {
+        page,
+        limit,
+        returned: restaurants.length,
+      },
+      meta: {
+        filters: {
+          search: search || null, open_now: openNowParam,
+          price_min: priceMin ? parseFloat(priceMin) : null,
+          price_max: priceMax ? parseFloat(priceMax) : null,
+          sort_by: sortByParam, sort_direction: sortDirectionParam,
+        }
+      }
+    },
       { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } }
     );
   } catch (error) {
