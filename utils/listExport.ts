@@ -38,7 +38,6 @@ export function exportListAsJSON(list: any, restaurants: any[]): void {
       location: r.location || '',
       rating: r.rating || null,
       pricePerPerson: r.price_per_person || null,
-      visited: r.visited,
       cuisineTypes: r.cuisine_types?.map((ct: any) => ct.name || ct) || [],
       features: r.features?.map((f: any) => f.name || f) || [],
       dietaryOptions: r.dietary_options?.map((d: any) => d.name || d) || [],

@@ -49,7 +49,6 @@ export interface UserSearchResult {
   location: string | null;
   bio: string | null;
   publicProfile: boolean;
-  totalRestaurantsVisited: number;
   totalReviews: number;
   totalLists: number;
   createdAt: string;

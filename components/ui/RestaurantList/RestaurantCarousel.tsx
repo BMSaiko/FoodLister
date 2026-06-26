@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Pause, Play, ImageIcon } from 'lucide-react';
+import Modal from '@/components/ui/Modal';
 
 interface RestaurantCarouselProps {
   images?: string[];
@@ -345,9 +346,8 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
 
 
       {/* Modal Lightbox */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--black)]/95 backdrop-blur-sm" onClick={closeModal}>
-          <div className="relative w-full h-full max-w-7xl max-h-screen p-4" onClick={(e) => e.stopPropagation()}>
+      <Modal isOpen={isModalOpen} onClose={closeModal} variant="full-screen" ariaLabel="Imagem do restaurante">
+          <div className="relative w-full h-full max-w-7xl max-h-screen p-4">
             {/* Close Button */}
             <button
               onClick={closeModal}
@@ -435,8 +435,8 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </Modal>
+
 
     </div>
   );

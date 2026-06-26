@@ -129,7 +129,6 @@ export interface RestaurantData {
   menu_links?: string[];
   menu_images?: string[];
   phone_numbers?: string[];
-  visited: boolean;
   created_at: string;
   updated_at: string;
   creator_id?: string;
@@ -187,7 +186,6 @@ export interface UserProfile {
   website: string | null;
   location: string | null;
   public_profile: boolean;
-  total_restaurants_visited: number;
   total_reviews: number;
   total_lists: number;
   total_restaurants_added: number;

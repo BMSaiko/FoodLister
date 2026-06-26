@@ -52,7 +52,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await getServerClient(request);
+    const supabase = await getServerClient(request, new NextResponse());
     if (!supabase) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
@@ -124,7 +124,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await getServerClient(request);
+    const supabase = await getServerClient(request, new NextResponse());
     if (!supabase) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });

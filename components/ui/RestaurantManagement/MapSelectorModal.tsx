@@ -4,71 +4,17 @@ import React, { useEffect, useRef } from 'react';
 import { X, MapPin, Navigation, Globe } from 'lucide-react';
 import { logError } from '@/utils/logger';
 import { useModal } from '@/contexts/ModalContext';
+import Modal from '@/components/ui/Modal';
 
 export default function MapSelectorModal() {
   const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
-  const modalRef = useRef<HTMLDivElement>(null);
   const initialFocusRef = useRef<HTMLButtonElement>(null);
 
   // Always run useEffect to maintain hook order
-  useEffect(() => {
-    // Only set up event listeners when modal is open
-    if (!isMapModalOpen || !mapModalData) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeMapModal();
-      }
-    };
-
-    const handleOutsideClick = (e: MouseEvent) => {
-      // Only close if clicking outside the modal content area
-      const target = e.target as HTMLElement;
-      
-      // Check if the click target is outside the modal content
-      if (modalRef.current && !modalRef.current.contains(target)) {
-        closeMapModal();
-      }
-      // If clicking inside the modal content, check if it's on an interactive element
-      else if (modalRef.current && modalRef.current.contains(target)) {
-        // Check if the click target or its parent is an interactive element
-        const interactiveElements = ['BUTTON', 'A', 'INPUT', 'SELECT', 'TEXTAREA', 'LABEL'];
-        let currentElement: HTMLElement | null = target;
-        
-        while (currentElement && currentElement !== modalRef.current) {
-          if (interactiveElements.includes(currentElement.tagName)) {
-            // Clicked on an interactive element, don't close modal
-            return;
-          }
-          currentElement = currentElement.parentElement;
-        }
-        
-        // If we reach here, the click was on the modal content but not on an interactive element
-        // This could be clicking on the modal background or text, so we should NOT close
-        // Only close when clicking outside the modal content area
-      }
-    };
-
-    // Focus the first button when modal opens
-    if (initialFocusRef.current) {
-      initialFocusRef.current.focus();
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('mousedown', handleOutsideClick);
-
-    // Prevent background scrolling
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('mousedown', handleOutsideClick);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMapModalOpen, mapModalData, closeMapModal]);
+  // ESC/click-outside/scroll-lock handled by <Modal>
 
   // Early return after hooks to maintain hook order
-  if (!isMapModalOpen || !mapModalData) return null;
+  if (!mapModalData) return null;
 
   const { location, latitude, longitude, source_url } = mapModalData;
 
@@ -107,8 +53,8 @@ export default function MapSelectorModal() {
           url: source_url || (hasValidCoords
             ? `https://maps.google.com/?ll=${latitude},${longitude}`
             : 'https://maps.google.com/'),
-          color: 'bg-[var(--blue-500)] hover:bg-[var(--blue-600)]',
-          textColor: 'text-[var(--primary-foreground)]'
+          color: 'bg-blue-500 hover:bg-blue-600',
+          textColor: 'text-white'
         },
         {
           name: 'Waze',
@@ -116,8 +62,8 @@ export default function MapSelectorModal() {
           url: hasValidCoords
             ? `https://waze.com/ul?ll=${latitude},${longitude}&navigate=yes`
             : 'https://waze.com/',
-          color: 'bg-[var(--purple-500)] hover:bg-[var(--purple-600)]',
-          textColor: 'text-[var(--primary-foreground)]'
+          color: 'bg-purple-500 hover:bg-purple-600',
+          textColor: 'text-white'
         },
         {
           name: 'Apple Maps',
@@ -125,8 +71,8 @@ export default function MapSelectorModal() {
           url: hasValidCoords
             ? `https://maps.apple.com/?ll=${latitude},${longitude}`
             : 'https://maps.apple.com/',
-          color: 'bg-[var(--gray-500)] hover:bg-[var(--gray-600)]',
-          textColor: 'text-[var(--primary-foreground)]'
+          color: 'bg-white/50 hover:bg-white/60',
+          textColor: 'text-white'
         }
       ];
 
@@ -141,26 +87,17 @@ export default function MapSelectorModal() {
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-[rgba(0,0,0,0.5)] backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="map-modal-title"
-    >
-      <div 
-        ref={modalRef}
-        className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow-lg)] max-w-md w-full max-h-[85vh] overflow-y-auto"
-      >
+    <Modal isOpen={isMapModalOpen} onClose={closeMapModal} size="md" ariaLabel="Abrir localização em">
         {/* Header */}
-        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-[var(--gray-200)]">
+        <div className="flex justify-between items-center p-3 sm:p-4 border-b border-white/[0.08]">
           <div className="flex items-center">
-            <MapPin className="h-5 w-5 mr-2 text-[var(--gray-600)]" />
-            <h2 id="map-modal-title" className="text-lg font-semibold text-[var(--gray-800)]">Abrir localização em</h2>
+            <MapPin className="h-5 w-5 mr-2 text-white/60" />
+            <h2 id="map-modal-title" className="text-lg font-semibold text-white/80">Abrir localização em</h2>
           </div>
           <button
             ref={initialFocusRef}
             onClick={closeMapModal}
-            className="text-[var(--gray-400)] hover:text-[var(--gray-600)] p-1 rounded-md hover:bg-[var(--gray-100)] transition-colors"
+            className="text-white/40 hover:text-white/60 p-1 rounded-md hover:bg-[var(--gray-100)] transition-colors"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />
@@ -177,7 +114,7 @@ export default function MapSelectorModal() {
             </div>
           )}
 
-          <p className="text-sm text-[var(--gray-600)] mb-3 sm:mb-4 text-center">
+          <p className="text-sm text-white/60 mb-3 sm:mb-4 text-center">
             Escolha o aplicativo de mapas:
           </p>
 
@@ -218,7 +155,7 @@ export default function MapSelectorModal() {
           <div className="mt-3 sm:mt-4">
             <button
               onClick={closeMapModal}
-              className="w-full flex items-center justify-center px-4 py-3 min-h-[48px] rounded-lg border border-[var(--gray-300)] text-[var(--gray-700)] hover:bg-[var(--gray-50)] transition-all duration-200 font-medium text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gray-500)]"
+              className="w-full flex items-center justify-center px-4 py-3 min-h-[48px] rounded-lg border border-[var(--gray-300)] text-white/70 hover:bg-white/[0.03] transition-all duration-200 font-medium text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gray-500)]"
             >
               Cancelar
             </button>
@@ -234,7 +171,6 @@ export default function MapSelectorModal() {
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }

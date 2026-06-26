@@ -62,11 +62,6 @@ export async function GET(
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId);
 
-    const { count: totalRestaurantsVisited } = await supabase
-      .from('user_restaurants')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId);
-
     // Get recent reviews
     const { data: recentReviews } = await supabase
       .from('reviews')
@@ -102,7 +97,6 @@ export async function GET(
       stats: {
         totalReviews: totalReviews || 0,
         totalLists: totalLists || 0,
-        totalRestaurantsVisited: totalRestaurantsVisited || 0,
       },
       recentReviews: recentReviews || [],
       recentLists: recentLists || [],

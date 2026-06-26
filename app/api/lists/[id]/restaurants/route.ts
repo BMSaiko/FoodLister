@@ -10,7 +10,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await getServerClient(request);
+    const supabase = await getServerClient(request, new NextResponse());
     if (!supabase) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(

@@ -43,7 +43,7 @@ jest.mock('@/libs/supabase/server', () => ({
           id: 'p1', user_id: 'user-123', user_id_code: 'FL000001',
           display_name: 'Test', bio: null, avatar_url: null, website: null,
           location: null, phone_number: null, public_profile: true,
-          total_restaurants_visited: 0, total_reviews: 0, total_lists: 0,
+          total_reviews: 0, total_lists: 0,
           created_at: '2024-01-01', updated_at: '2024-01-01',
         },
         error: null,

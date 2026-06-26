@@ -44,7 +44,7 @@ const defaultMockSupabase = {
   from: jest.fn(() => ({
     select: jest.fn(() => ({
       eq: jest.fn(() => ({
-        single: jest.fn(() => Promise.resolve({ data: { user_id: 'user-123', user_id_code: 'FL000001', display_name: 'Test', avatar_url: null, location: null, bio: null, website: null, phone_number: null, public_profile: true, total_restaurants_visited: 0, total_reviews: 0, total_lists: 0, created_at: '2024-01-01', updated_at: '2024-01-01' }, error: null })),
+        single: jest.fn(() => Promise.resolve({ data: { user_id: 'user-123', user_id_code: 'FL000001', display_name: 'Test', avatar_url: null, location: null, bio: null, website: null, phone_number: null, public_profile: true, total_reviews: 0, total_lists: 0, created_at: '2024-01-01', updated_at: '2024-01-01' }, error: null })),
       })),
     })),
     insert: jest.fn(() => ({ select: jest.fn(() => ({ single: jest.fn(() => Promise.resolve({ data: { user_id: 'user-123' }, error: null })) })) })),
@@ -74,7 +74,6 @@ jest.mock('@/libs/auth', () => ({
     website: null,
     phone_number: null,
     public_profile: true,
-    total_restaurants_visited: 0,
     total_reviews: 0,
     total_lists: 0,
     created_at: '2024-01-01',

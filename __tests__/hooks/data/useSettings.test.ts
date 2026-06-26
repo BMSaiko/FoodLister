@@ -17,8 +17,7 @@ const mockProfile = {
   createdAt: '2024-01-01',
   updatedAt: '2024-01-01',
   stats: {
-    totalRestaurantsVisited: 5,
-    totalReviews: 10,
+      totalReviews: 10,
     totalLists: 3,
     totalRestaurantsAdded: 2,
     joinedDate: '2024-01-01',

@@ -14,6 +14,7 @@ import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import FormSection from "@/components/ui/common/FormSection";
+import Modal from '@/components/ui/Modal';
 
 interface FormErrors {
   display_name?: string;
@@ -35,7 +36,6 @@ interface UserProfile {
   createdAt: string;
   updatedAt: string;
   stats?: {
-    totalRestaurantsVisited: number;
     totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;
@@ -178,17 +178,16 @@ export default function ProfileSettingsPage() {
       <Navbar />
 
       {/* Celebration */}
-      {showCelebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050505]/95 backdrop-blur-xl p-4">
-          <div className="text-center max-w-sm w-full p-8 rounded-3xl bg-white/[0.03] border border-white/[0.08]">
+      <Modal isOpen={showCelebration} onClose={() => setShowCelebration(false)} size="sm" ariaLabel="Celebração">
+          <div className="text-center p-8">
             <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-purple-500/20">
               <Sparkles className="h-8 w-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight mb-2">Perfil Atualizado!</h2>
             <p className="text-white/40 text-sm">As suas informacoes foram salvas com sucesso.</p>
           </div>
-        </div>
-      )}
+        </Modal>
+
 
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Header */}
@@ -421,15 +420,7 @@ export default function ProfileSettingsPage() {
             <div className="space-y-4">
               <FormSection title="Estatisticas" icon={<Sparkles className="w-5 h-5" />} description="O seu impacto na comunidade FoodLister.">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                    <div className="p-4 rounded-xl bg-white/[0.03] text-center">
-                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                        <UtensilsCrossed className="h-5 w-5 text-amber-400" />
-                      </div>
-                      <p className="text-2xl font-bold text-amber-400">{localProfile?.stats?.totalRestaurantsVisited || 0}</p>
-                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Visitados</p>
-                    </div>
-                  </div>
+
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
                     <div className="p-4 rounded-xl bg-white/[0.03] text-center">
                       <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-blue-500/10 flex items-center justify-center">

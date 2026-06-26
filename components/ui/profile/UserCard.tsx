@@ -11,7 +11,6 @@ interface UserCardProps {
     bio?: string;
     userIdCode: string;
     publicProfile: boolean;
-    totalRestaurantsVisited: number;
     totalReviews: number;
     totalLists: number;
     createdAt: string;
@@ -87,11 +86,7 @@ export default function UserCard({ user }: UserCardProps) {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-4 pt-4 border-t border-white/[0.06]">
-          <div className="text-center">
-            <div className="text-base sm:text-lg font-bold text-amber-400">{user.totalRestaurantsVisited}</div>
-            <div className="text-[10px] sm:text-xs text-white/30">Visitados</div>
-          </div>
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-4 pt-4 border-t border-white/[0.06]">
           <div className="text-center">
             <div className="text-base sm:text-lg font-bold text-orange-400">{user.totalReviews}</div>
             <div className="text-[10px] sm:text-xs text-white/30">Avaliações</div>

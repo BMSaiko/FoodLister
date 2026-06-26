@@ -24,8 +24,7 @@ export interface UserProfile {
   createdAt: string;
   updatedAt: string;
   stats?: {
-    totalRestaurantsVisited: number;
-    totalReviews: number;
+      totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;
     joinedDate: string;

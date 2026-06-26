@@ -39,7 +39,7 @@ const mockSearchResults = [
   {
     user_id: 'u1', user_id_code: 'FL000001', display_name: 'Test User',
     avatar_url: null, location: 'Lisbon', bio: null, public_profile: true,
-    total_restaurants_visited: 5, total_reviews: 10, total_lists: 3,
+    total_reviews: 10, total_lists: 3,
     created_at: '2024-01-01',
   },
 ];

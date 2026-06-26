@@ -6,6 +6,7 @@ import { X, Calendar, Clock, Users, Mail, UtensilsCrossed, Search, Loader2 } fro
 import { useMealScheduling } from '@/hooks/forms/useMealScheduling';
 import { useDebounce } from '@/hooks/utilities/useDebounce';
 import { toast } from 'react-toastify';
+import Modal from '@/components/ui/Modal';
 
 interface SearchResult {
   id: string;
@@ -179,26 +180,23 @@ const ScheduleMealModal = ({
     user => !selectedUsers.find(u => u.id === user.id)
   );
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-[var(--card-bg)] rounded-xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" ariaLabel="Agendar Refeição">
         {/* Header */}
-        <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] px-6 py-4 rounded-t-xl border-b border-[var(--gray-100)]">
+        <div className="bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.08] px-6 py-4 rounded-t-xl border-b border-white/[0.06]">
           <div className="flex justify-between items-start">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-[var(--amber-100)] rounded-lg">
-                <UtensilsCrossed className="h-6 w-6 text-[var(--amber-600)]" />
+              <div className="p-2 bg-amber-500/[0.12] rounded-lg">
+                <UtensilsCrossed className="h-6 w-6 text-amber-400" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-[var(--gray-900)]">Agendar Refeição</h3>
-                <p className="text-sm text-[var(--primary-dark)] font-medium">{restaurantName}</p>
+                <h3 className="text-xl font-bold text-white/90">Agendar Refeição</h3>
+                <p className="text-sm text-amber-300 font-medium">{restaurantName}</p>
               </div>
             </div>
             <button
               onClick={handleClose}
-              className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-[var(--gray-100)] rounded-full p-1 transition-colors"
+              className="text-white/40 hover:text-white/60 hover:bg-white/10 rounded-full p-1 transition-colors"
               aria-label="Fechar"
             >
               <X className="h-5 w-5" />
@@ -208,7 +206,7 @@ const ScheduleMealModal = ({
 
         {/* Content */}
         <div className="px-6 py-6">
-          <p className="text-[var(--gray-600)] mb-6 text-sm">
+          <p className="text-white/60 mb-6 text-sm">
             Preencha os detalhes abaixo para agendar uma refeição neste restaurante.
           </p>
 
@@ -216,8 +214,8 @@ const ScheduleMealModal = ({
             {/* Date and Time Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="date" className="block text-[var(--gray-700)] font-semibold mb-2 text-sm flex items-center">
-                  <Calendar className="h-4 w-4 mr-2 text-[var(--primary)]" />
+                <label htmlFor="date" className="block text-white/70 font-semibold mb-2 text-sm flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-amber-400" />
                   Data
                 </label>
                 <input
@@ -225,15 +223,15 @@ const ScheduleMealModal = ({
                   id="date"
                   value={form.date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full px-4 py-3 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--amber-400)] focus:border-[var(--amber-400)] transition-colors text-base bg-[var(--gray-50)] hover:bg-[var(--card-bg)]"
+                  className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-500/50 transition-colors text-base bg-white/[0.03] hover:bg-white/[0.03]"
                   min={new Date().toISOString().split('T')[0]}
                   required
                 />
               </div>
 
               <div>
-                <label htmlFor="time" className="block text-[var(--gray-700)] font-semibold mb-2 text-sm flex items-center">
-                  <Clock className="h-4 w-4 mr-2 text-[var(--primary)]" />
+                <label htmlFor="time" className="block text-white/70 font-semibold mb-2 text-sm flex items-center">
+                  <Clock className="h-4 w-4 mr-2 text-amber-400" />
                   Hora
                 </label>
                 <input
@@ -241,7 +239,7 @@ const ScheduleMealModal = ({
                   id="time"
                   value={form.time}
                   onChange={(e) => handleTimeChange(e.target.value)}
-                  className="w-full px-4 py-3 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--amber-400)] focus:border-[var(--amber-400)] transition-colors text-base bg-[var(--gray-50)] hover:bg-[var(--card-bg)]"
+                  className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-500/50 transition-colors text-base bg-white/[0.03] hover:bg-white/[0.03]"
                   required
                 />
               </div>
@@ -249,15 +247,15 @@ const ScheduleMealModal = ({
 
             {/* Meal Type */}
             <div>
-              <label htmlFor="mealType" className="block text-[var(--gray-700)] font-semibold mb-2 text-sm flex items-center">
-                <UtensilsCrossed className="h-4 w-4 mr-2 text-[var(--primary)]" />
+              <label htmlFor="mealType" className="block text-white/70 font-semibold mb-2 text-sm flex items-center">
+                <UtensilsCrossed className="h-4 w-4 mr-2 text-amber-400" />
                 Tipo de refeição
               </label>
               <select
                 id="mealType"
                 value={form.mealType}
                 onChange={(e) => handleMealTypeChange(e.target.value)}
-                className="w-full px-4 py-3 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--amber-400)] focus:border-[var(--amber-400)] transition-colors text-base text-[var(--gray-900)] bg-[var(--gray-50)] hover:bg-[var(--card-bg)]"
+                className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-500/50 transition-colors text-base text-white/90 bg-white/[0.03] hover:bg-white/[0.03]"
                 required
               >
                 <option value="" disabled>Selecione um tipo de refeição</option>
@@ -271,14 +269,14 @@ const ScheduleMealModal = ({
 
             {/* Duration */}
             <div>
-              <label htmlFor="duration" className="block text-[var(--gray-700)] font-semibold mb-2 text-sm">
+              <label htmlFor="duration" className="block text-white/70 font-semibold mb-2 text-sm">
                 Duração da reserva
               </label>
               <select
                 id="duration"
                 value={form.duration}
                 onChange={(e) => setDuration(Number(e.target.value))}
-                className="w-full px-4 py-3 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--amber-400)] focus:border-[var(--amber-400)] transition-colors text-base text-[var(--gray-900)] bg-[var(--gray-50)] hover:bg-[var(--card-bg)]"
+                className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-500/50 transition-colors text-base text-white/90 bg-white/[0.03] hover:bg-white/[0.03]"
               >
                 <option value={0.5}>⚡ 30 min - Rápido</option>
                 <option value={1}>🍽️ 1 hora - {getMealTypeLabel(form.mealType)} rápido</option>
@@ -291,8 +289,8 @@ const ScheduleMealModal = ({
 
             {/* Participants - User Search */}
             <div>
-              <label className="block text-[var(--gray-700)] font-semibold mb-2 text-sm flex items-center">
-                <Users className="h-4 w-4 mr-2 text-[var(--primary)]" />
+              <label className="block text-white/70 font-semibold mb-2 text-sm flex items-center">
+                <Users className="h-4 w-4 mr-2 text-amber-400" />
                 Convidar participantes
               </label>
 
@@ -302,7 +300,7 @@ const ScheduleMealModal = ({
                   {selectedUsers.map(user => (
                     <div
                       key={user.id}
-                      className="flex items-center space-x-2 bg-[var(--amber-50)] border border-[var(--amber-200)] rounded-full px-3 py-1.5"
+                      className="flex items-center space-x-2 bg-amber-500/[0.08] border border-amber-500/20 rounded-full px-3 py-1.5"
                     >
                       {user.profileImage ? (
                         <img
@@ -311,20 +309,20 @@ const ScheduleMealModal = ({
                           className="h-6 w-6 rounded-full object-cover"
                         />
                       ) : (
-                        <div className="h-6 w-6 rounded-full bg-[var(--amber-200)] flex items-center justify-center text-xs font-medium text-[var(--primary-dark)]">
+                        <div className="h-6 w-6 rounded-full bg-amber-500/20 flex items-center justify-center text-xs font-medium text-amber-300">
                           {user.name?.charAt(0) || user.userIdCode?.charAt(0) || '?'}
                         </div>
                       )}
-                      <span className="text-sm text-[var(--gray-700)]">
+                      <span className="text-sm text-white/70">
                         {user.name || user.userIdCode}
                       </span>
                       {user.userIdCode && (
-                        <span className="text-xs text-[var(--gray-500)]">({user.userIdCode})</span>
+                        <span className="text-xs text-white/50">({user.userIdCode})</span>
                       )}
                       <button
                         type="button"
                         onClick={() => handleRemoveUser(user.id)}
-                        className="text-[var(--gray-400)] hover:text-[var(--gray-600)] transition-colors"
+                        className="text-white/40 hover:text-white/60 transition-colors"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -336,7 +334,7 @@ const ScheduleMealModal = ({
               {/* Search Input */}
               <div ref={searchRef} className="relative">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--gray-400)]" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
                   <input
                     ref={searchInputRef}
                     type="text"
@@ -344,22 +342,22 @@ const ScheduleMealModal = ({
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
                     placeholder="Pesquisar por nome, ID (FL000001) ou email..."
-                    className="w-full pl-10 pr-4 py-3 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--amber-400)] focus:border-[var(--amber-400)] transition-colors text-base bg-[var(--gray-50)] hover:bg-[var(--card-bg)]"
+                    className="w-full pl-10 pr-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-500/50 transition-colors text-base bg-white/[0.03] hover:bg-white/[0.03]"
                   />
                   {isSearching && (
-                    <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--gray-400)] animate-spin" />
+                    <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40 animate-spin" />
                   )}
                 </div>
 
                 {/* Search Results Dropdown */}
                 {showDropdown && filteredResults.length > 0 && (
-                  <div className="absolute z-10 mt-1 w-full bg-[var(--card-bg)] border border-[var(--gray-200)] rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  <div className="absolute z-10 mt-1 w-full bg-white/[0.03] border border-white/[0.08] rounded-lg shadow-lg max-h-48 overflow-y-auto">
                     {filteredResults.map(user => (
                       <button
                         key={user.id}
                         type="button"
                         onClick={() => handleSelectUser(user)}
-                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-[var(--gray-50)] transition-colors text-left"
+                        className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-white/[0.03] transition-colors text-left"
                       >
                         {user.profileImage ? (
                           <img
@@ -368,16 +366,16 @@ const ScheduleMealModal = ({
                             className="h-8 w-8 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="h-8 w-8 rounded-full bg-[var(--amber-200)] flex items-center justify-center text-sm font-medium text-[var(--primary-dark)]">
+                          <div className="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center text-sm font-medium text-amber-300">
                             {user.name?.charAt(0) || '?'}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[var(--gray-900)] truncate">
+                          <p className="text-sm font-medium text-white/90 truncate">
                             {user.name || 'Utilizador'}
                           </p>
                           {user.userIdCode && (
-                            <p className="text-xs text-[var(--gray-500)]">{user.userIdCode}</p>
+                            <p className="text-xs text-white/50">{user.userIdCode}</p>
                           )}
                         </div>
                       </button>
@@ -387,8 +385,8 @@ const ScheduleMealModal = ({
 
                 {/* No results message */}
                 {showDropdown && debouncedSearch.length >= 2 && filteredResults.length === 0 && !isSearching && (
-                  <div className="absolute z-10 mt-1 w-full bg-[var(--card-bg)] border border-[var(--gray-200)] rounded-lg shadow-lg p-4 text-center">
-                    <p className="text-sm text-[var(--gray-500)]">Nenhum utilizador encontrado</p>
+                  <div className="absolute z-10 mt-1 w-full bg-white/[0.03] border border-white/[0.08] rounded-lg shadow-lg p-4 text-center">
+                    <p className="text-sm text-white/50">Nenhum utilizador encontrado</p>
                   </div>
                 )}
               </div>
@@ -397,7 +395,7 @@ const ScheduleMealModal = ({
               <button
                 type="button"
                 onClick={() => setShowEmailFallback(!showEmailFallback)}
-                className="mt-2 text-sm text-[var(--amber-600)] hover:text-[var(--primary-dark)] flex items-center"
+                className="mt-2 text-sm text-amber-400 hover:text-amber-300 flex items-center"
               >
                 <Mail className="h-3 w-3 mr-1" />
                 {showEmailFallback ? 'Ocultar campo de email' : 'Ou adicionar por email'}
@@ -410,13 +408,13 @@ const ScheduleMealModal = ({
                     value={form.participants}
                     onChange={(e) => setParticipants(e.target.value)}
                     placeholder="exemplo@email.com, outro@email.com"
-                    className="w-full px-4 py-3 border border-[var(--gray-300)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--amber-400)] focus:border-[var(--amber-400)] transition-colors text-base bg-[var(--gray-50)] hover:bg-[var(--card-bg)] resize-none"
+                    className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-500/50 transition-colors text-base bg-white/[0.03] hover:bg-white/[0.03] resize-none"
                     rows={2}
                   />
                 </div>
               )}
 
-              <div className="text-xs text-[var(--gray-500)] mt-2">
+              <div className="text-xs text-white/50 mt-2">
                 <p className="flex items-center">
                   <Users className="h-3 w-3 mr-1" />
                   Pesquisa utilizadores registados ou adiciona por email
@@ -425,18 +423,17 @@ const ScheduleMealModal = ({
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-end pt-6 border-t border-[var(--gray-100)]">
+            <div className="flex justify-end pt-6 border-t border-white/[0.06]">
               <button
                 type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-[var(--primary)] to-[var(--orange-500)] text-[var(--primary-foreground)] rounded-lg hover:from-[var(--primary-hover)] hover:to-[var(--orange-600)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 transition-all font-semibold shadow-md hover:shadow-lg"
+                className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-all font-semibold shadow-md hover:shadow-lg"
               >
                 📅 Agendar Refeição
               </button>
             </div>
           </form>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

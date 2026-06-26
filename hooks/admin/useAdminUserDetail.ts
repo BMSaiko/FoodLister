@@ -20,7 +20,6 @@ interface AdminUserDetail {
 interface UserStats {
   totalReviews: number;
   totalLists: number;
-  totalRestaurantsVisited: number;
 }
 
 interface UserDetailState {

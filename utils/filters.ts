@@ -19,7 +19,6 @@ export interface RestaurantFilters {
 export const defaultFilters: RestaurantFilters = {
   maxPrice: 100,
   minRating: 0,
-  visited: false,
   notVisited: false,
   cuisineTypes: [],
   searchTerm: ''

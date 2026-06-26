@@ -14,12 +14,10 @@ interface UserProfile {
   publicProfile: boolean;
   createdAt: string;
   updatedAt: string;
-  totalRestaurantsVisited?: number;
   totalReviews?: number;
   totalLists?: number;
   joinedDate?: string;
   stats?: {
-    totalRestaurantsVisited: number;
     totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;

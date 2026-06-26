@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Pause, Play, ImageIcon } from 'lucide-react';
+import Modal from '@/components/ui/Modal';
 
 interface MenuCarouselProps {
   images?: string[];
@@ -270,7 +271,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                         prevSet();
                       }}
                       disabled={isTransitioning}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--white)] hover:bg-[var(--amber-500)] active:bg-[var(--amber-600)] border-2 border-[var(--amber-200)] hover:border-[var(--amber-500)] active:border-[var(--amber-600)] text-[var(--amber-600)] hover:text-[var(--white)] active:text-[var(--white)] rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--white)] hover:bg-[var(--amber-500)] active:bg-[var(--amber-600)] border-2 border-[var(--amber-200)] hover:border-[var(--amber-500)] active:border-[var(--amber-600)] text-[var(--amber-600)] hover:text-white active:text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
                       aria-label="Imagens anteriores"
                     >
                       <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7" />
@@ -285,7 +286,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                         nextSet();
                       }}
                       disabled={isTransitioning}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--amber-500)] hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] border-2 border-[var(--amber-500)] text-[var(--white)] rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--amber-500)] hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] border-2 border-[var(--amber-500)] text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
                       aria-label="Próximas imagens"
                     >
                       <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7" />
@@ -359,13 +360,12 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
 
 
       {/* Modal Lightbox */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--black)]/95 backdrop-blur-sm" onClick={closeModal}>
-          <div className="relative w-full h-full max-w-7xl max-h-screen p-4" onClick={(e) => e.stopPropagation()}>
+      <Modal isOpen={isModalOpen} onClose={closeModal} variant="full-screen" ariaLabel="Imagem do menu">
+          <div className="relative w-full h-full max-w-7xl max-h-screen p-4">
             {/* Close Button */}
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 z-10 w-12 h-12 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
+              className="absolute top-4 right-4 z-10 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
               aria-label="Fechar modal"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,7 +381,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     e.stopPropagation();
                     prevModalImage();
                   }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
                   aria-label="Imagem anterior"
                 >
                   <ChevronLeft className="w-7 h-7" />
@@ -391,7 +391,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     e.stopPropagation();
                     nextModalImage();
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
                   aria-label="Próxima imagem"
                 >
                   <ChevronRight className="w-7 h-7" />
@@ -436,12 +436,12 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
             </div>
 
             {/* Image Counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[var(--black)]/50 backdrop-blur-sm text-[var(--white)] px-4 py-2 rounded-full text-sm font-medium">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[var(--black)]/50 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium">
               {modalImageIndex + 1} de {images.length}
             </div>
 
             {/* Keyboard Instructions - Desktop only */}
-            <div className="absolute bottom-4 right-4 hidden sm:block bg-[var(--black)]/50 backdrop-blur-sm text-[var(--white)] px-3 py-2 rounded-lg text-xs">
+            <div className="absolute bottom-4 right-4 hidden sm:block bg-[var(--black)]/50 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-xs">
               <div className="flex items-center space-x-2">
                 <span>← → Navegar</span>
                 <span>•</span>
@@ -449,8 +449,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </Modal>
 
     </div>
   );

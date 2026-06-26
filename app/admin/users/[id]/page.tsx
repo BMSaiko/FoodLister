@@ -145,14 +145,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
               <p className="text-xs text-white/30 mt-1">Listas</p>
             </div>
           </div>
-          <div className="relative p-1.5 rounded-[1.5rem]">
-            <div className="absolute inset-0 rounded-[1.5rem] bg-white/[0.05] ring-1 ring-white/10" />
-            <div className="relative rounded-[calc(1.5rem-0.375rem)] p-5 bg-gradient-to-br from-[#0a0a0a] to-[#111111] text-center">
-              <Shield className="h-5 w-5 text-blue-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{stats?.totalRestaurantsVisited || 0}</p>
-              <p className="text-xs text-white/30 mt-1">Restaurantes</p>
-            </div>
-          </div>
+
         </div>
 
         {/* Recent Activity */}

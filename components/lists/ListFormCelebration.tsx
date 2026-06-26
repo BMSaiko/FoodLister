@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { Sparkles, ArrowRight, Eye, Share2 } from "lucide-react";
 import Link from "next/link";
+import Modal from '@/components/ui/Modal';
 
 interface ListFormCelebrationProps {
   show: boolean;
@@ -13,10 +14,8 @@ interface ListFormCelebrationProps {
 }
 
 export default function ListFormCelebration({ show, listId, listName, onClose }: ListFormCelebrationProps) {
-  if (!show) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050505]/95 backdrop-blur-xl p-4">
+    <Modal isOpen={show} onClose={onClose} size="sm" ariaLabel="Celebração">
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-purple-500/[0.06] rounded-full blur-[100px]" />
@@ -74,6 +73,6 @@ export default function ListFormCelebration({ show, listId, listName, onClose }:
           </button>
         </motion.div>
       </motion.div>
-    </div>
+    </Modal>
   );
 }

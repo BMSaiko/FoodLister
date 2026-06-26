@@ -331,7 +331,7 @@ describe('useScheduledMeals', () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({
-        data: [{ id: 'user-1', name: 'Test', profileImage: null, userIdCode: 'USR-001', location: null, bio: null, publicProfile: true, totalRestaurantsVisited: 0, totalReviews: 0, totalLists: 0, createdAt: '2024-01-01' }],
+        data: [{ id: 'user-1', name: 'Test', profileImage: null, userIdCode: 'USR-001', location: null, bio: null, publicProfile: true, totalReviews: 0, totalLists: 0, createdAt: '2024-01-01' }],
       }),
     });
 
