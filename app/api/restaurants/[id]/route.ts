@@ -44,7 +44,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Fetch restaurant details with features and dietary options (with fallback for missing updated_at)
     const restaurantColumns = `id, name, description, image_url, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
-        phone_numbers, visited, created_at, updated_at, creator_id,
+        phone_numbers, created_at, updated_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
         review_count:reviews(count),
         cuisine_types:restaurant_cuisine_types(
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         )`;
     const restaurantColumnsFallback = `id, name, description, image_url, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
-        phone_numbers, visited, created_at, creator_id,
+        phone_numbers, created_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
         review_count:reviews(count),
         cuisine_types:restaurant_cuisine_types(

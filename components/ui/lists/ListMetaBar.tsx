@@ -16,12 +16,12 @@ export default function ListMetaBar({
   restaurantCount, avgRating, avgPrice, uniqueLocations, createdAt, hasFilters, applyingFilters, onApplyFilters
 }: ListMetaBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+    <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-4 md:mb-6 p-3 md:p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
       <div className="flex items-center gap-2">
         <div className="bg-amber-500/10 rounded-lg p-1.5"><Star className="h-4 w-4 text-amber-400" /></div>
         <div>
-          <div className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Rating</div>
-          <div className="text-sm font-semibold text-white/85">{avgRating ? avgRating.toFixed(1) : "—"}</div>
+          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">Rating</div>
+          <div className="text-xs sm:text-sm font-semibold text-white/85">{avgRating ? avgRating.toFixed(1) : "—"}</div>
         </div>
       </div>
 
@@ -30,8 +30,8 @@ export default function ListMetaBar({
       <div className="flex items-center gap-2">
         <div className="bg-orange-500/10 rounded-lg p-1.5"><Euro className="h-4 w-4 text-orange-400" /></div>
         <div>
-          <div className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Preco medio</div>
-          <div className="text-sm font-semibold text-white/85">{avgPrice ? "€" + avgPrice.toFixed(0) : "—"}</div>
+          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">Preco medio</div>
+          <div className="text-xs sm:text-sm font-semibold text-white/85">{avgPrice ? "€" + avgPrice.toFixed(0) : "—"}</div>
         </div>
       </div>
 
@@ -40,8 +40,8 @@ export default function ListMetaBar({
       <div className="flex items-center gap-2">
         <div className="bg-emerald-500/10 rounded-lg p-1.5"><MapPin className="h-4 w-4 text-emerald-400" /></div>
         <div>
-          <div className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Locais</div>
-          <div className="text-sm font-semibold text-white/85">{uniqueLocations ?? "—"}</div>
+          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">Locais</div>
+          <div className="text-xs sm:text-sm font-semibold text-white/85">{uniqueLocations ?? "—"}</div>
         </div>
       </div>
 
@@ -50,8 +50,8 @@ export default function ListMetaBar({
       <div className="flex items-center gap-2">
         <div className="bg-blue-500/10 rounded-lg p-1.5"><Calendar className="h-4 w-4 text-blue-400" /></div>
         <div>
-          <div className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Criada</div>
-          <div className="text-sm font-semibold text-white/85">{new Date(createdAt).toLocaleDateString("pt-PT")}</div>
+          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">Criada</div>
+          <div className="text-xs sm:text-sm font-semibold text-white/85">{new Date(createdAt).toLocaleDateString("pt-PT")}</div>
         </div>
       </div>
 

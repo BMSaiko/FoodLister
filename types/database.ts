@@ -48,7 +48,6 @@ export interface Database {
           source_url: string | null;
           creator: string | null;
           menu_url: string | null;
-          visited: boolean;
           phone_numbers: string[];
           creator_id: string | null;
           creator_name: string | null;
@@ -66,7 +65,7 @@ export interface Database {
           phone: string | null;
           menu: string | null;
         };
-        Insert: Omit<Database['public']['Tables']['restaurants']['Row'], 'id' | 'created_at' | 'visited' | 'phone_numbers' | 'images' | 'display_image_index' | 'menu_links' | 'menu_images' | 'review_count'>;
+        Insert: Omit<Database['public']['Tables']['restaurants']['Row'], 'id' | 'created_at' | 'phone_numbers' | 'images' | 'display_image_index' | 'menu_links' | 'menu_images' | 'review_count'>;
         Update: Partial<Database['public']['Tables']['restaurants']['Insert']>;
       };
       lists: {

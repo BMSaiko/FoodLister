@@ -33,7 +33,7 @@ export default function ListCover({
   };
 
   return (
-    <section className="relative w-full h-[40dvh] md:h-[45dvh] lg:h-[50dvh] overflow-hidden rounded-3xl mb-6">
+    <section className="relative w-full h-[30dvh] md:h-[45dvh] lg:h-[50dvh] overflow-hidden rounded-3xl mb-6">
       {/* Background gradient */}
       <div className="absolute inset-0" style={{ background: getGradient(name) }} />
       <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/30 to-transparent" />
@@ -47,7 +47,7 @@ export default function ListCover({
         <div className="max-w-7xl mx-auto">
           {/* Top row: privacy badge + actions */}
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-xl border ${
                 isPublic
                   ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
@@ -61,21 +61,21 @@ export default function ListCover({
             </div>
 
             <div className="flex items-center gap-2">
-              <button onClick={onShare} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
+              <button onClick={onShare} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-colors duration-150 text-sm font-medium min-h-[44px] hover:scale-105">
                 <Share2 className="h-4 w-4" /><span className="hidden sm:inline">Partilhar</span>
               </button>
-              <button onClick={onRoulette} className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
+              <button onClick={onRoulette} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-colors duration-150 text-sm font-medium min-h-[44px] hover:scale-105">
                 <Shuffle className="h-4 w-4" /><span className="hidden sm:inline">Roleta</span>
               </button>
               {isOwner && (
                 <>
-                  <Link href={`/lists/${listId}/edit`} className="flex items-center justify-center w-11 h-11 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-all duration-200 hover:scale-105">
+                  <Link href={`/lists/${listId}/edit`} className="flex items-center justify-center w-11 h-11 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-colors duration-150 hover:scale-105">
                     <Edit className="h-4 w-4" />
                   </Link>
-                  <button onClick={onDuplicate} disabled={duplicating} className="flex items-center justify-center w-11 h-11 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-all duration-200 hover:scale-105 disabled:opacity-50">
+                  <button onClick={onDuplicate} disabled={duplicating} className="flex items-center justify-center w-11 h-11 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-colors duration-150 hover:scale-105 disabled:opacity-50">
                     {duplicating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
                   </button>
-                  <button onClick={onDelete} disabled={deleting} className="flex items-center justify-center w-11 h-11 rounded-full bg-red-500/10 backdrop-blur-xl border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all duration-200 hover:scale-105 disabled:opacity-50">
+                  <button onClick={onDelete} disabled={deleting} className="flex items-center justify-center w-11 h-11 rounded-full bg-red-500/10 backdrop-blur-xl border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors duration-150 hover:scale-105 disabled:opacity-50">
                     {deleting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                   </button>
                 </>

@@ -302,7 +302,7 @@ export default function Navbar() {
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="md:hidden fixed bottom-3 left-3 right-3 z-50"
+        className="md:hidden fixed bottom-3 left-3 right-3 z-50 pb-[env(safe-area-inset-bottom)]"
       >
         <nav className="bottom-tab-bar rounded-2xl bg-[var(--card-bg)]/90 backdrop-blur-2xl border border-white/[0.08] px-1 py-1.5 flex items-center justify-around">
           {[
@@ -318,7 +318,7 @@ export default function Navbar() {
               (item.id === 'restaurants' && pathname?.includes('/restaurants')) ||
               (item.id === 'lists' && pathname?.includes('/lists')) ||
               (item.id === 'profile' && pathname?.includes('/users'));
-            const baseClass = `bottom-tab-item relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl ${isActive ? 'active' : ''}`;
+            const baseClass = `bottom-tab-item relative flex flex-col items-center gap-0.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl ${isActive ? 'active' : ''}`;
             if ('action' in item && item.action === 'search') {
               return (
                 <button
@@ -328,14 +328,14 @@ export default function Navbar() {
                   aria-label="Pesquisar"
                 >
                   <item.icon className="w-5 h-5" />
-                  <span className="text-[10px] font-medium">{item.label}</span>
+                  <span className="text-[9px] sm:text-[10px] font-medium">{item.label}</span>
                 </button>
               );
             }
             return (
               <Link key={item.id} href={item.href!} className={baseClass}>
                 <item.icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[9px] sm:text-[10px] font-medium">{item.label}</span>
               </Link>
             );
           })}

@@ -34,7 +34,6 @@ interface Restaurant {
   menu_links?: string[];
   menu_images?: string[];
   phone_numbers?: string[];
-  visited: boolean;
   created_at: string;
   updated_at: string;
   creator_id?: string;

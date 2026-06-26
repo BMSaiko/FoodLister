@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import RestaurantCard from "@/components/ui/RestaurantCard";
-import { Shuffle, Sparkles, List, SlidersHorizontal, X, ChevronDown, Star, Euro, MapPin } from "lucide-react";
+import { Shuffle, Sparkles, List, SlidersHorizontal, X, ChevronDown, Star, Euro } from "lucide-react";
 
 interface Restaurant {
   id: string;
@@ -16,7 +16,6 @@ interface Restaurant {
   price_per_person?: number;
   location?: string;
   cuisine_types: any[];
-  visited: boolean;
   features?: any[];
   dietary_options?: any[];
   created_at?: string;
@@ -36,7 +35,6 @@ interface Filters {
   priceMin: number | null;
   priceMax: number | null;
   ratingMin: number | null;
-  visitedOnly: boolean;
 }
 
 const DEFAULT_FILTERS: Filters = {
@@ -44,7 +42,6 @@ const DEFAULT_FILTERS: Filters = {
   priceMin: null,
   priceMax: null,
   ratingMin: null,
-  visitedOnly: false,
 };
 
 export default function RoulettePage() {
@@ -143,7 +140,6 @@ export default function RoulettePage() {
       // Rating filter
       if (filters.ratingMin != null && (r.rating ?? 0) < filters.ratingMin) return false;
       // Visited filter
-      if (filters.visitedOnly && !r.visited) return false;
       return true;
     });
   }, [sourceRestaurants, filters]);
@@ -153,7 +149,6 @@ export default function RoulettePage() {
     if (filters.cuisines.length > 0) count++;
     if (filters.priceMin != null || filters.priceMax != null) count++;
     if (filters.ratingMin != null) count++;
-    if (filters.visitedOnly) count++;
     return count;
   }, [filters]);
 
@@ -323,20 +318,7 @@ export default function RoulettePage() {
                 </div>
               </div>
 
-              {/* Visited filter */}
-              <div>
-                <button
-                  onClick={() => setFilters(f => ({ ...f, visitedOnly: !f.visitedOnly }))}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
-                    filters.visitedOnly
-                      ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/25"
-                      : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
-                  }`}
-                >
-                  <MapPin className="h-4 w-4" />
-                  <span>So visitados</span>
-                </button>
-              </div>
+
             </div>
           )}
 

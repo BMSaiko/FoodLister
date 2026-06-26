@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { Star, Euro, MapPin, CheckCircle2, XCircle, TrendingUp, UtensilsCrossed } from "lucide-react";
+import { Star, Euro, MapPin, XCircle, TrendingUp, UtensilsCrossed } from "lucide-react";
 
 const COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#ec4899", "#f97316", "#14b8a6"];
 
@@ -14,7 +14,6 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
     const ratings = restaurants.filter(r => r.rating != null).map(r => r.rating);
     const prices = restaurants.filter(r => r.price_per_person != null).map(r => r.price_per_person);
     const locations = [...new Set(restaurants.filter(r => r.location).map(r => r.location))];
-    const visitedCount = restaurants.filter(r => r.visited).length;
 
     // Cuisine distribution
     const cuisineCount: Record<string, number> = {};
@@ -47,9 +46,7 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
       minPrice: prices.length ? Math.min(...prices) : null,
       maxPrice: prices.length ? Math.max(...prices) : null,
       uniqueLocations: locations.length,
-      visitedCount,
       totalRestaurants: restaurants.length,
-      visitProgress: restaurants.length > 0 ? (visitedCount / restaurants.length) * 100 : 0,
       cuisineData,
       priceRanges: priceRanges.filter(r => r.count > 0),
     };
@@ -62,14 +59,14 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
       <h2 className="text-xl md:text-2xl font-bold text-white mb-5">Estatisticas</h2>
 
       {/* Top metrics row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
+          <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.03] h-full">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-amber-500/10 rounded-lg p-1.5"><Star className="h-4 w-4 text-amber-400" /></div>
               <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Rating medio</span>
             </div>
-            <div className="text-2xl font-bold text-amber-400">{stats.avgRating ? stats.avgRating.toFixed(1) : "—"}</div>
+            <div className="text-xl sm:text-2xl font-bold text-amber-400">{stats.avgRating ? stats.avgRating.toFixed(1) : "—"}</div>
             <div className="flex items-center gap-0.5 mt-1">
               {Array(5).fill(0).map((_, i) => (
                 <Star key={i} className={"h-3 w-3 " + (i < Math.round(stats.avgRating || 0) ? "text-amber-400 fill-current" : "text-white/15")} />
@@ -79,41 +76,30 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
         </div>
 
         <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
+          <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.03] h-full">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-orange-500/10 rounded-lg p-1.5"><Euro className="h-4 w-4 text-orange-400" /></div>
               <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Preco medio</span>
             </div>
-            <div className="text-2xl font-bold text-orange-400">{stats.avgPrice ? "€" + stats.avgPrice.toFixed(0) : "—"}</div>
+            <div className="text-xl sm:text-2xl font-bold text-orange-400">{stats.avgPrice ? "€" + stats.avgPrice.toFixed(0) : "—"}</div>
             {stats.minPrice != null && stats.maxPrice != null && (
-              <div className="text-xs text-white/30 mt-1">€{stats.minPrice} — €{stats.maxPrice}</div>
+              <div className="text-xs text-white/30 mt-1 hidden sm:block">€{stats.minPrice} — €{stats.maxPrice}</div>
             )}
           </div>
         </div>
 
         <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
+          <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.03] h-full">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-emerald-500/10 rounded-lg p-1.5"><MapPin className="h-4 w-4 text-emerald-400" /></div>
               <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Locais</span>
             </div>
-            <div className="text-2xl font-bold text-emerald-400">{stats.uniqueLocations}</div>
+            <div className="text-xl sm:text-2xl font-bold text-emerald-400">{stats.uniqueLocations}</div>
             <div className="text-xs text-white/30 mt-1">{stats.totalRestaurants} restaurantes</div>
           </div>
         </div>
 
-        <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-          <div className="p-4 rounded-2xl bg-white/[0.03] h-full">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="bg-blue-500/10 rounded-lg p-1.5"><CheckCircle2 className="h-4 w-4 text-blue-400" /></div>
-              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Visitados</span>
-            </div>
-            <div className="text-2xl font-bold text-blue-400">{stats.visitedCount}<span className="text-sm text-white/30">/{stats.totalRestaurants}</span></div>
-            <div className="w-full h-1.5 bg-white/[0.06] rounded-full mt-2 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500" style={{ width: stats.visitProgress + "%" }} />
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Bottom row: charts */}

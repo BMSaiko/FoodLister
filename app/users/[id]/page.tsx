@@ -29,7 +29,6 @@ interface UserProfile {
   createdAt: string;
   updatedAt: string;
   stats: {
-    totalRestaurantsVisited: number;
     totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;
@@ -201,7 +200,6 @@ const UserProfilePage = () => {
 
         {/* Stats */}
         <ProfileStats
-          totalRestaurantsVisited={profile.stats?.totalRestaurantsVisited ?? 0}
           totalReviews={profile.stats?.totalReviews ?? 0}
           totalLists={profile.stats?.totalLists ?? 0}
           totalRestaurantsAdded={profile.stats?.totalRestaurantsAdded ?? 0}

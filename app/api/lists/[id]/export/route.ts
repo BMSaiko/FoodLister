@@ -19,7 +19,7 @@ function generateCSV(restaurants: any[]): string {
       r.price_per_person || 'N/A',
       priceLevel,
       `"${(r.cuisine_types?.map((ct: any) => ct.name || ct).join(', ') || '').replace(/"/g, '""')}"`,
-      r.visited ? 'Sim' : 'Não',
+      'Não',
     ].join(',');
   });
   return '\uFEFF' + [headers.join(','), ...rows].join('\n');
@@ -40,7 +40,7 @@ function generateHTML(list: any, restaurants: any[]): string {
           <td class="border px-4 py-2 text-center">${r.rating ? `${r.rating}/5` : 'N/A'}</td>
           <td class="border px-4 py-2 text-center">${priceLevel}</td>
           <td class="border px-4 py-2">${cuisineTypes}</td>
-          <td class="border px-4 py-2 text-center">${r.visited ? '✅ Sim' : '⬜ Não'}</td>
+          <td class="border px-4 py-2 text-center">'⬜ Não'</td>
         </tr>`;
     })
     .join('');
@@ -92,7 +92,7 @@ function generateJSON(list: any, restaurants: any[]): object {
       location: r.location || '',
       rating: r.rating || null,
       pricePerPerson: r.price_per_person || null,
-      visited: r.visited,
+      
       cuisineTypes: r.cuisine_types?.map((ct: any) => ct.name || ct) || [],
     })),
   };

@@ -23,7 +23,6 @@ interface Restaurant {
   menu_links?: string[];
   menu_images?: string[];
   phone_numbers?: string[];
-  visited: boolean;
   created_at: string;
   updated_at: string;
   creator_id?: string;
@@ -96,7 +95,7 @@ export async function GET(request: NextRequest) {
     const baseColumns =
       'id, name, description, image_url, price_per_person, rating, location, ' +
       'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
-      'visited, created_at, creator_id, creator_name, latitude, ' +
+      'created_at, creator_id, creator_name, latitude, ' +
       'longitude, images, display_image_index, ' +
       'cuisine_types:restaurant_cuisine_types(cuisine_type:cuisine_types(id, name, icon)), ' +
       'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
@@ -133,7 +132,7 @@ export async function GET(request: NextRequest) {
       price_per_person: r.price_per_person, rating: r.rating, location: r.location,
       source_url: r.source_url, creator: r.creator, menu_url: r.menu_url,
       menu_links: r.menu_links || [], menu_images: r.menu_images || [],
-      phone_numbers: r.phone_numbers || [], visited: r.visited,
+      phone_numbers: r.phone_numbers || [],
       created_at: r.created_at, updated_at: r.updated_at || r.created_at,
       creator_id: r.creator_id, creator_name: r.creator_name,
       cuisine_types: r.cuisine_types?.map((x: any) => x.cuisine_type).filter(Boolean) || [],

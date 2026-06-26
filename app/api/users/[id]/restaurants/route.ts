@@ -68,7 +68,6 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
           source_url,
           creator,
           menu_url,
-          visited,
           phone_numbers,
           creator_id,
           creator_name,
@@ -105,7 +104,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         .from('restaurants')
         .select(`
           id, name, description, image_url, price_per_person, rating,
-          location, source_url, creator, menu_url, visited, phone_numbers,
+          location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
           restaurant_cuisine_types(cuisine_types(name)),
@@ -136,7 +135,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         .from('restaurants')
         .select(`
           id, name, description, image_url, price_per_person, rating,
-          location, source_url, creator, menu_url, visited, phone_numbers,
+          location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
           restaurant_cuisine_types(cuisine_types(name)),
@@ -191,7 +190,6 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       sourceUrl: row.source_url,
       creator: row.creator,
       menuUrl: row.menu_url,
-      visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
       creatorName: row.creator_name,
@@ -330,7 +328,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           source_url,
           creator,
           menu_url,
-          visited,
           phone_numbers,
           creator_id,
           creator_name,
@@ -367,7 +364,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .from('restaurants')
         .select(`
           id, name, description, image_url, price_per_person, rating,
-          location, source_url, creator, menu_url, visited, phone_numbers,
+          location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
           restaurant_cuisine_types(cuisine_types(name)),
@@ -398,7 +395,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .from('restaurants')
         .select(`
           id, name, description, image_url, price_per_person, rating,
-          location, source_url, creator, menu_url, visited, phone_numbers,
+          location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
           restaurant_cuisine_types(cuisine_types(name)),
@@ -453,7 +450,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       sourceUrl: row.source_url,
       creator: row.creator,
       menuUrl: row.menu_url,
-      visited: row.visited,
       phoneNumbers: row.phone_numbers,
       creatorId: row.creator_id,
       creatorName: row.creator_name,

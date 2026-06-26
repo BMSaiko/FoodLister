@@ -107,7 +107,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       createdAt: profileData.created_at,
       updatedAt: profileData.updated_at,
       stats: {
-        totalRestaurantsVisited: profileData.total_restaurants_visited || 0,
         totalReviews: profileData.total_reviews || 0,
         totalLists: profileData.total_lists || 0,
         totalRestaurantsAdded: restaurantsCount || 0,
