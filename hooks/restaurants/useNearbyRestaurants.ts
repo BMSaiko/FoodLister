@@ -14,7 +14,6 @@ export interface NearbyRestaurant {
   source_url: string | null;
   creator: string | null;
   menu_url: string | null;
-  visited: boolean;
   phone_numbers: string[];
   creator_id: string | null;
   creator_name: string | null;

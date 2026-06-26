@@ -93,19 +93,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .select('id', { count: 'exact', head: true })
       .eq('creator_id', targetUserId);
 
-    // 5. Build response
+    // 5. Build response — filter sensitive fields for public access
+    const isPublicAccess = accessLevel === 'PUBLIC' || accessLevel === 'PRIVATE';
     const userProfile = {
       id: profileData.user_id,
       userIdCode: profileData.user_id_code,
       name: profileData.display_name,
       profileImage: profileData.avatar_url,
-      location: profileData.location,
+      location: isPublicAccess ? undefined : profileData.location,
       bio: profileData.bio,
-      website: profileData.website,
-      phoneNumber: profileData.phone_number,
+      website: isPublicAccess ? undefined : profileData.website,
+      phoneNumber: isPublicAccess ? undefined : profileData.phone_number,
       publicProfile: profileData.public_profile,
-      createdAt: profileData.created_at,
-      updatedAt: profileData.updated_at,
+      createdAt: isPublicAccess ? undefined : profileData.created_at,
+      updatedAt: isPublicAccess ? undefined : profileData.updated_at,
       stats: {
         totalReviews: profileData.total_reviews || 0,
         totalLists: profileData.total_lists || 0,
@@ -118,7 +119,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       isOwnProfile: accessLevel === 'OWNER'
     };
 
-    return NextResponse.json(userProfile);
+    // Remove undefined fields from response
+    const cleanProfile = Object.fromEntries(
+      Object.entries(userProfile).filter(([, v]) => v !== undefined)
+    ) as Record<string, unknown>;
+
+    return NextResponse.json(cleanProfile);
 
   } catch (error) {
     console.error('Error in user profile GET:', error);

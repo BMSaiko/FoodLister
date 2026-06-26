@@ -42,26 +42,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     setMapModalData(null);
   }, []);
 
-  // Set aria-hidden on main content when modal is open
-  useEffect(() => {
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      if (isMapModalOpen) {
-        mainContent.setAttribute('aria-hidden', 'true');
-        mainContent.setAttribute('inert', '');
-      } else {
-        mainContent.removeAttribute('aria-hidden');
-        mainContent.removeAttribute('inert');
-      }
-    }
-    return () => {
-      const main = document.querySelector('main');
-      if (main) {
-        main.removeAttribute('aria-hidden');
-        main.removeAttribute('inert');
-      }
-    };
-  }, [isMapModalOpen]);
+  // aria-hidden/inert handled by <Modal> component
 
   const value = {
     isMapModalOpen,

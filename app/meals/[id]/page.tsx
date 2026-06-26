@@ -8,6 +8,7 @@ import Navbar from '@/components/ui/navigation/Navbar';
 import { useAuth } from '@/hooks/auth/useAuth';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { toast } from 'react-toastify';
+import Modal from '@/components/ui/Modal';
 
 interface Meal {
   id: string;
@@ -544,9 +545,7 @@ export default function MealDetailsPage() {
       </div>
 
       {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] max-w-lg w-full mx-4">
+      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} size="lg" ariaLabel="Editar Refeição">
             <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-6 py-4 rounded-t-xl border-b border-white/[0.06]">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-white/90">Editar Refeição</h3>
@@ -624,14 +623,11 @@ export default function MealDetailsPage() {
                 {saving ? 'A guardar...' : 'Guardar alterações'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
+        </Modal>
+
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] max-w-md w-full mx-4">
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} size="sm" ariaLabel="Confirmar eliminação">
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="h-6 w-6 text-red-600" />
@@ -656,9 +652,8 @@ export default function MealDetailsPage() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+        </Modal>
+
     </div>
     </ErrorBoundary>
   );

@@ -31,28 +31,33 @@ export const createServerClient = (request: NextRequest, response: NextResponse)
 
 // Enhanced server client with session validation
 export const getServerClient = async (request?: NextRequest, response?: NextResponse) => {
-  const supabase = createServerClient(request!, response!);
-  
-  // Validate session and return authenticated client
-  const { data: { session }, error } = await supabase.auth.getSession();
-  
-  if (error) {
-    console.error('Error getting session in getServerClient:', error);
-    // Return null instead of throwing error for unauthenticated requests
+  try {
+    const supabase = createServerClient(request!, response!);
+    
+    // Validate session and return authenticated client
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      console.error('Error getting session in getServerClient:', error);
+      // Return null instead of throwing error for unauthenticated requests
+      return null;
+    }
+    
+    if (!session) {
+      return null;
+    }
+    
+    // Check if session is expired
+    if (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000)) {
+      console.warn('Session expired in getServerClient');
+      return null;
+    }
+    
+    return supabase;
+  } catch (error) {
+    console.error('Unexpected error in getServerClient:', error);
     return null;
   }
-  
-  if (!session) {
-    return null;
-  }
-  
-  // Check if session is expired
-  if (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000)) {
-    console.warn('Session expired in getServerClient');
-    return null;
-  }
-  
-  return supabase;
 };
 
 // Secure server client with automatic logout on session expiration

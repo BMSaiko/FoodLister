@@ -5,7 +5,8 @@ import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/libs/supabase/client';
+import type { Database } from '@/libs/supabase/types';
+import { checkRateLimit } from '@/libs/rate-limit';
 
 type DbClient = SupabaseClient<Database>;
 // Database type is incomplete — use explicit query types
@@ -56,6 +57,15 @@ async function updateRestaurantRating(restaurantId: string) {
 }
 
 export async function GET(request: NextRequest) {
+  // Rate limiting
+  const ip = request.headers.get('x-forwarded-for') || 'unknown';
+  const { allowed, remaining } = checkRateLimit(`reviews-get-${ip}`, 30, 60_000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests', code: 'RATE_LIMITED' },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(remaining) } }
+    );
+  }
   try {
     const supabase = await getPublicServerClient();
     const { searchParams } = new URL(request.url);
@@ -165,6 +175,15 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Rate limiting
+  const ip = request.headers.get('x-forwarded-for') || 'unknown';
+  const rateLimitResult = checkRateLimit(`reviews-post-${ip}`, 10, 60_000);
+  if (!rateLimitResult.allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests', code: 'RATE_LIMITED' },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(rateLimitResult.remaining) } }
+    );
+  }
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);

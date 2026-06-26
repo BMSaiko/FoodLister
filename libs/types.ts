@@ -64,7 +64,6 @@ export interface User {
   location?: string;
   bio?: string;
   publicProfile?: boolean;
-  totalRestaurantsVisited?: number;
   totalReviews?: number;
   totalLists?: number;
 }
@@ -80,7 +79,6 @@ export interface UserProfile {
   location?: string;
   phone_number?: string;
   public_profile: boolean;
-  total_restaurants_visited: number;
   total_reviews: number;
   total_lists: number;
   created_at: string;
@@ -188,18 +186,6 @@ export interface DatabaseError {
   hint?: string;
 }
 
-// Visit tracking types
-export interface VisitData {
-  visited: boolean;
-  visit_count: number;
-  last_visit?: string;
-}
-
-// Restaurant visits data structure - maps restaurant IDs to visit data
-export interface RestaurantVisitsData {
-  [restaurantId: string]: VisitData;
-}
-
 // Filter types
 export interface RestaurantFilters {
   search?: string;
@@ -219,9 +205,7 @@ export interface RestaurantFilters {
     distance?: number; // in km
     coordinates?: { lat: number; lng: number };
   };
-  visit_count?: { min?: number; max?: number };
   visited?: boolean;
-  not_visited?: boolean;
 }
 
 // Restaurant feature types
@@ -262,7 +246,6 @@ export interface ValidationResult {
 // Component prop types
 export interface RestaurantCardProps {
   restaurant: RestaurantWithDetails;
-  onVisitToggle?: (restaurantId: string, visited: boolean) => void;
   onReviewSubmit?: (review: ReviewFormData) => void;
   className?: string;
   centered?: boolean;
@@ -301,7 +284,6 @@ export interface UserSearchResult {
 }
 
 export interface UserStats {
-  total_restaurants_visited: number;
   total_reviews: number;
   total_lists: number;
   total_followers?: number;
@@ -312,7 +294,6 @@ export interface UserStats {
 
 // Hook return types
 export interface UseVisitsDataReturn {
-  visitsData: Record<string, VisitData>;
   isLoading: boolean;
   error: string | null;
   refetch: () => Promise<void>;

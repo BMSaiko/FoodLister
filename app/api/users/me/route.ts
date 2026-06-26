@@ -87,7 +87,6 @@ export async function GET(request: NextRequest) {
       createdAt: profileData.created_at, // Changed from created_at to createdAt
       updatedAt: profileData.updated_at, // Changed from updated_at to updatedAt
       stats: {
-        totalRestaurantsVisited: 0,
         totalReviews: profileData.total_reviews || 0,
         totalLists: profileData.total_lists || 0,
         totalRestaurantsAdded: restaurantsCount || 0,
@@ -298,7 +297,6 @@ export async function PUT(request: NextRequest) {
       createdAt: updatedProfileData.created_at,
       updatedAt: updatedProfileData.updated_at,
       stats: {
-        totalRestaurantsVisited: 0,
         totalReviews: updatedProfileData.total_reviews || 0,
         totalLists: updatedProfileData.total_lists || 0,
         totalRestaurantsAdded: restaurantsCount || 0,

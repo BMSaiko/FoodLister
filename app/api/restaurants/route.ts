@@ -80,6 +80,7 @@ export async function GET(request: NextRequest) {
     const sortByParam = (searchParams.get('sort_by') || 'name') as RestaurantSortBy;
     const sortDirectionParam = (searchParams.get('sort_direction') || 'asc') as SortDirection;
     let client = supabase;
+    let isPublicRequest = !supabase;
     if (!supabase) {
       const publicClient = await getPublicServerClient();
       if (!publicClient) {
@@ -141,6 +142,10 @@ export async function GET(request: NextRequest) {
       review_count: r.reviews?.[0]?.count || 0,
       latitude: r.latitude, longitude: r.longitude, opening_hours: r.opening_hours || null,
     }));
+    // Strip sensitive fields from public (unauthenticated) responses
+    if (isPublicRequest) {
+      restaurants = restaurants.map(({ source_url, creator_id, creator_name, phone_numbers, ...rest }) => rest as Restaurant);
+    }
     if (openNowParam === 'true') {
       restaurants = restaurants.filter((r) => r.opening_hours && isCurrentlyOpen(r.opening_hours) === true);
     } else if (openNowParam === 'false') {

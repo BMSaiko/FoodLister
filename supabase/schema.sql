@@ -1,14 +1,21 @@
+-- ============================================================================
+-- FoodLister — Canonical Database Schema
+-- Generated: 2026-06-26
+-- Source: complete-setup-idempotent.sql (renamed during organisational cleanup)
+-- This is the idempotent setup script. For migration history, see migrations/.
+-- ============================================================================
+
 -- ============================================
--- FoodLister Database Setup
--- Run this SQL in your Supabase SQL Editor
+-- FoodLister Complete Database Setup (IDEMPOTENT)
+-- Safe to run multiple times - uses IF EXISTS / IF NOT EXISTS
 -- ============================================
 
--- Enable required extensions
+-- Enable required extensions (idempotent)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For text search
 
 -- ============================================
--- CORE TABLES
+-- CORE TABLES (CREATE IF NOT EXISTS)
 -- ============================================
 
 -- Cuisine Types
@@ -41,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public.restaurant_dietary_options (
   CONSTRAINT restaurant_dietary_options_pkey PRIMARY KEY (id)
 );
 
--- Profiles
+-- Profiles (fix amount_spent issue - that column goes in REVIEWS, not profiles)
 CREATE TABLE IF NOT EXISTS public.profiles (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   user_id uuid NOT NULL UNIQUE,
@@ -55,7 +62,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   phone_number text,
   user_id_code character varying UNIQUE,
   public_profile boolean DEFAULT true,
-  total_restaurants_visited integer DEFAULT 0,
   total_reviews integer DEFAULT 0,
   total_lists integer DEFAULT 0,
   total_restaurants_added integer DEFAULT 0,
@@ -175,7 +181,7 @@ CREATE TABLE IF NOT EXISTS public.list_comments (
   CONSTRAINT list_comments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
 );
 
--- Reviews
+-- Reviews (FIXED - amount_spent is here, not in profiles)
 CREATE TABLE IF NOT EXISTS public.reviews (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   restaurant_id uuid NOT NULL,
@@ -202,7 +208,7 @@ CREATE TABLE IF NOT EXISTS public.user_restaurant_visits (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT user_restaurant_visits_pkey PRIMARY KEY (id),
-  CONSTRAINT user_restaurant_visits_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT user_restaurant_visits_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(user_id),
   CONSTRAINT user_restaurant_visits_restaurant_id_fkey FOREIGN KEY (restaurant_id) REFERENCES public.restaurants(id)
 );
 
@@ -247,7 +253,7 @@ CREATE TABLE IF NOT EXISTS public.notifications (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT notifications_pkey PRIMARY KEY (id),
-  CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+  CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(user_id)
 );
 
 -- User Search Index
@@ -264,7 +270,7 @@ CREATE TABLE IF NOT EXISTS public.user_search_index (
 );
 
 -- ============================================
--- INDEXES
+-- INDEXES (IF NOT EXISTS)
 -- ============================================
 
 CREATE INDEX IF NOT EXISTS idx_restaurants_name ON restaurants USING gin(to_tsvector('english', name));
@@ -303,92 +309,149 @@ CREATE INDEX IF NOT EXISTS idx_meal_participants_user_id ON meal_participants(us
 CREATE INDEX IF NOT EXISTS idx_user_search_index_search_vector ON user_search_index USING gin(search_vector);
 
 -- ============================================
--- ROW LEVEL SECURITY
+-- ROW LEVEL SECURITY (Fixed for user_id ambiguity)
 -- ============================================
 
 -- Enable RLS on all tables
-ALTER TABLE restaurants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cuisine_types ENABLE ROW LEVEL SECURITY;
-ALTER TABLE restaurant_cuisine_types ENABLE ROW LEVEL SECURITY;
-ALTER TABLE restaurant_dietary_options ENABLE ROW LEVEL SECURITY;
-ALTER TABLE restaurant_dietary_options_junction ENABLE ROW LEVEL SECURITY;
-ALTER TABLE restaurant_features ENABLE ROW LEVEL SECURITY;
-ALTER TABLE restaurant_restaurant_features ENABLE ROW LEVEL SECURITY;
-ALTER TABLE lists ENABLE ROW LEVEL SECURITY;
-ALTER TABLE list_restaurants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE list_collaborators ENABLE ROW LEVEL SECURITY;
-ALTER TABLE list_comments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_restaurant_visits ENABLE ROW LEVEL SECURITY;
-ALTER TABLE scheduled_meals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE meal_participants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_search_index ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cuisine_types ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurant_cuisine_types ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurant_dietary_options ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurant_dietary_options_junction ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurant_features ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.restaurant_restaurant_features ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.list_restaurants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.list_collaborators ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.list_comments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_restaurant_visits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.scheduled_meals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.meal_participants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_search_index ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies to avoid conflicts
-DROP POLICY IF EXISTS "restaurants_select_policy" ON restaurants;
-DROP POLICY IF EXISTS "restaurants_insert_policy" ON restaurants;
-DROP POLICY IF EXISTS "restaurants_update_policy" ON restaurants;
-DROP POLICY IF EXISTS "restaurants_delete_policy" ON restaurants;
-DROP POLICY IF EXISTS "profiles_select_policy" ON profiles;
-DROP POLICY IF EXISTS "profiles_update_policy" ON profiles;
-DROP POLICY IF EXISTS "reviews_select_policy" ON reviews;
-DROP POLICY IF EXISTS "reviews_insert_policy" ON reviews;
-DROP POLICY IF EXISTS "reviews_update_policy" ON reviews;
-DROP POLICY IF EXISTS "reviews_delete_policy" ON reviews;
-DROP POLICY IF EXISTS "lists_select_policy" ON lists;
-DROP POLICY IF EXISTS "lists_insert_policy" ON lists;
-DROP POLICY IF EXISTS "lists_update_policy" ON lists;
-DROP POLICY IF EXISTS "lists_delete_policy" ON lists;
+-- Drop ALL existing policies to avoid conflicts
+DROP POLICY IF EXISTS "restaurants_select_policy" ON public.restaurants;
+DROP POLICY IF EXISTS "restaurants_insert_policy" ON public.restaurants;
+DROP POLICY IF EXISTS "restaurants_update_policy" ON public.restaurants;
+DROP POLICY IF EXISTS "restaurants_delete_policy" ON public.restaurants;
 
--- Restaurants policies
-CREATE POLICY "restaurants_select_policy" ON restaurants FOR SELECT USING (true);
-CREATE POLICY "restaurants_insert_policy" ON restaurants FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "restaurants_update_policy" ON restaurants FOR UPDATE USING (auth.uid() = creator_id);
-CREATE POLICY "restaurants_delete_policy" ON restaurants FOR DELETE USING (auth.uid() = creator_id);
+DROP POLICY IF EXISTS "profiles_select_policy" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_update_policy" ON public.profiles;
 
--- Profiles policies
-CREATE POLICY "profiles_select_policy" ON profiles FOR SELECT USING (
+DROP POLICY IF EXISTS "reviews_select_policy" ON public.reviews;
+DROP POLICY IF EXISTS "reviews_insert_policy" ON public.reviews;
+DROP POLICY IF EXISTS "reviews_update_policy" ON public.reviews;
+DROP POLICY IF EXISTS "reviews_delete_policy" ON public.reviews;
+
+DROP POLICY IF EXISTS "lists_select_policy" ON public.lists;
+DROP POLICY IF EXISTS "lists_insert_policy" ON public.lists;
+DROP POLICY IF EXISTS "lists_update_policy" ON public.lists;
+DROP POLICY IF EXISTS "lists_delete_policy" ON public.lists;
+
+DROP POLICY IF EXISTS "list_collaborators_select_policy" ON public.list_collaborators;
+DROP POLICY IF EXISTS "list_collaborators_insert_policy" ON public.list_collaborators;
+DROP POLICY IF EXISTS "list_collaborators_update_policy" ON public.list_collaborators;
+DROP POLICY IF EXISTS "list_collaborators_delete_policy" ON public.list_collaborators;
+
+-- Drop existing functions to recreate with fixed parameter names
+DROP FUNCTION IF EXISTS public.can_access_list(uuid, uuid) CASCADE;
+DROP FUNCTION IF EXISTS public.is_list_collaborator(uuid, uuid) CASCADE;
+
+-- Create function with p_ prefix to avoid "user_id is ambiguous" error
+CREATE OR REPLACE FUNCTION public.can_access_list(p_list_id uuid, p_user_id uuid)
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.lists l
+    WHERE l.id = p_list_id
+    AND (
+      l.is_public = true 
+      OR l.creator_id = p_user_id
+      OR EXISTS (
+        SELECT 1 FROM public.list_collaborators lc
+        WHERE lc.list_id = l.id
+        AND lc.user_id = p_user_id
+      )
+    )
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public;
+
+-- Create helper function with non-conflicting parameter names
+CREATE OR REPLACE FUNCTION public.is_list_collaborator(p_list_id uuid, p_user_id uuid)
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.list_collaborators lc
+    WHERE lc.list_id = p_list_id
+    AND lc.user_id = p_user_id
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public;
+
+-- Create RLS policies using the fixed functions
+CREATE POLICY "restaurants_select_policy" ON public.restaurants FOR SELECT USING (true);
+CREATE POLICY "restaurants_insert_policy" ON public.restaurants FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "restaurants_update_policy" ON public.restaurants FOR UPDATE USING (auth.uid() = creator_id);
+CREATE POLICY "restaurants_delete_policy" ON public.restaurants FOR DELETE USING (auth.uid() = creator_id);
+
+CREATE POLICY "profiles_select_policy" ON public.profiles FOR SELECT USING (
   auth.uid() = user_id OR public_profile = true
 );
-CREATE POLICY "profiles_update_policy" ON profiles FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "profiles_update_policy" ON public.profiles FOR UPDATE USING (auth.uid() = user_id);
 
--- Reviews policies
-CREATE POLICY "reviews_select_policy" ON reviews FOR SELECT USING (true);
-CREATE POLICY "reviews_insert_policy" ON reviews FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
-CREATE POLICY "reviews_update_policy" ON reviews FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
-CREATE POLICY "reviews_delete_policy" ON reviews FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
+CREATE POLICY "reviews_select_policy" ON public.reviews FOR SELECT USING (true);
+CREATE POLICY "reviews_insert_policy" ON public.reviews FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
+CREATE POLICY "reviews_update_policy" ON public.reviews FOR UPDATE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
+CREATE POLICY "reviews_delete_policy" ON public.reviews FOR DELETE USING (auth.role() = 'authenticated' AND auth.uid() = user_id);
 
--- Lists policies
-CREATE POLICY "lists_select_policy" ON lists FOR SELECT USING (
-  is_public = true OR auth.uid() = creator_id OR 
-  EXISTS (
-    SELECT 1 FROM list_collaborators 
-    WHERE list_id = lists.id AND user_id = auth.uid()
-  )
+CREATE POLICY "lists_select_policy" ON public.lists FOR SELECT USING (
+  is_public = true 
+  OR auth.uid() = creator_id 
+  OR public.can_access_list(id, auth.uid())
 );
-CREATE POLICY "lists_insert_policy" ON lists FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-CREATE POLICY "lists_update_policy" ON lists FOR UPDATE USING (auth.uid() = creator_id);
-CREATE POLICY "lists_delete_policy" ON lists FOR DELETE USING (auth.uid() = creator_id);
+CREATE POLICY "lists_insert_policy" ON public.lists FOR INSERT WITH CHECK (auth.uid() = creator_id);
+CREATE POLICY "lists_update_policy" ON public.lists FOR UPDATE USING (auth.uid() = creator_id);
+CREATE POLICY "lists_delete_policy" ON public.lists FOR DELETE USING (auth.uid() = creator_id);
+
+CREATE POLICY "list_collaborators_select_policy" ON public.list_collaborators FOR SELECT USING (
+  user_id = auth.uid()
+  OR public.can_access_list(list_id, auth.uid())
+);
+CREATE POLICY "list_collaborators_insert_policy" ON public.list_collaborators FOR INSERT WITH CHECK (
+  public.can_access_list(list_id, auth.uid())
+);
+CREATE POLICY "list_collaborators_update_policy" ON public.list_collaborators FOR UPDATE USING (
+  public.can_access_list(list_id, auth.uid())
+);
+CREATE POLICY "list_collaborators_delete_policy" ON public.list_collaborators FOR DELETE USING (
+  public.can_access_list(list_id, auth.uid())
+);
+
+-- Grant execute permissions
+GRANT EXECUTE ON FUNCTION public.can_access_list(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_list_collaborator(uuid, uuid) TO authenticated;
 
 -- ============================================
--- FUNCTIONS
+-- FUNCTIONS AND TRIGGERS
 -- ============================================
 
 -- Function to update restaurant rating and price_per_person
-CREATE OR REPLACE FUNCTION update_restaurant_rating()
+CREATE OR REPLACE FUNCTION public.update_restaurant_rating()
 RETURNS TRIGGER AS $$
 BEGIN
-    UPDATE restaurants
+    UPDATE public.restaurants
     SET rating = (
         SELECT COALESCE(AVG(rating)::numeric(3,2), 0)
-        FROM reviews
+        FROM public.reviews
         WHERE restaurant_id = COALESCE(NEW.restaurant_id, OLD.restaurant_id)
     ),
     price_per_person = (
         SELECT COALESCE(AVG(amount_spent)::numeric, NULL)
-        FROM reviews
+        FROM public.reviews
         WHERE restaurant_id = COALESCE(NEW.restaurant_id, OLD.restaurant_id)
         AND amount_spent IS NOT NULL
     )
@@ -399,22 +462,22 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Drop existing triggers
-DROP TRIGGER IF EXISTS update_restaurant_rating_on_insert ON reviews;
-DROP TRIGGER IF EXISTS update_restaurant_rating_on_update ON reviews;
-DROP TRIGGER IF EXISTS update_restaurant_rating_on_delete ON reviews;
+DROP TRIGGER IF EXISTS update_restaurant_rating_on_insert ON public.reviews;
+DROP TRIGGER IF EXISTS update_restaurant_rating_on_update ON public.reviews;
+DROP TRIGGER IF EXISTS update_restaurant_rating_on_delete ON public.reviews;
 
 -- Create triggers
 CREATE TRIGGER update_restaurant_rating_on_insert
-    AFTER INSERT ON reviews
-    FOR EACH ROW EXECUTE FUNCTION update_restaurant_rating();
+    AFTER INSERT ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION public.update_restaurant_rating();
 
 CREATE TRIGGER update_restaurant_rating_on_update
-    AFTER UPDATE ON reviews
-    FOR EACH ROW EXECUTE FUNCTION update_restaurant_rating();
+    AFTER UPDATE ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION public.update_restaurant_rating();
 
 CREATE TRIGGER update_restaurant_rating_on_delete
-    AFTER DELETE ON reviews
-    FOR EACH ROW EXECUTE FUNCTION update_restaurant_rating();
+    AFTER DELETE ON public.reviews
+    FOR EACH ROW EXECUTE FUNCTION public.update_restaurant_rating();
 
 -- Function to handle new user creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -434,29 +497,28 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- ============================================
--- SEED DATA (Optional)
+-- SEED DATA (Optional - IF NOT EXISTS)
 -- ============================================
 
 -- Insert common cuisine types
-INSERT INTO cuisine_types (name, description, icon) VALUES
+INSERT INTO public.cuisine_types (name, description, icon) VALUES
 ('Italian', 'Italian cuisine', '🍝'),
 ('Chinese', 'Chinese cuisine', '🥡'),
 ('Japanese', 'Japanese cuisine', '🍱'),
 ('Mexican', 'Mexican cuisine', '🌮'),
 ('French', 'French cuisine', '🥖'),
 ('Indian', 'Indian cuisine', '🍛'),
-('Thai', 'Thai cuisine', '🍜'),
 ('American', 'American cuisine', '🍔'),
 ('Mediterranean', 'Mediterranean cuisine', '🥗'),
-('Portuguese', 'Portuguese cuisine', '🐟')
+('Portuguese', 'Portuguese cuisine', '🇵🇹')
 ON CONFLICT (name) DO NOTHING;
 
 -- Insert common features
-INSERT INTO restaurant_features (name, description, icon) VALUES
+INSERT INTO public.restaurant_features (name, description, icon) VALUES
 ('Wi-Fi', 'Free Wi-Fi available', '📶'),
 ('Parking', 'Parking available', '🅿️'),
 ('Outdoor Seating', 'Outdoor seating available', '🌳'),
-('Delivery', 'Delivery service available', '🛵'),
+('Delivery', 'Delivery service available', '🛵️'),
 ('Takeout', 'Takeout available', '🥡'),
 ('Reservations', 'Reservations accepted', '📅'),
 ('Wheelchair Accessible', 'Wheelchair accessible', '♿'),
@@ -464,7 +526,7 @@ INSERT INTO restaurant_features (name, description, icon) VALUES
 ON CONFLICT DO NOTHING;
 
 -- Insert common dietary options
-INSERT INTO restaurant_dietary_options (name, description, icon) VALUES
+INSERT INTO public.restaurant_dietary_options (name, description, icon) VALUES
 ('Vegetarian Options', 'Has vegetarian options', '🥬'),
 ('Vegan Options', 'Has vegan options', '🌱'),
 ('Gluten-Free Options', 'Has gluten-free options', '🌾'),

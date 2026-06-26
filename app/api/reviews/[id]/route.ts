@@ -4,7 +4,7 @@ import { getClient } from '@/libs/supabase/client';
 import { getServerClient } from '@/libs/supabase/server';
 import { ensureUserProfileExists } from '@/libs/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/libs/supabase/client';
+import type { Database } from '@/libs/supabase/types';
 
 type DbClient = SupabaseClient<Database>;
 // Database type is incomplete — use explicit query types

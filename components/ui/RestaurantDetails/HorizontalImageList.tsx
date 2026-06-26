@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import Modal from '../Modal';
 
 interface HorizontalImageListProps {
   images?: string[];
@@ -153,8 +154,8 @@ export default function HorizontalImageList({
       </div>
 
       {/* Modal Lightbox */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm" onClick={closeModal}>
+      <Modal isOpen={isModalOpen} onClose={closeModal} variant="full-screen" ariaLabel="Galeria de imagens">
+          <div className="relative w-full h-full max-w-7xl max-h-screen p-4">
           <div className="relative w-full h-full max-w-7xl max-h-screen p-4" onClick={(e) => e.stopPropagation()}>
             {/* Close Button */}
             <button
@@ -234,7 +235,7 @@ export default function HorizontalImageList({
             )}
 
             {/* Modal Image with Swipe Support */}
-            <div 
+            <div
               className="w-full h-full flex items-center justify-center"
               onTouchStart={(e) => {
                 const touch = e.touches[0];
@@ -291,8 +292,8 @@ export default function HorizontalImageList({
               </div>
             </div>
           </div>
-        </div>
-      )}
+          </div>
+        </Modal>
     </div>
   );
 }

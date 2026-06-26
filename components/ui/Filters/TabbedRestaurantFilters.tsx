@@ -111,8 +111,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     if (filters.cuisine_types && filters.cuisine_types.length > 0) count++;
     if (filters.features && filters.features.length > 0) count++;
     if (filters.dietary_options && filters.dietary_options.length > 0) count++;
-    if (filters.visit_count?.min !== 0 || filters.visit_count?.max !== 100) count++;
-    if (filters.visited || filters.not_visited) count++;
     return count;
   }, [filters]);
 
@@ -265,7 +263,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     baseTabs.push({ id: 'sort', title: 'Ordenar', icon: <span className="text-2xl">📊</span> });
 
     if (user) {
-      baseTabs.push({ id: 'visits', title: 'Visitas', icon: <Users className="h-6 w-6" /> });
     }
 
     return baseTabs;
@@ -784,80 +781,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
           </div>
         );
 
-      case 'visits':
         return (
           <div className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <label className="block text-lg font-semibold text-[var(--foreground)]">Status de Visita</label>
-                <select
-                  value={
-                    filters.visited && filters.not_visited ? 'all' :
-                    filters.visited ? 'visited' :
-                    filters.not_visited ? 'not_visited' : 'all'
-                  }
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setFilters((prev: any) => {
-                      const newFilters = { ...prev };
-                      
-                      switch (value) {
-                        case 'all':
-                          newFilters.visited = false;
-                          newFilters.not_visited = false;
-                          newFilters.visit_count = { min: 0, max: 100 };
-                          break;
-                        case 'visited':
-                          newFilters.visited = true;
-                          newFilters.not_visited = false;
-                          newFilters.visit_count = { min: 1, max: 50 };
-                          break;
-                        case 'not_visited':
-                          newFilters.visited = false;
-                          newFilters.not_visited = true;
-                          newFilters.visit_count = { min: 0, max: 100 };
-                          break;
-                      }
-                      
-                      return newFilters;
-                    });
-                  }}
-                  className="w-full px-4 py-4 text-lg border border-[var(--card-border)] rounded-[var(--radius-xl)] focus:ring-4 focus:ring-[var(--primary-light)] focus:border-[var(--primary)] transition-all duration-300 hover:border-[var(--primary-light)] shadow-sm"
-                >
-                  <option value="all">Todas as frequências</option>
-                  <option value="visited">Apenas Visitados</option>
-                  <option value="not_visited">Apenas não visitados</option>
-                </select>
-              </div>
-              
-              {filters.visited && (
-                <div className="space-y-6">
-                  <label className="block text-lg font-semibold text-[var(--foreground)]">Frequência de Visitas</label>
-                  <DualRangeSlider
-                    min={1}
-                    max={100}
-                    step={1}
-                    value={{
-                      min: filters.visit_count?.min ?? 1,
-                      max: filters.visit_count?.max ?? 100
-                    }}
-                    onChange={(value) => {
-                      setFilters((prev: any) => ({
-                        ...prev,
-                        visit_count: value
-                      }));
-                    }}
-                    label="Número de Visitas"
-                    unit="vezes"
-                  />
-                  
-                  <div className="bg-[var(--primary-50)] border border-[var(--primary-light)]/60 rounded-[var(--radius-xl)] p-4">
-                    <div className="text-sm text-[var(--primary-dark)]">
-                      <span className="font-semibold">Dica:</span> Defina um mínimo de visitas para encontrar seus restaurantes favoritos!
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         );
@@ -968,7 +894,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     } else if (field === 'dietary') {
       setFilters((prev: any) => ({ ...prev, dietary_options: [] }));
     } else if (field === 'visits') {
-      setFilters((prev: any) => ({ ...prev, visit_count: { min: 0, max: 100 }, visited: false, not_visited: false }));
     } else if (field === 'open_now') {
       setFilters((prev: any) => ({ ...prev, open_now: false }));
     } else if (field === 'sort') {
@@ -1068,24 +993,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                 <FilterChip 
                   label={`Dietas: ${filters.dietary_options.length}`} 
                   onRemove={() => clearSpecificFilter('dietary')} 
-                />
-              )}
-              {filters.visited && (
-                <FilterChip 
-                  label="Visitados" 
-                  onRemove={() => clearSpecificFilter('visits')} 
-                />
-              )}
-              {filters.not_visited && (
-                <FilterChip 
-                  label="Não Visitados" 
-                  onRemove={() => clearSpecificFilter('visits')} 
-                />
-              )}
-              {(filters.visit_count?.min !== 1 || filters.visit_count?.max !== 50) && filters.visited && (
-                <FilterChip 
-                  label={`Visitas: ${filters.visit_count?.min ?? 1} - ${filters.visit_count?.max ?? 50} vezes`} 
-                  onRemove={() => clearSpecificFilter('visits')} 
                 />
               )}
               {filters.open_now && (

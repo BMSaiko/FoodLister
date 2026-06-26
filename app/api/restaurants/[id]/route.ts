@@ -209,7 +209,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // Prepare update data
     const updateData: any = {};
 
-    // Visit system removed (migration 20260625150000_drop_user_restaurant_visits)
     if (body.action && ['toggle_visited', 'remove_visit', 'add_visit'].includes(body.action)) {
       return NextResponse.json(
         { error: 'Visit system has been removed', code: 'GONE' },

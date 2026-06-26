@@ -117,7 +117,6 @@ export interface RestaurantVisitRequest {
 
 export interface RestaurantVisitResponse {
   visited: boolean;
-  visit_count: number;
   last_visit?: string;
 }
 
@@ -167,7 +166,6 @@ export interface UpdateProfileRequest {
 }
 
 export interface UserStatsResponse {
-  total_restaurants_visited: number;
   total_reviews: number;
   total_lists: number;
   total_followers: number;
@@ -260,7 +258,6 @@ export function buildRestaurantFilterParams(filters: RestaurantFilters): Record<
   if (filters.rating_range?.min !== undefined) params.rating_min = String(filters.rating_range.min);
   if (filters.rating_range?.max !== undefined) params.rating_max = String(filters.rating_range.max);
   if (filters.visited !== undefined) params.visited = String(filters.visited);
-  if (filters.not_visited !== undefined) params.not_visited = String(filters.not_visited);
   
   return params;
 }

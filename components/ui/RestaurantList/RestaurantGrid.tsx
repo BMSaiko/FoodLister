@@ -2,18 +2,16 @@
 
 import { motion } from 'motion/react';
 import RestaurantCard from '@/components/ui/RestaurantCard';
-import { RestaurantWithDetails, VisitData } from '@/libs/types';
+import { RestaurantWithDetails } from '@/libs/types';
 import { EmptyState } from '@/components/ui/common/EmptyState';
 
 interface RestaurantGridProps {
   restaurants: RestaurantWithDetails[];
-  visitsData: { [restaurantId: string]: VisitData };
   searchQuery?: string | null;
 }
 
 export function RestaurantGrid({
   restaurants,
-  visitsData,
   searchQuery,
 }: RestaurantGridProps) {
   if (!restaurants || restaurants.length === 0) {

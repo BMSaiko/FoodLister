@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Search, X, Loader2, Utensils, List, User } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
+import Modal from '@/components/ui/Modal';
 
 interface SearchResult {
   id: string;
@@ -155,12 +156,12 @@ export default function GlobalSearch() {
   let flatIndex = -1;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[5vh] md:pt-[10vh]"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Pesquisa global"
-      onKeyDown={handleKeyDown}
+    <Modal
+      isOpen={isOpen}
+      onClose={close}
+      size="lg"
+      ariaLabel="Pesquisa global"
+      className="items-start pt-[5vh] md:pt-[10vh]" 
     >
       {/* Backdrop */}
       <div
@@ -275,6 +276,6 @@ export default function GlobalSearch() {
           </span>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

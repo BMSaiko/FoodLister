@@ -12,9 +12,7 @@ interface Filters {
   price_range?: { min?: number; max?: number };
   rating_range?: { min?: number; max?: number };
   location?: { city?: string };
-  visit_count?: { min?: number; max?: number };
   visited?: boolean;
-  not_visited?: boolean;
   cuisine_search?: string;
   features_search?: string;
   dietary_search?: string;
@@ -28,9 +26,7 @@ const initialFilters: Filters = {
   price_range: { min: 0, max: 100 },
   rating_range: { min: 0, max: 5 },
   location: { city: '' },
-  visit_count: { min: 0, max: 100 },
   visited: false,
-  not_visited: false,
   cuisine_search: '',
   features_search: '',
   dietary_search: ''

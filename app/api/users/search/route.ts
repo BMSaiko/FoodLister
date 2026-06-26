@@ -58,7 +58,6 @@ export async function GET(request: NextRequest) {
         location,
         bio,
         public_profile,
-        total_restaurants_visited,
         total_reviews,
         total_lists,
         created_at
@@ -130,7 +129,6 @@ export async function GET(request: NextRequest) {
       location: item.location,
       bio: item.bio,
       publicProfile: item.public_profile,
-      totalRestaurantsVisited: item.total_restaurants_visited,
       totalReviews: item.total_reviews,
       totalLists: item.total_lists,
       createdAt: item.created_at

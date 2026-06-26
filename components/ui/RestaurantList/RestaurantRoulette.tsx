@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import RouletteFilters from '../Filters/RouletteFilters';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import type { RestaurantWithDetails } from '@/libs/types';
+import Modal from '@/components/ui/Modal';
 
 interface FilterPreset {
   name: string;
@@ -317,7 +318,7 @@ const RestaurantRoulette = () => {
       {/* Header com Filtros */}
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-[var(--gray-800)] flex items-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-white/80 flex items-center">
             <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-[var(--amber-500)]" />
             Roleta de Restaurantes
           </h2>
@@ -341,7 +342,7 @@ const RestaurantRoulette = () => {
         />
         
         {/* Estatísticas */}
-        <div className="mt-4 pt-4 border-t border-[var(--gray-200)]">
+        <div className="mt-4 pt-4 border-t border-white/[0.08]">
           {selectedRestaurantsForRoulette.length > 0 && (
             <div className="mb-2">
               <p className="text-sm text-[var(--amber-600)] font-medium">
@@ -356,7 +357,7 @@ const RestaurantRoulette = () => {
             </div>
           )}
           {availableCount > 0 ? (
-            <p className="text-sm sm:text-base text-[var(--gray-600)]">
+            <p className="text-sm sm:text-base text-white/60">
               <span className="font-semibold text-[var(--amber-600)]">{availableCount}</span> restaurante{availableCount !== 1 ? 's' : ''} disponível{availableCount !== 1 ? 'eis' : ''}
               {totalCount !== availableCount && (
                 <span className="text-white/50"> de {totalCount} total</span>
@@ -561,12 +562,12 @@ const RestaurantRoulette = () => {
           <div className="relative z-10 text-center mb-4 sm:mb-6">
             <div className="inline-flex items-center gap-3 bg-white/[0.06] backdrop-blur-sm rounded-full px-4 py-2 mb-3 sm:mb-4 border border-amber-500/20">
               <Sparkles className="h-5 w-5 text-[var(--amber-500)] animate-pulse" />
-              <h3 className="text-xl sm:text-2xl font-bold text-[var(--gray-800)]">
+              <h3 className="text-xl sm:text-2xl font-bold text-white/80">
                 🎉 Restaurante Escolhido! 🎉
               </h3>
               <Sparkles className="h-5 w-5 text-[var(--orange-500)] animate-pulse" />
             </div>
-            <p className="text-sm sm:text-base text-[var(--gray-600)]">
+            <p className="text-sm sm:text-base text-white/60">
               Este é o restaurante selecionado pela roleta
             </p>
           </div>
@@ -590,25 +591,25 @@ const RestaurantRoulette = () => {
       )}
       
       {/* Modal de Presets de Filtros */}
-      {showPresets && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+      <Modal isOpen={showPresets} onClose={() => setShowPresets(false)} size="xl" ariaLabel="Presets de filtros">
+        {/* backdrop handled by Modal */}
           <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.06] max-w-2xl w-full max-h-[90vh] overflow-hidden border border-white/[0.06]">
-            <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] p-4 sm:p-6 border-b border-[var(--amber-100)]">
+            <div className="bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.08] p-4 sm:p-6 border-b border-[var(--amber-100)]">
               <div className="flex justify-between items-start sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-[var(--amber-500)] rounded-lg">
                       <Save className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-[var(--gray-800)]">Presets de Filtros</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-white/80">Presets de Filtros</h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-[var(--gray-600)] ml-11">
+                  <p className="text-xs sm:text-sm text-white/60 ml-11">
                     Salve e carregue combinações de filtros para usar rapidamente.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowPresets(false)}
-                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
+                  className="text-white/40 hover:text-white/60 hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
@@ -617,8 +618,8 @@ const RestaurantRoulette = () => {
             
             <div className="p-4 sm:p-6 flex flex-col max-h-[calc(90vh-120px)]">
               {/* Salvar novo preset */}
-              <div className="mb-4 p-4 bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] rounded-lg border border-[var(--amber-100)]">
-                <h4 className="font-semibold text-[var(--gray-800)] mb-2 text-sm sm:text-base">Salvar Filtro Atual</h4>
+              <div className="mb-4 p-4 bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.08] rounded-lg border border-[var(--amber-100)]">
+                <h4 className="font-semibold text-white/80 mb-2 text-sm sm:text-base">Salvar Filtro Atual</h4>
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -641,12 +642,12 @@ const RestaurantRoulette = () => {
               </div>
               
               {/* Lista de presets */}
-              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-white/[0.04]/30">
+              <div className="flex-1 overflow-y-auto border border-white/[0.08] rounded-xl min-h-0 bg-white/[0.04]/30">
                 {filterPresets.length > 0 ? (
                   filterPresets.map((preset, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px]"
+                      className="flex items-center justify-between p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-amber-500/[0.08] hover:to-orange-500/[0.08] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px]"
                       onClick={() => loadFilterPreset(preset)}
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -654,7 +655,7 @@ const RestaurantRoulette = () => {
                           <Save className="h-4 w-4 text-[var(--amber-600)]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-[var(--gray-900)] text-sm sm:text-base truncate">
+                          <div className="font-semibold text-white/90 text-sm sm:text-base truncate">
                             {preset.name}
                           </div>
                           <div className="text-xs sm:text-sm text-white/50 truncate">
@@ -677,7 +678,7 @@ const RestaurantRoulette = () => {
                             e.stopPropagation();
                             deleteFilterPreset(preset.name);
                           }}
-                          className="p-1 text-[var(--gray-400)] hover:text-[var(--red-500)] transition-colors"
+                          className="p-1 text-white/40 hover:text-[var(--red-500)] transition-colors"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -686,16 +687,16 @@ const RestaurantRoulette = () => {
                   ))
                 ) : (
                   <div className="text-center py-12 text-white/50 text-sm sm:text-base">
-                    <Save className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-[var(--gray-300)]" />
+                    <Save className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
                     <p>Nenhum filtro salvo ainda</p>
-                    <p className="text-xs text-[var(--gray-400)] mt-1">Salve filtros para usar rapidamente</p>
+                    <p className="text-xs text-white/40 mt-1">Salve filtros para usar rapidamente</p>
                   </div>
                 )}
               </div>
               
               {/* Ações */}
               {filterPresets.length > 0 && (
-                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-[var(--gray-200)] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-white/[0.08] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
                   <button
                     onClick={clearAllPresets}
                     className="w-full sm:w-auto px-4 py-2 text-sm text-[var(--red-600)] bg-[var(--red-50)] border border-[var(--red-200)] rounded-lg hover:bg-[var(--red-100)] active:bg-[var(--red-200)] transition-all duration-200 font-medium"
@@ -706,29 +707,29 @@ const RestaurantRoulette = () => {
               )}
             </div>
           </div>
-        </div>
-      )}
+        </Modal>
+
       
       {/* Modal de Histórico de Roletas */}
-      {showSpinHistory && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+      <Modal isOpen={showSpinHistory} onClose={() => setShowSpinHistory(false)} size="full" ariaLabel="Histórico de roletas">
+        {/* backdrop handled by Modal */}
           <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.06] max-w-3xl w-full max-h-[90vh] overflow-hidden border border-white/[0.06]">
-            <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] p-4 sm:p-6 border-b border-[var(--amber-100)]">
+            <div className="bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.08] p-4 sm:p-6 border-b border-[var(--amber-100)]">
               <div className="flex justify-between items-start sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-[var(--amber-500)] rounded-lg">
                       <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-[var(--gray-800)]">Histórico de Roletas</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-white/80">Histórico de Roletas</h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-[var(--gray-600)] ml-11">
+                  <p className="text-xs sm:text-sm text-white/60 ml-11">
                     Veja os últimos restaurantes selecionados e os filtros usados.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowSpinHistory(false)}
-                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
+                  className="text-white/40 hover:text-white/60 hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
@@ -737,12 +738,12 @@ const RestaurantRoulette = () => {
             
             <div className="p-4 sm:p-6 flex flex-col max-h-[calc(90vh-120px)]">
               {/* Lista de histórico */}
-              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-white/[0.04]/30">
+              <div className="flex-1 overflow-y-auto border border-white/[0.08] rounded-xl min-h-0 bg-white/[0.04]/30">
                 {spinHistory.length > 0 ? (
                   spinHistory.map((entry, index) => (
                     <div
                       key={index}
-                      className="p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] transition-all duration-200"
+                      className="p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-amber-500/[0.08] hover:to-orange-500/[0.08] transition-all duration-200"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
@@ -750,7 +751,7 @@ const RestaurantRoulette = () => {
                             <div className="w-8 h-8 bg-[var(--amber-100)] rounded-lg flex items-center justify-center flex-shrink-0">
                               <ChefHat className="h-4 w-4 text-[var(--amber-600)]" />
                             </div>
-                            <div className="font-semibold text-[var(--gray-900)] text-sm sm:text-base truncate">
+                            <div className="font-semibold text-white/90 text-sm sm:text-base truncate">
                               {entry.restaurant.name}
                             </div>
                           </div>
@@ -759,22 +760,22 @@ const RestaurantRoulette = () => {
                           </div>
                           <div className="flex flex-wrap gap-1">
                             {entry.filters.location?.city && (
-                              <span className="px-2 py-1 bg-[var(--gray-100)] text-[var(--gray-600)] rounded-full text-xs">
+                              <span className="px-2 py-1 bg-[var(--gray-100)] text-white/60 rounded-full text-xs">
                                 {entry.filters.location.city}
                               </span>
                             )}
                             {(entry.filters.price_range?.min !== 0 || entry.filters.price_range?.max !== 100) && (
-                              <span className="px-2 py-1 bg-[var(--gray-100)] text-[var(--gray-600)] rounded-full text-xs">
+                              <span className="px-2 py-1 bg-[var(--gray-100)] text-white/60 rounded-full text-xs">
                                 €{entry.filters.price_range.min} - €{entry.filters.price_range.max}
                               </span>
                             )}
                             {(entry.filters.rating_range?.min !== 0 || entry.filters.rating_range?.max !== 5) && (
-                              <span className="px-2 py-1 bg-[var(--gray-100)] text-[var(--gray-600)] rounded-full text-xs">
+                              <span className="px-2 py-1 bg-[var(--gray-100)] text-white/60 rounded-full text-xs">
                                 {entry.filters.rating_range.min}★ - {entry.filters.rating_range.max}★
                               </span>
                             )}
                             {entry.filters.cuisine_types && entry.filters.cuisine_types.length > 0 && (
-                              <span className="px-2 py-1 bg-[var(--gray-100)] text-[var(--gray-600)] rounded-full text-xs">
+                              <span className="px-2 py-1 bg-[var(--gray-100)] text-white/60 rounded-full text-xs">
                                 {entry.filters.cuisine_types.length} culinárias
                               </span>
                             )}
@@ -793,16 +794,16 @@ const RestaurantRoulette = () => {
                   ))
                 ) : (
                   <div className="text-center py-12 text-white/50 text-sm sm:text-base">
-                    <Clock className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-[var(--gray-300)]" />
+                    <Clock className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
                     <p>Nenhum histórico ainda</p>
-                    <p className="text-xs text-[var(--gray-400)] mt-1">Gire a roleta para começar a registrar</p>
+                    <p className="text-xs text-white/40 mt-1">Gire a roleta para começar a registrar</p>
                   </div>
                 )}
               </div>
               
               {/* Ações */}
               {spinHistory.length > 0 && (
-                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-[var(--gray-200)] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
+                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 pt-4 border-t border-white/[0.08] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
                   <button
                     onClick={clearSpinHistory}
                     className="w-full sm:w-auto px-4 py-2 text-sm text-[var(--red-600)] bg-[var(--red-50)] border border-[var(--red-200)] rounded-lg hover:bg-[var(--red-100)] active:bg-[var(--red-200)] transition-all duration-200 font-medium"
@@ -813,23 +814,23 @@ const RestaurantRoulette = () => {
               )}
             </div>
           </div>
-        </div>
-      )}
+        </Modal>
+
       
       {/* Modal de seleção de restaurantes */}
-      {showRestaurantSelector && (
-        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+      <Modal isOpen={showRestaurantSelector} onClose={() => setShowRestaurantSelector(false)} size="full" ariaLabel="Seleção de restaurantes">
+        {/* backdrop handled by Modal */}
           <div className="bg-[#0a0a0a] rounded-2xl border border-white/[0.06] max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden border border-white/[0.06]">
-            <div className="bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] p-4 sm:p-6 border-b border-[var(--amber-100)]">
+            <div className="bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.08] p-4 sm:p-6 border-b border-[var(--amber-100)]">
               <div className="flex justify-between items-start sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-[var(--amber-500)] rounded-lg">
                       <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-[var(--gray-800)]">Selecionar Restaurantes</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-white/80">Selecionar Restaurantes</h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-[var(--gray-600)] ml-11">
+                  <p className="text-xs sm:text-sm text-white/60 ml-11">
                     Escolha os restaurantes que deseja incluir na roleta. Você pode buscar por nome.
                   </p>
                 </div>
@@ -838,7 +839,7 @@ const RestaurantRoulette = () => {
                     resetRestaurantSelector();
                     setShowRestaurantSelector(false);
                   }}
-                  className="text-[var(--gray-400)] hover:text-[var(--gray-600)] hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
+                  className="text-white/40 hover:text-white/60 hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
                   <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
@@ -855,11 +856,11 @@ const RestaurantRoulette = () => {
                   onChange={(e) => setRestaurantSearchQuery(e.target.value)}
                   className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-2 border border-white/[0.1] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent text-base sm:text-sm min-h-[44px] sm:min-h-0"
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-[var(--gray-400)]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-white/40" />
               </div>
               
               {/* Lista de restaurantes */}
-              <div className="flex-1 overflow-y-auto border border-[var(--gray-200)] rounded-xl min-h-0 bg-white/[0.04]/30">
+              <div className="flex-1 overflow-y-auto border border-white/[0.08] rounded-xl min-h-0 bg-white/[0.04]/30">
                 {(() => {
                   const filteredRestaurants = restaurants.filter(restaurant => {
                     // Robust null/undefined checks and type safety for restaurant name
@@ -891,8 +892,8 @@ const RestaurantRoulette = () => {
                         return (
                           <div
                             key={restaurant.id}
-                            className={`flex items-center justify-between p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-[var(--amber-50)] hover:to-[var(--orange-50)] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px] group ${
-                              isSelected ? 'bg-gradient-to-r from-[var(--amber-50)] to-[var(--orange-50)] border-[var(--amber-200)]' : ''
+                            className={`flex items-center justify-between p-3 sm:p-4 border-b border-white/[0.06] hover:bg-gradient-to-r hover:from-amber-500/[0.08] hover:to-orange-500/[0.08] cursor-pointer active:bg-[var(--amber-100)] transition-all duration-200 min-h-[60px] sm:min-h-[56px] group ${
+                              isSelected ? 'bg-gradient-to-r from-amber-500/[0.08] to-orange-500/[0.08] border-[var(--amber-200)]' : ''
                             }`}
                             onClick={() => {
                               if (isSelected) {
@@ -913,7 +914,7 @@ const RestaurantRoulette = () => {
                                 {isSelected && <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-[var(--gray-900)] text-sm sm:text-base truncate pr-2 group-hover:text-[var(--amber-900)] transition-colors">
+                                <div className="font-semibold text-white/90 text-sm sm:text-base truncate pr-2 group-hover:text-[var(--amber-900)] transition-colors">
                                   {restaurant.name}
                                 </div>
                                 {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
@@ -929,7 +930,7 @@ const RestaurantRoulette = () => {
                                 <>
                                 </>
                               ) : (
-                                <span className="px-2 py-1 rounded-full font-medium bg-[var(--gray-100)] text-[var(--gray-600)]">
+                                <span className="px-2 py-1 rounded-full font-medium bg-[var(--gray-100)] text-white/60">
                                   Status desconhecido
                                 </span>
                               )}
@@ -939,9 +940,9 @@ const RestaurantRoulette = () => {
                       })}
                       {filteredRestaurants.length === 0 && (
                         <div className="text-center py-12 text-white/50 text-sm sm:text-base">
-                          <Search className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-[var(--gray-300)]" />
+                          <Search className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
                           <p>Nenhum restaurante encontrado</p>
-                          <p className="text-xs text-[var(--gray-400)] mt-1">Tente ajustar sua busca</p>
+                          <p className="text-xs text-white/40 mt-1">Tente ajustar sua busca</p>
                         </div>
                       )}
                       {displayedRestaurants.length < filteredRestaurants.length && (
@@ -990,7 +991,7 @@ const RestaurantRoulette = () => {
               )}
               
               {/* Botões */}
-              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-[var(--gray-200)] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
+              <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/[0.08] flex-shrink-0 bg-white/[0.04]/50 -mx-4 sm:-mx-6 px-4 sm:px-6 -mb-4 sm:-mb-6 rounded-b-xl">
                 <button
                   onClick={() => {
                     setSelectedRestaurantsForRoulette([]);
@@ -1010,8 +1011,8 @@ const RestaurantRoulette = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </Modal>
+
     </div>
   );
 };

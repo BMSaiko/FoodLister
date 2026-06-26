@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useFilters } from '@/contexts/index';
-import { RestaurantWithDetails, RestaurantVisitsData } from '@/libs/types';
+import { RestaurantWithDetails } from '@/libs/types';
 
 interface User {
   id: string;
@@ -29,7 +29,6 @@ interface Filters {
     coordinates?: { lat: number; lng: number };
   };
   visited?: boolean;
-  not_visited?: boolean;
 }
 
 interface UseFiltersLogicReturn {
@@ -49,7 +48,6 @@ const initialFilters: Filters = {
   rating_range: { min: 0, max: 5 },
   location: { city: '', distance: 50 },
   visited: false,
-  not_visited: false
 };
 
 export function useFiltersLogic(
@@ -198,58 +196,6 @@ export function useFiltersLogic(
   };
 }
 
-// Helper function to determine if visit count filtering should be applied
-function shouldApplyVisitCountFilter(
-  filters: Filters,
-  min: number | undefined,
-  max: number | undefined
-): boolean {
-  // If "Apenas não visitados" is selected, always filter
-  if (filters.not_visited && !filters.visited) {
-    return true;
-  }
-  
-  // If "Apenas Visitados" is selected, always filter
-  if (filters.visited && !filters.not_visited) {
-    return true;
-  }
-  
-  // If both are selected or none are selected, check if custom range is set
-  const hasCustomRange = (min !== undefined && min !== 0) || (max !== undefined && max !== 100);
-  return hasCustomRange;
-}
-
-// Helper function to get the effective visit count range
-function getVisitCountRange(
-  filters: Filters,
-  min: number | undefined,
-  max: number | undefined
-) {
-  // If "Apenas não visitados" is selected, only show restaurants with 0 visits
-  if (filters.not_visited && !filters.visited) {
-    return {
-      effectiveMin: undefined,
-      effectiveMax: 0
-    };
-  }
-  
-  // If "Apenas Visitados" is selected without custom range, show restaurants with 1+ visits
-  if (filters.visited && !filters.not_visited) {
-    const hasCustomRange = (min !== undefined && min !== 0) || (max !== undefined && max !== 100);
-    if (!hasCustomRange) {
-      return {
-        effectiveMin: 1,
-        effectiveMax: undefined
-      };
-    }
-  }
-  
-  // Return the custom range if set
-  return {
-    effectiveMin: min,
-    effectiveMax: max
-  };
-}
 
 // Helper function to calculate distance between two coordinates
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
