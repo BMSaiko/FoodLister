@@ -293,33 +293,7 @@ export default function RestaurantDetails() {
     fetchRestaurantDetails();
   }, [id, fetchRestaurantDetails]);
 
-  // Handle scroll to review when reviewId is present
-  useEffect(() => {
-    if (!reviewId || !allDataLoaded) return;
-
-    const scrollToReview = () => {
-      const reviewElement = document.getElementById(`review-${reviewId}`);
-      if (reviewElement) {
-        reviewElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
-        reviewElement.classList.add('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-2xl');
-        setTimeout(() => {
-          reviewElement.classList.remove('ring-2', 'ring-amber-500', 'ring-opacity-50', 'rounded-2xl');
-        }, 3000);
-        return true;
-      }
-      return false;
-    };
-
-    if (!scrollToReview()) {
-      const t1 = setTimeout(() => scrollToReview(), 300);
-      const t2 = setTimeout(() => scrollToReview(), 800);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
-    }
-  }, [reviewId, allDataLoaded]);
+  // Scroll to review handled internally by ReviewsFeed via highlightReviewId prop
 
   // Track when all data is loaded
   useEffect(() => {
@@ -717,6 +691,7 @@ export default function RestaurantDetails() {
               onEditReview={handleEditReview}
               onDeleteReview={handleDeleteReview}
               restaurantRating={restaurant.rating}
+              highlightReviewId={reviewId || undefined}
             />
 
             {/* Lists */}

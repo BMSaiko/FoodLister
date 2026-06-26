@@ -17,10 +17,11 @@ interface ReviewsFeedProps {
   onEditReview: (r: Review) => void;
   onDeleteReview: (id: string) => void;
   restaurantRating?: number;
+  highlightReviewId?: string;
 }
 
 const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) => {
-  const { restaurantId, reviews, reviewCount, user, loading, onReviewSubmitted, onEditReview, onDeleteReview, restaurantRating } = props;
+  const { restaurantId, reviews, reviewCount, user, loading, onReviewSubmitted, onEditReview, onDeleteReview, restaurantRating, highlightReviewId } = props;
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Review | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -28,6 +29,17 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
   useEffect(() => {
     if (editing && formRef.current) formRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [editing]);
+
+  // Scroll to highlighted review (from ?review=XXX param) + visual highlight
+  useEffect(() => {
+    if (!highlightReviewId || reviews.length === 0) return;
+    const el = document.getElementById(`review-${highlightReviewId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('ring-2', 'ring-amber-500', 'rounded-2xl');
+      setTimeout(() => el.classList.remove('ring-2', 'ring-amber-500', 'rounded-2xl'), 3000);
+    }
+  }, [highlightReviewId, reviews]);
 
   const handleSubmitted = (r: Review) => { onReviewSubmitted(r); setShowForm(false); setEditing(null); };
   const handleDelete = async (id: string) => {
