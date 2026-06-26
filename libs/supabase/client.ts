@@ -7,6 +7,15 @@ import type { Database, SupabaseStorage } from "./types";
 // Cookie-based storage implementation for SSR
 function getCookieBasedStorage(): SupabaseStorage {
   // Client-side: use document.cookie with improved error handling and fallback
+  // Server-side: return no-op storage (cookies handled by middleware)
+  if (typeof window === 'undefined') {
+    return {
+      getItem: () => null,
+      setItem: () => {},
+      removeItem: () => {},
+    };
+  }
+
   const storageKey = 'supabase-auth-token';
   
   return {
