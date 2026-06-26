@@ -61,17 +61,17 @@ export default function RoulettePage() {
     async function fetchData() {
       setLoading(true);
       try {
-        const res = await fetch("/api/restaurants?limit=200");
-        if (res.ok) {
-          const data = await res.json();
-          setAllRestaurants(data.restaurants || []);
+        const [restaurantsRes, userListsRes] = await Promise.all([
+          fetch("/api/restaurants?limit=200"),
+          user ? fetch("/api/lists?limit=50") : Promise.resolve(null),
+        ]);
+        if (restaurantsRes.ok) {
+          const data = await restaurantsRes.json();
+          setAllRestaurants(data.restaurants || data.lists || []);
         }
-        if (user) {
-          const listsRes = await fetch("/api/lists?limit=50");
-          if (listsRes.ok) {
-            const listsData = await listsRes.json();
-            setUserLists(listsData.lists || []);
-          }
+        if (userListsRes && userListsRes.ok) {
+          const listsData = await userListsRes.json();
+          setUserLists(listsData.lists || []);
         }
       } catch (e) { console.error("Error fetching data:", e); }
       finally { setLoading(false); }

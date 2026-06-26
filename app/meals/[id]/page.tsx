@@ -78,18 +78,19 @@ export default function MealDetailsPage() {
   const fetchMeal = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/meals/scheduled`);
-      if (response.ok) {
-        const result = await response.json();
-        const foundMeal = result.data?.find((m: Meal) => m.id === mealId);
-        if (foundMeal) {
-          setMeal(foundMeal);
-        } else {
-          // Try fetching directly from meal API
-          const mealResponse = await fetch(`/api/meals/${mealId}`);
-          if (mealResponse.ok) {
-            const mealData = await mealResponse.json();
-            setMeal(mealData.data);
+      // Fetch specific meal directly instead of ALL scheduled meals
+      const mealResponse = await fetch(`/api/meals/${mealId}`);
+      if (mealResponse.ok) {
+        const mealData = await mealResponse.json();
+        setMeal(mealData.data || mealData.meal);
+      } else {
+        // Fallback: fetch from scheduled and find
+        const response = await fetch(`/api/meals/scheduled`);
+        if (response.ok) {
+          const result = await response.json();
+          const foundMeal = result.data?.find((m: Meal) => m.id === mealId);
+          if (foundMeal) {
+            setMeal(foundMeal);
           }
         }
       }

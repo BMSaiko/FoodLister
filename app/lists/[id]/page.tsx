@@ -139,22 +139,30 @@ export default function ListDetails() {
     try {
       const supabase = (await import("@/libs/supabase/client")).getClient();
       const filters = list.filters;
+
+      // Fetch junction table IDs in parallel (independent queries)
+      const [cuisinesRes, featuresRes, dietaryRes] = await Promise.all([
+        filters.cuisineTypes?.length
+          ? supabase.from("restaurant_cuisine_types").select("restaurant_id").in("cuisine_type_id", filters.cuisineTypes)
+          : Promise.resolve({ data: [] }),
+        filters.features?.length
+          ? supabase.from("restaurant_restaurant_features").select("restaurant_id").in("feature_id", filters.features)
+          : Promise.resolve({ data: [] }),
+        filters.dietaryOptions?.length
+          ? supabase.from("restaurant_dietary_options_junction").select("restaurant_id").in("dietary_option_id", filters.dietaryOptions)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      if ((filters.cuisineTypes?.length > 0 && (cuisinesRes.data?.length ?? 0) === 0) ||
+          (filters.features?.length > 0 && (featuresRes.data?.length ?? 0) === 0) ||
+          (filters.dietaryOptions?.length > 0 && (dietaryRes.data?.length ?? 0) === 0)) {
+        setRestaurants([]); setApplyingFilters(false); return;
+      }
+
       let query = supabase.from("restaurants").select("*");
-      if (filters.cuisineTypes?.length > 0) {
-        const { data: j } = await supabase.from("restaurant_cuisine_types").select("restaurant_id").in("cuisine_type_id", filters.cuisineTypes);
-        if (j?.length) query = query.in("id", [...new Set(j.map((x: any) => x.restaurant_id))]);
-        else { setRestaurants([]); setApplyingFilters(false); return; }
-      }
-      if (filters.features?.length > 0) {
-        const { data: j } = await supabase.from("restaurant_restaurant_features").select("restaurant_id").in("feature_id", filters.features);
-        if (j?.length) query = query.in("id", [...new Set(j.map((x: any) => x.restaurant_id))]);
-        else { setRestaurants([]); setApplyingFilters(false); return; }
-      }
-      if (filters.dietaryOptions?.length > 0) {
-        const { data: j } = await supabase.from("restaurant_dietary_options_junction").select("restaurant_id").in("dietary_option_id", filters.dietaryOptions);
-        if (j?.length) query = query.in("id", [...new Set(j.map((x: any) => x.restaurant_id))]);
-        else { setRestaurants([]); setApplyingFilters(false); return; }
-      }
+      if (cuisinesRes.data?.length) query = query.in("id", [...new Set(cuisinesRes.data.map((x: any) => x.restaurant_id))]);
+      if (featuresRes.data?.length) query = query.in("id", [...new Set(featuresRes.data.map((x: any) => x.restaurant_id))]);
+      if (dietaryRes.data?.length) query = query.in("id", [...new Set(dietaryRes.data.map((x: any) => x.restaurant_id))]);
       query = query.gte("price_per_person", filters.priceRange?.[0] ?? 0).lte("price_per_person", filters.priceRange?.[1] ?? 100).gte("rating", filters.minRating ?? 0);
       const { data, error } = await query;
       if (!error && data) {
