@@ -209,212 +209,85 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // Prepare update data
     const updateData: any = {};
 
-    // Handle different update actions
-    if (body.action === 'toggle_visited') {
-      // Toggle visited status
-      const { data: visitData, error: visitError } = await supabase
-        .from('user_restaurant_visits')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('restaurant_id', id)
-        .single();
-
-    if (visitError && visitError.code !== 'PGRST116') { // PGRST116 = no rows returned
-        console.error('Error checking visit status:', visitError);
-        const errorType = 'DATABASE_ERROR' as ApiErrorType;
-        return NextResponse.json(
-          { error: getErrorMessage(errorType), code: errorType },
-          { status: 500 }
-        );
-      }
-
-      if (visitData) {
-        // Remove visit
-        const { error: deleteError } = await supabase
-          .from('user_restaurant_visits')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('restaurant_id', id);
-
-        if (deleteError) {
-          console.error('Error removing visit:', deleteError);
-          const errorType = 'DATABASE_ERROR' as ApiErrorType;
-          return NextResponse.json(
-            { error: getErrorMessage(errorType), code: errorType },
-            { status: 500 }
-          );
-        }
-
-        // Check if user has any visits left for this restaurant
-        const { data: remainingVisits, error: remainingError } = await supabase
-          .from('user_restaurant_visits')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('restaurant_id', id);
-
-        if (remainingError) {
-          console.error('Error checking remaining visits:', remainingError);
-          const errorType = 'DATABASE_ERROR' as ApiErrorType;
-          return NextResponse.json(
-            { error: getErrorMessage(errorType), code: errorType },
-            { status: 500 }
-          );
-        }
-
-        const visitCount = remainingVisits ? remainingVisits.length : 0;
-        const visited = visitCount > 0;
-
-        return NextResponse.json({ visited, visit_count: visitCount });
-      } else {
-        // Add visit
-        const { error: insertError } = await supabase
-          .from('user_restaurant_visits')
-          .insert({
-            user_id: user.id,
-            restaurant_id: id
-          });
-
-        if (insertError) {
-          console.error('Error adding visit:', insertError);
-          const errorType = 'DATABASE_ERROR' as ApiErrorType;
-          return NextResponse.json(
-            { error: getErrorMessage(errorType), code: errorType },
-            { status: 500 }
-          );
-        }
-
-        return NextResponse.json({ visited: true, visit_count: 1 });
-      }
-    } else if (body.action === 'remove_visit') {
-      // Remove visit
-      const { error: deleteError } = await supabase
-        .from('user_restaurant_visits')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('restaurant_id', id);
-
-        if (deleteError) {
-          console.error('Error removing visit:', deleteError);
-          const errorType = 'DATABASE_ERROR' as ApiErrorType;
-          return NextResponse.json(
-            { error: getErrorMessage(errorType), code: errorType },
-            { status: 500 }
-          );
-        }
-        
-        // Check if user has any visits left for this restaurant
-        const { data: remainingVisits, error: remainingError } = await supabase
-          .from('user_restaurant_visits')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('restaurant_id', id);
-        
-        if (remainingError) {
-          console.error('Error checking remaining visits:', remainingError);
-          const errorType = 'DATABASE_ERROR' as ApiErrorType;
-          return NextResponse.json(
-            { error: getErrorMessage(errorType), code: errorType },
-            { status: 500 }
-          );
-        }
-
-        const visitCount = remainingVisits ? remainingVisits.length : 0;
-        const visited = visitCount > 0;
-
-        return NextResponse.json({ visited, visit_count: visitCount });
-      } else if (body.action === 'add_visit') {
-        // Add visit
-        const { error: insertError } = await supabase
-          .from('user_restaurant_visits')
-          .insert({
-            user_id: user.id,
-            restaurant_id: id
-          });
-
-        if (insertError) {
-          console.error('Error adding visit:', insertError);
-          const errorType = 'DATABASE_ERROR' as ApiErrorType;
-          return NextResponse.json(
-            { error: getErrorMessage(errorType), code: errorType },
-            { status: 500 }
-          );
-        }
-
-        return NextResponse.json({ visited: true, visit_count: 1 });
-      } else {
-      // Regular restaurant data update
-      const {
-        name,
-        description,
-        image_url,
-        images,
-        display_image_index,
-        location,
-        source_url,
-        menu_links,
-        menu_images,
-        phone_numbers,
-        latitude,
-        longitude,
-        rating
-      } = body;
-
-      // Validate coordinates if provided
-      let validatedLatitude = null;
-      let validatedLongitude = null;
-
-      if (latitude !== undefined && longitude !== undefined) {
-        if (!isValidCoordinates(latitude, longitude)) {
-          return NextResponse.json({ error: 'Invalid coordinates provided' }, { status: 400 });
-        }
-        validatedLatitude = latitude;
-        validatedLongitude = longitude;
-      } else if (latitude !== undefined || longitude !== undefined) {
-        return NextResponse.json({ error: 'Both latitude and longitude must be provided together' }, { status: 400 });
-      }
-
-      // Build update object
-      if (name !== undefined) updateData.name = name.trim();
-      if (description !== undefined) updateData.description = description || null;
-      if (image_url !== undefined) updateData.image_url = image_url || null;
-      if (images !== undefined) updateData.images = images || [];
-      if (display_image_index !== undefined) updateData.display_image_index = display_image_index || -1;
-      if (location !== undefined) updateData.location = location || null;
-      if (source_url !== undefined) updateData.source_url = source_url || null;
-      if (menu_links !== undefined) updateData.menu_links = menu_links || [];
-      if (menu_images !== undefined) updateData.menu_images = menu_images || [];
-      if (phone_numbers !== undefined) updateData.phone_numbers = phone_numbers || [];
-      if (validatedLatitude !== null) updateData.latitude = validatedLatitude;
-      if (validatedLongitude !== null) updateData.longitude = validatedLongitude;
-      if (rating !== undefined) updateData.rating = rating;
-
-      // Only update if there are fields to update
-      if (Object.keys(updateData).length === 0) {
-        const errorType = 'VALIDATION_ERROR' as ApiErrorType;
-        return NextResponse.json(
-          { error: getErrorMessage(errorType), code: errorType },
-          { status: 400 }
-        );
-      }
-
-      const { data, error } = await supabase
-        .from('restaurants')
-        .update(updateData)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating restaurant:', error);
-        const errorType = 'DATABASE_ERROR' as ApiErrorType;
-        return NextResponse.json(
-          { error: getErrorMessage(errorType), code: errorType },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({ restaurant: data });
+    // Visit system removed (migration 20260625150000_drop_user_restaurant_visits)
+    if (body.action && ['toggle_visited', 'remove_visit', 'add_visit'].includes(body.action)) {
+      return NextResponse.json(
+        { error: 'Visit system has been removed', code: 'GONE' },
+        { status: 410 }
+      );
     }
+
+    const {
+      name,
+      description,
+      image_url,
+      images,
+      display_image_index,
+      location,
+      source_url,
+      menu_links,
+      menu_images,
+      phone_numbers,
+      latitude,
+      longitude,
+      rating
+    } = body;
+
+    // Validate coordinates if provided
+    let validatedLatitude = null;
+    let validatedLongitude = null;
+
+    if (latitude !== undefined && longitude !== undefined) {
+      if (!isValidCoordinates(latitude, longitude)) {
+        return NextResponse.json({ error: 'Invalid coordinates provided' }, { status: 400 });
+      }
+      validatedLatitude = latitude;
+      validatedLongitude = longitude;
+    } else if (latitude !== undefined || longitude !== undefined) {
+      return NextResponse.json({ error: 'Both latitude and longitude must be provided together' }, { status: 400 });
+    }
+
+    // Build update object
+    if (name !== undefined) updateData.name = name.trim();
+    if (description !== undefined) updateData.description = description || null;
+    if (image_url !== undefined) updateData.image_url = image_url || null;
+    if (images !== undefined) updateData.images = images || [];
+    if (display_image_index !== undefined) updateData.display_image_index = display_image_index || -1;
+    if (location !== undefined) updateData.location = location || null;
+    if (source_url !== undefined) updateData.source_url = source_url || null;
+    if (menu_links !== undefined) updateData.menu_links = menu_links || [];
+    if (menu_images !== undefined) updateData.menu_images = menu_images || [];
+    if (phone_numbers !== undefined) updateData.phone_numbers = phone_numbers || [];
+    if (validatedLatitude !== null) updateData.latitude = validatedLatitude;
+    if (validatedLongitude !== null) updateData.longitude = validatedLongitude;
+    if (rating !== undefined) updateData.rating = rating;
+
+    // Only update if there are fields to update
+    if (Object.keys(updateData).length === 0) {
+      const errorType = 'VALIDATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from('restaurants')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating restaurant:', error);
+      const errorType = 'DATABASE_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ restaurant: data });
     } catch (error) {
       console.error('Unexpected error:', error);
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;

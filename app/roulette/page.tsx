@@ -139,7 +139,6 @@ export default function RoulettePage() {
       if (filters.priceMax != null && (r.price_per_person ?? Infinity) > filters.priceMax) return false;
       // Rating filter
       if (filters.ratingMin != null && (r.rating ?? 0) < filters.ratingMin) return false;
-      // Visited filter
       return true;
     });
   }, [sourceRestaurants, filters]);

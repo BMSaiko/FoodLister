@@ -20,8 +20,7 @@ export interface Database {
            phone_number: string | null;
            user_id_code: string | null;
            public_profile: boolean;
-           total_restaurants_visited: number;
-           total_reviews: number;
+            total_reviews: number;
            total_lists: number;
            total_restaurants_added: number;
            is_verified: boolean;
