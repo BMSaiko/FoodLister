@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Share2, Calendar, Edit, Star, Euro, ChevronLeft, ChevronRight, X, ZoomIn, MapPin } from "lucide-react";
 import { getRatingClass, categorizePriceLevel } from "@/utils/formatters";
+import Modal from "@/components/ui/Modal";
 
 interface HeroSectionProps {
   restaurant: {
@@ -178,29 +179,32 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
       )}
 
       {/* Lightbox */}
-      {lightboxOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl" onClick={closeLightbox}>
-          <div className="relative w-full h-full flex items-center justify-center p-4" onClick={e => e.stopPropagation()}>
-            <button onClick={closeLightbox} className="absolute top-4 right-4 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110">
-              <X className="h-5 w-5" />
-            </button>
-            {allImages.length > 1 && (
-              <>
-                <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110">
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110">
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-              </>
-            )}
-            <img src={allImages[lightboxIndex]} alt={`${restaurant.name} - Foto ${lightboxIndex + 1}`} className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl" />
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-xl text-white px-4 py-2 rounded-full text-sm font-medium border border-white/[0.08]">
-              {lightboxIndex + 1} / {allImages.length}
-            </div>
+      <Modal
+        isOpen={lightboxOpen}
+        onClose={closeLightbox}
+        variant="full-screen"
+        ariaLabel="Lightbox de imagens do restaurante"
+      >
+        <div className="relative w-full h-full flex items-center justify-center p-4" onClick={e => e.stopPropagation()}>
+          <button onClick={closeLightbox} className="absolute top-4 right-4 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110">
+            <X className="h-5 w-5" />
+          </button>
+          {allImages.length > 1 && (
+            <>
+              <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110">
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110">
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            </>
+          )}
+          <img src={allImages[lightboxIndex]} alt={`${restaurant.name} - Foto ${lightboxIndex + 1}`} className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl" />
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-xl text-white px-4 py-2 rounded-full text-sm font-medium border border-white/[0.08]">
+            {lightboxIndex + 1} / {allImages.length}
           </div>
         </div>
-      )}
+      </Modal>
     </>
   );
 }

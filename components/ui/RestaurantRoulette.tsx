@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Shuffle, X, ExternalLink, MapPin, Star, ChevronLeft, Sparkles, Trophy, RotateCcw } from "lucide-react";
 import Link from "next/link";
+import Modal from "./Modal";
 
 interface Restaurant {
   id: string;
@@ -96,14 +97,14 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
 
   if (restaurants.length === 0) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050505]/95 backdrop-blur-xl p-4">
-        <div className="max-w-md w-full p-8 rounded-3xl bg-white/[0.03] border border-white/[0.06] text-center">
+      <Modal isOpen={true} onClose={onClose} size="sm" ariaLabel="Sem restaurantes">
+        <div className="p-8 text-center">
           <div className="text-6xl mb-4">🎰</div>
           <h3 className="text-xl font-bold text-white/80 mb-2">Roleta de Restaurantes</h3>
           <p className="text-white/40">Nao ha restaurantes nesta lista para girar.</p>
           <button onClick={onClose} className="mt-6 px-6 py-2.5 rounded-full bg-white/[0.06] text-white/70 hover:bg-white/[0.1] transition-all duration-200 text-sm font-medium">Fechar</button>
         </div>
-      </div>
+      </Modal>
     );
   }
 

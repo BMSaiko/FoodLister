@@ -14,8 +14,8 @@ interface RestaurantCardActionsProps {
     longitude?: number;
     source_url?: string;
   };
-  visited: boolean;
   isUpdating: boolean;
+  visited: boolean;
   onToggleVisited: (e: React.MouseEvent) => void;
 }
 

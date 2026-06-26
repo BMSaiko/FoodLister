@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Share2, Calendar, Edit, Check, X, Plus, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface RestaurantStickyNavbarProps {
-  visited: boolean;
   onShare: () => void;
   onSchedule: () => void;
   onEdit?: () => void;
@@ -13,6 +12,7 @@ interface RestaurantStickyNavbarProps {
   loadingVisits: boolean;
   user?: any;
   restaurant?: any;
+  visited: boolean;
 }
 
 export default function RestaurantStickyNavbar({
@@ -148,7 +148,6 @@ export default function RestaurantStickyNavbar({
           <div className="flex items-center gap-2 flex-shrink-0">
             {/* Visit Counter with Switch Button */}
             <div className="flex items-center gap-2 bg-[var(--primary-lighter)] rounded-full px-3 py-2 border border-[var(--primary)]">
-              {/* Switch Button replacing "Visitas" text */}
               <button
                 onClick={onToggleVisited}
                 disabled={isUpdating || loadingVisits}
