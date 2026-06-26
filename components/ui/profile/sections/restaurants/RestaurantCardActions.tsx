@@ -117,7 +117,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
         <button
           onClick={handleOpenMapModal}
           className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
-          title="Abrir mapa"
+          data-tooltip="Abrir mapa"
         >
           <MapPin className="h-4 w-4 text-gray-600" />
           <span className="text-xs font-medium hidden sm:inline text-gray-600">Mapa</span>
@@ -148,7 +148,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
         <button
           onClick={handleEditRestaurant}
           className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
-          title="Editar restaurante"
+          data-tooltip="Editar restaurante"
         >
           <Edit className="h-4 w-4 text-amber-600" />
           <span className="text-xs font-medium hidden sm:inline text-amber-600">Editar</span>
@@ -161,7 +161,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
         <button
           onClick={handleDeleteRestaurant}
           className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
-          title="Excluir restaurante"
+          data-tooltip="Excluir restaurante"
         >
           <Trash2 className="h-4 w-4 text-red-600" />
           <span className="text-xs font-medium hidden sm:inline text-red-600">Excluir</span>

@@ -203,7 +203,7 @@ export default function RestaurantImageManager({
                       type="button"
                       onClick={() => handleRemoveImage(index)}
                       className="p-2 bg-[var(--red-500)] text-[var(--primary-foreground)] rounded-full hover:bg-[var(--red-600)] transition-all duration-200 shadow-lg"
-                      title="Remover imagem"
+                      data-tooltip="Remover imagem"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -219,7 +219,7 @@ export default function RestaurantImageManager({
                     onClick={() => handleMoveUp(index)}
                     disabled={index === 0}
                     className="px-2 py-1 text-xs bg-[var(--gray-100)] hover:bg-[var(--gray-200)] disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
-                    title="Mover para cima"
+                    data-tooltip="Mover para cima"
                   >
                     ↑
                   </button>
@@ -228,7 +228,7 @@ export default function RestaurantImageManager({
                     onClick={() => handleMoveDown(index)}
                     disabled={index === localImages.length - 1}
                     className="px-2 py-1 text-xs bg-[var(--gray-100)] hover:bg-[var(--gray-200)] disabled:opacity-50 disabled:cursor-not-allowed rounded transition-colors"
-                    title="Mover para baixo"
+                    data-tooltip="Mover para baixo"
                   >
                     ↓
                   </button>
@@ -241,7 +241,7 @@ export default function RestaurantImageManager({
                       ? 'bg-[var(--amber-500)] text-[var(--primary-foreground)]'
                       : 'bg-[var(--amber-100)] text-[var(--amber-700)] hover:bg-[var(--amber-200)]'
                   }`}
-                  title="Definir como imagem principal"
+                  data-tooltip="Definir como imagem principal"
                 >
                   <Star className={`h-3 w-3 ${selectedDisplayIndex === index ? 'fill-current' : ''}`} />
                   {selectedDisplayIndex === index ? 'Principal' : 'Definir'}
