@@ -10,7 +10,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; restaurantId: string }> }
 ) {
   try {
-    const supabase = await getServerClient();
+    const supabase = await getServerClient(request);
     if (!supabase) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json(
