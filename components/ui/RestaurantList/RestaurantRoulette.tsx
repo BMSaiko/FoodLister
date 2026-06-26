@@ -10,7 +10,7 @@ import RestaurantCard from '../RestaurantCard';
 import { toast } from 'react-toastify';
 import RouletteFilters from '../Filters/RouletteFilters';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
-import type { RestaurantWithDetails, RestaurantVisitsData } from '@/libs/types';
+import type { RestaurantWithDetails } from '@/libs/types';
 
 interface FilterPreset {
   name: string;
@@ -28,9 +28,7 @@ const RestaurantRoulette = () => {
   const { user, getAccessToken } = useAuth();
   const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantWithDetails[]>([]);
-  const [visitsData, setVisitsData] = useState<RestaurantVisitsData>({});
   const [loading, setLoading] = useState(true);
-  const [loadingVisits, setLoadingVisits] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<RestaurantWithDetails | null>(null);
   const [rotation, setRotation] = useState(0);
@@ -165,61 +163,9 @@ const RestaurantRoulette = () => {
   }, []);
   
   // Buscar dados de visitas para usuários autenticados
-  useEffect(() => {
-    const fetchVisitsData = async () => {
-      if (!user || restaurants.length === 0) {
-        return;
-      }
-      
-      setLoadingVisits(true);
-      try {
-        const token = await getAccessToken();
-        if (!token) {
-          setLoadingVisits(false);
-          return;
-        }
-        
-        const restaurantIds = restaurants.map(r => r.id);
-        
-        const response = await fetch('/api/restaurants/visits', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ restaurantIds }),
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setVisitsData(data);
-        } else {
-          console.error('Failed to fetch visits data for roulette, status:', response.status);
-          // Set default visits data on failure
-          const defaultVisitsData: RestaurantVisitsData = {};
-          restaurantIds.forEach(id => {
-            defaultVisitsData[id] = { visited: false, visit_count: 0 };
-          });
-          setVisitsData(defaultVisitsData);
-        }
-      } catch (error) {
-        console.error('Error fetching visits data for roulette:', error);
-        // Set default visits data on error
-        const defaultVisitsData: RestaurantVisitsData = {};
-        restaurants.forEach(restaurant => {
-          defaultVisitsData[restaurant.id] = { visited: false, visit_count: 0 };
-        });
-        setVisitsData(defaultVisitsData);
-      } finally {
-        setLoadingVisits(false);
-      }
-    };
-    
-    fetchVisitsData();
-  }, [user, restaurants, getAccessToken]);
   
   // Usar o sistema de filtros lógicos
-  const { filters, setFilters, filteredRestaurants: filteredRestaurantsFromLogic, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
+  const { filters, setFilters, filteredRestaurants: filteredRestaurantsFromLogic, activeFilters, clearFilters } = useFiltersLogic(restaurants, user);
   
   // Atualizar filteredRestaurants com base na lógica de filtros
   useEffect(() => {
@@ -235,7 +181,8 @@ const RestaurantRoulette = () => {
     
     setFilteredRestaurants(filtered);
     setSelectedRestaurant(null);
-  }, [restaurants, filteredRestaurantsFromLogic, selectedRestaurantsForRoulette, visitsData, user]);
+  }, [restaurants, selectedRestaurantsForRoulette, filteredRestaurantsFromLogic]);
+
   
   const handleSpin = () => {
     if (filteredRestaurants.length === 0) {
@@ -258,74 +205,6 @@ const RestaurantRoulette = () => {
     }, 3000);
   };
   
-  const handleToggleVisit = async (restaurantId: string) => {
-    if (!user) {
-      return;
-    }
-    
-    try {
-      const token = await getAccessToken();
-      if (!token) {
-        console.error('No access token available');
-        return;
-      }
-      
-      const response = await fetch(`/api/restaurants/${restaurantId}/visits`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ action: 'toggle_visited' }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to toggle visit status');
-      }
-      
-      const data = await response.json();
-      
-      // Update local visits data
-      setVisitsData(prev => ({
-        ...prev,
-        [restaurantId]: {
-          visited: data.visited,
-          visit_count: data.visit_count
-        }
-      }));
-      
-      // Show success toast
-      toast.success(
-        data.visited
-          ? 'Restaurante marcado como visitado!'
-          : 'Restaurante marcado como não visitado!',
-        {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "light",
-          className: "text-sm sm:text-base"
-        }
-      );
-    } catch (err) {
-      console.error('Erro ao alterar status de visita:', err);
-      
-      // Show error toast
-      toast.error('Erro ao alterar status de visita. Tente novamente.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-        className: "text-sm sm:text-base"
-      });
-    }
-  };
   
   const availableCount = filteredRestaurants.length;
   const totalCount = restaurants.length;
@@ -698,17 +577,6 @@ const RestaurantRoulette = () => {
               <RestaurantCard
                 restaurant={selectedRestaurant}
                 centered={true}
-                visitsData={visitsData[selectedRestaurant.id]}
-                loadingVisits={loadingVisits}
-                onVisitsDataUpdate={(restaurantId, newVisitsData) => {
-                  setVisitsData(prev => ({
-                    ...prev,
-                    [restaurantId]: {
-                      visited: newVisitsData.visited,
-                      visit_count: newVisitsData.visit_count
-                    }
-                  }));
-                }}
               />
             </div>
           </div>
@@ -1059,24 +927,6 @@ const RestaurantRoulette = () => {
                             <div className="text-xs sm:text-sm flex-shrink-0 ml-2 flex items-center gap-1">
                               {user ? (
                                 <>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleToggleVisit(restaurant.id);
-                                    }}
-                                    disabled={loadingVisits}
-                                    className={`px-2 py-1 rounded-full font-medium transition-all duration-200 ${
-                                      visitsData[restaurant.id]?.visited
-                                        ? 'bg-[var(--blue-100)] text-[var(--blue-700)] hover:bg-[var(--blue-200)]'
-                                        : 'bg-[var(--amber-100)] text-[var(--amber-700)] hover:bg-[var(--amber-200)]'
-                                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                                    title={`Clique para marcar como ${visitsData[restaurant.id]?.visited ? 'não visitado' : 'visitado'}`}
-                                  >
-                                    {visitsData[restaurant.id]?.visited ? 'Visitado' : 'Não Visitado'}
-                                  </button>
-                                  {loadingVisits && (
-                                    <div className="w-3 h-3 border border-[var(--gray-400)] border-t-transparent rounded-full animate-spin"></div>
-                                  )}
                                 </>
                               ) : (
                                 <span className="px-2 py-1 rounded-full font-medium bg-[var(--gray-100)] text-[var(--gray-600)]">

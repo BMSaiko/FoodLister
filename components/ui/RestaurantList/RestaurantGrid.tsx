@@ -8,16 +8,12 @@ import { EmptyState } from '@/components/ui/common/EmptyState';
 interface RestaurantGridProps {
   restaurants: RestaurantWithDetails[];
   visitsData: { [restaurantId: string]: VisitData };
-  loadingVisits: boolean;
-  onVisitsDataUpdate: (restaurantId: string, data: { visited: boolean; visit_count: number }) => void;
   searchQuery?: string | null;
 }
 
 export function RestaurantGrid({
   restaurants,
   visitsData,
-  loadingVisits,
-  onVisitsDataUpdate,
   searchQuery,
 }: RestaurantGridProps) {
   if (!restaurants || restaurants.length === 0) {
@@ -30,7 +26,6 @@ export function RestaurantGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
       {restaurants.map((restaurant, index) => {
-        const restaurantVisitsData = visitsData[restaurant.id];
         const variant = bentoPattern[index % bentoPattern.length] as 'large' | 'small';
 
         return (
@@ -47,9 +42,6 @@ export function RestaurantGrid({
           >
             <RestaurantCard
               restaurant={restaurant}
-              visitsData={restaurantVisitsData}
-              loadingVisits={loadingVisits}
-              onVisitsDataUpdate={onVisitsDataUpdate}
               variant={variant}
             />
           </motion.div>

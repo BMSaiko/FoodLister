@@ -3,7 +3,6 @@ import { Share2, Calendar, Edit, Check, X, Plus, ArrowUp, ArrowDown } from 'luci
 
 interface RestaurantStickyNavbarProps {
   visited: boolean;
-  visitCount: number;
   onShare: () => void;
   onSchedule: () => void;
   onEdit?: () => void;
@@ -18,7 +17,6 @@ interface RestaurantStickyNavbarProps {
 
 export default function RestaurantStickyNavbar({
   visited,
-  visitCount,
   onShare,
   onSchedule,
   onEdit,
@@ -184,15 +182,13 @@ export default function RestaurantStickyNavbar({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={onRemoveVisit}
-                    disabled={visitCount <= 0 || !visited}
-                    className="flex items-center justify-center w-6 h-6 bg-[var(--red-500)] hover:bg-[var(--red-600)] active:bg-[var(--red-700)] text-white rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
+                                      className="flex items-center justify-center w-6 h-6 bg-[var(--red-500)] hover:bg-[var(--red-600)] active:bg-[var(--red-700)] text-white rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     title="Remover -1 visita"
                   >
                     <X className="h-3 w-3" />
                   </button>
                   <span className="text-sm font-bold text-[var(--primary-dark)] tabular-nums min-w-[20px] text-center">
-                    {visitCount}
-                  </span>
+                                    </span>
                   <button
                     onClick={onAddVisit}
                     disabled={!visited}

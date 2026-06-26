@@ -3,12 +3,9 @@ import RestaurantCard from "@/components/ui/RestaurantCard";
 
 interface ListRestaurantGridProps {
   restaurants: any[];
-  visitsData: Record<string, any>;
-  loadingVisits: boolean;
-  onVisitsDataUpdate: (id: string, data: { visited: boolean; visit_count: number }) => void;
 }
 
-export default function ListRestaurantGrid({ restaurants, visitsData, loadingVisits, onVisitsDataUpdate }: ListRestaurantGridProps) {
+export default function ListRestaurantGrid({ restaurants }: ListRestaurantGridProps) {
   const [selectedCuisine, setSelectedCuisine] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -96,10 +93,7 @@ export default function ListRestaurantGrid({ restaurants, visitsData, loadingVis
             <RestaurantCard
               restaurant={restaurant}
               variant={i === 0 && !selectedCuisine ? "large" : "small"}
-              visitsData={visitsData[restaurant.id] || null}
-              loadingVisits={loadingVisits}
-              onVisitsDataUpdate={onVisitsDataUpdate}
-            />
+                                                      />
           </div>
         ))}
       </div>

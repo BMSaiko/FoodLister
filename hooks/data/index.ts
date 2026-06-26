@@ -24,5 +24,4 @@ export type { MutationResult, UseApiMutationOptions } from './useApiMutation';
 export { useRestaurants } from './useRestaurants';
 export { useUserData } from './useUserData';
 export { useUserCache } from './useUserCache';
-export { useVisitsData } from './useVisitsData';
 export { useSettings } from './useSettings';

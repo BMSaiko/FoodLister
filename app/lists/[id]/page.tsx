@@ -8,7 +8,6 @@ import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { useShare } from "@/hooks/utilities/useShare";
-import { useVisitsData } from "@/hooks/data/useVisitsData";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import Skeleton from "@/components/ui/Skeleton";
 import ListCover from "@/components/ui/lists/ListCover";
@@ -71,7 +70,6 @@ export default function ListDetails() {
   const [deleting, setDeleting] = useState(false);
   const [duplicating, setDuplicating] = useState(false);
   const { share } = useShare();
-  const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
 
   useEffect(() => {
     async function fetchListDetails() {
@@ -265,9 +263,6 @@ export default function ListDetails() {
           {/* Restaurant Grid */}
           <ListRestaurantGrid
             restaurants={restaurants}
-            visitsData={visitsData}
-            loadingVisits={loadingVisits}
-            onVisitsDataUpdate={handleVisitsDataUpdate}
           />
 
           {/* Export */}

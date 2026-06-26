@@ -14,7 +14,6 @@ import { Review } from "@/libs/types";
 import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
 import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
 const CategoryChips = dynamic(() => import("@/components/ui/RestaurantDetails/CategoryChips"));
-import VisitIsland from "@/components/ui/RestaurantDetails/VisitIsland";
 const ReviewsSkeleton = () => (
   <div className="space-y-3">
     {[1, 2, 3].map(i => (
@@ -83,13 +82,11 @@ export default function RestaurantDetails() {
   const supabase = createClient();
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-  const [visitData, setVisitData] = useState({ visited: false, visit_count: 0 });
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [isUpdating, setIsUpdating] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
   const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
@@ -279,40 +276,7 @@ export default function RestaurantDetails() {
     fetchUserProfile();
   }, [user?.id, get]);
 
-  // Fetch visit data for authenticated users
-  useEffect(() => {
-    const fetchVisitData = async () => {
-      if (!user) return;
 
-      try {
-        const response = await get(`/api/restaurants/${id}/visits`);
-        const data = await response.json();
-        setVisitData({ visited: data.visited, visit_count: data.visit_count });
-      } catch (error) {
-        logError('Error fetching visit data', error);
-      }
-    };
-
-    fetchVisitData();
-  }, [user, id, get]);
-
-  // Ensure visit count is updated when visited becomes true
-  useEffect(() => {
-    if (visitData.visited && visitData.visit_count === 0) {
-      // If visited is true but visitCount is still 0, refetch the data
-      const refetchVisitData = async () => {
-        try {
-          const response = await get(`/api/restaurants/${id}/visits`);
-          const data = await response.json();
-          setVisitData(prev => ({ ...prev, visit_count: data.visit_count }));
-        } catch (error) {
-          logError('Error refetching visit data', error);
-        }
-      };
-
-      refetchVisitData();
-    }
-  }, [visitData.visited, visitData.visit_count, id, get]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -456,115 +420,8 @@ export default function RestaurantDetails() {
     }
   };
   
-  const handleToggleVisited = async () => {
-    setIsUpdating(true);
-    try {
-      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'toggle_visited' } as any);
-      const data = await response.json();
-      setVisitData({ visited: data.visited, visit_count: data.visit_count });
 
-      // Show success toast
-      toast.success(
-        data.visited
-          ? 'Restaurante marcado como visitado!'
-          : 'Restaurante marcado como não visitado!',
-        {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-          className: "text-sm sm:text-base"
-        }
-      );
-    } catch (err) {
-      logError('Erro ao atualizar status de visitado', err);
 
-      // Show error toast
-      toast.error('Erro ao atualizar status de visita. Tente novamente.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        className: "text-sm sm:text-base"
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleAddVisit = async () => {
-    try {
-      const response = await post(`/api/restaurants/${id}/visits`);
-      const data = await response.json();
-        setVisitData(prev => ({ ...prev, visit_count: data.visit_count }));
-
-      // Show success toast
-      toast.success('Visita adicionada com sucesso!', {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        className: "text-sm sm:text-base"
-      });
-    } catch (err) {
-      logError('Erro ao adicionar visita', err);
-
-      // Show error toast
-      toast.error('Erro ao adicionar visita. Tente novamente.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        className: "text-sm sm:text-base"
-      });
-    }
-  };
-
-  const handleRemoveVisit = async () => {
-    try {
-      const response = await patch(`/api/restaurants/${id}/visits`, { action: 'remove_visit' } as any);
-      const data = await response.json();
-        setVisitData(prev => ({ ...prev, visit_count: data.visit_count, visited: data.visited }));
-
-      // Show success toast
-      toast.success('Visita removida com sucesso!', {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        className: "text-sm sm:text-base"
-      });
-    } catch (err) {
-      logError('Erro ao remover visita', err);
-
-      // Show error toast
-      toast.error('Erro ao remover visita. Tente novamente.', {
-        position: "top-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        className: "text-sm sm:text-base"
-      });
-    }
-  };
   
 
 
@@ -847,17 +704,6 @@ export default function RestaurantDetails() {
               features={restaurant.features || []}
             />
 
-            {/* Visit Island */}
-            {user && (
-              <VisitIsland
-                visited={visitData.visited}
-                visitCount={visitData.visit_count}
-                onToggleVisited={handleToggleVisited}
-                onAddVisit={handleAddVisit}
-                onRemoveVisit={handleRemoveVisit}
-                isUpdating={isUpdating}
-              />
-            )}
 
             {/* Reviews Feed */}
             <ReviewsFeed

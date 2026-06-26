@@ -11,12 +11,8 @@ interface RestaurantHeaderProps {
   user?: any;
   showActions?: boolean;
   visited?: boolean;
-  visitCount?: number;
   onToggleVisited?: () => void;
-  onAddVisit?: () => void;
-  onRemoveVisit?: () => void;
   isUpdating?: boolean;
-  loadingVisits?: boolean;
 }
 
 export default function RestaurantHeader({
@@ -27,12 +23,8 @@ export default function RestaurantHeader({
   user,
   showActions = true,
   visited = false,
-  visitCount = 0,
   onToggleVisited,
-  onAddVisit,
-  onRemoveVisit,
   isUpdating = false,
-  loadingVisits = false
 }: RestaurantHeaderProps) {
   const ratingClass = getRatingClass(restaurant.rating || 0);
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
@@ -57,52 +49,6 @@ export default function RestaurantHeader({
     );
   };
 
-  const renderVisitCounter = () => {
-    if (!onAddVisit || !onRemoveVisit) return null;
-
-    return (
-      <div className="flex items-center gap-3 bg-white/[0.03] p-3 rounded-xl ring-1 ring-white/10">
-        {onToggleVisited && (
-          <button
-            onClick={onToggleVisited}
-            disabled={isUpdating || loadingVisits}
-            className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed${loadingVisits ? ' bg-amber-500/20 text-amber-400 animate-pulse' : visited ? ' bg-green-500/20 text-green-400 ring-1 ring-green-500/30 hover:bg-green-500/30' : ' bg-white/[0.06] text-white/60 ring-1 ring-white/10 hover:bg-white/[0.08]'}`}
-          >
-            {loadingVisits ? (
-              <div className="h-4 w-4 rounded-full border-2 border-white/20 border-t-amber-400 animate-spin" />
-            ) : visited ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <X className="h-4 w-4" />
-            )}
-            <span>{visited ? 'Visitado' : 'Nao visitado'}</span>
-          </button>
-        )}
-
-        {visited && (
-          <div className="flex items-center gap-2 bg-white/[0.03] rounded-full px-3 py-1.5 ring-1 ring-white/10 ml-auto">
-            <button
-              onClick={onRemoveVisit}
-              disabled={visitCount <= 0 || !visited}
-              className="flex items-center justify-center w-8 h-8 bg-red-500/20 text-red-400 rounded-full hover:bg-red-500/30 transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <X className="h-4 w-4" />
-            </button>
-            <span className="text-lg font-bold text-amber-400 tabular-nums min-w-[24px] text-center">
-              {visitCount}
-            </span>
-            <button
-              onClick={onAddVisit}
-              disabled={!visited}
-              className="flex items-center justify-center w-8 h-8 bg-amber-500/20 text-amber-400 rounded-full hover:bg-amber-500/30 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   return (
     <div id="restaurant-header" className="rounded-2xl overflow-hidden mb-4 bg-white/[0.03] border border-white/[0.06]">
@@ -165,8 +111,7 @@ export default function RestaurantHeader({
               </div>
             )}
             <div className="flex items-center gap-4 justify-end w-full">
-              {renderVisitCounter()}
-            </div>
+              </div>
           </div>
         </div>
       </div>

@@ -7,7 +7,6 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { FiltersProvider } from '@/contexts/index';
 import { useRestaurants } from '@/hooks/data/useRestaurants';
-import { useVisitsData } from '@/hooks/data/useVisitsData';
 import { useAuth } from '@/contexts';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useSearchParams } from 'next/navigation';
@@ -23,8 +22,6 @@ function RestaurantsContent() {
   const searchQuery = searchParams.get('search');
   const { user } = useAuth();
   const { restaurants, loading } = useRestaurants({ searchQuery });
-  const { visitsData, loadingVisits, handleVisitsDataUpdate } = useVisitsData(restaurants, user);
-  const { filters, setFilters, filteredRestaurants: _, activeFilters, clearFilters } = useFiltersLogic(restaurants, visitsData, user);
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
 
   return (
@@ -51,9 +48,6 @@ function RestaurantsContent() {
         ) : (
           <RestaurantGrid
             restaurants={filteredRestaurants}
-            visitsData={visitsData}
-            loadingVisits={loadingVisits}
-            onVisitsDataUpdate={handleVisitsDataUpdate}
             searchQuery={searchQuery}
           />
         )}

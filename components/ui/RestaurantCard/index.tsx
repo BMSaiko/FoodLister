@@ -3,30 +3,23 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, MapPin, Eye, Check } from 'lucide-react';
+import { Star, MapPin, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts';
-import { RestaurantWithDetails, VisitData } from '@/libs/types';
+import { RestaurantWithDetails } from '@/libs/types';
 
 interface RestaurantCardProps {
   restaurant: RestaurantWithDetails;
   variant?: 'large' | 'small';
   centered?: boolean;
-  visitsData?: VisitData | null;
-  loadingVisits?: boolean;
-  onVisitsDataUpdate?: (restaurantId: string, data: { visited: boolean; visit_count: number }) => void;
 }
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({
   restaurant,
   variant = 'small',
   centered = false,
-  visitsData = null,
-  loadingVisits = false,
-  onVisitsDataUpdate = null,
 }) => {
   const { user } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
-  const [visited, setVisited] = useState(visitsData?.visited || false);
 
   const isLarge = variant === 'large';
   const isValidUrl = (url: string | null | undefined): boolean => {
@@ -139,28 +132,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
                   <Eye className="w-3.5 h-3.5" />
                   Ver
                 </Link>
-                {user && onVisitsDataUpdate && (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const newVisited = !visited;
-                      setVisited(newVisited);
-                      onVisitsDataUpdate(restaurant.id, {
-                        visited: newVisited,
-                        visit_count: (visitsData?.visit_count || 0) + (newVisited ? 1 : -1),
-                      });
-                    }}
-                    className={`flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-full transition-colors ${
-                      visited
-                        ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-                        : 'bg-white/[0.03] text-[var(--foreground-secondary)] hover:bg-white/[0.06] border border-white/[0.08]'
-                    }`}
-                  >
-                    <Check className="w-3.5 h-3.5" />
-                    {visited ? 'Visitado' : 'Visitar'}
-                  </button>
-                )}
               </div>
             </div>
           </motion.div>

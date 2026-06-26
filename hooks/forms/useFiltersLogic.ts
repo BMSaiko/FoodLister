@@ -28,7 +28,6 @@ interface Filters {
     distance?: number;
     coordinates?: { lat: number; lng: number };
   };
-  visit_count?: { min?: number; max?: number };
   visited?: boolean;
   not_visited?: boolean;
 }
@@ -49,14 +48,12 @@ const initialFilters: Filters = {
   price_range: { min: 0, max: 100 },
   rating_range: { min: 0, max: 5 },
   location: { city: '', distance: 50 },
-  visit_count: { min: 0, max: 100 },
   visited: false,
   not_visited: false
 };
 
 export function useFiltersLogic(
   restaurants: RestaurantWithDetails[],
-  visitsData: RestaurantVisitsData,
   user: User | null
 ): UseFiltersLogicReturn {
   const [filters, setFilters] = useState<Filters>(initialFilters);
@@ -178,55 +175,13 @@ export function useFiltersLogic(
         }
       }
 
-      // Visit count filter (users only)
-      if (user && filters.visit_count) {
-        const { min, max } = filters.visit_count;
-        const restaurantVisitsData = visitsData[restaurant.id];
-        const visitCount = restaurantVisitsData ? restaurantVisitsData.visit_count : 0;
-        
-        // Apply visit count filtering based on current filter state
-        const shouldFilter = shouldApplyVisitCountFilter(filters, min, max);
-        
-        if (shouldFilter) {
-          const { effectiveMin, effectiveMax } = getVisitCountRange(filters, min, max);
-          
-          // Apply the filtering
-          if (effectiveMin !== undefined && visitCount < effectiveMin) {
-            return false;
-          }
-          if (effectiveMax !== undefined && visitCount > effectiveMax) {
-            return false;
-          }
-          
-        } else {
-        }
-      }
-
-      // Visit status filters (users only)
-      if (user) {
-        const restaurantVisitsData = visitsData[restaurant.id];
-        const isVisited = restaurantVisitsData ? restaurantVisitsData.visited : false;
-
-        if (filters.visited && !isVisited) {
-          return false;
-        }
-
-        if (filters.not_visited && isVisited) {
-          return false;
-        }
-      } else {
-        // For non-logged users, visit filters don't apply
-        if (filters.visited) {
-          return false; // No restaurant is considered visited for non-logged users
-        }
-      }
 
       return true;
     });
 
     setActiveFilters(true);
     return filtered;
-  }, [filters, restaurants, visitsData, user]);
+  }, [filters, restaurants, user]);
 
   // Limpar filtros
   const clearFilters = () => {
