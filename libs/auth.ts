@@ -149,7 +149,6 @@ export interface UserProfile {
   public_profile: boolean;
   created_at: string;
   updated_at: string;
-  total_restaurants_visited: number;
   total_reviews: number;
   total_lists: number;
   total_restaurants_added: number;
@@ -246,7 +245,6 @@ export async function getUserProfileData(
         public_profile,
         created_at,
         updated_at,
-        total_restaurants_visited,
         total_reviews,
         total_lists,
         total_restaurants_added
@@ -271,7 +269,6 @@ export async function getUserProfileData(
       public_profile: p.public_profile,
       created_at: p.created_at,
       updated_at: p.updated_at,
-      total_restaurants_visited: p.total_restaurants_visited || 0,
       total_reviews: p.total_reviews || 0,
       total_lists: p.total_lists || 0,
       total_restaurants_added: p.total_restaurants_added || 0
@@ -332,13 +329,13 @@ export async function getUserReviewsData(
       comment: string | null;
       amount_spent: number | null;
       created_at: string;
-      restaurants: Array<{
+      restaurants: {
         id: string;
         name: string;
         image_url: string | null;
         rating: number;
         location: string;
-      }> | null;
+      } | null;
     };
 
     const reviews = (reviewsData as unknown as Array<ReviewQueryResult>)?.map((review) => ({
@@ -347,12 +344,12 @@ export async function getUserReviewsData(
       comment: review.comment,
       amountSpent: review.amount_spent,
       createdAt: review.created_at,
-      restaurant: review.restaurants && review.restaurants.length > 0 ? {
-        id: review.restaurants[0].id,
-        name: review.restaurants[0].name,
-        imageUrl: review.restaurants[0].image_url,
-        rating: review.restaurants[0].rating,
-        location: review.restaurants[0].location
+      restaurant: review.restaurants ? {
+        id: review.restaurants.id,
+        name: review.restaurants.name,
+        imageUrl: review.restaurants.image_url,
+        rating: review.restaurants.rating,
+        location: review.restaurants.location
       } : null
     })) || [];
 

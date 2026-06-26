@@ -116,13 +116,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       amountSpent: review.amount_spent,
       createdAt: review.created_at,
       updatedAt: review.updated_at,
-      restaurant: {
+      restaurant: review.restaurants ? {
         id: review.restaurants.id,
         name: review.restaurants.name,
         imageUrl: review.restaurants.image_url,
         rating: review.restaurants.rating,
         location: review.restaurants.location
-      }
+      } : null
     })) || [];
 
     return NextResponse.json({
