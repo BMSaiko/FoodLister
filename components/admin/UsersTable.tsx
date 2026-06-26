@@ -2,7 +2,7 @@ import type { AdminUser } from '@/libs/types';
 import { Shield, ShieldOff, UserX, UserCheck, ExternalLink } from 'lucide-react';
 import { updateUserAdminStatus } from '@/libs/admin';
 import ConfirmModal from './ConfirmModal';
-import { useState } from 'react';
+import { useState, useOptimistic } from 'react';
 import Link from 'next/link';
 
 interface UsersTableProps {
@@ -12,13 +12,31 @@ interface UsersTableProps {
 
 export default function UsersTable({ users, onRefresh }: UsersTableProps) {
   const [confirmModal, setConfirmModal] = useState<{ userId: string; userName: string } | null>(null);
+  const [optimisticUsers, setOptimisticUsers] = useOptimistic(
+    users,
+    (currentUsers: AdminUser[], updatedUsers: AdminUser[]) => updatedUsers
+  );
 
   const toggleAdmin = async (userId: string, currentStatus: boolean) => {
+    const previousUsers = optimisticUsers;
+    const updatedUsers = optimisticUsers.map((u: AdminUser) =>
+      u.user_id === userId ? { ...u, is_admin: !currentStatus } : u
+    );
+    setOptimisticUsers(updatedUsers);
     const success = await updateUserAdminStatus(userId, !currentStatus);
-    if (success) onRefresh();
+    if (success) {
+      onRefresh();
+    } else {
+      setOptimisticUsers(previousUsers);
+    }
   };
 
   const handleDeactivate = async (userId: string) => {
+    const previousUsers = optimisticUsers;
+    const updatedUsers = optimisticUsers.map((u: AdminUser) =>
+      u.user_id === userId ? { ...u, is_active: false } : u
+    );
+    setOptimisticUsers(updatedUsers);
     try {
       const response = await fetch('/api/admin/users/deactivate', {
         method: 'POST',
@@ -28,13 +46,21 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
       });
       if (response.ok) {
         onRefresh();
+      } else {
+        setOptimisticUsers(previousUsers);
       }
     } catch (error) {
+      setOptimisticUsers(previousUsers);
       console.error('Error deactivating user:', error);
     }
   };
 
   const handleReactivate = async (userId: string) => {
+    const previousUsers = optimisticUsers;
+    const updatedUsers = optimisticUsers.map((u: AdminUser) =>
+      u.user_id === userId ? { ...u, is_active: true } : u
+    );
+    setOptimisticUsers(updatedUsers);
     try {
       const response = await fetch('/api/admin/users/deactivate', {
         method: 'POST',
@@ -44,8 +70,11 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
       });
       if (response.ok) {
         onRefresh();
+      } else {
+        setOptimisticUsers(previousUsers);
       }
     } catch (error) {
+      setOptimisticUsers(previousUsers);
       console.error('Error reactivating user:', error);
     }
   };
@@ -66,7 +95,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {optimisticUsers.map(user => (
               <tr key={user.user_id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                 <td className="p-4">
                   <Link href={`/users/${user.user_id_code}`} className="flex items-center gap-3 group">
@@ -116,7 +145,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
                     <Link
                       href={`/admin/users/${user.user_id_code}`}
                       className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
-                      title="Ver detalhe"
+                      data-tooltip="Ver detalhe"
                     >
                       <ExternalLink className="h-3.5 w-3.5 text-white/30 hover:text-blue-400" />
                     </Link>
@@ -124,7 +153,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
                       <button
                         onClick={() => setConfirmModal({ userId: user.user_id, userName: user.display_name || 'Utilizador' })}
                         className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
-                        title="Desativar utilizador"
+                        data-tooltip="Desativar utilizador"
                       >
                         <UserX className="h-3.5 w-3.5 text-white/30 hover:text-red-400" />
                       </button>
@@ -132,7 +161,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
                       <button
                         onClick={() => handleReactivate(user.user_id)}
                         className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
-                        title="Reativar utilizador"
+                        data-tooltip="Reativar utilizador"
                       >
                         <UserCheck className="h-3.5 w-3.5 text-white/30 hover:text-emerald-400" />
                       </button>
@@ -149,7 +178,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
         isOpen={!!confirmModal}
         onClose={() => setConfirmModal(null)}
         onConfirm={() => confirmModal && handleDeactivate(confirmModal.userId)}
-        title="Desativar Utilizador"
+        data-tooltip="Desativar Utilizador"
         message={`Tens a certeza que desejas desativar ${confirmModal?.userName || 'este utilizador'}? A conta será desativada mas os dados mantidos na base de dados.`}
         confirmText="Desativar"
         danger
