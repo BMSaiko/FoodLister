@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { Menu, X, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils } from 'lucide-react';
+import { Menu, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
 import { getClient } from '@/libs/supabase/client';
@@ -28,7 +28,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = getClient();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // No mobile menu — navbar uses bottom tab bar on mobile
   
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -284,14 +284,7 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden w-8 h-8 rounded-full bg-white/[0.03] flex items-center justify-center"
-              aria-label="Menu"
-            >
-              {mobileMenuOpen ? <X className="w-4 h-4 text-[var(--foreground)]" /> : <Menu className="w-4 h-4 text-[var(--foreground)]" />}
-            </button>
+            {/* Mobile: minimal padding, no menu button */}
           </div>
         </motion.nav>
       </motion.header>
@@ -342,64 +335,7 @@ export default function Navbar() {
         </nav>
       </motion.div>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <motion.div
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-4 left-4 right-4 rounded-2xl bg-[var(--card-bg)] border border-white/[0.08] p-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mb-4">
-                <button
-                  onClick={() => { setMobileMenuOpen(false); openGlobalSearch(); }}
-                  className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08] text-left"
-                >
-                  <Search className="h-4 w-4 text-white/25" />
-                  <span className="text-sm text-white/25">Pesquisar...</span>
-                </button>
-              </div>
-              <div className="space-y-1">
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                      activeSection === item.id
-                        ? 'bg-[var(--primary)] text-black'
-                        : 'text-[var(--foreground)] hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                {user && (
-                  <>
-                    <div className="border-t border-white/[0.06] my-2" />
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-[var(--error)] hover:bg-[var(--error-light)]"
-                    >
-                      Sair
-                    </button>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* No mobile menu — navbar is minimal on mobile */}
 
       {/* Spacer for floating navbar */}
       <div className="h-20 md:h-16" />
