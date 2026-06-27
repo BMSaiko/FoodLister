@@ -310,7 +310,6 @@ export default function Navbar() {
             { id: 'search', icon: Search, label: 'Search', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
-            { id: 'notifications', icon: Bell, label: 'Notif.', href: '/notifications', badge: unreadCount },
             { id: 'profile', icon: User, label: 'Perfil', href: user ? `/users/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
           ].map((item) => {
             const isActive =
@@ -332,21 +331,9 @@ export default function Navbar() {
                 </button>
               );
             }
-            // Render icon with optional badge
-            const iconContent = ('badge' in item && item.badge && item.badge > 0) ? (
-              <span className="relative">
-                <item.icon className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center rounded-full bg-[var(--primary)] text-black text-[8px] font-bold px-0.5">
-                  {item.badge > 9 ? '9+' : item.badge}
-                </span>
-              </span>
-            ) : (
-              <item.icon className="w-5 h-5" />
-            );
-
             return (
               <Link key={item.id} href={item.href!} className={baseClass}>
-                {iconContent}
+                <item.icon className="w-5 h-5" />
                 <span className="text-[9px] sm:text-[10px] font-medium">{item.label}</span>
               </Link>
             );
