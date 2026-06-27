@@ -2,8 +2,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation, User } from 'lucide-react';
-import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData, OSMService } from '@/utils/googleMapsExtractor';
+import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation, User, Tag } from 'lucide-react';
+import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData, OSMService, formatPriceLevel } from '@/utils/googleMapsExtractor';
 import { useAuth } from '@/contexts';
 import Modal from '@/components/ui/Modal';
 
@@ -16,6 +16,7 @@ interface GoogleMapsModalProps {
 export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMapsModalProps) {
   const [googleMapsUrl, setGoogleMapsUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState('');
   const [extractedData, setExtractedData] = useState<GoogleMapsData | null>(null);
   const [osmLoading, setOsmLoading] = useState(false);
@@ -40,13 +41,13 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
     try {
       let urlToExtract = googleMapsUrl;
       
-      // Check if it's a short URL that needs resolution
+      // Step 1: Resolve short URL if needed
       const urlObj = new URL(googleMapsUrl);
       const isShortUrl = urlObj.hostname === 'maps.app.goo.gl' || 
                          urlObj.hostname === 'goo.gl';
       
       if (isShortUrl) {
-        // Resolve short URL via server-side API
+        setLoadingStep('A resolver link...');
         const resolveResponse = await fetch(
           `/api/resolve-google-maps-url?url=${encodeURIComponent(googleMapsUrl)}`
         );
@@ -60,17 +61,19 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
         urlToExtract = finalUrl;
       }
       
+      // Step 2: Extract data from URL
+      setLoadingStep('A extrair dados...');
       const data = extractGoogleMapsData(urlToExtract);
       setExtractedData(data);
 
-      // Se extrair coordenadas, buscar endereço via OSM
+      // Step 3: Get address from OSM (reverse geocoding)
       if (data.latitude && data.longitude) {
+        setLoadingStep('A buscar endereço...');
         setOsmLoading(true);
         try {
           const address = await OSMService.getStreetAddress(data.latitude, data.longitude);
           setOsmAddress(address);
           if (address && !data.address) {
-            // Atualiza os dados com o endereço do OSM
             setExtractedData(prev => ({
               ...prev!,
               address: address,
@@ -79,6 +82,27 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
           }
         } catch (osmError) {
           console.error('Erro ao buscar endereço via OSM:', osmError);
+        } finally {
+          setOsmLoading(false);
+        }
+      } else if (data.name && !data.latitude) {
+        // Fallback: forward geocoding from place name
+        setLoadingStep('A buscar localização...');
+        setOsmLoading(true);
+        try {
+          const geoResult = await OSMService.forwardGeocode(data.name);
+          if (geoResult) {
+            setExtractedData(prev => ({
+              ...prev!,
+              latitude: geoResult.latitude,
+              longitude: geoResult.longitude,
+              location: `${geoResult.latitude}, ${geoResult.longitude}`,
+              address: geoResult.display_name
+            }));
+            setOsmAddress(geoResult.display_name);
+          }
+        } catch (geoError) {
+          console.error('Erro no forward geocoding:', geoError);
         } finally {
           setOsmLoading(false);
         }
@@ -92,6 +116,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
       console.error(err);
     } finally {
       setLoading(false);
+      setLoadingStep('');
     }
   };
 
@@ -233,7 +258,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                 {loading ? (
                   <>
                     <Loader className="h-5 w-5 animate-spin" />
-                    Extraindo informações...
+                    {loadingStep || "A processar..."}
                   </>
                 ) : (
                   <>
@@ -285,6 +310,20 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                           {extractedData.latitude.toFixed(6)}, {extractedData.longitude.toFixed(6)}
                         </p>
                         <p className="text-xs text-white/50 mt-1">Latitude, Longitude</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {extractedData.price_level && (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-[var(--yellow-500)]" />
+                        Nível de Preço
+                      </label>
+                      <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-3">
+                        <p className="text-white/90 text-sm">
+                          {formatPriceLevel(extractedData.price_level)} ({extractedData.price_level}/4)
+                        </p>
                       </div>
                     </div>
                   )}

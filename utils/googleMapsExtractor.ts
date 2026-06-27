@@ -12,6 +12,8 @@ export interface GoogleMapsData {
   location?: string;
   latitude?: number;
   longitude?: number;
+  price_level?: number;
+  place_id?: string;
   source_url: string;
 }
 
@@ -27,7 +29,7 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
 
     // Formato: https://www.google.com/maps/place/{name}/{data}/
     // ou https://www.google.com/maps/@{lat},{lng},{zoom}z
-    
+
     // Tenta extrair latitude e longitude de vários formatos
     const coordsMatch = extractCoordinates(url);
     if (coordsMatch) {
@@ -43,7 +45,7 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
       const decodedQuery = query.replace(/\+/g, ' ');
       result.address = decodedQuery;
       result.location = result.location || decodedQuery;
-      
+
       // Tenta extrair nome da rua do parâmetro q
       if (!result.name && decodedQuery) {
         // Remove possíveis números de coordenadas e tenta extrair nome da rua
@@ -61,7 +63,7 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
         const placeName = decodeURIComponent(placeMatch[1]);
         // Remove caracteres especiais que o Google Maps adiciona e converte + para espaços
         result.name = placeName.split('/')[0].replace(/\+/g, ' ').trim();
-        
+
         // Tenta extrair nome da rua do pathname
         if (!result.name || result.name.length < 3) {
           // Remove possíveis IDs e tenta extrair nome da rua
@@ -70,11 +72,37 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
             .replace(/,.*$/, '') // Remove tudo após vírgula
             .replace(/_/g, ' ') // Substitui underscores por espaços
             .trim();
-          
+
           if (streetName && streetName.length > 2 && !streetName.match(/^\d+$/)) {
             result.name = streetName;
           }
         }
+      }
+    }
+
+    // Tenta extrair informações do parâmetro data= (formato Google Maps)
+    // Estrutura: !{segment_id}{type_id}{sub_id}!...
+    // !1s = place_id, !2e = price_level, !3d = lat, !4d = lng
+    const dataParam = searchParams.get('data') || extractDataFromPath(pathname);
+    if (dataParam) {
+      // Extrair place_id: !1s{place_id}
+      const placeIdMatch = dataParam.match(/!1s([^!]+)/);
+      if (placeIdMatch) {
+        result.place_id = placeIdMatch[1];
+      }
+
+      // Extrair price_level: !2e{N} (1=€, 2=€€, 3=€€€)
+      const priceMatch = dataParam.match(/!2e(\d+)/);
+      if (priceMatch) {
+        result.price_level = parseInt(priceMatch[1], 10);
+      }
+
+      // Extrair coordenadas do data=: !3d{lat}!4d{lng}
+      const dataCoordsMatch = dataParam.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+      if (dataCoordsMatch && !result.latitude) {
+        result.latitude = parseFloat(dataCoordsMatch[1]);
+        result.longitude = parseFloat(dataCoordsMatch[2]);
+        result.location = `${result.latitude}, ${result.longitude}`;
       }
     }
 
@@ -89,18 +117,6 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
         if (lastPart && !lastPart.match(/^\d+/)) {
           result.name = decodeURIComponent(lastPart).replace(/\+/g, ' ');
         }
-      }
-    }
-
-    // Tenta extrair informações de parâmetros específicos do Google Maps
-    if (searchParams.has('data')) {
-      const data = searchParams.get('data') || '';
-      // Extrai possíveis informações de endereço do parâmetro data
-      const addressMatch = data.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
-      if (addressMatch && !result.latitude) {
-        result.latitude = parseFloat(addressMatch[1]);
-        result.longitude = parseFloat(addressMatch[2]);
-        result.location = `${result.latitude}, ${result.longitude}`;
       }
     }
 
@@ -218,16 +234,22 @@ export function isValidGoogleMapsUrl(url: string): boolean {
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname;
-    
+
     // Check for short Google Maps URLs (mobile shares)
     if (hostname === 'maps.app.goo.gl' || hostname === 'goo.gl') {
       return true;
     }
-    
+
     // Check for full Google Maps URLs
-    return hostname.includes('google.com') && 
-           (urlObj.pathname.includes('/maps') || 
-            urlObj.pathname.includes('/place'));
+    if (hostname.includes('google.com')) {
+      return urlObj.pathname.includes('/maps') ||
+             urlObj.pathname.includes('/place') ||
+             urlObj.pathname.includes('/dir') ||
+             urlObj.search.includes('ll=') ||
+             urlObj.search.includes('q=');
+    }
+
+    return false;
   } catch {
     return false;
   }
@@ -237,13 +259,32 @@ export function isValidGoogleMapsUrl(url: string): boolean {
  * Formata a string de localização para ser usada no formulário
  */
 export function formatLocationString(data: GoogleMapsData): string {
-  if (data.latitude && data.longitude) {
-    return `${data.latitude}, ${data.longitude}`;
-  }
   if (data.address) {
     return data.address;
   }
+  if (data.latitude && data.longitude) {
+    return `${data.latitude}, ${data.longitude}`;
+  }
   return '';
+}
+
+/**
+ * Converte price_level numérico para símbolo visual
+ */
+export function formatPriceLevel(level?: number): string {
+  if (!level || level < 1 || level > 4) return '';
+  return '€'.repeat(level);
+}
+
+/**
+ * Extrai o parâmetro data= do pathname
+ */
+function extractDataFromPath(pathname: string): string | null {
+  const dataMatch = pathname.match(/[?&]data=([^&]+)/);
+  if (dataMatch) return dataMatch[1];
+  const pathDataMatch = pathname.match(/\/data=([^/]+)/);
+  if (pathDataMatch) return pathDataMatch[1];
+  return null;
 }
 
 /**
@@ -301,9 +342,8 @@ export class OSMService {
    */
   private static formatAddress(address: any): string {
     const parts: string[] = [];
-    const seenParts = new Set<string>(); // Para evitar duplicatas
+    const seenParts = new Set<string>();
 
-    // Função auxiliar para adicionar partes sem duplicatas
     const addPart = (part: string | undefined) => {
       if (part && part.trim() && !seenParts.has(part.trim())) {
         parts.push(part.trim());
@@ -311,29 +351,24 @@ export class OSMService {
       }
     };
 
-    // Prioridade de componentes do endereço - do mais específico para o mais geral
-    // 1. Rua/Avenida/Alameda (componente mais importante para identificação)
     addPart(address.road);
-    addPart(address.pedestrian); // Ruas pedonais
-    addPart(address.footway); // Calçadas
-    addPart(address.path); // Caminhos
-    addPart(address.street); // Rua (alternativo)
-    addPart(address.residential); // Área residencial
-    
-    // 2. Número da casa/edifício
+    addPart(address.pedestrian);
+    addPart(address.footway);
+    addPart(address.path);
+    addPart(address.street);
+    addPart(address.residential);
+
     addPart(address.house_number);
-    addPart(address.building); // Nome do edifício
-    
-    // 3. Bairro/Distrito/Concelho
+    addPart(address.building);
+
     addPart(address.quarter);
     addPart(address.suburb);
     addPart(address.neighbourhood);
     addPart(address.district);
     addPart(address.city_district);
     addPart(address.subdistrict);
-    addPart(address.concelho); // Portugal
-    
-    // 4. Cidade/Localidade
+    addPart(address.concelho);
+
     addPart(address.city);
     addPart(address.town);
     addPart(address.village);
@@ -341,18 +376,15 @@ export class OSMService {
     addPart(address.municipality);
     addPart(address.locality);
     addPart(address.county);
-    
-    // 5. Código postal
+
     addPart(address.postcode);
-    
-    // 6. Estado/Região
+
     addPart(address.state);
     addPart(address.region);
     addPart(address.province);
     addPart(address.administrative);
     addPart(address.state_district);
-    
-    // 7. País
+
     addPart(address.country);
     if (address.country_code) addPart(address.country_code.toUpperCase());
 
@@ -368,6 +400,48 @@ export class OSMService {
       return address;
     } catch (error) {
       logError('Falha ao obter endereço da rua', error);
+      return null;
+    }
+  }
+
+  /**
+   * Forward geocoding via OSM Nominatim — converte nome/address em coords
+   */
+  static async forwardGeocode(query: string): Promise<{ latitude: number; longitude: number; display_name: string } | null> {
+    try {
+      const params = new URLSearchParams({
+        q: query,
+        format: 'json',
+        limit: '1',
+        addressdetails: '1',
+        'accept-language': 'pt-BR,pt,en'
+      });
+
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+        headers: {
+          'User-Agent': OSMService.USER_AGENT,
+          'Accept': 'application/json'
+        },
+        method: 'GET'
+      });
+
+      if (!response.ok) {
+        throw new Error(`OSM Search API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data && data.length > 0) {
+        return {
+          latitude: parseFloat(data[0].lat),
+          longitude: parseFloat(data[0].lon),
+          display_name: data[0].display_name
+        };
+      }
+
+      return null;
+    } catch (error) {
+      logError('Erro no forward geocoding', error);
       return null;
     }
   }
