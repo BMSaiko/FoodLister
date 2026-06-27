@@ -1,12 +1,12 @@
 'use client';
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { FiltersProvider } from '@/contexts/index';
-import { useRestaurants } from '@/hooks/data/useRestaurants';
+import { useAllRestaurants } from '@/hooks/data/useAllRestaurants';
 import { useAuth } from '@/contexts';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useSearchParams } from 'next/navigation';
@@ -22,8 +22,15 @@ function RestaurantsContent() {
   const searchQuery = searchParams.get('search');
   const { user } = useAuth();
   const { restaurants, loading, error } = useAllRestaurants({ searchQuery });
-  // Client-side filter from RestaurantGrid (fetched server-side with rate limit)
-  const filteredRestaurants = restaurants;
+  const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
+
+  // Sync when new data loads (e.g. search query change, refetch)
+  useEffect(() => {
+    setFilteredRestaurants(restaurants);
+  }, [restaurants]);
+
+  // Import useEffect
+
 
 
   return (
