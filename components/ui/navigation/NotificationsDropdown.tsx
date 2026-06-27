@@ -3,25 +3,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
 import { Bell, X, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Loader2 } from 'lucide-react';
 import useNotifications from '@/hooks/data/useNotifications';
 import type { Notification } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
-
-const DROPDOWN_VARIANTS = {
-  hidden: { opacity: 0, y: 8, scale: 0.96 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] as const },
-  },
-  exit: {
-    opacity: 0, y: 4, scale: 0.98,
-    transition: { duration: 0.15 },
-  },
-};
 
 function getNotificationIcon(type: string) {
   const iconClass = 'h-4 w-4';
@@ -77,7 +62,7 @@ function groupByDate(notifications: Notification[]): { label: string; items: Not
 export default function NotificationsDropdown() {
   const router = useRouter();
   const pathname = usePathname();
-  const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification } = useNotifications({ polling: false });
+  const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification, hasMore, loadMore } = useNotifications({ polling: false });
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const bellButtonRef = useRef<HTMLButtonElement>(null);
@@ -146,6 +131,25 @@ export default function NotificationsDropdown() {
     if (next) fetchNotifications();
   };
 
+  // Infinite scroll: load more when reaching bottom of list
+  const listEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isOpen || !hasMore || loading) return;
+    const el = listEndRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { root: null, threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isOpen, hasMore, loading]);
+
   const grouped = groupByDate(notifications);
 
   return (
@@ -160,33 +164,21 @@ export default function NotificationsDropdown() {
         aria-haspopup="menu"
       >
         <Bell className="h-4 w-4 text-[var(--foreground-secondary)]" />
-        <AnimatePresence>
-          {unreadCount > 0 && (
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--primary)] text-black text-[10px] font-bold px-1"
-            >
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </motion.span>
-          )}
-        </AnimatePresence>
+        {unreadCount > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--primary)] text-black text-[10px] font-bold px-1 animate-[scale-in_0.2s_ease-out]">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
       </button>
 
       {/* Dropdown */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            ref={menuRef}
-            variants={DROPDOWN_VARIANTS}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            role="menu"
-            aria-label="Notificações"
-            className="absolute right-0 top-full mt-2 w-[340px] sm:w-[380px] rounded-2xl bg-[#0a0a0a] border border-white/[0.08] shadow-2xl overflow-hidden z-50"
-          >
+      {isOpen && (
+        <div
+          ref={menuRef}
+          role="menu"
+          aria-label="Notificações"
+          className="absolute right-0 top-full mt-2 w-[340px] sm:w-[380px] rounded-2xl bg-[#0a0a0a] border border-white/[0.08] shadow-2xl overflow-hidden z-50 animate-[dropdown-in_0.2s_ease-out]"
+        >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
               <h3 className="text-sm font-semibold text-[var(--foreground)]">Notificações</h3>
@@ -291,6 +283,9 @@ export default function NotificationsDropdown() {
               )}
             </div>
 
+            {/* Infinite scroll sentinel */}
+            {hasMore && <div ref={listEndRef} className="h-4" aria-hidden="true" />}
+
             {/* Footer */}
             <div className="px-4 py-2.5 border-t border-white/[0.06] bg-white/[0.01]">
               <Link
@@ -301,9 +296,8 @@ export default function NotificationsDropdown() {
                 Ver todas as notificações
               </Link>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

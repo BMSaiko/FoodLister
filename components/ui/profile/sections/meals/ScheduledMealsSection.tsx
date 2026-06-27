@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Calendar, Utensils, Loader2, SearchX } from 'lucide-react';
+import Link from 'next/link';
+import { Calendar, Utensils, Loader2, SearchX, Plus } from 'lucide-react';
 import { useScheduledMeals } from '@/hooks/data/useScheduledMeals';
 import { useAuth } from '@/hooks/auth/useAuth';
 import MealCard from './MealCard';
@@ -143,6 +144,15 @@ export default function ScheduledMealsSection({
                   ? 'Ainda não tens refeições agendadas. Agenda a tua próxima refeição num restaurante!'
                   : 'Este utilizador ainda não tem refeições agendadas.'}
               </p>
+              {isCurrentUser && (
+                <Link
+                  href="/restaurants"
+                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[var(--amber-500)] text-black rounded-lg hover:bg-[var(--amber-600)] transition-colors text-sm font-medium"
+                >
+                  <Plus className="h-4 w-4" />
+                  Agendar refeição
+                </Link>
+              )}
             </>
           )}
         </div>
