@@ -65,7 +65,7 @@ export function useRestaurants(options: UseRestaurantsOptions | string | null): 
       const data = await response.json();
 
       const items = data.restaurants || (Array.isArray(data) ? data : []);
-      const total = (data.pagination?.total ?? items.length) || 0;
+      const total = data.pagination?.total ?? (items.length < limit ? items.length : Infinity);
 
       return { items, total };
     },

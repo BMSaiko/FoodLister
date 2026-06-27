@@ -104,18 +104,27 @@ export async function GET(request: NextRequest) {
       'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
       'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
       'reviews:reviews(count)';
-    // Try with new columns first; fall back to base columns if migration 050 not yet applied
-    let query = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours', { count: 'exact' }).range(from, to);
+    // Build base filter query for count (no range, no sort)
+    let countQuery = client.from('restaurants').select('id', { count: 'exact', head: true });
+    if (search && search.trim()) countQuery = countQuery.ilike('name', '%' + search.trim() + '%');
+    if (priceMin !== null && !isNaN(parseFloat(priceMin))) countQuery = countQuery.gte('price_per_person', parseFloat(priceMin));
+    if (priceMax !== null && !isNaN(parseFloat(priceMax))) countQuery = countQuery.lte('price_per_person', parseFloat(priceMax));
+    if (openNowParam === 'true') countQuery = countQuery.not('opening_hours', 'is', null);
+    const { count: totalCount } = await countQuery;
+    const effectiveTotal = totalCount ?? 0;
+
+    // Main paginated query
+    let query = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(from, to);
     if (search && search.trim()) query = query.ilike('name', '%' + search.trim() + '%');
     if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v) && v >= 0) query = query.gte('price_per_person', v); }
     if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v) && v >= 0) query = query.lte('price_per_person', v); }
     const sortColMap: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name', review_count: 'review_count' };
     query = query.order(sortColMap[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
-    let { data: restaurantsData, error: restaurantsError, count: totalCount } = await query;
+    let { data: restaurantsData, error: restaurantsError } = await query;
     // Fallback: retry without updated_at/opening_hours if migration 050 not applied
     if (restaurantsError && restaurantsError.code === '42703') {
       console.warn('Missing column in restaurants (migration 050 not applied), retrying without it:', restaurantsError.message);
-      const fallbackQuery = client.from('restaurants').select(baseColumns, { count: 'exact' }).range(from, to);
+      const fallbackQuery = client.from('restaurants').select(baseColumns).range(from, to);
       if (search && search.trim()) fallbackQuery.ilike('name', '%' + search.trim() + '%');
       if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v) && v >= 0) fallbackQuery.gte('price_per_person', v); }
       if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v) && v >= 0) fallbackQuery.lte('price_per_person', v); }
@@ -124,7 +133,6 @@ export async function GET(request: NextRequest) {
       const fallbackResult = await fallbackQuery;
       restaurantsData = fallbackResult.data;
       restaurantsError = fallbackResult.error;
-      totalCount = fallbackResult.count ?? null;
     }
     if (restaurantsError) {
       console.error('Error fetching restaurants:', restaurantsError);
@@ -159,9 +167,9 @@ export async function GET(request: NextRequest) {
       pagination: {
         page,
         limit,
-        total: totalCount ?? null,
-        totalPages: totalCount ? Math.ceil(totalCount / limit) : 1,
-        hasNext: totalCount ? (page * limit) < totalCount : false,
+        total: effectiveTotal,
+        totalPages: effectiveTotal ? Math.ceil(effectiveTotal / limit) : 1,
+        hasNext: (page * limit) < effectiveTotal,
         hasPrev: page > 1,
       },
       meta: {

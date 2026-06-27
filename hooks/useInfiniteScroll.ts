@@ -43,6 +43,8 @@ export function useInfiniteScroll<T>(config: UseInfiniteScrollConfig<T>): UseInf
   const isFetchingRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
 
+  const pageRef = useRef(0);
+
   const fetchPage = useCallback(
     async (pageNum: number, isAppend: boolean) => {
       if (isFetchingRef.current) return;
@@ -67,6 +69,7 @@ export function useInfiniteScroll<T>(config: UseInfiniteScrollConfig<T>): UseInf
         }
         const totalPages = Math.ceil(result.total / limit);
         setHasMore(pageNum < totalPages);
+        pageRef.current = pageNum;
       } catch (err) {
         if (err instanceof Error && err.name !== "AbortError") {
           setError(err.message);
@@ -83,14 +86,15 @@ export function useInfiniteScroll<T>(config: UseInfiniteScrollConfig<T>): UseInf
   const loadMore = useCallback(() => {
     if (!enabled || hasMore === false || isFetchingRef.current) return;
 
-    const nextPage = page + 1;
+    const nextPage = pageRef.current + 1;
     setPage(nextPage);
     fetchPage(nextPage, true);
-  }, [page, enabled, hasMore, fetchPage]);
+  }, [enabled, hasMore, fetchPage]);
 
   const reset = useCallback(() => {
     setItems([]);
     setPage(1);
+    pageRef.current = 0;
     setHasMore(true);
     setError(null);
     setIsLoading(true);
@@ -100,6 +104,7 @@ export function useInfiniteScroll<T>(config: UseInfiniteScrollConfig<T>): UseInf
   // Fetch first page on mount
   useEffect(() => {
     if (enabled) {
+      pageRef.current = 0;
       fetchPage(1, false);
     }
   }, [enabled, fetchPage]);
