@@ -350,8 +350,8 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
           <div className="relative w-full h-full max-w-7xl max-h-screen p-4">
             {/* Close Button */}
             <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 z-10 w-12 h-12 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
+              onClick={(e) => { e.stopPropagation(); closeModal(); }}
+              className="absolute top-4 right-4 z-50 w-12 h-12 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg cursor-pointer"
               aria-label="Fechar modal"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

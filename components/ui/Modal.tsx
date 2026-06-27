@@ -121,6 +121,8 @@ export default function Modal({
     </div>
   ) : null;
 
+  const fullScreenOverflow = isFull ? "overflow-visible" : "overflow-auto";
+
   const portal = (
     <div className={`fixed inset-0 z-50 flex ${position} ${isFull ? '' : 'p-0 md:p-4'}`}>
       {/* Backdrop */}
@@ -138,7 +140,7 @@ export default function Modal({
           role="dialog"
           aria-modal="true"
           aria-label={ariaLabel}
-          className={`relative z-10 w-full h-full overflow-auto ${className}`}
+          className={`relative z-10 w-full h-full ${fullScreenOverflow} ${className}`}
           style={{ animation: closing ? animOut : animIn }}
         >
           {children}
