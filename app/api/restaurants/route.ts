@@ -6,7 +6,7 @@ import type { ApiErrorType } from '@/types/api';
 import { cacheOrSet } from '@/libs/cache';
 import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
-import { parsePaginationFromRequest, paginatedResponse } from '@/libs/utils/pagination';
+import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';
 
 type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
@@ -80,6 +80,7 @@ export async function GET(request: NextRequest) {
     const priceMax = searchParams.get('price_max');
     const sortByParam = (searchParams.get('sort_by') || 'name') as RestaurantSortBy;
     const sortDirectionParam = (searchParams.get('sort_direction') || 'asc') as SortDirection;
+    const randomParam = isRandomSort(request);
     const { page, limit, from, to } = parsePaginationFromRequest(request, { defaultLimit: 25 });
     let client = supabase;
     let isPublicRequest = !supabase;
@@ -104,22 +105,18 @@ export async function GET(request: NextRequest) {
       'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
       'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
       'reviews:reviews(count)';
-    // Build base filter query for count (no range, no sort)
-    let countQuery = client.from('restaurants').select('id', { count: 'exact', head: true });
-    if (search && search.trim()) countQuery = countQuery.ilike('name', '%' + search.trim() + '%');
-    if (priceMin !== null && !isNaN(parseFloat(priceMin))) countQuery = countQuery.gte('price_per_person', parseFloat(priceMin));
-    if (priceMax !== null && !isNaN(parseFloat(priceMax))) countQuery = countQuery.lte('price_per_person', parseFloat(priceMax));
-    if (openNowParam === 'true') countQuery = countQuery.not('opening_hours', 'is', null);
-    const { count: totalCount } = await countQuery;
-    const effectiveTotal = totalCount ?? 0;
-
-    // Main paginated query
+    // Main query — always range-paginated (works with ?page=N&limit=all)
     let query = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(from, to);
     if (search && search.trim()) query = query.ilike('name', '%' + search.trim() + '%');
     if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v) && v >= 0) query = query.gte('price_per_person', v); }
     if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v) && v >= 0) query = query.lte('price_per_person', v); }
+    
     const sortColMap: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name', review_count: 'review_count' };
-    query = query.order(sortColMap[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
+    if (randomParam) {
+      query = query.order('name', { ascending: Math.random() > 0.5 });
+    } else {
+      query = query.order(sortColMap[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
+    }
     let { data: restaurantsData, error: restaurantsError } = await query;
     // Fallback: retry without updated_at/opening_hours if migration 050 not applied
     if (restaurantsError && restaurantsError.code === '42703') {
@@ -167,9 +164,9 @@ export async function GET(request: NextRequest) {
       pagination: {
         page,
         limit,
-        total: effectiveTotal,
-        totalPages: effectiveTotal ? Math.ceil(effectiveTotal / limit) : 1,
-        hasNext: (page * limit) < effectiveTotal,
+        total: null,
+        totalPages: null,
+        hasNext: restaurants.length === limit,
         hasPrev: page > 1,
       },
       meta: {

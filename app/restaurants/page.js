@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
@@ -21,21 +21,9 @@ function RestaurantsContent() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
   const { user } = useAuth();
-  const {
-    restaurants,
-    loading,
-    loadingMore,
-    hasMore,
-    loadMore,
-    ref: sentinelRef,
-    error,
-  } = useRestaurants({ searchQuery });
-  const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
-
-  // Sync filteredRestaurants with new paginated items
-  useEffect(() => {
-    setFilteredRestaurants(restaurants);
-  }, [restaurants]);
+  const { restaurants, loading, error } = useAllRestaurants({ searchQuery });
+  // Client-side filter from RestaurantGrid (fetched server-side with rate limit)
+  const filteredRestaurants = restaurants;
 
 
   return (
@@ -55,7 +43,7 @@ function RestaurantsContent() {
         {/* Grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 9 }).map((_, i) => (
               <Skeleton key={i} variant="restaurant-card" />
             ))}
           </div>
@@ -65,22 +53,13 @@ function RestaurantsContent() {
               restaurants={filteredRestaurants}
               searchQuery={searchQuery}
             />
-            {/* Infinite scroll sentinel */}
-            <div ref={sentinelRef} className="h-4" aria-hidden="true" />
-            {loadingMore && (
-              <div className="flex justify-center py-6">
-                <div className="w-6 h-6 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
-              </div>
-            )}
-            {!hasMore && (
-              <p className="text-center text-sm text-white/30 py-6">
-                Todos os {filteredRestaurants.length} restaurantes foram carregados
-              </p>
-            )}
+            <p className="text-center text-sm text-white/30 py-6">
+              {filteredRestaurants.length} restaurantes
+            </p>
           </>
         ) : (
           <div className="text-center py-12 text-white/40">
-            {error ? `Erro: ${error}` : 'Nenhum restaurante encontrado com os filtros aplicados.'}
+            {error ? `Erro: ${error}` : 'Nenhum restaurante encontrado.'}
           </div>
         )}
       </div>

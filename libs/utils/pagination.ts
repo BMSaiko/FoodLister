@@ -62,7 +62,14 @@ export function paginatedResponse<T>(
 export function parsePaginationFromRequest(
   request: Request,
   defaults?: { defaultLimit?: number; maxLimit?: number }
-): { page: number; limit: number; from: number; to: number } {
+): { page: number; limit: number; from: number; to: number; all: boolean } {
   const { searchParams } = new URL(request.url);
-  return parsePaginationParams(searchParams, defaults);
+  const all = searchParams.get("limit") === "all";
+  const result = parsePaginationParams(searchParams, { maxLimit: 5000, ...defaults });
+  return { ...result, all };
+}
+
+export function isRandomSort(request: Request): boolean {
+  const { searchParams } = new URL(request.url);
+  return searchParams.get("random") === "true";
 }
