@@ -704,8 +704,6 @@ export default function RestaurantDetails() {
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
         restaurantName={restaurant?.name || ""}
-        restaurantLocation={restaurant?.location || ""}
-        restaurantDescription={restaurant?.description || ""}
         restaurantId={restaurant?.id}
       />
 
