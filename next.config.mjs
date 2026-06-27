@@ -18,7 +18,7 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-  optimizePackageImports: ['lucide-react', '@supabase/supabase-js'],
+  optimizePackageImports: ['@supabase/supabase-js'],
 };
 
 export default nextConfig;

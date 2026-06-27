@@ -5,6 +5,21 @@ if (typeof process !== 'undefined') {
   process.env.NODE_ENV = 'test';
 }
 
+// Mock lucide-react icons (inline to avoid module resolution issues)
+jest.mock('lucide-react', () => {
+  const React = require('react');
+  return new Proxy({}, {
+    get: function(target, name) {
+      if (name === '__esModule') return false;
+      const Icon = React.forwardRef((props, ref) =>
+        React.createElement('svg', { ...props, ref, 'data-icon': String(name) })
+      );
+      Icon.displayName = String(name);
+      return Icon;
+    }
+  });
+});
+
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter: () => ({

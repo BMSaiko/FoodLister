@@ -9,6 +9,7 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^lucide-react$': '<rootDir>/__mocks__/lucide-react.js',
   },
   testMatch: ['**/__tests__/**/*.test.tsx', '**/__tests__/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
