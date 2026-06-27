@@ -59,7 +59,11 @@ function groupByDate(notifications: Notification[]): { label: string; items: Not
   return Object.entries(groups).map(([label, items]) => ({ label, items }));
 }
 
-export default function NotificationsDropdown() {
+interface NotificationsDropdownProps {
+  mobile?: boolean;
+}
+
+export default function NotificationsDropdown({ mobile = false }: NotificationsDropdownProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { notifications, unreadCount, loading, fetchNotifications, markAsRead, markAllAsRead, deleteNotification, hasMore, loadMore } = useNotifications({ polling: false });
@@ -151,6 +155,24 @@ export default function NotificationsDropdown() {
   }, [isOpen, hasMore, loading]);
 
   const grouped = groupByDate(notifications);
+
+  // Mobile: simple bell icon that links to notifications page
+  if (mobile) {
+    return (
+      <Link
+        href="/notifications"
+        className="relative flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+        aria-label={`Notificações${unreadCount > 0 ? `, ${unreadCount} não lidas` : ''}`}
+      >
+        <Bell className="h-4 w-4 text-[var(--foreground-secondary)]" />
+        {unreadCount > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--primary)] text-black text-[10px] font-bold px-1">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </Link>
+    );
+  }
 
   return (
     <div className="relative" ref={dropdownRef} onKeyDown={handleKeyDown}>

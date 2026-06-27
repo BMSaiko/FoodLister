@@ -9,6 +9,7 @@ import { useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
 import { getClient } from '@/libs/supabase/client';
 import NotificationsDropdown from './NotificationsDropdown';
+import useNotifications from '@/hooks/data/useNotifications';
 
 interface ProfileData {
   display_name: string;
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
 export default function Navbar() {
   const { user, signOut, loading } = useAuth();
   const { clearFilters: clearFiltersFromContext } = useFilters();
+  const { unreadCount } = useNotifications({ polling: false });
   const pathname = usePathname();
   const router = useRouter();
   const supabase = getClient();
@@ -33,7 +35,7 @@ export default function Navbar() {
   const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
-  const [hasNotifications, setHasNotifications] = useState(false);
+  const hasNotifications = (unreadCount || 0) > 0;
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -170,9 +172,13 @@ export default function Navbar() {
 
             {/* Notifications (logged in) */}
             {user && (
-              <div className="hidden md:block">
-                <NotificationsDropdown />
-              </div>
+              <>
+                <div className="hidden md:block">
+                  <NotificationsDropdown />
+                </div>
+                {/* Mobile: bell icon in tab bar */}
+                <NotificationsDropdown mobile />
+              </>
             )}
 
             {/* User Menu */}
@@ -304,6 +310,7 @@ export default function Navbar() {
             { id: 'search', icon: Search, label: 'Search', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
+            { id: 'notifications', icon: Bell, label: 'Notif.', href: '/notifications', badge: unreadCount },
             { id: 'profile', icon: User, label: 'Perfil', href: user ? `/users/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
           ].map((item) => {
             const isActive =
@@ -325,9 +332,21 @@ export default function Navbar() {
                 </button>
               );
             }
+            // Render icon with optional badge
+            const iconContent = ('badge' in item && item.badge && item.badge > 0) ? (
+              <span className="relative">
+                <item.icon className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1.5 min-w-[14px] h-[14px] flex items-center justify-center rounded-full bg-[var(--primary)] text-black text-[8px] font-bold px-0.5">
+                  {item.badge > 9 ? '9+' : item.badge}
+                </span>
+              </span>
+            ) : (
+              <item.icon className="w-5 h-5" />
+            );
+
             return (
               <Link key={item.id} href={item.href!} className={baseClass}>
-                <item.icon className="w-5 h-5" />
+                {iconContent}
                 <span className="text-[9px] sm:text-[10px] font-medium">{item.label}</span>
               </Link>
             );
