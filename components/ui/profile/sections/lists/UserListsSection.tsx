@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { List, Utensils, Clock, Users, MapPin, ChevronRight, Trash2, Share2 } from 'lucide-react';
+import { List, Utensils, Clock, Users, MapPin, ChevronRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
 import { formatDate } from '@/utils/formatters';
@@ -40,7 +40,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialLists.length < initialTotal);
 
-  const { get, del: deleteRequest } = useSecureApiClient();
+  const { get } = useSecureApiClient();
   const { share } = useShare();
 
   const handleShareList = async (listId: string, listName: string, listDescription?: string) => {
@@ -51,27 +51,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
     });
   };
 
-  const handleDeleteList = async (listId: string, listName: string) => {
-    if (!confirm(`Tem certeza que deseja eliminar a lista "${listName}"? Esta ação não pode ser desfeita.`)) {
-      return;
-    }
 
-    try {
-      const response = await deleteRequest(`/api/lists/${listId}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        toast.success('Lista eliminada com sucesso!');
-        setLists(prev => prev.filter(list => list.id !== listId));
-        setTotal(prev => prev - 1);
-      } else {
-        toast.error(data.error || 'Erro ao eliminar a lista');
-      }
-    } catch (error) {
-      console.error('Error deleting list:', error);
-      toast.error('Erro ao eliminar a lista. Tente novamente.');
-    }
-  };
 
   const loadMoreLists = async () => {
     if (isLoadingMore || !hasMore) return;
@@ -173,20 +153,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
                     <Share2 className="h-4 w-4" />
                     <span>Partilhar</span>
                   </button>
-                  {isOwnProfile && (
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleDeleteList(list.id, list.name);
-                      }}
-                      className="flex items-center gap-1 text-sm text-[var(--red-500)] hover:text-[var(--red-600)] hover:bg-[var(--red-50)] px-3 py-1.5 rounded-lg transition-colors"
-                      aria-label={`Eliminar lista ${list.name}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span>Eliminar</span>
-                    </button>
-                  )}
+
                 </div>
               </div>
             </div>

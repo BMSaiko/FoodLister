@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Star, Utensils } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Star, Utensils } from "lucide-react";
 
-import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
+import { useSecureApiClient } from "@/hooks/auth/useSecureApiClient";
 
-import { SkeletonLoader, EmptyState, TouchButton } from '../shared';
-import { toast } from 'react-toastify';
-import ReviewCard from './ReviewCard';
-import { useUserCache } from '@/hooks/data/useUserCache';
+import { SkeletonLoader, EmptyState, TouchButton } from "../shared";
+import { toast } from "react-toastify";
+import ReviewCard from "./ReviewCard";
 
 interface UserReviewsSectionProps {
   userId: string;
@@ -41,8 +40,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   const [hasMore, setHasMore] = useState(initialReviews.length < initialTotal);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { get, put, del } = useSecureApiClient();
-  const { invalidateCache } = useUserCache();
+  const { get, put } = useSecureApiClient();
 
   const loadMoreReviews = async () => {
     if (isLoadingMore || !hasMore) return;
@@ -64,7 +62,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
         setHasMore(data.hasMore);
       }
     } catch (error) {
-      console.error('Error loading more reviews:', error);
+      console.error("Error loading more reviews:", error);
     } finally {
       setIsLoadingMore(false);
     }
@@ -72,63 +70,30 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 
   const formatAmount = (amount?: number) => {
     if (!amount) return null;
-    return new Intl.NumberFormat('pt-PT', {
-      style: 'currency',
-      currency: 'EUR'
+    return new Intl.NumberFormat("pt-PT", {
+      style: "currency",
+      currency: "EUR"
     }).format(amount);
-  };
-
-  const handleEditReview = (review: any) => {
-    // Navigate to restaurant page for editing
-    window.location.href = `/restaurants/${review.restaurant.id}`;
-  };
-
-
-
-  const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta avaliação? Esta ação não pode ser desfeita.')) {
-      return;
-    }
-
-    try {
-      const response = await del(`/api/reviews/${reviewId}`);
-      
-      if (response.ok) {
-        // Remove the review from the list
-        setReviews(prev => prev.filter(review => review.id !== reviewId));
-        setTotal(prev => prev - 1);
-        
-        // Invalidate cache to ensure fresh data is loaded on next fetch
-        invalidateCache(userId);
-        
-        toast.success('Avaliação excluída com sucesso!');
-      } else {
-        throw new Error('Failed to delete review');
-      }
-    } catch (error) {
-      console.error('Error deleting review:', error);
-      toast.error('Erro ao excluir avaliação. Tente novamente.');
-    }
   };
 
   const handleShareReview = (review: any) => {
     const restaurant = review.restaurant || {};
     const reviewUrl = `${window.location.origin}/restaurants/${restaurant.id}?review=${review.id}`;
     
-    if (navigator.share && !navigator.userAgent.includes('Firefox')) {
+    if (navigator.share && !navigator.userAgent.includes("Firefox")) {
       navigator.share({
-        title: `Avaliação de ${restaurant.name || 'Restaurante'} - FoodList`,
+        title: `Avaliação de ${restaurant.name || "Restaurante"} - FoodList`,
         text: `Confira minha avaliação deste restaurante no FoodList!`,
         url: reviewUrl,
       }).catch(() => {
         // Fallback to clipboard if share fails
         navigator.clipboard.writeText(reviewUrl).then(() => {
-          toast.success('Link da avaliação copiado!');
+          toast.success("Link da avaliação copiado!");
         });
       });
     } else {
       navigator.clipboard.writeText(reviewUrl).then(() => {
-        toast.success('Link da avaliação copiado!');
+        toast.success("Link da avaliação copiado!");
       });
     }
   };
@@ -139,12 +104,12 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
         icon={<Star className="h-8 w-8 text-gray-400" />}
         title="Nenhuma avaliação encontrada"
         description={isOwnProfile 
-          ? 'Você ainda não avaliou nenhum restaurante. Comece a explorar e compartilhar suas experiências!'
-          : 'Este usuário ainda não avaliou nenhum restaurante.'
+          ? "Você ainda não avaliou nenhum restaurante. Comece a explorar e compartilhar suas experiências!"
+          : "Este usuário ainda não avaliou nenhum restaurante."
         }
         action={isOwnProfile ? {
-          label: 'Explorar restaurantes',
-          onClick: () => window.location.href = '/restaurants',
+          label: "Explorar restaurantes",
+          onClick: () => window.location.href = "/restaurants",
           icon: <Utensils className="h-4 w-4" />
         } : undefined}
       />
@@ -159,8 +124,6 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
             key={`${review.id}-${index}`}
             review={review}
             isOwnReview={isOwnProfile}
-            onEdit={() => handleEditReview(review)}
-            onDelete={() => handleDeleteReview(review.id)}
             onShare={() => handleShareReview(review)}
           />
         ))}
@@ -178,7 +141,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
             icon={isLoadingMore ? undefined : <Star className="h-4 w-4" />}
             fullWidth={false}
           >
-            {isLoadingMore ? 'Carregando...' : 'Carregar mais avaliações'}
+            {isLoadingMore ? "Carregando..." : "Carregar mais avaliações"}
           </TouchButton>
         </div>
       )}

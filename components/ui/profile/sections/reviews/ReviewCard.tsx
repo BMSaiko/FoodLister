@@ -22,13 +22,11 @@ interface ReviewCardProps {
     };
   };
   isOwnReview?: boolean;
-  onEdit?: () => void;
-  onDelete?: () => void;
   onShare?: () => void;
   className?: string;
 }
 
-const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, onDelete, onShare, className = "" }) => {
+const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onShare, className = "" }) => {
   // Normalize: API returns 'restaurants' (plural) from Supabase join, card expects 'restaurant' (singular)
   const raw = review.restaurant || (review as any).restaurants || {};
   const restaurant = Array.isArray(raw) ? raw[0] : raw;
@@ -86,23 +84,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onEdit, on
             <p className="text-sm text-white/45 line-clamp-2 leading-relaxed">{review.comment}</p>
           )}
 
-          {isOwnReview && (onEdit || onDelete || onShare) && (
+          {isOwnReview && onShare && (
             <div className="flex items-center gap-2 mt-3">
-              {onEdit && (
-                <button onClick={onEdit} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/45 hover:text-white/70 hover:bg-white/[0.08] transition-all text-xs font-medium">
-                  Editar
-                </button>
-              )}
-              {onDelete && (
-                <button onClick={onDelete} className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-xs font-medium">
-                  Eliminar
-                </button>
-              )}
-              {onShare && (
-                <button onClick={onShare} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/45 hover:text-white/70 hover:bg-white/[0.08] transition-all text-xs font-medium">
-                  Partilhar
-                </button>
-              )}
+              <button onClick={onShare} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/45 hover:text-white/70 hover:bg-white/[0.08] transition-all text-xs font-medium">
+                Partilhar
+              </button>
             </div>
           )}
         </div>

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { MapPin, Edit, Trash2, Share2, Copy } from 'lucide-react';
+import { MapPin, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts';
 import { useModal } from '@/contexts/ModalContext';
@@ -20,17 +20,13 @@ interface ReviewCardActionsProps {
     };
   };
   isOwnReview: boolean;
-  onEdit?: (e: React.MouseEvent) => void;
-  onDelete?: (e: React.MouseEvent) => void;
   onShare?: (e: React.MouseEvent) => void;
   className?: string;
 }
 
 const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({ 
   review, 
-  isOwnReview, 
-  onEdit, 
-  onDelete, 
+  isOwnReview,
   onShare,
   className = ''
 }) => {
@@ -93,30 +89,6 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
     }
   };
 
-  const handleDeleteReview = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!onDelete) return;
-    
-    const confirmDelete = window.confirm(
-      'Tem certeza que deseja excluir esta avaliação? Esta ação não pode ser desfeita.'
-    );
-    
-    if (confirmDelete) {
-      onDelete(e);
-    }
-  };
-
-  const handleEditReview = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (onEdit) {
-      onEdit(e);
-    }
-  };
-
   return (
     <div className={`absolute top-3 right-3 flex flex-col gap-2 ${className}`}>
       {/* Map Button - Available for all users */}
@@ -149,30 +121,6 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
           {isSharing ? 'Compartilhando' : 'Compartilhar'}
         </span>
       </button>
-
-      {/* Edit Button - only for authenticated users who own the review */}
-      {user && isOwnReview && onEdit && (
-        <button
-          onClick={handleEditReview}
-          className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
-          title="Editar avaliação"
-        >
-          <Edit className="h-4 w-4 text-amber-600" />
-          <span className="text-xs font-medium hidden sm:inline text-amber-600">Editar</span>
-        </button>
-      )}
-
-      {/* Delete Button - only for authenticated users who own the review */}
-      {user && isOwnReview && onDelete && (
-        <button
-          onClick={handleDeleteReview}
-          className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
-          title="Excluir avaliação"
-        >
-          <Trash2 className="h-4 w-4 text-red-600" />
-          <span className="text-xs font-medium hidden sm:inline text-red-600">Excluir</span>
-        </button>
-      )}
     </div>
   );
 };

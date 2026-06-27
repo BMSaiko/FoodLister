@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { MessageCircle, Send, Trash2, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { MessageCircle, Send, Trash2, Pencil, Check, X, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
 interface Comment {
@@ -12,7 +13,7 @@ interface Comment {
   comment: string;
   created_at: string;
   updated_at: string;
-  profiles: { display_name: string | null; avatar_url: string | null } | null;
+  profiles: { display_name: string | null; avatar_url: string | null; user_id_code: string | null } | null;
 }
 
 interface ListCommentsProps {
@@ -26,8 +27,18 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const editRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => { fetchComments(); }, [listId]);
+
+  useEffect(() => {
+    if (editingId && editRef.current) {
+      editRef.current.focus();
+    }
+  }, [editingId]);
 
   const fetchComments = async () => {
     try {
@@ -68,6 +79,39 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
     } catch { toast.error("Erro ao eliminar comentario"); }
   };
 
+  const startEdit = (comment: Comment) => {
+    setEditingId(comment.id);
+    setEditText(comment.comment);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const handleEdit = async (commentId: string) => {
+    if (!editText.trim()) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/lists/${listId}/comments`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commentId, comment: editText.trim() }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setComments(prev => prev.map(c => c.id === commentId ? data.comment : c));
+        setEditingId(null);
+        setEditText("");
+        toast.success("Comentario editado!");
+      } else {
+        const err = await res.json();
+        toast.error(err.error || "Erro ao editar comentario");
+      }
+    } catch { toast.error("Erro ao editar comentario"); }
+    finally { setSaving(false); }
+  };
+
   const formatDate = (dateString: string) => {
     const diff = Date.now() - new Date(dateString).getTime();
     const mins = Math.floor(diff / 60000);
@@ -78,6 +122,10 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
     const days = Math.floor(diff / 86400000);
     if (days < 7) return `ha ${days}d`;
     return new Date(dateString).toLocaleDateString("pt-PT");
+  };
+
+  const wasEdited = (comment: Comment) => {
+    return new Date(comment.updated_at).getTime() - new Date(comment.created_at).getTime() > 1000;
   };
 
   if (loading) {
@@ -154,37 +202,88 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
           <div className="space-y-2">
             {comments.map(comment => (
               <div key={comment.id} className="group flex gap-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-200">
-                {/* Avatar */}
-                {comment.profiles?.avatar_url ? (
-                  <img src={comment.profiles.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/[0.06] flex-shrink-0" />
-                ) : (
-                  <div className="w-9 h-9 bg-amber-500/10 rounded-full flex items-center justify-center ring-1 ring-amber-500/15 flex-shrink-0">
-                    <span className="text-xs font-semibold text-amber-400">
-                      {(comment.profiles?.display_name || "U").charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
+                {/* Avatar - clickable */}
+                <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="flex-shrink-0">
+                  {comment.profiles?.avatar_url ? (
+                    <img src={comment.profiles.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/[0.06] hover:ring-amber-500/30 transition-all duration-150" />
+                  ) : (
+                    <div className="w-9 h-9 bg-amber-500/10 rounded-full flex items-center justify-center ring-1 ring-amber-500/15 hover:ring-amber-500/30 transition-all duration-150">
+                      <span className="text-xs font-semibold text-amber-400">
+                        {(comment.profiles?.display_name || "U").charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </Link>
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-semibold text-white/80 truncate">
-                      {comment.profiles?.display_name || "Utilizador"}
-                    </span>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-[11px] text-white/25">{formatDate(comment.created_at)}</span>
-                      {(user?.id === comment.user_id || isOwner) && (
+                  {editingId === comment.id ? (
+                    /* Edit Mode */
+                    <div className="space-y-2">
+                      <textarea
+                        ref={editRef}
+                        value={editText}
+                        onChange={e => setEditText(e.target.value)}
+                        className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white/85 placeholder:text-white/25 focus:outline-none focus:border-amber-500/40 resize-none"
+                        rows={2}
+                        disabled={saving}
+                      />
+                      <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => handleDelete(comment.id)}
-                          className="p-1 text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
-                          aria-label="Eliminar comentario"
+                          onClick={cancelEdit}
+                          disabled={saving}
+                          className="p-1.5 text-white/40 hover:text-white/60 hover:bg-white/[0.04] rounded-lg transition-all duration-150"
+                          aria-label="Cancelar"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
-                      )}
+                        <button
+                          onClick={() => handleEdit(comment.id)}
+                          disabled={saving || !editText.trim()}
+                          className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition-all duration-150 disabled:opacity-30"
+                          aria-label="Guardar"
+                        >
+                          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-sm text-white/50 leading-relaxed mt-0.5">{comment.comment}</p>
+                  ) : (
+                    /* View Mode */
+                    <>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="text-sm font-semibold text-white/80 truncate hover:text-amber-400 transition-colors duration-150">
+                            {comment.profiles?.display_name || "Utilizador"}
+                          </Link>
+                          <span className="text-[11px] text-white/25 flex-shrink-0">{formatDate(comment.created_at)}</span>
+                          {wasEdited(comment) && (
+                            <span className="text-[10px] text-white/15 italic flex-shrink-0">(editado)</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {user?.id === comment.user_id && (
+                            <button
+                              onClick={() => startEdit(comment)}
+                              className="p-1 text-white/20 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
+                              aria-label="Editar comentario"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          {(user?.id === comment.user_id || isOwner) && (
+                            <button
+                              onClick={() => handleDelete(comment.id)}
+                              className="p-1 text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
+                              aria-label="Eliminar comentario"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-sm text-white/50 leading-relaxed mt-0.5">{comment.comment}</p>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
