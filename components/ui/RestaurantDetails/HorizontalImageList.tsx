@@ -154,11 +154,12 @@ export default function HorizontalImageList({
       </div>
 
       {/* Modal Lightbox */}
-      <Modal isOpen={isModalOpen} onClose={closeModal} variant="full-screen" ariaLabel="Galeria de imagens">
+      <Modal isOpen={isModalOpen} onClose={closeModal} variant="full-screen"
+        closeOnBackdrop={false} ariaLabel="Galeria de imagens">
           <div className="relative w-full h-full max-w-7xl max-h-screen p-4" onClick={(e) => e.stopPropagation()}>
             {/* Close Button */}
             <button
-              onClick={(e) => { e.stopPropagation(); closeModal(); }}
+              onClick={closeModal}
               className="absolute top-4 right-4 z-50 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg cursor-pointer"
               aria-label="Fechar modal"
             >

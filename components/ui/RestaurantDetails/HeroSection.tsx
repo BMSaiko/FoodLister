@@ -183,10 +183,11 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
         isOpen={lightboxOpen}
         onClose={closeLightbox}
         variant="full-screen"
+        closeOnBackdrop={false}
         ariaLabel="Lightbox de imagens do restaurante"
       >
-        <div className="relative w-full h-full flex items-center justify-center p-4" onClick={e => e.stopPropagation()}>
-          <button onClick={(e) => { e.stopPropagation(); closeLightbox(); }} className="absolute top-4 right-4 z-50 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110 cursor-pointer">
+        <div className="relative w-full h-full flex items-center justify-center p-4" >
+          <button onClick={closeLightbox} className="absolute top-4 right-4 z-50 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110 cursor-pointer">
             <X className="h-5 w-5" />
           </button>
           {allImages.length > 1 && (

@@ -360,7 +360,8 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
 
 
       {/* Modal Lightbox */}
-      <Modal isOpen={isModalOpen} onClose={closeModal} variant="full-screen" ariaLabel="Imagem do menu">
+      <Modal isOpen={isModalOpen} onClose={closeModal} variant="full-screen"
+        closeOnBackdrop={false} ariaLabel="Imagem do menu">
           <div className="relative w-full h-full max-w-7xl max-h-screen p-4">
             {/* Close Button */}
             <button

@@ -43,9 +43,10 @@ export default function MenuGallery({ images = [], restaurantName = "Menu" }: Me
       </div>
 
       {/* Lightbox */}
-      <Modal isOpen={open} onClose={close} variant="full-screen" ariaLabel="Galeria de menu">
+      <Modal isOpen={open} onClose={close} variant="full-screen"
+        closeOnBackdrop={false} ariaLabel="Galeria de menu">
         <div className="relative w-full h-full flex items-center justify-center p-4">
-          <button onClick={(e) => { e.stopPropagation(); close(); }} className="absolute top-4 right-4 z-50 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110 cursor-pointer"><X className="h-5 w-5" /></button>
+          <button onClick={close} className="absolute top-4 right-4 z-50 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center hover:scale-110 cursor-pointer"><X className="h-5 w-5" /></button>
           {valid.length > 1 && (
             <>
               <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all flex items-center justify-center hover:scale-110"><ChevronLeft className="h-6 w-6" /></button>
