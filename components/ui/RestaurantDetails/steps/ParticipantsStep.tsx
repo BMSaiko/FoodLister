@@ -6,6 +6,7 @@ import { getClient } from "@/libs/supabase/client";
 
 interface SearchResult {
   id: string;
+  user_id: string;
   display_name: string | null;
   avatar_url: string | null;
   user_id_code: string | null;
@@ -39,7 +40,7 @@ export default function ParticipantsStep({
       const supabase = getClient();
       const resp = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_url, user_id_code")
+        .select("id, user_id, display_name, avatar_url, user_id_code")
         .or(`display_name.ilike.%${q}%,user_id_code.ilike.%${q}%`)
         .neq("id", currentUserId)
         .limit(8);
@@ -86,15 +87,15 @@ export default function ParticipantsStep({
   }, []);
 
   const handleAdd = (user: SearchResult) => {
-    // Prevent duplicates
-    if (participants.some((p) => p.id === user.id)) return;
+    // Prevent duplicates (compare user_id for meal participants)
+    if (participants.some((p) => p.user_id === user.user_id)) return;
     onAdd(user);
     setQuery("");
     setResults([]);
     setShowDropdown(false);
   };
 
-  const isAdded = (userId: string) => participants.some((p) => p.id === userId);
+  const isAdded = (userId: string) => participants.some((p) => p.user_id === userId);
 
   return (
     <div className="space-y-4">
@@ -134,7 +135,7 @@ export default function ParticipantsStep({
                   <button
                     key={user.id}
                     onClick={() => !added && handleAdd(user)}
-                    disabled={added}
+                    disabled={isAdded(user.user_id)}
                     className={"w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors " +
                       (added
                         ? "opacity-40 cursor-not-allowed bg-white/[0.02]"
@@ -155,7 +156,7 @@ export default function ParticipantsStep({
                         <p className="text-xs text-white/35">#{user.user_id_code}</p>
                       )}
                     </div>
-                    {added && (
+                    {isAdded(user.user_id) && (
                       <span className="text-[10px] text-emerald-400/70 font-medium">
                         Adicionado
                       </span>
@@ -200,7 +201,7 @@ export default function ParticipantsStep({
                   </div>
                 )}
                 <span className="text-xs text-white/70 pl-1 truncate max-w-[120px]">
-                  {p.display_name || p.user_id_code || p.id.slice(0, 8)}
+                  {p.display_name || p.user_id_code || p.user_id.slice(0, 8)}
                 </span>
                 <button
                   onClick={() => onRemove(p.id)}

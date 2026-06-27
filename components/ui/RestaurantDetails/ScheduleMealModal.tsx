@@ -54,10 +54,47 @@ export default function ScheduleMealModal({
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const handleSubmit = async () => {
-    // TODO: API call to create meal
-    console.log("Submit:", { date, time, duration, mealType, participants, googleCalendar });
-    onClose();
+    if (!restaurantId || !date || !time) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const participantIds = participants.map((p: any) => p.user_id);
+      const payload: any = {
+        restaurantId,
+        mealDate: date,
+        mealTime: time,
+        mealType,
+        durationMinutes: duration,
+        participantUserIds: participantIds,
+      };
+      if (googleCalendar) {
+        payload.googleCalendar = true;
+      }
+
+      const response = await fetch("/api/meals/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao agendar refeição");
+      }
+
+      onClose();
+    } catch (err: any) {
+      setSubmitError(err.message || "Erro ao agendar refeição");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -132,6 +169,13 @@ export default function ScheduleMealModal({
         )}
       </div>
 
+      {/* Error message */}
+      {submitError && (
+        <div className="px-5 py-2 bg-red-500/10 border border-red-500/20 rounded-xl mb-3">
+          <p className="text-xs text-red-400">{submitError}</p>
+        </div>
+      )}
+
       {/* Navigation */}
       <div className="px-5 py-4 border-t border-white/0.06 flex gap-3">
         {currentStep > 1 && (
@@ -145,10 +189,10 @@ export default function ScheduleMealModal({
         )}
         <button
           onClick={currentStep === totalSteps ? handleSubmit : goNext}
-          disabled={!canProceed()}
+          disabled={!canProceed() || submitting}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors bg-amber-500 text-black hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {currentStep === totalSteps ? "Agendar" : "Proximo"}
+          {currentStep === totalSteps ? (submitting ? "A agendar..." : "Agendar") : "Proximo"}
           {currentStep < totalSteps && <ChevronRight className="h-4 w-4" />}
         </button>
       </div>
