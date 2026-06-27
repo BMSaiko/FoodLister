@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
