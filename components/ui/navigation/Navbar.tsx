@@ -176,8 +176,10 @@ export default function Navbar() {
                 <div className="hidden md:block">
                   <NotificationsDropdown />
                 </div>
-                {/* Mobile: bell icon in tab bar */}
-                <NotificationsDropdown mobile />
+                {/* Mobile: bell icon hidden on desktop */}
+                <div className="md:hidden">
+                  <NotificationsDropdown mobile />
+                </div>
               </>
             )}
 
