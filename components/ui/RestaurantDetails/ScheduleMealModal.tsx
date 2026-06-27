@@ -103,7 +103,7 @@ export default function ScheduleMealModal({
       });
 
       onClose();
-      router.push(`/meals/${data.meal.id}`);
+      router.push(`/meals/${data.id}`);
     } catch (err: any) {
       const errorMsg = err.message || "Erro ao agendar refeição";
       setSubmitError(errorMsg);
