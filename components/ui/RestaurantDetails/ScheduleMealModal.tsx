@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Modal from "@/components/ui/Modal";
+import { toast } from "react-toastify";
 import { DEFAULT_MEAL_TYPES } from "@/hooks/forms/useMealScheduling";
 import { useAuth } from "@/contexts";
 import MealDetailsStep from "./steps/MealDetailsStep";
@@ -89,9 +90,28 @@ export default function ScheduleMealModal({
         throw new Error(data.error || "Erro ao agendar refeição");
       }
 
+      // Success: show toast notification
+      toast.success("Refeição agendada com sucesso!", {
+        position: "top-right",
+        autoClose: 4000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        theme: "dark",
+      });
+
       onClose();
     } catch (err: any) {
-      setSubmitError(err.message || "Erro ao agendar refeição");
+      const errorMsg = err.message || "Erro ao agendar refeição";
+      setSubmitError(errorMsg);
+      toast.error(errorMsg, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        theme: "dark",
+      });
     } finally {
       setSubmitting(false);
     }
