@@ -205,8 +205,16 @@ export async function DELETE(
       );
     }
 
-    // Check if user is the creator
-    if (listData.creator_id !== user.id) {
+    // Check permission: owner OR editor collaborator
+    const { data: collabCheck } = await supabase
+      .from('list_collaborators')
+      .select('role')
+      .eq('list_id', id)
+      .eq('user_id', user.id)
+      .eq('role', 'editor')
+      .maybeSingle();
+
+    if (listData.creator_id !== user.id && !collabCheck) {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },
@@ -291,7 +299,16 @@ export async function PUT(
       );
     }
 
-    if (listData.creator_id !== user.id) {
+    // Check permission: owner OR editor collaborator
+    const { data: collabCheck } = await supabase
+      .from('list_collaborators')
+      .select('role')
+      .eq('list_id', id)
+      .eq('user_id', user.id)
+      .eq('role', 'editor')
+      .maybeSingle();
+
+    if (listData.creator_id !== user.id && !collabCheck) {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },
