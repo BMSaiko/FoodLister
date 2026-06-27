@@ -10,11 +10,13 @@ jest.mock('next/server', () => {
     public method: string;
     public nextUrl: URL;
     public url: string;
+    public headers: Headers;
     constructor(input: string | URL) {
       const urlStr = input instanceof URL ? input.toString() : input;
       this.url = urlStr;
       this.nextUrl = new URL(urlStr);
       this.method = 'GET';
+      this.headers = new Headers();
     }
   }
   return {
