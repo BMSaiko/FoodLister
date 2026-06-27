@@ -27,7 +27,7 @@ export default function InfoBento({ location, sourceUrl, menuLinks = [], menuIma
   const isGoogleMapsUrl = (url: string) => {
     try {
       const u = new URL(url);
-      return u.hostname.includes('google.com/maps') || u.hostname === 'maps.app.goo.gl' || u.hostname === 'goo.gl';
+      return u.href.includes('google.com/maps') || u.hostname === 'maps.app.goo.gl' || u.hostname === 'goo.gl';
     } catch {
       return false;
     }
