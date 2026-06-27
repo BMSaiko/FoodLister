@@ -87,6 +87,7 @@ export default function ScheduleMealModal({
       });
 
       const data = await response.json();
+      console.log("Schedule API response:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Erro ao agendar refeição");
@@ -103,7 +104,7 @@ export default function ScheduleMealModal({
       });
 
       onClose();
-      router.push(`/meals/${data.id}`);
+      if (data.id) router.push(`/meals/${data.id}`);
     } catch (err: any) {
       const errorMsg = err.message || "Erro ao agendar refeição";
       setSubmitError(errorMsg);

@@ -76,10 +76,10 @@ export default function MealsPage() {
                   {/* Date badge */}
                   <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-purple-500/10 flex flex-col items-center justify-center">
                     <span className="text-xs text-purple-400/70 uppercase font-medium">
-                      {new Date(meal.meal_date || meal.created_at).toLocaleDateString("pt-PT", { month: "short" })}
+                      {meal.meal_date ? new Date(meal.meal_date).toLocaleDateString("pt-PT", { month: "short" }) : "—"}
                     </span>
                     <span className="text-lg font-bold text-purple-400">
-                      {new Date(meal.meal_date || meal.created_at).getDate()}
+                      {meal.meal_date ? new Date(meal.meal_date).getDate() : "—"}
                     </span>
                   </div>
 

@@ -223,8 +223,7 @@ export default function RestaurantDetails() {
       const hostname = url.hostname.toLowerCase();
 
       // Prevent localhost/private IP access
-      if (hostname === 'localhost' ||
-          hostname === '127.0.0.1' ||
+      if (hostname === '127.0.0.1' ||
           hostname.startsWith('192.168.') ||
           hostname.startsWith('10.') ||
           hostname.startsWith('172.')) {

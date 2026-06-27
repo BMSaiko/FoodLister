@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
         meal_date: mealDate,
         meal_time: mealTime,
         meal_type: mealType,
-        duration_minutes: duration
+        duration_minutes: durationMinutes
       })
       .select()
       .single();
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
     };
 
     const mealLabel = mealTypeLabels[mealType] || mealType;
-    const endTime = new Date(mealDateTime.getTime() + duration * 60 * 1000);
+    const endTime = new Date(mealDateTime.getTime() + (durationMinutes || 60) * 60 * 1000);
 
     const calendarUrl = generateGoogleCalendarUrl({
       title: `${mealLabel} em ${restaurant.name}`,
