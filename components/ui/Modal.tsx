@@ -51,6 +51,13 @@ export default function Modal({
     }
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Close when isOpen changes to false (e.g. parent calls onClose directly)
+  useEffect(() => {
+    if (!isOpen && visible) {
+      handleClose();
+    }
+  }, [isOpen, visible]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleClose = useCallback(() => {
     if (closing) return;
     setClosing(true);
