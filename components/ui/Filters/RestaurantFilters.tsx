@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { SlidersHorizontal, X, Star, Euro, MapPin, ChevronDown, UtensilsCrossed } from "lucide-react";
+import { SlidersHorizontal, X, Star, Euro, ChevronDown, UtensilsCrossed } from "lucide-react";
 
 interface Restaurant {
   id: string;
@@ -60,8 +60,7 @@ export default function RestaurantFilters({ restaurants, onFiltered }: Restauran
       if (filters.priceMin != null && (r.price_per_person ?? 0) < filters.priceMin) return false;
       if (filters.priceMax != null && (r.price_per_person ?? Infinity) > filters.priceMax) return false;
       if (filters.ratingMin != null && (r.rating ?? 0) < filters.ratingMin) return false;
-      if (filters.visitedOnly && !r.visited) return false;
-      return true;
+          return true;
     });
   }, [restaurants, filters]);
 
@@ -75,7 +74,7 @@ export default function RestaurantFilters({ restaurants, onFiltered }: Restauran
     if (filters.cuisines.length > 0) c++;
     if (filters.priceMin != null || filters.priceMax != null) c++;
     if (filters.ratingMin != null) c++;
-    if (filters.visitedOnly) c++;
+  
     return c;
   }, [filters]);
 
@@ -201,20 +200,7 @@ export default function RestaurantFilters({ restaurants, onFiltered }: Restauran
             </div>
           </div>
 
-          {/* Visited filter */}
-          <div>
-            <button
-              onClick={() => setFilters(f => ({ ...f, visitedOnly: !f.visitedOnly }))}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
-                filters.visitedOnly
-                  ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/25"
-                  : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
-              }`}
-            >
-              <MapPin className="h-4 w-4" />
-              <span>So visitados</span>
-            </button>
-          </div>
+
         </div>
       )}
     </div>
