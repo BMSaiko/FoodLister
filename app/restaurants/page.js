@@ -21,8 +21,22 @@ function RestaurantsContent() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
   const { user } = useAuth();
-  const { restaurants, loading } = useRestaurants({ searchQuery });
+  const {
+    restaurants,
+    loading,
+    loadingMore,
+    hasMore,
+    loadMore,
+    ref: sentinelRef,
+    error,
+  } = useRestaurants({ searchQuery });
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
+
+  // Sync filteredRestaurants with new paginated items
+  useEffect(() => {
+    setFilteredRestaurants(restaurants);
+  }, [restaurants]);
+
 
   return (
     <main className="min-h-[100dvh] bg-[var(--background)]">
@@ -45,11 +59,29 @@ function RestaurantsContent() {
               <Skeleton key={i} variant="restaurant-card" />
             ))}
           </div>
+        ) : filteredRestaurants.length > 0 ? (
+          <>
+            <RestaurantGrid
+              restaurants={filteredRestaurants}
+              searchQuery={searchQuery}
+            />
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="h-4" aria-hidden="true" />
+            {loadingMore && (
+              <div className="flex justify-center py-6">
+                <div className="w-6 h-6 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
+              </div>
+            )}
+            {!hasMore && (
+              <p className="text-center text-sm text-white/30 py-6">
+                Todos os {filteredRestaurants.length} restaurantes foram carregados
+              </p>
+            )}
+          </>
         ) : (
-          <RestaurantGrid
-            restaurants={filteredRestaurants}
-            searchQuery={searchQuery}
-          />
+          <div className="text-center py-12 text-white/40">
+            {error ? `Erro: ${error}` : 'Nenhum restaurante encontrado com os filtros aplicados.'}
+          </div>
         )}
       </div>
 

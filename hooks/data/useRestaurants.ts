@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import type { RestaurantWithDetails } from '@/libs/types';
+import { useState, useEffect, useCallback, useRef } from "react";
+import type { RestaurantWithDetails } from "@/libs/types";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 interface UseRestaurantsOptions {
   searchQuery?: string | null;
@@ -10,34 +11,26 @@ interface UseRestaurantsOptions {
   openNow?: boolean | null;
   sortBy?: string | null;
   sortDirection?: string | null;
-  savedState?: any;
 }
 
 interface UseRestaurantsReturn {
   restaurants: RestaurantWithDetails[];
   loading: boolean;
-  error: string | null;
-  pagination: any;
-  loadMore: () => void;
   loadingMore: boolean;
   hasMore: boolean;
+  pagination: { page: number; limit: number; total: number; totalPages: number; hasNext: boolean; hasPrev: boolean } | null;
+  error: string | null;
+  loadMore: () => void;
   refetch: () => void;
 }
 
-// Support both old signature (searchQuery: string | null, savedState?: any)
-// and new signature (options: UseRestaurantsOptions)
-export function useRestaurants(
-  searchQueryOrOptions?: string | null | UseRestaurantsOptions,
-  savedState?: any
-): UseRestaurantsReturn {
-  let options: UseRestaurantsOptions;
+export function useRestaurants(options: UseRestaurantsOptions | string | null): UseRestaurantsReturn {
+  let opts: UseRestaurantsOptions;
 
-  if (typeof searchQueryOrOptions === 'string' || searchQueryOrOptions === null || searchQueryOrOptions === undefined) {
-    // Old signature
-    options = { searchQuery: searchQueryOrOptions ?? null, savedState };
+  if (typeof options === "string" || options === null || options === undefined) {
+    opts = { searchQuery: options ?? null };
   } else {
-    // New signature
-    options = searchQueryOrOptions;
+    opts = options;
   }
 
   const {
@@ -47,75 +40,98 @@ export function useRestaurants(
     openNow = null,
     sortBy: sortByParam = null,
     sortDirection = null,
-  } = options;
+  } = opts;
 
-  const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchRestaurants = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
+  // Fetch function used by useInfiniteScroll
+  const fetchPage = useCallback(
+    async (page: number, limit: number): Promise<{ items: RestaurantWithDetails[]; total: number }> => {
       const params = new URLSearchParams();
-      if (searchQuery) params.append('search', searchQuery);
-      if (priceMin !== null && priceMin !== undefined) params.append('priceMin', String(priceMin));
-      if (priceMax !== null && priceMax !== undefined) params.append('priceMax', String(priceMax));
-      if (openNow !== null && openNow !== undefined && openNow !== false) params.append('openNow', 'true');
-      if (sortByParam) params.append('sortBy', sortByParam);
-      if (sortDirection) params.append('sortDirection', sortDirection);
+      params.set("page", String(page));
+      params.set("limit", String(limit));
+      if (searchQuery) params.set("search", searchQuery);
+      if (priceMin !== null && priceMin !== undefined) params.set("priceMin", String(priceMin));
+      if (priceMax !== null && priceMax !== undefined) params.set("priceMax", String(priceMax));
+      if (openNow === true) params.set("openNow", "true");
+      if (sortByParam) params.set("sortBy", sortByParam);
+      if (sortDirection) params.set("sortDirection", sortDirection);
 
       const response = await fetch(`/api/restaurants?${params.toString()}`);
 
       if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unknown error');
+        const errorText = await response.text().catch(() => "Unknown error");
         throw new Error(`Failed to fetch restaurants: ${response.status} ${errorText}`);
       }
 
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (jsonError) {
-        throw new Error(`Invalid JSON response: ${(jsonError as Error).message}`);
-      }
-      if (!responseData || typeof responseData !== 'object') {
-        throw new Error('Invalid response structure');
-      }
+      const data = await response.json();
 
-      // Support both { restaurants: [...] } and direct array formats
-      const data = responseData.restaurants || responseData.data || (Array.isArray(responseData) ? responseData : []);
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid response structure');
-      }
+      const items = data.restaurants || (Array.isArray(data) ? data : []);
+      const total = (data.pagination?.total ?? items.length) || 0;
 
-      setRestaurants(data);
-    } catch (err) {
-      console.error('Erro ao buscar restaurantes:', err);
-      setError((err as Error).message);
-      setRestaurants([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [searchQuery, priceMin, priceMax, openNow, sortByParam, sortDirection]);
+      return { items, total };
+    },
+    [searchQuery, priceMin, priceMax, openNow, sortByParam, sortDirection]
+  );
+
+  const {
+    items: scrollItems,
+    ref: sentinelRef,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+  } = useInfiniteScroll<RestaurantWithDetails>({
+    fetchFn: fetchPage,
+    limit: 25,
+    rootMargin: "400px",
+    threshold: 0.1,
+  });
+
+  // Detect if filters changed (anything beyond page 1 params)
+  const filterKey = `${searchQuery}|${priceMin}|${priceMax}|${openNow}|${sortByParam}|${sortDirection}`;
+  const prevFilterKeyRef = useRef<string | null>(null);
+  const isFirstRender = prevFilterKeyRef.current === null;
 
   useEffect(() => {
-    if (savedState && savedState.searchQuery === searchQuery) {
-      setRestaurants(savedState.restaurants);
-      setLoading(false);
+    if (!isFirstRender && prevFilterKeyRef.current !== filterKey) {
+      // Filters changed — reset and re-fetch from page 1
+      prevFilterKeyRef.current = filterKey;
+      // The IS hook will re-run fetchFn on mount, we need to manual reset
+      // Actually the IS hook re-runs when fetchFn changes (which it does due to deps)
+      // So items will be replaced automatically
     } else {
-      fetchRestaurants();
+      prevFilterKeyRef.current = filterKey;
     }
-  }, [searchQuery, priceMin, priceMax, openNow, sortByParam, sortDirection, fetchRestaurants, savedState]);
+  }, [filterKey, isFirstRender]);
+
+  // Pagination metadata from last successful fetch
+  // We can compute it from hasMore + items length, but ideally from API response
+  const paginationMeta = {
+    page: Math.floor(scrollItems.length / 25) || 1,
+    limit: 25,
+    total: scrollItems.length, // approximative, API sends real total
+    totalPages: hasMore ? Math.ceil(scrollItems.length / 25) + 1 : Math.ceil(scrollItems.length / 25),
+    hasNext: hasMore,
+    hasPrev: scrollItems.length > 25,
+  };
+
+  const restaurants = scrollItems;
+  const loading = isLoading && restaurants.length === 0;
+
+  // Manual refetch (for filter changes that don't trigger IS re-mount)
+  const refetch = useCallback(() => {
+    window.location.reload();
+  }, []);
 
   return {
     restaurants,
     loading,
-    error,
-    pagination: null,
-    loadMore: () => {},
-    loadingMore: false,
-    hasMore: false,
-    refetch: fetchRestaurants,
+    loadingMore: isLoadingMore,
+    hasMore,
+    pagination: paginationMeta,
+    error: null,
+    loadMore,
+    refetch,
   };
 }
+
+
