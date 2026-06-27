@@ -96,15 +96,24 @@ export async function GET(request: NextRequest) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
-    const baseColumns =
-      'id, name, description, image_url, price_per_person, rating, location, ' +
-      'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
-      'created_at, creator_id, creator_name, latitude, ' +
-      'longitude, images, display_image_index, ' +
-      'cuisine_types:restaurant_cuisine_types(cuisine_type:cuisine_types(id, name, icon)), ' +
-      'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
-      'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
-      'reviews:reviews(count)';
+    // Skip expensive reviews(count) for large datasets (limit=all)
+    const joinReviews = !isAll;
+    const baseColumns = joinReviews
+      ? 'id, name, description, image_url, price_per_person, rating, location, ' +
+        'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
+        'created_at, creator_id, creator_name, latitude, ' +
+        'longitude, images, display_image_index, ' +
+        'cuisine_types:restaurant_cuisine_types(cuisine_type:cuisine_types(id, name, icon)), ' +
+        'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
+        'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
+        'reviews:reviews(count)'
+      : 'id, name, description, image_url, price_per_person, rating, location, ' +
+        'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
+        'created_at, creator_id, creator_name, latitude, ' +
+        'longitude, images, display_image_index, ' +
+        'cuisine_types:restaurant_cuisine_types(cuisine_type:cuisine_types(id, name, icon)), ' +
+        'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
+        'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon))';
     // Main query — always range-paginated (works with ?page=N&limit=all)
         // Build filter conditions (shared between single & multi-page fetches)
     const applyFilters = (q: any) => {
@@ -176,7 +185,7 @@ export async function GET(request: NextRequest) {
       cuisine_types: r.cuisine_types?.map((x: any) => x.cuisine_type).filter(Boolean) || [],
       features: r.features?.map((x: any) => x.feature).filter(Boolean) || [],
       dietary_options: r.dietary_options?.map((x: any) => x.dietary_option).filter(Boolean) || [],
-      review_count: r.reviews?.[0]?.count || 0,
+      review_count: joinReviews ? (r.reviews?.[0]?.count || 0) : undefined,
       latitude: r.latitude, longitude: r.longitude, opening_hours: r.opening_hours || null,
     }));
     // Strip sensitive fields from public (unauthenticated) responses

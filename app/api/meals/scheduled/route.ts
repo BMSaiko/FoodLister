@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { checkRateLimit } from '@/libs/rate-limit';
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,6 +28,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const { allowed, remaining } = checkRateLimit(`meals-scheduled-${ip}`, 30, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests', code: 'RATE_LIMITED' },
+        { status: 429, headers: { 'X-RateLimit-Remaining': String(remaining) } }
       );
     }
 

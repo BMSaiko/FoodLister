@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { checkRateLimit } from '@/libs/rate-limit';
 
 // Add participants to a meal
 export async function POST(request: NextRequest) {
@@ -23,6 +24,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const { allowed, remaining } = checkRateLimit(`participants-${ip}`, 20, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests', code: 'RATE_LIMITED' },
+        { status: 429, headers: { 'X-RateLimit-Remaining': String(remaining) } }
       );
     }
 
@@ -96,6 +107,64 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+
+// ─── Helper: verify meal access ───
+async function verifyMealAccess(supabase: any, mealId: string, userId: string) {
+  const { data: meal, error } = await supabase
+    .from('scheduled_meals')
+    .select('organizer_id')
+    .eq('id', mealId)
+    .single();
+
+  if (error || !meal) return { error: 'Meal not found', status: 404 };
+  return {
+    meal,
+    isOrganizer: meal.organizer_id === userId,
+  };
+}
+
+// ─── Helper: get participant record ───
+async function getParticipant(supabase: any, mealId: string, userId: string) {
+  return supabase
+    .from('meal_participants')
+    .select('*')
+    .eq('scheduled_meal_id', mealId)
+    .eq('user_id', userId)
+    .maybeSingle();
+}
+
+// ─── Helper: build participant select ───
+const PARTICIPANT_SELECT = `
+  id,
+  user_id,
+  status,
+  profiles:profiles!meal_participants_user_id_fkey (
+    user_id,
+    display_name,
+    avatar_url,
+    user_id_code
+  )
+`;
+
+// ─── Helper: upsert participant status ───
+async function upsertParticipant(supabase: any, mealId: string, userId: string, status: string) {
+  const existing = await getParticipant(supabase, mealId, userId);
+  if (existing.data) {
+    return supabase
+      .from('meal_participants')
+      .update({ status })
+      .eq('scheduled_meal_id', mealId)
+      .eq('user_id', userId)
+      .select(PARTICIPANT_SELECT)
+      .single();
+  }
+  return supabase
+    .from('meal_participants')
+    .insert({ scheduled_meal_id: mealId, user_id: userId, status })
+    .select(PARTICIPANT_SELECT)
+    .single();
 }
 
 // Update participant status (accept/decline)
@@ -369,7 +438,7 @@ export async function DELETE(request: NextRequest) {
         { status: 401 }
       );
     }
-    
+
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
@@ -378,7 +447,17 @@ export async function DELETE(request: NextRequest) {
         { status: 401 }
       );
     }
-    
+
+    // Rate limiting
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const { allowed, remaining } = checkRateLimit(`participants-delete-${ip}`, 10, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests', code: 'RATE_LIMITED' },
+        { status: 429, headers: { 'X-RateLimit-Remaining': String(remaining) } }
+      );
+    }
+
     const url = new URL(request.url);
     const mealId = url.searchParams.get('mealId');
     const participantId = url.searchParams.get('participantId');

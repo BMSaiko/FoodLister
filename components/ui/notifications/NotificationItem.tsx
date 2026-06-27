@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bell, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, MapPinCheck } from "lucide-react";
+import { Bell, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks } from "lucide-react";
 import type { Notification } from "@/types/notification";
 
 const iconMap: Record<string, { icon: React.ComponentType<{ className?: string }>; bg: string; color: string }> = {
@@ -11,7 +11,6 @@ const iconMap: Record<string, { icon: React.ComponentType<{ className?: string }
   comment_reply: { icon: MessageCircle, bg: "bg-blue-500/10", color: "text-blue-400" },
   list_invite: { icon: ListPlus, bg: "bg-emerald-500/10", color: "text-emerald-400" },
   list_update: { icon: ListChecks, bg: "bg-teal-500/10", color: "text-teal-400" },
-  restaurant_visit: { icon: MapPinCheck, bg: "bg-purple-500/10", color: "text-purple-400" },
   system: { icon: Bell, bg: "bg-white/5", color: "text-white/40" },
 };
 

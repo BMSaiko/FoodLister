@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, MapPinCheck, Loader2, ArrowLeft, Inbox } from 'lucide-react';
+import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Loader2, ArrowLeft, Inbox } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
@@ -25,8 +25,7 @@ function getNotificationIcon(type: string, size: 'sm' | 'md' = 'md') {
     case 'comment_reply': return <MessageCircle className={`${cls} text-blue-400`} />;
     case 'list_invite': return <ListPlus className={`${cls} text-emerald-400`} />;
     case 'list_update': return <ListChecks className={`${cls} text-teal-400`} />;
-    case 'restaurant_visit': return <MapPinCheck className={`${cls} text-purple-400`} />;
-    default: return <Bell className={`${cls} text-white/30`} />;
+        default: return <Bell className={`${cls} text-white/30`} />;
   }
 }
 
