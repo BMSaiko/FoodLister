@@ -44,7 +44,6 @@ export default function Modal({
 
   useEffect(() => { setMounted(true); return () => setMounted(false); }, []);
 
-  // Open
   useEffect(() => {
     if (isOpen && !visible) {
       setVisible(true);
@@ -62,7 +61,6 @@ export default function Modal({
     }, 150);
   }, [closing, onClose]);
 
-  // ESC
   useEffect(() => {
     if (!visible || !closeOnEsc) return;
     const fn = (e: KeyboardEvent) => {
@@ -72,7 +70,6 @@ export default function Modal({
     return () => document.removeEventListener('keydown', fn);
   }, [visible, closeOnEsc, handleClose]);
 
-  // Scroll lock
   useEffect(() => {
     if (visible) {
       scrollYRef.current = window.scrollY;
@@ -84,7 +81,6 @@ export default function Modal({
     }
   }, [visible]);
 
-  // aria-hidden on <main>
   useEffect(() => {
     const el = document.querySelector('main');
     if (!el) return;
@@ -102,19 +98,16 @@ export default function Modal({
   const bdIn = 'backdropIn 200ms ease-out';
   const bdOut = 'backdropOut 150ms ease-in forwards';
 
-  // Positioning
   const position = isFull
     ? 'inset-0'
     : isSheet
       ? 'items-end justify-center md:items-center md:justify-center'
       : 'items-center justify-center';
 
-  // Panel
   const panelRadius = isFull ? '' : isSheet ? 'rounded-t-3xl md:rounded-3xl' : 'rounded-3xl';
   const sizeClass = isFull ? 'w-full h-full' : `w-full ${SIZE_MAP[size]}`;
   const maxH = isFull ? '' : 'max-h-[85vh] md:max-h-[90vh]';
 
-  // Drag handle (mobile only, bottom-sheet)
   const dragHandle = isSheet ? (
     <div className="flex justify-center pt-2 pb-1 md:hidden">
       <div className="w-10 h-1 rounded-full bg-white/20" />
@@ -123,37 +116,42 @@ export default function Modal({
 
   const fullScreenOverflow = isFull ? "overflow-visible" : "overflow-auto";
 
+  // Backdrop click: only close if closeOnBackdrop is true AND click was on backdrop itself
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (!closeOnBackdrop) return;
+    // Only close if the click target IS the backdrop (not a child that bubbled up)
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
   const portal = (
     <div className={`fixed inset-0 z-50 flex ${position} ${isFull ? '' : 'p-0 md:p-4'}`}>
-      {/* Backdrop */}
+      {/* Backdrop — z-0 (below content) */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         style={{ animation: closing ? bdOut : bdIn }}
-        onClick={closeOnBackdrop ? handleClose : undefined}
+        onClick={handleBackdropClick}
         aria-hidden="true"
       />
 
-      {/* Content */}
+      {/* Content — z-20 (above backdrop, receives pointer events) */}
       {isFull ? (
-        // Full-screen: no double-bezel, just raw content
         <div
           role="dialog"
           aria-modal="true"
           aria-label={ariaLabel}
-          className={`relative z-10 w-full h-full ${fullScreenOverflow} ${className}`}
+          className={`relative z-20 w-full h-full ${fullScreenOverflow} ${className}`}
           style={{ animation: closing ? animOut : animIn }}
         >
           {children}
         </div>
       ) : (
-        // Dialog / bottom-sheet: Double-Bezel
         <div
-          className={`relative z-10 ${sizeClass} p-1.5 ${panelRadius}`}
+          className={`relative z-20 ${sizeClass} p-1.5 ${panelRadius}`}
           style={{ animation: closing ? animOut : animIn }}
         >
-          {/* Outer bezel */}
           <div className={`absolute inset-0 ${panelRadius} bg-white/[0.02] ring-1 ring-white/[0.08] backdrop-blur-xl`} />
-          {/* Inner bezel */}
           <div
             role="dialog"
             aria-modal="true"
