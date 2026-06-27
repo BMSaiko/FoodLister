@@ -68,9 +68,11 @@ export default function MapSelectorModal() {
         {
           name: 'Apple Maps',
           icon: Globe,
-          url: hasValidCoords
-            ? `https://maps.apple.com/?ll=${latitude},${longitude}`
-            : 'https://maps.apple.com/',
+          url: (hasValidCoords && validLocation)
+            ? `https://maps.apple.com/?q=${encodeURIComponent(location.trim())}&ll=${latitude},${longitude}`
+            : hasValidCoords
+              ? `https://maps.apple.com/?ll=${latitude},${longitude}`
+              : 'https://maps.apple.com/',
           color: 'bg-white/50 hover:bg-white/60',
           textColor: 'text-white'
         }
