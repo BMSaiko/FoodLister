@@ -51,7 +51,7 @@ export async function GET(
   }
 }
 
-// POST - Add collaborator by email
+// POST - Add collaborator by user_id or user_id_code
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -83,23 +83,35 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { email, role } = body;
+    const { user_id, user_id_code, role } = body;
 
-    if (!email) {
+    if (!user_id && !user_id_code) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 400 });
     }
 
-    // Find user by email
-    const { data: targetUser, error: userError } = await supabase
-      .from('profiles')
-      .select('user_id, display_name')
-      .ilike('display_name', email)
-      .single();
+    // Resolve user by user_id or user_id_code
+    let targetUser: { user_id: string; display_name: string | null } | null = null;
 
-    if (userError || !targetUser) {
+    if (user_id) {
+      const { data, error: userError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .eq('user_id', user_id)
+        .single();
+      if (!userError && data) targetUser = data;
+    } else if (user_id_code) {
+      const { data, error: userError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .eq('user_id_code', user_id_code.toUpperCase())
+        .single();
+      if (!userError && data) targetUser = data;
+    }
+
+    if (!targetUser) {
       const errorType = 'NOT_FOUND' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 404 });
+      return NextResponse.json({ error: "Utilizador não encontrado", code: errorType }, { status: 404 });
     }
 
     const { data: collaborator, error: createError } = await supabase
@@ -115,7 +127,7 @@ export async function POST(
     if (createError) {
       if (createError.code === '23505') {
         const errorType = 'VALIDATION_ERROR' as ApiErrorType;
-        return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 409 });
+        return NextResponse.json({ error: "Utilizador já é colaborador", code: errorType }, { status: 409 });
       }
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
