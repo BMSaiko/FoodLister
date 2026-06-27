@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { DEFAULT_MEAL_TYPES } from "@/hooks/forms/useMealScheduling";
+import { useAuth } from "@/contexts";
 import MealDetailsStep from "./steps/MealDetailsStep";
 import ParticipantsStep from "./steps/ParticipantsStep";
 import ConfirmStep from "./steps/ConfirmStep";
@@ -34,6 +35,8 @@ export default function ScheduleMealModal({
 
   // Step 3: Confirm
   const [googleCalendar, setGoogleCalendar] = useState(false);
+
+  const { user } = useAuth();
 
   const totalSteps = 3;
 
@@ -112,7 +115,7 @@ export default function ScheduleMealModal({
             participants={participants}
             onAdd={(user) => setParticipants([...participants, user])}
             onRemove={(id) => setParticipants(participants.filter((p: any) => p.id !== id))}
-            currentUserId="" // Should come from auth context
+            currentUserId={user?.id ?? ""}
           />
         )}
         {currentStep === 3 && (

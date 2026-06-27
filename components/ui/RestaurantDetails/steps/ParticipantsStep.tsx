@@ -40,7 +40,7 @@ export default function ParticipantsStep({
       const resp = await supabase
         .from("profiles")
         .select("id, display_name, avatar_url, user_id_code")
-        .or("display_name.ilike.%" + q + "%,user_id_code.ilike.%" + q + "%")
+        .or(`display_name.ilike.%${q}%,user_id_code.ilike.%${q}%`)
         .neq("id", currentUserId)
         .limit(8);
       setResults(resp.data || []);
