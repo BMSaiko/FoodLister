@@ -18,10 +18,13 @@ export function parsePaginationParams(
 ): { page: number; limit: number; from: number; to: number } {
   const { defaultLimit = 25, maxLimit = 100 } = defaults;
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const limit = Math.min(
-    maxLimit,
-    Math.max(1, parseInt(searchParams.get("limit") || String(defaultLimit), 10))
-  );
+  const limitRaw = searchParams.get("limit");
+  let limit: number;
+  if (limitRaw === "all") {
+    limit = 10000;
+  } else {
+    limit = Math.min(maxLimit, Math.max(1, parseInt(limitRaw || String(defaultLimit), 10)));
+  }
   const from = (page - 1) * limit;
   const to = from + limit - 1;
   return { page, limit, from, to };

@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     const sortByParam = (searchParams.get('sort_by') || 'name') as RestaurantSortBy;
     const sortDirectionParam = (searchParams.get('sort_direction') || 'asc') as SortDirection;
     const randomParam = isRandomSort(request);
-    const { page, limit, from, to } = parsePaginationFromRequest(request, { defaultLimit: 25 });
+    const { page, limit, from, to, all: isAll } = parsePaginationFromRequest(request, { defaultLimit: 25 });
     let client = supabase;
     let isPublicRequest = !supabase;
     if (!supabase) {
@@ -106,31 +106,60 @@ export async function GET(request: NextRequest) {
       'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
       'reviews:reviews(count)';
     // Main query — always range-paginated (works with ?page=N&limit=all)
-    let query = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(from, to);
-    if (search && search.trim()) query = query.ilike('name', '%' + search.trim() + '%');
-    if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v) && v >= 0) query = query.gte('price_per_person', v); }
-    if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v) && v >= 0) query = query.lte('price_per_person', v); }
+        // Build filter conditions (shared between single & multi-page fetches)
+    const applyFilters = (q: any) => {
+      if (search && search.trim()) q = q.ilike('name', '%' + search.trim() + '%');
+      if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v)) q = q.gte('price_per_person', v); }
+      if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v)) q = q.lte('price_per_person', v); }
+      return q;
+    };
+
+    // Sort: random if requested, otherwise by chosen column
+    const applySort = (q: any) => {
+      if (randomParam) return q.order('name', { ascending: Math.random() > 0.5 });
+      const sortColMap: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name', review_count: 'review_count' };
+      return q.order(sortColMap[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
+    };
+
+    // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
+    let allRestaurants: any[] = [];
+    let offset = isAll ? 0 : (page - 1) * limit;
+    const BATCH_SIZE = 1000;
+    let hasMore = true;
     
-    const sortColMap: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name', review_count: 'review_count' };
-    if (randomParam) {
-      query = query.order('name', { ascending: Math.random() > 0.5 });
-    } else {
-      query = query.order(sortColMap[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
+    while (hasMore) {
+      let batchQuery = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(offset, offset + BATCH_SIZE - 1);
+      batchQuery = applyFilters(batchQuery);
+      if (!isAll) batchQuery = applySort(batchQuery);
+      const { data: batchData, error: batchError } = await batchQuery;
+      
+      if (batchError) {
+        if (batchError.code === '42703') {
+          // Migration 050 not applied — retry without updated_at/opening_hours
+          let fbQuery = client.from('restaurants').select(baseColumns).range(offset, offset + BATCH_SIZE - 1);
+          fbQuery = applyFilters(fbQuery);
+          const { data: fbData, error: fbError } = await fbQuery;
+          if (fbError) { throw fbError; }
+          allRestaurants = allRestaurants.concat(fbData || []);
+        } else {
+          throw batchError;
+        }
+      } else {
+        allRestaurants = allRestaurants.concat(batchData || []);
+      }
+      
+      if (!isAll) {
+        hasMore = false; // Single page request
+      } else if ((batchData || []).length < BATCH_SIZE) {
+        hasMore = false;
+      } else {
+        offset += BATCH_SIZE;
+      }
     }
-    let { data: restaurantsData, error: restaurantsError } = await query;
-    // Fallback: retry without updated_at/opening_hours if migration 050 not applied
-    if (restaurantsError && restaurantsError.code === '42703') {
-      console.warn('Missing column in restaurants (migration 050 not applied), retrying without it:', restaurantsError.message);
-      const fallbackQuery = client.from('restaurants').select(baseColumns).range(from, to);
-      if (search && search.trim()) fallbackQuery.ilike('name', '%' + search.trim() + '%');
-      if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v) && v >= 0) fallbackQuery.gte('price_per_person', v); }
-      if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v) && v >= 0) fallbackQuery.lte('price_per_person', v); }
-      const sortColMapFallback: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name' };
-      fallbackQuery.order(sortColMapFallback[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
-      const fallbackResult = await fallbackQuery;
-      restaurantsData = fallbackResult.data;
-      restaurantsError = fallbackResult.error;
-    }
+
+    let restaurantsData = allRestaurants;
+    let restaurantsError: any = null;
+
     if (restaurantsError) {
       console.error('Error fetching restaurants:', restaurantsError);
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
@@ -164,9 +193,9 @@ export async function GET(request: NextRequest) {
       pagination: {
         page,
         limit,
-        total: null,
-        totalPages: null,
-        hasNext: restaurants.length === limit,
+        total: restaurants.length,
+        totalPages: Math.ceil(restaurants.length / limit),
+        hasNext: !isAll && restaurants.length === limit,
         hasPrev: page > 1,
       },
       meta: {
