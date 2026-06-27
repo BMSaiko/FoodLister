@@ -6,6 +6,7 @@ import Modal from "@/components/ui/Modal";
 import { toast } from "react-toastify";
 import { DEFAULT_MEAL_TYPES } from "@/hooks/forms/useMealScheduling";
 import { useAuth } from "@/contexts";
+import { useRouter } from "next/navigation";
 import MealDetailsStep from "./steps/MealDetailsStep";
 import ParticipantsStep from "./steps/ParticipantsStep";
 import ConfirmStep from "./steps/ConfirmStep";
@@ -38,6 +39,7 @@ export default function ScheduleMealModal({
   const [googleCalendar, setGoogleCalendar] = useState(false);
 
   const { user } = useAuth();
+  const router = useRouter();
 
   const totalSteps = 3;
 
@@ -101,6 +103,7 @@ export default function ScheduleMealModal({
       });
 
       onClose();
+      router.push(`/meals/${data.meal.id}`);
     } catch (err: any) {
       const errorMsg = err.message || "Erro ao agendar refeição";
       setSubmitError(errorMsg);
