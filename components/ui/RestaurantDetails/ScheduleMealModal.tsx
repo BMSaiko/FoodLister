@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Modal from "@/components/ui/Modal";
-import { toast } from "react-toastify";
-import { DEFAULT_MEAL_TYPES } from "@/hooks/forms/useMealScheduling";
-import { useAuth } from "@/contexts";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { X, ChevronRight } from "lucide-react";
+import Modal from "@/components/ui/Modal";
+import { useAuth } from "@/contexts";
+import { DEFAULT_MEAL_TYPES } from "@/hooks/forms/useMealScheduling";
+import { toast } from "react-toastify";
 import MealDetailsStep from "./steps/MealDetailsStep";
 import ParticipantsStep from "./steps/ParticipantsStep";
 import ConfirmStep from "./steps/ConfirmStep";
@@ -38,16 +38,19 @@ export default function ScheduleMealModal({
   // Step 3: Confirm
   const [googleCalendar, setGoogleCalendar] = useState(false);
 
-  const { user } = useAuth();
-  const router = useRouter();
+  // Submit state
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const totalSteps = 3;
 
-  const canProceed = useCallback(() => {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const canProceed = () => {
     if (currentStep === 1) return date.length > 0 && time.length > 0;
-    if (currentStep === 2) return participants.length >= 0; // Allow solo meals
     return true;
-  }, [currentStep, date, time, participants]);
+  };
 
   const goNext = () => {
     if (currentStep < totalSteps) setCurrentStep(currentStep + 1);
@@ -57,9 +60,6 @@ export default function ScheduleMealModal({
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
   const handleSubmit = async () => {
     if (!restaurantId || !date || !time) return;
     setSubmitting(true);
@@ -67,17 +67,15 @@ export default function ScheduleMealModal({
 
     try {
       const participantIds = participants.map((p: any) => p.user_id);
-      const payload: any = {
+      const payload = {
         restaurantId,
         mealDate: date,
         mealTime: time,
         mealType,
         durationMinutes: duration,
         participantUserIds: participantIds,
+        googleCalendar,
       };
-      if (googleCalendar) {
-        payload.googleCalendar = true;
-      }
 
       const response = await fetch("/api/meals/schedule", {
         method: "POST",
@@ -86,15 +84,25 @@ export default function ScheduleMealModal({
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
-      console.log("Schedule API response:", data);
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao agendar refeição");
+      const text = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Non-JSON response:", text);
+        throw new Error("Resposta invalida do servidor");
       }
 
-      // Success: show toast notification
-      toast.success("Refeição agendada com sucesso!", {
+      console.log("Schedule API status:", response.status, "data:", data);
+
+      if (!response.ok || data.error) {
+        throw new Error(data?.error || "Erro ao agendar refeição");
+      }
+
+      // Extract meal ID from response (handle both formats)
+      const mealId = data?.data?.id || data?.id || data?.data?.meal?.id;
+
+      toast.success("Refeicao agendada com sucesso!", {
         position: "top-right",
         autoClose: 4000,
         hideProgressBar: false,
@@ -104,7 +112,10 @@ export default function ScheduleMealModal({
       });
 
       onClose();
-      if (data.id) router.push(`/meals/${data.id}`);
+
+      if (mealId) {
+        router.push("/meals/" + mealId);
+      }
     } catch (err: any) {
       const errorMsg = err.message || "Erro ao agendar refeição";
       setSubmitError(errorMsg);
@@ -121,15 +132,10 @@ export default function ScheduleMealModal({
     }
   };
 
-  const handleClose = () => {
-    setCurrentStep(1);
-    onClose();
-  };
-
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={() => { setCurrentStep(1); onClose(); }}
       size="md"
       ariaLabel="Agendar refeicao"
     >
@@ -175,7 +181,7 @@ export default function ScheduleMealModal({
           <ParticipantsStep
             participants={participants}
             onAdd={(user) => setParticipants([...participants, user])}
-            onRemove={(id) => setParticipants(participants.filter((p: any) => p.id !== id))}
+            onRemove={(id) => setParticipants(participants.filter((p: any) => p.user_id !== id))}
             currentUserId={user?.id ?? ""}
           />
         )}
@@ -195,7 +201,7 @@ export default function ScheduleMealModal({
 
       {/* Error message */}
       {submitError && (
-        <div className="px-5 py-2 bg-red-500/10 border border-red-500/20 rounded-xl mb-3">
+        <div className="px-5 py-2 bg-red-500/10 border border-red-500/20 rounded-xl mb-3 mx-5">
           <p className="text-xs text-red-400">{submitError}</p>
         </div>
       )}
@@ -207,7 +213,7 @@ export default function ScheduleMealModal({
             onClick={goBack}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white/80 transition-colors bg-white/0.04 hover:bg-white/0.06"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <X className="h-4 w-4 rotate-180" />
             Voltar
           </button>
         )}
