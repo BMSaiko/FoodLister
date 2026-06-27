@@ -24,6 +24,15 @@ const detectPhoneType = (phone: string) => {
 export default function InfoBento({ location, sourceUrl, menuLinks = [], menuImages = [], phoneNumbers = [], latitude, longitude }: InfoBentoProps) {
   const { openMapModal } = useModal();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const isGoogleMapsUrl = (url: string) => {
+    try {
+      const u = new URL(url);
+      return u.hostname.includes('google.com/maps') || u.hostname === 'maps.app.goo.gl' || u.hostname === 'goo.gl';
+    } catch {
+      return false;
+    }
+  };
+
   const hasInfo = location || sourceUrl || menuLinks.length > 0 || phoneNumbers.length > 0;
   const hasMenuImages = menuImages && menuImages.length > 0;
   if (!hasInfo && !hasMenuImages) return null;
@@ -53,14 +62,25 @@ export default function InfoBento({ location, sourceUrl, menuLinks = [], menuIma
           {/* Location — span 2 */}
           {location && (
             <CardShell id="location" span2>
-              <div className="flex items-center gap-3 cursor-pointer h-full" onClick={() => openMapModal({ location, latitude, longitude })}>
-                <IconBox color="bg-amber-500/10"><MapPin className="h-5 w-5 text-amber-400" /></IconBox>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Localizacao</div>
-                  <p className="text-sm text-white/75 truncate">{location}</p>
+              {sourceUrl && isGoogleMapsUrl(sourceUrl) ? (
+                <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 h-full group">
+                  <IconBox color="bg-amber-500/10"><MapPin className="h-5 w-5 text-amber-400" /></IconBox>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Localizacao</div>
+                    <p className="text-sm text-white/75 truncate">{location}</p>
+                  </div>
+                  <span className="text-xs text-amber-400/50 font-medium flex-shrink-0 transition-all duration-200 group-hover:text-amber-400 group-hover:translate-x-0.5">Abrir no Maps</span>
+                </a>
+              ) : (
+                <div className="flex items-center gap-3 cursor-pointer h-full" onClick={() => openMapModal({ location, latitude, longitude })}>
+                  <IconBox color="bg-amber-500/10"><MapPin className="h-5 w-5 text-amber-400" /></IconBox>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Localizacao</div>
+                    <p className="text-sm text-white/75 truncate">{location}</p>
+                  </div>
+                  <span className="text-xs text-amber-400/50 font-medium flex-shrink-0 transition-all duration-200 group-hover:text-amber-400 group-hover:translate-x-0.5">Mapa</span>
                 </div>
-                <span className="text-xs text-amber-400/50 font-medium flex-shrink-0 transition-all duration-200 group-hover:text-amber-400 group-hover:translate-x-0.5">Mapa</span>
-              </div>
+              )}
             </CardShell>
           )}
 
