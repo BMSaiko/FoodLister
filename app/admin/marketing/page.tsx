@@ -45,6 +45,12 @@ export default function AdminMarketingPage() {
           >
             <Megaphone className="h-4 w-4" /> Gerir Campanhas
           </Link>
+          <Link
+            href="/admin/marketing/posts"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors duration-150"
+          >
+            <Send className="h-4 w-4" /> Gerir Posts
+          </Link>
         </div>
 
         {/* Summary cards */}
