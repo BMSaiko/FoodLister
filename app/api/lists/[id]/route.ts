@@ -88,8 +88,7 @@ export async function GET(
           restaurants: [] 
         } 
       });
-      response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
-      return response;
+        return response;
     }
 
     // Step 3: Fetch restaurant details with relationships
@@ -136,7 +135,6 @@ export async function GET(
 
     // Add caching headers for better performance
     const response = NextResponse.json({ list: responseData });
-    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
     return response;
   } catch (error) {
     console.error('Unexpected error:', error);

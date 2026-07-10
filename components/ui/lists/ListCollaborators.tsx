@@ -18,10 +18,9 @@ interface Collaborator {
 
 interface UserSuggestion {
   id: string;
-  user_id: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  user_id_code: string | null;
+  name: string | null;
+  profileImage: string | null;
+  userIdCode: string | null;
 }
 
 interface ListCollaboratorsProps {
@@ -121,12 +120,12 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
   }, []);
 
   const handleSelectUser = (user: UserSuggestion) => {
-    if (collaborators.some((c) => c.user_id === user.user_id)) {
+    if (collaborators.some((c) => c.user_id === user.id)) {
       toast.error("Utilizador já é colaborador");
       return;
     }
     setSelectedUser(user);
-    setQuery(`${user.display_name || ""} #${user.user_id_code || ""}`.trim());
+    setQuery(`${user.name || ""} #${user.userIdCode || ""}`.trim());
     setSuggestions([]);
     setShowDropdown(false);
   };
@@ -144,7 +143,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: selectedUser.user_id,
+          user_id: selectedUser.id,
           role,
         }),
       });
@@ -246,7 +245,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
               {showDropdown && suggestions.length > 0 && (
                 <div className="absolute z-20 top-full mt-2 w-full bg-[#111] border border-white/[0.1] rounded-xl overflow-hidden shadow-2xl shadow-black/50 max-h-56 overflow-y-auto">
                   {suggestions.map((user) => {
-                    const added = isAdded(user.user_id);
+                    const added = isAdded(user.id);
                     return (
                       <button
                         key={user.id}
@@ -259,20 +258,20 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
                             : "hover:bg-white/[0.06] cursor-pointer")}
                       >
                         <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                          {user.avatar_url ? (
-                            <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                          {user.profileImage ? (
+                            <img src={user.profileImage} alt="" className="w-8 h-8 rounded-full object-cover" />
                           ) : (
                             <span className="text-xs text-amber-400 font-medium">
-                              {((user.display_name || user.user_id_code || "?")[0]).toUpperCase()}
+                              {((user.name || user.userIdCode || "?")[0]).toUpperCase()}
                             </span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-white/85 truncate">
-                            {user.display_name || user.user_id_code || user.user_id.slice(0, 8)}
+                            {user.name || user.userIdCode || user.id.slice(0, 8)}
                           </p>
-                          {user.user_id_code && (
-                            <p className="text-xs text-white/35">#{user.user_id_code}</p>
+                          {user.userIdCode && (
+                            <p className="text-xs text-white/35">#{user.userIdCode}</p>
                           )}
                         </div>
                         {added && (
@@ -301,14 +300,14 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
               <div className="flex items-center gap-2 bg-white/[0.06] rounded-full pr-1 py-1">
                 <div className="w-6 h-6 rounded-full bg-amber-500/10 flex items-center justify-center">
                   <span className="text-[10px] text-amber-400 font-medium">
-                    {((selectedUser.display_name || selectedUser.user_id_code || "?")[0]).toUpperCase()}
+                    {((selectedUser.name || selectedUser.userIdCode || "?")[0]).toUpperCase()}
                   </span>
                 </div>
                 <span className="text-xs text-white/70 pl-1 truncate max-w-[140px]">
-                  {selectedUser.display_name || selectedUser.user_id_code || selectedUser.user_id.slice(0, 8)}
+                  {selectedUser.name || selectedUser.userIdCode || selectedUser.id.slice(0, 8)}
                 </span>
-                {selectedUser.user_id_code && (
-                  <span className="text-[10px] text-white/30">#{selectedUser.user_id_code}</span>
+                {selectedUser.userIdCode && (
+                  <span className="text-[10px] text-white/30">#{selectedUser.userIdCode}</span>
                 )}
                 <button
                   type="button"

@@ -75,7 +75,7 @@ export default function ListDetails() {
       if (!id) return;
       setLoading(true);
       try {
-        const response = await fetch(`/api/lists/${id}`, { credentials: "include" });
+        const response = await fetch(`/api/lists/${id}`, { credentials: "include", cache: "no-store" });
         if (!response.ok) {
           const errorText = await response.text().catch(() => "Unknown error");
           throw new Error(`Failed: ${response.status} - ${errorText}`);
@@ -107,6 +107,39 @@ export default function ListDetails() {
   const handleShareList = async () => {
     if (!list) return;
     await share({ title: list.name, text: list.description || `Ve a lista "${list.name}" no FoodLister!`, url: `/lists/${id}` });
+  };
+
+
+  const handleRemoveRestaurant = async (restaurantId: string) => {
+    if (!confirm('Remover este restaurante da lista?')) return;
+    try {
+      const res = await fetch(`/api/lists/${id}/restaurants/${restaurantId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        toast.success('Restaurante removido!');
+        // Refresh list data
+        const response = await fetch(`/api/lists/${id}`, { credentials: 'include', cache: 'no-store' });
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.list) {
+            setList(data.list);
+            const transformedRestaurants = (data.list.restaurants || []).map((r: any) => ({
+              ...r,
+              features: r.restaurant_features?.map((rf: any) => rf.features) || [],
+              dietary_options: r.restaurant_dietary_options?.map((rdo: any) => rdo.dietary_options) || [],
+              cuisine_types: r.restaurant_cuisine_types?.map((rct: any) => rct.cuisine_types) || [],
+            }));
+            setRestaurants(transformedRestaurants);
+          }
+        }
+      } else {
+        toast.error('Erro ao remover restaurante');
+      }
+    } catch {
+      toast.error('Erro ao remover restaurante');
+    }
   };
 
   const handleDuplicateList = async () => {
@@ -270,6 +303,9 @@ export default function ListDetails() {
           {/* Restaurant Grid */}
           <ListRestaurantGrid
             restaurants={restaurants}
+            listId={id as string}
+            isOwner={!!(user && list.creator_id === user.id)}
+            onRemove={handleRemoveRestaurant}
           />
 
           {/* Export */}
