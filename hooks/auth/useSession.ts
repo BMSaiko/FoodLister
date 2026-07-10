@@ -3,7 +3,7 @@
  * Provides session data, loading state, and session checking
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { AuthUser, SupabaseAuthSession } from '@/libs/types';
 

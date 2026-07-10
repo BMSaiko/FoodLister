@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Star, Utensils, Clock, MapPin, Euro, DollarSign, Trash2, Share2 } from 'lucide-react';
+import {  Utensils } from 'lucide-react';
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
-import { formatDate } from '@/utils/formatters';
+import {  } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
 import { 
@@ -18,7 +18,7 @@ import {
 } from '../shared';
 import RestaurantCard from './RestaurantCard';
 import RestaurantSkeletonLoader from './RestaurantSkeletonLoader';
-import { useUserCache } from '@/hooks/data/useUserCache';
+import {  } from '@/hooks/data/';
 import { useScrollLock } from '@/utils/scrollLock';
 
 interface UserRestaurantsSectionProps {

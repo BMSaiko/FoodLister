@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Pause, Play, ImageIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 
 interface RestaurantCarouselProps {

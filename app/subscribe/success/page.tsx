@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, {  } from 'react';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';

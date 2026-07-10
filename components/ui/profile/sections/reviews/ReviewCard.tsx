@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Star, MapPin, Euro, MessageCircle } from "lucide-react";
+import { Star, MapPin, Euro } from "lucide-react";
 import { formatDate } from "@/utils/formatters";
 import Link from "next/link";
 

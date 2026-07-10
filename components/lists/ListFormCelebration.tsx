@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Sparkles, ArrowRight, Eye, Share2 } from "lucide-react";
+import { Sparkles, Eye, Share2 } from "lucide-react";
 import Link from "next/link";
 import Modal from '@/components/ui/Modal';
 

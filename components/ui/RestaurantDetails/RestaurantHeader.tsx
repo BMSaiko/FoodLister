@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Share2, Calendar, Edit, Check, X, Plus } from 'lucide-react';
+import { Star, Share2, Calendar, Edit } from 'lucide-react';
 import { Restaurant } from '@/libs/types';
 import { getRatingClass, formatPrice, categorizePriceLevel } from '@/utils/formatters';
 

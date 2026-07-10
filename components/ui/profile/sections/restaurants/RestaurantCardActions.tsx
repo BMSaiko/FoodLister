@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { MapPin, Edit, Trash2, Share2, Copy } from 'lucide-react';
+import { MapPin, Edit, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/contexts';
 import { useModal } from '@/contexts/ModalContext';

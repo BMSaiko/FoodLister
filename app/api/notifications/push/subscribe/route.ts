@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient } from '@/libs/supabase/admin';
+import {  } from '@/libs/supabase/admin';
 import { getServerClient } from '@/libs/supabase/server';
 import type { ApiErrorType } from '@/types/api';
 import { getErrorMessage } from '@/types/api';

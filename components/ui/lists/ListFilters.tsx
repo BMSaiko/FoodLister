@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { Filter, X, Search, Star, ArrowUpDown } from 'lucide-react';
+import { Filter, X, Search, ArrowUpDown } from 'lucide-react';
 
 interface ListFiltersProps {
   onFilterChange: (filters: ListFilters) => void;

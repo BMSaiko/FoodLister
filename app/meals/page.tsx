@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/auth/useAuth";
 import Navbar from "@/components/ui/navigation/Navbar";
 import Link from "next/link";
-import { Calendar, Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
+import {  Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
 
 export default function MealsPage() {
   const { user, loading: authLoading } = useAuth();

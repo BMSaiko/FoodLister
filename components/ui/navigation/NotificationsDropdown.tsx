@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Bell, X, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Loader2 } from 'lucide-react';
+import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Loader2 } from 'lucide-react';
 import useNotifications from '@/hooks/data/useNotifications';
 import type { Notification } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowUp, Share2, Copy, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import {  } from 'react-toastify';
 
 interface ProfileStickyNavbarProps {
   scrollThreshold?: number;

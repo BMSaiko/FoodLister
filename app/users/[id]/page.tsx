@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useUserData } from "@/hooks/data/useUserData";
 import { toast } from "react-toastify";
-import { AlertCircle, Loader2, Star } from "lucide-react";
+import { AlertCircle, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import UserProfileHeader from "@/components/ui/profile/UserProfileHeader";

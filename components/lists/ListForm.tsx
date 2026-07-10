@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ArrowLeft, Globe, Lock, Search, Plus, Star, MapPin, ChevronRight, ChevronLeft, Save, Sparkles, Info, Tag, Image, X, Check } from "lucide-react";
+import { ArrowLeft, Globe, Lock, Search, Plus, Star, ChevronRight, ChevronLeft, Sparkles, Info, Tag, Image, X } from "lucide-react";
 import Link from "next/link";
 import { VisibilityToggle } from "components/ui/lists/ListFormFields";
 import ListTagsInput from "components/ui/lists/ListTagsInput";

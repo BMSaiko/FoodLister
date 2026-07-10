@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Shuffle, X, ExternalLink, MapPin, Star, ChevronLeft, Sparkles, Trophy, RotateCcw } from "lucide-react";
+import { Shuffle, X, ExternalLink, MapPin, Star, Sparkles, Trophy, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import Modal from "./Modal";
 

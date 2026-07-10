@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Globe, Lock, MapPin, Star, List, ImageIcon } from "lucide-react";
+import { Globe, Lock, Star, List, ImageIcon } from "lucide-react";
 
 interface Restaurant {
   id: string;

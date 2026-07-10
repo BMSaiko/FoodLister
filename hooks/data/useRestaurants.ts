@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, type RefObject } from "react";
+import {  useEffect, useCallback, useRef, type RefObject } from "react";
 import type { RestaurantWithDetails } from "@/libs/types";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 

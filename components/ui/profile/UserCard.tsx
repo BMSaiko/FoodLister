@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { User, MapPin, Calendar, Star, List, Eye, EyeOff } from 'lucide-react';
+import { User, MapPin, Calendar, Eye, EyeOff } from 'lucide-react';
 
 interface UserCardProps {
   user: {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapPin, Globe, FileText, Phone, Smartphone, ImageIcon } from "lucide-react";
+import { MapPin, Globe, FileText, Phone, Smartphone } from "lucide-react";
 import { useModal } from "@/contexts/ModalContext";
 import MenuGallery from "./MenuGallery";
 

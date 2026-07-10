@@ -2,7 +2,7 @@
 
 import type { DashboardStats as Stats } from '@/libs/types';
 import StatsCard from './StatsCard';
-import { Users, UtensilsCrossed, Star, List, Calendar } from 'lucide-react';
+import { Users, UtensilsCrossed, Star, List } from 'lucide-react';
 
 interface DashboardStatsProps {
   stats: Stats | null;

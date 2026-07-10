@@ -32,8 +32,8 @@ const ScheduleMealModal = dynamic(() => import("@/components/ui/RestaurantDetail
 import { useModal } from "@/contexts/ModalContext";
 
 import Link from "next/link";
-import { Share2, Calendar, Edit, MapPin, Globe, FileText, Phone, Check, X, Plus, Star, ListChecks, Smartphone, Euro } from "lucide-react";
-import { categorizePriceLevel, getRatingClass, formatDate, formatPrice } from "@/utils/formatters";
+import {         X, Euro } from "lucide-react";
+import { categorizePriceLevel, getRatingClass, formatPrice } from "@/utils/formatters";
 import { logError, logWarn, logInfo } from "@/utils/logger";
 import { toast } from "react-toastify";
 

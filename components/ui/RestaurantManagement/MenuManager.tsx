@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Plus, Link as LinkIcon, Image as ImageIcon, AlertCircle, Globe, FileText } from 'lucide-react';
+import { X, Plus, Link as LinkIcon, Image as ImageIcon, AlertCircle, Globe } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import Image from 'next/image';
 

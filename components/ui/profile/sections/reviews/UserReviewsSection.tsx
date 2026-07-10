@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Star, Utensils } from "lucide-react";
 
 import { useSecureApiClient } from "@/hooks/auth/useSecureApiClient";
 
-import { SkeletonLoader, EmptyState, TouchButton } from "../shared";
+import {  EmptyState, TouchButton } from "../shared";
 import { toast } from "react-toastify";
 import ReviewCard from "./ReviewCard";
 

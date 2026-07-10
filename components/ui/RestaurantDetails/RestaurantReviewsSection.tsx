@@ -1,10 +1,10 @@
 import React, { useState, useEffect, forwardRef, useRef } from 'react';
-import { Star, Edit, X, User } from 'lucide-react';
+import { Star, Edit, X } from 'lucide-react';
 import { Review } from '@/libs/types';
 import { formatDate } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {  } from 'next/navigation';
 import ReviewForm from './ReviewForm';
 
 interface RestaurantReviewsSectionProps {

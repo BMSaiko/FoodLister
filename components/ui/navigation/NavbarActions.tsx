@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Plus, User, LogOut, Settings } from 'lucide-react';
+import { Plus, User } from 'lucide-react';
 import { useAuth } from '@/contexts';
 
 const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: { activeSection: 'restaurants' | 'lists'; showLogin?: boolean; showSignout?: boolean }) => {

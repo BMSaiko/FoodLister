@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Globe, FileText, ImageIcon, Phone, Smartphone, Home } from 'lucide-react';
+import { MapPin, Globe, FileText, ImageIcon, Phone, Smartphone } from 'lucide-react';
 import HorizontalImageList from './HorizontalImageList';
 import { useModal } from '@/contexts/ModalContext';
 

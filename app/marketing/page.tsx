@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { Sparkles, ChefHat, Users, Share2, BarChart3, Shield, Zap, ArrowRight, Star } from "lucide-react";
+import { Sparkles, ChefHat, Users, Share2, BarChart3, Shield, ArrowRight, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { Container } from "@/components/ui/Container";
 

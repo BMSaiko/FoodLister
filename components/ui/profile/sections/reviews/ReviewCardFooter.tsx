@@ -2,8 +2,8 @@
 "use client";
 
 import React from 'react';
-import { MapPin, Star, Clock, Euro, DollarSign, MessageCircle } from 'lucide-react';
-import { getDescriptionPreview } from '@/utils/formatters';
+import {  Star, Clock } from 'lucide-react';
+import {  } from '@/utils/formatters';
 
 interface ReviewCardFooterProps {
   review: {

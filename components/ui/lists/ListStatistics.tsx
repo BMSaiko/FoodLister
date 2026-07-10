@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { Star, Euro, MapPin, XCircle, TrendingUp, UtensilsCrossed } from "lucide-react";
+import { Star, Euro, MapPin, TrendingUp, UtensilsCrossed } from "lucide-react";
 
 const COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ef4444", "#ec4899", "#f97316", "#14b8a6"];
 

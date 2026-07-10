@@ -1,5 +1,5 @@
 import React from 'react';
-import { SkeletonLoader } from '../shared';
+import {  } from '../shared';
 
 interface RestaurantSkeletonLoaderProps {
   count?: number;

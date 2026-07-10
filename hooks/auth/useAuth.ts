@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { AuthUser, SupabaseAuthSession } from '@/libs/types';
-import { logError, logInfo } from '@/utils/logger';
+import { logError } from '@/utils/logger';
 
 interface AuthState {
   session: SupabaseAuthSession | null;

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import { MapPin, Star, Clock, DollarSign, Tag } from 'lucide-react';
-import { formatDate } from '@/utils/formatters';
+import {  } from '@/utils/formatters';
 
 interface RestaurantCardFooterProps {
   restaurant: {

@@ -4,7 +4,7 @@ import { use } from 'react';
 import { useAdminUserDetail } from '@/hooks/admin/useAdminUserDetail';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import Link from 'next/link';
-import { ArrowLeft, Mail, MapPin, Globe, Calendar, Star, List, Shield, UserX } from 'lucide-react';
+import { ArrowLeft, Mail, MapPin, Globe, Calendar, Star, List, UserX } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import { useState } from 'react';
 

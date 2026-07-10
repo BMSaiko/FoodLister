@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, {  useRef } from 'react';
 import { X, MapPin, Navigation, Globe } from 'lucide-react';
 import { logError } from '@/utils/logger';
 import { useModal } from '@/contexts/ModalContext';

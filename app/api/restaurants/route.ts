@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
-import { cacheOrSet } from '@/libs/cache';
+import {  } from '@/libs/cache';
 import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
 import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';

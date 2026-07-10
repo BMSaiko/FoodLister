@@ -3,7 +3,7 @@
 import { useAdminStats } from '@/hooks/admin/useAdminStats';
 import StatsCard from '@/components/admin/StatsCard';
 import GrowthChart from '@/components/admin/GrowthChart';
-import { Users, UtensilsCrossed, Star, List, Calendar, Shield } from 'lucide-react';
+import { Users, UtensilsCrossed, Star, List, Shield } from 'lucide-react';
 
 export default function AdminStatisticsPage() {
   const { stats, loading, error } = useAdminStats();

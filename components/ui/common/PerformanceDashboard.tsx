@@ -1,7 +1,7 @@
 // Performance Dashboard for Roulette Filter System
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart, 
   Bar, 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Loader2, ArrowLeft, Inbox } from 'lucide-react';
+import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, ArrowLeft, Inbox } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';

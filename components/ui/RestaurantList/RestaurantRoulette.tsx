@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
-import { RotateCcw, ChefHat, Filter, X, Search, Plus, Check, Sparkles, Apple, MapPin, Coffee, Wine, Utensils, Save, Clock, TrendingUp, Target, Zap, Star, Shield, Heart, ShieldCheck, Users, Calendar, RefreshCw, ArrowUp } from 'lucide-react';
+import { RotateCcw, ChefHat, X, Search, Plus, Check, Sparkles, Save, Clock, ArrowUp } from 'lucide-react';
 import Link from 'next/link';
 import RestaurantCard from '../RestaurantCard';
 import { toast } from 'react-toastify';

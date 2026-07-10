@@ -1,6 +1,6 @@
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import {  } from 'next/headers';
 
 export const createServerClient = (request: NextRequest, response: NextResponse) => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';

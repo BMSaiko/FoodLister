@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Sparkles } from 'lucide-react';
+import {  Sparkles } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';

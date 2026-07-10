@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {    } from 'react';
 import RestaurantCarousel from '../RestaurantList/RestaurantCarousel';
 import RestaurantImagePlaceholder from '../RestaurantCard/RestaurantImagePlaceholder';
 

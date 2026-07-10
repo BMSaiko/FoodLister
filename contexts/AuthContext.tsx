@@ -5,7 +5,7 @@ import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { AuthUser, VerificationStatus } from '@/libs/types';
 import { authLogger } from '@/utils/authLogger';
-import { checkVerificationStatus, sendVerificationEmail, incrementLoginAttempts, resetLoginAttempts, isAccountLocked } from '@/libs/verification';
+import { checkVerificationStatus, sendVerificationEmail, resetLoginAttempts } from '@/libs/verification';
 
 interface AuthContextValue {
   user: AuthUser | null;

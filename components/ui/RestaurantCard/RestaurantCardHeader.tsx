@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Star, MapPin, Euro, Tag } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import RestaurantImagePlaceholder from './RestaurantImagePlaceholder';
 

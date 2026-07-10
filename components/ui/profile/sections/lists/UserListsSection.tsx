@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { List, Utensils, Clock, Users, MapPin, ChevronRight, Share2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { List, ChevronRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
-import { formatDate } from '@/utils/formatters';
-import { toast } from 'react-toastify';
+import {  } from '@/utils/formatters';
+import {  } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
 import { 
   ProfileCard, 
