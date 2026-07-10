@@ -9,7 +9,7 @@ export interface EngagementTotals {
 
 export interface MarketingAnalytics {
   campaigns: { total: number; byStatus: Record<string, number> };
-  posts: { total: number; byStatus: Record<string, number>; published: number };
+  posts: { total: number; byStatus: Record<string, number>; published: number; byPlatform: Record<string, number> };
   engagement: { total: EngagementTotals; byPlatform: Record<string, EngagementTotals> };
 }
 

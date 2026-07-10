@@ -77,7 +77,12 @@ export async function GET(request: NextRequest) {
 
     const data = {
       campaigns: { total: campaignsRows.length, byStatus: countBy(campaignsRows, 'status') },
-      posts: { total: postsRows.length, byStatus: countBy(postsRows, 'status'), published: published.length },
+      posts: {
+        total: postsRows.length,
+        byStatus: countBy(postsRows, 'status'),
+        published: published.length,
+        byPlatform: countBy(postsRows, 'platform'),
+      },
       engagement: { total: sumEngagement(published), byPlatform },
     };
 

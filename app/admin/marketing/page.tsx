@@ -3,6 +3,7 @@
 import { useMarketingAnalytics } from '@/hooks/admin/useMarketingAnalytics';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import StatsCard from '@/components/admin/StatsCard';
+import PlatformConnections from '@/components/admin/PlatformConnections';
 import Link from 'next/link';
 import { Megaphone, Send, CheckCircle2, Heart, RefreshCw } from 'lucide-react';
 
@@ -111,6 +112,7 @@ export default function AdminMarketingPage() {
             )}
           </div>
         </div>
+        <PlatformConnections data={data} loading={loading} />
       </div>
     </ErrorBoundary>
   );
