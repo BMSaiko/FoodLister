@@ -13,6 +13,29 @@ const serviceClient = supabaseUrl && supabaseServiceKey
   ? createClient(supabaseUrl, supabaseServiceKey)
   : null;
 
+// ponytail: notification type -> coarse preference column. No key = default allow.
+const NOTIFICATION_PREF_MAP: Record<string, string> = {
+  meal_invitation: 'meal_invitations',
+  meal_reminder: 'meal_invitations',
+  list_invite: 'collaborator_updates',
+  list_update: 'list_activity',
+  system: 'system_updates',
+};
+
+// ponytail: single source of truth for preference enforcement (root-cause fix).
+// Reads the user's row; missing row = defaults (all enabled). No pref key = allow.
+async function isNotificationEnabled(userId: string, type: string): Promise<boolean> {
+  const prefKey = NOTIFICATION_PREF_MAP[type];
+  if (!prefKey || !serviceClient) return true;
+  const { data } = await serviceClient
+    .from('notification_preferences')
+    .select(prefKey)
+    .eq('user_id', userId)
+    .single();
+  if (!data) return true;
+  return (data as unknown as Record<string, boolean>)[prefKey] !== false;
+}
+
 export interface CreateNotificationInput {
   userId: string;
   type: string;
@@ -28,6 +51,11 @@ export interface CreateNotificationInput {
 export async function createNotification(input: CreateNotificationInput): Promise<{ success: boolean; error?: string }> {
   if (!serviceClient) {
     return { success: false, error: 'Service role not configured' };
+  }
+
+  // ponytail: one guard covers all callers (T12's 5 + future). Disabled -> swallow.
+  if (!(await isNotificationEnabled(input.userId, input.type))) {
+    return { success: true };
   }
 
   const { error } = await serviceClient
@@ -63,7 +91,16 @@ export async function createNotificationsForUsers(
     return { success: false, count: 0, error: 'Service role not configured or no users' };
   }
 
-  const rows = userIds.map(userId => ({
+  // ponytail: respect per-user prefs (shared helper; batch-read ceiling if scale matters)
+  const allowed = await Promise.all(
+    userIds.map(async (id) => ((await isNotificationEnabled(id, type)) ? id : null))
+  );
+  const allowedIds = allowed.filter((id): id is string => id !== null);
+  if (allowedIds.length === 0) {
+    return { success: true, count: 0 };
+  }
+
+  const rows = allowedIds.map((userId) => ({
     user_id: userId,
     type,
     title,
@@ -80,7 +117,7 @@ export async function createNotificationsForUsers(
     return { success: false, count: 0, error: error.message };
   }
 
-  return { success: true, count: userIds.length };
+  return { success: true, count: allowedIds.length };
 }
 
 /**
