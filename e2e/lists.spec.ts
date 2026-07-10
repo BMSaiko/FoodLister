@@ -23,11 +23,10 @@ test.describe('Lists', () => {
 
   test('should navigate to create list page', async ({ page }) => {
     await page.goto('/lists');
+    await page.waitForLoadState('networkidle');
     const createLink = page.getByRole('link', { name: /create|criar|nova|new/i }).first();
-    if (await createLink.isVisible()) {
-      await createLink.click();
-      await expect(page).toHaveURL(/.*lists\/create/);
-    }
+    await createLink.click();
+    await expect(page).toHaveURL(/\/lists\/create$/, { timeout: 15000 });
   });
 
   test('should navigate to list detail', async ({ page }) => {
@@ -41,4 +40,3 @@ test.describe('Lists', () => {
     }
   });
 });
-

@@ -22,14 +22,16 @@ jest.mock('next/server', () => {
 
 const mockUser = { id: 'user-123', email: 'test@example.com' };
 
+// ponytail: chainable from() mock returning { count } for stats queries
+const mockFrom = () =>
+  jest.fn(() => ({
+    select: jest.fn(() => ({
+      eq: jest.fn(() => Promise.resolve({ data: [], error: null, count: 0 })),
+    })),
+  }));
+
 const mockGetServerClient = jest.fn(async () => ({
-  from: jest.fn(() => ({
-    select: jest.fn(() => Promise.resolve({ data: [], error: null })),
-  })),
-  rpc: jest.fn(() => Promise.resolve({
-    data: [{ user_id: 'user-123', restaurant_count: 5, review_count: 10, visited_count: 3 }],
-    error: null,
-  })),
+  from: mockFrom(),
   auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
 }));
 
@@ -41,13 +43,7 @@ describe('Users Me Stats API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetServerClient.mockResolvedValue({
-      from: jest.fn(() => ({
-        select: jest.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-      rpc: jest.fn(() => Promise.resolve({
-        data: [{ user_id: 'user-123', restaurant_count: 5, review_count: 10, visited_count: 3 }],
-        error: null,
-      })),
+      from: mockFrom(),
       auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
     });
   });
@@ -71,10 +67,7 @@ describe('Users Me Stats API', () => {
 
   it('returns zeros when no stats found', async () => {
     mockGetServerClient.mockResolvedValueOnce({
-      from: jest.fn(() => ({
-        select: jest.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-      rpc: jest.fn(() => Promise.resolve({ data: [], error: null })),
+      from: mockFrom(),
       auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
     });
     const { GET } = await import('@/app/api/users/me/stats/route');
