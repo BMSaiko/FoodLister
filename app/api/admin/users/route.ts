@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { requireAdmin } from '@/libs/supabase/server';
 import { createAdminClient } from '@/libs/supabase/admin';
 
 export async function GET(request: NextRequest) {
   try {
-    const response = new NextResponse();
-    const supabase = await getServerClient(request, response) as any;
-    if (!supabase) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { data: profile, error: profileError } = await supabase.from('profiles').select('is_admin').eq('user_id', user.id).single();
-    if (profileError) console.error('Admin users route - profile check error:', profileError.message || profileError.code || JSON.stringify(profileError));
-    if (!profile?.is_admin) return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    const auth = await requireAdmin(request, new NextResponse());
+    if (!auth.ok) return auth.response;
 
     // Use admin client to bypass RLS for reading all profiles
     const admin = createAdminClient();

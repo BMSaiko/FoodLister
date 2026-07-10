@@ -1,4 +1,5 @@
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
+import type { SupabaseClient, User } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import {  } from 'next/headers';
 
@@ -107,3 +108,36 @@ export const getPublicServerClient = async () => {
     return null;
   }
 };
+
+
+export type AuthResult =
+  | { ok: true; supabase: SupabaseClient; user: User }
+  | { ok: false; response: NextResponse };
+
+// ponytail W1: one auth guard for all API routes. Returns a typed client+user,
+// or a 401/403 Response the caller returns directly. Kills the `as any` + repeat.
+export async function requireUser(request: NextRequest, response: NextResponse): Promise<AuthResult> {
+  const supabase = await getServerClient(request, response);
+  if (!supabase) {
+    return { ok: false, response: NextResponse.json({ error: 'Authentication required', code: 'AUTHENTICATION_ERROR' }, { status: 401 }) };
+  }
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) {
+    return { ok: false, response: NextResponse.json({ error: 'Authentication required', code: 'AUTHENTICATION_ERROR' }, { status: 401 }) };
+  }
+  return { ok: true, supabase, user };
+}
+
+export async function requireAdmin(request: NextRequest, response: NextResponse): Promise<AuthResult> {
+  const auth = await requireUser(request, response);
+  if (!auth.ok) return auth;
+  const { data: profile } = await auth.supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('user_id', auth.user.id)
+    .single();
+  if (!profile?.is_admin) {
+    return { ok: false, response: NextResponse.json({ error: 'Admin access required', code: 'FORBIDDEN' }, { status: 403 }) };
+  }
+  return auth;
+}

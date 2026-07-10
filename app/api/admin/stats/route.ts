@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
-import { getErrorMessage } from '@/types/api';
+import { requireAdmin } from '@/libs/supabase/server';
 import type {  } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
-    const response = new NextResponse();
-    const supabase = await getServerClient(request, response) as any;
-    if (!supabase) return NextResponse.json({ error: getErrorMessage('AUTHENTICATION_ERROR'), code: 'AUTHENTICATION_ERROR' }, { status: 401 });
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return NextResponse.json({ error: getErrorMessage('AUTHENTICATION_ERROR'), code: 'AUTHENTICATION_ERROR' }, { status: 401 });
-    const { data: profile } = await supabase.from('profiles').select('is_admin').eq('user_id', user.id).single();
-    if (!profile?.is_admin) return NextResponse.json({ error: 'Admin access required', code: 'FORBIDDEN' }, { status: 403 });
+    const auth = await requireAdmin(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const { supabase } = auth;
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const weekStart = new Date(Date.now() - 7*24*60*60*1000).toISOString();
@@ -44,7 +39,7 @@ export async function GET(request: NextRequest) {
     const rd:Record<number,number>={1:0,2:0,3:0,4:0,5:0};
     revRatings.data?.forEach((r:any)=>{if(r.rating>=1&&r.rating<=5)rd[Math.round(r.rating)]++;});
     const months:string[]=[];for(let i=11;i>=0;i--)months.push(new Date(now.getFullYear(),now.getMonth()-i,1).toISOString().slice(0,7));
-    const cbm=(d:any[])=>{const m:Record<string,number>={};d?.forEach((i:any)=>{const k=i.created_at?.slice(0,7);if(k)m[k]=(m[k]||0)+1;});let c=0;return months.map(mo=>{c+=m[mo]||0;return{month:mo,count:c};});};
+    const cbm=(d:any[]|null)=>{const m:Record<string,number>={};d?.forEach((i:any)=>{const k=i.created_at?.slice(0,7);if(k)m[k]=(m[k]||0)+1;});let c=0;return months.map(mo=>{c+=m[mo]||0;return{month:mo,count:c};});};
     const stats={users:{total:usersCount.count||0,active:0,newThisMonth:newUsersMonth.count||0,newThisWeek:newUsersWeek.count||0,admins:adminsCount.count||0,growthRate:0},restaurants:{total:restaurantsCount.count||0,averageRating:Math.round(avgRest*10)/10,newThisMonth:newRestMonth.count||0,byCuisine:cuisineData.data?.map((c:any)=>({cuisine:c.name,count:c.restaurant_cuisine_types?.[0]?.count||0}))||[]},reviews:{total:reviewsCount.count||0,averageRating:Math.round(avgRev*10)/10,byRating:Object.entries(rd).map(([r,c])=>({rating:Number(r),count:c as number})),newThisMonth:newReviewsMonth.count||0},lists:{total:listsCount.count||0,public:publicLists.count||0,private:privateLists.count||0,collaborative:collabLists.count||0,totalItems:listItems.count||0},meals:{total:mealsCount.count||0,upcoming:upcomingMeals.count||0,thisMonth:mealsMonth.count||0},growth:{users:cbm(usersGrowth.data),restaurants:cbm(restGrowth.data),reviews:cbm(revGrowth.data)}};
     return NextResponse.json({data:stats});
   } catch(error:any){

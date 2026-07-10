@@ -1,23 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { requireUser } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
-    const response = new NextResponse();
-    const supabase = await getServerClient(request, response) as any;
-
-    if (!supabase) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
-    }
+    const auth = await requireUser(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const { supabase, user } = auth;
 
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -62,19 +52,9 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const response = new NextResponse();
-    const supabase = await getServerClient(request, response) as any;
-
-    if (!supabase) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
-    }
+    const auth = await requireUser(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const { supabase, user } = auth;
 
     const body = await request.json();
     const { notificationId, read } = body;
@@ -121,19 +101,9 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const response = new NextResponse();
-    const supabase = await getServerClient(request, response) as any;
-
-    if (!supabase) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
-    }
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
-    }
+    const auth = await requireUser(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const { supabase, user } = auth;
 
     const body = await request.json();
     const { notificationId } = body;
