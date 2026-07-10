@@ -136,27 +136,6 @@ The post should be engaging, highlight what makes this restaurant special, and e
   return generateContent({ prompt, model: 'gpt-4o-mini', maxTokens: platform === 'twitter' ? 100 : 300 });
 }
 
-/**
- * Generate a weekly digest post from a list of restaurants.
- */
-export async function generateWeeklyDigest(
-  restaurants: Array<{ name: string; rating: number | null; location: string | null }>,
-  platform: string
-): Promise<GeneratedContent> {
-  const restaurantList = restaurants
-    .slice(0, 5)
-    .map((r) => `- ${r.name}${r.location ? ` (${r.location})` : ''}${r.rating ? ` ⭐${r.rating}` : ''}`)
-    .join('\n');
-
-  const prompt = `Write a weekly digest social media post highlighting these restaurants from my FoodLister:
-
-${restaurantList}
-
-Platform: ${platform}
-Make it exciting and encourage people to discover these spots. Include a call to action to check out the full list on FoodLister.`;
-
-  return generateContent({ prompt, model: 'gpt-4o-mini', maxTokens: 400 });
-}
 
 /**
  * Generate content from a prompt template with variable substitution.

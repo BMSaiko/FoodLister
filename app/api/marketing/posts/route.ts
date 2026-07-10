@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
-import { generateRestaurantPost, generateWeeklyDigest } from '@/libs/ai';
+import { generateRestaurantPost } from '@/libs/ai';
 
 // GET - List user's posts
 export async function GET(request: NextRequest) {
