@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, type RefObject } from "react";
 import type { RestaurantWithDetails } from "@/libs/types";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
@@ -18,6 +18,7 @@ interface UseRestaurantsReturn {
   loading: boolean;
   loadingMore: boolean;
   hasMore: boolean;
+  sentinelRef: RefObject<HTMLDivElement | null>;
   pagination: { page: number; limit: number; total: number; totalPages: number; hasNext: boolean; hasPrev: boolean } | null;
   error: string | null;
   loadMore: () => void;
@@ -131,6 +132,7 @@ export function useRestaurants(options: UseRestaurantsOptions | string | null): 
     error: null,
     loadMore,
     refetch,
+    sentinelRef,
   };
 }
 

@@ -3,6 +3,9 @@ import RestaurantCard from "@/components/ui/RestaurantCard";
 
 interface ListRestaurantGridProps {
   restaurants: any[];
+  listId?: string;
+  isOwner?: boolean;
+  onRemove?: (restaurantId: string) => Promise<void>;
 }
 
 export default function ListRestaurantGrid({ restaurants }: ListRestaurantGridProps) {
