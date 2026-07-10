@@ -3,6 +3,7 @@
 import { useMarketingAnalytics } from '@/hooks/admin/useMarketingAnalytics';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import StatsCard from '@/components/admin/StatsCard';
+import Link from 'next/link';
 import { Megaphone, Send, CheckCircle2, Heart, RefreshCw } from 'lucide-react';
 
 export default function AdminMarketingPage() {
@@ -35,6 +36,16 @@ export default function AdminMarketingPage() {
             Erro: {error}
           </div>
         )}
+
+        {/* Quick actions */}
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/admin/marketing/campaigns"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors duration-150"
+          >
+            <Megaphone className="h-4 w-4" /> Gerir Campanhas
+          </Link>
+        </div>
 
         {/* Summary cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
