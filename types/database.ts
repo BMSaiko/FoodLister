@@ -31,6 +31,7 @@ export interface Database {
            is_admin: boolean;
            subscription_tier: 'free' | 'premium' | 'pro';
            subscription_expires_at: string | null;
+           ai_preferences: any;
          };
          Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'id'>;
          Update: Partial<Database['public']['Tables']['profiles']['Insert']>;
