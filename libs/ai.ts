@@ -35,43 +35,74 @@ export async function generateContent(
     throw new Error('OPENAI_API_KEY is not configured');
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a marketing assistant for FoodLister, a restaurant discovery app. Create engaging, concise social media content. Use emojis sparingly. Keep posts under 280 characters for Twitter, longer for other platforms.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      max_tokens: maxTokens,
-      temperature,
-    }),
-  });
+  const payload = {
+    model,
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a marketing assistant for FoodLister, a restaurant discovery app. Create engaging, concise social media content. Use emojis sparingly. Keep posts under 280 characters for Twitter, longer for other platforms.',
+      },
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ],
+    max_tokens: maxTokens,
+    temperature,
+  };
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`OpenAI API error: ${response.status} ${error}`);
+  // ponytail: retry transient OpenAI failures (network blip / 429 / 5xx) with
+  // backoff. 4xx (auth/validation) and missing key are deterministic -> not retried.
+  // Ceiling: fixed 3 attempts; if rate limits persist at scale, move to a queue.
+  const MAX_ATTEMPTS = 3;
+  let lastError: unknown;
+  const is4xx = (e: unknown) => e instanceof Error && /^OpenAI API error: 4/.test(e.message);
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        if (response.status < 500 && response.status !== 429) {
+          throw new Error(`OpenAI API error: ${response.status} ${body}`);
+        }
+        if (attempt < MAX_ATTEMPTS) {
+          await sleep(300 * attempt);
+          continue;
+        }
+        throw new Error(`OpenAI API error: ${response.status} ${body}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || '';
+      const tokensUsed = data.usage?.total_tokens || 0;
+
+      return {
+        content: content.trim(),
+        tokensUsed,
+        model,
+      };
+    } catch (err) {
+      if (is4xx(err)) throw err;
+      lastError = err;
+      if (attempt < MAX_ATTEMPTS) {
+        await sleep(300 * attempt);
+        continue;
+      }
+      throw err;
+    }
   }
 
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content || '';
-  const tokensUsed = data.usage?.total_tokens || 0;
-
-  return {
-    content: content.trim(),
-    tokensUsed,
-    model,
-  };
+  throw lastError instanceof Error ? lastError : new Error('AI generation failed');
 }
 
 /**

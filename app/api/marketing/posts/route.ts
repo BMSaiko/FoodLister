@@ -81,15 +81,25 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (restaurant) {
-        const result = await generateRestaurantPost(
-          restaurant.name,
-          restaurant.rating,
-          restaurant.location,
-          platform,
-          postType || 'restaurant_promo'
-        );
-        finalContent = result.content;
-        aiPrompt = `Generate ${postType || 'restaurant_promo'} for ${restaurant.name} on ${platform}`;
+        try {
+          const result = await generateRestaurantPost(
+            restaurant.name,
+            restaurant.rating,
+            restaurant.location,
+            platform,
+            postType || 'restaurant_promo'
+          );
+          finalContent = result.content;
+          aiPrompt = `Generate ${postType || 'restaurant_promo'} for ${restaurant.name} on ${platform}`;
+        } catch (aiErr) {
+          // ponytail: surface AI generation failure distinctly; retry handled in libs/ai
+          console.error('AI generation failed:', aiErr);
+          const errorType = 'INTERNAL_ERROR' as ApiErrorType;
+          return NextResponse.json(
+            { error: 'Falha ao gerar conteúdo com IA. Tenta novamente ou introduz o conteúdo manualmente.', code: errorType },
+            { status: 502 }
+          );
+        }
       }
     }
 
