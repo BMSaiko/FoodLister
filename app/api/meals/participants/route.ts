@@ -4,6 +4,7 @@ import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { checkRateLimit } from '@/libs/rate-limit';
 import { addParticipants, updateParticipantStatus, removeParticipant } from '@/libs/meals/participants';
+import { createNotification } from '@/libs/notifications/service';
 
 // Add participants to a meal
 export async function POST(request: NextRequest) {
@@ -93,6 +94,17 @@ export async function POST(request: NextRequest) {
         { error: getErrorMessage(errorType), code: errorType },
         { status: 500 }
       );
+    }
+
+    // ponytail: notify invited participants (best-effort, never blocks the response)
+    for (const pid of userIds) {
+      createNotification({
+        userId: pid,
+        type: 'meal_invitation',
+        title: 'Convite para refeição',
+        message: 'Foste convidado para uma refeição.',
+        link: `/meals/${mealId}`,
+      }).catch(() => {});
     }
 
     return NextResponse.json({

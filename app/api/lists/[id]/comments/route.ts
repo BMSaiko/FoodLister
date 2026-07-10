@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { createNotification } from '@/libs/notifications/service';
 
 // GET - Fetch all comments for a list
 export async function GET(
@@ -102,6 +103,22 @@ export async function POST(
       console.error('Error creating comment:', createError);
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
+    }
+
+    // ponytail: notify the list owner that a comment was added
+    const { data: commentList } = await supabase
+      .from('lists')
+      .select('creator_id')
+      .eq('id', id)
+      .single();
+    if (commentList?.creator_id && commentList.creator_id !== user.id) {
+      createNotification({
+        userId: commentList.creator_id,
+        type: 'comment_reply',
+        title: 'Novo comentário',
+        message: 'Alguém comentou numa lista tua.',
+        link: `/lists/${id}`,
+      }).catch(() => {});
     }
 
     return NextResponse.json({ 

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import { logActivity } from '@/libs/activity';
+import { createNotification } from '@/libs/notifications/service';
 import type { ApiErrorType } from '@/types/api';
 
 export async function GET(
@@ -349,6 +350,22 @@ export async function PUT(
     // Log activity
     if (user) {
       await logActivity(supabase, id, user.id, 'list_updated', {});
+    }
+
+    // ponytail: notify collaborators (except the editor) that the list changed
+    const { data: toNotify } = await supabase
+      .from('list_collaborators')
+      .select('user_id')
+      .eq('list_id', id)
+      .neq('user_id', user.id);
+    for (const c of toNotify || []) {
+      createNotification({
+        userId: c.user_id,
+        type: 'list_update',
+        title: 'Lista atualizada',
+        message: 'Uma lista em que colaboras foi atualizada.',
+        link: `/lists/${id}`,
+      }).catch(() => {});
     }
 
     return NextResponse.json({ 

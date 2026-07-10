@@ -7,6 +7,7 @@ import type { ApiErrorType } from '@/types/api';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/libs/supabase/types';
 import { checkRateLimit } from '@/libs/rate-limit';
+import { createNotification } from '@/libs/notifications/service';
 import { parsePaginationFromRequest } from '@/libs/utils/pagination';
 
 type DbClient = SupabaseClient<Database>;
@@ -301,6 +302,22 @@ export async function POST(request: NextRequest) {
     }
 
     await updateRestaurantRating(restaurant_id);
+
+    // ponytail: notify the restaurant owner that a review was posted
+    const { data: reviewRestaurant } = await supabase
+      .from('restaurants')
+      .select('creator_id')
+      .eq('id', restaurant_id)
+      .single();
+    if (reviewRestaurant?.creator_id && reviewRestaurant.creator_id !== user.id) {
+      createNotification({
+        userId: reviewRestaurant.creator_id,
+        type: 'review_created',
+        title: 'Novo review',
+        message: 'O teu restaurante recebeu um novo review.',
+        link: `/restaurants/${restaurant_id}`,
+      }).catch(() => {});
+    }
 
     const reviewData = data as ReviewRow;
     const processedData: ProcessedReview = {

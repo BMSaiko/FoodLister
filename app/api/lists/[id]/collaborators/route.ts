@@ -3,6 +3,7 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { logActivity } from '@/libs/activity';
+import { createNotification } from '@/libs/notifications/service';
 
 // GET - List all collaborators
 export async function GET(
@@ -140,6 +141,15 @@ export async function POST(
         collaborator_name: targetUser.display_name,
       });
     }
+
+    // ponytail: notify the added collaborator (best-effort)
+    createNotification({
+      userId: targetUser.user_id,
+      type: 'list_invite',
+      title: 'Convite para lista',
+      message: 'Foste adicionado como colaborador de uma lista.',
+      link: `/lists/${id}`,
+    }).catch(() => {});
 
     return NextResponse.json({ collaborator, message: 'Collaborator added successfully' });
   } catch (_error: unknown) {
