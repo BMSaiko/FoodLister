@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, UtensilsCrossed, Star, BarChart3, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Users, UtensilsCrossed, Star, BarChart3, Megaphone, ArrowLeft } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/users', label: 'Utilizadores', icon: Users },
   { href: '/admin/restaurants', label: 'Restaurantes', icon: UtensilsCrossed },
   { href: '/admin/reviews', label: 'Reviews', icon: Star },
+  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
   { href: '/admin/statistics', label: 'Estatísticas', icon: BarChart3 },
   { href: '/restaurants', label: 'Voltar à App', icon: ArrowLeft, external: true },
 ];
