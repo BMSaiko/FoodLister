@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { Menu, User, LogOut, Settings, Shield, Search, Plus, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils } from 'lucide-react';
+import { Menu, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
 import { getClient } from '@/libs/supabase/client';
