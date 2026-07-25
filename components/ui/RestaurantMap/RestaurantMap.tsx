@@ -133,14 +133,14 @@ function ZoomOutOnClose({ selectedRestaurant }: { selectedRestaurant: Restaurant
     const prev = prevRef.current;
     prevRef.current = selectedRestaurant;
     if (prev && !selectedRestaurant) {
-      map.flyTo(map.getCenter(), Math.max(map.getZoom() - 2, 6), { duration: 1.5 });
+      map.flyTo(map.getCenter(), Math.max(map.getZoom() - 2, 10), { duration: 1.5 });
     }
   }, [selectedRestaurant, map]);
   return null;
 }
 
 
-// Reset zoom button — returns map to default zoom (6)
+// Reset zoom button — returns map to city-level zoom (10)
 function ResetZoomButton() {
   const map = useMap();
   return (
@@ -184,7 +184,7 @@ export default function RestaurantMap({
   className = "",
   height = "h-full",
   center = [39.4, -8.3],
-  zoom = 6,
+  zoom = 10,
   selectedId,
   onSelect,
 }: RestaurantMapProps) {
