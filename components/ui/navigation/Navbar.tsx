@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { Menu, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils } from 'lucide-react';
+import { Menu, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils, Map } from 'lucide-react';
 import { useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
 import { getClient } from '@/libs/supabase/client';
@@ -20,6 +20,7 @@ interface ProfileData {
 
 const NAV_ITEMS = [
   { id: 'restaurants', label: 'Restaurantes', href: '/restaurants' },
+  { id: 'map', label: 'Mapa', href: '/map' },
   { id: 'lists', label: 'Listas', href: '/lists' },
 ] as const;
 
@@ -45,7 +46,7 @@ export default function Navbar() {
   const springHeight = useSpring(navbarHeight, { stiffness: 120, damping: 20 });
 
   // Active section
-  const activeSection = pathname?.includes('/lists') ? 'lists' : 'restaurants';
+  const activeSection = pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function Navbar() {
       {/* Desktop: Floating Pill Navbar */}
       <motion.header
         style={{ height: springHeight }}
-        className="fixed top-3 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-4xl"
+        className="fixed top-3 left-1/2 -translate-x-1/2 z-[800] w-[calc(100%-1.5rem)] max-w-4xl"
       >
         <motion.nav
           className="navbar-glass h-full rounded-2xl px-3 sm:px-5 flex items-center justify-between gap-3"
@@ -303,7 +304,7 @@ export default function Navbar() {
         initial={{ y: 100 }}
         animate={{ y: 0 }}
         transition={{ delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="md:hidden fixed bottom-3 left-3 right-3 z-50 pb-[env(safe-area-inset-bottom)]"
+        className="md:hidden fixed bottom-3 left-3 right-3 z-[800] pb-[env(safe-area-inset-bottom)]"
       >
         <nav className="bottom-tab-bar rounded-2xl bg-[var(--card-bg)]/90 backdrop-blur-2xl border border-white/[0.08] px-1 py-1.5 flex items-center justify-around">
           {[
@@ -317,6 +318,7 @@ export default function Navbar() {
             const isActive =
               (item.id === 'home' && pathname === '/') ||
               (item.id === 'restaurants' && pathname?.includes('/restaurants')) ||
+              (item.id === 'map' && pathname === '/map') ||
               (item.id === 'lists' && pathname?.includes('/lists')) ||
               (item.id === 'profile' && pathname?.includes('/users'));
             const baseClass = `bottom-tab-item relative flex flex-col items-center gap-0.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl ${isActive ? 'active' : ''}`;
