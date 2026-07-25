@@ -310,6 +310,7 @@ export default function Navbar() {
           {[
             { id: 'home', icon: Menu, label: 'Home', href: '/' },
             { id: 'restaurants', icon: Utensils, label: 'Restaurantes', href: '/restaurants' },
+            { id: 'map', icon: Map, label: 'Mapa', href: '/map' },
             { id: 'search', icon: Search, label: 'Search', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
@@ -318,6 +319,7 @@ export default function Navbar() {
             const isActive =
               (item.id === 'home' && pathname === '/') ||
               (item.id === 'restaurants' && pathname?.includes('/restaurants')) ||
+              (item.id === 'map' && pathname === '/map') ||
               (item.id === 'map' && pathname === '/map') ||
               (item.id === 'lists' && pathname?.includes('/lists')) ||
               (item.id === 'profile' && pathname?.includes('/users'));
