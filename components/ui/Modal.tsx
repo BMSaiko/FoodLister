@@ -133,7 +133,7 @@ export default function Modal({
   };
 
   const portal = (
-    <div className={`fixed inset-0 z-50 flex ${position} ${isFull ? '' : 'p-0 md:p-4'}`}>
+    <div className={`fixed inset-0 z-[1000] flex ${position} ${isFull ? '' : 'p-0 md:p-4'}`}>
       {/* Backdrop — z-0 (below content) */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
