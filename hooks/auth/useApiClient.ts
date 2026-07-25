@@ -124,14 +124,11 @@ export const useApiClient = () => {
       
       try {
         accessToken = await getSessionToken();
-      } catch (error) {
-        // Fallback to cookies if session API fails
-        const cookieMatch = document.cookie.match(/sb-access-token=([^;]+)/);
-        if (cookieMatch) {
-          accessToken = cookieMatch[1];
-        } else {
-          throw new Error('No authentication token found');
-        }
+      } catch {
+        clearAuthData();
+        toast.error('Sessão expirada. Por favor, faça login novamente.');
+        router.push('/auth/signin');
+        throw new Error('No authentication session');
       }
 
       const requestHeaders = {
