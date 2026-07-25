@@ -4,6 +4,7 @@ import { getClient } from '@/libs/supabase/client';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { cacheInvalidatePrefix } from '@/libs/cache';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/libs/supabase/types';
 import { checkRateLimit } from '@/libs/rate-limit';
@@ -330,6 +331,7 @@ export async function POST(request: NextRequest) {
       }
     };
 
+    cacheInvalidatePrefix('user-stats:');
     return NextResponse.json({ review: processedData }, { status: 201 });
   } catch (error) {
     console.error('Unexpected error:', error);

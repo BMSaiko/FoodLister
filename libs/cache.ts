@@ -1,6 +1,8 @@
 /**
- * Simple in-memory cache with TTL support.
- * For production, consider Redis or Vercel KV.
+ * Server-side in-memory TTL cache.
+ * Scoped per serverless function instance — use cacheInvalidatePrefix
+ * for write-time invalidation. For persistent shared cache across instances,
+ * swap the Map for a Redis/Vercel KV backend.
  */
 
 interface CacheEntry<T> {
@@ -75,4 +77,19 @@ export function cacheInvalidatePrefix(prefix: string): void {
       cache.delete(key);
     }
   }
+}
+
+/**
+ * Check if a cache entry exists and is not expired.
+ */
+export function cacheHas(key: string): boolean {
+  return cacheGet(key) !== undefined;
+}
+
+/**
+ * Return all cache keys, optionally filtered by prefix.
+ */
+export function cacheKeys(prefix?: string): string[] {
+  if (!prefix) return Array.from(cache.keys());
+  return Array.from(cache.keys()).filter((k) => k.startsWith(prefix));
 }

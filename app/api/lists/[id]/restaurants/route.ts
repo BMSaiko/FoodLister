@@ -4,6 +4,7 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import { logActivity } from '@/libs/activity';
 import type { ApiErrorType } from '@/types/api';
+import { cacheInvalidatePrefix } from '@/libs/cache';
 
 export async function POST(
   request: NextRequest,
@@ -137,6 +138,7 @@ export async function POST(
       restaurant_name: restaurant.name,
     });
 
+    cacheInvalidatePrefix('user-stats:');
     return NextResponse.json(
       { success: true, message: 'Restaurant added to list' },
       { status: 201 }
