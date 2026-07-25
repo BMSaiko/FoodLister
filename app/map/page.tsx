@@ -217,7 +217,7 @@ export default function MapPage() {
 
           {/* Mobile sidebar overlay */}
           {showList && (
-            <div className="lg:hidden absolute inset-x-0 top-14 bottom-0 z-20 bg-[var(--background)] border-b border-white/[0.06] overflow-y-auto">
+            <div className="lg:hidden absolute inset-x-0 top-14 bottom-0 z-[900] bg-[var(--background)] border-b border-white/[0.06] overflow-y-auto">
               <div className="p-4">
                 {/* Mobile search */}
                 <div className="relative mb-3">
