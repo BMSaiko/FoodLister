@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch + map + filter — cached by full query params (300s TTL)
     const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}`;
-    const { data: restaurants, pagination, meta } = await cacheOrSet(cacheKey, async () => {
+    const { restaurants, pagination, meta } = await cacheOrSet(cacheKey, async () => {
       // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
       let allRestaurants: any[] = [];
       let offset = isAll ? 0 : (page - 1) * limit;

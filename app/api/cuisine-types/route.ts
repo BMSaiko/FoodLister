@@ -28,15 +28,6 @@ export async function GET(_request: NextRequest) {
       return data;
     }, 300);
 
-    if (error) {
-      console.error('Error fetching cuisine types:', error);
-      const errorType = 'DATABASE_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
-
     return NextResponse.json({
       data: data || [],
       total: data?.length || 0
