@@ -9,7 +9,7 @@ import Navbar from "@/components/ui/navigation/Navbar";
 import { motion } from "motion/react";
 import { useAllRestaurants } from "@/hooks/data/useAllRestaurants";
 import Skeleton from "@/components/ui/Skeleton";
-import { Filter, Search, MapPinOff, MapPin } from "lucide-react";
+import { Filter, Search, MapPinOff } from "lucide-react";
 import Link from "next/link";
 
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), {
@@ -24,7 +24,6 @@ export default function MapPage() {
   const [showList, setShowList] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [cityFilter, setCityFilter] = useState<string>("");
 
   const restaurantsWithCoords = useMemo(
     () => restaurants.filter((r) => r.latitude != null && r.longitude != null),
@@ -44,12 +43,8 @@ export default function MapPage() {
              (r.location || "").toLowerCase().includes(searchLower)
       );
     }
-    if (cityFilter) {
-      const loc = cityFilter.trim().toLowerCase();
-      base = base.filter(r => (r.location || "").toLowerCase().includes(loc));
-    }
     return base;
-  }, [restaurantsWithCoords, searchLower, cityFilter]);
+  }, [restaurantsWithCoords, searchLower]);
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -239,27 +234,7 @@ export default function MapPage() {
                   )}
                 </div>
 
-                {/* City filter */}
-                <div className="relative mb-3">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25" />
-                  <input
-                    type="text"
-                    placeholder="Cidade, pais..."
-                    value={cityFilter}
-                    onChange={e => setCityFilter(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm text-white/80 placeholder:text-white/25 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
-                  />
-                  {cityFilter && (
-                    <button
-                      onClick={() => setCityFilter("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-
-                <h2 className="text-sm font-bold text-white/90 mb-3">
+<h2 className="text-sm font-bold text-white/90 mb-3">
                   Restaurantes ({filteredRestaurants.length})
                 </h2>
                 {filteredRestaurants.slice(0, 30).map((r) => (
