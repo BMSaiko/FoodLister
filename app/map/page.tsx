@@ -133,12 +133,12 @@ export default function MapPage() {
               <div className="mb-4 p-3 rounded-xl bg-amber-500/[0.08] border border-amber-500/20">
                 <p className="text-xs text-amber-400/80">
                   {restaurantsWithoutCoords.length} restaurante(s) sem coordenadas —{" "}
-                  <a
+                  <Link
                     href="/restaurants/no-coords"
                     className="underline font-medium text-amber-400"
                   >
                     ver lista completa
-                  </a>
+                  </Link>
                 </p>
               </div>
             )}
