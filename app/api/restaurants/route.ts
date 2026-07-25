@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
-import {  } from '@/libs/cache';
+import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
 import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
 import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';
@@ -130,73 +130,92 @@ export async function GET(request: NextRequest) {
       return q.order(sortColMap[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
     };
 
-    // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
-    let allRestaurants: any[] = [];
-    let offset = isAll ? 0 : (page - 1) * limit;
-    const BATCH_SIZE = 1000;
-    let hasMore = true;
-    
-    while (hasMore) {
-      let batchQuery = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(offset, offset + BATCH_SIZE - 1);
-      batchQuery = applyFilters(batchQuery);
-      if (!isAll) batchQuery = applySort(batchQuery);
-      const { data: batchData, error: batchError } = await batchQuery;
+    // Fetch + map + filter — cached by full query params (300s TTL)
+    const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}`;
+    const { data: restaurants, pagination, meta } = await cacheOrSet(cacheKey, async () => {
+      // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
+      let allRestaurants: any[] = [];
+      let offset = isAll ? 0 : (page - 1) * limit;
+      const BATCH_SIZE = 1000;
+      let hasMore = true;
       
-      if (batchError) {
-        if (batchError.code === '42703') {
-          // Migration 050 not applied — retry without updated_at/opening_hours
-          let fbQuery = client.from('restaurants').select(baseColumns).range(offset, offset + BATCH_SIZE - 1);
-          fbQuery = applyFilters(fbQuery);
-          const { data: fbData, error: fbError } = await fbQuery;
-          if (fbError) { throw fbError; }
-          allRestaurants = allRestaurants.concat(fbData || []);
+      while (hasMore) {
+        let batchQuery = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(offset, offset + BATCH_SIZE - 1);
+        batchQuery = applyFilters(batchQuery);
+        if (!isAll) batchQuery = applySort(batchQuery);
+        const { data: batchData, error: batchError } = await batchQuery;
+        
+        if (batchError) {
+          if (batchError.code === '42703') {
+            let fbQuery = client.from('restaurants').select(baseColumns).range(offset, offset + BATCH_SIZE - 1);
+            fbQuery = applyFilters(fbQuery);
+            const { data: fbData, error: fbError } = await fbQuery;
+            if (fbError) { throw fbError; }
+            allRestaurants = allRestaurants.concat(fbData || []);
+          } else {
+            throw batchError;
+          }
         } else {
-          throw batchError;
+          allRestaurants = allRestaurants.concat(batchData || []);
         }
-      } else {
-        allRestaurants = allRestaurants.concat(batchData || []);
+        
+        if (!isAll) {
+          hasMore = false;
+        } else if ((batchData || []).length < BATCH_SIZE) {
+          hasMore = false;
+        } else {
+          offset += BATCH_SIZE;
+        }
       }
-      
-      if (!isAll) {
-        hasMore = false; // Single page request
-      } else if ((batchData || []).length < BATCH_SIZE) {
-        hasMore = false;
-      } else {
-        offset += BATCH_SIZE;
+
+      let restaurantsData = allRestaurants;
+      let restaurantsError: any = null;
+
+      if (restaurantsError) {
+        console.error('Error fetching restaurants:', restaurantsError);
+        throw new Error('DATABASE_ERROR');
       }
-    }
+      let restaurants: Restaurant[] = (restaurantsData || []).map((r: any) => ({
+        id: r.id, name: r.name, description: r.description, image_url: r.image_url,
+        price_per_person: r.price_per_person, rating: r.rating, location: r.location,
+        source_url: r.source_url, creator: r.creator, menu_url: r.menu_url,
+        menu_links: r.menu_links || [], menu_images: r.menu_images || [],
+        phone_numbers: r.phone_numbers || [],
+        created_at: r.created_at, updated_at: r.updated_at || r.created_at,
+        creator_id: r.creator_id, creator_name: r.creator_name,
+        cuisine_types: r.cuisine_types?.map((x: any) => x.cuisine_type).filter(Boolean) || [],
+        features: r.features?.map((x: any) => x.feature).filter(Boolean) || [],
+        dietary_options: r.dietary_options?.map((x: any) => x.dietary_option).filter(Boolean) || [],
+        review_count: joinReviews ? (r.reviews?.[0]?.count || 0) : undefined,
+        latitude: r.latitude, longitude: r.longitude, opening_hours: r.opening_hours || null,
+      }));
+      if (isPublicRequest) {
+        restaurants = restaurants.map(({ source_url, creator_id, creator_name, phone_numbers, ...rest }) => rest as Restaurant);
+      }
+      if (openNowParam === 'true') {
+        restaurants = restaurants.filter((r) => r.opening_hours && isCurrentlyOpen(r.opening_hours) === true);
+      } else if (openNowParam === 'false') {
+        restaurants = restaurants.filter((r) => r.opening_hours && isCurrentlyOpen(r.opening_hours) === false);
+      }
+      const pagination = {
+        page,
+        limit,
+        total: restaurants.length,
+        totalPages: Math.ceil(restaurants.length / limit),
+        hasNext: !isAll && restaurants.length === limit,
+        hasPrev: page > 1,
+      };
+      const meta = {
+        filters: {
+          search: search || null, open_now: openNowParam,
+          price_min: priceMin ? parseFloat(priceMin) : null,
+          price_max: priceMax ? parseFloat(priceMax) : null,
+          sort_by: sortByParam, sort_direction: sortDirectionParam,
+        }
+      };
+      return { restaurants, pagination, meta };
+    }, 300);
 
-    let restaurantsData = allRestaurants;
-    let restaurantsError: any = null;
-
-    if (restaurantsError) {
-      console.error('Error fetching restaurants:', restaurantsError);
-      const errorType = 'DATABASE_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
-    }
-    let restaurants: Restaurant[] = (restaurantsData || []).map((r: any) => ({
-      id: r.id, name: r.name, description: r.description, image_url: r.image_url,
-      price_per_person: r.price_per_person, rating: r.rating, location: r.location,
-      source_url: r.source_url, creator: r.creator, menu_url: r.menu_url,
-      menu_links: r.menu_links || [], menu_images: r.menu_images || [],
-      phone_numbers: r.phone_numbers || [],
-      created_at: r.created_at, updated_at: r.updated_at || r.created_at,
-      creator_id: r.creator_id, creator_name: r.creator_name,
-      cuisine_types: r.cuisine_types?.map((x: any) => x.cuisine_type).filter(Boolean) || [],
-      features: r.features?.map((x: any) => x.feature).filter(Boolean) || [],
-      dietary_options: r.dietary_options?.map((x: any) => x.dietary_option).filter(Boolean) || [],
-      review_count: joinReviews ? (r.reviews?.[0]?.count || 0) : undefined,
-      latitude: r.latitude, longitude: r.longitude, opening_hours: r.opening_hours || null,
-    }));
-    // Strip sensitive fields from public (unauthenticated) responses
-    if (isPublicRequest) {
-      restaurants = restaurants.map(({ source_url, creator_id, creator_name, phone_numbers, ...rest }) => rest as Restaurant);
-    }
-    if (openNowParam === 'true') {
-      restaurants = restaurants.filter((r) => r.opening_hours && isCurrentlyOpen(r.opening_hours) === true);
-    } else if (openNowParam === 'false') {
-      restaurants = restaurants.filter((r) => r.opening_hours && isCurrentlyOpen(r.opening_hours) === false);
-    }
     return NextResponse.json({
       restaurants,
       pagination: {
@@ -276,6 +295,7 @@ export async function POST(request: NextRequest) {
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
     }
+    cacheInvalidatePrefix('restaurants:');
     return NextResponse.json({ restaurant: restaurantData }, { status: 201 });
   } catch (error) {
     console.error('Unexpected error in restaurant creation:', error);
