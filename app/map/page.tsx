@@ -3,7 +3,7 @@
 import "leaflet/dist/leaflet.css";
 
 
-import React, { Suspense, useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { motion } from "motion/react";
