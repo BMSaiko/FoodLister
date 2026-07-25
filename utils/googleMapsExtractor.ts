@@ -38,9 +38,10 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
       result.location = `${result.latitude}, ${result.longitude}`;
     }
 
-    // Tenta extrair o parâmetro 'q' (query) - pode conter endereço ou coordenadas
-    if (searchParams.has('q')) {
-      const query = searchParams.get('q') || '';
+    // Tenta extrair o parâmetro 'q' ou 'query' - pode conter endereço ou coordenadas
+    const extractQuery = searchParams.get('q') || searchParams.get('query') || '';
+    if (extractQuery) {
+      const query = extractQuery;
       // Converte + para espaços no query
       const decodedQuery = query.replace(/\+/g, ' ');
       result.address = decodedQuery;
@@ -178,10 +179,10 @@ function extractCoordinates(url: string): { latitude: number; longitude: number 
       }
     }
 
-    // Formato 4: parâmetro query com coordenadas (ex: ?q={lat},{lng})
-    if (searchParams.has('q')) {
-      const q = searchParams.get('q') || '';
-      const qMatch = q.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);
+    // Formato 4: parâmetro query com coordenadas (ex: ?q={lat},{lng} ou ?query={lat},{lng})
+    const queryParam = searchParams.get('q') || searchParams.get('query') || '';
+    if (queryParam) {
+      const qMatch = queryParam.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);
       if (qMatch) {
         const lat = parseFloat(qMatch[1]);
         const lng = parseFloat(qMatch[2]);
