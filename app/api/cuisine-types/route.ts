@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPublicServerClient, getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { cacheOrSet } from '@/libs/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,11 +18,15 @@ export async function GET(_request: NextRequest) {
       );
     }
     
-    // Fetch all cuisine types
-    const { data, error } = await supabase
-      .from('cuisine_types')
-      .select('*')
-      .order('name', { ascending: true });
+    // Fetch all cuisine types (cached for 5 minutes)
+    const data = await cacheOrSet('cuisine-types:all', async () => {
+      const { data, error } = await supabase
+        .from('cuisine_types')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      return data;
+    }, 300);
 
     if (error) {
       console.error('Error fetching cuisine types:', error);
