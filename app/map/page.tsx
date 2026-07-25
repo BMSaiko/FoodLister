@@ -13,7 +13,22 @@ import Link from "next/link";
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), {
   ssr: false,
   loading: () => (
-    <div className="h-full bg-white/[0.02] rounded-xl animate-pulse" />
+    <div className="h-full bg-[var(--background)] flex items-center justify-center">
+      <div className="w-full h-full bg-white/[0.01] rounded-xl border border-white/[0.04] relative overflow-hidden">
+        {/* Scan-line shimmer */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.03] to-transparent animate-pulse" />
+        {/* Grid overlay */}
+        <div className="absolute inset-0"
+          style={{
+            backgroundImage: "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        {/* Center spinner */}
+        <div className="relative z-10 w-10 h-10 border-2 border-white/[0.08] border-t-amber-500/60 rounded-full animate-spin" />
+        <p className="relative z-10 text-[11px] text-white/25 mt-3">A carregar mapa...</p>
+      </div>
+    </div>
   ),
 });
 
