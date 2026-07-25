@@ -6,7 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "leaflet", "react-leaflet"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,

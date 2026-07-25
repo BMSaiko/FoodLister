@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { SlidersHorizontal, X, Star, Euro, ChevronDown, UtensilsCrossed } from "lucide-react";
+import { SlidersHorizontal, X, Star, Euro, ChevronDown, UtensilsCrossed, MapPin } from "lucide-react";
 
 interface Restaurant {
   id: string;
@@ -19,6 +19,7 @@ interface Filters {
   priceMax: number | null;
   ratingMin: number | null;
   visitedOnly: boolean;
+  location: string;
 }
 
 interface RestaurantFiltersProps {
@@ -32,6 +33,7 @@ const DEFAULT_FILTERS: Filters = {
   priceMax: null,
   ratingMin: null,
   visitedOnly: false,
+  location: "",
 };
 
 export default function RestaurantFilters({ restaurants, onFiltered }: RestaurantFiltersProps) {
@@ -60,7 +62,12 @@ export default function RestaurantFilters({ restaurants, onFiltered }: Restauran
       if (filters.priceMin != null && (r.price_per_person ?? 0) < filters.priceMin) return false;
       if (filters.priceMax != null && (r.price_per_person ?? Infinity) > filters.priceMax) return false;
       if (filters.ratingMin != null && (r.rating ?? 0) < filters.ratingMin) return false;
-          return true;
+      if (filters.location && filters.location.trim()) {
+        const loc = filters.location.trim().toLowerCase();
+        const rLoc = (r.location || "").toLowerCase();
+        if (!rLoc.includes(loc)) return false;
+      }
+      return true;
     });
   }, [restaurants, filters]);
 
@@ -201,6 +208,32 @@ export default function RestaurantFilters({ restaurants, onFiltered }: Restauran
           </div>
 
 
+
+          {/* Location filter */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="h-4 w-4 text-amber-400/60" />
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Localizacao</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+              <MapPin className="h-3.5 w-3.5 text-white/25" />
+              <input
+                type="text"
+                placeholder="Cidade, pais..."
+                value={filters.location}
+                onChange={e => setFilters(f => ({ ...f, location: e.target.value }))}
+                className="flex-1 bg-transparent text-sm text-white/80 placeholder:text-white/20 focus:outline-none"
+              />
+              {filters.location && (
+                <button
+                  onClick={() => setFilters(f => ({ ...f, location: "" }))}
+                  className="text-white/20 hover:text-white/50 transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

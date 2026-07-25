@@ -15,6 +15,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'imgur.com' },
       { protocol: 'https', hostname: 'kgzeoyubgchhvfmtyqsk.supabase.co' },
+      { protocol: 'https', hostname: 'tile.openstreetmap.org' },
     ],
   },
   reactStrictMode: true,
