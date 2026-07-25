@@ -99,7 +99,7 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
 
       // Extrair coordenadas do data=: !3d{lat}!4d{lng}
       const dataCoordsMatch = dataParam.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
-      if (dataCoordsMatch && !result.latitude) {
+      if (dataCoordsMatch) {
         result.latitude = parseFloat(dataCoordsMatch[1]);
         result.longitude = parseFloat(dataCoordsMatch[2]);
         result.location = `${result.latitude}, ${result.longitude}`;
