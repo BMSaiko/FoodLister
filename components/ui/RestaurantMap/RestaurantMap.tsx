@@ -146,7 +146,7 @@ function ResetZoomButton() {
   return (
     <div className="absolute top-3 right-16 z-[1000]">
       <button
-        onClick={() => { map.flyTo(map.getCenter(), 6, { duration: 1.5 }); }}
+        onClick={() => { map.flyTo(map.getCenter(), 10, { duration: 1.5 }); }}
         className="w-10 h-10 rounded-xl bg-black/80 border border-white/10 flex items-center justify-center text-white/70 hover:text-amber-400 hover:bg-black transition-colors shadow-lg"
         title="Reset zoom"
         aria-label="Reset map zoom"
@@ -162,7 +162,7 @@ function FlyToMarker({ restaurant }: { restaurant: RestaurantWithDetails }) {
   const map = useMap();
   useEffect(() => {
     if (restaurant.latitude && restaurant.longitude) {
-      map.flyTo([restaurant.latitude!, restaurant.longitude!], 14, { duration: 1.5 });
+      map.flyTo([restaurant.latitude!, restaurant.longitude!], 16, { duration: 1.5 });
     }
   }, [restaurant, map]);
   return null;
