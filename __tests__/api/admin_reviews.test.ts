@@ -32,8 +32,12 @@ const mockGetServerClient = jest.fn(async () => ({
   auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: mockUser }, error: null })) },
 }));
 
+const mockRequireAdmin = jest.fn();
+const mockRequireUser = jest.fn();
 jest.mock('@/libs/supabase/server', () => ({
   getServerClient: (...args: any[]) => mockGetServerClient(...args),
+  requireAdmin: mockRequireAdmin,
+  requireUser: mockRequireUser,
 }));
 
 jest.mock('@/libs/supabase/admin', () => ({
