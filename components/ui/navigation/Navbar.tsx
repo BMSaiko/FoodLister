@@ -322,7 +322,8 @@ export default function Navbar() {
               (item.id === 'map' && pathname === '/map') ||
               (item.id === 'map' && pathname === '/map') ||
               (item.id === 'lists' && pathname?.includes('/lists')) ||
-              (item.id === 'profile' && pathname?.includes('/users'));
+              (item.id === 'profile' && pathname?.includes('/users')) ||
+              (item.id === 'roulette' && pathname === '/roulette');
             const baseClass = `bottom-tab-item relative flex flex-col items-center gap-0.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl ${isActive ? 'active' : ''}`;
             if ('action' in item && item.action === 'search') {
               return (
