@@ -6,7 +6,6 @@ import "leaflet/dist/leaflet.css";
 import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/ui/navigation/Navbar";
-import { motion } from "motion/react";
 import { useAllRestaurants } from "@/hooks/data/useAllRestaurants";
 import Skeleton from "@/components/ui/Skeleton";
 import { Filter, Search, MapPinOff } from "lucide-react";
