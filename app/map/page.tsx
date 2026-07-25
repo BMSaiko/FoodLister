@@ -205,13 +205,13 @@ export default function MapPage() {
         {/* Map area */}
         <div className="flex-1 relative min-h-0">
           {/* Mobile: toggle list + search */}
-          <div className="lg:hidden absolute top-2 left-2 z-10 flex gap-2">
+          <div className="lg:hidden absolute top-2 left-2 z-[1001] flex gap-2">
             <button
               onClick={() => setShowList(!showList)}
               className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/60 backdrop-blur text-white/80 text-sm border border-white/[0.08]"
             >
               <Filter className="w-4 h-4" />
-              {showList ? "Esconder lista" : `${filteredRestaurants.length}`}
+              {showList ? "Esconder lista" : `Lista (${filteredRestaurants.length})`}
             </button>
           </div>
 
@@ -232,6 +232,26 @@ export default function MapPage() {
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* City filter */}
+                <div className="relative mb-3">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25" />
+                  <input
+                    type="text"
+                    placeholder="Cidade, pais..."
+                    value={cityFilter}
+                    onChange={e => setCityFilter(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm text-white/80 placeholder:text-white/25 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                  />
+                  {cityFilter && (
+                    <button
+                      onClick={() => setCityFilter("")}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50"
                     >
                       ✕
