@@ -8,9 +8,13 @@ import L from "leaflet";
 
 // Custom map pin — SVG teardrop with optional letter init
 // No image files; fully themed via inline SVG + divIcon
-function createRestaurantIcon(letter?: string): L.DivIcon {
+// active=true inverts colors (amber fill, dark stroke) to highlight selected/hovered pin
+function createRestaurantIcon(letter?: string, active?: boolean): L.DivIcon {
+  const fill = active ? "#fbbf24" : "#050505";
+  const stroke = active ? "#050505" : "#fbbf24";
+  const letterFill = active ? "#050505" : "#fbbf24";
   const letterSvg = letter
-    ? `<text x="16" y="21" text-anchor="middle" fill="#fef3c7" font-size="12" font-weight="700" font-family="system-ui">${letter}</text>`
+    ? `<text x="16" y="21" text-anchor="middle" fill="${letterFill}" font-size="12" font-weight="700" font-family="system-ui">${letter}</text>`
     : "";
   return L.divIcon({
     className: "",
@@ -23,9 +27,9 @@ function createRestaurantIcon(letter?: string): L.DivIcon {
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
       transition: transform 0.2s ease;
     "><svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40" fill="none">
-      <path d="M16 0C7.16 0 0 7.16 0 16c0 10.5 16 24 16 24s16-13.5 16-24C32 7.16 24.84 0 16 0z" fill="#050505" stroke="#fbbf24" stroke-width="2"/>
-      <circle cx="16" cy="15" r="8" fill="#050505" stroke="#fbbf24" stroke-width="1.5"/>
-      <text x="16" y="15" text-anchor="middle" dominant-baseline="central" fill="#fbbf24" font-size="14" font-weight="700" font-family="system-ui">${letter}</text>
+      <path d="M16 0C7.16 0 0 7.16 0 16c0 10.5 16 24 16 24s16-13.5 16-24C32 7.16 24.84 0 16 0z" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+      <circle cx="16" cy="15" r="8" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+      <text x="16" y="15" text-anchor="middle" dominant-baseline="central" fill="${letterFill}" font-size="14" font-weight="700" font-family="system-ui">${letter}</text>
     </svg></div>`,
     iconSize: [36, 42],
     iconAnchor: [18, 42],
@@ -219,7 +223,7 @@ export default function RestaurantMap({
         {selectedRestaurant && <SelectedRestaurantPopup restaurant={selectedRestaurant} onDeselect={() => onSelect?.(null)} />}
         <MapResize />
         {markers.map((r) => (
-          <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase())} eventHandlers={{ click: () => onSelect?.(r.id) }}>
+          <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)); e.target.closePopup(); } }}>
             <Popup>
               <div className="p-2 min-w-[180px]">
                 <h3 className="font-semibold text-sm">
