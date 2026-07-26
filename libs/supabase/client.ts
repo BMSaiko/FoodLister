@@ -1,6 +1,4 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
-import { NextRequest, NextResponse } from 'next/server';
 
 import type { Database } from "./types";
 
