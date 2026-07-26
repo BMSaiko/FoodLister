@@ -53,6 +53,7 @@ interface RestaurantMapProps {
   center?: [number, number];
   zoom?: number;
   selectedId?: string | null;
+  showPopup?: boolean;
   onSelect?: (id: string | null) => void;
 }
 
@@ -190,6 +191,7 @@ export default function RestaurantMap({
   center = [39.4, -8.3],
   zoom = 10,
   selectedId,
+  showPopup = true,
   onSelect,
 }: RestaurantMapProps) {
   const markers = useMemo(
@@ -224,7 +226,7 @@ export default function RestaurantMap({
       <ZoomOutOnClose selectedRestaurant={selectedRestaurant} />
                 {selectedRestaurant && <GeolocateButton />}
         <ResetZoomButton />
-        {selectedRestaurant && <SelectedRestaurantPopup restaurant={selectedRestaurant} onDeselect={() => onSelect?.(null)} />}
+        {showPopup && selectedRestaurant && <SelectedRestaurantPopup restaurant={selectedRestaurant} onDeselect={() => onSelect?.(null)} />}
         <MapResize />
         {markers.map((r) => (
           <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { if (selectedId) return; e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)); e.target.closePopup(); } }}>
