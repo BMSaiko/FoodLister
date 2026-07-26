@@ -723,7 +723,7 @@ export default function RestaurantDetails() {
                 </div>
                 <div className="h-64 md:h-80">
                   <RestaurantMap
-                    restaurants={[{ ...restaurant, id: restaurant.id }]}
+                    restaurants={[{ ...restaurant, id: restaurant.id } as import('@/libs/types').RestaurantWithDetails]}
                     height="h-full"
                     selectedId={restaurant.id}
                   />
