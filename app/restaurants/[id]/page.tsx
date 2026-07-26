@@ -14,6 +14,7 @@ import { Review } from "@/libs/types";
 import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
 import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
 const CategoryChips = dynamic(() => import("@/components/ui/RestaurantDetails/CategoryChips"));
+const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), { ssr: false });
 const ReviewsSkeleton = () => (
   <div className="space-y-3">
     {[1, 2, 3].map(i => (
@@ -657,6 +658,35 @@ export default function RestaurantDetails() {
             onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
             isOwner={!!(user && restaurant?.creator_id === user.id)}
           />
+
+          {/* Restaurant Map — compact card with restaurant pin */}
+          <div className="max-w-7xl mx-auto px-4 pb-4">
+            {restaurant.latitude && restaurant.longitude ? (
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+                <div className="px-4 py-3 flex items-center justify-between border-b border-white/[0.04]">
+                  <h3 className="text-sm font-semibold text-white/70 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Localização
+                  </h3>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-amber-400/70 hover:text-amber-400 transition-colors"
+                  >
+                    Abrir no Google Maps →
+                  </a>
+                </div>
+                <div className="h-64 md:h-80">
+                  <RestaurantMap
+                    restaurants={[{ ...restaurant, id: restaurant.id }]}
+                    height="h-full"
+                    selectedId={restaurant.id}
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
 
           <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
             {/* Bento Info Grid */}
