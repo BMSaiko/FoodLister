@@ -157,8 +157,3 @@ export type Database = {
 };
 
 // SupabaseClient auth storage configuration
-export type SupabaseStorage = {
-  getItem: (key: string) => string | null;
-  setItem: (key: string, value: string) => void;
-  removeItem: (key: string) => void;
-};
