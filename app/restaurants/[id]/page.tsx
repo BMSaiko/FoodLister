@@ -725,7 +725,7 @@ export default function RestaurantDetails() {
                   <RestaurantMap
                     restaurants={[{ ...restaurant, id: restaurant.id } as import('@/libs/types').RestaurantWithDetails]}
                     height="h-full"
-                    selectedId={restaurant.id}
+                    selectedId={null}
                   />
                 </div>
               </div>
