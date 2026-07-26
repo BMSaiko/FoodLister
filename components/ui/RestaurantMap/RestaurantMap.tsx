@@ -227,7 +227,7 @@ export default function RestaurantMap({
         {selectedRestaurant && <SelectedRestaurantPopup restaurant={selectedRestaurant} onDeselect={() => onSelect?.(null)} />}
         <MapResize />
         {markers.map((r) => (
-          <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)); e.target.closePopup(); } }}>
+          <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { if (selectedId) return; e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)); e.target.closePopup(); } }}>
             <Popup>
               <div className="p-2 min-w-[180px]">
                 <h3 className="font-semibold text-sm">
