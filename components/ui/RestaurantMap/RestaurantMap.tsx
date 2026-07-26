@@ -177,7 +177,7 @@ function FlyToMarker({ restaurant }: { restaurant: RestaurantWithDetails }) {
 function MapResize() {
   const map = useMap();
   useEffect(() => {
-    const timer = setTimeout(() => map.invalidateSize(), 200);
+    const timer = setTimeout(() => map.invalidateSize(), 500);
     return () => clearTimeout(timer);
   }, [map]);
   return null;
@@ -204,6 +204,10 @@ export default function RestaurantMap({
 
   return (
     <div className={`relative w-full ${height} ${className}`} style={{ minHeight: "300px" }}>
+        {/* Skeleton overlay — shown until TileLayer renders */}
+        <div className="absolute inset-0 flex items-center justify-center bg-white/[0.02] rounded-xl z-[1] pointer-events-none animate-pulse">
+          <div className="w-full h-full bg-gradient-to-b from-transparent via-white/[0.03] to-transparent" />
+        </div>
       <MapContainer
         center={center}
         zoom={zoom}
