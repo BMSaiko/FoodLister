@@ -452,6 +452,48 @@ export default function RestaurantDetails() {
     return (
       <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
         <Navbar />
+      <style>{`
+  .leaflet-popup-content-wrapper {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 1rem !important;
+    box-shadow: var(--card-shadow) !important;
+    color: var(--foreground) !important;
+  }
+  .leaflet-popup-content {
+    margin: 0.5rem 0.75rem !important;
+    color: var(--foreground) !important;
+  }
+  .leaflet-popup-tip {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-top: none !important;
+    border-radius: 0 0 1rem 1rem !important;
+  }
+  .leaflet-popup-close-button {
+    color: var(--foreground-muted) !important;
+    font-size: 1.1rem !important;
+    top: 4px !important;
+    right: 6px !important;
+  }
+  .leaflet-popup-close-button:hover {
+    color: var(--foreground) !important;
+  }
+  .leaflet-popup-content a {
+    transition: color 0.2s ease, gap 0.2s ease;
+    color: #fbbf24 !important;
+  }
+  .leaflet-popup-content a:hover {
+    color: #f59e0b !important;
+    gap: 8px;
+  }
+  .leaflet-popup-content a svg {
+    transition: transform 0.2s ease;
+  }
+  .leaflet-popup-content a:hover svg {
+    transform: translateX(3px);
+  }
+`}</style>
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse rounded-xl h-96 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}></div>
           <div className="animate-pulse p-6 rounded-lg h-24 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}></div>
