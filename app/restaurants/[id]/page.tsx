@@ -1,6 +1,8 @@
 // app/restaurants/[id]/page.tsx
 "use client";
 
+import "leaflet/dist/leaflet.css";
+
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
