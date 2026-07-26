@@ -665,7 +665,7 @@ export default function RestaurantDetails() {
               <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
                 <div className="px-4 py-3 flex items-center justify-between border-b border-white/[0.04]">
                   <h3 className="text-sm font-semibold text-white/70 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     Localização
                   </h3>
                   <a
