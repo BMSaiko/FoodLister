@@ -1,6 +1,6 @@
 // app/api/lists/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import { logActivity } from '@/libs/activity';
 import { createNotification } from '@/libs/notifications/service';
@@ -160,6 +160,9 @@ export async function DELETE(
         { status: 401 }
       );
     }
+    const auth = await requireAdmin(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
     const { id } = await params;
 
     if (!id) {
@@ -167,57 +170,6 @@ export async function DELETE(
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
-      );
-    }
-
-    // Authenticate user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 401 }
-      );
-    }
-
-    // Fetch the list to check ownership
-    const { data: listData, error: listError } = await supabase
-      .from('lists')
-      .select('creator_id')
-      .eq('id', id)
-      .single();
-
-    if (listError) {
-      console.error('Error fetching list for deletion:', listError);
-      if (listError.code === 'PGRST116') {
-        const errorType = 'NOT_FOUND' as ApiErrorType;
-        return NextResponse.json(
-          { error: getErrorMessage(errorType), code: errorType },
-          { status: 404 }
-        );
-      }
-      const errorType = 'DATABASE_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
-
-    // Check permission: owner OR editor collaborator
-    const { data: collabCheck } = await supabase
-      .from('list_collaborators')
-      .select('role')
-      .eq('list_id', id)
-      .eq('user_id', user.id)
-      .eq('role', 'editor')
-      .maybeSingle();
-
-    if (listData.creator_id !== user.id && !collabCheck) {
-      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 403 }
       );
     }
 
@@ -262,6 +214,9 @@ export async function PUT(
         { status: 401 }
       );
     }
+    const auth = await requireAdmin(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
     const { id } = await params;
 
     if (!id) {
@@ -269,49 +224,6 @@ export async function PUT(
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
-      );
-    }
-
-    // Authenticate user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 401 }
-      );
-    }
-
-    // Fetch the list to check ownership
-    const { data: listData, error: listError } = await supabase
-      .from('lists')
-      .select('creator_id')
-      .eq('id', id)
-      .single();
-
-    if (listError || !listData) {
-      const errorType = 'NOT_FOUND' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 404 }
-      );
-    }
-
-    // Check permission: owner OR editor collaborator
-    const { data: collabCheck } = await supabase
-      .from('list_collaborators')
-      .select('role')
-      .eq('list_id', id)
-      .eq('user_id', user.id)
-      .eq('role', 'editor')
-      .maybeSingle();
-
-    if (listData.creator_id !== user.id && !collabCheck) {
-      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 403 }
       );
     }
 
@@ -394,6 +306,9 @@ export async function POST(
         { status: 401 }
       );
     }
+    const auth = await requireAdmin(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
     const { id } = await params;
 
     if (!id) {
@@ -401,17 +316,6 @@ export async function POST(
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },
         { status: 400 }
-      );
-    }
-
-    // Authenticate user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 401 }
       );
     }
 

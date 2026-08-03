@@ -1,7 +1,7 @@
 // app/api/reviews/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
@@ -233,15 +233,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 401 }
-      );
-    }
+    // Admin-only access for review creation
+    const auth = await requireAdmin(request, response);
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
 
     const { data: existingReview, error: checkError } = await supabase
       .from('reviews')

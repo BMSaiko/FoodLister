@@ -699,8 +699,8 @@ export default function RestaurantDetails() {
             restaurant={restaurant}
             onShare={handleShareClick}
             onSchedule={() => setIsScheduleModalOpen(true)}
-            onEdit={user && restaurant?.creator_id === user.id ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
-            isOwner={!!(user && restaurant?.creator_id === user.id)}
+            onEdit={(user && restaurant.creator_id === user.id) ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
+            isOwner={!!(user && restaurant.creator_id === user.id)}
           />
 
           {/* Restaurant Map — compact card with restaurant pin */}

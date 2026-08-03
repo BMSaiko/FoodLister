@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/ui/navigation/Navbar';
 import GoogleMapsModal from '@/components/ui/RestaurantDetails/GoogleMapsModal';
+import GoogleMapsBatchImport from '@/components/restaurant/GoogleMapsBatchImport';
 import CuisineSelector from '@/components/ui/Filters/CuisineSelector';
 import DietaryOptionsSelector from '@/components/ui/Filters/DietaryOptionsSelector';
 import FeaturesSelector from '@/components/ui/Filters/FeaturesSelector';
@@ -12,7 +13,6 @@ import MenuManager from '@/components/ui/RestaurantManagement/MenuManager';
 import FormSection from '@/components/ui/common/FormSection';
 import FormField from '@/components/ui/common/FormField';
 import MultiplePhoneInput from '@/components/ui/common/MultiplePhoneInput';
-import FormActions from '@/components/ui/common/FormActions';
 import { ArrowLeft, MapPin, Globe, Map, Save, ChevronRight, ChevronLeft, Info, Tag, Utensils, Image, Check } from 'lucide-react';
 import { useRestaurantForm } from '@/hooks/forms/useRestaurantForm';
 import Link from 'next/link';
@@ -24,7 +24,7 @@ export interface RestaurantFormProps {
   restaurantId?: string;
   backUrl: string;
   backLabel: string;
-  onSuccess?: (restaurant: any) => void;
+  onSuccess?: (restaurant: { id: string; name: string } | { count: number }) => void;
 }
 
 const SECTION_ICONS = {
@@ -39,6 +39,7 @@ const SECTION_ICONS = {
 export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuccess }: RestaurantFormProps) {
   const router = useRouter();
   const [googleMapsModalOpen, setGoogleMapsModalOpen] = useState(false);
+  const [batchImportOpen, setBatchImportOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showCelebration, setShowCelebration] = useState(false);
   const [createdRestaurant, setCreatedRestaurant] = useState<{ id: string; name: string } | null>(null);
@@ -55,7 +56,6 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
     saving,
     handleChange,
     setFieldValue,
-    setFormData,
     toggleCuisineType,
     toggleDietaryOption,
     toggleFeature,
@@ -111,6 +111,15 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
         onSubmit={handleGoogleMapsData}
       />
 
+      <GoogleMapsBatchImport
+        isOpen={batchImportOpen}
+        onClose={() => setBatchImportOpen(false)}
+        onImportComplete={(_count) => {
+          setBatchImportOpen(false);
+          router.push('/restaurants');
+        }}
+      />
+
       <RestaurantFormCelebration
         show={showCelebration}
         restaurantId={createdRestaurant?.id || ''}
@@ -129,13 +138,23 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
         </Link>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] tracking-tighter">
-            {isEdit ? 'Editar Restaurante' : 'Novo Restaurante'}
-          </h1>
-          <p className="text-[var(--foreground-secondary)] mt-2">
-            {isEdit ? 'Atualiza as informações do restaurante.' : 'Conta a história do teu restaurante.'}
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] tracking-tighter">
+              {isEdit ? 'Editar Restaurante' : 'Novo Restaurante'}
+            </h1>
+            <p className="text-[var(--foreground-secondary)] mt-2">
+              {isEdit ? 'Atualiza as informações do restaurante.' : 'Conta a história do teu restaurante.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setBatchImportOpen(true)}
+            className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+          >
+            <MapPin className="h-4 w-4" />
+            Importar do Google Maps
+          </button>
         </div>
 
         {/* Progress */}
