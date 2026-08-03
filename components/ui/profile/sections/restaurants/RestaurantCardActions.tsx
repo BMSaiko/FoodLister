@@ -17,6 +17,7 @@ interface RestaurantCardActionsProps {
     source_url?: string;
   };
   isOwnRestaurant: boolean;
+  isAdmin?: boolean;
   onEdit?: (e: React.MouseEvent) => void;
   onDelete?: (e: React.MouseEvent) => void;
   onShare?: (e: React.MouseEvent) => void;
@@ -26,6 +27,7 @@ interface RestaurantCardActionsProps {
 const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({ 
   restaurant, 
   isOwnRestaurant, 
+  isAdmin = false,
   onEdit, 
   onDelete, 
   onShare,
@@ -144,7 +146,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
       </button>
 
       {/* Edit Button - only for authenticated users who own the restaurant */}
-      {user && isOwnRestaurant && onEdit && (
+      {user && isAdmin && onEdit && (
         <button
           onClick={handleEditRestaurant}
           className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
@@ -157,7 +159,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
 
       {/* Delete Button - only for authenticated users who own the restaurant */}
       {/* Commented out as requested */}
-      {/* {user && isOwnRestaurant && onDelete && (
+      {/* {user && isAdmin && onDelete && (
         <button
           onClick={handleDeleteRestaurant}
           className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"

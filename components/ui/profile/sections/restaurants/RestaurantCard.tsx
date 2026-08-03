@@ -20,6 +20,7 @@ interface RestaurantCardProps {
     features?: any[];
   };
   isOwnRestaurant?: boolean;
+  isAdmin?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
   onShare?: () => void;

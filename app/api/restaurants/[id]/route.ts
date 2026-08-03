@@ -1,6 +1,6 @@
 // app/api/restaurants/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 
@@ -163,48 +163,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
     
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 401 }
-      );
-    }
-
-    // Check if user owns the restaurant or is an admin
-    const { data: restaurant, error: restaurantError } = await supabase
-      .from('restaurants')
-      .select('creator_id')
-      .eq('id', id)
-      .single();
-
-    if (restaurantError) {
-      console.error('Error checking restaurant ownership:', restaurantError);
-      const errorType = 'DATABASE_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
-    
-    if (!restaurant) {
-      const errorType = 'NOT_FOUND' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 404 }
-      );
-    }
-    
-    // Only allow the creator to edit the restaurant
-    if (restaurant.creator_id !== user.id) {
-      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 403 }
-      );
-    }
+    // Admin-only access for restaurant updates
+    const auth = await requireAdmin(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
 
     // Prepare update data
     const updateData: any = {};
@@ -320,48 +282,10 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       );
     }
     
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 401 }
-      );
-    }
-    
-    // Check if user owns the restaurant or is an admin
-    const { data: restaurant, error: restaurantError } = await supabase
-      .from('restaurants')
-      .select('creator_id')
-      .eq('id', id)
-      .single();
-    
-    if (restaurantError) {
-      console.error('Error checking restaurant ownership:', restaurantError);
-      const errorType = 'DATABASE_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 500 }
-      );
-    }
-    
-    if (!restaurant) {
-      const errorType = 'NOT_FOUND' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 404 }
-      );
-    }
-    
-    // Only allow the creator to delete the restaurant
-    if (restaurant.creator_id !== user.id) {
-      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
-      return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType },
-        { status: 403 }
-      );
-    }
+    // Admin-only access for restaurant deletion
+    const auth = await requireAdmin(request, new NextResponse());
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
 
     // Delete the restaurant
     const { error } = await supabase

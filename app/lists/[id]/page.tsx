@@ -276,7 +276,7 @@ export default function ListDetails() {
             restaurantCount={restaurants.length}
             creator={list.creator}
             isOwner={!!(user && list.creator_id === user.id)}
-            duplicating={duplicating}
+                          duplicating={duplicating}
             deleting={deleting}
             onShare={handleShareList}
             onRoulette={() => setShowRoulette(true)}
@@ -305,7 +305,7 @@ export default function ListDetails() {
             restaurants={restaurants}
             listId={id as string}
             isOwner={!!(user && list.creator_id === user.id)}
-            onRemove={handleRemoveRestaurant}
+                          onRemove={handleRemoveRestaurant}
           />
 
           {/* Export */}
