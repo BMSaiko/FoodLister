@@ -162,6 +162,7 @@ export async function DELETE(
     }
     const auth = await requireAdmin(request, new NextResponse());
     if (!auth.ok) return auth.response;
+    const user = auth.user;
     const { id } = await params;
 
     if (!id) {
@@ -215,6 +216,7 @@ export async function PUT(
     }
     const auth = await requireAdmin(request, new NextResponse());
     if (!auth.ok) return auth.response;
+    const user = auth.user;
     const { id } = await params;
 
     if (!id) {

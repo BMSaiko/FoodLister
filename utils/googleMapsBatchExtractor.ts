@@ -165,7 +165,7 @@ export async function extractBatch(
       } else {
         extracted.push({ ...data, source_url: url });
       }
-    } catch (error) {
+    } catch {
       extracted.push({
         source_url: url,
         name: url,

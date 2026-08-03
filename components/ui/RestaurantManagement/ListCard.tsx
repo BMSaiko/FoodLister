@@ -13,6 +13,7 @@ interface ListCardProps {
   list: List & { restaurants?: any[] };
   restaurantCount?: number;
   isOwner?: boolean;
+  isAdmin?: boolean;
   onDelete?: (listId: string) => void;
 }
 

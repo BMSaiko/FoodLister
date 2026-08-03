@@ -232,11 +232,6 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
 
-    // Admin-only access for review deletion
-    const auth = await requireAdmin(request, response);
-    if (!auth.ok) return auth.response;
-    const user = auth.user;
-
     const { data: existingReview, error: fetchError } = await supabase
       .from('reviews')
       .select('restaurant_id')
@@ -327,7 +322,6 @@ export async function DELETE(
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
 
-    // Admin-only access for review deletion
     const auth = await requireAdmin(request, response);
     if (!auth.ok) return auth.response;
     const user = auth.user;

@@ -1,12 +1,10 @@
 // app/api/restaurants/batch/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, requireUser } from '@/libs/supabase/server';
+import { requireUser } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
-import type { Database } from '@/types/database';
 
-type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
 interface BatchRestaurant {
   name: string;

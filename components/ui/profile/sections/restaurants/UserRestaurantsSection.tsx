@@ -23,6 +23,7 @@ import { useScrollLock } from '@/utils/scrollLock';
 
 interface UserRestaurantsSectionProps {
   userId: string;
+  isAdmin?: boolean;
   initialRestaurants: Array<{
     id: string;
     name: string;
@@ -53,6 +54,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   initialRestaurants,
   initialTotal,
   isOwnProfile,
+  isAdmin = false,
   isLoading: hookIsLoading,
   loadingStates,
   error: hookError

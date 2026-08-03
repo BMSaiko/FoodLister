@@ -13,7 +13,6 @@ import MenuManager from '@/components/ui/RestaurantManagement/MenuManager';
 import FormSection from '@/components/ui/common/FormSection';
 import FormField from '@/components/ui/common/FormField';
 import MultiplePhoneInput from '@/components/ui/common/MultiplePhoneInput';
-import FormActions from '@/components/ui/common/FormActions';
 import { ArrowLeft, MapPin, Globe, Map, Save, ChevronRight, ChevronLeft, Info, Tag, Utensils, Image, Check } from 'lucide-react';
 import { useRestaurantForm } from '@/hooks/forms/useRestaurantForm';
 import Link from 'next/link';
@@ -25,7 +24,7 @@ export interface RestaurantFormProps {
   restaurantId?: string;
   backUrl: string;
   backLabel: string;
-  onSuccess?: (restaurant: any) => void;
+  onSuccess?: (restaurant: { id: string; name: string } | { count: number }) => void;
 }
 
 const SECTION_ICONS = {
@@ -57,7 +56,6 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
     saving,
     handleChange,
     setFieldValue,
-    setFormData,
     toggleCuisineType,
     toggleDietaryOption,
     toggleFeature,
@@ -116,7 +114,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
       <GoogleMapsBatchImport
         isOpen={batchImportOpen}
         onClose={() => setBatchImportOpen(false)}
-        onImportComplete={(count) => {
+        onImportComplete={(_count) => {
           setBatchImportOpen(false);
           router.push('/restaurants');
         }}

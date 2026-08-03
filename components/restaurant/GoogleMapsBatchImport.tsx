@@ -2,9 +2,8 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { X, Loader, MapPin, Upload, FileText, Code, CheckCircle, AlertCircle, ArrowRight, Info } from "lucide-react";
+import { X, Loader, MapPin, Upload, FileText, Code, CheckCircle, AlertCircle } from "lucide-react";
 import { extractBatch, parseUrlInput, BatchExtractionResult } from "@/utils/googleMapsBatchExtractor";
-import { isValidGoogleMapsUrl } from "@/utils/googleMapsExtractor";
 import Modal from "@/components/ui/Modal";
 import { BatchImportProgress } from "./BatchImportProgress";
 
@@ -101,7 +100,7 @@ export default function GoogleMapsBatchImport({
     } finally {
       setImporting(false);
     }
-  }, [extractResults, onImportComplete]);
+  }, [extractResults]);
 
   const handleReset = () => {
     setRawInput("");

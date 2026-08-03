@@ -12,6 +12,7 @@ interface ReviewsFeedProps {
   reviews: Review[];
   reviewCount: number;
   user?: any;
+  userProfile?: { display_name?: string; avatar_url?: string } | null;
   loading?: boolean;
   onReviewSubmitted: (r: Review) => void;
   onEditReview: (r: Review) => void;
@@ -148,7 +149,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] text-white/20">{formatDate(review.created_at)}</span>
-                      {user && userProfile?.is_admin && (
+                      {user && (
                         <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <button onClick={() => { setEditing(review); setShowForm(true); }} className="p-1.5 text-white/25 hover:text-amber-400 hover:bg-white/[0.04] rounded-lg transition-all duration-150"><Edit className="h-3.5 w-3.5" /></button>
                           <button onClick={() => handleDelete(review.id)} className="p-1.5 text-white/25 hover:text-red-400 hover:bg-white/[0.04] rounded-lg transition-all duration-150"><X className="h-3.5 w-3.5" /></button>
