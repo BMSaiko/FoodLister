@@ -1,6 +1,6 @@
 // app/api/restaurants/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
@@ -247,16 +247,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const response = NextResponse.next();
   try {
-    const supabase = await getServerClient(request, response);
-    if (!supabase) {
-      const errorType = 'INTERNAL_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
-    }
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
-      return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
-    }
+    const auth = await requireAdmin(request, response);
+    if (!auth.ok) return auth.response;
+    const supabase = auth.supabase;
+    const user = auth.user;
     const body = await request.json();
     const { name, description, image_url, images, display_image_index, location,
       source_url, menu_links, menu_images, phone_numbers, latitude, longitude, opening_hours } = body;

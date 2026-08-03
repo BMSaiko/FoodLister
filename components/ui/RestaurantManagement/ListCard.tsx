@@ -16,7 +16,7 @@ interface ListCardProps {
   onDelete?: (listId: string) => void;
 }
 
-const ListCard = ({ list, restaurantCount = 0, isOwner = false, onDelete }: ListCardProps) => {
+const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false, onDelete }: ListCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isPublic = list.is_public !== false;
@@ -113,7 +113,7 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, onDelete }: List
         </Link>
 
         {/* Delete button */}
-        {isOwner && (
+        {isAdmin && (
           <button
             onClick={(e) => { e.preventDefault(); handleDelete(); }}
             className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"

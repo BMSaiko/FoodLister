@@ -58,6 +58,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   error: hookError
 }) => {
   const [restaurants, setRestaurants] = useState(initialRestaurants);
+  const [isAdminUser, setIsAdminUser] = useState(isAdmin);
   const [total, setTotal] = useState(initialTotal);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -355,6 +356,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
               key={restaurant.id}
               restaurant={restaurant}
               isOwnRestaurant={isOwnProfile}
+        isAdmin={isAdminUser}
               onEdit={() => {
                 // Navigate to edit page with back navigation parameters
                 const currentUserId = window.location.pathname.split('/')[2];

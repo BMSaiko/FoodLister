@@ -1,7 +1,7 @@
 // app/api/reviews/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, requireAdmin } from '@/libs/supabase/server';
 import { ensureUserProfileExists } from '@/libs/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/libs/supabase/types';
@@ -192,7 +192,10 @@ export async function PUT(
 ) {
   try {
     const response = NextResponse.next();
-    const supabase = await getServerClient(request, response);
+    const auth = await requireAdmin(request, response);
+    if (!auth.ok) return auth.response;
+    const supabase = auth.supabase;
+    const user = auth.user;
     const resolvedParams = await params;
     const reviewId = resolvedParams.id;
     const body: Record<string, unknown> = await request.json();
@@ -229,21 +232,19 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
+    // Admin-only access for review deletion
+    const auth = await requireAdmin(request, response);
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
 
     const { data: existingReview, error: fetchError } = await supabase
       .from('reviews')
       .select('restaurant_id')
       .eq('id', reviewId)
-      .eq('user_id', user.id)
       .single();
 
     if (fetchError || !existingReview) {
-      return NextResponse.json({ error: 'Review not found or access denied' }, { status: 404 });
+      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
     }
 
     const existingReviewData = existingReview as { restaurant_id: string };
@@ -326,21 +327,19 @@ export async function DELETE(
       return NextResponse.json({ error: 'Failed to initialize database connection' }, { status: 500 });
     }
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
+    // Admin-only access for review deletion
+    const auth = await requireAdmin(request, response);
+    if (!auth.ok) return auth.response;
+    const user = auth.user;
 
     const { data: existingReview, error: fetchError } = await supabase
       .from('reviews')
       .select('restaurant_id')
       .eq('id', reviewId)
-      .eq('user_id', user.id)
       .single();
 
     if (fetchError || !existingReview) {
-      return NextResponse.json({ error: 'Review not found or access denied' }, { status: 404 });
+      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
     }
 
     const existingReviewData = existingReview as { restaurant_id: string };
