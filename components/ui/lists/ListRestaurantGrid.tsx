@@ -95,8 +95,7 @@ export default function ListRestaurantGrid({ restaurants }: ListRestaurantGridPr
           >
             <RestaurantCard
               restaurant={restaurant}
-              variant={i === 0 && !selectedCuisine ? "large" : "small"}
-                                                      />
+            />
           </div>
         ))}
       </div>

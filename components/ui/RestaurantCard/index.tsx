@@ -1,46 +1,46 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { motion, AnimatePresence } from 'motion/react';
-import { Star, MapPin, Eye } from 'lucide-react';
-import { useAuth } from '@/contexts';
-import { RestaurantWithDetails } from '@/libs/types';
+import React, { useState } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "motion/react";
+import { Star, MapPin, Eye, Phone, Clock } from "lucide-react";
+import { useAuth } from "@/contexts";
+import { RestaurantWithDetails } from "@/libs/types";
 
 interface RestaurantCardProps {
   restaurant: RestaurantWithDetails;
-  variant?: 'large' | 'small';
+  variant?: "large" | "small";
   centered?: boolean;
 }
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({
   restaurant,
-  variant = 'small',
+  variant = "small",
   centered = false,
 }) => {
   const { user } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
 
-  const isLarge = variant === 'large';
+  const isLarge = variant === "large";
   const isValidUrl = (url: string | null | undefined): boolean => {
-    if (!url || typeof url !== 'string') return false;
+    if (!url || typeof url !== "string") return false;
     const trimmed = url.trim();
-    if (!trimmed || trimmed === '/placeholder-restaurant.jpg' || trimmed.startsWith('data:image')) return false;
-    return trimmed.startsWith('http');
+    if (!trimmed || trimmed === "/placeholder-restaurant.jpg" || trimmed.startsWith("data:image")) return false;
+    return trimmed.startsWith("http");
   };
   const hasImage = isValidUrl(restaurant.image_url) || (restaurant.images?.some(img => isValidUrl(img)) ?? false);
-  const imageUrl = restaurant.images?.find(img => isValidUrl(img)) || (isValidUrl(restaurant.image_url) ? restaurant.image_url : '');
+  const imageUrl = restaurant.images?.find(img => isValidUrl(img)) || (isValidUrl(restaurant.image_url) ? restaurant.image_url : "");
 
   return (
     <motion.article
-      className="group relative rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-150"
+      className="group relative flex flex-col rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-150 h-full"
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       whileHover={{ y: -2 }}
     >
-      {/* Image */}
+      {/* Image — fixed height, same for all cards */}
       <Link href={`/restaurants/${restaurant.id}`} className="block">
-        <div className={`relative overflow-hidden ${isLarge ? 'h-52 md:h-60' : 'h-40'}`}>
+        <div className={`relative overflow-hidden ${isLarge ? "h-52 md:h-56" : "h-44"}`}>
           {hasImage ? (
             <img
               src={imageUrl}
@@ -68,15 +68,18 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2.5 py-1">
               <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
               <span className="text-xs font-semibold text-white">{restaurant.rating.toFixed(1)}</span>
+              {restaurant.review_count != null && restaurant.review_count > 0 && (
+                <span className="text-[10px] text-white/50 ml-1">({restaurant.review_count})</span>
+              )}
             </div>
           )}
         </div>
       </Link>
 
-      {/* Basic Info (always visible) */}
-      <div className="p-4">
+      {/* Content — flex-1 fills remaining space, pushes footer down */}
+      <div className="p-4 flex flex-col flex-1 min-h-0">
         <Link href={`/restaurants/${restaurant.id}`}>
-          <h3 className={`font-bold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors line-clamp-1 ${isLarge ? 'text-lg md:text-xl' : 'text-base'}`}>
+          <h3 className={`font-bold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors line-clamp-1 ${isLarge ? "text-lg md:text-xl" : "text-base"}`}>
             {restaurant.name}
           </h3>
         </Link>
@@ -89,54 +92,78 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             </span>
           )}
         </div>
-      </div>
 
-      {/* Hover Reveal */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden border-t border-white/[0.06]"
-          >
-            <div className="p-4 space-y-3 bg-white/[0.02]">
-              {/* Description */}
-              {restaurant.description && (
-                <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2">
-                  {restaurant.description}
-                </p>
-              )}
+        {/* Inline info badges — always visible, no hover required */}
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {restaurant.opening_hours && (
+            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
+              <Clock className="w-3 h-3" />
+              Aberto
+            </span>
+          )}
+          {restaurant.phone_numbers && restaurant.phone_numbers.length > 0 && (
+            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
+              <Phone className="w-3 h-3" />
+              {restaurant.phone_numbers[0]}
+            </span>
+          )}
+          {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
+            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/70 border border-amber-500/10">
+              {restaurant.cuisine_types[0].name}
+            </span>
+          )}
+        </div>
 
-              {/* Categories */}
-              {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {restaurant.cuisine_types.slice(0, 3).map((cuisine) => (
-                    <span
-                      key={cuisine.id}
-                      className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400"
-                    >
-                      {cuisine.name}
-                    </span>
-                  ))}
+        {/* Spacer pushes hover content to the bottom */}
+        <div className="flex-1" />
+
+        {/* Hover Reveal */}
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden border-t border-white/[0.06]"
+            >
+              <div className="pt-3 mt-3 space-y-3 bg-white/[0.02]">
+                {/* Description */}
+                {restaurant.description && (
+                  <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2">
+                    {restaurant.description}
+                  </p>
+                )}
+
+                {/* Categories */}
+                {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {restaurant.cuisine_types.slice(0, 3).map((cuisine) => (
+                      <span
+                        key={cuisine.id}
+                        className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400"
+                      >
+                        {cuisine.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-1">
+                  <Link
+                    href={`/restaurants/${restaurant.id}`}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--primary)] text-black text-sm font-medium rounded-full hover:bg-[var(--primary-hover)] transition-colors"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Ver
+                  </Link>
                 </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 pt-1">
-                <Link
-                  href={`/restaurants/${restaurant.id}`}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--primary)] text-black text-sm font-medium rounded-full hover:bg-[var(--primary-hover)] transition-colors"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  Ver
-                </Link>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.article>
   );
 };

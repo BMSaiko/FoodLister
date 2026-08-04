@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { motion } from 'motion/react';
-import RestaurantCard from '@/components/ui/RestaurantCard';
-import { RestaurantWithDetails } from '@/libs/types';
-import { EmptyState } from '@/components/ui/common/EmptyState';
+import { motion } from "motion/react";
+import RestaurantCard from "@/components/ui/RestaurantCard";
+import { RestaurantWithDetails } from "@/libs/types";
+import { EmptyState } from "@/components/ui/common/EmptyState";
 
 interface RestaurantGridProps {
   restaurants: RestaurantWithDetails[];
@@ -18,33 +18,23 @@ export function RestaurantGrid({
     return <EmptyState searchQuery={searchQuery || null} />;
   }
 
-  // Bento pattern: alternating large/small
-  const bentoPattern = ['large', 'small', 'small', 'large', 'large', 'small'];
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-      {restaurants.map((restaurant, index) => {
-        const variant = bentoPattern[index % bentoPattern.length] as 'large' | 'small';
-
-        return (
-          <motion.div
-            key={restaurant.id}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{
-              duration: 0.5,
-              delay: (index % 6) * 0.06,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-          >
-            <RestaurantCard
-              restaurant={restaurant}
-              variant={variant}
-            />
-          </motion.div>
-        );
-      })}
+      {restaurants.map((restaurant, index) => (
+        <motion.div
+          key={restaurant.id}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.1 }}
+          transition={{
+            duration: 0.5,
+            delay: (index % 6) * 0.06,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          <RestaurantCard restaurant={restaurant} />
+        </motion.div>
+      ))}
     </div>
   );
 }
