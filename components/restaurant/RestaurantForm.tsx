@@ -153,7 +153,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
             className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
           >
             <MapPin className="h-4 w-4" />
-            Importar do Google Maps
+            Importar lista do Google Maps
           </button>
         </div>
 

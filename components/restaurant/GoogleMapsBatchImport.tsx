@@ -122,7 +122,7 @@ export default function GoogleMapsBatchImport({
         <div className="flex items-center gap-3">
           <MapPin className="h-5 w-5 text-[var(--primary)]" />
           <h2 className="text-lg font-semibold text-white/80">
-            Importar do Google Maps
+            Importar lista do Google Maps
           </h2>
           <div className="relative group">
             <button
