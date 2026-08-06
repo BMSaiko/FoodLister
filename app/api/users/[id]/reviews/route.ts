@@ -60,7 +60,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Check if the current user is viewing their own profile
-    const isOwnProfile = profileData.user_id === user.id;
+    const isOwnProfile = user ? profileData.user_id === user.id : false;
 
     // Simple access control:
     // - Users can always view their own profiles

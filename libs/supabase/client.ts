@@ -1,14 +1,14 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 
 import type { Database } from "./types";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-let supabaseClient: ReturnType<typeof createSupabaseClient<Database>> | null = null;
+let supabaseClient: ReturnType<typeof createServerClient<Database>> | null = null;
 
-// Client-side Supabase client — uses default localStorage for session persistence.
-// SSR cookie handling is managed separately by the middleware in middleware.ts.
+// Client-side Supabase client — uses cookies for session persistence.
+// This ensures the middleware can read the session on subsequent requests.
 export const getClient = () => {
   if (!supabaseClient) {
     if (!supabaseUrl) {
@@ -18,7 +18,20 @@ export const getClient = () => {
       throw new Error("Environment variable NEXT_PUBLIC_SUPABASE_ANON_KEY is required.");
     }
 
-    supabaseClient = createSupabaseClient<Database>(supabaseUrl, supabaseKey, {
+    supabaseClient = createServerClient<Database>(supabaseUrl, supabaseKey, {
+      cookies: {
+        getAll() {
+          return document.cookie.split("; ").map((c) => {
+            const [name, ...rest] = c.split("=");
+            return { name, value: rest.join("=") };
+          });
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            document.cookie = `${name}=${value}; path=/; max-age=${options.maxAge ?? 60 * 60 * 24 * 365}; samesite=lax`;
+          });
+        },
+      },
       auth: {
         persistSession: true,
         autoRefreshToken: true,
