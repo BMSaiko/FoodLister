@@ -1,4 +1,20 @@
 // config without bundle-analyzer
+
+// ponytail: Report-Only until no violations logged for 72h. Then flip header name.
+const cspPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://kgzeoyubgchhvfmtyqsk.supabase.co wss://kgzeoyubgchhvfmtyqsk.supabase.co",
+  "media-src 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ');
+
 const nextConfig = {
   outputFileTracingRoot: process.cwd(),
   images: {
@@ -20,6 +36,20 @@ const nextConfig = {
   },
   reactStrictMode: true,
   optimizePackageImports: ['@supabase/supabase-js'],
+
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: cspPolicy,
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
