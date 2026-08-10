@@ -91,7 +91,7 @@ export default function RestaurantDetails() {
   const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingReviews, setLoadingReviews] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string; isAdmin?: boolean } | null>(null);
   const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
@@ -258,7 +258,8 @@ export default function RestaurantDetails() {
             const profileData = await response.json();
             setUserProfile({
               display_name: profileData.display_name || undefined,
-              avatar_url: profileData.avatar_url || undefined
+              avatar_url: profileData.avatar_url || undefined,
+              isAdmin: profileData.isAdmin ?? false
             });
         } else if (response.status === 401) {
           // Handle unauthorized access gracefully
@@ -583,6 +584,23 @@ export default function RestaurantDetails() {
     toast.success('Avaliação enviada com sucesso!');
   };
 
+  // Handle restaurant deletion — admin only (owner cannot delete own restaurant)
+  const handleDeleteRestaurant = async () => {
+    if (!confirm('Tem certeza que deseja eliminar este restaurante?')) return;
+    try {
+      const response = await del(`/api/restaurants/${id}`);
+      if (response.ok) {
+        toast.success('Restaurante eliminado com sucesso!');
+        window.location.href = '/restaurants';
+      } else {
+        toast.error('Não foi possível eliminar o restaurante.');
+      }
+    } catch (error) {
+      console.error('Error deleting restaurant:', error);
+      toast.error('Erro ao eliminar restaurante. Tente novamente.');
+    }
+  };
+
   // Handle review edit - this is handled by RestaurantReviewsSection component
   const handleEditReview = (review: Review) => {
     // The RestaurantReviewsSection component handles the edit functionality internally
@@ -699,8 +717,10 @@ export default function RestaurantDetails() {
             restaurant={restaurant}
             onShare={handleShareClick}
             onSchedule={() => setIsScheduleModalOpen(true)}
-            onEdit={(user && restaurant.creator_id === user.id) ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
-            isOwner={!!(user && restaurant.creator_id === user.id)}
+            onEdit={(user && (restaurant.creator_id === user.id || userProfile?.isAdmin)) ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
+            isOwner={!!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin))}
+            onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
+            canDelete={!!userProfile?.isAdmin}
           />
 
           {/* Restaurant Map — compact card with restaurant pin */}

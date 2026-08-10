@@ -29,6 +29,13 @@ export async function getListRole(
     .single();
 
   if (!list) return 'none';
+  // ponytail: admin is treated as owner-equivalent for edit/delete/dashboard
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('user_id', userId)
+    .single();
+  if (profile?.is_admin) return 'owner';
   if (list.creator_id === userId) return 'owner';
 
   // Check collaborator status

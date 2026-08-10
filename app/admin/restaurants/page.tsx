@@ -7,7 +7,7 @@ import RestaurantsTable from '@/components/admin/RestaurantsTable';
 export default function AdminRestaurantsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const { restaurants, total, loading, error } = useAdminRestaurants(page, 20, search);
+  const { restaurants, total, loading, error, refresh } = useAdminRestaurants(page, 20, search);
   const totalPages = Math.ceil(total / 20);
 
   return (
@@ -22,7 +22,7 @@ export default function AdminRestaurantsPage() {
         className="w-full max-w-sm px-4 py-2 rounded-lg border text-sm mb-4 bg-[var(--card-bg)] border-white/10 text-foreground placeholder:text-foreground-muted"
       />
       <div className="rounded-xl border border-white/10 bg-card">
-        {loading ? <p className="p-6 text-foreground-muted">A carregar...</p> : <RestaurantsTable restaurants={restaurants} />}
+        {loading ? <p className="p-6 text-foreground-muted">A carregar...</p> : <RestaurantsTable restaurants={restaurants} onDeleted={refresh} />}
       </div>
       {totalPages > 1 && (
         <div className="flex justify-center gap-2">
