@@ -75,13 +75,13 @@ export default function RestaurantDetails() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
   const reviewId = searchParams?.get('review');
   const { user } = useAuth();
-    const { get: getPublic } = usePublicApiClient();
+    const { get: getPublic, post: postPublic, patch: patchPublic, del: delPublic } = usePublicApiClient();
   // Alias for authenticated requests + review mutations — all via public client
   const get = getPublic;
-  // Aliases for review mutation handlers
-  const post = getPublic;
-  const patch = getPublic;
-  const del = getPublic;
+  // Aliases for review mutation handlers — use correct HTTP methods
+  const post = postPublic;
+  const patch = patchPublic;
+  const del = delPublic;
   const supabase = createClient();
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);

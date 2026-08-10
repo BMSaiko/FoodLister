@@ -1,12 +1,10 @@
 // app/api/restaurants/[id]/rating/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getClient } from '@/libs/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { getServerClient } from '@/libs/supabase/server';
 
 // Helper function to update restaurant rating based on reviews
-async function updateRestaurantRating(restaurantId: string) {
-  const supabase = getClient();
-
+async function updateRestaurantRating(supabase: SupabaseClient, restaurantId: string) {
   if (!supabase) {
     console.error('Supabase client is not available');
     return;
@@ -31,7 +29,7 @@ async function updateRestaurantRating(restaurantId: string) {
     }
 
     // Update the restaurant's rating
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from('restaurants')
       .update({ rating: averageRating })
       .eq('id', restaurantId);
@@ -70,7 +68,7 @@ export async function POST(
     }
 
     // Check if the restaurant exists
-    const { data: restaurant, error: restaurantError } = await (supabase as any)
+    const { data: restaurant, error: restaurantError } = await supabase
       .from('restaurants')
       .select('id')
       .eq('id', restaurantId)
@@ -81,10 +79,10 @@ export async function POST(
     }
 
     // Update restaurant rating based on all reviews
-    await updateRestaurantRating(restaurantId);
+    await updateRestaurantRating(supabase, restaurantId);
 
     // Fetch the updated restaurant data
-    let { data: updatedRestaurant, error: fetchError } = await (supabase as any)
+    let { data: updatedRestaurant, error: fetchError } = await supabase
       .from('restaurants')
       .select('id, name, rating, review_count')
       .eq('id', restaurantId)
@@ -92,7 +90,7 @@ export async function POST(
 
     // If review_count column doesn't exist, fetch without it and calculate manually
     if (fetchError && fetchError.code === '42703' && fetchError.message.includes('review_count')) {
-      const { data: restaurantData, error: restaurantError } = await (supabase as any)
+      const { data: restaurantData, error: restaurantError } = await supabase
         .from('restaurants')
         .select('id, name, rating')
         .eq('id', restaurantId)
@@ -104,7 +102,7 @@ export async function POST(
       }
 
       // Calculate review count manually
-      const { data: reviewCountData, error: reviewCountError } = await (supabase as any)
+      const { data: reviewCountData, error: reviewCountError } = await supabase
         .from('reviews')
         .select('id', { count: 'exact' })
         .eq('restaurant_id', restaurantId);

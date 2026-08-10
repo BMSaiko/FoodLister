@@ -21,12 +21,16 @@ export const getClient = () => {
     supabaseClient = createServerClient<Database>(supabaseUrl, supabaseKey, {
       cookies: {
         getAll() {
+          // ponytail: SSR guard — doc missing on server; empty cookies = unauthenticated until browser hydrates
+          if (typeof document === 'undefined') return [];
           return document.cookie.split("; ").map((c) => {
             const [name, ...rest] = c.split("=");
             return { name, value: rest.join("=") };
           });
         },
         setAll(cookiesToSet) {
+          // ponytail: SSR guard — setAll only runs client-side after hydration
+          if (typeof document === 'undefined') return;
           cookiesToSet.forEach(({ name, value, options }) => {
             document.cookie = `${name}=${value}; path=/; max-age=${options.maxAge ?? 60 * 60 * 24 * 365}; samesite=lax`;
           });
