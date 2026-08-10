@@ -306,7 +306,7 @@ export function useListForm(options: UseListFormOptions = {}) {
     return restaurants
       .filter(r => r.name.toLowerCase().includes(searchQuery.toLowerCase()))
       .filter(r => !selectedRestaurants.some(s => s.id === r.id))
-      .slice(0, 20);
+      ;
   }, [restaurants, selectedRestaurants]);
 
   return {

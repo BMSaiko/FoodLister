@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useAuth } from '@/hooks/auth/useAuth';
 import ListCard from '@/components/ui/RestaurantManagement/ListCard';
 import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
@@ -14,6 +15,7 @@ function ListsContent() {
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [allTags, setAllTags] = useState([]);
+  const { user } = useAuth();
   const [activeTag, setActiveTag] = useState(null);
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
@@ -126,7 +128,7 @@ function ListsContent() {
                 <ListCard
                   list={list}
                   restaurantCount={list.restaurantCount || list.restaurants?.length || 0}
-                  isOwner={true}
+                  isOwner={list.userRole === 'owner' || list.creator_id === user?.id}
                   onDelete={(id) => setLists((prev) => prev.filter((l) => l.id !== id))}
                 />
               </motion.div>

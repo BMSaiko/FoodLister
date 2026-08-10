@@ -1,7 +1,8 @@
 // app/api/lists/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
+import { getListRole } from '@/libs/lists/permissions';
 import { logActivity } from '@/libs/activity';
 import { createNotification } from '@/libs/notifications/service';
 import type { ApiErrorType } from '@/types/api';
@@ -128,10 +129,20 @@ export async function GET(
       }
     }
 
+    // Resolve user's role for this list
+    let userRole = 'none';
+    if (supabase) {
+      const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+      if (user) {
+        userRole = await getListRole(supabase, id, user.id);
+      }
+    }
+
     // Build response
     const responseData = {
       ...(listData as any),
-      restaurants
+      restaurants,
+      userRole,
     };
 
     // Add caching headers for better performance
@@ -160,10 +171,24 @@ export async function DELETE(
         { status: 401 }
       );
     }
-    const auth = await requireAdmin(request, new NextResponse());
-    if (!auth.ok) return auth.response;
-    const user = auth.user;
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
+    }
     const { id } = await params;
+    // ponytail: only owner can delete
+    const role = await getListRole(supabase, id, user.id);
+    if (role !== 'owner') {
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 403 }
+      );
+    }
 
     if (!id) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -214,10 +239,24 @@ export async function PUT(
         { status: 401 }
       );
     }
-    const auth = await requireAdmin(request, new NextResponse());
-    if (!auth.ok) return auth.response;
-    const user = auth.user;
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
+    }
     const { id } = await params;
+    // ponytail: RLS enforces owner/editor update permissions
+    const role = await getListRole(supabase, id, user.id);
+    if (role !== 'owner' && role !== 'editor') {
+      const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 403 }
+      );
+    }
 
     if (!id) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -306,10 +345,24 @@ export async function POST(
         { status: 401 }
       );
     }
-    const auth = await requireAdmin(request, new NextResponse());
-    if (!auth.ok) return auth.response;
-    const user = auth.user;
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 401 }
+      );
+    }
     const { id } = await params;
+    // ponytail: RLS enforces owner/editor update permissions
+    // ponytail: any authenticated user can duplicate a list they can access
+
+
+
+
+
+
+
 
     if (!id) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
