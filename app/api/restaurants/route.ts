@@ -1,6 +1,6 @@
 // app/api/restaurants/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, requireUser } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
@@ -247,7 +247,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const response = NextResponse.next();
   try {
-    const auth = await requireAdmin(request, response);
+    const auth = await requireUser(request, response);
     if (!auth.ok) return auth.response;
     const supabase = auth.supabase;
     const user = auth.user;

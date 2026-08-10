@@ -73,6 +73,13 @@ export async function GET(request: NextRequest) {
       .select('id', { count: 'exact', head: true })
       .eq('creator_id', user.id);
 
+    // ponytail: expose is_admin so detail pages can gate admin-only buttons
+    const { data: isAdminRow } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .single();
+
     // Transform response to match frontend interface
     const userProfile = {
       id: profileData.user_id,
@@ -95,7 +102,8 @@ export async function GET(request: NextRequest) {
       recentReviews: reviewsData.data,
       recentLists: listsData.data,
       accessLevel: 'OWNER',
-      isOwnProfile: true
+      isOwnProfile: true,
+      isAdmin: isAdminRow?.is_admin ?? false
     };
 
     return NextResponse.json(userProfile);

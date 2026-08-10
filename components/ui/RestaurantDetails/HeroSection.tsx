@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Share2, Calendar, Edit, Star, Euro, ChevronLeft, ChevronRight, X, ZoomIn, MapPin } from "lucide-react";
+import { Share2, Calendar, Edit, Star, Euro, ChevronLeft, ChevronRight, X, ZoomIn, MapPin, Trash2 } from "lucide-react";
 import { getRatingClass, categorizePriceLevel } from "@/utils/formatters";
 import Modal from "@/components/ui/Modal";
 
@@ -20,9 +20,11 @@ interface HeroSectionProps {
   onSchedule: () => void;
   onEdit?: () => void;
   isOwner?: boolean;
+  onDelete?: () => void;
+  canDelete?: boolean;
 }
 
-export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, isOwner }: HeroSectionProps) {
+export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, isOwner, onDelete, canDelete }: HeroSectionProps) {
   const ratingClass = getRatingClass(restaurant.rating || 0);
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -105,6 +107,11 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
               {isOwner && onEdit && (
                 <button onClick={onEdit} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-amber-500 text-black hover:bg-amber-400 transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105">
                   <Edit className="h-4 w-4" /><span className="hidden sm:inline">Editar</span>
+                </button>
+              )}
+              {canDelete && onDelete && (
+                <button onClick={onDelete} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-red-500/15 text-red-400 ring-1 ring-red-500/30 hover:bg-red-500/25 transition-colors duration-150 text-sm font-medium min-h-[44px] hover:scale-105">
+                  <Trash2 className="h-4 w-4" /><span className="hidden sm:inline">Eliminar</span>
                 </button>
               )}
             </div>

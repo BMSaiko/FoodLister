@@ -4,9 +4,15 @@ import Link from 'next/link';
 
 interface RestaurantsTableProps {
   restaurants: any[];
+  onDeleted?: () => void;
 }
 
-export default function RestaurantsTable({ restaurants }: RestaurantsTableProps) {
+export default function RestaurantsTable({ restaurants, onDeleted }: RestaurantsTableProps) {
+  const handleDelete = async (r: any) => {
+    if (!confirm(`Eliminar restaurante "${r.name}"? Esta ação não pode ser revertida.`)) return;
+    const res = await fetch(`/api/restaurants/${r.id}`, { method: 'DELETE', credentials: 'include' });
+    if (res.ok) { onDeleted?.(); } else { alert('Não foi possível eliminar o restaurante.'); }
+  };
   if (!restaurants || restaurants.length === 0) {
     return (
       <div className="text-center py-12" style={{ color: 'var(--muted-foreground)' }}>
@@ -104,6 +110,22 @@ export default function RestaurantsTable({ restaurants }: RestaurantsTableProps)
                   {new Date(r.created_at).toLocaleDateString('pt-PT')}
                 </span>
               </div>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <Link
+                href={`/restaurants/${r.id}/edit?from=admin`}
+                className="flex-1 text-center text-xs py-1.5 rounded-lg border transition-colors"
+                style={{ color: 'var(--foreground)', borderColor: 'rgba(255,255,255,0.1)', backgroundColor: 'rgba(255,255,255,0.03)' }}
+              >
+                Editar
+              </Link>
+              <button
+                onClick={() => handleDelete(r)}
+                className="flex-1 text-xs py-1.5 rounded-lg border transition-colors hover:bg-red-500/15"
+                style={{ color: 'var(--muted-foreground)', borderColor: 'rgba(255,255,255,0.1)' }}
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         </div>
