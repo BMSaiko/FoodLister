@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI/CD Pipeline** — GitHub Actions for test, build, typecheck, and lint
 
 ### Fixed
+- **Permissões (mig 064)** — admins editam/eliminam qualquer restaurante/lista (página + dashboard); owners editam os seus; só admin elimina restaurantes; qualquer user logado cria restaurantes/listas. getListRole admin->owner, /api/users/me->isAdmin, página /admin/lists + rota. (276dd32)
 - **API Routes** — Added null checks after `getServerClient()` in 8 routes to prevent 500 errors
 - **Middleware** — Fixed redirect from `/auth/login` to `/auth/signin`
 - **Tests** — Fixed 11 test failures across auth, hooks, and API tests
