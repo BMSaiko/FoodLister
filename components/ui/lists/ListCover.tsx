@@ -9,6 +9,7 @@ interface ListCoverProps {
   restaurantCount: number;
   creator?: string;
   isOwner: boolean;
+  canEdit?: boolean;
   duplicating: boolean;
   deleting: boolean;
   onShare: () => void;
@@ -20,7 +21,8 @@ interface ListCoverProps {
 
 export default function ListCover({
   name, description, isPublic, restaurantCount, creator, isOwner,
-  duplicating, deleting, onShare, onRoulette, onDuplicate, onDelete, listId
+  duplicating, deleting, onShare, onRoulette, onDuplicate, onDelete, listId,
+  canEdit = false
 }: ListCoverProps) {
   // Generate gradient from name hash
   const getGradient = (str: string) => {
@@ -67,11 +69,15 @@ export default function ListCover({
               <button onClick={onRoulette} className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-colors duration-150 text-sm font-medium min-h-[44px] hover:scale-105">
                 <Shuffle className="h-4 w-4" /><span className="hidden sm:inline">Roleta</span>
               </button>
-              {isOwner && (
+              {(isOwner || canEdit) && (
                 <>
                   <Link href={`/lists/${listId}/edit`} className="flex items-center justify-center w-11 h-11 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-colors duration-150 hover:scale-105">
                     <Edit className="h-4 w-4" />
                   </Link>
+                </>
+              )}
+              {isOwner && (
+                <>
                   <button onClick={onDuplicate} disabled={duplicating} className="flex items-center justify-center w-11 h-11 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-colors duration-150 hover:scale-105 disabled:opacity-50">
                     {duplicating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
                   </button>

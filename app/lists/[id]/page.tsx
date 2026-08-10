@@ -54,6 +54,7 @@ interface List {
   updated_at: string;
   is_public?: boolean;
   filters?: any;
+  userRole?: string;
   restaurants: Restaurant[];
 }
 
@@ -62,6 +63,7 @@ export default function ListDetails() {
   const router = useRouter();
   const { user } = useAuth();
   const [list, setList] = useState<List | null>(null);
+  const [userRole, setUserRole] = useState<string>('none');
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRoulette, setShowRoulette] = useState(false);
@@ -93,6 +95,7 @@ export default function ListDetails() {
         }));
         setList(listData);
         setRestaurants(transformedRestaurants);
+        setUserRole(listData.userRole || 'none');
       } catch (error) {
         console.error("Error fetching list:", error);
         setList(null);
@@ -275,7 +278,8 @@ export default function ListDetails() {
             isPublic={list.is_public}
             restaurantCount={restaurants.length}
             creator={list.creator}
-            isOwner={!!(user && list.creator_id === user.id)}
+            isOwner={userRole === 'owner'}
+                          canEdit={userRole === 'owner' || userRole === 'editor'}
                           duplicating={duplicating}
             deleting={deleting}
             onShare={handleShareList}
@@ -304,7 +308,7 @@ export default function ListDetails() {
           <ListRestaurantGrid
             restaurants={restaurants}
             listId={id as string}
-            isOwner={!!(user && list.creator_id === user.id)}
+            isOwner={userRole === 'owner' || userRole === 'editor'}
                           onRemove={handleRemoveRestaurant}
           />
 
@@ -317,7 +321,7 @@ export default function ListDetails() {
           )}
 
           {/* Collaborators */}
-          {user?.id === list.creator_id && (
+          {(userRole === 'owner') && (
             <div className="mb-8 p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
               <div className="p-4 md:p-5 rounded-2xl bg-white/[0.03]">
                 <ListCollaborators listId={id as string} isOwner={true} />
@@ -328,7 +332,7 @@ export default function ListDetails() {
           {/* Comments */}
           {list.is_public && (
             <div className="mb-8">
-              <ListComments listId={id as string} isOwner={user?.id === list.creator_id} />
+              <ListComments listId={id as string} isOwner={userRole === 'owner'} />
             </div>
           )}
 

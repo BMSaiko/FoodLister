@@ -3,6 +3,7 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { logActivity } from '@/libs/activity';
+import { getListRole } from '@/libs/lists/permissions';
 import { createNotification } from '@/libs/notifications/service';
 
 // GET - List all collaborators
@@ -76,9 +77,9 @@ export async function POST(
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
-    // Check list ownership
-    const { data: list } = await supabase.from('lists').select('creator_id').eq('id', id).single();
-    if (!list || list.creator_id !== user.id) {
+    // ponytail: only owner can manage collaborators
+    const userListRole = await getListRole(supabase, id, user.id);
+    if (userListRole !== 'owner') {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 403 });
     }
@@ -182,9 +183,9 @@ export async function DELETE(
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
 
-    // Check list ownership
-    const { data: list } = await supabase.from('lists').select('creator_id').eq('id', id).single();
-    if (!list || list.creator_id !== user.id) {
+    // ponytail: only owner can manage collaborators
+    const userListRole = await getListRole(supabase, id, user.id);
+    if (userListRole !== 'owner') {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 403 });
     }

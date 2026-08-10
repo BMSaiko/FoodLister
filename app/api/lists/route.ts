@@ -1,6 +1,6 @@
 // app/api/lists/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, requireAdmin } from '@/libs/supabase/server';
+import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import type { Database } from '@/types/database';
@@ -15,38 +15,30 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const { page, limit, from, to } = parsePaginationFromRequest(request, { defaultLimit: 50 });
 
-    // Get lists with search filter if provided
-    // SECURITY: Explicitly filter by is_public and user ownership
-    // RLS policies provide additional protection, but we also enforce filtering at the application level
     let listsQuery;
-    
+    let currentUserId: string | null = null;
+
     if (supabase) {
-      // User is authenticated: fetch their own lists + public lists from others
-      // We need to get the user's ID to filter properly
       const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
-      
+      currentUserId = user?.id ?? null;
+
       if (user) {
-        // Fetch lists that are either public OR owned by the current user
+        // ponytail: RLS handles visibility (public, own, collaborator)
         listsQuery = supabase
           .from('lists')
-          .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
-          .or(`is_public.eq.true,creator_id.eq.${user.id}`);
+          .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at');
       } else {
-        // Fallback: if we can't get user, only show public lists
         listsQuery = supabase
           .from('lists')
           .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
           .eq('is_public', true);
       }
     } else {
-      // User is not authenticated, create a public client
       const { createClient } = await import('@supabase/supabase-js');
       const publicSupabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
       );
-      
-      // For unauthenticated users, only fetch public lists
       listsQuery = publicSupabase
         .from('lists')
         .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
@@ -58,7 +50,6 @@ export async function GET(request: NextRequest) {
     }
 
     let { data: listsData, error: listsError } = await listsQuery.range(from, to);
-    // Fallback: retry without updated_at if migration 050 not applied
     if (listsError && listsError.code === '42703') {
       console.warn('lists: updated_at missing (migration 050 not applied):', listsError.message);
       let fallbackClient = supabase;
@@ -70,7 +61,8 @@ export async function GET(request: NextRequest) {
         .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at');
       if (supabase) {
         const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
-        if (user) fallbackQuery = fallbackQuery.or(`is_public.eq.true,creator_id.eq.${user.id}`);
+        currentUserId = user?.id ?? null;
+        if (user) fallbackQuery = fallbackQuery;
         else fallbackQuery = fallbackQuery.eq('is_public', true);
       } else {
         fallbackQuery = fallbackQuery.eq('is_public', true);
@@ -92,6 +84,22 @@ export async function GET(request: NextRequest) {
 
     if (!listsData) {
       return NextResponse.json({ lists: [] });
+    }
+
+    // Fetch collaborator role map for the current user
+    let roleMap = new Map<string, string>();
+    if (currentUserId && listsData.length > 0) {
+      const supabaseForCollab = supabase;
+      if (supabaseForCollab) {
+        const { data: collabs } = await supabaseForCollab
+          .from('list_collaborators')
+          .select('list_id, role')
+          .eq('user_id', currentUserId)
+          .in('list_id', listsData.map(l => l.id));
+        for (const c of collabs || []) {
+          roleMap.set(c.list_id, c.role);
+        }
+      }
     }
 
     // Fetch all list restaurant counts in a single query to avoid N+1 pattern
@@ -122,10 +130,10 @@ export async function GET(request: NextRequest) {
 
     const processedData = listsData.map((list: DbList) => ({
       ...list,
-      restaurantCount: countsMap.get(list.id) || 0
+      restaurantCount: countsMap.get(list.id) || 0,
+      userRole: roleMap.get(list.id) || (list.creator_id === currentUserId ? 'owner' : 'none'),
     }));
 
-    // Add caching headers for better performance
     const response = NextResponse.json({
       lists: processedData,
       pagination: { page, limit, returned: processedData.length, hasNext: processedData.length === limit },
