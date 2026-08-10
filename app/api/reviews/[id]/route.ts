@@ -1,13 +1,10 @@
 // app/api/reviews/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getClient } from '@/libs/supabase/client';
+import { createAdminClient } from '@/libs/supabase/admin';
 import { getServerClient, requireAdmin } from '@/libs/supabase/server';
 import { ensureUserProfileExists } from '@/libs/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/libs/supabase/types';
 
-type DbClient = SupabaseClient<Database>;
-// Database type is incomplete — use explicit query types
 type ReviewRow = any;
 type ProfileRow = any;
 
@@ -19,19 +16,17 @@ interface UserProfileData {
 }
 
 // Helper function to update restaurant rating based on reviews
-async function updateRestaurantRating(restaurantId: string) {
-  const supabase = getClient();
-
-  if (!supabase) {
-    console.error('Supabase client is not available');
+async function updateRestaurantRating(adminClient: SupabaseClient, restaurantId: string) {
+  if (!adminClient) {
+    console.error('Admin client is not available');
     return;
   }
 
   try {
-    const { data: reviews, error: reviewsError } = await supabase
+    const { data: reviews, error: reviewsError } = await adminClient
       .from('reviews')
       .select('rating')
-      .eq('restaurant_id', restaurantId) as any;
+      .eq('restaurant_id', restaurantId);
 
     if (reviewsError) {
       console.error('Error fetching reviews for rating calculation:', reviewsError);
@@ -44,7 +39,7 @@ async function updateRestaurantRating(restaurantId: string) {
       averageRating = totalRating / reviews.length;
     }
 
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await adminClient
       .from('restaurants')
       .update({ rating: averageRating })
       .eq('id', restaurantId);
@@ -58,7 +53,7 @@ async function updateRestaurantRating(restaurantId: string) {
 }
 
 // Helper function to get user profile data consistently
-async function getUserProfileData(supabase: DbClient | null, userId: string): Promise<UserProfileData> {
+async function getUserProfileData(supabase: SupabaseClient | null, userId: string): Promise<UserProfileData> {
   if (!supabase) {
     return { displayName: null, avatarUrl: null, email: null, userIdCode: null };
   }
@@ -244,7 +239,13 @@ export async function PUT(
 
     const existingReviewData = existingReview as { restaurant_id: string };
 
-    const { data, error } = await supabase
+    // Use admin client (service role key) for update — bypasses RLS
+    const admin = createAdminClient();
+    if (!admin) {
+      return NextResponse.json({ error: 'Service role key not configured' }, { status: 500 });
+    }
+
+    const { data, error } = await admin
       .from('reviews')
       .update({
         rating,
@@ -253,7 +254,6 @@ export async function PUT(
         updated_at: new Date().toISOString()
       })
       .eq('id', reviewId)
-      .eq('user_id', user.id)
       .select('*')
       .single();
 
@@ -274,7 +274,7 @@ export async function PUT(
       timestamp: new Date().toISOString()
     });
 
-    await updateRestaurantRating(existingReviewData.restaurant_id);
+    await updateRestaurantRating(admin, existingReviewData.restaurant_id);
 
     if (supabase) {
       try {
@@ -324,9 +324,15 @@ export async function DELETE(
 
     const auth = await requireAdmin(request, response);
     if (!auth.ok) return auth.response;
-    const user = auth.user;
 
-    const { data: existingReview, error: fetchError } = await supabase
+    // Use admin client (service role key) for all data operations — bypasses RLS
+    const admin = createAdminClient();
+    if (!admin) {
+      return NextResponse.json({ error: 'Service role key not configured' }, { status: 500 });
+    }
+
+    // Fetch review to get restaurant_id
+    const { data: existingReview, error: fetchError } = await admin
       .from('reviews')
       .select('restaurant_id')
       .eq('id', reviewId)
@@ -338,20 +344,16 @@ export async function DELETE(
 
     const existingReviewData = existingReview as { restaurant_id: string };
 
-    const { error } = await supabase
-      .from('reviews')
-      .delete()
-      .eq('id', reviewId)
-      .eq('user_id', user.id);
-
+    // Delete the review using admin client (bypasses RLS) — no user_id filter needed,
+    // RLS policy 'Admins can delete any review' handles authorization
+    const { error } = await admin.from('reviews').delete().eq('id', reviewId);
     if (error) {
       console.error('Error deleting review:', error);
       return NextResponse.json({ error: 'Failed to delete review' }, { status: 500 });
     }
 
-    if (supabase) {
-      await updateRestaurantRating(existingReviewData.restaurant_id);
-    }
+    // Update restaurant rating using admin client (bypasses RLS)
+    await updateRestaurantRating(admin, existingReviewData.restaurant_id);
 
     return NextResponse.json({ message: 'Review deleted successfully' });
   } catch (error) {
