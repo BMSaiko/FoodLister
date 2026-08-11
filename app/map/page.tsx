@@ -46,6 +46,8 @@ export default function MapPage() {
   // ponytail: map recentres when nearby lookup returns a user location
   const nearbyCenter: [number, number] | null =
     nearbyActive && nearby.userLocation ? [nearby.userLocation.lat, nearby.userLocation.lng] : null;
+  // ponytail: zoom scales with radius so all pins fit (2km->15, 5->14, 10->13, 25->12)
+  const nearbyZoom = nearbyActive ? Math.max(11, 16 - Math.log2(nearbyRadius)) : 10;
 
   const restaurantsWithCoords = useMemo(
     () => restaurants.filter((r) => r.latitude != null && r.longitude != null),
@@ -318,6 +320,7 @@ export default function MapPage() {
               selectedId={selectedId}
               onSelect={setSelectedId}
               focusCenter={nearbyCenter}
+              focusZoom={nearbyZoom}
               userLocation={nearby.userLocation}
             />
           )}

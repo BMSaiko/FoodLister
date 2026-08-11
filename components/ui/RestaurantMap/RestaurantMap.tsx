@@ -56,6 +56,7 @@ interface RestaurantMapProps {
   showPopup?: boolean;
   onSelect?: (id: string | null) => void;
   focusCenter?: [number, number] | null;
+  focusZoom?: number;
   userLocation?: { lat: number; lng: number } | null;
 }
 
@@ -110,37 +111,6 @@ function createUserPinIcon(): L.DivIcon {
   });
 }
 
-// Geolocation button — centers map on user location
-function GeolocateButton() {
-  const map = useMap();
-  const [error, setError] = useState<string | null>(null);
-  return (
-    <div className="absolute top-3 right-3 z-[1000]">
-      <button
-        onClick={() => {
-          if (!navigator.geolocation) { setError("Geolocation not supported"); return; }
-          setError(null);
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              map.flyTo([pos.coords.latitude, pos.coords.longitude], 13, { duration: 1.5 });
-            },
-            (err) => setError(err.message || "Geolocation failed"),
-            { enableHighAccuracy: true, timeout: 5000 }
-          );
-        }}
-        className="w-10 h-10 rounded-xl bg-black/80 border border-white/10 flex items-center justify-center text-white/70 hover:text-amber-400 hover:bg-black transition-colors shadow-lg"
-        title="My location"
-        aria-label="Find my location"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
-      </button>
-      {error && (
-        <p className="text-xs text-red-400 mt-1 text-right">{error}</p>
-      )}
-    </div>
-  );
-}
-
 // Zooms out when popup closes (selectedRestaurant goes from truthy to null)
 function ZoomOutOnClose({ selectedRestaurant }: { selectedRestaurant: RestaurantWithDetails | null }) {
   const map = useMap();
@@ -175,11 +145,11 @@ function ResetZoomButton() {
 
 // Component that flies map to selected restaurant
 // Fly map to a desired center when it changes (nearby search)
-function FlyToFocus({ center }: { center: [number, number] | null }) {
+function FlyToFocus({ center, zoom }: { center: [number, number] | null; zoom: number }) {
   const map = useMap();
   useEffect(() => {
-    if (center) map.flyTo(center, 13, { duration: 1.2 });
-  }, [center, map]);
+    if (center) map.flyTo(center, zoom, { duration: 1.2 });
+  }, [center, zoom, map]);
   return null;
 }
 
@@ -214,6 +184,7 @@ export default function RestaurantMap({
   showPopup = true,
   onSelect,
   focusCenter,
+  focusZoom = 13,
   userLocation,
 }: RestaurantMapProps) {
   const markers = useMemo(
@@ -245,10 +216,9 @@ export default function RestaurantMap({
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {selectedRestaurant && <FlyToMarker restaurant={selectedRestaurant} />}
-        <FlyToFocus center={focusCenter ?? null} />
+        <FlyToFocus center={focusCenter ?? null} zoom={focusZoom} />
       <ZoomOutOnClose selectedRestaurant={selectedRestaurant} />
-                {selectedRestaurant && <GeolocateButton />}
-        <ResetZoomButton />
+                <ResetZoomButton />
         {showPopup && selectedRestaurant && <SelectedRestaurantPopup restaurant={selectedRestaurant} onDeselect={() => onSelect?.(null)} />}
         <MapResize />
         {userLocation?.lat != null && userLocation?.lng != null && (
