@@ -28,8 +28,14 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     if (!trimmed || trimmed === "/placeholder-restaurant.jpg" || trimmed.startsWith("data:image")) return false;
     return trimmed.startsWith("http");
   };
-  const hasImage = isValidUrl(restaurant.image_url) || (restaurant.images?.some(img => isValidUrl(img)) ?? false);
-  const imageUrl = restaurant.images?.find(img => isValidUrl(img)) || (isValidUrl(restaurant.image_url) ? restaurant.image_url : "");
+  // ponytail: display_image_index picks the "main" image; fallback first valid, then image_url
+  const validImgs = (restaurant.images || []).filter((img: string) => isValidUrl(img));
+  const mainIndex = restaurant.display_image_index ?? -1;
+  const hasImage = validImgs.length > 0 || isValidUrl(restaurant.image_url);
+  const imageUrl =
+    (mainIndex >= 0 && validImgs[mainIndex]) ||
+    (validImgs[0]) ||
+    (isValidUrl(restaurant.image_url) ? restaurant.image_url : "");
 
   return (
     <motion.article
