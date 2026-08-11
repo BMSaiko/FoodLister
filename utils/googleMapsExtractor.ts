@@ -447,3 +447,65 @@ export class OSMService {
     }
   }
 }
+
+
+/**
+ * ponytail: heuristic city extraction from a free-form `location` string.
+ * Restaurant has no structured `city` column; `location` may be a bare city
+ * name, a full OSM address, "lat, lng", or free text. We walk the tail of the
+ * comma-separated string, dropping country codes/postcodes/states/countries,
+ * and return the last plausible city-like segment. Returns "" when it can't
+ * tell (e.g. coords-only) — caller decides whether to hide.
+ * Upgrade path: store a `city` column at write time (reverse-geocode in the
+ * create/edit flow) instead of parsing display strings.
+ */
+export interface PlaceParts {
+  city?: string;
+  district?: string;
+  country?: string;
+}
+
+// ponytail: heuristic for display only. Restaurant has no structured
+// city/district/country columns; `location` is a free-form string. We split on
+// commas, drop junk (postcode, country code, bare numbers), then walk from the
+// tail: a known country name = country; the segment before it = city, the one
+// before that = district. Best effort — exact city/district split is ambiguous
+// (Vila Nova de Gaia vs Porto), but the joined label reads correctly. Upgrade
+// path: store structured fields at write time.
+const COUNTRY_RE = /^(portugal|espa[ñn]a|spain|brasil|france|italy|germany|uk|usa|inglaterra|england|países bajos|netherlands)$/i;
+const JUNK_RE = /^[A-Z]{2}$|^[\d-]{4,10}$|^\d+$/;
+
+export function extractPlaceParts(location: string | null | undefined): PlaceParts {
+  if (!location || !location.trim()) return {};
+  const parts = location.split(',').map(s => s.trim()).filter(Boolean);
+  if (!parts.length) return {};
+  if (parts.length === 2 && parts.every(x => /^-?\d+(\.\d+)?$/.test(x))) return {};
+  const clean = parts.map(s => s.replace(/^"|"$/g, '').trim()).filter(Boolean);
+  if (!clean.length) return {};
+
+  // Country: last token that looks like a country, else fall back to last token
+  // (but a lone proper name like "Lisboa" is a city, not a country).
+  let country: string | undefined;
+  let i = clean.length - 1;
+  while (i >= 0 && !COUNTRY_RE.test(clean[i]) && JUNK_RE.test(clean[i])) i--;
+  if (i >= 0 && (COUNTRY_RE.test(clean[i]) || clean.length > 1)) country = clean[i];
+
+  const before = clean.slice(0, i > -1 && country ? i : country ? clean.length - 1 : clean.length)
+    .filter(s => !JUNK_RE.test(s));
+  let city: string | undefined;
+  let district: string | undefined;
+  if (country) {
+    city = before[before.length - 1];
+    district = before.length > 1 ? before[before.length - 2] : undefined;
+  } else {
+    // no country recognised: single/leading name is the city
+    city = before[before.length - 1];
+    district = before.length > 1 ? before[before.length - 2] : undefined;
+  }
+  return { city, district, country };
+}
+
+/** Back-compat: single best city guess. */
+export function extractCity(location: string | null | undefined): string {
+  return extractPlaceParts(location).city ?? '';
+}
