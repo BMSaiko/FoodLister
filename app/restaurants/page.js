@@ -6,7 +6,7 @@ import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { FiltersProvider } from '@/contexts';
-import { useAllRestaurants } from '@/hooks/data/useAllRestaurants';
+import { usePaginatedRestaurants } from '@/hooks/restaurants/usePaginatedRestaurants';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useSearchParams } from 'next/navigation';
@@ -23,7 +23,11 @@ function RestaurantsContent() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
   const { user } = useAuthUser();
-  const { restaurants, loading, error } = useAllRestaurants({ searchQuery });
+  const [filtersActive, setFiltersActive] = useState(false);
+  const { restaurants, loading, error, hasNext, loadingMore, loadMore } = usePaginatedRestaurants({
+    searchQuery,
+    all: filtersActive,
+  });
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
   const [nearbyActive, setNearbyActive] = useState(false);
   const [nearbyRadius, setNearbyRadius] = useState(10);
@@ -51,6 +55,7 @@ function RestaurantsContent() {
           <RestaurantFilters
             restaurants={restaurants}
             onFiltered={(filtered) => setFilteredRestaurants(filtered)}
+            onActiveChange={setFiltersActive}
           />
           <div className="flex flex-wrap items-center justify-between gap-2">
             <NearbyBar
@@ -95,6 +100,9 @@ function RestaurantsContent() {
             <RestaurantGrid
               restaurants={filteredRestaurants}
               searchQuery={searchQuery}
+              hasMore={hasNext}
+              loadingMore={loadingMore}
+              onLoadMore={loadMore}
             />
             <p className="text-center text-sm text-white/30 py-6">
               {filteredRestaurants.length} restaurantes

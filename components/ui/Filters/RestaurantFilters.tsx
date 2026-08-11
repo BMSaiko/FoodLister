@@ -25,6 +25,8 @@ interface Filters {
 interface RestaurantFiltersProps {
   restaurants: Restaurant[];
   onFiltered: (filtered: Restaurant[]) => void;
+  /** signals whether any filter is active (drives paginated vs all-mode feed) */
+  onActiveChange?: (active: boolean) => void;
 }
 
 const DEFAULT_FILTERS: Filters = {
@@ -36,7 +38,7 @@ const DEFAULT_FILTERS: Filters = {
   location: "",
 };
 
-export default function RestaurantFilters({ restaurants, onFiltered }: RestaurantFiltersProps) {
+export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange }: RestaurantFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
@@ -84,6 +86,11 @@ export default function RestaurantFilters({ restaurants, onFiltered }: Restauran
   
     return c;
   }, [filters]);
+
+  // ponytail: notify parent whether any filter is active
+  React.useEffect(() => {
+    onActiveChange?.(activeCount > 0);
+  }, [activeCount, onActiveChange]);
 
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
