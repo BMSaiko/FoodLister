@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Star, MapPin, Eye, Phone, Clock } from "lucide-react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { RestaurantWithDetails } from "@/libs/types";
+import { extractPlaceParts } from "@/utils/googleMapsExtractor";
 
 interface RestaurantCardProps {
   restaurant: RestaurantWithDetails;
@@ -103,13 +104,16 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
               className="overflow-hidden border-t border-white/[0.06]"
             >
               <div className="pt-3 mt-3 space-y-3 bg-white/[0.02]">
-                {/* Morada — T40: shown only on hover */}
-                {restaurant.location && (
-                  <p className="flex items-center gap-1.5 text-sm text-[var(--foreground-muted)]">
-                    <MapPin className="w-4 h-4 shrink-0" />
-                    {restaurant.location}
-                  </p>
-                )}
+                {/* Local — T40: city, district, country on hover. ponytail: no
+                    structured columns; extractPlaceParts is a best-effort tail parse. */}
+                {(() => { const { city, district, country } = extractPlaceParts(restaurant.location);
+                  const label = [city, district, country].filter(Boolean).join(', ');
+                  return label ? (
+                    <p className="flex items-center gap-1.5 text-sm text-[var(--foreground-muted)]">
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      {label}
+                    </p>
+                  ) : null; })()}
 
                 {/* Info badges — shown only on hover */}
                 {(restaurant.opening_hours || (restaurant.phone_numbers && restaurant.phone_numbers.length > 0)) && (
