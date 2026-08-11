@@ -388,6 +388,8 @@ export interface DashboardStats {
   lists: AdminListStats;
   meals: AdminMealStats;
   growth: AdminGrowthStats;
+  topRestaurants: { id: string; name: string; rating: number; review_count: number }[];
+  topLists: { id: string; name: string; count: number }[];
 }
 
 export interface AdminUserStats {

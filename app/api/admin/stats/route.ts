@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const weekStart = new Date(Date.now() - 7*24*60*60*1000).toISOString();
-      const [usersCount,adminsCount,newUsersMonth,newUsersWeek,restaurantsCount,newRestMonth,restRatings,reviewsCount,newReviewsMonth,revRatings,listsCount,publicLists,privateLists,collabLists,listItems,mealsCount,upcomingMeals,mealsMonth,usersGrowth,restGrowth,revGrowth,cuisineData] = await Promise.all([
+      const [usersCount,adminsCount,newUsersMonth,newUsersWeek,restaurantsCount,newRestMonth,restRatings,reviewsCount,newReviewsMonth,revRatings,listsCount,publicLists,privateLists,collabLists,listItems,mealsCount,upcomingMeals,mealsMonth,usersGrowth,restGrowth,revGrowth,cuisineData,topRestaurants,topLists] = await Promise.all([
         supabase.from('profiles').select('id',{count:'exact',head:true}),
         supabase.from('profiles').select('id',{count:'exact',head:true}).eq('is_admin',true),
         supabase.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',monthStart),
@@ -36,6 +36,8 @@ export async function GET(request: NextRequest) {
         supabase.from('restaurants').select('created_at').order('created_at',{ascending:false}).limit(1000),
         supabase.from('reviews').select('created_at').order('created_at',{ascending:false}).limit(1000),
         supabase.from('cuisine_types').select('name,restaurant_cuisine_types(count)'),
+        supabase.from('restaurants').select('id,name,rating,review_count').order('review_count',{ascending:false}).limit(5),
+        supabase.from('list_restaurants').select('list_id,lists(id,name)'),
       ]);
       const avgRev=revRatings.data?.length?revRatings.data.reduce((s:number,r:any)=>s+(r.rating||0),0)/revRatings.data.length:0;
       const avgRest=restRatings.data?.length?restRatings.data.reduce((s:number,r:any)=>s+(r.rating||0),0)/restRatings.data.length:0;
@@ -43,7 +45,14 @@ export async function GET(request: NextRequest) {
       revRatings.data?.forEach((r:any)=>{if(r.rating>=1&&r.rating<=5)rd[Math.round(r.rating)]++;});
       const months:string[]=[];for(let i=11;i>=0;i--)months.push(new Date(now.getFullYear(),now.getMonth()-i,1).toISOString().slice(0,7));
       const cbm=(d:any[]|null)=>{const m:Record<string,number>={};d?.forEach((i:any)=>{const k=i.created_at?.slice(0,7);if(k)m[k]=(m[k]||0)+1;});let c=0;return months.map(mo=>{c+=m[mo]||0;return{month:mo,count:c};});};
-      return {users:{total:usersCount.count||0,active:0,newThisMonth:newUsersMonth.count||0,newThisWeek:newUsersWeek.count||0,admins:adminsCount.count||0,growthRate:0},restaurants:{total:restaurantsCount.count||0,averageRating:Math.round(avgRest*10)/10,newThisMonth:newRestMonth.count||0,byCuisine:cuisineData.data?.map((c:any)=>({cuisine:c.name,count:c.restaurant_cuisine_types?.[0]?.count||0}))||[]},reviews:{total:reviewsCount.count||0,averageRating:Math.round(avgRev*10)/10,byRating:Object.entries(rd).map(([r,c])=>({rating:Number(r),count:c as number})),newThisMonth:newReviewsMonth.count||0},lists:{total:listsCount.count||0,public:publicLists.count||0,private:privateLists.count||0,collaborative:collabLists.count||0,totalItems:listItems.count||0},meals:{total:mealsCount.count||0,upcoming:upcomingMeals.count||0,thisMonth:mealsMonth.count||0},growth:{users:cbm(usersGrowth.data),restaurants:cbm(restGrowth.data),reviews:cbm(revGrowth.data)}};
+      // ponytail: leaderboard = top 5 by review_count; list popularity = per-list restaurant count
+      const listPop:Record<string,number>={};
+      topLists.data?.forEach((lr:any)=>{if(lr.list_id)listPop[lr.list_id]=(listPop[lr.list_id]||0)+1;});
+      const popularLists = (topLists.data||[])
+        .map((lr:any)=>({ id:lr.list_id, name:lr.lists?.name||'Lista', count:listPop[lr.list_id]||0 }))
+        .filter((l:any,idx:number,arr:any[])=>arr.findIndex((x:any)=>x.id===l.id)===idx)
+        .sort((a:any,b:any)=>b.count-a.count).slice(0,5);
+      return {topRestaurants:(topRestaurants.data||[]).map((r:any)=>({id:r.id,name:r.name,rating:r.rating||0,review_count:r.review_count||0})),topLists:popularLists,users:{total:usersCount.count||0,active:0,newThisMonth:newUsersMonth.count||0,newThisWeek:newUsersWeek.count||0,admins:adminsCount.count||0,growthRate:0},restaurants:{total:restaurantsCount.count||0,averageRating:Math.round(avgRest*10)/10,newThisMonth:newRestMonth.count||0,byCuisine:cuisineData.data?.map((c:any)=>({cuisine:c.name,count:c.restaurant_cuisine_types?.[0]?.count||0}))||[]},reviews:{total:reviewsCount.count||0,averageRating:Math.round(avgRev*10)/10,byRating:Object.entries(rd).map(([r,c])=>({rating:Number(r),count:c as number})),newThisMonth:newReviewsMonth.count||0},lists:{total:listsCount.count||0,public:publicLists.count||0,private:privateLists.count||0,collaborative:collabLists.count||0,totalItems:listItems.count||0},meals:{total:mealsCount.count||0,upcoming:upcomingMeals.count||0,thisMonth:mealsMonth.count||0},growth:{users:cbm(usersGrowth.data),restaurants:cbm(restGrowth.data),reviews:cbm(revGrowth.data)}};
     }, 60);
 
     return NextResponse.json({data:stats});

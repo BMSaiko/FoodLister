@@ -54,6 +54,42 @@ export default function AdminStatisticsPage() {
       </div>
 
       {stats.growth && <GrowthChart data={stats.growth} />}
+
+      {/* Leaderboard + popular lists (ponytail: reuse stats already fetched) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h2 className="text-lg font-semibold mb-3 text-foreground">Top Restaurantes</h2>
+          <div className="rounded-xl border border-white/10 bg-card overflow-hidden">
+            {stats.topRestaurants?.length ? (
+              <ul className="divide-y divide-white/5">
+                {stats.topRestaurants.map((r: any, i: number) => (
+                  <li key={r.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                    <span className="text-foreground-muted mr-2">{i + 1}.</span>
+                    <span className="flex-1 text-foreground truncate">{r.name}</span>
+                    <span className="text-amber-400/80 text-xs">★ {r.rating || '—'}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="p-4 text-sm text-foreground-muted">Sem dados.</p>}
+          </div>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold mb-3 text-foreground">Listas Populares</h2>
+          <div className="rounded-xl border border-white/10 bg-card overflow-hidden">
+            {stats.topLists?.length ? (
+              <ul className="divide-y divide-white/5">
+                {stats.topLists.map((l: any, i: number) => (
+                  <li key={l.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                    <span className="text-foreground-muted mr-2">{i + 1}.</span>
+                    <span className="flex-1 text-foreground truncate">{l.name}</span>
+                    <span className="text-emerald-400/80 text-xs">{l.count} itens</span>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="p-4 text-sm text-foreground-muted">Sem dados.</p>}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
