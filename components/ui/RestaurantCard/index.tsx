@@ -90,37 +90,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           </h3>
         </Link>
 
-        <div className="flex items-center gap-3 mt-1.5 text-sm text-[var(--foreground-muted)]">
-          {restaurant.location && (
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              {restaurant.location}
-            </span>
-          )}
-        </div>
-
-        {/* Inline info badges — always visible, no hover required */}
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {restaurant.opening_hours && (
-            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
-              <Clock className="w-3 h-3" />
-              Aberto
-            </span>
-          )}
-          {restaurant.phone_numbers && restaurant.phone_numbers.length > 0 && (
-            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
-              <Phone className="w-3 h-3" />
-              {restaurant.phone_numbers[0]}
-            </span>
-          )}
-          {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
-            <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/70 border border-amber-500/10">
-              {restaurant.cuisine_types[0].name}
-            </span>
-          )}
-        </div>
-
-        {/* Spacer pushes hover content to the bottom */}
         <div className="flex-1" />
 
         {/* Hover Reveal */}
@@ -134,6 +103,32 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
               className="overflow-hidden border-t border-white/[0.06]"
             >
               <div className="pt-3 mt-3 space-y-3 bg-white/[0.02]">
+                {/* Morada — T40: shown only on hover */}
+                {restaurant.location && (
+                  <p className="flex items-center gap-1.5 text-sm text-[var(--foreground-muted)]">
+                    <MapPin className="w-4 h-4 shrink-0" />
+                    {restaurant.location}
+                  </p>
+                )}
+
+                {/* Info badges — shown only on hover */}
+                {(restaurant.opening_hours || (restaurant.phone_numbers && restaurant.phone_numbers.length > 0)) && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {restaurant.opening_hours && (
+                      <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
+                        <Clock className="w-3 h-3" />
+                        Aberto
+                      </span>
+                    )}
+                    {restaurant.phone_numbers && restaurant.phone_numbers.length > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
+                        <Phone className="w-3 h-3" />
+                        {restaurant.phone_numbers[0]}
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 {/* Description */}
                 {restaurant.description && (
                   <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2">
