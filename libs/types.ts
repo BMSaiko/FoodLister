@@ -54,6 +54,7 @@ export interface List {
     features?: string[];
     dietaryOptions?: string[];
   };
+  like_count?: number | { count: number } | Array<{ count: number }> | null;
 }
 
 export interface User {
@@ -388,6 +389,8 @@ export interface DashboardStats {
   lists: AdminListStats;
   meals: AdminMealStats;
   growth: AdminGrowthStats;
+  topRestaurants: { id: string; name: string; rating: number; review_count: number; price_per_person: number; score: number }[];
+  topLists: { id: string; name: string; count: number }[];
 }
 
 export interface AdminUserStats {
