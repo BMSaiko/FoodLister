@@ -188,6 +188,7 @@ export async function GET(request: NextRequest) {
         dietary_options: r.dietary_options?.map((x: any) => x.dietary_option).filter(Boolean) || [],
         review_count: joinReviews ? (r.reviews?.[0]?.count || 0) : undefined,
         latitude: r.latitude, longitude: r.longitude, opening_hours: r.opening_hours || null,
+        images: r.images || [], display_image_index: r.display_image_index ?? -1,
       }));
       if (isPublicRequest) {
         restaurants = restaurants.map(({ source_url, creator_id, creator_name, phone_numbers, ...rest }) => rest as Restaurant);
