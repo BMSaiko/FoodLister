@@ -73,17 +73,6 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, [loading, hideLoading]);
 
-  // Set aria-busy on main content
-  useEffect(() => {
-    const main = document.querySelector("main");
-    if (main) {
-      if (loading) {
-        main.setAttribute("aria-busy", "true");
-      } else {
-        main.removeAttribute("aria-busy");
-      }
-    }
-  }, [loading]);
 
   return (
     <LoadingContext.Provider value={{ showLoading, hideLoading, isLoading: loading }}>
