@@ -27,6 +27,8 @@ interface RestaurantFiltersProps {
   onFiltered: (filtered: Restaurant[]) => void;
   /** signals whether any filter is active (drives paginated vs all-mode feed) */
   onActiveChange?: (active: boolean) => void;
+  /** extra controls rendered on the same row, right of the filters toggle */
+  rightSlot?: React.ReactNode;
 }
 
 const DEFAULT_FILTERS: Filters = {
@@ -38,7 +40,7 @@ const DEFAULT_FILTERS: Filters = {
   location: "",
 };
 
-export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange }: RestaurantFiltersProps) {
+export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot }: RestaurantFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
 
@@ -97,7 +99,8 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
   return (
     <div className="mb-6 md:mb-8">
       {/* Filter toggle + stats */}
-      <div className="flex items-center justify-between gap-4 mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 min-h-[48px] ${
@@ -113,7 +116,9 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
           )}
           <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${showFilters ? "rotate-180" : ""}`} />
         </button>
-
+        {/* NearbyBar: same row, right after the filters toggle (T41) */}
+        {rightSlot}
+        </div>
         <div className="flex items-center gap-3">
           {activeCount > 0 && (
             <button onClick={clearFilters} className="flex items-center gap-1.5 text-xs text-white/35 hover:text-white/60 transition-colors">

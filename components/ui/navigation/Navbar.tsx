@@ -46,7 +46,7 @@ export default function Navbar() {
   const springHeight = useSpring(navbarHeight, { stiffness: 120, damping: 20 });
 
   // Active section
-  const activeSection = pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
+  const activeSection = pathname === '/roulette' ? 'roulette' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -164,7 +164,11 @@ export default function Navbar() {
             {user && (
               <Link
                 href="/roulette"
-                className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 hover:border-purple-500/30 transition-all duration-200 hover:scale-110"
+                className={`hidden md:flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
+                  pathname === '/roulette'
+                    ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/40 scale-110'
+                    : 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 hover:border-purple-500/30 hover:scale-110'
+                }`}
                 title="Roleta de Restaurantes"
               >
                 <Shuffle className="w-4 h-4 text-purple-400" />
