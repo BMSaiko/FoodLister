@@ -7,7 +7,10 @@ import React, { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { useAllRestaurants } from "@/hooks/data/useAllRestaurants";
+import type { RestaurantWithDetails } from "@/libs/types";
 import { Filter, Search } from "lucide-react";
+import NearbyBar from "@/components/ui/Nearby/NearbyBar";
+import { useNearbyRestaurants } from "@/hooks/restaurants/useNearbyRestaurants";
 import Link from "next/link";
 
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), {
@@ -37,6 +40,14 @@ export default function MapPage() {
   const [showList, setShowList] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [nearbyActive, setNearbyActive] = useState(false);
+  const [nearbyRadius, setNearbyRadius] = useState(10);
+  const nearby = useNearbyRestaurants();
+  // ponytail: map recentres when nearby lookup returns a user location
+  const nearbyCenter: [number, number] | null =
+    nearbyActive && nearby.userLocation ? [nearby.userLocation.lat, nearby.userLocation.lng] : null;
+  // ponytail: zoom scales with radius so all pins fit (2km->15, 5->14, 10->13, 25->12)
+  const nearbyZoom = nearbyActive ? Math.max(11, 16 - Math.log2(nearbyRadius)) : 10;
 
   const restaurantsWithCoords = useMemo(
     () => restaurants.filter((r) => r.latitude != null && r.longitude != null),
@@ -58,6 +69,11 @@ export default function MapPage() {
     }
     return base;
   }, [restaurantsWithCoords, searchLower]);
+
+  // ponytail: when nearby is active, map shows only results within radius
+  const mapRestaurants = nearbyActive && nearby.restaurants?.length
+    ? nearby.restaurants
+    : filteredRestaurants;
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -115,6 +131,17 @@ export default function MapPage() {
 
             {/* Sticky search bar */}
             <div className="sticky top-0 z-10 -mx-4 px-4 pt-4 pb-2 bg-[var(--background)]">
+              <div className="mb-3">
+                <NearbyBar
+                  active={nearbyActive}
+                  onToggle={() => { if (!nearbyActive) nearby.requestLocation(); setNearbyActive(v => !v); }}
+                  radius={nearbyRadius}
+                  onRadius={(r) => { setNearbyRadius(r); nearby.searchNearby({ radius: r }); }}
+                  loading={nearby.loading}
+                  error={nearby.error}
+                  locationError={nearby.locationError}
+                />
+              </div>
               <div className="relative mb-3">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25" />
                 <input
@@ -140,7 +167,7 @@ export default function MapPage() {
                 Restaurantes no Mapa
               </h2>
               <span className="text-xs text-white/30 bg-white/[0.04] px-2.5 py-1 rounded-full">
-                {filteredRestaurants.length}
+                {mapRestaurants.length}
               </span>
             </div>
 
@@ -169,12 +196,14 @@ export default function MapPage() {
                 ))
               ) : error ? (
                 <p className="text-sm text-red-400">Erro: {error}</p>
-              ) : filteredRestaurants.length === 0 ? (
+              ) : (nearbyActive && (nearby.loading || nearby.error)) ? (
+                <p className="text-sm text-white/30">{nearby.loading ? 'A localizar...' : (nearby.error || 'Sem resultados Perto de..')}</p>
+              ) : mapRestaurants.length === 0 ? (
                 <p className="text-sm text-white/30">
                   {searchQuery ? "Nenhum resultado." : "A carregar..."}
                 </p>
               ) : (
-                filteredRestaurants.map((r) => (
+                mapRestaurants.map((r) => (
                   <button
                     key={r.id}
                     onClick={() => {
@@ -227,6 +256,17 @@ export default function MapPage() {
           {showList && (
             <div className="lg:hidden absolute inset-x-0 top-14 bottom-0 z-[900] bg-[var(--background)] border-b border-white/[0.06] overflow-y-auto">
               <div className="p-4">
+                <div className="mb-3">
+                  <NearbyBar
+                    active={nearbyActive}
+                    onToggle={() => { if (!nearbyActive) nearby.requestLocation(); setNearbyActive(v => !v); }}
+                    radius={nearbyRadius}
+                    onRadius={(r) => { setNearbyRadius(r); nearby.searchNearby({ radius: r }); }}
+                    loading={nearby.loading}
+                    error={nearby.error}
+                    locationError={nearby.locationError}
+                  />
+                </div>
                 {/* Mobile search */}
                 <div className="relative mb-3">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25" />
@@ -248,7 +288,7 @@ export default function MapPage() {
                 </div>
 
 <h2 className="text-sm font-bold text-white/90 mb-3">
-                  Restaurantes ({filteredRestaurants.length})
+                  Restaurantes ({mapRestaurants.length})
                 </h2>
                 {filteredRestaurants.slice(0, 30).map((r) => (
                   <button
@@ -276,9 +316,12 @@ export default function MapPage() {
             </div>
           ) : (
             <RestaurantMap
-              restaurants={restaurants}
+              restaurants={mapRestaurants as RestaurantWithDetails[]}
               selectedId={selectedId}
               onSelect={setSelectedId}
+              focusCenter={nearbyCenter}
+              focusZoom={nearbyZoom}
+              userLocation={nearby.userLocation}
             />
           )}
         </div>
