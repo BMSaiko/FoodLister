@@ -5,7 +5,10 @@ import { useAuth } from "@/hooks/auth/useAuth";
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import RestaurantCard from "@/components/ui/RestaurantCard";
-import { Shuffle, Sparkles, List, SlidersHorizontal, X, ChevronDown, Star, Euro } from "lucide-react";
+import { Shuffle, Sparkles, List } from "lucide-react";
+import RestaurantFilters from "@/components/ui/Filters/RestaurantFilters";
+import NearbyBar from "@/components/ui/Nearby/NearbyBar";
+import { useNearbyRestaurants } from "@/hooks/restaurants/useNearbyRestaurants";
 
 interface Restaurant {
   id: string;
@@ -20,6 +23,7 @@ interface Restaurant {
   dietary_options?: any[];
   created_at?: string;
   updated_at?: string;
+  visited: boolean;
 }
 
 interface UserList {
@@ -28,21 +32,6 @@ interface UserList {
   restaurant_count: number;
   restaurants?: Restaurant[];
 }
-
-// Filter state
-interface Filters {
-  cuisines: string[];
-  priceMin: number | null;
-  priceMax: number | null;
-  ratingMin: number | null;
-}
-
-const DEFAULT_FILTERS: Filters = {
-  cuisines: [],
-  priceMin: null,
-  priceMax: null,
-  ratingMin: null,
-};
 
 export default function RoulettePage() {
   const { user } = useAuth();
@@ -53,8 +42,10 @@ export default function RoulettePage() {
   const [listLoading, setListLoading] = useState<string | null>(null);
   const [showRoulette, setShowRoulette] = useState(false);
   const [source, setSource] = useState<"all" | string>("all");
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const nearby = useNearbyRestaurants();
+  const [nearbyActive, setNearbyActive] = useState(false);
+  const [nearbyRadius, setNearbyRadius] = useState(10);
+  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
 
   // Fetch all restaurants
   useEffect(() => {
@@ -102,7 +93,6 @@ export default function RoulettePage() {
   // Handle source change
   const handleSourceChange = async (newSource: "all" | string) => {
     setSource(newSource);
-    setFilters(DEFAULT_FILTERS);
     if (newSource !== "all") {
       await fetchListRestaurants(newSource);
     }
@@ -114,44 +104,10 @@ export default function RoulettePage() {
     return listCache[source] || [];
   }, [source, allRestaurants, listCache]);
 
-  // Extract unique cuisines from source
-  const availableCuisines = useMemo(() => {
-    const map = new Map<string, number>();
-    sourceRestaurants.forEach(r => {
-      (r.cuisine_types || []).forEach((c: any) => {
-        const name = c.cuisine_type?.name || c.name || "Outro";
-        map.set(name, (map.get(name) || 0) + 1);
-      });
-    });
-    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [sourceRestaurants]);
-
-  // Apply filters
-  const filteredRestaurants = useMemo(() => {
-    return sourceRestaurants.filter(r => {
-      // Cuisine filter
-      if (filters.cuisines.length > 0) {
-        const rCuisines = (r.cuisine_types || []).map((c: any) => c.cuisine_type?.name || c.name);
-        if (!filters.cuisines.some(c => rCuisines.includes(c))) return false;
-      }
-      // Price filter
-      if (filters.priceMin != null && (r.price_per_person ?? 0) < filters.priceMin) return false;
-      if (filters.priceMax != null && (r.price_per_person ?? Infinity) > filters.priceMax) return false;
-      // Rating filter
-      if (filters.ratingMin != null && (r.rating ?? 0) < filters.ratingMin) return false;
-      return true;
-    });
-  }, [sourceRestaurants, filters]);
-
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (filters.cuisines.length > 0) count++;
-    if (filters.priceMin != null || filters.priceMax != null) count++;
-    if (filters.ratingMin != null) count++;
-    return count;
-  }, [filters]);
-
-  const clearFilters = () => setFilters(DEFAULT_FILTERS);
+  // ponytail: reuse the /restaurants RestaurantFilters (self-contained; emits via onFiltered)
+  // ponytail: RestaurantFilters consumes the same shape the cards use; nearby rows only differ by extras
+  const baseForFilter = nearbyActive ? (nearby.restaurants as unknown as Restaurant[]) : sourceRestaurants;
+  const handleFiltered = useCallback((f: Restaurant[]) => setFilteredRestaurants(f), []);
 
   return (
     <div className="min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
@@ -213,119 +169,32 @@ export default function RoulettePage() {
             </div>
           </div>
 
-          {/* Filter toggle */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
-                showFilters || activeFilterCount > 0
-                  ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25"
-                  : "bg-white/[0.04] text-white/50 border border-white/[0.06] hover:bg-white/[0.08]"
-              }`}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              <span>Filtros</span>
-              {activeFilterCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-purple-500 text-white text-[10px] font-bold flex items-center justify-center">{activeFilterCount}</span>
+          {/* Reused /restaurants filter + nearby (ponytail: one filter system) */}
+          <div className="space-y-3">
+            <RestaurantFilters restaurants={baseForFilter} onFiltered={handleFiltered} />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <NearbyBar
+                active={nearbyActive}
+                onToggle={() => { if (!nearbyActive) nearby.requestLocation(); setNearbyActive(v => !v); }}
+                radius={nearbyRadius}
+                onRadius={(r) => { setNearbyRadius(r); nearby.searchNearby({ radius: r }); }}
+                loading={nearby.loading}
+                error={nearby.error}
+                locationError={nearby.locationError}
+              />
+              {nearbyActive && nearby.meta && (
+                <span className="text-xs text-white/40">{nearby.meta.count} restaurantes a {nearby.meta.radius_km} km</span>
               )}
-              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${showFilters ? "rotate-180" : ""}`} />
-            </button>
-
-            {activeFilterCount > 0 && (
-              <button onClick={clearFilters} className="flex items-center gap-1.5 text-xs text-white/35 hover:text-white/60 transition-colors">
-                <X className="h-3 w-3" />
-                Limpar filtros
-              </button>
-            )}
-          </div>
-
-          {/* Filters panel */}
-          {showFilters && (
-            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-4">
-              {/* Cuisine filter */}
-              {availableCuisines.length > 0 && (
-                <div>
-                  <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-2 block">Culinaria</span>
-                  <div className="flex flex-wrap gap-2">
-                    {availableCuisines.map(([name, count]) => (
-                      <button
-                        key={name}
-                        onClick={() => setFilters(f => ({
-                          ...f,
-                          cuisines: f.cuisines.includes(name)
-                            ? f.cuisines.filter(c => c !== name)
-                            : [...f.cuisines, name]
-                        }))}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-150 ${
-                          filters.cuisines.includes(name)
-                            ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
-                            : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
-                        }`}
-                      >
-                        {name} <span className="text-white/20 ml-0.5">{count}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Price filter */}
-              <div>
-                <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-2 block">Preco</span>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-                    <Euro className="h-3.5 w-3.5 text-white/30" />
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.priceMin ?? ""}
-                      onChange={e => setFilters(f => ({ ...f, priceMin: e.target.value ? Number(e.target.value) : null }))}
-                      className="w-14 bg-transparent text-sm text-white/80 placeholder:text-white/20 focus:outline-none"
-                    />
-                  </div>
-                  <span className="text-white/20">—</span>
-                  <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-                    <Euro className="h-3.5 w-3.5 text-white/30" />
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={filters.priceMax ?? ""}
-                      onChange={e => setFilters(f => ({ ...f, priceMax: e.target.value ? Number(e.target.value) : null }))}
-                      className="w-14 bg-transparent text-sm text-white/80 placeholder:text-white/20 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Rating filter */}
-              <div>
-                <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-2 block">Rating minimo</span>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map(r => (
-                    <button
-                      key={r}
-                      onClick={() => setFilters(f => ({ ...f, ratingMin: f.ratingMin === r ? null : r }))}
-                      className={`flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium transition-colors duration-150 ${
-                        filters.ratingMin === r
-                          ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
-                          : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
-                      }`}
-                    >
-                      {r}<Star className="h-3 w-3" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-
             </div>
-          )}
+          </div>
 
           {/* Spin button */}
           <div className="flex items-center justify-between pt-2">
             <p className="text-sm text-white/30">
               {filteredRestaurants.length} restaurante{filteredRestaurants.length !== 1 ? "s" : ""} disponivel{filteredRestaurants.length !== 1 ? "is" : ""}
-              {activeFilterCount > 0 && <span className="text-purple-400/60"> (filtrados de {sourceRestaurants.length})</span>}
+              {(nearbyActive ? nearby.restaurants.length : sourceRestaurants.length) > 0 && (
+                <span className="text-white/30"> (filtrados de {nearbyActive ? nearby.restaurants.length : sourceRestaurants.length})</span>
+              )}
             </p>
             <button
               onClick={() => setShowRoulette(true)}
