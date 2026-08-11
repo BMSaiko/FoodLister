@@ -47,7 +47,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     >
       {/* Image — fixed height, same for all cards */}
       <Link href={`/restaurants/${restaurant.id}`} className="block">
-        <div className={`relative overflow-hidden ${isLarge ? "h-52 md:h-56" : "h-44"}`}>
+        <div className={`relative overflow-hidden ${isLarge ? "h-60 md:h-64" : "h-52"}`}>
           {hasImage ? (
             <img
               src={imageUrl}
