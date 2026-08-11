@@ -146,13 +146,13 @@ export async function GET(
   }
 
   // Check access: public lists are accessible to everyone
-  if (!list.is_public) {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+  if (!list.is_public) { // ponytail: getUser() validates against Auth server, unlike getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    const userId = session.user.id;
+    const userId = user.id;
     const isOwner = list.creator_id === userId;
 
     if (!isOwner) {
