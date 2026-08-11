@@ -42,6 +42,7 @@ jest.mock('next/server', () => {
 // Mock Supabase server client
 const mockSupabaseAuth = {
   getSession: jest.fn(() => Promise.resolve({ data: { session: null }, error: null })),
+      getUser: jest.fn(() => Promise.resolve({ data: { user: null }, error: { message: 'no user' } })),
 };
 
 const mockSupabaseFrom = jest.fn();
