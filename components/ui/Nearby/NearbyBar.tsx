@@ -1,24 +1,27 @@
 'use client';
 
 import { MapPin, X } from 'lucide-react';
-import { useNearbyRestaurants } from '@/hooks/restaurants/useNearbyRestaurants';
 
-// ponytail: one shared bar for both /restaurants and /map. Backend (/nearby)
-// + hook already exist; this is only the UI wiring.
+// ponytail: presentational only — the hook lives in the page (single instance),
+// passed down. A second instance here would create orphan state (userLocation
+// set in the bar, grid reading the page's null location -> no results).
 export default function NearbyBar({
   active, onToggle, radius, onRadius,
+  loading, error, locationError,
 }: {
   active: boolean;
   onToggle: () => void;
   radius: number;
   onRadius: (r: number) => void;
+  loading?: boolean;
+  error?: string | null;
+  locationError?: string | null;
 }) {
-  const { loading, error, locationError, requestLocation } = useNearbyRestaurants();
 
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button
-        onClick={() => { if (!active) requestLocation(); onToggle(); }}
+        onClick={onToggle}
         className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
           active
             ? 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30'

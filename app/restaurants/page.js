@@ -55,9 +55,12 @@ function RestaurantsContent() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <NearbyBar
               active={nearbyActive}
-              onToggle={() => { setNearbyActive(v => !v); }}
+              onToggle={() => { if (!nearbyActive) nearby.requestLocation(); setNearbyActive(v => !v); }}
               radius={nearbyRadius}
               onRadius={(r) => { setNearbyRadius(r); nearby.searchNearby({ radius: r }); }}
+              loading={nearby.loading}
+              error={nearby.error}
+              locationError={nearby.locationError}
             />
             {nearbyActive && nearby.meta && (
               <span className="text-xs text-white/40">{nearby.meta.count} restaurantes a {nearby.meta.radius_km} km</span>

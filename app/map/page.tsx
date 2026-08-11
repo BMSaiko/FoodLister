@@ -132,9 +132,12 @@ export default function MapPage() {
               <div className="mb-3">
                 <NearbyBar
                   active={nearbyActive}
-                  onToggle={() => { setNearbyActive(v => !v); }}
+                  onToggle={() => { if (!nearbyActive) nearby.requestLocation(); setNearbyActive(v => !v); }}
                   radius={nearbyRadius}
                   onRadius={(r) => { setNearbyRadius(r); nearby.searchNearby({ radius: r }); }}
+                  loading={nearby.loading}
+                  error={nearby.error}
+                  locationError={nearby.locationError}
                 />
               </div>
               <div className="relative mb-3">
@@ -254,9 +257,12 @@ export default function MapPage() {
                 <div className="mb-3">
                   <NearbyBar
                     active={nearbyActive}
-                    onToggle={() => { setNearbyActive(v => !v); }}
+                    onToggle={() => { if (!nearbyActive) nearby.requestLocation(); setNearbyActive(v => !v); }}
                     radius={nearbyRadius}
                     onRadius={(r) => { setNearbyRadius(r); nearby.searchNearby({ radius: r }); }}
+                    loading={nearby.loading}
+                    error={nearby.error}
+                    locationError={nearby.locationError}
                   />
                 </div>
                 {/* Mobile search */}
