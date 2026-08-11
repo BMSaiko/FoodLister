@@ -38,10 +38,10 @@ export default function NearbyBar({
         <select
           value={radius}
           onChange={(e) => onRadius(Number(e.target.value))}
-          className="px-2 py-2 rounded-full text-xs bg-white/5 ring-1 ring-white/10 text-white/70"
+          className="px-2 py-2 rounded-full text-xs bg-white/5 ring-1 ring-white/10 text-white/70 [&>option]:bg-[#0a0a0a] [&>option]:text-white"
           aria-label="Raio de pesquisa"
         >
-          {[2, 5, 10, 25].map((r) => (
+          {[2, 5, 10, 25, 50].map((r) => (
             <option key={r} value={r}>{r} km</option>
           ))}
         </select>
