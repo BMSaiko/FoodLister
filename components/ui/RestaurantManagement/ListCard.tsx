@@ -21,7 +21,9 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false,
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isPublic = list.is_public !== false;
-  const likeCount = typeof list.like_count === 'object' && list.like_count ? (list.like_count.count ?? 0) : (typeof list.like_count === 'number' ? list.like_count : 0);
+  // ponytail: nested count can be number | {count} | [{count}] depending on client
+  const lc = list.like_count;
+  const likeCount = Array.isArray(lc) ? (lc[0]?.count ?? 0) : (typeof lc === 'object' && lc ? (lc.count ?? 0) : (typeof lc === 'number' ? lc : 0));
   const tags = (list as any).tags as string[] | undefined;
   const createdDate = new Date(list.created_at).toLocaleDateString('pt-PT', {
     day: '2-digit',

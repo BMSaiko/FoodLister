@@ -54,7 +54,7 @@ export interface List {
     features?: string[];
     dietaryOptions?: string[];
   };
-  like_count?: number | { count: number } | null;
+  like_count?: number | { count: number } | Array<{ count: number }> | null;
 }
 
 export interface User {
