@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import { Star, MapPin, Eye, Phone, Clock } from "lucide-react";
+import { Star, MapPin, Eye } from "lucide-react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { RestaurantWithDetails } from "@/libs/types";
 import { extractPlaceParts } from "@/utils/googleMapsExtractor";
@@ -103,7 +103,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="overflow-hidden border-t border-white/[0.06]"
             >
-              <div className="pt-3 mt-3 space-y-3 bg-white/[0.02]">
+              <div className="pt-3 mt-3 space-y-3 bg-white/[0.02] border border-white/[0.06] rounded-xl px-3 pb-3">
                 {/* Local — T40: city, district, country on hover. ponytail: no
                     structured columns; extractPlaceParts is a best-effort tail parse. */}
                 {(() => { const { city, district, country } = extractPlaceParts(restaurant.location);
@@ -115,30 +115,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
                     </p>
                   ) : null; })()}
 
-                {/* Info badges — shown only on hover */}
-                {(restaurant.opening_hours || (restaurant.phone_numbers && restaurant.phone_numbers.length > 0)) && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {restaurant.opening_hours && (
-                      <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
-                        <Clock className="w-3 h-3" />
-                        Aberto
-                      </span>
-                    )}
-                    {restaurant.phone_numbers && restaurant.phone_numbers.length > 0 && (
-                      <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-white/[0.04] text-white/40 border border-white/[0.06]">
-                        <Phone className="w-3 h-3" />
-                        {restaurant.phone_numbers[0]}
-                      </span>
-                    )}
-                  </div>
-                )}
 
-                {/* Description */}
-                {restaurant.description && (
-                  <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2">
-                    {restaurant.description}
-                  </p>
-                )}
 
                 {/* Categories */}
                 {restaurant.cuisine_types && restaurant.cuisine_types.length > 0 && (
