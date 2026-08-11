@@ -5,9 +5,9 @@ import Navbar from '@/components/ui/navigation/Navbar';
 import { motion } from 'motion/react';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { FiltersProvider } from '@/contexts/index';
+import { FiltersProvider } from '@/contexts';
 import { useAllRestaurants } from '@/hooks/data/useAllRestaurants';
-import { useAuth } from '@/contexts';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useSearchParams } from 'next/navigation';
 
@@ -22,7 +22,7 @@ import Skeleton from '@/components/ui/Skeleton';
 function RestaurantsContent() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const { restaurants, loading, error } = useAllRestaurants({ searchQuery });
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
   const [nearbyActive, setNearbyActive] = useState(false);

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import Link from "next/link";
@@ -62,7 +62,7 @@ interface List {
 export default function ListDetails() {
   const { id } = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [list, setList] = useState<List | null>(null);
   const [userRole, setUserRole] = useState<string>('none');
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);

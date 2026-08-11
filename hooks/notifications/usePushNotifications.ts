@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 
 interface PushNotificationState {
   supported: boolean;
@@ -11,7 +11,7 @@ interface PushNotificationState {
 }
 
 export function usePushNotifications() {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [state, setState] = useState<PushNotificationState>({
     supported: false,
     subscribed: false,

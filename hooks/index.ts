@@ -1,8 +1,7 @@
 // Hooks index file - Central exports for all hooks
 
 // Auth hooks
-export { useAuth } from './auth/useAuth';
-export { useSession } from './auth/useSession';
+export { useAuthUser } from './auth/useAuthUser';
 export { useAuthActions } from './auth/useAuthActions';
 export { useApiClient } from './auth/useApiClient';
 export { usePublicApiClient } from './auth/usePublicApiClient';

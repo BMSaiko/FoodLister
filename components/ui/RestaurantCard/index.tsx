@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { Star, MapPin, Eye, Phone, Clock } from "lucide-react";
-import { useAuth } from "@/contexts";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { RestaurantWithDetails } from "@/libs/types";
 
 interface RestaurantCardProps {
@@ -18,7 +18,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   variant = "small",
   centered = false,
 }) => {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [isHovered, setIsHovered] = useState(false);
 
   const isLarge = variant === "large";

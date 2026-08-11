@@ -4,13 +4,13 @@
 
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/contexts';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { toast } from 'react-toastify';
 import RestaurantForm from '@/components/restaurant/RestaurantForm';
 
 // Auth guard component
 function AuthGuard({ children }) {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthUser();
   const router = useRouter();
 
   React.useEffect(() => {

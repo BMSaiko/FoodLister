@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import Link from "next/link";
 import {  Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
 
 export default function MealsPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthUser();
   const [meals, setMeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

@@ -8,12 +8,12 @@ import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
 import PricingCard from '@/components/subscription/PricingCard';
 import type { SubscriptionPlan, UserSubscription, SubscriptionTier } from '@/libs/types';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { toast } from 'react-toastify';
 
 export default function PricingPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [loading, setLoading] = useState(false);

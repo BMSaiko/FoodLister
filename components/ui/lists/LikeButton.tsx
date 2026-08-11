@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Heart } from 'lucide-react';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 
 // ponytail: like-only popularity. Toggle via /api/lists/[id]/like. No downvote.
 export default function LikeButton({ listId }: { listId: string }) {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [count, setCount] = useState(0);
   const [liked, setLiked] = useState(false);
 

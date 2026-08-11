@@ -10,6 +10,7 @@ import { checkVerificationStatus, sendVerificationEmail, resetLoginAttempts } fr
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
+  isValidating: boolean;
   verificationStatus: VerificationStatus | null;
   signUp: (email: string, password: string) => Promise<{ data: any; error: any }>;
   signIn: (email: string, password: string) => Promise<{ data: any; error: any }>;
@@ -26,6 +27,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isValidating, setIsValidating] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null);
   const supabase = getClient();
   const previousUserRef = useRef<AuthUser | null>(null);
@@ -44,8 +46,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let subscription: any = null;
 
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const initialUser = session?.user ?? null;
+      // ponytail T35: getUser() validates against the Auth server, not a local JWT
+      setIsValidating(true);
+      const { data: { user: validatedUser } } = await supabase.auth.getUser();
+      const initialUser = (validatedUser as AuthUser | null) ?? null;
+      setIsValidating(false);
       setUser(initialUser);
       previousUserRef.current = initialUser;
 
@@ -53,10 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         type: 'session_start',
         timestamp: Date.now(),
         details: {
-          hasSession: !!session,
+          hasSession: !!initialUser,
           hasUser: !!initialUser,
           userId: initialUser?.id || undefined,
-          sessionExpiresAt: session?.expires_at || undefined
+          sessionExpiresAt: undefined
         },
         userId: initialUser?.id || undefined
       });
@@ -70,27 +75,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const { data: { subscription: sub } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          const newUser = session?.user ?? null;
+          if (event === 'SIGNED_OUT') {
+            setUser(null);
+            previousUserRef.current = null;
+            setLoading(false);
+            return;
+          }
+          // ponytail: use the session from the auth event (server-authoritative).
+          // Calling getUser() here races the init getUser() below (both hit the
+          // lib's session lock) and throws AbortError "signal is aborted".
+          const newUser = (session?.user as AuthUser | null) ?? null;
           setUser(newUser);
           previousUserRef.current = newUser;
           setLoading(false);
 
           authLogger.log({
-            type: event === 'SIGNED_OUT' ? 'session_expired' : 'session_refresh',
+            type: 'session_refresh',
             timestamp: Date.now(),
             details: {
               event,
-              hasSession: !!session,
+              hasSession: !!newUser,
               hasUser: !!newUser,
               userId: newUser?.id || undefined,
-              sessionExpiresAt: session?.expires_at || undefined
+              sessionExpiresAt: undefined
             },
             userId: newUser?.id || undefined
           });
 
-          if (event === 'SIGNED_OUT') {
-            toast.info('Você foi desconectado');
-          } else if (event === 'PASSWORD_RECOVERY') {
+          if (event === 'PASSWORD_RECOVERY') {
             toast.info('Verifique seu email para redefinir a senha');
           }
         }
@@ -253,6 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthContextValue = {
     user,
     loading,
+    isValidating,
     verificationStatus,
     signUp,
     signIn,

@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "contexts";
-import { useSession } from "hooks/auth/useSession";
+import { useAuthUser } from 'hooks/auth/useAuthUser';
 import { useListForm } from "hooks/forms/useListForm";
 import Navbar from "components/ui/navigation/Navbar";
 import ListForm from "components/lists/ListForm";
@@ -11,8 +10,8 @@ import { toast } from "react-toastify";
 
 export default function CreateList() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const { session } = useSession();
+  const { user, loading: authLoading } = useAuthUser();
+  
   const [showCelebration, setShowCelebration] = useState(false);
 
   const {
@@ -57,7 +56,7 @@ export default function CreateList() {
       router.push("/auth/signin");
       return;
     }
-    const displayName = session?.user?.email || user?.email || "Utilizador";
+    const displayName = user?.email || user?.email || "Utilizador";
     await saveList(user.id, displayName, false);
   };
 

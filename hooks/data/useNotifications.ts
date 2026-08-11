@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import type { Notification, NotificationType } from '@/types/notification';
 
 interface UseNotificationsOptions {
@@ -34,7 +34,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     pollingInterval = 30000,
   } = options;
 
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);

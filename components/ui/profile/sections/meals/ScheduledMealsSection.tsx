@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Calendar, Utensils, Loader2, SearchX, Plus } from 'lucide-react';
 import { useScheduledMeals } from '@/hooks/data/useScheduledMeals';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import MealCard from './MealCard';
 import MealSearchBar, { MealFilters } from './MealSearchBar';
 
@@ -17,7 +17,7 @@ export default function ScheduledMealsSection({
   userId,
   type = 'all'
 }: ScheduledMealsSectionProps) {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const isCurrentUser = !userId || userId === user?.id;
 
   // If viewing another user's profile, show organized and participating meals

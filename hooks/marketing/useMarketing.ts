@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import type { MarketingCampaign, SocialMediaPost, AiWorkflow, SocialPlatform, PostType, WorkflowTrigger } from '@/libs/types';
 import { toast } from 'react-toastify';
 
 export function useMarketing() {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [campaigns, setCampaigns] = useState<MarketingCampaign[]>([]);
   const [posts, setPosts] = useState<SocialMediaPost[]>([]);
   const [workflows, setWorkflows] = useState<AiWorkflow[]>([]);

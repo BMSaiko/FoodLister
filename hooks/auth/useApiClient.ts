@@ -12,8 +12,11 @@ interface SessionCache {
   lastFetched: number;
 }
 
+import { useAuth } from '@/contexts/AuthContext';
+
 export const useApiClient = () => {
   const router = useRouter();
+  const { getAccessToken } = useAuth();
   const sessionCache = useRef<SessionCache | null>(null);
   const sessionPromise = useRef<Promise<string> | null>(null);
   const isRefreshing = useRef(false);
@@ -78,23 +81,18 @@ export const useApiClient = () => {
       try {
         isRefreshing.current = true;
         
-        const sessionResponse = await fetch('/api/auth/session');
-        if (sessionResponse.ok) {
-          const sessionData = await sessionResponse.json();
-          const token = sessionData?.access_token;
-          
-          if (token) {
-            // Cache the session for 5 minutes (with 1 minute buffer)
-            sessionCache.current = {
-              token,
-              expiresAt: now + (sessionData.expires_in || 3600) * 1000 - 60000,
-              lastFetched: now
-            };
-            
-            return token;
-          }
+        // ponytail T53: token via the canonical auth store, not a manual /api/auth/session fetch
+        const token = await getAccessToken();
+        if (token) {
+          // Cache the session for 5 minutes (with 1 minute buffer)
+          sessionCache.current = {
+            token,
+            expiresAt: now + 3600 * 1000 - 60000,
+            lastFetched: now
+          };
+          return token;
         }
-        
+
         throw new Error('No session token available');
       } catch (error) {
         console.warn('Could not get session from API:', error);
@@ -106,7 +104,7 @@ export const useApiClient = () => {
     })();
 
     return sessionPromise.current;
-  }, []);
+  }, [getAccessToken]);
 
   const apiCall = useCallback(async (
     endpoint: string, 

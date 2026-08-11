@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useUserData } from "@/hooks/data/useUserData";
 import { toast } from "react-toastify";
@@ -40,7 +40,7 @@ interface UserProfile {
 }
 
 const UserProfilePage = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthUser();
   const router = useRouter();
   const params = useParams();
   const userId = params.id as string;
