@@ -318,6 +318,7 @@ export default function MapPage() {
               selectedId={selectedId}
               onSelect={setSelectedId}
               focusCenter={nearbyCenter}
+              userLocation={nearby.userLocation}
             />
           )}
         </div>

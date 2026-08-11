@@ -56,6 +56,7 @@ interface RestaurantMapProps {
   showPopup?: boolean;
   onSelect?: (id: string | null) => void;
   focusCenter?: [number, number] | null;
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 function isValidCoords(r: RestaurantWithDetails): boolean {
@@ -98,6 +99,15 @@ function SelectedRestaurantPopup({ restaurant, onDeselect }: { restaurant: Resta
     return () => { map.off("popupclose", onPopupClose); map.closePopup(); };
   }, [restaurant, map]);
   return null;
+}
+
+// ponytail: distinct blue dot for the user's own position
+function createUserPinIcon(): L.DivIcon {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:22px;height:22px;background:#3b82f6;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 6px rgba(59,130,246,0.25),0 2px 8px rgba(0,0,0,0.4);"></div>`,
+    iconAnchor: [11, 11],
+  });
 }
 
 // Geolocation button — centers map on user location
@@ -204,6 +214,7 @@ export default function RestaurantMap({
   showPopup = true,
   onSelect,
   focusCenter,
+  userLocation,
 }: RestaurantMapProps) {
   const markers = useMemo(
     () => restaurants.filter(isValidCoords),
@@ -240,6 +251,9 @@ export default function RestaurantMap({
         <ResetZoomButton />
         {showPopup && selectedRestaurant && <SelectedRestaurantPopup restaurant={selectedRestaurant} onDeselect={() => onSelect?.(null)} />}
         <MapResize />
+        {userLocation?.lat != null && userLocation?.lng != null && (
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={createUserPinIcon()} />
+        )}
         {markers.map((r) => (
           <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { if (selectedId) return; e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)); e.target.closePopup(); } }}>
             <Popup>
