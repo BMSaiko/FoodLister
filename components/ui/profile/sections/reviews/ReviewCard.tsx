@@ -81,7 +81,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onShare, c
           </div>
 
           {review.comment && (
-            <p className="text-sm text-white/45 line-clamp-2 leading-relaxed">{review.comment}</p>
+            <p className="text-sm text-white/45 leading-relaxed whitespace-pre-wrap">{review.comment}</p>
           )}
 
           {isOwnReview && onShare && (

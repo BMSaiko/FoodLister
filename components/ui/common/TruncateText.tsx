@@ -12,11 +12,11 @@ export default function TruncateText({ text, maxLength = 150, className = "" }: 
   const [expanded, setExpanded] = useState(false);
 
   if (text.length <= maxLength) {
-    return <p className={className}>{text}</p>;
+    return <p className={`${className} whitespace-pre-wrap`}>{text}</p>;
   }
 
   return (
-    <p className={className}>
+    <p className={`${className} whitespace-pre-wrap`}>
       {expanded ? text : `${text.slice(0, maxLength)}...`}
       <button
         onClick={() => setExpanded(!expanded)}
