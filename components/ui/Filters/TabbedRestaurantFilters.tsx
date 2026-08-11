@@ -21,7 +21,7 @@ import {
 import { createClient } from '@/libs/supabase/client';
 import { RestaurantFeature, DietaryOption } from '@/libs/types';
 import DualRangeSlider from './DualRangeSlider';
-import { useAuth } from '@/contexts/index';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 
 interface TabbedRestaurantFiltersProps {
   filters: any;
@@ -65,7 +65,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     fps: 0
   });
 
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const supabase = createClient();
 
   useEffect(() => {

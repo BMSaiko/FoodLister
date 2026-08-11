@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useRouter } from "next/navigation";
 import { useSettings } from "@/hooks/data/useSettings";
 import { toast } from "react-toastify";
@@ -50,7 +50,7 @@ const SECTION_ICONS: Record<number, React.ReactNode> = {
 };
 
 export default function ProfileSettingsPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthUser();
   const router = useRouter();
   const { profile, loading: profileLoading, error, saveProfile, uploadImage, refreshProfile } = useSettings();
 

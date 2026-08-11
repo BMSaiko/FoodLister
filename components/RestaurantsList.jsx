@@ -3,7 +3,8 @@
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TabbedRestaurantFilters from '@/components/ui/Filters/TabbedRestaurantFilters';
-import { FiltersProvider, useAuth } from '@/contexts/index';
+import { FiltersProvider } from '@/contexts';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useRestaurants } from '@/hooks/data/useRestaurants';
 import { useVisitsData } from '@/hooks/data/useVisitsData';
@@ -23,7 +24,7 @@ function RestaurantsLoading() {
 function RestaurantsContent({ showHeader = true }) {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [scrollRestored, setScrollRestored] = React.useState(false);
   const gridRef = React.useRef(null);
 

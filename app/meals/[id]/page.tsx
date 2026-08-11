@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Clock, Users, Utensils, Download, ArrowLeft, Loader2, Check, X, ExternalLink, Edit, Trash2 } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { toast } from 'react-toastify';
 import Modal from '@/components/ui/Modal';
@@ -60,7 +60,7 @@ const mealTypeLabels: Record<string, string> = {
 export default function MealDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const mealId = params.id as string;
 
   const [meal, setMeal] = useState<Meal | null>(null);

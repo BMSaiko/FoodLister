@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import type { UserSubscription, SubscriptionPlan, SubscriptionTier } from '@/libs/types';
 import { isSubscriptionActive } from '@/libs/subscription';
 import { toast } from 'react-toastify';
@@ -30,7 +30,7 @@ interface UseSubscriptionReturn {
  * @returns Subscription state + management functions (createCheckout, cancel, refresh)
  */
 export function useSubscription(): UseSubscriptionReturn {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(false);

@@ -2,7 +2,7 @@
 // Refactored: Now uses shared RestaurantForm component
 "use client";
 
-import { useAuth } from '@/contexts';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -10,7 +10,7 @@ import RestaurantForm from '@/components/restaurant/RestaurantForm';
 
 export default function CreateRestaurant() {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthUser();
 
   // Check authentication
   useEffect(() => {

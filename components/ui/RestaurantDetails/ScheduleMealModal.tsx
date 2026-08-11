@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, ChevronRight } from "lucide-react";
 import Modal from "@/components/ui/Modal";
-import { useAuth } from "@/contexts";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { DEFAULT_MEAL_TYPES } from "@/hooks/forms/useMealScheduling";
 import { toast } from "react-toastify";
 import MealDetailsStep from "./steps/MealDetailsStep";
@@ -44,7 +44,7 @@ export default function ScheduleMealModal({
 
   const totalSteps = 3;
 
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const router = useRouter();
 
   const canProceed = () => {

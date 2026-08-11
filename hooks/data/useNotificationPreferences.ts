@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { toast } from 'react-toastify';
 
 export interface NotificationPreferences {
@@ -25,7 +25,7 @@ const defaultPreferences: NotificationPreferences = {
 };
 
 export function useNotificationPreferences() {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [preferences, setPreferences] = useState<NotificationPreferences>(defaultPreferences);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

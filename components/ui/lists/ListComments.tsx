@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Link from "next/link";
 import { MessageCircle, Send, Trash2, Pencil, Check, X, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
@@ -22,7 +22,7 @@ interface ListCommentsProps {
 }
 
 export default function ListComments({ listId, isOwner }: ListCommentsProps) {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);

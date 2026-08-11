@@ -6,7 +6,7 @@ import "leaflet/dist/leaflet.css";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
 import { createClient } from "@/libs/supabase/client";
 import Navbar from "@/components/ui/navigation/Navbar";
@@ -74,7 +74,7 @@ export default function RestaurantDetails() {
   const searchParams = useSearchParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
   const reviewId = searchParams?.get('review');
-  const { user } = useAuth();
+  const { user } = useAuthUser();
     const { get: getPublic, post: postPublic, patch: patchPublic, del: delPublic } = usePublicApiClient();
   // Alias for authenticated requests + review mutations — all via public client
   const get = getPublic;

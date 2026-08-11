@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { MapPin, Edit, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useAuth } from '@/contexts';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useModal } from '@/contexts/ModalContext';
 
 interface RestaurantCardActionsProps {
@@ -33,7 +33,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
   onShare,
   className = ''
 }) => {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const { openMapModal } = useModal();
   const [isSharing, setIsSharing] = useState(false);
 

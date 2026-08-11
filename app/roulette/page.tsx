@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import RestaurantCard from "@/components/ui/RestaurantCard";
@@ -34,7 +34,7 @@ interface UserList {
 }
 
 export default function RoulettePage() {
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
   const [userLists, setUserLists] = useState<UserList[]>([]);
   const [listCache, setListCache] = useState<Record<string, Restaurant[]>>({});

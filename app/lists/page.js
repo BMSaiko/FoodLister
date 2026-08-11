@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useAuth } from '@/hooks/auth/useAuth';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import ListCard from '@/components/ui/RestaurantManagement/ListCard';
 import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
@@ -15,7 +15,7 @@ function ListsContent() {
   const [lists, setLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [allTags, setAllTags] = useState([]);
-  const { user } = useAuth();
+  const { user } = useAuthUser();
   const [activeTag, setActiveTag] = useState(null);
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
