@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit } from '@/libs/rate-limit';
 
 /**
  * API endpoint for image upload to Cloudinary
@@ -6,6 +7,17 @@ import { NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(request: NextRequest) {
   try {
+    // ponytail T51: cooldown on a heavy, paid (Cloudinary) endpoint. Shared guard at
+    // the route covers every upload caller. Reuses checkRateLimit like reviews/meals.
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+    const { allowed } = checkRateLimit(`upload-post-${ip}`, 10, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests', code: 'RATE_LIMITED' },
+        { status: 429 }
+      );
+    }
+
     // Get content type from request headers
     const contentType = request.headers.get('content-type') || '';
 
