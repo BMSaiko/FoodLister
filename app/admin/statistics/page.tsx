@@ -66,7 +66,7 @@ export default function AdminStatisticsPage() {
                   <li key={r.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
                     <span className="text-foreground-muted mr-2">{i + 1}.</span>
                     <span className="flex-1 text-foreground truncate">{r.name}</span>
-                    <span className="text-amber-400/80 text-xs">★ {r.rating || '—'}</span>
+                    <span className="text-amber-400/80 text-xs">★ {r.score ?? r.rating}</span>
                   </li>
                 ))}
               </ul>

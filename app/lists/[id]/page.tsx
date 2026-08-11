@@ -19,6 +19,7 @@ import ListExportButtons from "@/components/ui/lists/ListExportButtons";
 import ListCollaborators from "@/components/ui/lists/ListCollaborators";
 import ListActivityFeed from "@/components/ui/lists/ListActivityFeed";
 import { ArrowLeft } from "lucide-react";
+import LikeButton from "@/components/ui/lists/LikeButton";
 
 interface Restaurant {
   id: string;
@@ -288,6 +289,9 @@ export default function ListDetails() {
             onDelete={handleDeleteList}
             listId={id as string}
           />
+          <div className="mt-3">
+            <LikeButton listId={id as string} />
+          </div>
 
           {/* Meta Bar */}
           <ListMetaBar

@@ -388,7 +388,7 @@ export interface DashboardStats {
   lists: AdminListStats;
   meals: AdminMealStats;
   growth: AdminGrowthStats;
-  topRestaurants: { id: string; name: string; rating: number; review_count: number }[];
+  topRestaurants: { id: string; name: string; rating: number; review_count: number; price_per_person: number; score: number }[];
   topLists: { id: string; name: string; count: number }[];
 }
 
