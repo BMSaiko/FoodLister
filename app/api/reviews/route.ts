@@ -1,7 +1,7 @@
 // app/api/reviews/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/libs/supabase/client';
-import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, requireUser } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
@@ -233,8 +233,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Admin-only access for review creation
-    const auth = await requireAdmin(request, response);
+    // Any authenticated user can create their own review
+    const auth = await requireUser(request, response);
     if (!auth.ok) return auth.response;
     const user = auth.user;
 
