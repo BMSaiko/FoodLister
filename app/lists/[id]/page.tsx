@@ -288,10 +288,8 @@ export default function ListDetails() {
             onDuplicate={handleDuplicateList}
             onDelete={handleDeleteList}
             listId={id as string}
+            likeSlot={<LikeButton listId={id as string} />}
           />
-          <div className="mt-3">
-            <LikeButton listId={id as string} />
-          </div>
 
           {/* Meta Bar */}
           <ListMetaBar

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
-import { Globe, Lock, Trash2, User, Tag } from 'lucide-react';
+import { Globe, Lock, Trash2, User, Tag, Heart } from 'lucide-react';
 import { toast } from 'react-toastify';
 import type { List } from '@/libs/types';
 import ListCardCover from '@/components/ui/lists/ListCardCover';
@@ -21,6 +21,7 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false,
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isPublic = list.is_public !== false;
+  const likeCount = typeof list.like_count === 'object' && list.like_count ? (list.like_count.count ?? 0) : (typeof list.like_count === 'number' ? list.like_count : 0);
   const tags = (list as any).tags as string[] | undefined;
   const createdDate = new Date(list.created_at).toLocaleDateString('pt-PT', {
     day: '2-digit',
@@ -99,6 +100,11 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false,
                   <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">
                     {restaurantCount} {restaurantCount === 1 ? 'restaurante' : 'restaurantes'}
                   </span>
+                  {likeCount > 0 && (
+                    <span className="inline-flex items-center gap-1 text-red-400/80">
+                      <Heart className="w-3 h-3 fill-current" /> {likeCount}
+                    </span>
+                  )}
                   <span>{createdDate}</span>
                 </div>
 
