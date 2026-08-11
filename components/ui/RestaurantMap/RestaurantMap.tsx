@@ -55,6 +55,7 @@ interface RestaurantMapProps {
   selectedId?: string | null;
   showPopup?: boolean;
   onSelect?: (id: string | null) => void;
+  focusCenter?: [number, number] | null;
 }
 
 function isValidCoords(r: RestaurantWithDetails): boolean {
@@ -163,6 +164,15 @@ function ResetZoomButton() {
 }
 
 // Component that flies map to selected restaurant
+// Fly map to a desired center when it changes (nearby search)
+function FlyToFocus({ center }: { center: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) map.flyTo(center, 13, { duration: 1.2 });
+  }, [center, map]);
+  return null;
+}
+
 function FlyToMarker({ restaurant }: { restaurant: RestaurantWithDetails }) {
   const map = useMap();
   useEffect(() => {
@@ -193,6 +203,7 @@ export default function RestaurantMap({
   selectedId,
   showPopup = true,
   onSelect,
+  focusCenter,
 }: RestaurantMapProps) {
   const markers = useMemo(
     () => restaurants.filter(isValidCoords),
@@ -223,6 +234,7 @@ export default function RestaurantMap({
           url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {selectedRestaurant && <FlyToMarker restaurant={selectedRestaurant} />}
+        <FlyToFocus center={focusCenter ?? null} />
       <ZoomOutOnClose selectedRestaurant={selectedRestaurant} />
                 {selectedRestaurant && <GeolocateButton />}
         <ResetZoomButton />
