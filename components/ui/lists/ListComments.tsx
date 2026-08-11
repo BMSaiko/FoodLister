@@ -281,7 +281,7 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
                           )}
                         </div>
                       </div>
-                      <p className="text-sm text-white/50 leading-relaxed mt-0.5">{comment.comment}</p>
+                      <p className="text-sm text-white/50 leading-relaxed mt-0.5 whitespace-pre-wrap">{comment.comment}</p>
                     </>
                   )}
                 </div>
