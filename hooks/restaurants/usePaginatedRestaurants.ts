@@ -90,7 +90,9 @@ export function usePaginatedRestaurants(
       }
       const data = await response.json();
       const items: RestaurantWithDetails[] = Array.isArray(data.restaurants) ? data.restaurants : [];
-      setRestaurants(prev => (append ? [...prev, ...items] : items));
+      // ponytail: shuffle only the first page / refresh (not append) so the feed is new-order each load
+      const pageItems = append ? items : shuffleArray(items);
+      setRestaurants(prev => (append ? [...prev, ...items] : pageItems));
       setHasNext(Boolean(data.pagination?.hasNext));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
