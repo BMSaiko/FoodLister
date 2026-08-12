@@ -138,7 +138,9 @@ export async function GET(request: NextRequest) {
       lists: processedData,
       pagination: { page, limit, returned: processedData.length, hasNext: processedData.length === limit },
     });
-    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+        // ponytail: only cache anonymous reads publicly; authenticated responses may
+    // contain private/own lists that must never be CDN-cached
+    response.headers.set('Cache-Control', supabase ? 'private, no-store' : 'public, s-maxage=60, stale-while-revalidate=120');
     return response;
     } catch (error) {
       console.error('Unexpected error:', error);

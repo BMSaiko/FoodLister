@@ -58,7 +58,8 @@ export async function GET(
       limit,
       offset,
     });
-    response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
+        // ponytail: activities of a (possibly private/collab) list — only cache anonymous reads
+    response.headers.set('Cache-Control', supabase ? 'private, no-store' : 'public, s-maxage=30, stale-while-revalidate=60');
     return response;
   } catch (error) {
     console.error('Unexpected error:', error);
