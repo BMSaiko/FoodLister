@@ -9,7 +9,7 @@ import { FiltersProvider } from '@/contexts';
 import { usePaginatedRestaurants } from '@/hooks/restaurants/usePaginatedRestaurants';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import HeroRestaurantCard from '@/components/ui/RestaurantList/HeroRestaurantCard';
 import { RestaurantGrid } from '@/components/ui/RestaurantList/RestaurantGrid';
@@ -21,7 +21,29 @@ import Skeleton from '@/components/ui/Skeleton';
 
 function RestaurantsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const searchQuery = searchParams.get('search');
+
+  // ponytail (T49): filter state lives in the URL for deep-link/share
+  const initialFilters = (() => {
+    const cuisines = searchParams.get('cuisines')?.split(',').filter(Boolean) || [];
+    const priceMin = searchParams.get('price_min') ? Number(searchParams.get('price_min')) : null;
+    const priceMax = searchParams.get('price_max') ? Number(searchParams.get('price_max')) : null;
+    const ratingMin = searchParams.get('rating_min') ? Number(searchParams.get('rating_min')) : null;
+    const location = searchParams.get('location') || '';
+    return { cuisines, priceMin, priceMax, ratingMin, visitedOnly: false, location };
+  })();
+
+  const handleFiltersChange = (f) => {
+    const params = new URLSearchParams();
+    if (f.cuisines.length) params.set('cuisines', f.cuisines.join(','));
+    if (f.priceMin != null) params.set('price_min', String(f.priceMin));
+    if (f.priceMax != null) params.set('price_max', String(f.priceMax));
+    if (f.ratingMin != null) params.set('rating_min', String(f.ratingMin));
+    if (f.location) params.set('location', f.location);
+    const qs = params.toString();
+    router.replace(qs ? `/restaurants?${qs}` : '/restaurants', { scroll: false });
+  };
   const { user } = useAuthUser();
   const [filtersActive, setFiltersActive] = useState(false);
   const { restaurants, loading, error, hasNext, loadingMore, loadMore } = usePaginatedRestaurants({
@@ -56,6 +78,8 @@ function RestaurantsContent() {
             restaurants={restaurants}
             onFiltered={(filtered) => setFilteredRestaurants(filtered)}
             onActiveChange={setFiltersActive}
+            initialFilters={initialFilters}
+            onFiltersChange={handleFiltersChange}
             rightSlot={
               <>
                 <NearbyBar
