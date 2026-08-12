@@ -776,6 +776,7 @@ export default function RestaurantDetails() {
 
             {/* Reviews Feed */}
             <ReviewsFeed
+              userProfile={userProfile}
               ref={reviewsSectionRef}
               restaurantId={id}
               reviews={reviews}
