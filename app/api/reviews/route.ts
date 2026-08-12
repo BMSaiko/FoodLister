@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
     const { data: reviewsData, error: reviewsError } = await supabase
       .from('reviews')
-      .select('id, restaurant_id, user_id, rating, comment, amount_spent, created_at, updated_at, user_name')
+      .select('id, restaurant_id, user_id, rating, comment, amount_spent, images, created_at, updated_at, user_name')
       .eq('restaurant_id', restaurantId)
       .order('created_at', { ascending: false })
       .range(from, to);
@@ -200,6 +200,7 @@ export async function POST(request: NextRequest) {
     const rating = body.rating as number | undefined;
     const comment = body.comment as string | undefined;
     const amount_spent = body.amount_spent as number | undefined;
+    const images = Array.isArray(body.images) ? body.images.slice(0, 5) : [];
 
     if (!restaurant_id || !rating) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -283,7 +284,8 @@ export async function POST(request: NextRequest) {
         user_name: userDisplayName,
         rating,
         comment: comment || null,
-        amount_spent: amount_spent || null
+        amount_spent: amount_spent || null,
+        images
       })
       .select('*')
       .single();

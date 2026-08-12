@@ -160,6 +160,7 @@ export async function PUT(
     const rating = body.rating as number | undefined;
     const comment = body.comment as string | undefined;
     const amount_spent = body.amount_spent as number | undefined;
+    const images = Array.isArray(body.images) ? body.images.slice(0, 5) : undefined;
 
     if (!rating) {
       return NextResponse.json({ error: 'Rating is required' }, { status: 400 });
@@ -190,7 +191,8 @@ export async function PUT(
         rating,
         comment: comment || null,
         amount_spent: amount_spent || null,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        ...(images !== undefined ? { images } : {})
       })
       .eq('id', reviewId)
       .select('*')

@@ -96,6 +96,7 @@ export interface Review {
   amount_spent?: number;
   created_at: string;
   updated_at: string;
+  images?: string[];
   user: User;
 }
 
@@ -103,6 +104,7 @@ export interface ReviewFormData {
   rating: number;
   comment?: string;
   amount_spent?: number;
+  images?: string[];
 }
 
 export interface RestaurantWithDetails extends Restaurant {

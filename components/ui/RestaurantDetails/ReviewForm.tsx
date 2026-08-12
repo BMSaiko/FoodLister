@@ -4,6 +4,7 @@ import { Review, ReviewFormData } from '@/libs/types';
 import FormField from '@/components/ui/common/FormField';
 import FormActions from '@/components/ui/common/FormActions';
 import { toast } from 'react-toastify';
+import RestaurantImageManager from '@/components/ui/RestaurantManagement/RestaurantImageManager';
 
 interface ReviewFormProps {
   restaurantId: string;
@@ -23,7 +24,8 @@ export default function ReviewForm({
   const [formData, setFormData] = useState<ReviewFormData>({
     rating: initialReview?.rating || 0,
     comment: initialReview?.comment || '',
-    amount_spent: initialReview?.amount_spent || undefined
+    amount_spent: initialReview?.amount_spent || undefined,
+    images: initialReview?.images || []
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,7 +36,8 @@ export default function ReviewForm({
       setFormData({
         rating: initialReview.rating,
         comment: initialReview.comment || '',
-        amount_spent: initialReview.amount_spent || undefined
+        amount_spent: initialReview.amount_spent || undefined,
+        images: initialReview.images || []
       });
     }
   }, [initialReview]);
@@ -97,13 +100,15 @@ export default function ReviewForm({
         ? {
             rating: formData.rating,
             comment: formData.comment || null,
-            amount_spent: formData.amount_spent || null
+            amount_spent: formData.amount_spent || null,
+            images: formData.images || []
           }
         : {
             restaurant_id: restaurantId,
             rating: formData.rating,
             comment: formData.comment || null,
-            amount_spent: formData.amount_spent || null
+            amount_spent: formData.amount_spent || null,
+            images: formData.images || []
           };
       
       console.log('Review form submission:', {
@@ -184,13 +189,15 @@ export default function ReviewForm({
       setFormData({
         rating: initialReview.rating,
         comment: initialReview.comment || '',
-        amount_spent: initialReview.amount_spent || undefined
+        amount_spent: initialReview.amount_spent || undefined,
+        images: initialReview.images || []
       });
     } else {
       setFormData({
         rating: 0,
         comment: '',
-        amount_spent: undefined
+        amount_spent: undefined,
+        images: []
       });
     }
     setErrors({});
@@ -278,6 +285,21 @@ export default function ReviewForm({
         {errors.amount_spent && (
           <p className="mt-2 text-sm text-[var(--red-600)]">{errors.amount_spent}</p>
         )}
+
+        {/* Images (T42): up to 5 experience photos */}
+        <div>
+          <label className="block text-sm font-medium text-[var(--gray-700)] mb-3">
+            Fotos da experiancia <span className="text-[var(--gray-500)] font-normal">(ate 5, opcional)</span>
+          </label>
+          <RestaurantImageManager
+            images={formData.images || []}
+            max={5}
+            label="Fotos da experiencia"
+            displayImageIndex={0}
+            onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))}
+            onDisplayImageIndexChange={() => {}}
+          />
+        </div>
 
         {/* Form Actions */}
         <FormActions
