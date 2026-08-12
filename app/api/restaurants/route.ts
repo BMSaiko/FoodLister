@@ -98,6 +98,7 @@ export async function GET(request: NextRequest) {
     }
     // Skip expensive reviews(count) for large datasets (limit=all)
     const joinReviews = !isAll;
+    const isPopularity = sortByParam === 'popularity';
     const baseColumns = joinReviews
       ? 'id, name, description, image_url, price_per_person, rating, location, ' +
         'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
@@ -124,10 +125,29 @@ export async function GET(request: NextRequest) {
     };
 
     // Sort: random if requested, otherwise by chosen column
-    const applySort = (q: any) => {
+    // ponytail: same composite formula as admin dashboard (rating 60 / review-vol 30 / price 10)
+    const scoreRestaurant = (r: any) => {
+      const rating = Math.min(Math.max(r.rating || 0, 0), 5);
+      const reviewScore = Math.min(Math.log10((r.review_count || 0) + 1) / Math.log10(51), 1) * 5;
+      const pr = r.price_per_person || 0;
+      const priceScore = pr >= 60 ? 0 : Math.max(0, Math.min((60 - pr) / 60 * 5, 5));
+      return Math.round((0.6 * rating + 0.3 * reviewScore + 0.1 * priceScore) * 10) / 10;
+    };
+    const numericCols: Record<string, string> = { rating: 'rating', price: 'price_per_person' };
+    const applySort = (q: any, arr?: any[]) => {
+      if (sortByParam === 'popularity' && arr) {
+        arr.sort((a, b) => scoreRestaurant(b) - scoreRestaurant(a));
+        return q;
+      }
       if (randomParam) return q.order('name', { ascending: Math.random() > 0.5 });
-      const sortColMap: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name', review_count: 'review_count' };
-      return q.order(sortColMap[sortByParam] || 'name', { ascending: sortDirectionParam !== 'desc' });
+      const sortColMap: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name' };
+      const col = sortColMap[sortByParam] || 'name';
+      const asc = sortDirectionParam !== 'desc';
+      // nulls last for numeric desc sorts (restaurants without reviews/price)
+      let sorted = q.order(col, { ascending: asc, nullsFirst: !(numericCols[sortByParam] && !asc) });
+      // ponytail: rating desc tiebreak by review_count (more reviews = higher for equal stars)
+      if (sortByParam === 'rating' && !asc) sorted = sorted.order('review_count', { ascending: false });
+      return sorted;
     };
 
     // Fetch + map + filter — cached by full query params (300s TTL)
@@ -135,14 +155,14 @@ export async function GET(request: NextRequest) {
     const { restaurants, pagination, meta } = await cacheOrSet(cacheKey, async () => {
       // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
       let allRestaurants: any[] = [];
-      let offset = isAll ? 0 : (page - 1) * limit;
+      let offset = (isAll || isPopularity) ? 0 : (page - 1) * limit;
       const BATCH_SIZE = 1000;
       let hasMore = true;
       
       while (hasMore) {
         let batchQuery = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(offset, offset + BATCH_SIZE - 1);
         batchQuery = applyFilters(batchQuery);
-        if (!isAll) batchQuery = applySort(batchQuery);
+        if (!isAll && !isPopularity) batchQuery = applySort(batchQuery);
         const { data: batchData, error: batchError } = await batchQuery;
         
         if (batchError) {
@@ -159,7 +179,7 @@ export async function GET(request: NextRequest) {
           allRestaurants = allRestaurants.concat(batchData || []);
         }
         
-        if (!isAll) {
+        if (!isAll && !isPopularity) {
           hasMore = false;
         } else if ((batchData || []).length < BATCH_SIZE) {
           hasMore = false;
@@ -198,12 +218,14 @@ export async function GET(request: NextRequest) {
       } else if (openNowParam === 'false') {
         restaurants = restaurants.filter((r) => r.opening_hours && isCurrentlyOpen(r.opening_hours) === false);
       }
+      // ponytail: popularity = composite formula (same as admin), sort in JS over full set
+      if (isPopularity) restaurants.sort((a, b) => scoreRestaurant(b) - scoreRestaurant(a));
       const pagination = {
         page,
         limit,
         total: restaurants.length,
         totalPages: Math.ceil(restaurants.length / limit),
-        hasNext: !isAll && restaurants.length === limit,
+        hasNext: !(isAll || isPopularity) && restaurants.length === limit,
         hasPrev: page > 1,
       };
       const meta = {

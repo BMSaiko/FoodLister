@@ -46,9 +46,12 @@ function RestaurantsContent() {
   };
   const { user } = useAuthUser();
   const [filtersActive, setFiltersActive] = useState(false);
+  const [sort, setSort] = useState({ sortBy: "name", sortDirection: "asc" });
   const { restaurants, loading, error, hasNext, loadingMore, loadMore } = usePaginatedRestaurants({
     searchQuery,
     all: filtersActive,
+    sortBy: sort.sortBy,
+    sortDirection: sort.sortDirection,
   });
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
   const [nearbyActive, setNearbyActive] = useState(false);
@@ -80,6 +83,7 @@ function RestaurantsContent() {
             onActiveChange={setFiltersActive}
             initialFilters={initialFilters}
             onFiltersChange={handleFiltersChange}
+            onSortChange={(sortBy, sortDirection) => setSort({ sortBy, sortDirection })}
             rightSlot={
               <>
                 <NearbyBar
