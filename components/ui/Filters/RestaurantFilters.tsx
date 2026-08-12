@@ -29,6 +29,10 @@ interface RestaurantFiltersProps {
   onActiveChange?: (active: boolean) => void;
   /** extra controls rendered on the same row, right of the filters toggle */
   rightSlot?: React.ReactNode;
+  /** T49: initial filter state from URL (deep-link) */
+  initialFilters?: Filters;
+  /** T49: fired when filters change, so the page writes them to the URL */
+  onFiltersChange?: (filters: Filters) => void;
 }
 
 const DEFAULT_FILTERS: Filters = {
@@ -40,9 +44,9 @@ const DEFAULT_FILTERS: Filters = {
   location: "",
 };
 
-export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot }: RestaurantFiltersProps) {
+export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange }: RestaurantFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<Filters>(initialFilters || DEFAULT_FILTERS);
 
   // Extract unique cuisines
   const availableCuisines = useMemo(() => {
@@ -93,6 +97,11 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
   React.useEffect(() => {
     onActiveChange?.(activeCount > 0);
   }, [activeCount, onActiveChange]);
+
+  // ponytail (T49): every filter change is mirrored to the URL by the page
+  React.useEffect(() => {
+    onFiltersChange?.(filters);
+  }, [filters, onFiltersChange]);
 
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
