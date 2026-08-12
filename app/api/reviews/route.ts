@@ -9,6 +9,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/libs/supabase/types';
 import { checkRateLimit } from '@/libs/rate-limit';
 import { createNotification } from '@/libs/notifications/service';
+import { notifyMentionedUsers } from '@/libs/mentions';
 import { parsePaginationFromRequest } from '@/libs/utils/pagination';
 
 type DbClient = SupabaseClient<Database>;
@@ -315,6 +316,16 @@ export async function POST(request: NextRequest) {
         message: 'O teu restaurante recebeu um novo review.',
         link: `/restaurants/${restaurant_id}`,
       }).catch(() => {});
+    }
+
+    // T36: notify mentioned users in the review comment
+    if (comment) {
+      await notifyMentionedUsers(supabase, comment, user, {
+        type: 'mention',
+        title: 'Menção num review',
+        message: 'Foste mencionado num review.',
+        link: `/restaurants/${restaurant_id}`,
+      });
     }
 
     const reviewData = data as ReviewRow;

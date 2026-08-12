@@ -5,6 +5,7 @@ export type NotificationType =
   | 'comment_reply'
   | 'list_invite'
   | 'list_update'
+  | 'mention'
   | 'system';
 
 export interface Notification {
@@ -38,5 +39,6 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, { label: string;
   comment_reply: { label: 'Resposta a comentário', color: '#3b82f6' },
   list_invite: { label: 'Convite para lista', color: '#22c55e' },
   list_update: { label: 'Lista atualizada', color: '#14b8a6' },
+  mention: { label: 'Menção', color: '#a855f7' },
   system: { label: 'Sistema', color: 'rgba(255,255,255,0.5)' },
 };

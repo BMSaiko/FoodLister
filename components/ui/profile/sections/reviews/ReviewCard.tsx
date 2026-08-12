@@ -4,6 +4,7 @@ import React from "react";
 import { Star, MapPin, Euro } from "lucide-react";
 import { formatDate } from "@/utils/formatters";
 import Link from "next/link";
+import MentionText from "@/components/ui/common/MentionText";
 
 interface ReviewCardProps {
   review: {
@@ -81,7 +82,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onShare, c
           </div>
 
           {review.comment && (
-            <p className="text-sm text-white/45 leading-relaxed whitespace-pre-wrap">{review.comment}</p>
+            <MentionText text={review.comment} className="text-sm text-white/45 leading-relaxed whitespace-pre-wrap" />
           )}
 
           {isOwnReview && onShare && (

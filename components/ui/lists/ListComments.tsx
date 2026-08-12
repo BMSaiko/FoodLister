@@ -5,6 +5,8 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Link from "next/link";
 import { MessageCircle, Send, Trash2, Pencil, Check, X, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
+import MentionText from "@/components/ui/common/MentionText";
+import MentionInput from "@/components/ui/common/MentionInput";
 
 interface Comment {
   id: string;
@@ -169,14 +171,14 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
           <form onSubmit={handleSubmit} className="mb-6">
             <div className="p-1 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
               <div className="flex gap-2 p-2 rounded-xl bg-white/[0.03]">
-                <input
-                  type="text"
-                  value={newComment}
-                  onChange={e => setNewComment(e.target.value)}
-                  placeholder="Adicionar comentario..."
-                  className="flex-1 px-4 py-2.5 bg-transparent text-white/85 placeholder:text-white/25 text-sm rounded-xl focus:outline-none"
-                  disabled={submitting}
-                />
+                <MentionInput
+                    wrapperClassName="flex-1"
+                    value={newComment}
+                    onChange={setNewComment}
+                    placeholder="Adicionar comentario... escreve @ para mencionar"
+                    disabled={submitting}
+                    className="w-full px-4 py-2.5 bg-transparent text-white/85 placeholder:text-white/25 text-sm rounded-xl focus:outline-none"
+                  />
                 <button
                   type="submit"
                   disabled={submitting || !newComment.trim()}
@@ -281,7 +283,7 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
                           )}
                         </div>
                       </div>
-                      <p className="text-sm text-white/50 leading-relaxed mt-0.5 whitespace-pre-wrap">{comment.comment}</p>
+                      <MentionText text={comment.comment} className="text-sm text-white/50 leading-relaxed mt-0.5 whitespace-pre-wrap" />
                     </>
                   )}
                 </div>

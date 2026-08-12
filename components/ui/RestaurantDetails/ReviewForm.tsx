@@ -5,6 +5,7 @@ import FormField from '@/components/ui/common/FormField';
 import FormActions from '@/components/ui/common/FormActions';
 import { toast } from 'react-toastify';
 import RestaurantImageManager from '@/components/ui/RestaurantManagement/RestaurantImageManager';
+import MentionInput from '@/components/ui/common/MentionInput';
 
 interface ReviewFormProps {
   restaurantId: string;
@@ -260,16 +261,15 @@ export default function ReviewForm({
         </div>
 
         {/* Comment Field */}
-        <FormField
-          label="Comentário"
-          name="comment"
-          type="textarea"
+        <label className="block text-sm font-medium text-[var(--gray-300)] mb-1">Comentário</label>
+        <MentionInput
           value={formData.comment || ''}
-          onChange={handleInputChange}
-          placeholder="Compartilhe sua experiência neste restaurante..."
+          onChange={(v: string) => setFormData(prev => ({ ...prev, comment: v }))}
+          placeholder="Compartilhe sua experiência (escreve @ para mencionar)"
           rows={4}
-          helperText="Descreva sua visita, o que gostou ou não gostou, recomendações, etc."
+          className="w-full px-3.5 py-2.5 rounded-lg border border-white/[0.1] bg-white/[0.04] text-white/90 placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
+        <p className="mt-1 text-xs text-white/40">Descreva sua visita e mencione users com @</p>
 
         {/* Amount Spent Field */}
         <FormField
