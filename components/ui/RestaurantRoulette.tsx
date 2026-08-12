@@ -218,7 +218,16 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
 
         {/* Result */}
         {showResult && selected && (
-          <div className="space-y-4 animate-[fadeUp_0.5s_ease-out]">
+          <div
+            className="space-y-4 animate-[fadeUp_0.5s_ease-out]"
+            onTouchStart={(e) => { e.currentTarget.dataset.touchStart = `${e.touches[0].clientX}`; }}
+            onTouchEnd={(e) => {
+              const startX = parseFloat(e.currentTarget.dataset.touchStart || "0");
+              const diff = startX - e.changedTouches[0].clientX;
+              // ponytail: reuse the touch-swipe pattern from the image carousels (50px threshold)
+              if (Math.abs(diff) > 50) { spin(); }
+            }}
+          >
             {/* Celebration badge */}
             <div className="flex items-center justify-center gap-2">
               <Trophy className="h-5 w-5 text-amber-400" />
