@@ -3,6 +3,7 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { createNotification } from '@/libs/notifications/service';
+import { notifyMentionedUsers } from '@/libs/mentions';
 
 // GET - Fetch all comments for a list
 export async function GET(
@@ -120,6 +121,14 @@ export async function POST(
         link: `/lists/${id}`,
       }).catch(() => {});
     }
+
+    // T36: notify mentioned users in the comment
+    await notifyMentionedUsers(supabase, comment, user, {
+      type: 'mention',
+      title: 'Menção num comentário',
+      message: 'Foste mencionado num comentário.',
+      link: `/lists/${id}`,
+    });
 
     return NextResponse.json({ 
       comment: {

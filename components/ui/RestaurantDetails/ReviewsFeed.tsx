@@ -157,7 +157,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
                       )}
                     </div>
                   </div>
-                  {review.comment && <TruncateText text={review.comment} maxLength={150} className="text-sm text-white/50 leading-relaxed" />}
+                  {review.comment && <TruncateText text={review.comment} maxLength={150} highlightMentions className="text-sm text-white/50 leading-relaxed" />}
                 </div>
               </div>
             </div>
