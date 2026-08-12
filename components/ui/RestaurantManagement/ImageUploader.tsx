@@ -169,32 +169,38 @@ export default function ImageUploader({
 
   return (
     <div className={`mb-4 ${className}`}>
-      <label className="flex items-center text-[var(--gray-700)] font-medium mb-3">
-        <Upload className="h-4 w-4 mr-2" />
-        Upload de Imagem
-      </label>
+      <div className="flex items-center justify-between mb-3">
+        <label className="flex items-center text-[var(--gray-700)] font-medium">
+          <Upload className="h-4 w-4 mr-2 text-[var(--primary)]" />
+          Upload de Imagem
+        </label>
+        {!uploadState.isUploading && (
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--gray-400)] bg-[var(--gray-100)] px-2 py-1 rounded-full">
+            Max {maxFiles}
+          </span>
+        )}
+      </div>
 
       <div
         {...getRootProps()}
         className={`
-          w-full px-6 py-4 border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
-          ${isDragActive ? 'border-[var(--primary)] bg-[rgba(var(--primary-rgb),0.1)] scale-105' : 'border-[var(--gray-300)] hover:border-[var(--primary)] hover:bg-[rgba(var(--primary-rgb),0.05)]'}
+          group w-full px-6 py-6 rounded-2xl transition-all duration-200 cursor-pointer border-2 border-dashed
+          bg-gradient-to-b from-[rgba(var(--primary-rgb),0.04)] to-transparent
+          ${isDragActive ? 'border-[var(--primary)] bg-[rgba(var(--primary-rgb),0.12)] scale-[1.02] shadow-lg shadow-[var(--primary)]/10' : 'border-[var(--gray-300)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/5'}
           ${isMobile === true ? 'active:scale-95' : ''}
           ${disabled || uploadState.isUploading ? 'opacity-50 cursor-not-allowed' : ''}
-          focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)]
+          focus:outline-none focus:ring-2 focus:ring-[var(--primary)]
         `}
       >
         <input {...getInputProps()} />
         <div className="text-center">
-          <div className="mx-auto mb-3 flex items-center justify-center w-16 h-16 rounded-full bg-[var(--gray-100)]">
+          <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/15 group-hover:scale-105 transition-all duration-200">
             {uploadState.isUploading ? (
               <Loader className="h-8 w-8 text-[var(--primary)] animate-spin" />
             ) : isMobile === true ? (
-              <Camera className="h-8 w-8 text-[var(--gray-600)]" />
-            ) : isMobile === false ? (
-              <ImageIcon className="h-8 w-8 text-[var(--gray-600)]" />
+              <Camera className="h-8 w-8 text-[var(--primary)]" />
             ) : (
-              <ImageIcon className="h-8 w-8 text-[var(--gray-600)]" />
+              <ImageIcon className="h-8 w-8 text-[var(--primary)]" />
             )}
           </div>
 
@@ -203,20 +209,20 @@ export default function ImageUploader({
               <p className="text-lg font-medium text-[var(--primary)]">Fazendo upload...</p>
             ) : (
               <>
-                <p className="text-lg font-medium text-[var(--gray-700)]">
-                  {isDragActive ? 'Solte a imagem aqui' : isMobile === true ? 'Tirar Foto ou Selecionar' : 'Arraste uma imagem ou clique'}
+                <p className="text-base font-semibold text-[var(--gray-700)]">
+                  {isDragActive ? 'Solte a imagem aqui' : isMobile === true ? 'Tirar Foto ou Selecionar' : 'Arraste imagens ou clique para enviar'}
                 </p>
                 <p className="text-sm text-[var(--gray-500)]">
-                  JPG, PNG, GIF, WebP, HEIC até 10MB (máximo {maxFiles} arquivos)
+                  JPG, PNG, GIF, WebP, HEIC · até 10MB · máx. {maxFiles}
                 </p>
                 {isMobile === true && (
-                  <p className="text-xs text-[var(--blue-600)] font-medium mt-2">
+                  <p className="text-xs text-[var(--primary)] font-medium mt-2">
                     📱 Câmera integrada
                   </p>
                 )}
                 {isMobile === false && (
                   <p className="text-xs text-[var(--gray-400)] mt-2">
-                    ou clique para selecionar
+                    arraste para cá ou clique para selecionar
                   </p>
                 )}
               </>

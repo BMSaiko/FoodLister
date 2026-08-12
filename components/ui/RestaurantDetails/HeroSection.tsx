@@ -16,6 +16,8 @@ interface HeroSectionProps {
     created_at?: string;
     location?: string;
   };
+  /** T42: consolidated experience photos from all reviews, appended to main carousel */
+  reviewImages?: string[];
   onShare: () => void;
   onSchedule: () => void;
   onEdit?: () => void;
@@ -24,7 +26,7 @@ interface HeroSectionProps {
   canDelete?: boolean;
 }
 
-export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, isOwner, onDelete, canDelete }: HeroSectionProps) {
+export default function HeroSection({ restaurant, reviewImages, onShare, onSchedule, onEdit, isOwner, onDelete, canDelete }: HeroSectionProps) {
   const ratingClass = getRatingClass(restaurant.rating || 0);
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -48,6 +50,12 @@ export default function HeroSection({ restaurant, onShare, onSchedule, onEdit, i
   }
   if (restaurant.image_url && restaurant.image_url !== "/placeholder-restaurant.jpg" && !restaurant.image_url.startsWith("data:image") && !allImages.includes(restaurant.image_url)) {
     allImages.unshift(restaurant.image_url);
+  }
+  // ponytail (T42): append consolidated review photos to the main carousel
+  if (reviewImages?.length) {
+    for (const img of reviewImages) {
+      if (img && !allImages.includes(img)) allImages.push(img);
+    }
   }
 
   const hasImages = allImages.length > 0;

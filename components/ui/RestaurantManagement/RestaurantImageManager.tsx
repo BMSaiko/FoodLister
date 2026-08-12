@@ -10,12 +10,16 @@ import Image from 'next/image';
 export default function RestaurantImageManager({
   images = [],
   displayImageIndex = -1,
+  max = 10,
+  label = "Imagens do Restaurante",
   onImagesChange,
   onDisplayImageIndexChange,
   disabled = false
 }: {
   images?: string[];
   displayImageIndex?: number;
+  max?: number;
+  label?: string;
   onImagesChange: (images: string[]) => void;
   onDisplayImageIndexChange: (index: number) => void;
   disabled?: boolean;
@@ -59,7 +63,7 @@ export default function RestaurantImageManager({
 
   // Add an image (using local state, following MenuManager exact pattern)
   const handleImageUploaded = (imageUrl: string) => {
-    if (localImages.length >= 10) {
+    if (localImages.length >= max) {
       return; // Safety check
     }
     setLocalImages(prev => {
@@ -132,9 +136,9 @@ export default function RestaurantImageManager({
       <div className="flex items-center justify-between">
         <div className="flex items-center text-sm text-[var(--gray-600)]">
           <ImageIcon className="h-4 w-4 mr-2 text-[var(--amber-500)]" />
-          Imagens do Restaurante
+          {label}
           <span className="ml-2 px-2 py-0.5 bg-[var(--amber-100)] text-[var(--amber-700)] rounded-full text-xs font-medium">
-            {localImages.length}/10
+            {localImages.length}/{max}
           </span>
         </div>
         {selectedDisplayIndex >= 0 && localImages.length > 0 && (
@@ -149,7 +153,7 @@ export default function RestaurantImageManager({
       {localImages.length < 10 && !disabled && (
         <ImageUploader
           onImageUploaded={handleImageUploaded}
-          maxFiles={10 - localImages.length}
+          maxFiles={max - localImages.length}
         />
       )}
 
@@ -262,7 +266,7 @@ export default function RestaurantImageManager({
       {/* Summary and tips */}
       <div className="text-xs text-[var(--gray-500)] space-y-2 bg-[var(--gray-50)] p-4 rounded-lg">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div>• Imagens do restaurante: {localImages.length}/10 máximo</div>
+          <div>• Imagens: {localImages.length}/{max} máximo</div>
           <div>• A imagem principal aparece nos cards e no início do carrossel</div>
         </div>
         <div className="pt-2 border-t border-[var(--gray-200)]">

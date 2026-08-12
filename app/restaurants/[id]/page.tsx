@@ -715,6 +715,7 @@ export default function RestaurantDetails() {
           {/* Hero Section */}
           <HeroSection
             restaurant={restaurant}
+            reviewImages={reviews?.flatMap(r => (r as any).images || []).filter(Boolean) || []}
             onShare={handleShareClick}
             onSchedule={() => setIsScheduleModalOpen(true)}
             onEdit={(user && (restaurant.creator_id === user.id || userProfile?.isAdmin)) ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
