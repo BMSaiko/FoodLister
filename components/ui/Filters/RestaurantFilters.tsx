@@ -33,6 +33,8 @@ interface RestaurantFiltersProps {
   initialFilters?: Filters;
   /** T49: fired when filters change, so the page writes them to the URL */
   onFiltersChange?: (filters: Filters) => void;
+  /** T50: sorting (server-side) */
+  onSortChange?: (sortBy: string, sortDirection: string) => void;
 }
 
 const DEFAULT_FILTERS: Filters = {
@@ -44,7 +46,7 @@ const DEFAULT_FILTERS: Filters = {
   location: "",
 };
 
-export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange }: RestaurantFiltersProps) {
+export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange, onSortChange }: RestaurantFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(initialFilters || DEFAULT_FILTERS);
 
@@ -134,6 +136,24 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
               <X className="h-3 w-3" />
               Limpar
             </button>
+          )}
+          {onSortChange && (
+            <select
+              onChange={(e) => {
+                const [sb, sd] = e.target.value.split(':');
+                onSortChange(sb, sd || 'asc');
+              }}
+              defaultValue="name:asc"
+              aria-label="Ordenar"
+              className="px-2.5 py-1.5 rounded-full text-xs bg-white/[0.04] ring-1 ring-white/[0.1] text-white/70 [&>option]:bg-[#0a0a0a] [&>option]:text-white focus:outline-none"
+            >
+              <option value="name:asc">Nome A-Z</option>
+              <option value="name:desc">Nome Z-A</option>
+              <option value="rating:desc">Rating (maior primeiro)</option>
+              <option value="price:asc">Preço ↑</option>
+              <option value="price:desc">Preço ↓</option>
+              <option value="popularity:desc">Populares</option>
+            </select>
           )}
           <p className="text-sm text-white/30">
             <span className="text-white/60 font-medium">{filtered.length}</span>

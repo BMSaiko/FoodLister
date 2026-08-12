@@ -96,7 +96,7 @@ export function filterByRadius<T extends { latitude?: number | null; longitude?:
 /**
  * Supported sort options for restaurant search.
  */
-export type RestaurantSortBy = 'rating' | 'distance' | 'price' | 'name';
+export type RestaurantSortBy = 'rating' | 'distance' | 'price' | 'name' | 'popularity';
 
 export type SortDirection = 'asc' | 'desc';
 

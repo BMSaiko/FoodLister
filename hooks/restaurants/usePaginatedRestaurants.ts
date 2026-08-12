@@ -10,6 +10,9 @@ interface UsePaginatedRestaurantsOptions {
   searchQuery?: string | null;
   /** true: fetch all (client filtering works over full set). false: paginated feed. */
   all: boolean;
+  /** T50: server-side sort (only used in feed mode) */
+  sortBy?: string;
+  sortDirection?: string;
 }
 
 interface UsePaginatedRestaurantsReturn {
@@ -33,6 +36,8 @@ export function usePaginatedRestaurants(
 ): UsePaginatedRestaurantsReturn {
   const searchQuery = options?.searchQuery ?? null;
   const all = options?.all ?? false;
+  const sortBy = options?.sortBy ?? "name";
+  const sortDirection = options?.sortDirection ?? "asc";
 
   const nextPageRef = useRef(1);
   const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
@@ -75,6 +80,8 @@ export function usePaginatedRestaurants(
       const params = new URLSearchParams();
       params.set("page", String(pageNumber));
       params.set("limit", String(PAGE_SIZE));
+      params.set("sort_by", sortBy);
+      params.set("sort_direction", sortDirection);
       if (searchQuery) params.set("search", searchQuery);
       const response = await fetch(`/api/restaurants?${params.toString()}`);
       if (!response.ok) {
@@ -91,7 +98,7 @@ export function usePaginatedRestaurants(
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, sortBy, sortDirection]);
 
   // Reset + fetch on mode/search change
   useEffect(() => {
@@ -103,7 +110,7 @@ export function usePaginatedRestaurants(
     }
     // ponytail: fetchPage/fetchAll already keyed on searchQuery; all is explicit
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [all, searchQuery]);
+  }, [all, searchQuery, sortBy, sortDirection]);
 
   const loadMore = useCallback(() => {
     if (all || loadingMore || !hasNext) return;
