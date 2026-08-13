@@ -2,7 +2,7 @@ import type { AdminUser } from '@/libs/types';
 import { Shield, ShieldOff, UserX, UserCheck, ExternalLink } from 'lucide-react';
 import { updateUserAdminStatus } from '@/libs/admin';
 import ConfirmModal from './ConfirmModal';
-import { useState, useOptimistic } from 'react';
+import { useState, useOptimistic, startTransition } from 'react';
 import Link from 'next/link';
 
 interface UsersTableProps {
@@ -22,12 +22,12 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
     const updatedUsers = optimisticUsers.map((u: AdminUser) =>
       u.user_id === userId ? { ...u, is_admin: !currentStatus } : u
     );
-    setOptimisticUsers(updatedUsers);
+    startTransition(() => { setOptimisticUsers(updatedUsers); });
     const success = await updateUserAdminStatus(userId, !currentStatus);
     if (success) {
       onRefresh();
     } else {
-      setOptimisticUsers(previousUsers);
+      startTransition(() => { setOptimisticUsers(previousUsers); });
     }
   };
 
@@ -36,7 +36,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
     const updatedUsers = optimisticUsers.map((u: AdminUser) =>
       u.user_id === userId ? { ...u, is_active: false } : u
     );
-    setOptimisticUsers(updatedUsers);
+    startTransition(() => { setOptimisticUsers(updatedUsers); });
     try {
       const response = await fetch('/api/admin/users/deactivate', {
         method: 'POST',
@@ -47,10 +47,10 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
       if (response.ok) {
         onRefresh();
       } else {
-        setOptimisticUsers(previousUsers);
+        startTransition(() => { setOptimisticUsers(previousUsers); });
       }
     } catch (error) {
-      setOptimisticUsers(previousUsers);
+      startTransition(() => { setOptimisticUsers(previousUsers); });
       console.error('Error deactivating user:', error);
     }
   };
@@ -60,7 +60,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
     const updatedUsers = optimisticUsers.map((u: AdminUser) =>
       u.user_id === userId ? { ...u, is_active: true } : u
     );
-    setOptimisticUsers(updatedUsers);
+    startTransition(() => { setOptimisticUsers(updatedUsers); });
     try {
       const response = await fetch('/api/admin/users/deactivate', {
         method: 'POST',
@@ -71,10 +71,10 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
       if (response.ok) {
         onRefresh();
       } else {
-        setOptimisticUsers(previousUsers);
+        startTransition(() => { setOptimisticUsers(previousUsers); });
       }
     } catch (error) {
-      setOptimisticUsers(previousUsers);
+      startTransition(() => { setOptimisticUsers(previousUsers); });
       console.error('Error reactivating user:', error);
     }
   };
