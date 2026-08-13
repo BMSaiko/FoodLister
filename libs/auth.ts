@@ -304,7 +304,8 @@ export async function getUserReviewsData(
         restaurants (
           id,
           name,
-          image_url,
+          images,
+          display_image_index,
           rating,
           location
         )
@@ -332,7 +333,8 @@ export async function getUserReviewsData(
       restaurants: {
         id: string;
         name: string;
-        image_url: string | null;
+        images: string[] | null;
+        display_image_index: number | null;
         rating: number;
         location: string;
       } | null;
@@ -347,7 +349,9 @@ export async function getUserReviewsData(
       restaurant: review.restaurants ? {
         id: review.restaurants.id,
         name: review.restaurants.name,
-        imageUrl: review.restaurants.image_url,
+        imageUrl: (review.restaurants.images && review.restaurants.images.length > 0)
+          ? (review.restaurants.images[review.restaurants.display_image_index ?? 0] || review.restaurants.images[0]) || null
+          : null,
         rating: review.restaurants.rating,
         location: review.restaurants.location
       } : null
@@ -441,7 +445,8 @@ export async function getUserRestaurantsData(
         id,
         name,
         description,
-        image_url,
+        images,
+        display_image_index,
         location,
         price_per_person,
         rating,
@@ -483,7 +488,9 @@ export async function getUserRestaurantsData(
       id: restaurant.id,
       name: restaurant.name,
       description: restaurant.description,
-      imageUrl: restaurant.image_url,
+      imageUrl: (restaurant.images && restaurant.images.length > 0)
+        ? (restaurant.images[restaurant.display_image_index ?? 0] || restaurant.images[0]) || null
+        : null,
       location: restaurant.location,
       priceLevel: restaurant.price_per_person,
       rating: restaurant.rating,

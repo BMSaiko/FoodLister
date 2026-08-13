@@ -32,9 +32,9 @@ export default function RestaurantsTable({ restaurants, onDeleted }: Restaurants
             borderColor: 'rgba(255,255,255,0.08)',
           }}
         >
-          {r.image_url && r.image_url.startsWith('http') ? (
+          {(r.images?.[r.display_image_index ?? 0] || r.images?.[0] || '').startsWith('http') ? (
             <img
-              src={r.image_url}
+              src={r.images?.[r.display_image_index ?? 0] || r.images?.[0] || ''}
               alt={r.name}
               className="w-full h-40 object-cover rounded-t-xl"
             />

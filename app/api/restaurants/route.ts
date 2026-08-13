@@ -15,7 +15,6 @@ interface Restaurant {
   id: string;
   name: string;
   description?: string;
-  image_url?: string;
   price_per_person?: number;
   rating?: number;
   location?: string;
@@ -101,7 +100,7 @@ export async function GET(request: NextRequest) {
     const joinReviews = !isAll;
     const isPopularity = sortByParam === 'popularity';
     const baseColumns = joinReviews
-      ? 'id, name, description, image_url, price_per_person, rating, location, ' +
+      ? 'id, name, description, price_per_person, rating, location, ' +
         'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
         'created_at, creator_id, creator_name, latitude, ' +
         'longitude, images, display_image_index, ' +
@@ -109,7 +108,7 @@ export async function GET(request: NextRequest) {
         'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
         'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
         'reviews:reviews(count)'
-      : 'id, name, description, image_url, price_per_person, rating, location, ' +
+      : 'id, name, description, price_per_person, rating, location, ' +
         'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
         'created_at, creator_id, creator_name, latitude, ' +
         'longitude, images, display_image_index, ' +
@@ -199,7 +198,7 @@ export async function GET(request: NextRequest) {
         throw new Error('DATABASE_ERROR');
       }
       let restaurants: Restaurant[] = (restaurantsData || []).map((r: any) => ({
-        id: r.id, name: r.name, description: r.description, image_url: r.image_url,
+        id: r.id, name: r.name, description: r.description,
         price_per_person: r.price_per_person, rating: r.rating, location: r.location,
         source_url: r.source_url, creator: r.creator, menu_url: r.menu_url,
         menu_links: r.menu_links || [], menu_images: r.menu_images || [],
@@ -286,7 +285,7 @@ export async function POST(request: NextRequest) {
     const supabase = auth.supabase;
     const user = auth.user;
     const body = await request.json();
-    const { name, description, image_url, images, display_image_index, location,
+    const { name, description, images, display_image_index, location,
       source_url, menu_links, menu_images, phone_numbers, latitude, longitude, opening_hours } = body;
     if (!name || name.trim().length === 0) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -310,7 +309,7 @@ export async function POST(request: NextRequest) {
     const displayName = (!profileError && profileData?.display_name) ? profileData.display_name : user.email;
     const { data: restaurantData, error: restaurantError } = await supabase
       .from('restaurants').insert({
-        name: name.trim(), description: description || null, image_url: image_url || null,
+        name: name.trim(), description: description || null,
         images: images || [], display_image_index: display_image_index || -1,
         location: location || null, source_url: source_url || null,
         menu_links: menu_links || [], menu_images: menu_images || [],

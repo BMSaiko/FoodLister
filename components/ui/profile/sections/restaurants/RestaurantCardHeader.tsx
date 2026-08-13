@@ -24,7 +24,7 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   restaurant, 
   centered = false 
 }) => {
-  // Determine display image: use carousel display image if available, fallback to legacy image_url
+  // Determine display image: use carousel display image if available
   const getDisplayImage = () => {
     // If restaurant has images array and display_image_index is valid
     if (restaurant.images && restaurant.images.length > 0) {
@@ -33,13 +33,10 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
           restaurant.display_image_index < restaurant.images.length) {
         // Use the specified display image
         return convertCloudinaryUrl(restaurant.images[restaurant.display_image_index]);
-      } else if (restaurant.images.length > 0) {
-        // Use first image as fallback
-        return convertCloudinaryUrl(restaurant.images[0]);
       }
     }
-    // Fallback to legacy image_url
-    return convertCloudinaryUrl(restaurant.imageUrl || '');
+    // Use first image as fallback
+    return restaurant.images && restaurant.images.length > 0 ? convertCloudinaryUrl(restaurant.images[0]) : '';
   };
 
   const imageUrl = getDisplayImage();

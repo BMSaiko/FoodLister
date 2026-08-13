@@ -99,14 +99,14 @@ export async function GET(
     if (listRestaurants && listRestaurants.length > 0) {
       const restaurantIds = listRestaurants.map((lr: { restaurant_id: string }) => lr.restaurant_id);
       
-      const listRestaurantColumns = `id, name, description, image_url, price_per_person, rating,
+      const listRestaurantColumns = `id, name, description, price_per_person, rating,
           location, source_url, creator, menu_url, menu_links, menu_images,
           phone_numbers, created_at, updated_at, creator_id,
           creator_name, latitude, longitude, images, display_image_index,
           restaurant_restaurant_features(restaurant_features(id, name, icon)),
           restaurant_dietary_options_junction(restaurant_dietary_options(id, name, icon)),
           restaurant_cuisine_types(cuisine_types(id, name, icon))`;
-      const listRestaurantColumnsFallback = `id, name, description, image_url, price_per_person, rating,
+      const listRestaurantColumnsFallback = `id, name, description, price_per_person, rating,
           location, source_url, creator, menu_url, menu_links, menu_images,
           phone_numbers, created_at, creator_id,
           creator_name, latitude, longitude, images, display_image_index,

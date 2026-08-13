@@ -43,7 +43,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Fetch restaurant details with features and dietary options (with fallback for missing updated_at)
-    const restaurantColumns = `id, name, description, image_url, price_per_person, rating,
+    const restaurantColumns = `id, name, description, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, created_at, updated_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         lists:list_restaurants(
           list:lists(id, name, is_public, creator_name, created_at)
         )`;
-    const restaurantColumnsFallback = `id, name, description, image_url, price_per_person, rating,
+    const restaurantColumnsFallback = `id, name, description, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, created_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
@@ -183,7 +183,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const {
       name,
       description,
-      image_url,
       images,
       display_image_index,
       location,
@@ -213,7 +212,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // Build update object
     if (name !== undefined) updateData.name = name.trim();
     if (description !== undefined) updateData.description = description || null;
-    if (image_url !== undefined) updateData.image_url = image_url || null;
     if (images !== undefined) updateData.images = images || [];
     if (display_image_index !== undefined) updateData.display_image_index = display_image_index || -1;
     if (location !== undefined) updateData.location = location || null;

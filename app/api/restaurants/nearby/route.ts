@@ -15,7 +15,6 @@ interface RestaurantWithDistance {
   id: string;
   name: string;
   description: string | null;
-  image_url: string | null;
   price_per_person: number | null;
   rating: number | null;
   location: string | null;
@@ -72,8 +71,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Column definitions — reused inside cacheOrSet factory
-    const nearbyColumns = 'id, name, description, image_url, price_per_person, rating, location, source_url, creator, menu_url, phone_numbers, creator_id, creator_name, created_at, updated_at, images, display_image_index, menu_links, menu_images, latitude, longitude, review_count, opening_hours';
-    const nearbyColumnsFallback = 'id, name, description, image_url, price_per_person, rating, location, source_url, creator, menu_url, phone_numbers, creator_id, creator_name, created_at, updated_at, images, display_image_index, menu_links, menu_images, latitude, longitude, review_count, opening_hours';
+    const nearbyColumns = 'id, name, description, price_per_person, rating, location, source_url, creator, menu_url, phone_numbers, creator_id, creator_name, created_at, updated_at, images, display_image_index, menu_links, menu_images, latitude, longitude, review_count, opening_hours';
+    const nearbyColumnsFallback = 'id, name, description, price_per_person, rating, location, source_url, creator, menu_url, phone_numbers, creator_id, creator_name, created_at, updated_at, images, display_image_index, menu_links, menu_images, latitude, longitude, review_count, opening_hours';
 
     // Fetch + map + filter — cached by geo params
     const cacheKey = `nearby:${lat.toFixed(4)}:${lng.toFixed(4)}:${effectiveRadius}:${sortBy}:${sortDirection}`;
@@ -102,7 +101,6 @@ export async function GET(request: NextRequest) {
           id: r.id,
           name: r.name,
           description: r.description,
-          image_url: r.image_url,
           price_per_person: r.price_per_person,
           rating: r.rating,
           location: r.location,

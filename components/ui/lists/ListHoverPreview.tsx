@@ -10,7 +10,6 @@ interface Restaurant {
   name: string;
   rating?: number;
   location?: string;
-  image_url?: string;
 }
 
 interface ListHoverPreviewProps {

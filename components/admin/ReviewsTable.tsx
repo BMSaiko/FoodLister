@@ -22,9 +22,9 @@ export default function ReviewsTable({ reviews, onDelete }: ReviewsTableProps) {
         >
           {/* Left: Restaurant thumbnail */}
           <div className="flex-shrink-0">
-            {r.restaurants?.image_url && r.restaurants.image_url.startsWith('http') ? (
+            {(r.restaurants?.images?.[r.restaurants.display_image_index ?? 0] || r.restaurants?.images?.[0] || '').startsWith('http') ? (
               <img
-                src={r.restaurants.image_url}
+                src={(r.restaurants?.images?.[r.restaurants.display_image_index ?? 0] || r.restaurants?.images?.[0] || '')}
                 alt={r.restaurants.name || 'Restaurant'}
                 className="w-16 h-16 rounded-lg object-cover"
               />

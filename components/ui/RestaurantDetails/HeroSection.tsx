@@ -9,7 +9,6 @@ interface HeroSectionProps {
     id: string;
     name: string;
     images?: string[];
-    image_url?: string;
     display_image_index?: number;
     rating?: number;
     price_per_person?: number;
@@ -51,9 +50,6 @@ export default function HeroSection({ restaurant, reviewImages, onShare, onSched
     for (const img of restaurant.images) {
       if (img && img !== "/placeholder-restaurant.jpg" && !img.startsWith("data:image")) allImages.push(img);
     }
-  }
-  if (restaurant.image_url && restaurant.image_url !== "/placeholder-restaurant.jpg" && !restaurant.image_url.startsWith("data:image") && !allImages.includes(restaurant.image_url)) {
-    allImages.unshift(restaurant.image_url);
   }
   // ponytail (T42): append consolidated review photos to the main carousel
   if (reviewImages?.length) {

@@ -8,7 +8,6 @@ import Modal from "./Modal";
 interface Restaurant {
   id: string;
   name: string;
-  image_url?: string;
   images?: string[];
   rating?: number;
   price_per_person?: number;
@@ -93,7 +92,7 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
   }, [isSpinning, spin, onClose]);
 
   const current = restaurants[currentIndex];
-  const imgUrl = current?.images?.[0] || current?.image_url;
+  const imgUrl = current?.images?.[0] || '';
 
   if (restaurants.length === 0) {
     return (

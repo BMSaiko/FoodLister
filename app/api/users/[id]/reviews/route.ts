@@ -83,7 +83,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         restaurants (
           id,
           name,
-          image_url,
+          images,
+          display_image_index,
           rating,
           location
         )
@@ -119,7 +120,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       restaurant: review.restaurants ? {
         id: review.restaurants.id,
         name: review.restaurants.name,
-        imageUrl: review.restaurants.image_url,
+        imageUrl: (review.restaurants.images && review.restaurants.images.length > 0)
+          ? (review.restaurants.images[review.restaurants.display_image_index ?? 0] || review.restaurants.images[0]) || null
+          : null,
         rating: review.restaurants.rating,
         location: review.restaurants.location
       } : null
