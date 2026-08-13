@@ -314,7 +314,7 @@ export async function POST(request: NextRequest) {
         type: 'review_created',
         title: 'Novo review',
         message: 'O teu restaurante recebeu um novo review.',
-        link: `/restaurants/${restaurant_id}`,
+        link: `/restaurants/${restaurant_id}?review=${data.id}`,
       }).catch(() => {});
     }
 
@@ -324,7 +324,7 @@ export async function POST(request: NextRequest) {
         type: 'mention',
         title: 'Menção num review',
         message: 'Foste mencionado num review.',
-        link: `/restaurants/${restaurant_id}`,
+        link: `/restaurants/${restaurant_id}?review=${data.id}`,
       });
     }
 
