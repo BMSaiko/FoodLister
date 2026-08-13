@@ -8,6 +8,7 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { Megaphone, Plus, ArrowLeft, Sparkles, Send, CalendarDays, List } from 'lucide-react';
 import { toast } from 'react-toastify';
 import type { SocialPlatform, PostType } from '@/libs/types';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const PLATFORMS: SocialPlatform[] = ['twitter', 'instagram', 'facebook', 'linkedin', 'tiktok', 'youtube'];
 const PLATFORM_LABEL: Record<SocialPlatform, string> = {
@@ -65,6 +66,7 @@ const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 export default function AdminPostsPage() {
+  usePageTitle("Admin · Posts - FoodLister");
   const { posts, campaigns, loading, fetchPosts, fetchCampaigns, createPost } = useMarketing();
   const { restaurants } = useRestaurants(null);
   const [modal, setModal] = useState(false);

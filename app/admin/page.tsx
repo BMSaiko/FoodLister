@@ -6,8 +6,10 @@ import DashboardStats from '@/components/admin/DashboardStats';
 import GrowthChart from '@/components/admin/GrowthChart';
 import Link from 'next/link';
 import { Users, UtensilsCrossed, Star, ArrowUpRight, RefreshCw } from 'lucide-react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminDashboardPage() {
+  usePageTitle("Admin - FoodLister");
   const { stats, loading, error, refresh } = useAdminStats();
 
   return (

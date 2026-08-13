@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function SignUpForm() {
   const [email, setEmail] = useState("");
@@ -133,6 +134,7 @@ function SignUpForm() {
 }
 
 export default function SignupPage() {
+  usePageTitle("Criar conta - FoodLister");
   return (
     <Suspense fallback={
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">

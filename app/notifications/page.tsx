@@ -13,6 +13,7 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const ITEM_VARIANTS = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } };
 
@@ -199,6 +200,7 @@ function SkeletonItem() {
 }
 
 export default function NotificationsPage() {
+  usePageTitle("Notificações - FoodLister");
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [displayNotifications, setDisplayNotifications] = useState<Notification[]>([]);

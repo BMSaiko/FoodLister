@@ -46,7 +46,7 @@ export default function Navbar() {
   const springHeight = useSpring(navbarHeight, { stiffness: 120, damping: 20 });
 
   // Active section
-  const activeSection = pathname === '/roulette' ? 'roulette' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
+  const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -109,7 +109,7 @@ export default function Navbar() {
           className="navbar-glass h-full rounded-2xl px-3 sm:px-5 flex items-center justify-between gap-3"
         >
           {/* Logo */}
-          <Link href="/restaurants" prefetch={false} className="flex items-center gap-2 flex-shrink-0 animate-logo-breathe">
+          <Link href="/" prefetch={false} className="flex items-center gap-2 flex-shrink-0 animate-logo-breathe">
             <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center">
               <img src="/logo.svg" alt="FoodLister" className="w-5 h-5 text-black" />
             </div>

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function SignInForm() {
   const [email, setEmail] = useState("");
@@ -129,6 +130,7 @@ function SignInForm() {
 }
 
 export default function SigninPage() {
+  usePageTitle("Entrar - FoodLister");
   return (
     <Suspense fallback={
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">

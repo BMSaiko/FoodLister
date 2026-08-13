@@ -4,6 +4,7 @@ import React from "react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { MapPinOff } from "lucide-react";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface NoCoordsRestaurant {
   id: string;
@@ -13,6 +14,7 @@ interface NoCoordsRestaurant {
 }
 
 export default function NoCoordsPage() {
+  usePageTitle("Sem coordenadas - FoodLister");
   const [restaurants, setRestaurants] = React.useState<NoCoordsRestaurant[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);

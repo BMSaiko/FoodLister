@@ -9,6 +9,7 @@ import { Shuffle, Sparkles, List } from "lucide-react";
 import RestaurantFilters from "@/components/ui/Filters/RestaurantFilters";
 import NearbyBar from "@/components/ui/Nearby/NearbyBar";
 import { useNearbyRestaurants } from "@/hooks/restaurants/useNearbyRestaurants";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface Restaurant {
   id: string;
@@ -34,6 +35,7 @@ interface UserList {
 }
 
 export default function RoulettePage() {
+  usePageTitle("Roleta - FoodLister");
   const { user } = useAuthUser();
   const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
   const [userLists, setUserLists] = useState<UserList[]>([]);

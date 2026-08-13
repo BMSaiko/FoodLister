@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useAdminUsers } from '@/hooks/admin/useAdminUsers';
 import UsersTable from '@/components/admin/UsersTable';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminUsersPage() {
+  usePageTitle("Admin · Utilizadores - FoodLister");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const { users, total, loading, error, refresh } = useAdminUsers(page, 20, search);

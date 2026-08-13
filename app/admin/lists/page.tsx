@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminListsPage() {
+  usePageTitle("Admin · Listas - FoodLister");
   const [lists, setLists] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

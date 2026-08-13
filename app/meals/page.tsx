@@ -5,8 +5,10 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import Link from "next/link";
 import {  Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function MealsPage() {
+  usePageTitle("Refeições - FoodLister");
   const { user, loading: authLoading } = useAuthUser();
   const [meals, setMeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

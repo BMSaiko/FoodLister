@@ -10,6 +10,7 @@ import { motion } from 'motion/react';
 import { Plus, Search as SearchIcon, ListChecks } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import Skeleton from '@/components/ui/Skeleton';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function ListsContent() {
   const [lists, setLists] = useState([]);
@@ -185,6 +186,7 @@ function ListsContent() {
 }
 
 export default function ListsPage() {
+  usePageTitle("Listas - FoodLister");
   return (
     <Suspense fallback={<div className="min-h-[100dvh] bg-[var(--background)]" />}>
       <ListsContent />

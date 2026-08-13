@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
@@ -67,6 +68,7 @@ export default function ListDetails() {
   const router = useRouter();
   const { user } = useAuthUser();
   const [list, setList] = useState<List | null>(null);
+usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
   const [userRole, setUserRole] = useState<string>('none');
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);

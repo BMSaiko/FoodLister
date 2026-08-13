@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useAdminRestaurants } from '@/hooks/admin/useAdminRestaurants';
 import RestaurantsTable from '@/components/admin/RestaurantsTable';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminRestaurantsPage() {
+  usePageTitle("Admin · Restaurantes - FoodLister");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const { restaurants, total, loading, error, refresh } = useAdminRestaurants(page, 20, search);

@@ -12,6 +12,7 @@ import { Filter, Search } from "lucide-react";
 import NearbyBar from "@/components/ui/Nearby/NearbyBar";
 import { useNearbyRestaurants } from "@/hooks/restaurants/useNearbyRestaurants";
 import Link from "next/link";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), {
   ssr: false,
@@ -36,6 +37,7 @@ const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/Restau
 });
 
 export default function MapPage() {
+  usePageTitle("Mapa - FoodLister");
   const { restaurants, loading, error } = useAllRestaurants(null);
   const [showList, setShowList] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");

@@ -5,8 +5,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import { useVerification } from "@/hooks/auth/useVerification";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function VerifyEmailPage() {
+  usePageTitle("Verificar email - FoodLister");
   const searchParams = useSearchParams();
   const router = useRouter();
   const { verifyEmail, loading: hookLoading } = useVerification();

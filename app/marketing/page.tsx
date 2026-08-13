@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Sparkles, ChefHat, Users, Share2, BarChart3, Shield, ArrowRight, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { Container } from "@/components/ui/Container";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const features = [
   {
@@ -59,6 +60,7 @@ const testimonials = [
 ];
 
 export default function MarketingPage() {
+  usePageTitle("Marketing - FoodLister");
   return (
     <div className="min-h-[100dvh] bg-[#050505] relative">
       {/* Mesh gradient background */}

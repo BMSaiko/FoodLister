@@ -3,8 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { CheckCircle, ArrowRight, Home } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function VerifySuccessPage() {
+  usePageTitle("Email verificado - FoodLister");
   return (
     <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
       {/* Mesh gradient orbs */}
