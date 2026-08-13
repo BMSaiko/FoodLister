@@ -1,6 +1,7 @@
 // app/api/lists/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { getErrorMessage } from '@/types/api';
 import { getListRole } from '@/libs/lists/permissions';
 import { logActivity } from '@/libs/activity';
@@ -139,6 +140,7 @@ export async function GET(
     }
 
     // Build response
+    await attachCreatorCodes(client, listData ? [listData as any] : []);
     const responseData = {
       ...(listData as any),
       restaurants,

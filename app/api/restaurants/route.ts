@@ -7,6 +7,7 @@ import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
 import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
 import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';
+import { attachCreatorCodes } from '@/libs/creatorCodes';
 
 type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
@@ -212,6 +213,7 @@ export async function GET(request: NextRequest) {
         latitude: r.latitude, longitude: r.longitude, opening_hours: r.opening_hours || null,
         images: r.images || [], display_image_index: r.display_image_index ?? -1,
       }));
+      await attachCreatorCodes(client, restaurants);
       if (isPublicRequest) {
         restaurants = restaurants.map(({ source_url, creator_id, creator_name, phone_numbers, ...rest }) => rest as Restaurant);
       }

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Globe, Lock, Trash2, User, Tag, Heart } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -19,6 +20,7 @@ interface ListCardProps {
 
 const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false, onDelete }: ListCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
 
   const isPublic = list.is_public !== false;
   // ponytail: nested count can be number | {count} | [{count}] depending on client
@@ -110,10 +112,18 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false,
                   <span>{createdDate}</span>
                 </div>
 
-                {list.creator && (
+                {(list.creator_display_name || list.creator_name || list.creator) && (
                   <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
                     <User className="w-3 h-3" />
-                    <span className="truncate max-w-[80px]">{list.creator}</span>
+                    <span
+      className="truncate max-w-[80px] hover:text-[var(--primary)] hover:underline transition-colors cursor-pointer"
+      title={list.creator_display_name || list.creator_name || list.creator || ''}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        router.push(`/users/${list.creator_user_code || list.creator_id}`);
+      }}
+    >{list.creator_display_name || list.creator_name || list.creator}</span>
                   </div>
                 )}
               </div>

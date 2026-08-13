@@ -50,6 +50,9 @@ interface List {
   name: string;
   description?: string;
   creator_id?: string;
+  creator_name?: string;
+  creator_user_code?: string | null;
+  creator_display_name?: string | null;
   creator?: string;
   created_at: string;
   updated_at: string;
@@ -278,7 +281,8 @@ export default function ListDetails() {
             description={list.description}
             isPublic={list.is_public}
             restaurantCount={restaurants.length}
-            creator={list.creator}
+            creator={list.creator_display_name || list.creator_name || list.creator}
+            creatorId={list.creator_user_code || list.creator_id}
             isOwner={userRole === 'owner'}
                           canEdit={userRole === 'owner' || userRole === 'editor'}
                           duplicating={duplicating}

@@ -4,6 +4,7 @@ import { getServerClient, getPublicServerClient, requireAdmin } from '@/libs/sup
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 
+import { attachCreatorCodes } from '@/libs/creatorCodes';
 // Valida se as coordenadas são válidas
 function isValidCoordinates(latitude: number, longitude: number): boolean {
   return (
@@ -128,6 +129,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .filter(Boolean);
     }
 
+    await attachCreatorCodes(supabase, [restaurant]);
     return NextResponse.json({ restaurant });
     } catch (error) {
       console.error('Unexpected error:', error);
