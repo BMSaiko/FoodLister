@@ -10,6 +10,7 @@ import { usePaginatedRestaurants } from '@/hooks/restaurants/usePaginatedRestaur
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { usePageTitle } from '@/hooks/usePageTitle';
 
 import HeroRestaurantCard from '@/components/ui/RestaurantList/HeroRestaurantCard';
 import { RestaurantGrid } from '@/components/ui/RestaurantList/RestaurantGrid';
@@ -23,6 +24,7 @@ function RestaurantsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const searchQuery = searchParams.get('search');
+  usePageTitle('Explorar Restaurantes - FoodLister');
 
   // ponytail (T49): filter state lives in the URL for deep-link/share
   const initialFilters = (() => {

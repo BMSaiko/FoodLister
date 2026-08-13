@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useUserData } from "@/hooks/data/useUserData";
 import { toast } from "react-toastify";
 import { AlertCircle, Star } from "lucide-react";
@@ -60,6 +61,8 @@ const UserProfilePage = () => {
     userId, enableReviews: true, enableLists: true, enableRestaurants: true,
     autoFetch: true, cacheTTL: 5 * 60 * 1000,
   });
+
+  usePageTitle(profile?.name ? `${profile.name} - FoodLister` : "FoodLister - Perfil");
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");

@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import dynamic from "next/dynamic";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
@@ -85,6 +86,7 @@ export default function RestaurantDetails() {
   const supabase = createClient();
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister - Restaurante");
   const [lists, setLists] = useState([]);
   const [cuisineTypes, setCuisineTypes] = useState([]);
   const [reviews, setReviews] = useState<Review[]>([]);

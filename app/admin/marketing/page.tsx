@@ -6,8 +6,10 @@ import StatsCard from '@/components/admin/StatsCard';
 import PlatformConnections from '@/components/admin/PlatformConnections';
 import Link from 'next/link';
 import { Megaphone, Send, CheckCircle2, Heart, RefreshCw } from 'lucide-react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminMarketingPage() {
+  usePageTitle("Admin · Marketing - FoodLister");
   const { data, loading, error, refresh } = useMarketingAnalytics();
 
   return (

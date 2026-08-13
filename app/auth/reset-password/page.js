@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Mail, Lock, Key, ArrowRight, CheckCircle } from "lucide-react";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 function ResetPasswordForm() {
   const [email, setEmail] = useState("");
@@ -224,6 +225,7 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
+  usePageTitle("Repor palavra-passe - FoodLister");
   return (
     <Suspense fallback={
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">

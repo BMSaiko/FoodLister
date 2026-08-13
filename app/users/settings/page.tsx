@@ -15,6 +15,7 @@ import Navbar from "@/components/ui/navigation/Navbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import FormSection from "@/components/ui/common/FormSection";
 import Modal from '@/components/ui/Modal';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface FormErrors {
   display_name?: string;
@@ -50,6 +51,7 @@ const SECTION_ICONS: Record<number, React.ReactNode> = {
 };
 
 export default function ProfileSettingsPage() {
+  usePageTitle("Definições - FoodLister");
   const { user, loading: authLoading } = useAuthUser();
   const router = useRouter();
   const { profile, loading: profileLoading, error, saveProfile, uploadImage, refreshProfile } = useSettings();

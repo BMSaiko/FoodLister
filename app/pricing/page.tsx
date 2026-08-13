@@ -10,8 +10,10 @@ import PricingCard from '@/components/subscription/PricingCard';
 import type { SubscriptionPlan, UserSubscription, SubscriptionTier } from '@/libs/types';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { toast } from 'react-toastify';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function PricingPage() {
+  usePageTitle("Premium - FoodLister");
   const router = useRouter();
   const { user } = useAuthUser();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);

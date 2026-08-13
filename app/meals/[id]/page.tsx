@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { usePageTitle } from '@/hooks/usePageTitle';
 import Link from 'next/link';
 import { Calendar, Clock, Users, Utensils, Download, ArrowLeft, Loader2, Check, X, ExternalLink, Edit, Trash2 } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
@@ -64,6 +65,7 @@ export default function MealDetailsPage() {
   const mealId = params.id as string;
 
   const [meal, setMeal] = useState<Meal | null>(null);
+  usePageTitle(meal?.restaurant?.name ? `${meal.restaurant.name} - FoodLister` : "FoodLister - Refeição");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);

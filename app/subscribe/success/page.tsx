@@ -5,8 +5,10 @@ import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function SubscribeSuccessPage() {
+  usePageTitle("Subscrição - FoodLister");
   return (
     <div className="min-h-[100dvh] bg-[var(--background)]">
       <Navbar />

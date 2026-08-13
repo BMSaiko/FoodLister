@@ -4,8 +4,10 @@ import { useAdminStats } from '@/hooks/admin/useAdminStats';
 import StatsCard from '@/components/admin/StatsCard';
 import GrowthChart from '@/components/admin/GrowthChart';
 import { Users, UtensilsCrossed, Star, List, Shield } from 'lucide-react';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminStatisticsPage() {
+  usePageTitle("Admin · Estatísticas - FoodLister");
   const { stats, loading, error } = useAdminStats();
 
   if (loading) return <p className="text-foreground-muted">A carregar estatísticas...</p>;

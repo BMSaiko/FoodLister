@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useAdminReviews } from '@/hooks/admin/useAdminReviews';
 import ReviewsTable from '@/components/admin/ReviewsTable';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminReviewsPage() {
+  usePageTitle("Admin · Reviews - FoodLister");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const { reviews, total, loading, error, deleteReview } = useAdminReviews(page, 20, search);

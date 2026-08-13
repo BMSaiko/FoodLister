@@ -10,8 +10,10 @@ import TypewriterText from '@/components/landing/TypewriterText';
 import RestaurantCard from '@/components/landing/RestaurantCard';
 import TasteProfile from '@/components/landing/TasteProfile';
 import ParallaxSection from '@/components/landing/ParallaxSection';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Home() {
+  usePageTitle("FoodLister - Início");
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 

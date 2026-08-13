@@ -6,6 +6,7 @@ import { useCampaigns } from '@/hooks/marketing/useCampaigns';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { Megaphone, Plus, Pencil, Trash2, ArrowLeft } from 'lucide-react';
 import type { Campaign, CampaignStatus } from '@/libs/marketing';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const STATUSES: CampaignStatus[] = ['draft', 'active', 'paused', 'completed'];
 const STATUS_LABEL: Record<CampaignStatus, string> = {
@@ -21,6 +22,7 @@ interface ModalState {
 }
 
 export default function AdminCampaignsPage() {
+  usePageTitle("Admin · Campanhas - FoodLister");
   const { campaigns, loading, error, create, update, remove } = useCampaigns();
   const [modal, setModal] = useState<ModalState>({ open: false, editing: null });
   const [form, setForm] = useState({ name: '', description: '', status: 'draft' as CampaignStatus, budget: '' });

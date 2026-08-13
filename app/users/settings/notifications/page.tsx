@@ -6,6 +6,7 @@ import { useNotificationPreferences } from '@/hooks/data/useNotificationPreferen
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface PreferenceToggleProps {
   id: string;
@@ -46,6 +47,7 @@ function PreferenceToggle({ id, label, description, icon, checked, onChange, dis
 }
 
 export default function NotificationPreferencesPage() {
+  usePageTitle("Definições · Notificações - FoodLister");
   const { preferences, loading, togglePreference } = useNotificationPreferences();
 
   return (
