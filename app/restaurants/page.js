@@ -47,7 +47,7 @@ function RestaurantsContent() {
   const { user } = useAuthUser();
   const [filtersActive, setFiltersActive] = useState(false);
   const [sort, setSort] = useState({ sortBy: "name", sortDirection: "asc" });
-  const { restaurants, loading, error, hasNext, loadingMore, loadMore } = usePaginatedRestaurants({
+  const { restaurants, loading, error, hasNext, total, loadingMore, loadMore } = usePaginatedRestaurants({
     searchQuery,
     all: filtersActive,
     sortBy: sort.sortBy,
@@ -135,7 +135,7 @@ function RestaurantsContent() {
               onLoadMore={loadMore}
             />
             <p className="text-center text-sm text-white/30 py-6">
-              {filteredRestaurants.length} restaurantes
+              {total} restaurantes
             </p>
           </>
         ) : (
