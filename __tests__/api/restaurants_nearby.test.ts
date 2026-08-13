@@ -33,7 +33,7 @@ jest.mock('@/libs/supabase/server', () => ({
             data: [
               {
                 id: 'r1', name: 'Restaurant 1', description: 'Test',
-                image_url: null, price_per_person: 15, rating: 4.5,
+                price_per_person: 15, rating: 4.5,
                 location: 'Lisbon', source_url: null, creator: null,
                 menu_url: null, visited: false, phone_numbers: [],
                 creator_id: 'u1', creator_name: 'Test User',

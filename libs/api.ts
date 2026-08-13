@@ -90,7 +90,6 @@ export interface ApiErrorResponse {
 export interface CreateRestaurantRequest {
   name: string;
   description?: string;
-  image_url?: string;
   images?: string[];
   display_image_index?: number;
   location?: string;

@@ -6,14 +6,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
-import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { validateAndNormalizePhoneNumbers, validatePhoneNumber } from '@/utils/formatters';
 import type { Restaurant } from '@/libs/types';
 
 export interface RestaurantFormData {
   name: string;
   description: string;
-  image_url: string;
   images: string[];
   display_image_index: number;
   location: string;
@@ -53,7 +51,6 @@ export interface UseRestaurantFormOptions {
 const DEFAULT_FORM_DATA: RestaurantFormData = {
   name: '',
   description: '',
-  image_url: '',
   images: [],
   display_image_index: -1,
   location: '',
@@ -132,7 +129,6 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
         setFormData({
           name: data.name,
           description: data.description,
-          image_url: data.image_url || '',
           images: data.images || [],
           display_image_index: data.display_image_index ?? -1,
           location: data.location || '',
@@ -236,8 +232,6 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
     setSaving(true);
 
     try {
-      const processedImageUrl = convertCloudinaryUrl(formData.image_url) || '/placeholder-restaurant.jpg';
-
       if (isEdit && restaurantId) {
         // Update existing restaurant
         const { error: updateError } = await (supabase
@@ -245,7 +239,6 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
           .update({
             name: formData.name,
             description: formData.description,
-            image_url: processedImageUrl,
             images: formData.images,
             display_image_index: formData.display_image_index,
             location: formData.location,
@@ -272,7 +265,6 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
           .insert({
             name: formData.name,
             description: formData.description,
-            image_url: processedImageUrl,
             images: formData.images,
             display_image_index: formData.display_image_index,
             location: formData.location || '',

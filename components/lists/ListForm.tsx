@@ -13,8 +13,8 @@ import ListFormCelebration from "./ListFormCelebration";
 interface Restaurant {
   id: string;
   name: string;
-  image_url?: string;
   images?: string[];
+  display_image_index?: number;
   rating?: number;
   price_per_person?: number;
   location?: string;
@@ -237,8 +237,8 @@ export default function ListForm({
                       {filteredRestaurants.length > 0 ? (
                         filteredRestaurants.slice(0, 20).map(r => (
                           <div key={r.id} className="flex items-center gap-3 p-3 hover:bg-white/[0.03] transition-colors">
-                            {r.image_url ? (
-                              <img src={r.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                            {r.images?.[r.display_image_index ?? 0] || r.images?.[0] ? (
+                              <img src={r.images?.[r.display_image_index ?? 0] || r.images?.[0]} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                             ) : (
                               <div className="w-10 h-10 rounded-lg bg-white/[0.04] flex items-center justify-center flex-shrink-0">
                                 <span className="text-lg">🍽️</span>
@@ -313,8 +313,8 @@ export default function ListForm({
                       {selectedRestaurants.map((r, i) => (
                         <div key={r.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] group">
                           <span className="text-xs text-white/20 w-5 text-center font-medium">{i + 1}</span>
-                          {r.image_url ? (
-                            <img src={r.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                          {r.images?.[r.display_image_index ?? 0] || r.images?.[0] ? (
+                            <img src={r.images?.[r.display_image_index ?? 0] || r.images?.[0]} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                           ) : (
                             <div className="w-10 h-10 rounded-lg bg-white/[0.04] flex items-center justify-center flex-shrink-0">
                               <span className="text-lg">🍽️</span>

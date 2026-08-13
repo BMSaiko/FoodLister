@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
     const search = searchParams.get('search') || '';
-    let query = admin.from('reviews').select('id, restaurant_id, user_id, rating, comment, user_name, created_at, restaurants(name, image_url)', { count: 'exact'});
+    let query = admin.from('reviews').select('id, restaurant_id, user_id, rating, comment, user_name, created_at, restaurants(name, images, display_image_index)', { count: 'exact'});
     if (search) {
       query = query.or('user_name.ilike.%${search}%,comment.ilike.%${search}%');
     }

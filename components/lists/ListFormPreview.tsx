@@ -6,7 +6,8 @@ import { Globe, Lock, Star, List, ImageIcon } from "lucide-react";
 interface Restaurant {
   id: string;
   name: string;
-  image_url?: string;
+  images?: string[];
+  display_image_index?: number;
   rating?: number;
   location?: string;
 }
@@ -73,8 +74,8 @@ export default function ListFormPreview({ name, description, isPublic, coverImag
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {selectedRestaurants.slice(0, 4).map(r => (
                   <div key={r.id} className="flex items-center gap-2 p-1.5 rounded-lg bg-white/[0.02]">
-                    {r.image_url ? (
-                      <img src={r.image_url} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+                    {r.images?.[r.display_image_index ?? 0] || r.images?.[0] ? (
+                      <img src={r.images?.[r.display_image_index ?? 0] || r.images?.[0]} alt="" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center flex-shrink-0">
                         <span className="text-sm">🍽️</span>

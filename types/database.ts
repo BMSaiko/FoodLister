@@ -41,7 +41,6 @@ export interface Database {
           id: string;
           name: string;
           description: string | null;
-          image_url: string | null;
           price_per_person: number | null;
           rating: number | null;
           location: string | null;
@@ -314,7 +313,6 @@ export interface ListFormData {
 export interface RestaurantFormData {
   name: string;
   description?: string;
-  image_url?: string;
   price_per_person?: number;
   rating?: number;
   location?: string;

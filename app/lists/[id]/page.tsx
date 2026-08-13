@@ -26,7 +26,6 @@ interface Restaurant {
   id: string;
   name: string;
   description?: string;
-  image_url?: string;
   price_per_person?: number;
   rating?: number;
   location?: string;

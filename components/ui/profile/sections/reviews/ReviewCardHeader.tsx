@@ -27,7 +27,7 @@ const ReviewCardHeader: React.FC<ReviewCardHeaderProps> = ({
   review, 
   centered = false 
 }) => {
-  // Determine display image: use carousel display image if available, fallback to legacy image_url
+  // Determine display image: use carousel display image if available
   const getDisplayImage = () => {
     // If restaurant has images array and display_image_index is valid
     if (review.restaurant.images && review.restaurant.images.length > 0) {
@@ -36,13 +36,10 @@ const ReviewCardHeader: React.FC<ReviewCardHeaderProps> = ({
           review.restaurant.display_image_index < review.restaurant.images.length) {
         // Use the specified display image
         return convertCloudinaryUrl(review.restaurant.images[review.restaurant.display_image_index]);
-      } else if (review.restaurant.images.length > 0) {
-        // Use first image as fallback
-        return convertCloudinaryUrl(review.restaurant.images[0]);
       }
     }
-    // Fallback to legacy image_url
-    return convertCloudinaryUrl(review.restaurant.imageUrl || '');
+    // Use first image as fallback
+    return review.restaurant.images && review.restaurant.images.length > 0 ? convertCloudinaryUrl(review.restaurant.images[0]) : '';
   };
 
   const imageUrl = getDisplayImage();

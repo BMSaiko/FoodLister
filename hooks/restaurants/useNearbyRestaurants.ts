@@ -7,7 +7,6 @@ export interface NearbyRestaurant {
   id: string;
   name: string;
   description: string | null;
-  image_url: string | null;
   price_per_person: number | null;
   rating: number | null;
   location: string | null;

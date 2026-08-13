@@ -14,7 +14,6 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 interface Restaurant {
   id: string;
   name: string;
-  image_url?: string;
   images?: string[];
   rating?: number;
   price_per_person?: number;
