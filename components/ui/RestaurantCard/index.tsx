@@ -92,9 +92,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           </h3>
         </Link>
 
-        {restaurant.creator_name && (
+        {(restaurant.creator_display_name || restaurant.creator_name) && (
           <p className="mt-1 text-xs text-[var(--foreground-muted)]">
-            Adicionado por <CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_display_name || restaurant.creator_name} />
+            Adicionado por <CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={(restaurant.creator_display_name || restaurant.creator_name) || ""} />
           </p>
         )}
 
