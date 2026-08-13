@@ -33,6 +33,8 @@ interface RestaurantFiltersProps {
   initialFilters?: Filters;
   /** T49: fired when filters change, so the page writes them to the URL */
   onFiltersChange?: (filters: Filters) => void;
+  /** real DB count of restaurants (not the loaded page) */
+  totalRestaurants?: number;
   /** T50: sorting (server-side) */
   onSortChange?: (sortBy: string, sortDirection: string) => void;
 }
@@ -46,7 +48,7 @@ const DEFAULT_FILTERS: Filters = {
   location: "",
 };
 
-export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange, onSortChange }: RestaurantFiltersProps) {
+export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange, onSortChange, totalRestaurants }: RestaurantFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(initialFilters || DEFAULT_FILTERS);
 
@@ -166,9 +168,8 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
             </select>
           )}
           <p className="text-sm text-white/30">
-            <span className="text-white/60 font-medium">{filtered.length}</span>
-            {filtered.length !== restaurants.length && <span> de {restaurants.length}</span>}
-            {" "}restaurantes
+            <span className="text-white/60 font-medium">{totalRestaurants ?? filtered.length}</span>{' '}
+            restaurantes
           </p>
         </div>
       </div>

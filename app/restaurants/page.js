@@ -81,6 +81,7 @@ function RestaurantsContent() {
         <div className="mb-6 md:mb-8 space-y-3">
           <RestaurantFilters
             restaurants={restaurants}
+            totalRestaurants={total}
             onFiltered={(filtered) => setFilteredRestaurants(filtered)}
             onActiveChange={setFiltersActive}
             initialFilters={initialFilters}
