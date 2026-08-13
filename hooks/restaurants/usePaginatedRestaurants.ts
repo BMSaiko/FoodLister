@@ -21,6 +21,7 @@ interface UsePaginatedRestaurantsReturn {
   loadingMore: boolean;
   error: string | null;
   hasNext: boolean;
+  total: number;
   loadMore: () => void;
   refetch: () => void;
 }
@@ -43,6 +44,7 @@ export function usePaginatedRestaurants(
   const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
   const [rawData, setRawData] = useState<any[]>([]);
   const [hasNext, setHasNext] = useState(false);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +67,7 @@ export function usePaginatedRestaurants(
       setRawData(items);
       setRestaurants(shuffleArray(items));
       setHasNext(false);
+      setTotal(items.length);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
       setRestaurants([]);
@@ -94,6 +97,7 @@ export function usePaginatedRestaurants(
       const pageItems = append ? items : shuffleArray(items);
       setRestaurants(prev => (append ? [...prev, ...items] : pageItems));
       setHasNext(Boolean(data.pagination?.hasNext));
+      setTotal(typeof data.pagination?.total === 'number' ? data.pagination.total : 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -129,5 +133,5 @@ export function usePaginatedRestaurants(
     }
   }, [all, rawData, fetchPage]);
 
-  return { restaurants, loading, loadingMore, error, hasNext, loadMore, refetch };
+  return { restaurants, loading, loadingMore, error, hasNext, total, loadMore, refetch };
 }

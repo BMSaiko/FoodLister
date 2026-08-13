@@ -157,17 +157,19 @@ export async function GET(request: NextRequest) {
       let allRestaurants: any[] = [];
       let offset = (isAll || isPopularity) ? 0 : (page - 1) * limit;
       const BATCH_SIZE = 1000;
+      // ponytail: feed mode honors ?limit (real pagination); only all/popularity need the whole set
+      const batchSize = (isAll || isPopularity) ? BATCH_SIZE : limit;
       let hasMore = true;
       
       while (hasMore) {
-        let batchQuery = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(offset, offset + BATCH_SIZE - 1);
+        let batchQuery = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(offset, offset + batchSize - 1);
         batchQuery = applyFilters(batchQuery);
         if (!isAll && !isPopularity) batchQuery = applySort(batchQuery);
         const { data: batchData, error: batchError } = await batchQuery;
         
         if (batchError) {
           if (batchError.code === '42703') {
-            let fbQuery = client.from('restaurants').select(baseColumns).range(offset, offset + BATCH_SIZE - 1);
+            let fbQuery = client.from('restaurants').select(baseColumns).range(offset, offset + batchSize - 1);
             fbQuery = applyFilters(fbQuery);
             const { data: fbData, error: fbError } = await fbQuery;
             if (fbError) { throw fbError; }
@@ -181,7 +183,7 @@ export async function GET(request: NextRequest) {
         
         if (!isAll && !isPopularity) {
           hasMore = false;
-        } else if ((batchData || []).length < BATCH_SIZE) {
+        } else if ((batchData || []).length < batchSize) {
           hasMore = false;
         } else {
           offset += BATCH_SIZE;
@@ -220,10 +222,17 @@ export async function GET(request: NextRequest) {
       }
       // ponytail: popularity = composite formula (same as admin), sort in JS over full set
       if (isPopularity) restaurants.sort((a, b) => scoreRestaurant(b) - scoreRestaurant(a));
+      // ponytail: real total for feed (api counts rows); all/popularity already hold the full set
+      let realTotal = restaurants.length;
+      if (!isAll && !isPopularity) {
+        const cq = client.from('restaurants').select('*', { count: 'exact', head: true });
+        const { count } = await applyFilters(cq);
+        if (typeof count === 'number') realTotal = count;
+      }
       const pagination = {
         page,
         limit,
-        total: restaurants.length,
+        total: realTotal,
         totalPages: Math.ceil(restaurants.length / limit),
         hasNext: !(isAll || isPopularity) && restaurants.length === limit,
         hasPrev: page > 1,
@@ -244,8 +253,8 @@ export async function GET(request: NextRequest) {
       pagination: {
         page,
         limit,
-        total: restaurants.length,
-        totalPages: Math.ceil(restaurants.length / limit),
+        total: pagination.total,
+        totalPages: Math.ceil(pagination.total / limit),
         hasNext: !isAll && restaurants.length === limit,
         hasPrev: page > 1,
       },

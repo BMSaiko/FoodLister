@@ -109,7 +109,7 @@ export default function Navbar() {
           className="navbar-glass h-full rounded-2xl px-3 sm:px-5 flex items-center justify-between gap-3"
         >
           {/* Logo */}
-          <Link href="/restaurants" className="flex items-center gap-2 flex-shrink-0 animate-logo-breathe">
+          <Link href="/restaurants" prefetch={false} className="flex items-center gap-2 flex-shrink-0 animate-logo-breathe">
             <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center">
               <img src="/logo.svg" alt="FoodLister" className="w-5 h-5 text-black" />
             </div>
@@ -119,7 +119,7 @@ export default function Navbar() {
           {/* Nav Items with Animated Indicator */}
           <div className="hidden md:flex items-center gap-0.5 bg-white/[0.03] rounded-full p-1 relative">
             {NAV_ITEMS.map((item) => (
-              <Link key={item.id} href={item.href} className="relative z-10">
+              <Link key={item.id} href={item.href} prefetch={false} className="relative z-10">
                 <motion.span
                   className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 ${
                     activeSection === item.id
@@ -153,6 +153,7 @@ export default function Navbar() {
             {user && (
               <Link
                 href="/restaurants/create"
+                prefetch={false}
                 className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
                 title="Criar restaurante"
               >
@@ -164,6 +165,7 @@ export default function Navbar() {
             {user && (
               <Link
                 href="/roulette"
+                prefetch={false}
                 className={`hidden md:flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
                   pathname === '/roulette'
                     ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/40 scale-110'
@@ -343,7 +345,7 @@ export default function Navbar() {
               );
             }
             return (
-              <Link key={item.id} href={item.href!} className={baseClass}>
+              <Link key={item.id} href={item.href!} prefetch={false} className={baseClass}>
                 <item.icon className="w-5 h-5" />
                 <span className="text-[9px] sm:text-[10px] font-medium">{item.label}</span>
               </Link>

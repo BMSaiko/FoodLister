@@ -100,10 +100,20 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
     onActiveChange?.(activeCount > 0);
   }, [activeCount, onActiveChange]);
 
-  // ponytail (T49): every filter change is mirrored to the URL by the page
+  // ponytail (T49): every filter change is mirrored to the URL by the page.
+  // Depend only on `filters` (stable ref, only setFilters changes it): the parent
+  // recreates onFiltersChange every render, so depending on it re-ran this effect
+  // after every render -> router.replace -> parent re-render -> infinite loop (T71).
+  const onFiltersChangeRef = React.useRef(onFiltersChange);
+  React.useEffect(() => { onFiltersChangeRef.current = onFiltersChange; });
+  const firstFiltersRender = React.useRef(true);
   React.useEffect(() => {
-    onFiltersChange?.(filters);
-  }, [filters, onFiltersChange]);
+    if (firstFiltersRender.current) {
+      firstFiltersRender.current = false;
+      return; // URL already reflects the initial filters (deep-link); don't rewrite on mount
+    }
+    onFiltersChangeRef.current?.(filters);
+  }, [filters]);
 
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
