@@ -22,6 +22,8 @@ export interface Restaurant {
   updated_at: string;
   creator_id?: string;
   creator_name?: string;
+  creator_user_code?: string | null;
+  creator_display_name?: string | null;
   latitude?: number;
   longitude?: number;
   cuisine_types?: CuisineType[];
@@ -46,6 +48,8 @@ export interface List {
   updated_at: string;
   creator_id?: string;
   creator_name?: string;
+  creator_user_code?: string | null;
+  creator_display_name?: string | null;
   is_public?: boolean;
   filters?: {
     cuisineTypes?: string[];

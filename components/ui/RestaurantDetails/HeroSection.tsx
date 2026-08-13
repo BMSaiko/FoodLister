@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Share2, Calendar, Edit, Star, Euro, ChevronLeft, ChevronRight, X, ZoomIn, MapPin, Trash2 } from "lucide-react";
 import { getRatingClass, categorizePriceLevel } from "@/utils/formatters";
 import Modal from "@/components/ui/Modal";
+import { CreatorLink } from "@/components/ui/common/CreatorLink";
 
 interface HeroSectionProps {
   restaurant: {
@@ -13,6 +14,9 @@ interface HeroSectionProps {
     rating?: number;
     price_per_person?: number;
     creator_name?: string;
+    creator_id?: string;
+    creator_user_code?: string | null;
+    creator_display_name?: string | null;
     created_at?: string;
     location?: string;
   };
@@ -133,7 +137,7 @@ export default function HeroSection({ restaurant, reviewImages, onShare, onSched
                   </h1>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/45">
                     {restaurant.creator_name && (
-                      <span>Por <span className="text-white/70 font-medium">{restaurant.creator_name}</span></span>
+                      <span>Por <span className="text-white/70 font-medium"><CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_display_name || restaurant.creator_name} /></span></span>
                     )}
                     {restaurant.location && (
                       <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /><span className="truncate max-w-[200px]">{restaurant.location}</span></span>

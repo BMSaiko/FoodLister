@@ -1,6 +1,7 @@
 import React from "react";
 import { Share2, Shuffle, Edit, Copy, Trash2, Globe, Lock, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { CreatorLink } from "@/components/ui/common/CreatorLink";
 
 interface ListCoverProps {
   name: string;
@@ -8,6 +9,7 @@ interface ListCoverProps {
   isPublic?: boolean;
   restaurantCount: number;
   creator?: string;
+  creatorId?: string;
   isOwner: boolean;
   canEdit?: boolean;
   duplicating: boolean;
@@ -21,7 +23,7 @@ interface ListCoverProps {
 }
 
 export default function ListCover({
-  name, description, isPublic, restaurantCount, creator, isOwner,
+  name, description, isPublic, restaurantCount, creator, creatorId, isOwner,
   duplicating, deleting, onShare, onRoulette, onDuplicate, onDelete, listId,
   canEdit = false, likeSlot
 }: ListCoverProps) {
@@ -99,7 +101,7 @@ export default function ListCover({
             <p className="text-base md:text-lg text-white/55 max-w-2xl leading-relaxed">{description}</p>
           )}
           {creator && (
-            <p className="text-sm text-white/35 mt-2">Criada por {creator}</p>
+            <p className="text-sm text-white/35 mt-2">Criada por <CreatorLink creatorId={creatorId} name={creator || ''} /></p>
           )}
         </div>
       </div>

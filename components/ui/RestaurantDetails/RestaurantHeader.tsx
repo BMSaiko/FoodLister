@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, Share2, Calendar, Edit } from 'lucide-react';
 import { Restaurant } from '@/libs/types';
+import { CreatorLink } from '@/components/ui/common/CreatorLink';
 import { getRatingClass, formatPrice, categorizePriceLevel } from '@/utils/formatters';
 
 interface RestaurantHeaderProps {
@@ -70,7 +71,7 @@ export default function RestaurantHeader({
               {restaurant.creator_name && (
                 <div className="flex items-center text-white/60 text-xs sm:text-sm">
                   <span className="mr-1">{'\u2022'}</span>
-                  Por: <span className="font-medium ml-1">{restaurant.creator_name}</span>
+                  Por: <span className="font-medium ml-1"><CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_display_name || restaurant.creator_name} /></span>
                 </div>
               )}
               {restaurant.created_at && (

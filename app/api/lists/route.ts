@@ -1,6 +1,7 @@
 // app/api/lists/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import type { Database } from '@/types/database';
@@ -11,6 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     const responseObj = NextResponse.next();
     const supabase = await getServerClient(request, responseObj);
+let codesClient: any = supabase;
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
     const { page, limit, from, to } = parsePaginationFromRequest(request, { defaultLimit: 50 });
@@ -39,6 +41,7 @@ export async function GET(request: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
       );
+      codesClient = publicSupabase;
       listsQuery = publicSupabase
         .from('lists')
         .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)')
@@ -128,6 +131,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    await attachCreatorCodes(codesClient, listsData);
     const processedData = listsData.map((list: DbList) => ({
       ...list,
       restaurantCount: countsMap.get(list.id) || 0,

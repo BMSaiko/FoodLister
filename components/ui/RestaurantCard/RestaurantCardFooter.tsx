@@ -4,12 +4,15 @@
 import React from 'react';
 import { MapPin, Star } from 'lucide-react';
 import { getDescriptionPreview } from '@/utils/formatters';
+import { CreatorLink } from '@/components/ui/common/CreatorLink';
 
 interface RestaurantCardFooterProps {
   restaurant: {
     description?: string;
     location?: string;
     creator_name?: string;
+    creator_id?: string;
+    creator_user_code?: string | null;
     review_count?: number;
     rating?: number;
     price_per_person?: number;
@@ -96,7 +99,7 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
       {/* Creator */}
       {restaurant.creator_name && (
         <div className={`mt-2 text-xs text-[var(--foreground-muted)] ${centered ? 'text-center' : ''}`}>
-          Adicionado por: {restaurant.creator_name}
+          Adicionado por: <CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_name} />
         </div>
       )}
     </div>

@@ -7,6 +7,7 @@ import { Star, MapPin, Eye } from "lucide-react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { RestaurantWithDetails } from "@/libs/types";
 import { extractPlaceParts } from "@/utils/googleMapsExtractor";
+import { CreatorLink } from "@/components/ui/common/CreatorLink";
 
 interface RestaurantCardProps {
   restaurant: RestaurantWithDetails;
@@ -90,6 +91,12 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
             {restaurant.name}
           </h3>
         </Link>
+
+        {restaurant.creator_name && (
+          <p className="mt-1 text-xs text-[var(--foreground-muted)]">
+            Adicionado por <CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_display_name || restaurant.creator_name} />
+          </p>
+        )}
 
         <div className="flex-1" />
 
