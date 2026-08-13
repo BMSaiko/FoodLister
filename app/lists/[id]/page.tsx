@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
@@ -65,6 +65,8 @@ interface List {
 
 export default function ListDetails() {
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const highlightCommentId = searchParams?.get('comment') || undefined;
   const router = useRouter();
   const { user } = useAuthUser();
   const [list, setList] = useState<List | null>(null);
@@ -340,7 +342,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
           {/* Comments */}
           {list.is_public && (
             <div className="mb-8">
-              <ListComments listId={id as string} isOwner={userRole === 'owner'} />
+              <ListComments listId={id as string} isOwner={userRole === 'owner'} highlightCommentId={highlightCommentId} />
             </div>
           )}
 

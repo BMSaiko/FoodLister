@@ -118,7 +118,7 @@ export async function POST(
         type: 'comment_reply',
         title: 'Novo comentário',
         message: 'Alguém comentou numa lista tua.',
-        link: `/lists/${id}`,
+        link: `/lists/${id}?comment=${newComment.id}`,
       }).catch(() => {});
     }
 
@@ -127,7 +127,7 @@ export async function POST(
       type: 'mention',
       title: 'Menção num comentário',
       message: 'Foste mencionado num comentário.',
-      link: `/lists/${id}`,
+      link: `/lists/${id}?comment=${newComment.id}`,
     });
 
     return NextResponse.json({ 

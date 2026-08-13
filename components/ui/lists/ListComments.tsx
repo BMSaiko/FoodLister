@@ -21,9 +21,11 @@ interface Comment {
 interface ListCommentsProps {
   listId: string;
   isOwner: boolean;
+  /** T67: id of a comment to scroll to and highlight (from URL ?comment=) */
+  highlightCommentId?: string;
 }
 
-export default function ListComments({ listId, isOwner }: ListCommentsProps) {
+export default function ListComments({ listId, isOwner, highlightCommentId }: ListCommentsProps) {
   const { user } = useAuthUser();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -33,8 +35,15 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
   const [editText, setEditText] = useState("");
   const [saving, setSaving] = useState(false);
   const editRef = useRef<HTMLTextAreaElement>(null);
+  const commentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => { fetchComments(); }, [listId]);
+
+  useEffect(() => {
+    if (highlightCommentId && commentRefs.current[highlightCommentId]) {
+      commentRefs.current[highlightCommentId]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [highlightCommentId, comments]);
 
   useEffect(() => {
     if (editingId && editRef.current) {
@@ -203,7 +212,15 @@ export default function ListComments({ listId, isOwner }: ListCommentsProps) {
         ) : (
           <div className="space-y-2">
             {comments.map(comment => (
-              <div key={comment.id} className="group flex gap-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-200">
+              <div
+                key={comment.id}
+                ref={(el) => { commentRefs.current[comment.id] = el; }}
+                className={`group flex gap-3 p-3 rounded-xl transition-all duration-200 ${
+                  highlightCommentId === comment.id
+                    ? 'bg-amber-500/10 ring-1 ring-amber-500/30'
+                    : 'bg-white/[0.02] hover:bg-white/[0.04]'
+                }`}
+              >
                 {/* Avatar - clickable */}
                 <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="flex-shrink-0">
                   {comment.profiles?.avatar_url ? (
