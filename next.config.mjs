@@ -35,7 +35,9 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
-  optimizePackageImports: ['@supabase/supabase-js'],
+  experimental: {
+    optimizePackageImports: ['@supabase/supabase-js'],
+  },
 
   async headers() {
     return [
