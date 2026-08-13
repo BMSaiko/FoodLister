@@ -143,7 +143,9 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
           creator: data.creator || 'Anônimo',
           selectedCuisineTypes: (cuisineResult.data as any[])?.map((r: any) => r.cuisine_type_id) || [],
           selectedDietaryOptions: (dietaryResult.data as any[])?.map((r: any) => r.dietary_option_id) || [],
-          selectedFeatures: (featuresResult.data as any[])?.map((r: any) => r.feature_id) || []
+          selectedFeatures: (featuresResult.data as any[])?.map((r: any) => r.feature_id) || [],
+          latitude: data.latitude ?? null,
+          longitude: data.longitude ?? null
         });
       } catch (error) {
         console.error('Error fetching restaurant:', error);
