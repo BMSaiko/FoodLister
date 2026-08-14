@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { RestaurantWithDetails } from "@/libs/types";
 import { shuffleArray } from "@/utils/random";
+import { useAuthUser } from "@/hooks/auth/useAuthUser";
 
 const PAGE_SIZE = 21;
 
@@ -35,6 +36,7 @@ interface UsePaginatedRestaurantsReturn {
 export function usePaginatedRestaurants(
   options: UsePaginatedRestaurantsOptions | null
 ): UsePaginatedRestaurantsReturn {
+  const { user } = useAuthUser();
   const searchQuery = options?.searchQuery ?? null;
   const all = options?.all ?? false;
   const sortBy = options?.sortBy ?? "name";
@@ -65,7 +67,7 @@ export function usePaginatedRestaurants(
       const data = await response.json();
       const items = Array.isArray(data.restaurants) ? data.restaurants : [];
       setRawData(items);
-      setRestaurants(shuffleArray(items));
+      setRestaurants(shuffleArray(items, user?.id));
       setHasNext(false);
       setTotal(items.length);
     } catch (err) {
@@ -74,7 +76,7 @@ export function usePaginatedRestaurants(
     } finally {
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, user?.id]);
 
   const fetchPage = useCallback(async (pageNumber: number, append: boolean) => {
     append ? setLoadingMore(true) : setLoading(true);
@@ -94,7 +96,7 @@ export function usePaginatedRestaurants(
       const data = await response.json();
       const items: RestaurantWithDetails[] = Array.isArray(data.restaurants) ? data.restaurants : [];
       // ponytail: shuffle only the first page / refresh (not append) so the feed is new-order each load
-      const pageItems = append ? items : shuffleArray(items);
+      const pageItems = append ? items : shuffleArray(items, user?.id);
       setRestaurants(prev => (append ? [...prev, ...items] : pageItems));
       setHasNext(Boolean(data.pagination?.hasNext));
       setTotal(typeof data.pagination?.total === 'number' ? data.pagination.total : 0);
@@ -104,7 +106,7 @@ export function usePaginatedRestaurants(
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [searchQuery, sortBy, sortDirection]);
+  }, [searchQuery, sortBy, sortDirection, user?.id]);
 
   // Reset + fetch on mode/search change
   useEffect(() => {
@@ -127,11 +129,11 @@ export function usePaginatedRestaurants(
 
   const refetch = useCallback(() => {
     if (all && rawData.length > 0) {
-      setRestaurants(shuffleArray(rawData));
+      setRestaurants(shuffleArray(rawData, user?.id));
     } else {
       fetchPage(1, false);
     }
-  }, [all, rawData, fetchPage]);
+  }, [all, rawData, fetchPage, user?.id]);
 
   return { restaurants, loading, loadingMore, error, hasNext, total, loadMore, refetch };
 }
