@@ -15,6 +15,7 @@ import { Review } from "@/libs/types";
 
 // New creative components
 import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
+import AddToList from "@/components/ui/RestaurantDetails/AddToList";
 import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
 const CategoryChips = dynamic(() => import("@/components/ui/RestaurantDetails/CategoryChips"));
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), { ssr: false });
@@ -723,6 +724,13 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
             isOwner={!!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin))}
             onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
             canDelete={!!userProfile?.isAdmin}
+            actionExtra={user ? (
+              <AddToList
+                restaurantId={restaurant.id}
+                isAdmin={!!userProfile?.isAdmin}
+                existingListIds={(lists || []).map((l: any) => l.id)}
+              />
+            ) : undefined}
           />
 
           {/* Restaurant Map — compact card with restaurant pin */}
