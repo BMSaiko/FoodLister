@@ -5,24 +5,34 @@ import Link from 'next/link';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { Star, MapPin, ChevronRight } from 'lucide-react';
 import { extractPlaceParts } from '@/utils/googleMapsExtractor';
-import { CreatorLink } from '@/components/ui/common/CreatorLink';
+import { pickSeeded } from '@/utils/random';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';import { CreatorLink } from '@/components/ui/common/CreatorLink';
 
-const getRandomRestaurant = (restaurants) => {
-  if (!restaurants || restaurants.length === 0) return null;
-  return restaurants[Math.floor(Math.random() * restaurants.length)];
-};
-
-export default function HeroRestaurantCard({ restaurants }) {
+// ponytail: fetch own full list (limit=all) so the hero is random across ALL
+// restaurants regardless of filters/pagination (feed mode only returns page-1
+// name-sorted rows, hence the "only A restaurants" bug).
+export default function HeroRestaurantCard() {
   const [hero, setHero] = useState(null);
   const [imgIdx, setImgIdx] = useState(0);
+  const { user } = useAuthUser();
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 300], [0, -50]);
   const overlayOpacity = useTransform(scrollY, [0, 300], [0.4, 0.7]);
 
   useEffect(() => {
-    setHero(getRandomRestaurant(restaurants));
-    setImgIdx(0);
-  }, [restaurants]);
+    let cancelled = false;
+    fetch('/api/restaurants?limit=all&random=true')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled) return;
+        const items = Array.isArray(d?.restaurants) ? d.restaurants : [];
+        // ponytail: seeded pick (user + day-of-seconds, T76)
+        setHero(pickSeeded(items, user?.id) ?? null);
+        setImgIdx(0);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   // ponytail: crossfade through the restaurant's own photos (carousel feel)
   const imgCount = (hero?.images || []).filter((u) => u && !u.includes('placeholder')).length;

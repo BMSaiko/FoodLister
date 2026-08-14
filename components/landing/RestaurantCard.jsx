@@ -2,19 +2,20 @@
 import { useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { Star, MapPin } from 'lucide-react';
+import { extractPlaceParts } from '@/utils/googleMapsExtractor';
+import { pickSeeded } from '@/utils/random';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 
-// ponytail: protected top-rated list from /api/home/stats, pick one random per load
+// ponytail: top-rated list from /api/home/stats, seeded pick (user + day, T76)
 export default function RestaurantCard({ restaurants = [] }) {
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, -60]);
   const rotate = useTransform(scrollYProgress, [0, 1], [-1.5, 1.5]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [1, 0.9, 0.9, 0.7]);
 
-  const [idx] = useState(() =>
-    restaurants.length ? Math.floor(Math.random() * restaurants.length) : 0
-  );
-
-  const r = restaurants[idx];
+  const { user } = useAuthUser();
+  // ponytail: seeded by user + day (T76) — deterministic, no flicker, differs per user/day
+  const r = pickSeeded(restaurants, user?.id);
   if (!r) return null;
 
   const mainImage =
@@ -48,7 +49,7 @@ export default function RestaurantCard({ restaurants = [] }) {
             </div>
           )}
           <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-semibold text-white">
-            {r.price_per_person ? `\u20AC${r.price_per_person}` : '\u2014'}
+            {r.price_per_person ? `€${r.price_per_person}` : '—'}
           </div>
           <div className="absolute bottom-3 left-3 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-white/80">
             {r.review_count} reviews
@@ -65,7 +66,10 @@ export default function RestaurantCard({ restaurants = [] }) {
             </span>
             <span className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
-              {r.location}
+              {(function () {
+                const { city, district, country } = extractPlaceParts(r.location);
+                return [city, district, country].filter(Boolean).join(', ') || '—';
+              })()}
             </span>
           </div>
         </div>

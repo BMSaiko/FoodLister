@@ -75,7 +75,7 @@ function RestaurantsContent() {
     <main className="min-h-[100dvh] bg-[var(--background)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {/* Hero Card */}
-        {!loading && <HeroRestaurantCard restaurants={restaurants} />}
+        {!loading && <HeroRestaurantCard />}
 
         {/* Filters */}
         <div className="mb-6 md:mb-8 space-y-3">

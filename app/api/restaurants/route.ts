@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
         arr.sort((a, b) => scoreRestaurant(b) - scoreRestaurant(a));
         return q;
       }
-      if (randomParam) return q.order('name', { ascending: Math.random() > 0.5 });
+      if (randomParam) return q.order('name', { ascending: true }); // ponytail: cosmetic flip superseded by client shuffleArray (T76)
       const sortColMap: Record<string, string> = { rating: 'rating', price: 'price_per_person', name: 'name' };
       const col = sortColMap[sortByParam] || 'name';
       const asc = sortDirectionParam !== 'desc';
