@@ -4,7 +4,7 @@ import { requireAdmin } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
-
+import { normName, isDuplicate } from './utils';
 
 interface BatchRestaurant {
   name: string;
@@ -15,35 +15,6 @@ interface BatchRestaurant {
   longitude?: number;
   address?: string;
   place_id?: string;
-}
-
-// ponytail: dedup profunda em memoria — place_id (estavel entre formatos de URL) +
-// fallback coords-proximity+nome. source_url literal falha: scrape e DB tem formatos diferentes.
-export function normName(name: string): string {
-  return (name || '')
-    .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]/g, '');
-}
-
-// ponytail: dedup por nome + source_url + place_id. o place_id identifica o MESMO sitio
-// no Google mesmo quando o restaurante mudou de nome (nome/coords/morada davam falsos positivos).
-function extractPlaceId(sourceUrl?: string): string | null {
-  if (!sourceUrl) return null;
-  const m = sourceUrl.match(/!1s([^!]+)/);
-  return m ? m[1] : null;
-}
-
-export function isDuplicate(
-  restaurant: { name?: string; source_url?: string },
-  existing: Array<{ source_url?: string | null; name?: string | null }>
-): boolean {
-  if (restaurant.source_url && existing.some((e) => e.source_url === restaurant.source_url)) return true;
-  const pid = extractPlaceId(restaurant.source_url);
-  if (pid && existing.some((e) => extractPlaceId(e.source_url ?? undefined) === pid)) return true;
-  const nm = normName(restaurant.name ?? '');
-  if (nm && existing.some((e) => nm === normName(e.name ?? ''))) return true;
-  return false;
 }
 
 function isValidCoordinates(latitude: number, longitude: number): boolean {
