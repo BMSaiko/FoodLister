@@ -124,6 +124,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          // ponytail: email confirmation link lands on /auth/callback,
+          // which exchanges the PKCE code and shows the success + login page.
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
 
       if (error) throw error;
