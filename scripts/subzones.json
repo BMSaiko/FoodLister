@@ -1,0 +1,43 @@
+{
+  "lisboa": [
+    "Alfama",
+    "Baixa",
+    "Bairro Alto",
+    "Príncipe Real",
+    "Chiado",
+    "Campo de Ourique",
+    "Estrela",
+    "Alcântara",
+    "Belém",
+    "Avenidas Novas",
+    "Arroios",
+    "Penha de França",
+    "Graça",
+    "Santo António",
+    "Marvila",
+    "Parque das Nações",
+    "Olivais",
+    "Lumiar",
+    "Alvalade",
+    "Benfica",
+    "Campolide",
+    "Carnide",
+    "Santa Clara"
+  ],
+  "porto": [
+    "Ribeira",
+    "Aliados",
+    "Clérigos",
+    "Bonfim",
+    "Cedofeita",
+    "Miragaia",
+    "Sé",
+    "Paranhos",
+    "Ramalde",
+    "Lordelo",
+    "Massarelos",
+    "Campanhã",
+    "Foz do Douro",
+    "Matosinhos"
+  ]
+}
