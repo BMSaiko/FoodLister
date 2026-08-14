@@ -12,10 +12,28 @@ import TasteProfile from '@/components/landing/TasteProfile';
 import ParallaxSection from '@/components/landing/ParallaxSection';
 import { usePageTitle } from "@/hooks/usePageTitle";
 
+// ponytail: generic rounded counts, no exact numbers
+function formatCount(n) {
+  if (n >= 10000) return (n / 1000).toFixed(1) + "K+";
+  if (n >= 1000) return Math.round(n / 100) * 100 + "+";
+  if (n >= 100) return Math.floor(n / 10) * 10 + "+";
+  return String(n);
+}
+
+
 export default function Home() {
   usePageTitle("FoodLister - Início");
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+
+  const [home, setHome] = useState(null);
+  useEffect(() => {
+    fetch('/api/home/stats')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((d) => d?.data && setHome(d.data))
+      .catch(() => {});
+  }, []);
+
 
   return (
     <div className="min-h-[100dvh] bg-[var(--background)] relative grain-overlay">
@@ -96,9 +114,9 @@ export default function Home() {
                 className="flex gap-8 mt-12"
               >
                 {[
-                  { value: '10K+', label: 'Restaurantes' },
-                  { value: '50K+', label: 'Utilizadores' },
-                  { value: '4.9', label: 'Rating' },
+                  { value: home ? formatCount(home.restaurants) : '...', label: 'Restaurantes' },
+                  { value: home ? formatCount(home.users) : '...', label: 'Utilizadores' },
+                  { value: home ? home.avgRating : '...', label: 'Rating' },
                 ].map((stat, i) => (
                   <div key={i}>
                     <div className="text-2xl font-bold text-[var(--foreground)]">{stat.value}</div>
@@ -109,7 +127,7 @@ export default function Home() {
             </div>
 
             {/* Right: Floating Restaurant Card */}
-            <RestaurantCard />
+            <RestaurantCard restaurants={home?.topRestaurants || []} />
           </div>
         </Container>
 
