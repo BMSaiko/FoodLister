@@ -1,7 +1,10 @@
 // scripts/scrap-city-links.mjs
-// Pergunta zona -> scraper Google Maps -> JSON com links /maps/place/ dos restaurantes.
+// Scraper Google Maps -> JSON com links /maps/place/ dos restaurantes.
 // Sub-zonas opcionais (bairros/freguesias) fundidas com dedup para ir alem do feed da cidade.
-// Uso: node scripts/scrap-city-links.mjs [cidade] ["bairro1,bairro2,..."]
+// Uso:
+//   node scripts/scrap-city-links.mjs [cidade] ["bairro1,bairro2,..."]   <- interativo, 1 cidade
+//   node scripts/scrap-city-links.mjs --all [--limit N]                  <- todas as 308 cidades (batch)
+// Dados: subzones.json (subzonas dos centros de alto volume) + cities.json (concelhos restantes).
 import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -49,52 +52,131 @@ async function scrapeQuery(page, query) {
   });
 }
 
-// carregar subzonas conhecidas (config editavel)
+// carregar subzonas conhecidas (centros alto volume) + lista completa de cidades
 const known = JSON.parse(readFileSync(join(__dirname, 'subzones.json'), 'utf-8'));
 
-const city = (process.argv[2] || await ask('Zona (cidade): ')).trim();
-if (!city) { console.error('Sem zona.'); process.exit(1); }
+function safeName(name) {
+  const norm = name.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // tira acentos
+  return norm.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
-// subzonas: do ficheiro se a cidade for conhecida; senao pedir manual
-let subzones = [];
-const key = city.toLowerCase();
-const knownZones = known[key];
-if (knownZones && knownZones.length) {
-  console.log(`Sub-zonas de ${city}:`);
-  console.log('  0) TODAS');
-  knownZones.forEach((z, i) => console.log(`  ${i + 1}) ${z}`));
-  const pick = await ask('Escolhe (nºs separados por virgula, 0=todas, Enter=so a cidade): ');
-  if (pick.trim() === '0') subzones = [...knownZones];
-  else {
-    const idxs = pick.split(',').map((s) => parseInt(s, 10)).filter((n) => !isNaN(n) && n >= 1 && n <= knownZones.length);
-    subzones = idxs.map((n) => knownZones[n - 1]);
+function saveLinks(city, links) {
+  const outDir = join(__dirname, 'output');
+  mkdirSync(outDir, { recursive: true });
+  const file = join(outDir, `${safeName(city)}-mapas-links.json`);
+  writeFileSync(file, JSON.stringify(links, null, 2), 'utf-8');
+  return file;
+}
+
+async function scrapeCity(page, city, subzones) {
+  const all = new Set();
+  const queries = [`restaurantes em ${city}`, ...(subzones || []).map((s) => `restaurantes em ${s}`)];
+  for (const q of queries) {
+    const links = await scrapeQuery(page, q);
+    let novos = 0;
+    links.forEach((l) => { if (!all.has(l)) { all.add(l); novos++; } });
+    console.log(`  ${q} -> ${links.length} links, novos: ${novos}, total: ${all.size}`);
   }
-} else {
-  const manual = await ask('Sem subzonas conhecidas. Sub-zonas (separadas por virgula; Enter=so a cidade): ');
-  subzones = (manual || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const file = saveLinks(city, [...all]);
+  console.log(`  ${city}: total ${all.size} restaurantes. Guardado: ${file}`);
 }
 
-const browser = await chromium.launch({ headless: true });
-const ctx = await browser.newContext({
-  locale: 'pt-PT',
-  userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
-});
-const page = await ctx.newPage();
+async function main() {
+  const args = process.argv.slice(2);
 
-const all = new Set();
-const queries = [`restaurantes em ${city}`, ...subzones.map((s) => `restaurantes em ${s}`)];
-for (const q of queries) {
-  const links = await scrapeQuery(page, q);
-  let novos = 0;
-  links.forEach((l) => { if (!all.has(l)) { all.add(l); novos++; } });
-  console.log(`${q} -> ${links.length} links, novos: ${novos}, total: ${all.size}`);
+  // ---- modo batch: todas as cidades ----
+  if (args[0] === '--all') {
+    const limitIdx = args.indexOf('--limit');
+    const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : 0;
+    const cities = JSON.parse(readFileSync(join(__dirname, 'cities.json'), 'utf-8'));
+    const toRun = limit > 0 ? cities.slice(0, limit) : cities;
+
+    console.log(`Batch: ${limit > 0 ? 'first ' + limit + ' de ' : ''}${cities.length} cidades.`);
+
+    const browser = await chromium.launch({ headless: true });
+    const ctx = await browser.newContext({
+      locale: 'pt-PT',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
+    });
+    const page = await ctx.newPage();
+
+    for (const city of toRun) {
+      const key = city.toLowerCase();
+      const subzones = known[key] || []; // centros alto volume usam subzonas; resto so a cidade
+      console.log(`\n=== ${city} (${subzones.length} subzonas) ===`);
+      try {
+        await scrapeCity(page, city, subzones);
+      } catch (e) {
+        console.error(`  ERRO ${city}: ${e.message}`);
+      }
+    }
+
+    await browser.close();
+    console.log(`\nBatch concluido: ${toRun.length} cidades.`);
+    return;
+  }
+
+  // ---- modo interativo / single: 1 cidade ----
+  const cities = JSON.parse(readFileSync(join(__dirname, 'cities.json'), 'utf-8'));
+  const norm = (x) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+
+  let city;
+  if (args[0]) {
+    city = args[0].trim();
+  } else {
+    // lista numerada das cidades para selecionar (1..308) ou escrever nome
+    console.log(`Cidades disponiveis (${cities.length}):`);
+    cities.forEach((c, i) => console.log(`  ${String(i + 1).padStart(3)}) ${c}`));
+    const choice = (await ask('Escolhe nº ou nome da cidade: ')).trim();
+    if (!choice) { console.error('Sem zona.'); process.exit(1); }
+    const idx = parseInt(choice, 10);
+    if (!isNaN(idx) && idx >= 1 && idx <= cities.length) city = cities[idx - 1];
+    else city = choice;
+  }
+  if (!city) { console.error('Sem zona.'); process.exit(1); }
+
+  // procurar a cidade em cities.json (match sem acentos / case)
+  const match = cities.find((c) => norm(c) === norm(city));
+  let subzones = [];
+
+  if (match) {
+    // cidade reconhecida -> usamos o nome oficial (chave das subzonas em minusculas)
+    const key = match.toLowerCase();
+    const knownZones = known[key];
+    console.log(`Cidade encontrada em cities.json: ${match} (de ${cities.length}).`);
+    if (knownZones && knownZones.length) {
+      console.log(`Sub-zonas associadas a ${match}:`);
+      console.log('  0) TODAS');
+      knownZones.forEach((z, i) => console.log(`  ${i + 1}) ${z}`));
+      const pick = await ask('Escolhe (nºs separados por virgula, 0=todas, Enter=so a cidade): ');
+      if (pick.trim() === '0') subzones = [...knownZones];
+      else {
+        const idxs = pick.split(',').map((s) => parseInt(s, 10)).filter((n) => !isNaN(n) && n >= 1 && n <= knownZones.length);
+        subzones = idxs.map((n) => knownZones[n - 1]);
+      }
+    } else {
+      console.log('  (sem subzonas configuradas -> scrap so da cidade)');
+    }
+  } else {
+    // cidade NAO esta em cities.json -> skip das subzonas, scrap normal so da zona introduzida
+    console.log(`\n"${city}" nao esta em cities.json (${cities.length} cidades disponiveis).`);
+    const sugestoes = cities.filter((c) => norm(c).includes(norm(city))).slice(0, 8);
+    if (sugestoes.length) {
+      console.log('Cidades proximas em cities.json:');
+      sugestoes.forEach((sg) => console.log(`  - ${sg}`));
+    }
+    console.log('Skip das sub-zonas. A fazer scrap normal (so esta zona, sem sub-zonas).');
+  }
+
+  const browser = await chromium.launch({ headless: true });
+  const ctx = await browser.newContext({
+    locale: 'pt-PT',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36',
+  });
+  const page = await ctx.newPage();
+
+  await scrapeCity(page, city, subzones);
+  await browser.close();
 }
-await browser.close();
 
-const links = [...all];
-const outDir = join(__dirname, 'output');
-mkdirSync(outDir, { recursive: true });
-const safe = city.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-const file = join(outDir, `${safe}-mapas-links.json`);
-writeFileSync(file, JSON.stringify(links, null, 2), 'utf-8');
-console.log(`Total ${links.length} restaurantes. Guardado: ${file}`);
+main().catch((e) => { console.error(e); process.exit(1); });
