@@ -33,12 +33,15 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState<string | null>(null);
   const [pos, setPos] = useState<MenuPosition | null>(null);
+  const [filter, setFilter] = useState("");
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Fecha ao clicar fora do botao (o menu renderizado por portal nao faz parte do DOM do botao).
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const inMenu = menuRef.current && menuRef.current.contains(e.target as Node);
+      if (!inMenu && ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
@@ -108,6 +111,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
   const toggle = () => {
     if (!open) {
       position();
+      setFilter("");
       if (lists.length === 0) loadLists();
     }
     setOpen(!open);
@@ -137,16 +141,33 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
 
   const menu = open && pos ? (
     <div
-      className="fixed z-[1000] w-64 max-h-80 overflow-y-auto rounded-2xl bg-[#0a0a0a] ring-1 ring-white/[0.1] shadow-2xl p-2"
+      ref={menuRef}
+      className="fixed z-[1000] w-64 max-h-80 rounded-2xl bg-[#0a0a0a] ring-1 ring-white/[0.1] shadow-2xl p-2 flex flex-col"
       style={{ top: pos.top, right: pos.right }}
       role="menu"
     >
       {loading ? (
         <p className="px-3 py-2 text-sm text-white/40">A carregar...</p>
-      ) : lists.length === 0 ? (
-        <p className="px-3 py-2 text-sm text-white/40">Nao tens listas para adicionar</p>
       ) : (
-        lists.map((l) => (
+        <>
+          {lists.length > 0 && (
+            <div className="px-1 pb-2">
+              <input
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Filtrar listas..."
+                className="w-full px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.1] text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-amber-400/50"
+              />
+            </div>
+          )}
+          <div className="overflow-y-auto max-h-64">
+          {(() => {
+            const q = filter.trim().toLowerCase();
+            const visible = q ? lists.filter((l) => l.name.toLowerCase().includes(q)) : lists;
+            if (visible.length === 0) {
+              return <p className="px-3 py-2 text-sm text-white/40">Nenhuma lista corresponde</p>;
+            }
+            return visible.map((l) => (
           <button
             key={l.id}
             role="menuitem"
@@ -161,7 +182,10 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
               <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
             ) : null}
           </button>
-        ))
+          ));
+          })()}
+          </div>
+        </>
       )}
     </div>
   ) : null;
