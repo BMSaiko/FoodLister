@@ -4,7 +4,7 @@
 // already exist in restaurants (by source_url / place_id / name+coords / address+coords).
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/libs/supabase/server';
-import { isDuplicate } from '../route';
+import { isDuplicate } from '../utils';
 
 interface CheckItem {
   name?: string;
