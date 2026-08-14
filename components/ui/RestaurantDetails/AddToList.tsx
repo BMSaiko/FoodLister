@@ -2,6 +2,7 @@
 
 // T75: adicionar o restaurante a uma das listas do user (owner / editor / admin).
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { createClient } from "@/libs/supabase/client";
 import { ListPlus, Check, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
@@ -19,6 +20,11 @@ interface EditableList {
   name: string;
 }
 
+interface MenuPosition {
+  top: number;
+  right: number;
+}
+
 export default function AddToList({ restaurantId, isAdmin, existingListIds }: AddToListProps) {
   const supabase = createClient();
   const { post } = usePublicApiClient();
@@ -26,8 +32,10 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
   const [lists, setLists] = useState<EditableList[]>([]);
   const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState<string | null>(null);
+  const [pos, setPos] = useState<MenuPosition | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
+  // Fecha ao clicar fora do botao (o menu renderizado por portal nao faz parte do DOM do botao).
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -35,6 +43,25 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
+
+  // Reposiciona se a pagina desloca enquanto o menu esta aberto.
+  useEffect(() => {
+    if (!open) return;
+    const onScroll = () => position();
+    const onResize = () => position();
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [open]);
+
+  const position = () => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    setPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+  };
 
   const loadLists = async () => {
     setLoading(true);
@@ -79,7 +106,10 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
   };
 
   const toggle = () => {
-    if (!open && lists.length === 0) loadLists();
+    if (!open) {
+      position();
+      if (lists.length === 0) loadLists();
+    }
     setOpen(!open);
   };
 
@@ -105,40 +135,49 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
 
   const alreadyIn = (listId: string) => existingListIds?.includes(listId);
 
+  const menu = open && pos ? (
+    <div
+      className="fixed z-[1000] w-64 max-h-80 overflow-y-auto rounded-2xl bg-[#0a0a0a] ring-1 ring-white/[0.1] shadow-2xl p-2"
+      style={{ top: pos.top, right: pos.right }}
+      role="menu"
+    >
+      {loading ? (
+        <p className="px-3 py-2 text-sm text-white/40">A carregar...</p>
+      ) : lists.length === 0 ? (
+        <p className="px-3 py-2 text-sm text-white/40">Nao tens listas para adicionar</p>
+      ) : (
+        lists.map((l) => (
+          <button
+            key={l.id}
+            role="menuitem"
+            disabled={!!adding}
+            onClick={() => addToList(l.id)}
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-colors text-left"
+          >
+            <span className="flex-1 text-sm text-white/80 truncate">{l.name}</span>
+            {alreadyIn(l.id) ? (
+              <span className="text-xs text-emerald-400 flex items-center gap-1"><Check className="h-3.5 w-3.5" />Na lista</span>
+            ) : adding === l.id ? (
+              <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            ) : null}
+          </button>
+        ))
+      )}
+    </div>
+  ) : null;
+
   return (
     <div className="relative" ref={ref}>
       <button
         onClick={toggle}
+        aria-haspopup="menu"
+        aria-expanded={open}
         className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105"
       >
         <ListPlus className="h-4 w-4" /><span className="hidden sm:inline">Listas</span><ChevronDown className="h-3.5 w-3.5" />
       </button>
 
-      {open && (
-        <div className="absolute right-0 mt-2 w-64 max-h-72 overflow-y-auto rounded-2xl bg-[#0a0a0a] ring-1 ring-white/[0.1] shadow-2xl z-50 p-2">
-          {loading ? (
-            <p className="px-3 py-2 text-sm text-white/40">A carregar...</p>
-          ) : lists.length === 0 ? (
-            <p className="px-3 py-2 text-sm text-white/40">Nao tens listas para adicionar</p>
-          ) : (
-            lists.map((l) => (
-              <button
-                key={l.id}
-                disabled={!!adding}
-                onClick={() => addToList(l.id)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-white/[0.06] transition-colors text-left"
-              >
-                <span className="flex-1 text-sm text-white/80 truncate">{l.name}</span>
-                {alreadyIn(l.id) ? (
-                  <span className="text-xs text-emerald-400 flex items-center gap-1"><Check className="h-3.5 w-3.5" />Na lista</span>
-                ) : adding === l.id ? (
-                  <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                ) : null}
-              </button>
-            ))
-          )}
-        </div>
-      )}
+      {createPortal(menu, document.body)}
     </div>
   );
 }

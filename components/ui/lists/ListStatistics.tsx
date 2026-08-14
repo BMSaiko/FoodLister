@@ -11,7 +11,7 @@ interface ListStatisticsProps {
 export default function ListStatistics({ restaurants }: ListStatisticsProps) {
   const stats = useMemo(() => {
     if (!restaurants.length) return null;
-    const ratings = restaurants.filter(r => r.rating != null).map(r => r.rating);
+    const ratings = restaurants.filter(r => r.rating != null && (r.review_count ?? 0) > 0).map(r => r.rating);
     const prices = restaurants.filter(r => r.price_per_person != null).map(r => r.price_per_person);
     const locations = [...new Set(restaurants.filter(r => r.location).map(r => r.location))];
 
