@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { isDuplicate } from '@/app/api/restaurants/batch/route';
+import { isDuplicate } from '@/app/api/restaurants/batch/utils';
 
 const ex = (sourceUrl: string, name: string) => ({ id: 'x', source_url: sourceUrl, name });
 
