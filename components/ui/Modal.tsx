@@ -155,7 +155,7 @@ export default function Modal({
         </div>
       ) : (
         <div
-          className={`relative z-20 ${sizeClass} p-1.5 ${panelRadius}`}
+          className={`relative z-20 ${sizeClass} p-1.5 ${panelRadius} ${className}`}
           style={{ animation: closing ? animOut : animIn }}
         >
           <div className={`absolute inset-0 ${panelRadius} bg-white/[0.02] ring-1 ring-white/[0.08] backdrop-blur-xl`} />

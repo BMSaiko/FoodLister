@@ -3,7 +3,7 @@
 "use client";
 
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import RestaurantForm from '@/components/restaurant/RestaurantForm';
@@ -11,6 +11,17 @@ import RestaurantForm from '@/components/restaurant/RestaurantForm';
 export default function CreateRestaurant() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuthUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Apenas admins podem usar batch import
+  useEffect(() => {
+    if (user?.id) {
+      fetch('/api/users/me')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => setIsAdmin(!!d?.isAdmin))
+        .catch(() => setIsAdmin(false));
+    }
+  }, [user?.id]);
 
   // Check authentication
   useEffect(() => {
@@ -36,6 +47,7 @@ export default function CreateRestaurant() {
     <RestaurantForm
       backUrl="/restaurants"
       backLabel="Voltar para Restaurantes"
+      enableBatchImport={isAdmin}
     />
   );
 }

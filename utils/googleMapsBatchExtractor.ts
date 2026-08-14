@@ -7,7 +7,7 @@ import {
   OSMService,
 } from './googleMapsExtractor';
 
-const MAX_URLS = 50;
+const MAX_URLS = 150;
 
 /**
  * Resolves a Google Maps shortlink (maps.app.goo.gl / goo.gl)

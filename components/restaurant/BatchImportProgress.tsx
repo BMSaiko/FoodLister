@@ -7,7 +7,7 @@ import { CheckCircle, XCircle, Loader, AlertCircle } from "lucide-react";
 interface BatchImportProgressProps {
   results?: Array<{
     name: string;
-    status: "created" | "failed";
+    status: "created" | "failed" | "duplicate";
     id?: string;
     error?: string;
   }> | null;
@@ -33,6 +33,7 @@ export function BatchImportProgress({
 
   const created = results.filter((r) => r.status === "created").length;
   const failed = results.filter((r) => r.status === "failed").length;
+  const duplicates = results.filter((r) => r.status === "duplicate").length;
   const total = results.length;
   const pct = total > 0 ? Math.round((created / total) * 100) : 0;
 
@@ -56,6 +57,11 @@ export function BatchImportProgress({
         <span className="text-emerald-400 flex items-center gap-1">
           <CheckCircle className="h-4 w-4" /> {created} criado(s)
         </span>
+        {duplicates > 0 && (
+          <span className="text-amber-400 flex items-center gap-1">
+            <AlertCircle className="h-4 w-4" /> {duplicates} já existente(s) ignorado(s)
+          </span>
+        )}
         {failed > 0 && (
           <span className="text-red-400 flex items-center gap-1">
             <XCircle className="h-4 w-4" /> {failed} falhado(s)
@@ -90,6 +96,10 @@ export function BatchImportProgress({
                     {result.status === "created" ? (
                       <span className="text-emerald-400 flex items-center gap-1">
                         <CheckCircle className="h-3 w-3" /> Criado
+                      </span>
+                    ) : result.status === "duplicate" ? (
+                      <span className="text-amber-400 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {result.error || "Já existe na app"}
                       </span>
                     ) : (
                       <span className="text-red-400 flex items-center gap-1">

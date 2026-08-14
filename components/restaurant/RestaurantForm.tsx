@@ -24,6 +24,8 @@ export interface RestaurantFormProps {
   restaurantId?: string;
   backUrl: string;
   backLabel: string;
+  /** Apenas mostrar batch import (admin + create). */
+  enableBatchImport?: boolean;
   onSuccess?: (restaurant: { id: string; name: string } | { count: number }) => void;
 }
 
@@ -36,7 +38,7 @@ const SECTION_ICONS = {
   details: Check,
 };
 
-export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuccess }: RestaurantFormProps) {
+export default function RestaurantForm({ restaurantId, backUrl, backLabel, enableBatchImport, onSuccess }: RestaurantFormProps) {
   const router = useRouter();
   const [googleMapsModalOpen, setGoogleMapsModalOpen] = useState(false);
   const [batchImportOpen, setBatchImportOpen] = useState(false);
@@ -147,14 +149,16 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, onSuc
               {isEdit ? 'Atualiza as informações do restaurante.' : 'Conta a história do teu restaurante.'}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setBatchImportOpen(true)}
-            className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
-          >
-            <MapPin className="h-4 w-4" />
-            Importar lista do Google Maps
-          </button>
+          {enableBatchImport && (
+            <button
+              type="button"
+              onClick={() => setBatchImportOpen(true)}
+              className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+            >
+              <MapPin className="h-4 w-4" />
+              Importar lista do Google Maps
+            </button>
+          )}
         </div>
 
         {/* Progress */}

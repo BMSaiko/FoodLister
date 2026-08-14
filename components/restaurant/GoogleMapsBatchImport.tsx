@@ -25,9 +25,13 @@ export default function GoogleMapsBatchImport({
   const [fileContent, setFileContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [extractResults, setExtractResults] = useState<BatchExtractionResult[] | null>(null);
+  // ponytail: source_urls que ja existem na app (deteccao na fase de extracao)
+  const [duplicateUrls, setDuplicateUrls] = useState<Set<string>>(new Set());
+  // ponytail: source_urls que o user removeu da importacao (nao sao restaurantes / nao interessam)
+  const [removedUrls, setRemovedUrls] = useState<Set<string>>(new Set());
   const [showPostImportPrompt, setShowPostImportPrompt] = useState(false);
   const [importResults, setImportResults] = useState<
-    Array<{ name: string; status: "created" | "failed"; id?: string; error?: string }> | null
+    Array<{ name: string; status: "created" | "failed" | "duplicate"; id?: string; error?: string }> | null
   >(null);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState("");
@@ -52,14 +56,39 @@ export default function GoogleMapsBatchImport({
       return;
     }
 
-    if (urls.length > 50) {
-      setError(`Limite de 50 URLs excedido. Recebidas: ${urls.length}.`);
+    if (urls.length > 150) {
+      setError(`Limite de 150 URLs excedido. Recebidas: ${urls.length}.`);
       return;
     }
 
     setLoading(true);
-    extractBatch(urls).then((results) => {
+    setDuplicateUrls(new Set());
+    extractBatch(urls).then(async (results) => {
       setExtractResults(results);
+      setRemovedUrls(new Set());
+      // ponytail: marcar duplicados na extracao (o preview via "Pronto" p/ tudo antes)
+      try {
+        const res = await fetch("/api/restaurants/batch/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            restaurants: results
+              .filter((r) => r.status === "ready")
+              .map((r) => r.data),
+          }),
+        });
+        if (res.ok) {
+          const d = await res.json();
+          const dupSet = new Set<string>();
+          (d.duplicateIndexes || []).forEach((i: number) => {
+            const it = results.filter((r) => r.status === "ready")[i];
+            if (it?.data?.source_url) dupSet.add(it.data.source_url);
+          });
+          setDuplicateUrls(dupSet);
+        }
+      } catch {
+        // falha de check nao bloqueia a extracao
+      }
       setLoading(false);
     });
   }, [rawInput, fileContent, activeTab]);
@@ -69,7 +98,8 @@ export default function GoogleMapsBatchImport({
 
     const readyUrls = extractResults
       .filter((r) => r.status === "ready")
-      .map((r) => r.data);
+      .map((r) => r.data)
+      .filter((data) => !duplicateUrls.has(data.source_url || "") && !removedUrls.has(data.source_url || ""));
 
     if (readyUrls.length === 0) {
       setError("Nenhum restaurante pronto para importar.");
@@ -102,21 +132,32 @@ export default function GoogleMapsBatchImport({
     }
   }, [extractResults]);
 
+  const toggleRemoved = useCallback((url: string) => {
+    setRemovedUrls((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
+  }, []);
+
   const handleReset = () => {
     setRawInput("");
     setFileContent("");
     setExtractResults(null);
     setImportResults(null);
+    setDuplicateUrls(new Set());
+    setRemovedUrls(new Set());
     setError("");
     setLoading(false);
     setImporting(false);
   };
 
-  const readyCount = extractResults?.filter((r) => r.status === "ready").length ?? 0;
+  const readyCount = ((extractResults?.filter((r) => r.status === "ready").length ?? 0) - duplicateUrls.size - removedUrls.size);
   const errorCount = extractResults?.filter((r) => r.status === "error").length ?? 0;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" ariaLabel="Importar restaurantes do Google Maps">
+    <Modal isOpen={isOpen} onClose={onClose} size="xl" className="!max-w-3xl" ariaLabel="Importar restaurantes do Google Maps">
       {/* Header */}
       <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/[0.08]">
         <div className="flex items-center gap-3">
@@ -137,7 +178,7 @@ export default function GoogleMapsBatchImport({
               <ul className="space-y-1 list-disc list-inside">
                 <li>Cole URLs do Google Maps, uma por linha</li>
                 <li>Ou faça upload de um ficheiro CSV/JSON</li>
-                <li>Limite de 50 URLs por importação</li>
+                <li>Limite de 150 URLs por importação</li>
                 <li>Shortlinks (goo.gl) são resolvidos automaticamente</li>
                 <li>Coordenadas são obtidas via Nominatim (1 req/s)</li>
                 <li>Duplicados são detetados e marcados</li>
@@ -263,6 +304,7 @@ export default function GoogleMapsBatchImport({
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">
                 {readyCount} pronto(s) para importar
+                {duplicateUrls.size > 0 && ` · ${duplicateUrls.size} já existente(s) na app`}
                 {errorCount > 0 && ` · ${errorCount} com erro`}
               </span>
               <div className="flex gap-2">
@@ -291,16 +333,32 @@ export default function GoogleMapsBatchImport({
                     <th className="text-left px-4 py-2 text-white/40 font-medium">Endereço</th>
                     <th className="text-left px-4 py-2 text-white/40 font-medium">Coords</th>
                     <th className="text-left px-4 py-2 text-white/40 font-medium">Status</th>
+                    <th className="text-left px-4 py-2 text-white/40 font-medium"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {extractResults.map((result, idx) => (
                     <tr
                       key={idx}
-                      className="border-b border-white/[0.03] hover:bg-white/[0.02]"
+                      className={`border-b border-white/[0.03] hover:bg-white/[0.02] ${
+                        result.data.source_url && removedUrls.has(result.data.source_url) ? "opacity-40" : ""
+                      }`}
                     >
-                      <td className="px-4 py-2 text-white/80 max-w-[200px] truncate">
-                        {result.data.name || result.data.address || "—"}
+                      <td className="px-4 py-2 max-w-[200px] truncate">
+                        {result.data.source_url ? (
+                          <a
+                            href={result.data.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-white/80 hover:text-[var(--primary)] hover:underline"
+                          >
+                            {result.data.name || result.data.address || "—"}
+                          </a>
+                        ) : (
+                          <span className="text-white/80">
+                            {result.data.name || result.data.address || "—"}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-2 text-white/40 max-w-[200px] truncate">
                         {result.data.address || result.data.location || "—"}
@@ -311,7 +369,29 @@ export default function GoogleMapsBatchImport({
                           : "—"}
                       </td>
                       <td className="px-4 py-2">
-                        {result.status === "ready" ? (
+                        {result.status === "ready" && result.data.source_url && (
+                          <button
+                            type="button"
+                            onClick={() => toggleRemoved(result.data.source_url!)}
+                            className="px-2 py-1 rounded-lg text-xs font-medium border transition-colors disabled:opacity-40"
+                            style={
+                              removedUrls.has(result.data.source_url!)
+                                ? { background: "rgba(239,68,68,0.15)", color: "#fca5a5", borderColor: "rgba(239,68,68,0.3)" }
+                                : {}
+                            }
+                          >
+                            {removedUrls.has(result.data.source_url!)
+                              ? "Repor"
+                              : "Remover"}
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-4 py-2">
+                        {result.status === "ready" && result.data.source_url && duplicateUrls.has(result.data.source_url) ? (
+                          <span className="text-amber-400 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" /> Já existe na app
+                          </span>
+                        ) : result.status === "ready" ? (
                           <span className="text-emerald-400 flex items-center gap-1">
                             <CheckCircle className="h-3 w-3" /> Pronto
                           </span>
