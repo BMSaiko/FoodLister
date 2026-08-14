@@ -223,7 +223,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
   // Compute stats for meta bar
   const metaStats = useMemo(() => {
     if (!restaurants.length) return { avgRating: undefined as number | undefined, avgPrice: undefined as number | undefined, uniqueLocations: 0 };
-    const ratings: number[] = restaurants.filter((r): r is typeof r & { rating: number } => r.rating != null).map(r => r.rating);
+    const ratings: number[] = restaurants.filter((r): r is typeof r & { rating: number } => r.rating != null && (r.review_count ?? 0) > 0).map(r => r.rating);
     const prices: number[] = restaurants.filter((r): r is typeof r & { price_per_person: number } => r.price_per_person != null).map(r => r.price_per_person);
     const locations = [...new Set(restaurants.filter(r => r.location).map(r => r.location))];
     return {
