@@ -311,12 +311,16 @@ export async function PUT(
       .select('user_id')
       .eq('list_id', id)
       .neq('user_id', user.id);
+    const [{ data: updaterProfile }, { data: listRow }] = await Promise.all([
+      supabase.from('profiles').select('display_name').eq('user_id', user.id).maybeSingle(),
+      supabase.from('lists').select('name').eq('id', id).maybeSingle(),
+    ]);
     for (const c of toNotify || []) {
       createNotification({
         userId: c.user_id,
         type: 'list_update',
         title: 'Lista atualizada',
-        message: 'Uma lista em que colaboras foi atualizada.',
+        message: `${updaterProfile?.display_name || 'Alguém'} atualizou a lista "${listRow?.name ?? 'a tua lista'}".`,
         link: `/lists/${id}`,
       }).catch(() => {});
     }

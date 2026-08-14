@@ -305,7 +305,7 @@ export async function POST(request: NextRequest) {
     // ponytail: notify the restaurant owner that a review was posted
     const { data: reviewRestaurant } = await supabase
       .from('restaurants')
-      .select('creator_id')
+      .select('creator_id, name')
       .eq('id', restaurant_id)
       .single();
     if (reviewRestaurant?.creator_id && reviewRestaurant.creator_id !== user.id) {
@@ -313,7 +313,7 @@ export async function POST(request: NextRequest) {
         userId: reviewRestaurant.creator_id,
         type: 'review_created',
         title: 'Novo review',
-        message: 'O teu restaurante recebeu um novo review.',
+        message: `Novo review de ${userDisplayName} em ${reviewRestaurant?.name ?? 'um restaurante'}.`,
         link: `/restaurants/${restaurant_id}?review=${data.id}`,
       }).catch(() => {});
     }
@@ -323,7 +323,7 @@ export async function POST(request: NextRequest) {
       await notifyMentionedUsers(supabase, comment, user, {
         type: 'mention',
         title: 'Menção num review',
-        message: 'Foste mencionado num review.',
+        message: `Foste mencionado num review de ${reviewRestaurant?.name ?? 'um restaurante'}.`,
         link: `/restaurants/${restaurant_id}?review=${data.id}`,
       });
     }
