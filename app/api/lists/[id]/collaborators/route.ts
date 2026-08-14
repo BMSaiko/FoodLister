@@ -144,11 +144,15 @@ export async function POST(
     }
 
     // ponytail: notify the added collaborator (best-effort)
+    const [{ data: inviterProfile }, { data: listRow }] = await Promise.all([
+      supabase.from('profiles').select('display_name').eq('user_id', user.id).maybeSingle(),
+      supabase.from('lists').select('name').eq('id', id).maybeSingle(),
+    ]);
     createNotification({
       userId: targetUser.user_id,
       type: 'list_invite',
       title: 'Convite para lista',
-      message: 'Foste adicionado como colaborador de uma lista.',
+      message: `${inviterProfile?.display_name || 'Alguém'} adicionou-te como colaborador da lista ${listRow?.name ?? 'a lista'}.`,
       link: `/lists/${id}`,
     }).catch(() => {});
 

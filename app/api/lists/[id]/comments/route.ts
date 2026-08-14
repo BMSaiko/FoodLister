@@ -109,7 +109,7 @@ export async function POST(
     // ponytail: notify the list owner that a comment was added
     const { data: commentList } = await supabase
       .from('lists')
-      .select('creator_id')
+      .select('creator_id, name')
       .eq('id', id)
       .single();
     if (commentList?.creator_id && commentList.creator_id !== user.id) {
@@ -117,7 +117,7 @@ export async function POST(
         userId: commentList.creator_id,
         type: 'comment_reply',
         title: 'Novo comentário',
-        message: 'Alguém comentou numa lista tua.',
+        message: `${profile?.display_name || 'Alguém'} comentou na lista ${commentList?.name ?? 'a tua lista'}.`,
         link: `/lists/${id}?comment=${newComment.id}`,
       }).catch(() => {});
     }
@@ -126,7 +126,7 @@ export async function POST(
     await notifyMentionedUsers(supabase, comment, user, {
       type: 'mention',
       title: 'Menção num comentário',
-      message: 'Foste mencionado num comentário.',
+      message: `Foste mencionado num comentário na lista ${commentList?.name ?? 'a tua lista'}.`,
       link: `/lists/${id}?comment=${newComment.id}`,
     });
 
