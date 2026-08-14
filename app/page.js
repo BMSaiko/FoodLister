@@ -10,6 +10,7 @@ import TypewriterText from '@/components/landing/TypewriterText';
 import RestaurantCard from '@/components/landing/RestaurantCard';
 import TasteProfile from '@/components/landing/TasteProfile';
 import ParallaxSection from '@/components/landing/ParallaxSection';
+import FAQSection from '@/components/ui/common/FAQSection';
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 // ponytail: generic rounded counts, no exact numbers
@@ -272,6 +273,38 @@ export default function Home() {
           </div>
         </Container>
       </ParallaxSection>
+
+      {/* FAQ Section */}
+      <FAQSection
+        title="Perguntas Frequentes"
+        subtitle="Tudo o que precisas de saber para comecar a explorar."
+        items={[
+          {
+            q: "O que e o FoodLister?",
+            a: "Uma plataforma de curadoria de restaurantes. Descobre lugares, avalia as tuas experiencias, cria listas personalizadas e decide onde comer — seja numa roleta ou no mapa.",
+          },
+          {
+            q: "E gratuito?",
+            a: "Sim, o plano Free inclui as funcionalidades essenciais: criar listas, avaliar restaurantes, filtros basicos e colaborar em listas. Podeste fazer upgrade para Premium ou Pro se quiseres funcionalidades avancadas.",
+          },
+          {
+            q: "O que sao as listas e como crio uma?",
+            a: "As listas permitem organizar restaurantes por tema, ocasiao ou humor. Para criar uma, inicia sessao, vai a secao Listas e usa o botao criar. Depois, adiciona restaurantes e partilha-a com amigos.",
+          },
+          {
+            q: "O que e a roleta de descoberta?",
+            a: "Quando nao sabes onde comer, a roleta escolhe por ti: gira e deixa a sorte decidir entre os restaurantes da tua regiao. Uma forma divertida de descobrir sitios que nunca experimentaste.",
+          },
+          {
+            q: "Posso adicionar um restaurante que nao existe?",
+            a: "Sim. Se um restaurante ainda nao estiver na base, podes adiciona-lo pelo botao criar no menu. Esforcos de todos ajudam a construir a comunidade.",
+          },
+          {
+            q: "O que sao as refeicoes?",
+            a: "A secao Refeicoes permite agendar as tuas saidas e planear com quem e onde vais comer, mantendo tudo organizado num so lugar.",
+          },
+        ]}
+      />
 
       {/* CTA Section */}
       <section className="py-20 md:py-28 relative">
