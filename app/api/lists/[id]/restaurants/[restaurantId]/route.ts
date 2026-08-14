@@ -61,7 +61,15 @@ export async function DELETE(
       .eq('role', 'editor')
       .single();
 
-    if (!isOwner && !collab) {
+    // ponytail: admin treated as owner-equivalent (T75)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .single();
+    const isAdmin = profile?.is_admin === true;
+
+    if (!isOwner && !isAdmin && !collab) {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json(
         { error: getErrorMessage(errorType), code: errorType },

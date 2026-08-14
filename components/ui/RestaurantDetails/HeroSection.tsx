@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, type ReactNode } from "react";
 import { Share2, Calendar, Edit, Star, Euro, ChevronLeft, ChevronRight, X, ZoomIn, MapPin, Trash2 } from "lucide-react";
 import { getRatingClass, categorizePriceLevel } from "@/utils/formatters";
 import Modal from "@/components/ui/Modal";
@@ -27,9 +27,11 @@ interface HeroSectionProps {
   isOwner?: boolean;
   onDelete?: () => void;
   canDelete?: boolean;
+  /** extra actions rendered at the end of the actions row (e.g. T75 AddToList) */
+  actionExtra?: ReactNode;
 }
 
-export default function HeroSection({ restaurant, reviewImages, onShare, onSchedule, onEdit, isOwner, onDelete, canDelete }: HeroSectionProps) {
+export default function HeroSection({ restaurant, reviewImages, onShare, onSchedule, onEdit, isOwner, onDelete, canDelete, actionExtra }: HeroSectionProps) {
   const ratingClass = getRatingClass(restaurant.rating || 0);
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -122,6 +124,7 @@ export default function HeroSection({ restaurant, reviewImages, onShare, onSched
                   <Trash2 className="h-4 w-4" /><span className="hidden sm:inline">Eliminar</span>
                 </button>
               )}
+              {actionExtra}
             </div>
 
             {/* Hero Card — floating glass */}
