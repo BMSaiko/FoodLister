@@ -49,10 +49,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (restaurants.length > 150) {
+    if (restaurants.length > 1000) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
-        { error: getErrorMessage(errorType), code: errorType, max: 150 },
+        { error: getErrorMessage(errorType), code: errorType, max: 1000 },
         { status: 400 }
       );
     }

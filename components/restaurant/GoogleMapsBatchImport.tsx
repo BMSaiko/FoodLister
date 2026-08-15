@@ -3,9 +3,10 @@
 
 import React, { useState, useCallback } from "react";
 import { X, Loader, MapPin, Upload, FileText, Code, CheckCircle, AlertCircle } from "lucide-react";
-import { extractBatch, parseUrlInput, BatchExtractionResult } from "@/utils/googleMapsBatchExtractor";
+import { extractBatch, parseUrlInput, BatchExtractionResult, ExtractionProgress } from "@/utils/googleMapsBatchExtractor";
 import Modal from "@/components/ui/Modal";
 import { BatchImportProgress } from "./BatchImportProgress";
+import { BatchExtractionProgress } from "./BatchExtractionProgress";
 
 interface GoogleMapsBatchImportProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export default function GoogleMapsBatchImport({
   const [rawInput, setRawInput] = useState("");
   const [fileContent, setFileContent] = useState("");
   const [loading, setLoading] = useState(false);
+  const [extractionProgress, setExtractionProgress] = useState<ExtractionProgress | null>(null);
   const [extractResults, setExtractResults] = useState<BatchExtractionResult[] | null>(null);
   // ponytail: source_urls que ja existem na app (deteccao na fase de extracao)
   const [duplicateUrls, setDuplicateUrls] = useState<Set<string>>(new Set());
@@ -56,14 +58,14 @@ export default function GoogleMapsBatchImport({
       return;
     }
 
-    if (urls.length > 150) {
-      setError(`Limite de 150 URLs excedido. Recebidas: ${urls.length}.`);
+    if (urls.length > 1000) {
+      setError(`Limite de 1000 URLs excedido. Recebidas: ${urls.length}.`);
       return;
     }
 
     setLoading(true);
     setDuplicateUrls(new Set());
-    extractBatch(urls).then(async (results) => {
+    extractBatch(urls, setExtractionProgress).then(async (results) => {
       setExtractResults(results);
       setRemovedUrls(new Set());
       // ponytail: marcar duplicados na extracao (o preview via "Pronto" p/ tudo antes)
@@ -90,6 +92,7 @@ export default function GoogleMapsBatchImport({
         // falha de check nao bloqueia a extracao
       }
       setLoading(false);
+      setExtractionProgress(null);
     });
   }, [rawInput, fileContent, activeTab]);
 
@@ -151,6 +154,7 @@ export default function GoogleMapsBatchImport({
     setError("");
     setLoading(false);
     setImporting(false);
+    setExtractionProgress(null);
   };
 
   const readyCount = ((extractResults?.filter((r) => r.status === "ready").length ?? 0) - duplicateUrls.size - removedUrls.size);
@@ -178,7 +182,7 @@ export default function GoogleMapsBatchImport({
               <ul className="space-y-1 list-disc list-inside">
                 <li>Cole URLs do Google Maps, uma por linha</li>
                 <li>Ou faça upload de um ficheiro CSV/JSON</li>
-                <li>Limite de 150 URLs por importação</li>
+                <li>Limite de 1000 URLs por importação</li>
                 <li>Shortlinks (goo.gl) são resolvidos automaticamente</li>
                 <li>Coordenadas são obtidas via Nominatim (1 req/s)</li>
                 <li>Duplicados são detetados e marcados</li>
@@ -278,6 +282,14 @@ export default function GoogleMapsBatchImport({
           <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
             {error}
           </div>
+        )}
+
+        {/* Extraction Progress Bar */}
+        {loading && extractionProgress?.phase === "geocode" && (
+          <BatchExtractionProgress
+            current={extractionProgress.current}
+            total={extractionProgress.total}
+          />
         )}
 
         {/* Extract Button */}
