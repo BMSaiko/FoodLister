@@ -7,7 +7,7 @@ import {
   OSMService,
 } from './googleMapsExtractor';
 
-const MAX_URLS = 150;
+const MAX_URLS = 1000;
 
 /**
  * Resolves a Google Maps shortlink (maps.app.goo.gl / goo.gl)
@@ -148,15 +148,29 @@ function deduplicate(results: GoogleMapsData[]): GoogleMapsData[] {
  * Extracts Google Maps data from an array of URLs with rate-limited
  * reverse geocoding. Returns one result per URL with status.
  */
+export type ExtractionPhase = "extract" | "geocode";
+
+export interface ExtractionProgress {
+  /** 0-based index of the item currently being processed. */
+  current: number;
+  /** Total number of items in the current phase. */
+  total: number;
+  /** Which phase is running: URL extraction or reverse geocoding. */
+  phase: ExtractionPhase;
+}
+
 export async function extractBatch(
-  urls: string[]
+  urls: string[],
+  onProgress?: (progress: ExtractionProgress) => void
 ): Promise<BatchExtractionResult[]> {
   // Enforce limit
   const limited = urls.slice(0, MAX_URLS);
 
   // Step 1: Resolve shortlinks, then extract data from each URL
   const extracted: GoogleMapsData[] = [];
-  for (const url of limited) {
+  for (let i = 0; i < limited.length; i++) {
+    const url = limited[i];
+    onProgress?.({ current: i, total: limited.length, phase: "extract" });
     try {
       const resolvedUrl = isShortUrl(url) ? await resolveShortUrl(url) : url;
       const data = extractGoogleMapsData(resolvedUrl);
@@ -175,7 +189,9 @@ export async function extractBatch(
 
   // Step 2: Reverse geocode entries that have coords but no address
   // Rate-limited: 1 request per second (Nominatim policy)
-  for (const item of extracted) {
+  for (let gi = 0; gi < extracted.length; gi++) {
+    const item = extracted[gi];
+    onProgress?.({ current: gi, total: extracted.length, phase: "geocode" });
     if (item.latitude && item.longitude && !item.address) {
       try {
         const address = await OSMService.getStreetAddress(
