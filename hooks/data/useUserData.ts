@@ -27,6 +27,7 @@ export interface UserProfile {
       totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;
+    totalFollowers?: number;
     joinedDate: string;
   };
   recentReviews?: any[];

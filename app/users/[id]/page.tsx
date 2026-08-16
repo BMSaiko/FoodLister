@@ -33,6 +33,7 @@ interface UserProfile {
     totalReviews: number;
     totalLists: number;
     totalRestaurantsAdded: number;
+    totalFollowers?: number;
     joinedDate: string;
   };
   recentReviews: any[];
@@ -51,6 +52,9 @@ const UserProfilePage = () => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [isUpdatingPrivacy, setIsUpdatingPrivacy] = useState(false);
   const [totalMeals, setTotalMeals] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followCount, setFollowCount] = useState(0);
+  const [isTogglingFollow, setIsTogglingFollow] = useState(false);
 
   const searchParams = useSearchParams();
 
@@ -152,6 +156,44 @@ const UserProfilePage = () => {
 
   const isOwnProfile = !!(user && (userId === user.id || (profile && profile.id === user.id)));
 
+  const canFollow = !!user && !isOwnProfile && !!profile?.id;
+
+  useEffect(() => {
+    if (!canFollow || !profile?.id) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/users/${profile.id}/follow`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) { setIsFollowing(data.following); setFollowCount(data.followers || 0); }
+      } catch { /* silent */ }
+    })();
+    return () => { cancelled = true; };
+  }, [canFollow, profile?.id]);
+
+  const handleToggleFollow = async () => {
+    if (!profile?.id || isTogglingFollow) return;
+    setIsTogglingFollow(true);
+    // optimistic
+    setIsFollowing(prev => !prev);
+    setFollowCount(prev => prev + (isFollowing ? -1 : 1));
+    try {
+      const res = await fetch(`/api/users/${profile.id}/follow`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) { throw new Error(data.error || "Erro"); }
+      setIsFollowing(data.following);
+      setFollowCount(data.followers || 0);
+      toast.success(data.following ? `A seguir ${profile.name} agora!` : "Deixaste de seguir.");
+    } catch {
+      setIsFollowing(prev => !prev);
+      setFollowCount(prev => prev + (isFollowing ? 1 : -1));
+      toast.error("Erro ao alterar seguimento");
+    } finally {
+      setIsTogglingFollow(false);
+    }
+  };
+
   // Loading
   if (authLoading || (loading && !profile)) return <UserLoadingPage />;
 
@@ -199,6 +241,11 @@ const UserProfilePage = () => {
           onPrivacyToggle={handlePrivacyToggle}
           copySuccess={copySuccess}
           isUpdatingPrivacy={isUpdatingPrivacy}
+          canFollow={canFollow}
+          isFollowing={isFollowing}
+          followCount={followCount}
+          onToggleFollow={handleToggleFollow}
+          isTogglingFollow={isTogglingFollow}
         />
 
         {/* Stats */}
@@ -206,6 +253,7 @@ const UserProfilePage = () => {
           totalReviews={profile.stats?.totalReviews ?? 0}
           totalLists={profile.stats?.totalLists ?? 0}
           totalRestaurantsAdded={profile.stats?.totalRestaurantsAdded ?? 0}
+          totalFollowers={profile.stats?.totalFollowers ?? 0}
         />
 
         {/* Content Card */}

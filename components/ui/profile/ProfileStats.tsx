@@ -1,25 +1,27 @@
 "use client";
 
 import React from "react";
-import { Star, List, Eye } from "lucide-react";
+import { Star, List, Eye, Users } from "lucide-react";
 
 interface ProfileStatsProps {
   totalReviews: number;
   totalLists: number;
   totalRestaurantsAdded: number;
+  totalFollowers?: number;
 }
 
 const STAT_CONFIG = [
   { key: "reviews", label: "Reviews", icon: Star, color: "text-blue-400", bg: "bg-blue-500/10" },
   { key: "lists", label: "Listas", icon: List, color: "text-emerald-400", bg: "bg-emerald-500/10" },
   { key: "added", label: "Adicionados", icon: Eye, color: "text-purple-400", bg: "bg-purple-500/10" },
+  { key: "followers", label: "Seguidores", icon: Users, color: "text-cyan-400", bg: "bg-cyan-500/10" },
 ];
 
-export default function ProfileStats({ totalReviews, totalLists, totalRestaurantsAdded }: ProfileStatsProps) {
-  const values: Record<string, number> = { reviews: totalReviews, lists: totalLists, added: totalRestaurantsAdded };
+export default function ProfileStats({ totalReviews, totalLists, totalRestaurantsAdded, totalFollowers = 0 }: ProfileStatsProps) {
+  const values: Record<string, number> = { reviews: totalReviews, lists: totalLists, added: totalRestaurantsAdded, followers: totalFollowers };
 
   return (
-    <div className="grid grid-cols-3 gap-3 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
       {STAT_CONFIG.map(stat => (
         <div key={stat.key} className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
           <div className="p-3 md:p-4 rounded-xl bg-white/[0.03] text-center">
