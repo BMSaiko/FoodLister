@@ -36,6 +36,7 @@ export default function GoogleMapsBatchImport({
     Array<{ name: string; status: "created" | "failed" | "duplicate"; id?: string; error?: string }> | null
   >(null);
   const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState<{ current: number; total: number } | undefined>(undefined);
   const [error, setError] = useState("");
 
   const handleParse = useCallback(() => {
@@ -96,6 +97,8 @@ export default function GoogleMapsBatchImport({
     });
   }, [rawInput, fileContent, activeTab]);
 
+  const CHUNK_SIZE = 50;
+
   const handleImport = useCallback(async () => {
     if (!extractResults) return;
 
@@ -111,29 +114,41 @@ export default function GoogleMapsBatchImport({
 
     setImporting(true);
     setImportResults(null);
+    setImportProgress({ current: 0, total: readyUrls.length });
+
+    // ponytail: one POST = one big response -> no progress. Chunk client-side
+    // to surface a loading bar; same endpoint, results accumulate.
+    const allResults: Array<{ name: string; status: "created" | "failed" | "duplicate"; id?: string; error?: string }> = [];
 
     try {
-      const res = await fetch("/api/restaurants/batch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ restaurants: readyUrls }),
-      });
+      for (let i = 0; i < readyUrls.length; i += CHUNK_SIZE) {
+        const chunk = readyUrls.slice(i, i + CHUNK_SIZE);
+        const res = await fetch("/api/restaurants/batch", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ restaurants: chunk }),
+        });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Erro ao importar");
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Erro ao importar");
+        }
+
+        const data = await res.json();
+        allResults.push(...(data.results || []));
+        setImportProgress({ current: Math.min(i + CHUNK_SIZE, readyUrls.length), total: readyUrls.length });
       }
 
-      const data = await res.json();
-      setImportResults(data.results);
+      setImportResults(allResults);
       setShowPostImportPrompt(true);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro desconhecido";
       setError(`Erro ao importar: ${msg}`);
     } finally {
       setImporting(false);
+      setImportProgress(undefined);
     }
-  }, [extractResults]);
+  }, [extractResults, duplicateUrls, removedUrls]);
 
   const toggleRemoved = useCallback((url: string) => {
     setRemovedUrls((prev) => {
@@ -154,6 +169,7 @@ export default function GoogleMapsBatchImport({
     setError("");
     setLoading(false);
     setImporting(false);
+    setImportProgress(undefined);
     setExtractionProgress(null);
   };
 
@@ -424,7 +440,7 @@ export default function GoogleMapsBatchImport({
         {/* Import Progress */}
         {importing && (
           <div className="mt-4">
-            <BatchImportProgress results={null} importing />
+            <BatchImportProgress results={null} importing progress={importProgress} />
           </div>
         )}
 
