@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { User, MapPin, Globe, Calendar, Copy, Share2, Edit, Eye, EyeOff } from "lucide-react";
+import { User, MapPin, Globe, Calendar, Copy, Share2, Edit, Eye, EyeOff, UserPlus, UserCheck } from "lucide-react";
 import Link from "next/link";
 
 interface UserProfileHeaderProps {
@@ -19,11 +19,17 @@ interface UserProfileHeaderProps {
   onPrivacyToggle: () => void;
   copySuccess: boolean;
   isUpdatingPrivacy: boolean;
+  canFollow?: boolean;
+  isFollowing?: boolean;
+  followCount?: number;
+  onToggleFollow?: () => void;
+  isTogglingFollow?: boolean;
 }
 
 export default function UserProfileHeader({
   name, userIdCode, profileImage, bio, location, website, joinedDate,
-  isPublic, isOwnProfile, onCopyLink, onShare, onPrivacyToggle, copySuccess, isUpdatingPrivacy
+  isPublic, isOwnProfile, onCopyLink, onShare, onPrivacyToggle, copySuccess, isUpdatingPrivacy,
+  canFollow, isFollowing, followCount, onToggleFollow, isTogglingFollow
 }: UserProfileHeaderProps) {
   // Generate gradient from name hash
   const getGradient = (str: string) => {
@@ -122,6 +128,25 @@ export default function UserProfileHeader({
             {isPublic ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
             {isPublic ? "Perfil Publico" : "Perfil Privado"}
           </button>
+        )}
+
+        {/* Follow action (other users, authed only) */}
+        {canFollow && !isOwnProfile && (
+          <div className="flex items-center gap-2 mt-4">
+            <button
+              onClick={onToggleFollow}
+              disabled={isTogglingFollow}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all text-sm font-medium min-h-[44px] disabled:opacity-60 ${
+                isFollowing
+                  ? "bg-white/[0.06] border border-white/[0.12] text-white/70"
+                  : "bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30"
+              }`}
+            >
+              {isFollowing ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+              <span className="hidden sm:inline">{isFollowing ? "A Seguir" : "Seguir"}</span>
+              {followCount !== undefined && <span className="text-white/40 text-xs">({followCount})</span>}
+            </button>
+          </div>
         )}
       </div>
     </section>

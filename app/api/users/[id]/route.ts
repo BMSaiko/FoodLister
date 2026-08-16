@@ -93,6 +93,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .select('id', { count: 'exact', head: true })
       .eq('creator_id', targetUserId);
 
+    // Followers count (social)
+    const { count: followersCount } = await supabase
+      .from('user_follows')
+      .select('id', { count: 'exact', head: true })
+      .eq('following_id', targetUserId);
+
     // 5. Build response — filter sensitive fields for public access
     const isPublicAccess = accessLevel === 'PUBLIC' || accessLevel === 'PRIVATE';
     const userProfile = {
@@ -111,6 +117,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         totalReviews: profileData.total_reviews || 0,
         totalLists: profileData.total_lists || 0,
         totalRestaurantsAdded: restaurantsCount || 0,
+        totalFollowers: followersCount || 0,
         joinedDate: profileData.created_at
       },
       recentReviews: reviewsData.data,
