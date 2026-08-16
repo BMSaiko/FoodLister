@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
 
     console.log('Restaurant search:', { search, hasSearch: !!search });
 
-    let query = admin.from('restaurants').select('id, name, description, images, display_image_index, price_per_person, rating, location, creator_name, created_at, review_count', { count: 'exact' });
+    let query = admin.from('restaurants').select('id, slug, name, description, images, display_image_index, price_per_person, rating, location, creator_name, created_at, review_count', { count: 'exact' });
     if (search) {
       query = query.or(`name.ilike.%${search}%`);
     }
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Fallback: retry without review_count if migration 020 not applied
     if (error && error.code === '42703') {
       console.warn('Admin restaurants: review_count missing (migration 020 not applied):', error.message);
-      let fallbackQuery = admin.from('restaurants').select('id, name, description, images, display_image_index, price_per_person, rating, location, creator_name, created_at', { count: 'exact' });
+      let fallbackQuery = admin.from('restaurants').select('id, slug, name, description, images, display_image_index, price_per_person, rating, location, creator_name, created_at', { count: 'exact' });
       if (search) {
         fallbackQuery = fallbackQuery.or(`name.ilike.%${search}%`);
       }

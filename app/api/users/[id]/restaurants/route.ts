@@ -59,6 +59,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
         .from('restaurants')
         .select(`
           id,
+          slug,
           name,
           description,
           price_per_person,
@@ -102,7 +103,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       const { data, error } = await supabase
         .from('restaurants')
         .select(`
-          id, name, description, price_per_person, rating,
+          id, slug, name, description, price_per_person, rating,
           location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
@@ -133,7 +134,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
       const { data, error } = await supabase
         .from('restaurants')
         .select(`
-          id, name, description, price_per_person, rating,
+          id, slug, name, description, price_per_person, rating,
           location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
@@ -317,6 +318,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         .from('restaurants')
         .select(`
           id,
+          slug,
           name,
           description,
           price_per_person,
@@ -360,7 +362,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       const { data, error } = await supabase
         .from('restaurants')
         .select(`
-          id, name, description, price_per_person, rating,
+          id, slug, name, description, price_per_person, rating,
           location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
@@ -391,7 +393,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       const { data, error } = await supabase
         .from('restaurants')
         .select(`
-          id, name, description, price_per_person, rating,
+          id, slug, name, description, price_per_person, rating,
           location, source_url, creator, menu_url, phone_numbers,
           creator_id, creator_name, created_at, updated_at, images, display_image_index,
           menu_links, menu_images,
