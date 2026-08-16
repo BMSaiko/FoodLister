@@ -5,6 +5,7 @@ import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 
 import { attachCreatorCodes } from '@/libs/creatorCodes';
+import { isUuid } from '@/libs/slug';
 // Valida se as coordenadas são válidas
 function isValidCoordinates(latitude: number, longitude: number): boolean {
   return (
@@ -43,7 +44,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Fetch restaurant details with features and dietary options (with fallback for missing updated_at)
-    const restaurantColumns = `id, name, description, price_per_person, rating,
+    const restaurantColumns = `id, slug, name, description, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, created_at, updated_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         lists:list_restaurants(
           list:lists(id, name, is_public, creator_name, created_at)
         )`;
-    const restaurantColumnsFallback = `id, name, description, price_per_person, rating,
+    const restaurantColumnsFallback = `id, slug, name, description, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, created_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
@@ -80,7 +81,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     let { data: restaurant, error: restaurantError } = await supabase
       .from('restaurants')
       .select(restaurantColumns)
-      .eq('id', id)
+      .eq(isUuid(id) ? 'id' : 'slug', id)
       .single();
     if (restaurantError && restaurantError.code === '42703') {
       console.warn('restaurants/[id]: updated_at missing (migration 050 not applied):', restaurantError.message);

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
+import { isUuid } from '@/libs/slug';
 import { getErrorMessage } from '@/types/api';
 import { getListRole } from '@/libs/lists/permissions';
 import { logActivity } from '@/libs/activity';
@@ -38,14 +39,14 @@ export async function GET(
     // Step 1: Fetch the list details (with fallback for missing updated_at)
     let { data: listData, error: listError } = await client
       .from('lists')
-      .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
-      .eq('id', id)
+      .select('id, slug, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
+      .eq(isUuid(id) ? 'id' : 'slug', id)
       .single();
     if (listError && listError.code === '42703') {
       console.warn('Missing column in lists (migration 050 not applied):', listError.message);
       const fallback = await client.from('lists')
-        .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at')
-        .eq('id', id)
+        .select('id, slug, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at')
+        .eq(isUuid(id) ? 'id' : 'slug', id)
         .single();
       listData = fallback.data ? { ...fallback.data, updated_at: fallback.data.created_at } : null;
       listError = fallback.error;
