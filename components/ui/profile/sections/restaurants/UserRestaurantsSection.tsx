@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {  Utensils } from 'lucide-react';
 import Link from 'next/link';
-import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
+import { useApiClient } from '@/hooks/auth/useApiClient';
 import {  } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
@@ -113,7 +113,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   }, [hookIsLoading, initialRestaurants, initialTotal, hasInitialized]);
 
 
-  const { get, del: deleteRequest } = useSecureApiClient();
+  const { get, del: deleteRequest } = useApiClient();
   const { share } = useShare();
 
   const handleShareRestaurant = async (restaurantId: string, restaurantName: string) => {

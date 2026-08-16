@@ -40,16 +40,6 @@ export const API_ENDPOINTS = {
   userProfile: (id: string) => `/api/users/${id}/profile`,
   userStats: (id: string) => `/api/users/${id}/stats`,
   
-  // Auth
-  auth: {
-    signIn: '/api/auth/signin',
-    signUp: '/api/auth/signup',
-    signOut: '/api/auth/signout',
-    resetPassword: '/api/auth/reset-password',
-    updatePassword: '/api/auth/update-password',
-    session: '/api/auth/session'
-  },
-  
   // Filters and options
   cuisineTypes: '/api/cuisine-types',
   dietaryOptions: '/api/dietary-options',

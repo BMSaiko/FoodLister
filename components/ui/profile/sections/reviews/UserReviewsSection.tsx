@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Star, Utensils } from "lucide-react";
 
-import { useSecureApiClient } from "@/hooks/auth/useSecureApiClient";
+import { useApiClient } from "@/hooks/auth/useApiClient";
 
 import {  EmptyState, TouchButton } from "../shared";
 import { toast } from "react-toastify";
@@ -40,7 +40,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   const [hasMore, setHasMore] = useState(initialReviews.length < initialTotal);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { get, put } = useSecureApiClient();
+  const { get, put } = useApiClient();
 
   const loadMoreReviews = async () => {
     if (isLoadingMore || !hasMore) return;
