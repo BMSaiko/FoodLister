@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
+import { resolveListId } from '@/libs/slug';
 import type { ApiErrorType } from '@/types/api';
 
 export async function GET(
@@ -20,6 +21,7 @@ export async function GET(
 
     const supabase = await getServerClient(request, new NextResponse());
     const client = supabase || (await getPublicServerClient());
+    const listId = (await resolveListId(client, id)) ?? id;
 
     if (!client) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
@@ -39,7 +41,7 @@ export async function GET(
         '*, profiles:user_id (display_name, avatar_url)',
         { count: 'exact' }
       )
-      .eq('list_id', id)
+      .eq('list_id', listId)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 

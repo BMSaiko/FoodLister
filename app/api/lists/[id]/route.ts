@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
-import { isUuid } from '@/libs/slug';
+import { isUuid, resolveListId } from '@/libs/slug';
 import { getErrorMessage } from '@/types/api';
 import { getListRole } from '@/libs/lists/permissions';
 import { logActivity } from '@/libs/activity';
@@ -27,6 +27,7 @@ export async function GET(
     // Try authenticated access first, fall back to public client for unauthenticated users
     const supabase = await getServerClient(request, new NextResponse());
     const client = supabase || (await getPublicServerClient());
+    const listId = (await resolveListId(client, id)) ?? id;
 
     if (!client) {
       const errorType = 'INTERNAL_ERROR' as ApiErrorType;
@@ -80,7 +81,7 @@ export async function GET(
     const { data: listRestaurants, error: listRestaurantsError } = await client
       .from('list_restaurants')
       .select('restaurant_id, position')
-      .eq('list_id', id)
+      .eq('list_id', listId)
       .order('position', { ascending: true }) as { data: { restaurant_id: string; position: number }[] | null; error: any };
 
     if (listRestaurantsError) {
@@ -136,7 +137,7 @@ export async function GET(
     if (supabase) {
       const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
       if (user) {
-        userRole = await getListRole(supabase, id, user.id);
+        userRole = await getListRole(supabase, listId, user.id);
       }
     }
 
@@ -183,8 +184,9 @@ export async function DELETE(
       );
     }
     const { id } = await params;
+    const listId = (await resolveListId(supabase, id)) ?? id;
     // ponytail: only owner can delete
-    const role = await getListRole(supabase, id, user.id);
+    const role = await getListRole(supabase, listId, user.id);
     if (role !== 'owner') {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json(
@@ -205,7 +207,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('lists')
       .delete()
-      .eq('id', id);
+      .eq('id', listId);
 
     if (deleteError) {
       console.error('Error deleting list:', deleteError);
@@ -251,8 +253,9 @@ export async function PUT(
       );
     }
     const { id } = await params;
+    const listId = (await resolveListId(supabase, id)) ?? id;
     // ponytail: RLS enforces owner/editor update permissions
-    const role = await getListRole(supabase, id, user.id);
+    const role = await getListRole(supabase, listId, user.id);
     if (role !== 'owner' && role !== 'editor') {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json(
@@ -277,7 +280,7 @@ export async function PUT(
       const { error: updateError } = await supabase
         .from('lists')
         .update({ ...listUpdates, updated_at: new Date().toISOString() })
-        .eq('id', id);
+        .eq('id', listId);
 
       if (updateError) {
         console.error('Error updating list:', updateError);
@@ -292,7 +295,7 @@ export async function PUT(
     // Update restaurant order if provided — batch update via RPC
     if (restaurantOrder && Array.isArray(restaurantOrder) && restaurantOrder.length > 0) {
       const { error: orderError } = await supabase.rpc('update_list_restaurant_positions', {
-        p_list_id: id,
+        p_list_id: listId,
         p_restaurant_ids: restaurantOrder,
       });
 
@@ -303,18 +306,18 @@ export async function PUT(
 
     // Log activity
     if (user) {
-      await logActivity(supabase, id, user.id, 'list_updated', {});
+      await logActivity(supabase, listId, user.id, 'list_updated', {});
     }
 
     // ponytail: notify collaborators (except the editor) that the list changed
     const { data: toNotify } = await supabase
       .from('list_collaborators')
       .select('user_id')
-      .eq('list_id', id)
+      .eq('list_id', listId)
       .neq('user_id', user.id);
     const [{ data: updaterProfile }, { data: listRow }] = await Promise.all([
       supabase.from('profiles').select('display_name').eq('user_id', user.id).maybeSingle(),
-      supabase.from('lists').select('name').eq('id', id).maybeSingle(),
+      supabase.from('lists').select('name').eq('id', listId).maybeSingle(),
     ]);
     for (const c of toNotify || []) {
       createNotification({
@@ -361,6 +364,7 @@ export async function POST(
       );
     }
     const { id } = await params;
+    const listId = (await resolveListId(supabase, id)) ?? id;
     // ponytail: RLS enforces owner/editor update permissions
     // ponytail: any authenticated user can duplicate a list they can access
 
@@ -383,13 +387,13 @@ export async function POST(
     let { data: originalList, error: listError } = await supabase
       .from('lists')
       .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at')
-      .eq('id', id)
+      .eq('id', listId)
       .single();
     if (listError && listError.code === '42703') {
       console.warn('lists/[id] PATCH: updated_at missing (migration 050 not applied):', listError.message);
       const fallback = await supabase.from('lists')
         .select('id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at')
-        .eq('id', id)
+        .eq('id', listId)
         .single();
       originalList = fallback.data ? { ...fallback.data, updated_at: fallback.data.created_at } : null;
       listError = fallback.error;
@@ -433,7 +437,7 @@ export async function POST(
     const { data: originalRestaurants, error: fetchError } = await supabase
       .from('list_restaurants')
       .select('restaurant_id, position')
-      .eq('list_id', id)
+      .eq('list_id', listId)
       .order('position', { ascending: true });
 
     if (!fetchError && originalRestaurants && originalRestaurants.length > 0) {
@@ -455,7 +459,7 @@ export async function POST(
     // Log activity
     if (user && newList) {
       await logActivity(supabase, newList.id, user.id, 'list_duplicated', {
-        original_list_id: id,
+        original_list_id: listId,
       });
     }
 

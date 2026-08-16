@@ -4,6 +4,7 @@ import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { logActivity } from '@/libs/activity';
 import { getListRole } from '@/libs/lists/permissions';
+import { resolveListId } from '@/libs/slug';
 import { createNotification } from '@/libs/notifications/service';
 
 // GET - List all collaborators
@@ -18,6 +19,7 @@ export async function GET(
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
     const { id } = await params;
+    const listId = (await resolveListId(supabase, id)) ?? id;
 
     if (!id) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -39,7 +41,7 @@ export async function GET(
           avatar_url
         )
       `)
-      .eq('list_id', id);
+      .eq('list_id', listId);
 
     if (error) {
       const errorType = 'DATABASE_ERROR' as ApiErrorType;
@@ -65,6 +67,7 @@ export async function POST(
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
     const { id } = await params;
+    const listId = (await resolveListId(supabase, id)) ?? id;
 
     if (!id) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -78,7 +81,7 @@ export async function POST(
     }
 
     // ponytail: only owner can manage collaborators
-    const userListRole = await getListRole(supabase, id, user.id);
+    const userListRole = await getListRole(supabase, listId, user.id);
     if (userListRole !== 'owner') {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 403 });
@@ -146,7 +149,7 @@ export async function POST(
     // ponytail: notify the added collaborator (best-effort)
     const [{ data: inviterProfile }, { data: listRow }] = await Promise.all([
       supabase.from('profiles').select('display_name').eq('user_id', user.id).maybeSingle(),
-      supabase.from('lists').select('name').eq('id', id).maybeSingle(),
+      supabase.from('lists').select('name').eq('id', listId).maybeSingle(),
     ]);
     createNotification({
       userId: targetUser.user_id,
@@ -175,6 +178,7 @@ export async function DELETE(
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });
     }
     const { id } = await params;
+    const listId = (await resolveListId(supabase, id)) ?? id;
 
     if (!id) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
@@ -188,7 +192,7 @@ export async function DELETE(
     }
 
     // ponytail: only owner can manage collaborators
-    const userListRole = await getListRole(supabase, id, user.id);
+    const userListRole = await getListRole(supabase, listId, user.id);
     if (userListRole !== 'owner') {
       const errorType = 'AUTHORIZATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 403 });
@@ -205,7 +209,7 @@ export async function DELETE(
     const { error: deleteError } = await supabase
       .from('list_collaborators')
       .delete()
-      .eq('list_id', id)
+      .eq('list_id', listId)
       .eq('user_id', userId);
 
     if (deleteError) {

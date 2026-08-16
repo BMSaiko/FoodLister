@@ -4,3 +4,11 @@ export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f
 export function isUuid(id: string): boolean {
   return UUID_RE.test(id);
 }
+
+/** Resolve o param de URL (UUID ou slug) para o id real da lista. null se a list nao existe nao for encontrada ou o client faltar. */
+export async function resolveListId(supabase: any, param: string): Promise<string | null> {
+  if (!supabase) return null;
+  if (isUuid(param)) return param;
+  const { data } = await supabase.from('lists').select('id').eq('slug', param).maybeSingle();
+  return data?.id ?? null;
+}
