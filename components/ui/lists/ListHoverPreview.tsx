@@ -8,6 +8,7 @@ import { Star, MapPin } from 'lucide-react';
 interface Restaurant {
   id: string;
   name: string;
+  slug?: string | null;
   rating?: number;
   location?: string;
 }
@@ -45,7 +46,7 @@ export default function ListHoverPreview({ restaurants, children }: ListHoverPre
               {previewRestaurants.map((r) => (
                 <Link
                   key={r.id}
-                  href={`/restaurants/${r.id}`}
+                  href={`/restaurants/${r.slug || r.id}`}
                   className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/[0.03] transition-colors"
                 >
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center flex-shrink-0">

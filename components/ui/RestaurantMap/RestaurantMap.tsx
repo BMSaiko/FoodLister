@@ -242,7 +242,7 @@ export default function RestaurantMap({
                   </p>
                 )}
                 <Link
-                  href={`/restaurants/${r.id}`}
+                  href={`/restaurants/${r.slug || r.id}`}
                   className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium popup-cta"
                   style={{ color: '#fbbf24', transition: 'color 0.2s ease, gap 0.2s ease' }}
                 >

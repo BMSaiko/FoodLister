@@ -52,7 +52,7 @@ export default function RestaurantsTable({ restaurants, onDeleted }: Restaurants
 
           <div className="p-4 flex flex-col gap-2">
             <Link
-              href={`/restaurants/${r.id}`}
+              href={`/restaurants/${r.slug || r.id}`}
               className="text-base font-semibold hover:underline line-clamp-1"
               style={{ color: 'var(--foreground)' }}
             >

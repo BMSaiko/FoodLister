@@ -54,7 +54,7 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false,
         transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
         className="group relative h-full"
       >
-        <Link href={`/lists/${list.id}`} className="block h-full">
+        <Link href={`/lists/${list.slug || list.id}`} className="block h-full">
           <div className="rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-150 h-full flex flex-col">
             {/* Cover */}
             <ListCardCover name={list.name} className="h-28 sm:h-32" />

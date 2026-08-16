@@ -64,7 +64,7 @@ export default function RestaurantListsSection({
         {lists.map((list) => (
           <Link
             key={list.id}
-            href={'/lists/' + list.id}
+            href={'/lists/' + (list.slug || list.id)}
             className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] ring-1 ring-white/10 hover:bg-white/[0.05] transition-colors duration-150"
           >
             <div className="bg-amber-500/10 rounded-lg p-2">

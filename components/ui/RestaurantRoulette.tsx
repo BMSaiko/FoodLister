@@ -8,6 +8,7 @@ import Modal from "./Modal";
 interface Restaurant {
   id: string;
   name: string;
+  slug?: string | null;
   images?: string[];
   rating?: number;
   price_per_person?: number;
@@ -236,7 +237,7 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
             {/* Actions */}
             <div className="flex gap-3">
               <Link
-                href={`/restaurants/${selected.id}`}
+                href={`/restaurants/${selected.slug || selected.id}`}
                 className="flex-1 py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold rounded-2xl hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <ExternalLink className="h-4 w-4" />

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { List, ChevronRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { useSecureApiClient } from '@/hooks/auth/useSecureApiClient';
+import { useApiClient } from '@/hooks/auth/useApiClient';
 import {  } from '@/utils/formatters';
 import {  } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
@@ -23,6 +23,7 @@ interface UserListsSectionProps {
     description?: string;
     createdAt: string;
     restaurantCount: number;
+    slug?: string | null;
   }>;
   initialTotal: number;
   isOwnProfile: boolean;
@@ -40,7 +41,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialLists.length < initialTotal);
 
-  const { get } = useSecureApiClient();
+  const { get } = useApiClient();
   const { share } = useShare();
 
   const handleShareList = async (listId: string, listName: string, listDescription?: string) => {
@@ -104,7 +105,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
           <ProfileCard
             key={list.id}
             className="touch-space"
-            href={`/lists/${list.id}`}
+            href={`/lists/${list.slug || list.id}`}
             hoverEffect={true}
             
           >

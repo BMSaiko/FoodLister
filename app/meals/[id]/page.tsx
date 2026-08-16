@@ -23,6 +23,7 @@ interface Meal {
   createdAt: string;
   restaurant: {
     id: string;
+    slug?: string | null;
     name: string;
     location: string | null;
     description: string | null;
@@ -538,7 +539,7 @@ export default function MealDetailsPage() {
         {meal.restaurant?.id && (
           <div className="text-center">
             <Link
-              href={`/restaurants/${meal.restaurant.id}`}
+              href={`/restaurants/${meal.restaurant.slug || meal.restaurant.id}`}
               className="text-amber-600 hover:text-amber-700 font-medium"
             >
               Ver página do restaurante →

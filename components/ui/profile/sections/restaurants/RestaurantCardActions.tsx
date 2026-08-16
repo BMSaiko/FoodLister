@@ -10,6 +10,7 @@ import { useModal } from '@/contexts/ModalContext';
 interface RestaurantCardActionsProps {
   restaurant: {
     id: string;
+    slug?: string | null;
     name: string;
     location?: string;
     latitude?: number;
@@ -59,7 +60,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
     setIsSharing(true);
     
     try {
-      const restaurantUrl = `${window.location.origin}/restaurants/${restaurant.id}`;
+      const restaurantUrl = `${window.location.origin}/restaurants/${restaurant.slug || restaurant.id}`;
       
       if (navigator.share && !navigator.userAgent.includes('Firefox')) {
         try {

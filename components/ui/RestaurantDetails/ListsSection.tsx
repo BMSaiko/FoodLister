@@ -16,7 +16,7 @@ export default function ListsSection({ lists }: ListsSectionProps) {
         {lists.map((list) => (
           <Link
             key={list.id}
-            href={"/lists/" + list.id}
+            href={"/lists/" + (list.slug || list.id)}
             className="flex items-center gap-3 p-4 bg-white/[0.03] rounded-2xl ring-1 ring-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150"
           >
             <div className="bg-amber-500/10 rounded-xl p-2.5 flex-shrink-0">

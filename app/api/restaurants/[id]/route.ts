@@ -59,7 +59,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           dietary_option:restaurant_dietary_options(id, name, icon)
         ),
         lists:list_restaurants(
-          list:lists(id, name, is_public, creator_name, created_at)
+          list:lists(id, slug, name, is_public, creator_name, created_at)
         )`;
     const restaurantColumnsFallback = `id, slug, name, description, price_per_person, rating,
         location, source_url, creator, menu_url, menu_links, menu_images,
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           dietary_option:restaurant_dietary_options(id, name, icon)
         ),
         lists:list_restaurants(
-          list:lists(id, name, is_public, creator_name, created_at)
+          list:lists(id, slug, name, is_public, creator_name, created_at)
         )`;
     let { data: restaurant, error: restaurantError } = await supabase
       .from('restaurants')
