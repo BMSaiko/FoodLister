@@ -17,6 +17,7 @@ export interface Restaurant {
   phone_numbers?: string[];
   opening_hours?: string | null;
   visited: boolean;
+  slug?: string | null;
   created_at: string;
   updated_at: string;
   creator_id?: string;
@@ -40,6 +41,7 @@ export interface CuisineType {
 
 export interface List {
   id: string;
+  slug?: string | null;
   name: string;
   description?: string;
   creator?: string;

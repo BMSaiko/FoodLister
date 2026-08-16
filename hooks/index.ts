@@ -5,7 +5,6 @@ export { useAuthUser } from './auth/useAuthUser';
 export { useAuthActions } from './auth/useAuthActions';
 export { useApiClient } from './auth/useApiClient';
 export { usePublicApiClient } from './auth/usePublicApiClient';
-export { useSecureApiClient } from './auth/useSecureApiClient';
 
 // Data hooks
 export { useUserData } from './data/useUserData';

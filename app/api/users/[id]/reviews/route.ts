@@ -82,6 +82,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         *,
         restaurants (
           id,
+          slug,
           name,
           images,
           display_image_index,

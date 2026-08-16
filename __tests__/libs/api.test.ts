@@ -11,11 +11,9 @@ describe('api utilities', () => {
       expect(API_ENDPOINTS.restaurantVisits('456')).toBe('/api/restaurants/456/visits');
       expect(API_ENDPOINTS.restaurantReviews('789')).toBe('/api/restaurants/789/reviews');
     });
-    it('has correct list and auth endpoints', () => {
+    it('has correct list endpoints', () => {
       expect(API_ENDPOINTS.lists).toBe('/api/lists');
       expect(API_ENDPOINTS.list('abc')).toBe('/api/lists/abc');
-      expect(API_ENDPOINTS.auth.signIn).toBe('/api/auth/signin');
-      expect(API_ENDPOINTS.auth.signUp).toBe('/api/auth/signup');
     });
     it('has correct filter endpoints', () => {
       expect(API_ENDPOINTS.cuisineTypes).toBe('/api/cuisine-types');

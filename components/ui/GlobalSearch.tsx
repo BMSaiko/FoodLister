@@ -4,10 +4,12 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Search, X, Loader2, Utensils, List, User } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
+import { trackEvent, Events } from "@/utils/analytics";
 import Modal from "@/components/ui/Modal";
 
 interface SearchResult {
   id: string;
+  slug?: string | null;
   type: "restaurant" | "list" | "user";
   title: string;
   subtitle?: string;
@@ -110,16 +112,16 @@ export default function GlobalSearch() {
     try {
       const supabase = getClient();
       const [restaurants, lists, users] = await Promise.all([
-        supabase.from("restaurants").select("id, name, location").ilike("name", `%${q}%`).limit(5),
-        supabase.from("lists").select("id, name, description").ilike("name", `%${q}%`).eq("is_public", true).limit(5),
+        supabase.from("restaurants").select("id, slug, name, location").ilike("name", `%${q}%`).limit(5),
+        supabase.from("lists").select("id, slug, name, description").ilike("name", `%${q}%`).eq("is_public", true).limit(5),
         supabase.from("profiles").select("id, display_name, user_id_code").or(`display_name.ilike.%${q}%,user_id_code.ilike.%${q}%`).limit(3),
       ]);
       const combined: SearchResult[] = [
         ...((restaurants.data || []) as any[]).map((r: any) => ({
-          id: r.id, type: "restaurant" as const, title: r.name, subtitle: r.location || undefined,
+          id: r.id, slug: r.slug || null, type: "restaurant" as const, title: r.name, subtitle: r.location || undefined,
         })),
         ...((lists.data || []) as any[]).map((l: any) => ({
-          id: l.id, type: "list" as const, title: l.name, subtitle: l.description || undefined,
+          id: l.id, slug: l.slug || null, type: "list" as const, title: l.name, subtitle: l.description || undefined,
         })),
         ...((users.data || []) as any[]).map((u: any) => ({
           id: u.id, type: "user" as const, title: u.display_name,
@@ -138,10 +140,11 @@ export default function GlobalSearch() {
 
   const handleSelect = (result: SearchResult) => {
     setIsOpen(false);
+    trackEvent(Events.SEARCH_PERFORMED, { query, type: result.type });
     setQuery("");
     setActiveIndex(-1);
-    if (result.type === "restaurant") router.push(`/restaurants/${result.id}`);
-    else if (result.type === "list") router.push(`/lists/${result.id}`);
+    if (result.type === "restaurant") router.push(`/restaurants/${result.slug || result.id}`);
+    else if (result.type === "list") router.push(`/lists/${result.slug || result.id}`);
     else if (result.type === "user") router.push(`/users/${result.userIdCode || result.id}`);
   };
 

@@ -20,6 +20,8 @@ import ListExportButtons from "@/components/ui/lists/ListExportButtons";
 import ListCollaborators from "@/components/ui/lists/ListCollaborators";
 import ListActivityFeed from "@/components/ui/lists/ListActivityFeed";
 import { ArrowLeft } from "lucide-react";
+import RestaurantFilters from "@/components/ui/Filters/RestaurantFilters";
+import NearbyBar from "@/components/ui/Nearby/NearbyBar";
 import LikeButton from "@/components/ui/lists/LikeButton";
 
 interface Restaurant {
@@ -43,6 +45,9 @@ interface Restaurant {
   review_count?: number;
   features: any[];
   dietary_options: any[];
+  latitude?: number | null;
+  longitude?: number | null;
+  visited: boolean;
 }
 
 interface List {
@@ -74,6 +79,13 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showRoulette, setShowRoulette] = useState(false);
+  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
+  const [nearbyActive, setNearbyActive] = useState(false);
+  const [nearbyRadius, setNearbyRadius] = useState(10);
+  const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
+  const [nearbyError, setNearbyError] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [applyingFilters, setApplyingFilters] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [duplicating, setDuplicating] = useState(false);
@@ -99,6 +111,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
           features: r.restaurant_features?.map((rf: any) => rf.features) || [],
           dietary_options: r.restaurant_dietary_options?.map((rdo: any) => rdo.dietary_options) || [],
           cuisine_types: r.restaurant_cuisine_types?.map((rct: any) => rct.cuisine_types) || [],
+          visited: r.visited ?? false,
         }));
         setList(listData);
         setRestaurants(transformedRestaurants);
@@ -113,6 +126,11 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
     }
     fetchListDetails();
   }, [id]);
+
+  useEffect(() => {
+    setFilteredRestaurants(restaurants);
+    setNearbyActive(false); // a fresh load resets the nearby view
+  }, [restaurants]);
 
   const handleShareList = async () => {
     if (!list) return;
@@ -140,6 +158,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
               features: r.restaurant_features?.map((rf: any) => rf.features) || [],
               dietary_options: r.restaurant_dietary_options?.map((rdo: any) => rdo.dietary_options) || [],
               cuisine_types: r.restaurant_cuisine_types?.map((rct: any) => rct.cuisine_types) || [],
+              visited: r.visited ?? false,
             }));
             setRestaurants(transformedRestaurants);
           }
@@ -214,10 +233,59 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
           features: r.restaurant_features?.map((rf: any) => rf.features) || [],
           dietary_options: r.restaurant_dietary_options?.map((rdo: any) => rdo.dietary_options) || [],
           cuisine_types: r.restaurant_cuisine_types?.map((rct: any) => rct.cuisine_types) || [],
+          visited: r.visited ?? false,
         })));
       }
     } catch (err) { console.error("Filter error:", err); }
     finally { setApplyingFilters(false); }
+  };
+
+  // --- "Perto de mim" (client-side over the loaded list) ---
+  function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
+    const R = 6371;
+    const dLat = ((bLat - aLat) * Math.PI) / 180;
+    const dLng = ((bLng - aLng) * Math.PI) / 180;
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos((aLat * Math.PI) / 180) * Math.cos((bLat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+  }
+
+  const requestNearby = () => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setLocationError('Geolocalizacao nao suportada neste navegador.');
+      return;
+    }
+    setNearbyLoading(true);
+    setNearbyError(null);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setNearbyLoading(false);
+        const withDist = restaurants
+          .filter((r) => r.latitude != null && r.longitude != null)
+          .map((r) => ({ ...r, __dist: haversineKm(latitude, longitude, r.latitude!, r.longitude!) }))
+          .filter((r) => r.__dist <= nearbyRadius)
+          .sort((a, b) => a.__dist - b.__dist)
+          .map(({ __dist, ...r }) => r);
+        setNearbyRestaurants(withDist);
+        setNearbyError(withDist.length === 0 ? `Nenhum restaurante com coordenadas a menos de ${nearbyRadius} km.` : null);
+      },
+      () => {
+        setNearbyLoading(false);
+        setLocationError('Nao foi possivel obter a posicao. Verifica as permissoes.');
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  };
+
+  const toggleNearby = () => {
+    if (!nearbyActive) requestNearby();
+    setNearbyActive((v) => !v);
+  };
+
+  const changeNearbyRadius = (r: number) => {
+    setNearbyRadius(r);
+    if (nearbyActive) requestNearby();
   };
 
   // Compute stats for meta bar
@@ -313,9 +381,31 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
           {/* Statistics Dashboard */}
           {restaurants.length > 0 && <ListStatistics restaurants={restaurants} />}
 
+          {/* Advanced Filters + Perto de mim */}
+          <RestaurantFilters
+            restaurants={restaurants}
+            onFiltered={(filtered) => setFilteredRestaurants(filtered as Restaurant[])}
+            rightSlot={
+              <>
+                <NearbyBar
+                  active={nearbyActive}
+                  onToggle={toggleNearby}
+                  radius={nearbyRadius}
+                  onRadius={changeNearbyRadius}
+                  loading={nearbyLoading}
+                  error={nearbyError}
+                  locationError={locationError}
+                />
+                {nearbyActive && nearbyRestaurants.length > 0 && (
+                  <span className="text-xs text-white/40">{nearbyRestaurants.length} a {nearbyRadius} km</span>
+                )}
+              </>
+            }
+          />
+
           {/* Restaurant Grid */}
           <ListRestaurantGrid
-            restaurants={restaurants}
+            restaurants={nearbyActive ? nearbyRestaurants : filteredRestaurants}
             listId={id as string}
             isOwner={userRole === 'owner' || userRole === 'editor'}
                           onRemove={handleRemoveRestaurant}

@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect } from 'react';
 import { getClient } from '@/libs/supabase/client';
-import { authLogger } from '@/utils/authLogger';
+import { authLogger } from '@/utils/auth';
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AuthDebugPage() {

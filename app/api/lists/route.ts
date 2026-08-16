@@ -28,11 +28,11 @@ let codesClient: any = supabase;
         // ponytail: RLS handles visibility (public, own, collaborator)
         listsQuery = supabase
           .from('lists')
-          .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)');
+          .select('id, slug, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)');
       } else {
         listsQuery = supabase
           .from('lists')
-          .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)')
+          .select('id, slug, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)')
           .eq('is_public', true);
       }
     } else {
@@ -44,7 +44,7 @@ let codesClient: any = supabase;
       codesClient = publicSupabase;
       listsQuery = publicSupabase
         .from('lists')
-        .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)')
+        .select('id, slug, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)')
         .eq('is_public', true);
     }
 
@@ -61,7 +61,7 @@ let codesClient: any = supabase;
         fallbackClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '');
       }
       let fallbackQuery = fallbackClient.from('lists')
-        .select('id, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)');
+        .select('id, slug, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)');
       if (supabase) {
         const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
         currentUserId = user?.id ?? null;

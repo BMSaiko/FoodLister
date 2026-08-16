@@ -7,6 +7,7 @@ import Link from "next/link";
 interface RestaurantCardProps {
   restaurant: {
     id: string;
+    slug?: string | null;
     name: string;
     description?: string;
     imageUrl?: string;
@@ -38,7 +39,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     <div className={`p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] hover:scale-[1.02] transition-all duration-200 group ${className}`}>
       <div className="rounded-xl bg-white/[0.03] overflow-hidden">
         {/* Image */}
-        <Link href={`/restaurants/${restaurant.id}`}  className="block relative h-32 overflow-hidden">
+        <Link href={`/restaurants/${restaurant.slug || restaurant.id}`}  className="block relative h-32 overflow-hidden">
           {hasImage ? (
             <img src={restaurant.imageUrl} alt={restaurant.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
           ) : (
@@ -63,7 +64,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
         {/* Content */}
         <div className="p-4">
-          <Link href={`/restaurants/${restaurant.id}`}  className="font-semibold text-white/85 hover:text-purple-400 transition-colors text-sm line-clamp-1">
+          <Link href={`/restaurants/${restaurant.slug || restaurant.id}`}  className="font-semibold text-white/85 hover:text-purple-400 transition-colors text-sm line-clamp-1">
             {restaurant.name}
           </Link>
 

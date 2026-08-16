@@ -783,7 +783,7 @@ const RestaurantRoulette = () => {
                         </div>
                         <div className="flex items-center space-x-2 flex-shrink-0">
                           <Link
-                            href={`/restaurants/${entry.restaurant.id}`}
+                            href={`/restaurants/${entry.restaurant.slug || entry.restaurant.id}`}
                             className="px-3 py-1 bg-[var(--amber-500)] text-white rounded-full text-xs font-medium hover:bg-[var(--amber-600)] transition-colors"
                           >
                             Ver Perfil

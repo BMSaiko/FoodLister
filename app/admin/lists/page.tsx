@@ -74,7 +74,7 @@ export default function AdminListsPage() {
             ) : lists.map((l) => (
               <tr key={l.id} className="border-b border-white/5">
                 <td className="p-3">
-                  <Link href={`/lists/${l.id}`} className="font-medium hover:underline" style={{ color: 'var(--foreground)' }}>{l.name}</Link>
+                  <Link href={`/lists/${l.slug || l.id}`} className="font-medium hover:underline" style={{ color: 'var(--foreground)' }}>{l.name}</Link>
                 </td>
                 <td className="p-3 text-foreground-muted">{l.creator_name || '—'}</td>
                 <td className="p-3">{l.is_public ? <span className="text-emerald-400">Pública</span> : <span className="text-amber-400">Privada</span>}</td>

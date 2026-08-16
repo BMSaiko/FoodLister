@@ -44,7 +44,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       whileHover={{ y: -2 }}
     >
       {/* Image — fixed height, same for all cards */}
-      <Link href={`/restaurants/${restaurant.id}`} className="block">
+      <Link href={`/restaurants/${restaurant.slug || restaurant.id}`} className="block">
         <div className={`relative overflow-hidden ${isLarge ? "h-60 md:h-64" : "h-52"}`}>
           {hasImage ? (
             <img
@@ -83,7 +83,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
       {/* Content — flex-1 fills remaining space, pushes footer down */}
       <div className="p-4 flex flex-col flex-1 min-h-0">
-        <Link href={`/restaurants/${restaurant.id}`}>
+        <Link href={`/restaurants/${restaurant.slug || restaurant.id}`}>
           <h3 className={`font-bold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors line-clamp-1 ${isLarge ? "text-lg md:text-xl" : "text-base"}`}>
             {restaurant.name}
           </h3>
@@ -138,7 +138,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
                 {/* Actions */}
                 <div className="flex items-center gap-2 pt-1">
                   <Link
-                    href={`/restaurants/${restaurant.id}`}
+                    href={`/restaurants/${restaurant.slug || restaurant.id}`}
                     className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-[var(--primary)] text-black text-sm font-medium rounded-full hover:bg-[var(--primary-hover)] transition-colors"
                   >
                     <Eye className="w-3.5 h-3.5" />

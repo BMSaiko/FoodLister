@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
     const joinReviews = !isAll;
     const isPopularity = sortByParam === 'popularity';
     const baseColumns = joinReviews
-      ? 'id, name, description, price_per_person, rating, location, ' +
+      ? 'id, slug, name, description, price_per_person, rating, location, ' +
         'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
         'created_at, creator_id, creator_name, latitude, ' +
         'longitude, images, display_image_index, ' +
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         'features:restaurant_restaurant_features(feature:restaurant_features(id, name, icon)), ' +
         'dietary_options:restaurant_dietary_options_junction(dietary_option:restaurant_dietary_options(id, name, icon)), ' +
         'reviews:reviews(count)'
-      : 'id, name, description, price_per_person, rating, location, ' +
+      : 'id, slug, name, description, price_per_person, rating, location, ' +
         'source_url, creator, menu_url, menu_links, menu_images, phone_numbers, ' +
         'created_at, creator_id, creator_name, latitude, ' +
         'longitude, images, display_image_index, ' +

@@ -9,6 +9,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 interface NoCoordsRestaurant {
   id: string;
   name: string;
+    slug?: string | null;
   location: string | null;
   creator_name: string | null;
 }
@@ -76,7 +77,7 @@ export default function NoCoordsPage() {
                   <MapPinOff className="w-5 h-5 text-amber-400/50 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <Link
-                      href={`/restaurants/${r.id}`}
+                      href={`/restaurants/${r.slug || r.id}`}
                       className="text-sm font-medium text-white/80 hover:text-amber-400 transition-colors"
                     >
                       {r.name}
