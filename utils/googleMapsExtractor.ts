@@ -304,6 +304,19 @@ export class OSMService {
         throw new Error('Coordenadas inválidas para geocodificação reversa');
       }
 
+      // ponytail: client-side cannot set User-Agent (forbidden header) -> Nominatim
+      // blocks it -> "Failed to fetch". Proxy via server route (Node sets UA).
+      if (typeof window !== 'undefined') {
+        const res = await fetch(
+          `/api/osm/geocode?lat=${latitude}&lon=${longitude}`
+        );
+        if (!res.ok) {
+          throw new Error(`OSM proxy error: ${res.status}`);
+        }
+        const data = await res.json();
+        return data?.address ?? null;
+      }
+
       const params = new URLSearchParams({
         format: 'json',
         lat: latitude.toString(),
@@ -410,6 +423,16 @@ export class OSMService {
    */
   static async forwardGeocode(query: string): Promise<{ latitude: number; longitude: number; display_name: string } | null> {
     try {
+      // ponytail: browser -> proxy (see reverseGeocode; Nominatim blocks browser UA)
+      if (typeof window !== 'undefined') {
+        const res = await fetch(`/api/osm/geocode?q=${encodeURIComponent(query)}`);
+        if (!res.ok) {
+          throw new Error(`OSM proxy error: ${res.status}`);
+        }
+        const data = await res.json();
+        return data?.result ?? null;
+      }
+
       const params = new URLSearchParams({
         q: query,
         format: 'json',
