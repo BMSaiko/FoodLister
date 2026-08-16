@@ -12,19 +12,35 @@ interface BatchImportProgressProps {
     error?: string;
   }> | null;
   importing: boolean;
+  /** Current/total progress while chunked import is running (optional). */
+  progress?: { current: number; total: number };
 }
 
 export function BatchImportProgress({
   results,
   importing,
+  progress,
 }: BatchImportProgressProps) {
   if (importing && !results) {
     return (
       <div className="mt-4 p-4 bg-white/[0.02] border border-white/[0.04] rounded-xl">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-3">
           <Loader className="h-5 w-5 animate-spin text-[var(--primary)]" />
           <span className="text-sm text-white/60">A importar restaurantes...</span>
         </div>
+        {progress && (
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                style={{ width: `${Math.round((progress.current / Math.max(progress.total,1)) * 100)}%` }}
+              />
+            </div>
+            <span className="text-sm text-white/50 whitespace-nowrap tabular-nums">
+              {Math.min(progress.current + 1, progress.total)}/{progress.total}
+            </span>
+          </div>
+        )}
       </div>
     );
   }
