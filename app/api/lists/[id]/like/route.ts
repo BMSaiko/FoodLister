@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { resolveListId } from '@/libs/slug';
+import { createNotification } from '@/libs/notifications/service';
 
 // GET: like count + whether current user liked. POST: toggle like (auth only).
 export const dynamic = 'force-dynamic';
@@ -37,5 +38,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
   await supabase.from('list_likes').insert({ list_id: listId, user_id: user.id });
   const { count } = await supabase.from('list_likes').select('id', { count: 'exact', head: true }).eq('list_id', listId);
+
+  // P3a: notif ao dono da lista (não a si próprio) — espelho de reviews/route.ts
+  const { data: likerProfile } = await supabase
+    .from('profiles').select('display_name').eq('user_id', user.id).maybeSingle();
+  const likerName = likerProfile?.display_name ?? user.email?.split('@')[0] ?? 'Alguém';
+  const { data: listMeta } = await supabase
+    .from('lists').select('creator_id, name').eq('id', listId).maybeSingle();
+  if (listMeta?.creator_id && listMeta.creator_id !== user.id) {
+    createNotification({
+      userId: listMeta.creator_id,
+      type: 'like',
+      title: `Novo gosto em "${listMeta.name}"`,
+      message: `${likerName} gostou da tua lista "${listMeta.name}".`,
+      link: `/lists/${listId}`,
+    }).catch(() => {});
+  }
+
   return NextResponse.json({ count: count || 0, liked: true });
 }
