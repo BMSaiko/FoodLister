@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {useAuth } from "@/contexts";
+import {useLanguage, useAuth } from "@/contexts";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -16,6 +16,7 @@ function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
 
   useEffect(() => {
