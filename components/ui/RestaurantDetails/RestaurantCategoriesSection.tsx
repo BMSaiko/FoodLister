@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
 import { Tag } from 'lucide-react';
 
@@ -18,6 +20,7 @@ export default function RestaurantCategoriesSection({
   restaurantId,
   menuImages = []
 }: RestaurantCategoriesSectionProps) {
+  const { t } = useLanguage();
 
   const hasCategories = cuisineTypes.length > 0 || dietaryOptions.length > 0 || features.length > 0;
 
@@ -28,7 +31,7 @@ export default function RestaurantCategoriesSection({
           <div className="bg-white/[0.05] rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
             <Tag className="h-6 w-6 text-white/30" />
           </div>
-          <h3 className="text-base font-semibold text-white/60 mb-2">Sem categorias definidas</h3>
+          <h3 className="text-base font-semibold text-white/60 mb-2">{t('Sem categorias definidas')}</h3>
           <p className="text-white/40 text-xs">
             Este restaurante ainda nao possui categorias ou caracteristicas definidas
           </p>

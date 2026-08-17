@@ -2,19 +2,22 @@
 'use client';
 
 import React from 'react';
-import { AuthProvider, FiltersProvider } from "@/contexts";
+import { AuthProvider, FiltersProvider, LanguageProvider } from "@/contexts";
 
 import { ModalProvider } from "@/contexts/ModalContext";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MapSelectorModal from '@/components/ui/RestaurantManagement/MapSelectorModal';
+import GlobalSearch from '@/components/ui/GlobalSearch';
 
 export default function ClientLayout({ children }) {
   return (
+    <LanguageProvider>
     <AuthProvider>
       <FiltersProvider>
         <ModalProvider>
           {children}
+          <GlobalSearch />
           <MapSelectorModal />
           <ToastContainer
             position="top-center"
@@ -33,5 +36,6 @@ export default function ClientLayout({ children }) {
         </ModalProvider>
       </FiltersProvider>
     </AuthProvider>
+    </LanguageProvider>
   );
 }

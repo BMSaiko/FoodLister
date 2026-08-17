@@ -6,15 +6,18 @@ import Navbar from "@/components/ui/navigation/Navbar";
 import Link from "next/link";
 import {  Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useLanguage } from "@/contexts";
 
 export default function MealsPage() {
-  usePageTitle("Refeições - FoodLister");
+  const { t } = useLanguage();
+  usePageTitle(t("Refeições - FoodLister"));
   const { user, loading: authLoading } = useAuthUser();
   const [meals, setMeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchMeals() {
+  const { t } = useLanguage();
       if (!user) { setLoading(false); return; }
       try {
         const res = await fetch("/api/meals/scheduled?type=all&limit=50");
@@ -35,7 +38,7 @@ export default function MealsPage() {
       <div className="min-h-[100dvh] bg-[var(--background)]">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <p className="text-white/50">Precisa de estar autenticado para ver as suas refeicoes.</p>
+          <p className="text-white/50">{t("Precisa de estar autenticado para ver as suas refeicoes.")}</p>
         </div>
       </div>
     );
@@ -47,8 +50,8 @@ export default function MealsPage() {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">Refeicoes</h1>
-          <p className="text-white/35 mt-1 text-sm">Gere as tuas refeicoes agendadas</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{t("Refeicoes")}</h1>
+          <p className="text-white/35 mt-1 text-sm">{t("Gere as tuas refeicoes agendadas")}</p>
         </div>
 
         {loading ? (
@@ -60,10 +63,10 @@ export default function MealsPage() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] flex items-center justify-center">
               <UtensilsCrossed className="h-8 w-8 text-white/15" />
             </div>
-            <h3 className="text-lg font-semibold text-white/60 mb-2">Nenhuma refeicao agendada</h3>
-            <p className="text-sm text-white/30 mb-4">Agenda uma refeicao a partir de qualquer restaurante.</p>
+            <h3 className="text-lg font-semibold text-white/60 mb-2">{t("Nenhuma refeicao agendada")}</h3>
+            <p className="text-sm text-white/30 mb-4">{t("Agenda uma refeicao a partir de qualquer restaurante.")}</p>
             <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
-              Explorar Restaurantes <ArrowRight className="h-4 w-4" />
+              {t("Explorar Restaurantes")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         ) : (
@@ -88,7 +91,7 @@ export default function MealsPage() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-white/85 text-sm truncate">
-                      {meal.restaurant?.name || meal.restaurant_name || "Restaurante"}
+                      {meal.restaurant?.name || meal.restaurant_name || t("Restaurante")}
                     </h3>
                     <div className="flex items-center gap-3 mt-1 text-xs text-white/35">
                       {meal.meal_time && (

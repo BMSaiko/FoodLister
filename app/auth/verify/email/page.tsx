@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useLanguage } from "@/contexts";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Mail } from "lucide-react";
@@ -8,7 +9,9 @@ import { useVerification } from "@/hooks/auth/useVerification";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function VerifyEmailPage() {
-  usePageTitle("Verificar email - FoodLister");
+  const { t } = useLanguage();
+  
+  usePageTitle(t("Verificar email - FoodLister"));
   const searchParams = useSearchParams();
   const router = useRouter();
   const { verifyEmail, loading: hookLoading } = useVerification();
@@ -21,7 +24,7 @@ export default function VerifyEmailPage() {
 
     if (!token || type !== "email") {
       setStatus("error");
-      setErrorMessage("Token de verificação inválido ou em falta.");
+      setErrorMessage(t("Token de verificação inválido ou em falta."));
       return;
     }
 
@@ -35,13 +38,13 @@ export default function VerifyEmailPage() {
       } else {
         setStatus("error");
         setErrorMessage(
-          result.error?.message || "Falha ao verificar o email. O token pode ter expirado."
+          result.error?.message || t("Falha ao verificar o email. O token pode ter expirado.")
         );
       }
     };
 
     handleVerification();
-  }, [searchParams, verifyEmail, router]);
+  }, [searchParams, verifyEmail, router, t]);
 
   return (
     <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
@@ -58,7 +61,7 @@ export default function VerifyEmailPage() {
             <Mail className="h-7 w-7 text-purple-400" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
-            Verificação de Email
+            {t("Verificação de Email")}
           </h1>
         </div>
 
@@ -68,7 +71,7 @@ export default function VerifyEmailPage() {
             {status === "loading" && (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/[0.08] border-t-purple-500 mx-auto mb-4" />
-                <p className="text-white/50">A verificar o seu email...</p>
+                <p className="text-white/50">{t("A verificar o seu email...")}</p>
               </div>
             )}
 
@@ -80,10 +83,10 @@ export default function VerifyEmailPage() {
                   </svg>
                 </div>
                 <p className="text-green-400 font-medium text-lg mb-2">
-                  Email verificado com sucesso!
+                  {t("Email verificado com sucesso!")}
                 </p>
                 <p className="text-white/40 text-sm">
-                  A redirecionar...
+                  {t("A redirecionar...")}
                 </p>
               </div>
             )}
@@ -96,7 +99,7 @@ export default function VerifyEmailPage() {
                   </svg>
                 </div>
                 <p className="text-red-400 font-medium text-lg mb-2">
-                  Falha na verificação
+                  {t("Falha na verificação")}
                 </p>
                 <p className="text-white/40 text-sm mb-6">{errorMessage}</p>
                 <div className="space-y-3">
@@ -104,13 +107,13 @@ export default function VerifyEmailPage() {
                     href="/auth/signin"
                     className="block w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors text-center min-h-[48px]"
                   >
-                    Ir para Login
+                    {t("Ir para Login")}
                   </Link>
                   <Link
                     href="/"
                     className="block w-full py-3 bg-white/[0.03] border border-white/[0.08] text-white/70 rounded-xl hover:bg-white/[0.06] transition-colors text-center min-h-[48px]"
                   >
-                    Página Inicial
+                    {t("Página Inicial")}
                   </Link>
                 </div>
               </div>

@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState } from 'react';
 import { ImageIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -18,6 +20,7 @@ export default function HorizontalImageList({
   title = "Imagens do Menu",
   className = ""
 }: HorizontalImageListProps) {
+  const { t } = useLanguage();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
@@ -31,7 +34,7 @@ export default function HorizontalImageList({
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-800">{title}</h3>
-            <p className="text-xs sm:text-sm text-gray-500">Nenhuma imagem disponível</p>
+            <p className="text-xs sm:text-sm text-gray-500">{t('Nenhuma imagem disponível')}</p>
           </div>
         </div>
         
@@ -161,7 +164,7 @@ export default function HorizontalImageList({
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 z-50 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg cursor-pointer"
-              aria-label="Fechar modal"
+              aria-label={t('Fechar modal')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -171,12 +174,13 @@ export default function HorizontalImageList({
             {/* Navigation Buttons - Left */}
             {images.length > 1 && (
               <button
+  
                 onClick={(e) => {
                   e.stopPropagation();
                   prevImage();
                 }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
-                aria-label="Imagem anterior"
+                aria-label={t('Imagem anterior')}
                 onTouchStart={(e) => {
                   const touch = e.touches[0];
                   e.currentTarget.dataset.touchStart = `${touch.clientX}`;
@@ -202,14 +206,15 @@ export default function HorizontalImageList({
             )}
 
             {/* Navigation Buttons - Right */}
-            {images.length > 1 && (
+            {images.length > 
+  1 && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   nextImage();
                 }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 touch-manipulation"
-                aria-label="Próxima imagem"
+                aria-label={t('Próxima imagem')}
                 onTouchStart={(e) => {
                   const touch = e.touches[0];
                   e.currentTarget.dataset.touchStart = `${touch.clientX}`;
@@ -239,7 +244,8 @@ export default function HorizontalImageList({
               className="w-full h-full flex items-center justify-center"
               onTouchStart={(e) => {
                 const touch = e.touches[0];
-                e.currentTarget.dataset.touchStart = `${touch.clientX}`;
+                e.currentTarget
+  .dataset.touchStart = `${touch.clientX}`;
               }}
               onTouchEnd={(e) => {
                 const touch = e.changedTouches[0];
@@ -277,18 +283,18 @@ export default function HorizontalImageList({
               <div className="flex items-center space-x-2">
                 <span>← → Navegar</span>
                 <span>•</span>
-                <span>ESC Fechar</span>
+                <span>{t('ESC Fechar')}</span>
                 <span>•</span>
-                <span>Swipe arrastar</span>
+                <span>{t('Swipe arrastar')}</span>
               </div>
             </div>
 
             {/* Touch Instructions - Mobile only */}
             <div className="absolute bottom-4 left-4 sm:hidden bg-black/50 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-xs">
               <div className="flex items-center space-x-2">
-                <span>Arraste para navegar</span>
+                <span>{t('Arraste para navegar')}</span>
                 <span>•</span>
-                <span>ESC Fechar</span>
+                <span>{t('ESC Fechar')}</span>
               </div>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useVerification } from '@/hooks/auth/useVerification';
+import { useLanguage } from '@/contexts';
 import type { VerificationStatus as VerificationStatusType } from '@/libs/types';
 
 interface VerificationStatusProps {
@@ -16,12 +17,13 @@ export default function VerificationStatus({
   email,
 }: VerificationStatusProps) {
   const { status: hookStatus, loading } = useVerification();
+  const { t } = useLanguage();
   const status = propStatus ?? hookStatus;
 
   if (loading) {
     return (
       <div className="p-4 bg-[var(--card-bg)] rounded-md">
-        <p className="text-[var(--gray-500)] text-sm">Carregando status de verificação...</p>
+        <p className="text-[var(--gray-500)] text-sm">{t("Carregando status de verificação...")}</p>
       </div>
     );
   }
@@ -29,7 +31,7 @@ export default function VerificationStatus({
   if (!status) {
     return (
       <div className="p-4 bg-[var(--card-bg)] rounded-md">
-        <p className="text-[var(--gray-500)] text-sm">Status de verificação indisponível.</p>
+        <p className="text-[var(--gray-500)] text-sm">{t("Status de verificação indisponível.")}</p>
       </div>
     );
   }
@@ -42,16 +44,16 @@ export default function VerificationStatus({
         <div className={`w-3 h-3 rounded-full ${isVerified ? 'bg-green-500' : 'bg-yellow-500'}`} />
         <div>
           <p className={`font-medium ${isVerified ? 'text-[var(--green-800)]' : 'text-[var(--amber-800)]'}`}>
-            {isVerified ? 'Email Verificado' : 'Email Não Verificado'}
+            {isVerified ? t('Email Verificado') : t('Email Não Verificado')}
           </p>
           {isVerified && status.verifiedAt && (
             <p className="text-sm text-[var(--green-700)] mt-1">
-              Verificado em: {new Date(status.verifiedAt).toLocaleDateString('pt-PT')}
+              {t("Verificado em: {date}", { date: new Date(status.verifiedAt).toLocaleDateString('pt-PT') })}
             </p>
           )}
           {!isVerified && showResendButton && (
             <p className="text-sm text-[var(--amber-700)] mt-1">
-              Por favor, verifique seu email para ativar todas as funcionalidades.
+              {t("Por favor, verifique seu email para ativar todas as funcionalidades.")}
             </p>
           )}
         </div>

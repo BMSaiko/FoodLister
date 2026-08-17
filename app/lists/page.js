@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
+import { useLanguage } from "@/contexts";
 import { useSearchParams } from 'next/navigation';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import ListCard from '@/components/ui/RestaurantManagement/ListCard';
@@ -17,6 +18,7 @@ function ListsContent() {
   const [loading, setLoading] = useState(true);
   const [allTags, setAllTags] = useState([]);
   const { user } = useAuthUser();
+  const { t } = useLanguage();
   const [activeTag, setActiveTag] = useState(null);
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search');
@@ -176,7 +178,7 @@ function ListsContent() {
         <Link
           href="/lists/create"
           className="w-14 h-14 rounded-full bg-[var(--primary)] text-black flex items-center justify-center shadow-lg hover:bg-[var(--primary-hover)] transition-colors fab-pulse"
-          title="Criar lista"
+          title={t('Criar lista')}
         >
           <Plus className="w-6 h-6" />
         </Link>
@@ -186,6 +188,7 @@ function ListsContent() {
 }
 
 export default function ListsPage() {
+  const { t } = useLanguage();
   usePageTitle("Listas - FoodLister");
   return (
     <Suspense fallback={<div className="min-h-[100dvh] bg-[var(--background)]" />}>

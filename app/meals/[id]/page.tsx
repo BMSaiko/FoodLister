@@ -9,6 +9,7 @@ import Navbar from '@/components/ui/navigation/Navbar';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { toast } from 'react-toastify';
+import { useLanguage } from "@/contexts";
 import Modal from '@/components/ui/Modal';
 
 interface Meal {
@@ -60,13 +61,14 @@ const mealTypeLabels: Record<string, string> = {
 };
 
 export default function MealDetailsPage() {
+  const { t } = useLanguage();
   const params = useParams();
   const router = useRouter();
   const { user } = useAuthUser();
   const mealId = params.id as string;
 
   const [meal, setMeal] = useState<Meal | null>(null);
-  usePageTitle(meal?.restaurant?.name ? `${meal.restaurant.name} - FoodLister` : "FoodLister - Refeição");
+  usePageTitle(meal?.restaurant?.name ? `${meal.restaurant.name} - FoodLister` : t("FoodLister - Refeição"));
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -122,13 +124,13 @@ export default function MealDetailsPage() {
             p.userId === user?.id ? { ...p, status: 'accepted' } : p
           )
         } : null);
-        toast.success('Presença confirmada!');
+        toast.success(t('Presença confirmada!'));
       } else {
-        toast.error('Erro ao confirmar presença');
+        toast.error(t('Erro ao confirmar presença'));
       }
     } catch (error) {
       console.error('Error accepting invitation:', error);
-      toast.error('Erro ao confirmar presença');
+      toast.error(t('Erro ao confirmar presença'));
     } finally {
       setUpdating(false);
     }
@@ -152,13 +154,13 @@ export default function MealDetailsPage() {
             p.userId === user?.id ? { ...p, status: 'declined' } : p
           )
         } : null);
-        toast.success('Presença recusada');
+        toast.success(t('Presença recusada'));
       } else {
-        toast.error('Erro ao recusar presença');
+        toast.error(t('Erro ao recusar presença'));
       }
     } catch (error) {
       console.error('Error declining invitation:', error);
-      toast.error('Erro ao recusar presença');
+      toast.error(t('Erro ao recusar presença'));
     } finally {
       setUpdating(false);
     }
@@ -205,14 +207,14 @@ export default function MealDetailsPage() {
           durationMinutes: result.data.duration_minutes
         } : null);
         setShowEditModal(false);
-        toast.success('Refeição atualizada com sucesso!');
+        toast.success(t('Refeição atualizada com sucesso!'));
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Erro ao atualizar refeição');
+        toast.error(errorData.error || t('Erro ao atualizar refeição'));
       }
     } catch (error) {
       console.error('Error updating meal:', error);
-      toast.error('Erro ao atualizar refeição');
+      toast.error(t('Erro ao atualizar refeição'));
     } finally {
       setSaving(false);
     }
@@ -227,15 +229,15 @@ export default function MealDetailsPage() {
       });
 
       if (response.ok) {
-        toast.success('Refeição eliminada com sucesso!');
+        toast.success(t('Refeição eliminada com sucesso!'));
         router.push('/users/me');
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Erro ao eliminar refeição');
+        toast.error(errorData.error || t('Erro ao eliminar refeição'));
       }
     } catch (error) {
       console.error('Error deleting meal:', error);
-      toast.error('Erro ao eliminar refeição');
+      toast.error(t('Erro ao eliminar refeição'));
     } finally {
       setSaving(false);
     }
@@ -254,11 +256,11 @@ export default function MealDetailsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'accepted':
-        return <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Aceite</span>;
+        return <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">{t("Aceite")}</span>;
       case 'declined':
-        return <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Recusado</span>;
+        return <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">{t("Recusado")}</span>;
       case 'pending':
-        return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">Pendente</span>;
+        return <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full">{t("Pendente")}</span>;
       default:
         return null;
     }
@@ -272,7 +274,7 @@ export default function MealDetailsPage() {
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
-              <span className="ml-3 text-white/50">A carregar detalhes da refeição...</span>
+              <span className="ml-3 text-white/50">{t("A carregar detalhes da refeição...")}</span>
             </div>
           </div>
         </div>
@@ -288,14 +290,14 @@ export default function MealDetailsPage() {
           <div className="container mx-auto px-4 py-8">
             <div className="text-center py-20">
               <Utensils className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h2 className="text-xl font-semibold text-white/90 mb-2">Refeição não encontrada</h2>
-              <p className="text-gray-500 mb-6">A refeição que procuras não existe ou foi removida.</p>
+              <h2 className="text-xl font-semibold text-white/90 mb-2">{t("Refeição não encontrada")}</h2>
+              <p className="text-gray-500 mb-6">{t("A refeição que procuras não existe ou foi removida.")}</p>
               <Link
                 href="/users/me"
                 className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar ao perfil
+                {t("Voltar ao perfil")}
               </Link>
             </div>
           </div>
@@ -315,7 +317,7 @@ export default function MealDetailsPage() {
           className="flex items-center text-white/50 hover:text-amber-600 mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar
+          {t("Voltar")}
         </button>
 
         {/* Header */}
@@ -328,16 +330,16 @@ export default function MealDetailsPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-white/90">
-                    {meal.restaurant?.name || 'Restaurante'}
+                    {meal.restaurant?.name || t('Restaurante')}
                   </h1>
                   <p className="text-amber-700 font-medium">
-                    {mealTypeLabels[meal.mealType] || meal.mealType}
+                    {t(mealTypeLabels[meal.mealType] || meal.mealType)}
                   </p>
                 </div>
               </div>
               {meal.isOrganizer && (
                 <span className="px-3 py-1 bg-amber-200 text-amber-800 text-sm font-medium rounded-full">
-                  Organizador
+                  {t("Organizador")}
                 </span>
               )}
               {meal.isOrganizer && (
@@ -345,14 +347,14 @@ export default function MealDetailsPage() {
                   <button
                     onClick={handleEdit}
                     className="p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
-                    title="Editar refeição"
+                    title={t("Editar refeição")}
                   >
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
                     className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                    title="Eliminar refeição"
+                    title={t("Eliminar refeição")}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -368,22 +370,22 @@ export default function MealDetailsPage() {
               <div className="flex items-center space-x-3 text-white/70">
                 <Calendar className="h-5 w-5 text-amber-500" />
                 <div>
-                  <p className="text-sm text-gray-500">Data</p>
+                  <p className="text-sm text-gray-500">{t("Data")}</p>
                   <p className="font-medium">{formatDate(meal.mealDate)}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-white/70">
                 <Clock className="h-5 w-5 text-amber-500" />
                 <div>
-                  <p className="text-sm text-gray-500">Hora</p>
+                  <p className="text-sm text-gray-500">{t("Hora")}</p>
                   <p className="font-medium">{meal.mealTime}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-white/70">
                 <Clock className="h-5 w-5 text-amber-500" />
                 <div>
-                  <p className="text-sm text-gray-500">Duração</p>
-                  <p className="font-medium">{meal.durationMinutes} minutos</p>
+                  <p className="text-sm text-gray-500">{t("Duração")}</p>
+                  <p className="font-medium">{t("{n} minutos", { n: meal.durationMinutes })}</p>
                 </div>
               </div>
               {meal.restaurant?.location && (
@@ -393,7 +395,7 @@ export default function MealDetailsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <div>
-                    <p className="text-sm text-gray-500">Localização</p>
+                    <p className="text-sm text-gray-500">{t("Localização")}</p>
                     <p className="font-medium">{meal.restaurant.location}</p>
                   </div>
                 </div>
@@ -405,7 +407,7 @@ export default function MealDetailsPage() {
         {/* Organizer */}
         <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
           <div className="bg-white/[0.03] rounded-xl p-4">
-            <h2 className="text-lg font-semibold text-white/90 mb-4">Organizador</h2>
+            <h2 className="text-lg font-semibold text-white/90 mb-4">{t("Organizador")}</h2>
             <div className="flex items-center space-x-3">
             {meal.organizer?.avatarUrl ? (
               <img
@@ -420,7 +422,7 @@ export default function MealDetailsPage() {
             )}
             <div>
               <p className="font-medium text-white/90">
-                {meal.organizer?.displayName || 'Utilizador'}
+                {meal.organizer?.displayName || t('Utilizador')}
               </p>
               {meal.organizer?.userIdCode && (
                 <p className="text-sm text-gray-500">{meal.organizer.userIdCode}</p>
@@ -437,7 +439,7 @@ export default function MealDetailsPage() {
               <div className="flex items-center space-x-2 mb-4">
               <Users className="h-5 w-5 text-amber-500" />
               <h2 className="text-lg font-semibold text-white/90">
-                Participantes ({meal.participants.length})
+                {t("Participantes ({n})", { n: meal.participants.length })}
               </h2>
             </div>
             <div className="space-y-3">
@@ -457,7 +459,7 @@ export default function MealDetailsPage() {
                     )}
                     <div>
                       <p className="text-sm font-medium text-white/90">
-                        {participant.profile?.displayName || 'Utilizador'}
+                        {participant.profile?.displayName || t('Utilizador')}
                       </p>
                       {participant.profile?.userIdCode && (
                         <p className="text-xs text-gray-500">{participant.profile.userIdCode}</p>
@@ -475,7 +477,7 @@ export default function MealDetailsPage() {
         {/* Actions */}
         <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
           <div className="bg-white/[0.03] rounded-xl p-4">
-            <h2 className="text-lg font-semibold text-white/90 mb-4">Ações</h2>
+            <h2 className="text-lg font-semibold text-white/90 mb-4">{t("Ações")}</h2>
             <div className="space-y-3">
             {/* Download ICS */}
             <button
@@ -483,7 +485,7 @@ export default function MealDetailsPage() {
               className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
             >
               <Download className="h-5 w-5" />
-              <span>Download .ics (Calendário)</span>
+              <span>{t("Download .ics (Calendário)")}</span>
             </button>
 
             {/* Google Calendar */}
@@ -493,7 +495,7 @@ export default function MealDetailsPage() {
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-[#0a0a0a] border border-white/[0.06] border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors font-medium"
               >
                 <ExternalLink className="h-5 w-5" />
-                <span>Adicionar ao Google Calendar</span>
+                <span>{t("Adicionar ao Google Calendar")}</span>
               </button>
             )}
 
@@ -515,7 +517,7 @@ export default function MealDetailsPage() {
                   } disabled:opacity-50`}
                 >
                   <Check className="h-5 w-5" />
-                  <span>{updating ? 'A confirmar...' : meal.participantStatus === 'accepted' ? 'Aceite ✓' : 'Confirmar Presença'}</span>
+                  <span>{updating ? t('A confirmar...') : meal.participantStatus === 'accepted' ? t('Aceite ✓') : t('Confirmar Presença')}</span>
                 </button>
                 <button
                   onClick={handleDecline}
@@ -527,7 +529,7 @@ export default function MealDetailsPage() {
                   } disabled:opacity-50`}
                 >
                   <X className="h-5 w-5" />
-                  <span>{updating ? 'A recusar...' : meal.participantStatus === 'declined' ? 'Recusado ✓' : 'Recusar'}</span>
+                  <span>{updating ? t('A recusar...') : meal.participantStatus === 'declined' ? t('Recusado ✓') : t('Recusar')}</span>
                 </button>
               </div>
             )}
@@ -542,17 +544,17 @@ export default function MealDetailsPage() {
               href={`/restaurants/${meal.restaurant.slug || meal.restaurant.id}`}
               className="text-amber-600 hover:text-amber-700 font-medium"
             >
-              Ver página do restaurante →
+              {t("Ver página do restaurante →")}
             </Link>
           </div>
         )}
       </div>
 
       {/* Edit Modal */}
-      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} size="lg" ariaLabel="Editar Refeição">
+      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} size="lg" ariaLabel={t("Editar Refeição")}>
             <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-6 py-4 rounded-t-xl border-b border-white/[0.06]">
               <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold text-white/90">Editar Refeição</h3>
+                <h3 className="text-xl font-bold text-white/90">{t("Editar Refeição")}</h3>
                 <button
                   onClick={() => setShowEditModal(false)}
                   className="text-gray-400 hover:text-white/50"
@@ -563,7 +565,7 @@ export default function MealDetailsPage() {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-white/70 font-semibold mb-2 text-sm">Data</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">{t("Data")}</label>
                 <input
                   type="date"
                   value={editForm.mealDate}
@@ -573,7 +575,7 @@ export default function MealDetailsPage() {
                 />
               </div>
               <div>
-                <label className="block text-white/70 font-semibold mb-2 text-sm">Hora</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">{t("Hora")}</label>
                 <input
                   type="time"
                   value={editForm.mealTime}
@@ -582,33 +584,33 @@ export default function MealDetailsPage() {
                 />
               </div>
               <div>
-                <label className="block text-white/70 font-semibold mb-2 text-sm">Tipo de refeição</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">{t("Tipo de refeição")}</label>
                 <select
                   value={editForm.mealType}
                   onChange={(e) => setEditForm(prev => ({ ...prev, mealType: e.target.value }))}
                   className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
                 >
-                  <option value="pequeno-almoco">Pequeno Almoço</option>
-                  <option value="almoco">Almoço</option>
+                  <option value="pequeno-almoco">{t("Pequeno Almoço")}</option>
+                  <option value="almoco">{t("Almoço")}</option>
                   <option value="brunch">Brunch</option>
-                  <option value="lanche">Lanche</option>
-                  <option value="jantar">Jantar</option>
-                  <option value="ceia">Ceia</option>
+                  <option value="lanche">{t("Lanche")}</option>
+                  <option value="jantar">{t("Jantar")}</option>
+                  <option value="ceia">{t("Ceia")}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-white/70 font-semibold mb-2 text-sm">Duração (minutos)</label>
+                <label className="block text-white/70 font-semibold mb-2 text-sm">{t("Duração (minutos)")}</label>
                 <select
                   value={editForm.durationMinutes}
                   onChange={(e) => setEditForm(prev => ({ ...prev, durationMinutes: Number(e.target.value) }))}
                   className="w-full px-4 py-3 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
                 >
-                  <option value={30}>30 minutos</option>
-                  <option value={60}>1 hora</option>
-                  <option value={90}>1.5 horas</option>
-                  <option value={120}>2 horas</option>
-                  <option value={180}>3 horas</option>
-                  <option value={240}>4 horas</option>
+                  <option value={30}>{t("30 minutos")}</option>
+                  <option value={60}>{t("1 hora")}</option>
+                  <option value={90}>{t("1.5 horas")}</option>
+                  <option value={120}>{t("2 horas")}</option>
+                  <option value={180}>{t("3 horas")}</option>
+                  <option value={240}>{t("4 horas")}</option>
                 </select>
               </div>
             </div>
@@ -617,42 +619,42 @@ export default function MealDetailsPage() {
                 onClick={() => setShowEditModal(false)}
                 className="px-6 py-2.5 bg-white/[0.04] text-white/70 rounded-lg hover:bg-white/[0.06] transition-colors font-medium"
               >
-                Cancelar
+                {t("Cancelar")}
               </button>
               <button
                 onClick={handleSaveEdit}
                 disabled={saving}
                 className="px-6 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 transition-colors font-medium"
               >
-                {saving ? 'A guardar...' : 'Guardar alterações'}
+                {saving ? t('A guardar...') : t('Guardar alterações')}
               </button>
             </div>
         </Modal>
 
 
       {/* Delete Confirmation Modal */}
-      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} size="sm" ariaLabel="Confirmar eliminação">
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} size="sm" ariaLabel={t("Confirmar eliminação")}>
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="h-6 w-6 text-red-600" />
               </div>
-              <h3 className="text-lg font-bold text-white/90 mb-2">Eliminar refeição?</h3>
+              <h3 className="text-lg font-bold text-white/90 mb-2">{t("Eliminar refeição?")}</h3>
               <p className="text-white/50 text-sm mb-6">
-                Esta ação irá eliminar a refeição e todas as participações associadas. Esta ação não pode ser desfeita.
+                {t("Esta ação irá eliminar a refeição e todas as participações associadas. Esta ação não pode ser desfeita.")}
               </p>
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}
                   className="flex-1 px-6 py-2.5 bg-white/[0.04] text-white/70 rounded-lg hover:bg-white/[0.06] transition-colors font-medium"
                 >
-                  Cancelar
+                  {t("Cancelar")}
                 </button>
                 <button
                   onClick={handleDelete}
                   disabled={saving}
                   className="flex-1 px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors font-medium"
                 >
-                  {saving ? 'A eliminar...' : 'Eliminar'}
+                  {saving ? t('A eliminar...') : t('Eliminar')}
                 </button>
               </div>
             </div>

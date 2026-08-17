@@ -19,6 +19,7 @@ import Link from 'next/link';
 import RestaurantFormProgress from './RestaurantFormProgress';
 import RestaurantFormPreview from './RestaurantFormPreview';
 import RestaurantFormCelebration from './RestaurantFormCelebration';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface RestaurantFormProps {
   restaurantId?: string;
@@ -39,6 +40,7 @@ const SECTION_ICONS = {
 };
 
 export default function RestaurantForm({ restaurantId, backUrl, backLabel, enableBatchImport, onSuccess }: RestaurantFormProps) {
+  const { t } = useLanguage();
   const router = useRouter();
   const [googleMapsModalOpen, setGoogleMapsModalOpen] = useState(false);
   const [batchImportOpen, setBatchImportOpen] = useState(false);
@@ -127,6 +129,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
         restaurantId={createdRestaurant?.id || ''}
         restaurantName={createdRestaurant?.name || ''}
         onClose={() => {
+  const { t } = useLanguage();
           setShowCelebration(false);
           router.push(`/restaurants/${createdRestaurant?.id}`);
         }}
@@ -172,21 +175,21 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 1: Basic Info */}
               {currentStep === 1 && (
                 <div className="wizard-step-enter">
-                  <FormSection title="Informações Básicas"  icon={<SECTION_ICONS.basic className="w-5 h-5" />}>
+                  <FormSection title={t('Informações Básicas')}  icon={<SECTION_ICONS.basic className="w-5 h-5" />}>
                     <div className="space-y-4">
-                      <FormField label="Nome" name="name" type="text" value={formData.name} onChange={handleChange} required>
+                      <FormField label={t('Nome')} name="name" type="text" value={formData.name} onChange={handleChange} required>
                         <button
                           type="button"
                           onClick={() => setGoogleMapsModalOpen(true)}
                           className="px-4 py-2 bg-[var(--primary)] text-black rounded-full hover:bg-[var(--primary-hover)] flex items-center gap-2 font-medium text-sm transition-colors"
                         >
                           <Map className="h-4 w-4" />
-                          <span className="hidden sm:inline">Google Maps</span>
+                          <span className="hidden sm:inline">{t('Google Maps')}</span>
                         </button>
                       </FormField>
 
                       <FormField
-                        label="Descrição"
+                        label={t('Descrição')}
                         name="description"
                         type="textarea"
                         value={formData.description}
@@ -196,7 +199,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                       />
 
                       <FormField
-                        label="Localização"
+                        label={t('Localização')}
                         name="location"
                         type="text"
                         value={formData.location}
@@ -212,7 +215,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 2: Categories */}
               {currentStep === 2 && (
                 <div className="wizard-step-enter">
-                  <FormSection title="Categorias Culinárias"  icon={<SECTION_ICONS.categories className="w-5 h-5" />}>
+                  <FormSection title={t('Categorias Culinárias')}  icon={<SECTION_ICONS.categories className="w-5 h-5" />}>
                     <CuisineSelector
                       cuisineTypes={cuisineTypes}
                       selectedCuisineTypes={formData.selectedCuisineTypes}
@@ -226,7 +229,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 3: Dietary */}
               {currentStep === 3 && (
                 <div className="wizard-step-enter">
-                  <FormSection title="Opções Dietéticas"  icon={<SECTION_ICONS.dietary className="w-5 h-5" />}>
+                  <FormSection title={t('Opções Dietéticas')}  icon={<SECTION_ICONS.dietary className="w-5 h-5" />}>
                     <DietaryOptionsSelector
                       dietaryOptions={dietaryOptions}
                       selectedDietaryOptions={formData.selectedDietaryOptions}
@@ -240,7 +243,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 4: Features */}
               {currentStep === 4 && (
                 <div className="wizard-step-enter">
-                  <FormSection title="Características"  icon={<SECTION_ICONS.features className="w-5 h-5" />}>
+                  <FormSection title={t('Características')}  icon={<SECTION_ICONS.features className="w-5 h-5" />}>
                     <FeaturesSelector
                       features={features}
                       selectedFeatures={formData.selectedFeatures}
@@ -254,7 +257,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 5: Images */}
               {currentStep === 5 && (
                 <div className="wizard-step-enter">
-                  <FormSection title="Imagens"  icon={<SECTION_ICONS.images className="w-5 h-5" />}>
+                  <FormSection title={t('Imagens')}  icon={<SECTION_ICONS.images className="w-5 h-5" />}>
                     <RestaurantImageManager
                       images={formData.images}
                       displayImageIndex={formData.display_image_index}
@@ -269,10 +272,10 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 6: Additional */}
               {currentStep === 6 && (
                 <div className="wizard-step-enter">
-                  <FormSection title="Informações Adicionais"  icon={<SECTION_ICONS.details className="w-5 h-5" />}>
+                  <FormSection title={t('Informações Adicionais')}  icon={<SECTION_ICONS.details className="w-5 h-5" />}>
                     <div className="space-y-4">
                       <FormField
-                        label="Website"
+                        label={t('Website')}
                         name="source_url"
                         type="url"
                         value={formData.source_url}
@@ -283,7 +286,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                       />
 
                       <div>
-                        <label className="block text-sm font-medium text-[var(--foreground)] mb-2">Links do Menu</label>
+                        <label className="block text-sm font-medium text-[var(--foreground)] mb-2">{t('Links do Menu')}</label>
                         <MenuManager
                           menuLinks={formData.menu_links}
                           menuImages={formData.menu_images}
@@ -294,8 +297,8 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-[var(--foreground)] mb-2">Telefones</label>
-                        <MultiplePhoneInput label="Telefones"
+                        <label className="block text-sm font-medium text-[var(--foreground)] mb-2">{t('Telefones')}</label>
+                        <MultiplePhoneInput label={t('Telefones')}
                           values={formData.phone_numbers || []}
                           onChange={(phones) => setFieldValue('phone_numbers', phones)}
                         />

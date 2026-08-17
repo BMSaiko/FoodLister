@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
 import { toast } from "react-toastify";
+import { useLanguage } from "@/contexts";
 import { Eye, EyeOff, Mail, Lock, Key, ArrowRight, CheckCircle } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
@@ -21,47 +22,48 @@ function ResetPasswordForm() {
   const [isResetMode, setIsResetMode] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleRequestReset = async (e) => {
     e.preventDefault();
-    if (!email.trim()) { toast.error("Digite o seu email"); return; }
+    if (!email.trim()) { toast.error(t("Digite o seu email")); return; }
     setIsLoading(true);
     try {
       const supabase = getClient();
       const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } });
-      if (error) { toast.error("Erro ao enviar codigo. Verifique se o email esta correto."); return; }
+      if (error) { toast.error(t("Erro ao enviar codigo. Verifique se o email esta correto.")); return; }
       setIsOtpMode(true);
-      toast.success("Codigo de 6 digitos enviado para o seu email!");
-    } catch { toast.error("Erro inesperado. Tente novamente."); }
+      toast.success(t("Codigo de 6 digitos enviado para o seu email!"));
+    } catch { toast.error(t("Erro inesperado. Tente novamente.")); }
     finally { setIsLoading(false); }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!otpCode.trim() || otpCode.length !== 6) { toast.error("Digite o codigo de 6 digitos"); return; }
+    if (!otpCode.trim() || otpCode.length !== 6) { toast.error(t("Digite o codigo de 6 digitos")); return; }
     setIsLoading(true);
     try {
       const supabase = getClient();
       const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: otpCode.trim(), type: "recovery" });
-      if (error) { toast.error("Codigo invalido ou expirado."); return; }
+      if (error) { toast.error(t("Codigo invalido ou expirado.")); return; }
       setIsResetMode(true);
-      toast.success("Codigo verificado! Defina a sua nova password.");
-    } catch { toast.error("Erro ao verificar codigo."); }
+      toast.success(t("Codigo verificado! Defina a sua nova password."));
+    } catch { toast.error(t("Erro ao verificar codigo.")); }
     finally { setIsLoading(false); }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) { toast.error("As senhas nao coincidem"); return; }
-    if (password.length < 6) { toast.error("A password deve ter pelo menos 6 caracteres"); return; }
+    if (password !== confirmPassword) { toast.error(t("As senhas nao coincidem")); return; }
+    if (password.length < 6) { toast.error(t("A password deve ter pelo menos 6 caracteres")); return; }
     setIsLoading(true);
     try {
       const supabase = getClient();
       const { error } = await supabase.auth.updateUser({ password });
-      if (error) { toast.error("Erro ao atualizar password."); return; }
+      if (error) { toast.error(t("Erro ao atualizar password.")); return; }
       setIsSuccess(true);
       setTimeout(() => router.push("/auth/signin"), 2500);
-    } catch { toast.error("Erro inesperado. Tente novamente."); }
+    } catch { toast.error(t("Erro inesperado. Tente novamente.")); }
     finally { setIsLoading(false); }
   };
 
@@ -80,8 +82,8 @@ function ResetPasswordForm() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
               <CheckCircle className="h-8 w-8 text-emerald-400" />
             </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Password Atualizada!</h2>
-            <p className="text-white/40 text-sm">A sua password foi alterada com sucesso. A redirecionar...</p>
+            <h2 className="text-2xl font-bold text-white mb-2">{t("Password Atualizada!")}</h2>
+            <p className="text-white/40 text-sm">{t("A sua password foi alterada com sucesso. A redirecionar...")}</p>
           </div>
         )}
 
@@ -92,14 +94,14 @@ function ResetPasswordForm() {
               <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
                 <Mail className="h-7 w-7 text-purple-400" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">Recuperar Password</h1>
-              <p className="text-white/40 text-sm">Introduza o seu email para receber um codigo de verificacao</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Recuperar Password")}</h1>
+              <p className="text-white/40 text-sm">{t("Introduza o seu email para receber um codigo de verificacao")}</p>
             </div>
             <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
               <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03]">
                 <form onSubmit={handleRequestReset} className="space-y-4">
                   <div>
-                    <label htmlFor="email" className="sr-only">Email</label>
+                    <label htmlFor="email" className="sr-only">{t("Email")}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Mail className="h-5 w-5 text-white/25" />
@@ -107,7 +109,7 @@ function ResetPasswordForm() {
                       <input
                         id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
                         className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                        placeholder="Endereco de email"
+                        placeholder={t("Endereco de email")}
                         value={email} onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
@@ -115,7 +117,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Enviar Codigo <ArrowRight className="h-4 w-4" /></>}
+                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{t("Enviar Codigo")} <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -130,14 +132,14 @@ function ResetPasswordForm() {
               <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
                 <Key className="h-7 w-7 text-purple-400" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">Verificar Codigo</h1>
-              <p className="text-white/40 text-sm">Introduza o codigo de 6 digitos enviado para <span className="text-purple-400">{email}</span></p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Verificar Codigo")}</h1>
+              <p className="text-white/40 text-sm">{t("Introduza o codigo de 6 digitos enviado para ")}<span className="text-purple-400">{email}</span></p>
             </div>
             <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
               <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03]">
                 <form onSubmit={handleVerifyOtp} className="space-y-4">
                   <div>
-                    <label htmlFor="otpCode" className="sr-only">Codigo</label>
+                    <label htmlFor="otpCode" className="sr-only">{t("Codigo")}</label>
                     <input
                       id="otpCode" name="otpCode" type="text" maxLength={6} required disabled={isLoading}
                       className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px] text-center text-2xl tracking-[0.5em] font-mono"
@@ -148,7 +150,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Verificar <ArrowRight className="h-4 w-4" /></>}
+                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{t("Verificar")} <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -163,14 +165,14 @@ function ResetPasswordForm() {
               <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
                 <Lock className="h-7 w-7 text-purple-400" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">Nova Password</h1>
-              <p className="text-white/40 text-sm">Defina a sua nova password</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Nova Password")}</h1>
+              <p className="text-white/40 text-sm">{t("Defina a sua nova password")}</p>
             </div>
             <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
               <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03]">
                 <form onSubmit={handleResetPassword} className="space-y-4">
                   <div>
-                    <label htmlFor="password" className="sr-only">Nova Password</label>
+                    <label htmlFor="password" className="sr-only">{t("Nova Password")}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Lock className="h-5 w-5 text-white/25" />
@@ -178,7 +180,7 @@ function ResetPasswordForm() {
                       <input
                         id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required disabled={isLoading}
                         className="w-full pl-12 pr-12 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                        placeholder="Nova password (min. 6 caracteres)"
+                        placeholder={t("Nova password (min. 6 caracteres)")}
                         value={password} onChange={(e) => setPassword(e.target.value)}
                       />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/25 hover:text-white/50 transition-colors">
@@ -187,7 +189,7 @@ function ResetPasswordForm() {
                     </div>
                   </div>
                   <div>
-                    <label htmlFor="confirmPassword" className="sr-only">Confirmar Password</label>
+                    <label htmlFor="confirmPassword" className="sr-only">{t("Confirmar Password")}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Lock className="h-5 w-5 text-white/25" />
@@ -195,7 +197,7 @@ function ResetPasswordForm() {
                       <input
                         id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required disabled={isLoading}
                         className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                        placeholder="Confirmar password"
+                        placeholder={t("Confirmar password")}
                         value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
                       />
                     </div>
@@ -203,7 +205,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Atualizar Password <CheckCircle className="h-4 w-4" /></>}
+                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{t("Atualizar Password")} <CheckCircle className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -215,7 +217,7 @@ function ResetPasswordForm() {
         {!isSuccess && (
           <p className="text-center text-sm text-white/30 mt-6">
             <Link href="/auth/signin" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
-              Voltar ao login
+              {t("Voltar ao login")}
             </Link>
           </p>
         )}
@@ -225,7 +227,8 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
-  usePageTitle("Repor palavra-passe - FoodLister");
+  const { t } = useLanguage();
+  usePageTitle(t("Repor palavra-passe - FoodLister"));
   return (
     <Suspense fallback={
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">

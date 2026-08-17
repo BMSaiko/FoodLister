@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Plus, Link as LinkIcon, Image as ImageIcon, AlertCircle, Globe } from 'lucide-react';
 import ImageUploader from './ImageUploader';
@@ -20,6 +22,7 @@ export default function MenuManager({
   onMenuImagesChange: (images: string[]) => void;
   disabled?: boolean;
 }) {
+  const { t } = useLanguage();
   // Local state for managing images
   const [localImages, setLocalImages] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('links');
@@ -219,7 +222,7 @@ export default function MenuManager({
                       type="button"
                       onClick={() => handleRemoveLink(index)}
                       className="flex items-center justify-center p-2 text-[var(--red-500)] hover:text-[var(--red-700)] hover:bg-[var(--red-50)] rounded-lg transition-all duration-200"
-                      title="Remover link"
+                      title={t('Remover link')}
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -229,8 +232,8 @@ export default function MenuManager({
             ) : (
               <div className="text-center py-8 px-6 bg-[rgba(var(--amber-50),0.5)] rounded-xl border-2 border-dashed border-[var(--amber-200)]">
                 <Globe className="h-8 w-8 mx-auto text-[var(--amber-400)] mb-3" />
-                <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhum link adicionado</h3>
-                <p className="text-sm text-[var(--amber-600)]">Adicione links externos para menus do restaurante</p>
+                <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">{t('Nenhum link adicionado')}</h3>
+                <p className="text-sm text-[var(--amber-600)]">{t('Adicione links externos para menus do restaurante')}</p>
               </div>
             )}
           </div>
@@ -265,7 +268,7 @@ export default function MenuManager({
                       type="button"
                       onClick={() => handleRemoveImage(index)}
                       className="absolute top-2 right-2 p-1.5 bg-[var(--red-500)] text-[var(--primary-foreground)] rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-[var(--red-600)] shadow-lg"
-                      title="Remover imagem"
+                      title={t('Remover imagem')}
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -275,8 +278,8 @@ export default function MenuManager({
             ) : (
               <div className="text-center py-8 px-6 bg-[rgba(var(--amber-50),0.5)] rounded-xl border-2 border-dashed border-[var(--amber-200)]">
                 <ImageIcon className="h-8 w-8 mx-auto text-[var(--amber-400)] mb-3" />
-                <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem adicionada</h3>
-                <p className="text-sm text-[var(--amber-600)]">Faça upload de imagens dos menus do restaurante</p>
+                <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">{t('Nenhuma imagem adicionada')}</h3>
+                <p className="text-sm text-[var(--amber-600)]">{t('Faça upload de imagens dos menus do restaurante')}</p>
               </div>
             )}
           </div>

@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
@@ -13,6 +15,7 @@ interface MenuCarouselProps {
  * Shows multiple images side-by-side with modern design and mobile-first approach
  */
 export default function MenuCarousel({ images = [], className = '' }: MenuCarouselProps) {
+  const { t } = useLanguage();
   const [startIndex, setStartIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -62,7 +65,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
         <div className="w-16 h-16 bg-[var(--amber-100)] rounded-full flex items-center justify-center mb-4">
           <ImageIcon className="w-8 h-8 text-[var(--amber-500)]" />
         </div>
-        <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem do menu</h3>
+        <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">{t('Nenhuma imagem do menu')}</h3>
         <p className="text-sm text-[var(--amber-600)] text-center max-w-xs">
           As imagens dos menus aparecerão aqui quando adicionadas ao restaurante
         </p>
@@ -161,7 +164,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
         <div className="w-16 h-16 bg-[var(--amber-100)] rounded-full flex items-center justify-center mb-4">
           <ImageIcon className="w-8 h-8 text-[var(--amber-500)]" />
         </div>
-        <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem do menu</h3>
+        <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">{t('Nenhuma imagem do menu')}</h3>
         <p className="text-sm text-[var(--amber-600)] text-center max-w-xs">
           As imagens dos menus aparecerão aqui quando adicionadas ao restaurante
         </p>
@@ -265,14 +268,15 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                 <>
                   {/* Left Button - Only on first image (index 0) */}
                   {index === 0 && (
-                    <button
+     
+                 <button
                       onClick={(e) => {
                         e.stopPropagation();
                         prevSet();
                       }}
                       disabled={isTransitioning}
                       className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--white)] hover:bg-[var(--amber-500)] active:bg-[var(--amber-600)] border-2 border-[var(--amber-200)] hover:border-[var(--amber-500)] active:border-[var(--amber-600)] text-[var(--amber-600)] hover:text-white active:text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
-                      aria-label="Imagens anteriores"
+                      aria-label={t('Imagens anteriores')}
                     >
                       <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7" />
                     </button>
@@ -287,7 +291,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                       }}
                       disabled={isTransitioning}
                       className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--amber-500)] hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] border-2 border-[var(--amber-500)] text-white rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
-                      aria-label="Próximas imagens"
+                      aria-label={t('Próximas imagens')}
                     >
                       <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7" />
                     </button>
@@ -367,14 +371,15 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 z-10 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
-              aria-label="Fechar modal"
+              aria-label={t('Fechar modal')}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            {/* Navigation Buttons */}
+            {/* Navigation 
+  Buttons */}
             {images.length > 1 && (
               <>
                 <button
@@ -383,7 +388,8 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     prevModalImage();
                   }}
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
-                  aria-label="Imagem anterior"
+                  aria-label={t('Imagem anterior')}
+  
                 >
                   <ChevronLeft className="w-7 h-7" />
                 </button>
@@ -393,7 +399,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                     nextModalImage();
                   }}
                   className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
-                  aria-label="Próxima imagem"
+                  aria-label={t('Próxima imagem')}
                 >
                   <ChevronRight className="w-7 h-7" />
                 </button>
@@ -415,7 +421,8 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
                 {/* Touch overlay for swipe on mobile */}
                 <div
                   className="absolute inset-0 sm:hidden"
-                  onTouchStart={(e) => {
+                  onTouchStart={(e) => 
+  {
                     const touch = e.touches[0];
                     e.currentTarget.dataset.touchStart = `${touch.clientX}`;
                   }}
@@ -446,7 +453,7 @@ export default function MenuCarousel({ images = [], className = '' }: MenuCarous
               <div className="flex items-center space-x-2">
                 <span>← → Navegar</span>
                 <span>•</span>
-                <span>ESC Fechar</span>
+                <span>{t('ESC Fechar')}</span>
               </div>
             </div>
           </div>

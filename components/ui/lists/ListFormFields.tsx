@@ -3,6 +3,7 @@
 import React from 'react';
 import { Globe, Lock, Filter, Search, Plus, X, Loader2, Star, Euro } from 'lucide-react';
 import type { ListFilters, FilterOption, Restaurant } from '@/hooks/lists/useListFilters';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface VisibilityToggleProps {
   isPublic: boolean;
@@ -184,13 +185,14 @@ interface RestaurantSearchProps {
   onAdd: (restaurant: Restaurant) => void;
 }
 
-export const RestaurantSearch: React.FC<RestaurantSearchProps> = ({ 
+export const RestaurantSearch: React.FC<RestaurantSearchProps> = ({
   restaurants, 
   selectedRestaurants, 
   searchQuery, 
   onSearchChange, 
   onAdd 
 }) => {
+  const { t } = useLanguage();
   const availableRestaurants = restaurants.filter(
     r => !selectedRestaurants.some(s => s.id === r.id)
   );
@@ -205,7 +207,7 @@ export const RestaurantSearch: React.FC<RestaurantSearchProps> = ({
         <Search className="absolute left-3 top-2.5 h-5 w-5 text-[var(--foreground-muted)]" />
         <input
           type="text"
-          placeholder="Procurar restaurantes..."
+          placeholder={t('Procurar restaurantes...')}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 border border-[var(--card-border)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--primary-light)] focus:border-transparent"
@@ -248,7 +250,9 @@ interface SelectedRestaurantsProps {
   onRemove: (id: string) => void;
 }
 
-export const SelectedRestaurants: React.FC<SelectedRestaurantsProps> = ({ restaurants, onRemove }) => (
+export const SelectedRestaurants: React.FC<SelectedRestaurantsProps> = ({ restaurants, onRemove }) => {
+  const { t } = useLanguage();
+  return (
   <div className="mb-6">
     <h3 className="font-semibold text-[var(--foreground-secondary)] mb-2 flex items-center gap-2">
       Restaurantes Selecionados 
@@ -265,7 +269,7 @@ export const SelectedRestaurants: React.FC<SelectedRestaurantsProps> = ({ restau
               type="button"
               onClick={() => onRemove(restaurant.id)}
               className="text-[var(--foreground-muted)] hover:text-red-500 transition-colors flex-shrink-0 p-1 rounded-full hover:bg-[var(--card-bg)]"
-              aria-label="Remover restaurante"
+              aria-label={t('Remover restaurante')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -278,14 +282,17 @@ export const SelectedRestaurants: React.FC<SelectedRestaurantsProps> = ({ restau
       </p>
     )}
   </div>
-);
+  );
+}
 
 interface FilterPreviewProps {
   restaurants: Restaurant[];
   loading: boolean;
 }
 
-export const FilterPreview: React.FC<FilterPreviewProps> = ({ restaurants, loading }) => (
+export const FilterPreview: React.FC<FilterPreviewProps> = ({ restaurants, loading }) => {
+  const { t } = useLanguage();
+  return (
   <div className="mt-4 p-4 bg-[var(--background-secondary)] rounded-xl border border-[var(--card-border)]">
     <h4 className="text-sm font-semibold text-[var(--foreground-secondary)] mb-2">
       Restaurantes Encontrados
@@ -299,7 +306,7 @@ export const FilterPreview: React.FC<FilterPreviewProps> = ({ restaurants, loadi
     </h4>
     {loading ? (
       <div className="flex items-center gap-2 text-[var(--foreground-muted)]">
-        <span className="text-sm">A carregar...</span>
+        <span className="text-sm">{t('A carregar...')}</span>
       </div>
     ) : restaurants.length > 0 ? (
       <div className="max-h-32 overflow-y-auto space-y-1">
@@ -318,7 +325,9 @@ export const FilterPreview: React.FC<FilterPreviewProps> = ({ restaurants, loadi
         )}
       </div>
     ) : (
-      <p className="text-sm text-[var(--foreground-muted)] italic">Nenhum restaurante corresponde aos filtros</p>
+      <p className="text-sm text-[var(--foreground-muted)] italic">{t('Nenhum restaurante corresponde aos filtros')}</p>
     )}
   </div>
-);
+  );
+}
+

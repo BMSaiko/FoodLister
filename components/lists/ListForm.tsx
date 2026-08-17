@@ -9,6 +9,7 @@ import FormSection from "@/components/ui/common/FormSection";
 import ListFormProgress from "./ListFormProgress";
 import ListFormPreview from "./ListFormPreview";
 import ListFormCelebration from "./ListFormCelebration";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Restaurant {
   id: string;
@@ -59,6 +60,7 @@ export default function ListForm({
   backLink, backText, onFormChange, onSubmit, onAddRestaurant,
   onRemoveRestaurant, availableRestaurants
 }: ListFormProps) {
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
@@ -120,6 +122,7 @@ export default function ListForm({
         listId={createdListId}
         listName={formData.name}
         onClose={() => {
+  const { t } = useLanguage();
           setShowCelebration(false);
           window.location.href = `/lists/${createdListId}`;
         }}
@@ -152,16 +155,16 @@ export default function ListForm({
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Step 1: Basic Info */}
               {currentStep === 1 && (
-                <FormSection title="Informacoes Basicas" icon={SECTION_ICONS[1]} description="Dá um nome e descrição à tua lista.">
+                <FormSection title={t('Informacoes Basicas')} icon={SECTION_ICONS[1]} description="Dá um nome e descrição à tua lista.">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-1.5">Nome da Lista *</label>
+                      <label className="block text-sm font-medium text-white/60 mb-1.5">{t('Nome da Lista *')}</label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={e => onFormChange({ name: e.target.value })}
                         className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all"
-                        placeholder="Ex: Melhores restaurantes italianos"
+                        placeholder={t('Ex: Melhores restaurantes italianos')}
                         required
                       />
                     </div>
@@ -172,7 +175,7 @@ export default function ListForm({
                         onChange={e => onFormChange({ description: e.target.value })}
                         rows={3}
                         className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all resize-none"
-                        placeholder="Descreve o tema desta lista..."
+                        placeholder={t('Descreve o tema desta lista...')}
                       />
                     </div>
                   </div>
@@ -181,7 +184,7 @@ export default function ListForm({
 
               {/* Step 2: Visibility */}
               {currentStep === 2 && (
-                <FormSection title="Visibilidade" icon={SECTION_ICONS[2]} description="Escolhe quem pode ver esta lista.">
+                <FormSection title={t('Visibilidade')} icon={SECTION_ICONS[2]} description="Escolhe quem pode ver esta lista.">
                   <VisibilityToggle
                     isPublic={formData.isPublic}
                     onChange={isPublic => onFormChange({ isPublic })}
@@ -191,7 +194,7 @@ export default function ListForm({
 
               {/* Step 3: Add Restaurants */}
               {currentStep === 3 && (
-                <FormSection title="Adicionar Restaurantes" icon={SECTION_ICONS[3]} description="Pesquisa e adiciona restaurantes à tua lista.">
+                <FormSection title={t('Adicionar Restaurantes')} icon={SECTION_ICONS[3]} description="Pesquisa e adiciona restaurantes à tua lista.">
                   <div className="space-y-4">
                     {/* Search */}
                     <div className="relative">
@@ -200,7 +203,7 @@ export default function ListForm({
                         type="text"
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        placeholder="Pesquisar por nome..."
+                        placeholder={t('Pesquisar por nome...')}
                         className="w-full pl-10 pr-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
                       />
                     </div>
@@ -274,23 +277,23 @@ export default function ListForm({
 
               {/* Step 4: Cover Image & Tags */}
               {currentStep === 4 && (
-                <FormSection title="Capa e Tags" icon={SECTION_ICONS[4]} description="Personaliza a aparência da tua lista.">
+                <FormSection title={t('Capa e Tags')} icon={SECTION_ICONS[4]} description="Personaliza a aparência da tua lista.">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-1.5">URL da Imagem de Capa</label>
+                      <label className="block text-sm font-medium text-white/60 mb-1.5">{t('URL da Imagem de Capa')}</label>
                       <input
                         type="url"
                         value={formData.cover_image_url || ""}
                         onChange={e => onFormChange({ cover_image_url: e.target.value })}
                         className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
-                        placeholder="https://exemplo.com/imagem.jpg"
+                        placeholder={t('https://exemplo.com/imagem.jpg')}
                       />
                     </div>
                     <div>
                       <ListTagsInput
                         tags={formData.tags || []}
                         onChange={tags => onFormChange({ tags })}
-                        placeholder="Adiciona tags (Enter para confirmar)"
+                        placeholder={t('Adiciona tags (Enter para confirmar)')}
                       />
                     </div>
                   </div>
@@ -299,11 +302,11 @@ export default function ListForm({
 
               {/* Step 5: Selected Restaurants Review */}
               {currentStep === 5 && (
-                <FormSection title="Restaurantes Selecionados" icon={SECTION_ICONS[5]} description={`${selectedRestaurants.length} restaurante(s) na tua lista.`}>
+                <FormSection title={t('Restaurantes Selecionados')} icon={SECTION_ICONS[5]} description={`${selectedRestaurants.length} restaurante(s) na tua lista.`}>
                   {selectedRestaurants.length === 0 ? (
                     <div className="text-center py-10">
                       <Search className="h-10 w-10 text-white/10 mx-auto mb-3" />
-                      <p className="text-sm text-white/30">Ainda nao adicionaste restaurantes.</p>
+                      <p className="text-sm text-white/30">{t('Ainda nao adicionaste restaurantes.')}</p>
                       <button type="button" onClick={() => goToStep(3)} className="mt-3 text-sm text-purple-400 hover:text-purple-300 transition-colors">
                         Adicionar restaurantes →
                       </button>
@@ -345,7 +348,7 @@ export default function ListForm({
 
               {/* Step 6: Create */}
               {currentStep === 6 && (
-                <FormSection title="Concluir" icon={SECTION_ICONS[6]} description="Revisão final antes de criar a lista.">
+                <FormSection title={t('Concluir')} icon={SECTION_ICONS[6]} description="Revisão final antes de criar a lista.">
                   <div className="space-y-4 p-4 rounded-xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/10">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
@@ -353,7 +356,7 @@ export default function ListForm({
                         <p className="text-white/80 font-medium truncate">{formData.name || "—"}</p>
                       </div>
                       <div>
-                        <span className="text-white/30">Visibilidade</span>
+                        <span className="text-white/30">{t('Visibilidade')}</span>
                         <p className="text-white/80 font-medium flex items-center gap-1">
                           {formData.isPublic ? <><Globe className="w-3.5 h-3.5 text-emerald-400" />Publica</> : <><Lock className="w-3.5 h-3.5 text-red-400" />Privada</>}
                         </p>

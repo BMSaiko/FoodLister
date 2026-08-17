@@ -7,6 +7,7 @@ import { createClient } from "@/libs/supabase/client";
 import { ListPlus, Check, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AddToListProps {
   restaurantId: string;
@@ -26,6 +27,7 @@ interface MenuPosition {
 }
 
 export default function AddToList({ restaurantId, isAdmin, existingListIds }: AddToListProps) {
+  const { t } = useLanguage();
   const supabase = createClient();
   const { post } = usePublicApiClient();
   const [open, setOpen] = useState(false);
@@ -104,7 +106,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
       });
       setLists(merged);
     } catch (e) {
-      toast.error("Erro ao carregar listas");
+      toast.error(t("Erro ao carregar listas"));
     } finally { setLoading(false); }
   };
 
@@ -123,17 +125,17 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
     try {
       const res = await post(`/api/lists/${listId}/restaurants`, { restaurantId });
       if (res.status === 201) {
-        toast.success("Adicionado a lista");
+        toast.success(t("Adicionado a lista"));
         // marcar como existente localmente
         setLists((prev) => prev);
       } else if (res.status === 409) {
-        toast.info("Ja esta nesta lista");
+        toast.info(t("Ja esta nesta lista"));
       } else {
         const err = await res.json().catch(() => ({}));
         toast.error(err.error || "Erro ao adicionar");
       }
     } catch (e) {
-      toast.error("Erro ao adicionar a lista");
+      toast.error(t("Erro ao adicionar a lista"));
     } finally { setAdding(null); }
   };
 
@@ -147,7 +149,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
       role="menu"
     >
       {loading ? (
-        <p className="px-3 py-2 text-sm text-white/40">A carregar...</p>
+        <p className="px-3 py-2 text-sm text-white/40">{t('A carregar...')}</p>
       ) : (
         <>
           {lists.length > 0 && (
@@ -155,17 +157,18 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
               <input
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                placeholder="Filtrar listas..."
+                placeholder={t('Filtrar listas...')}
                 className="w-full px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.1] text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-amber-400/50"
               />
             </div>
           )}
-          <div className="overflow-y-auto max-h-64">
+          
+  const { t } = useLanguage();<div className="overflow-y-auto max-h-64">
           {(() => {
             const q = filter.trim().toLowerCase();
             const visible = q ? lists.filter((l) => l.name.toLowerCase().includes(q)) : lists;
             if (visible.length === 0) {
-              return <p className="px-3 py-2 text-sm text-white/40">Nenhuma lista corresponde</p>;
+              return <p className="px-3 py-2 text-sm text-white/40">{t('Nenhuma lista corresponde')}</p>;
             }
             return visible.map((l) => (
           <button
@@ -177,7 +180,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
           >
             <span className="flex-1 text-sm text-white/80 truncate">{l.name}</span>
             {alreadyIn(l.id) ? (
-              <span className="text-xs text-emerald-400 flex items-center gap-1"><Check className="h-3.5 w-3.5" />Na lista</span>
+              <span className="text-xs text-emerald-400 flex items-center gap-1"><Check className="h-3.5 w-3.5" />{t('Na lista')}</span>
             ) : adding === l.id ? (
               <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
             ) : null}

@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useEffect } from 'react';
 import { Star, Euro, X } from 'lucide-react';
 import { Review, ReviewFormData } from '@/libs/types';
@@ -22,6 +24,7 @@ export default function ReviewForm({
   isEditing = false,
   initialReview
 }: ReviewFormProps) {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState<ReviewFormData>({
     rating: initialReview?.rating || 0,
     comment: initialReview?.comment || '',
@@ -214,7 +217,7 @@ export default function ReviewForm({
         <button
           onClick={handleCancel}
           className="p-1 hover:bg-[var(--gray-100)] rounded-full transition-colors"
-          title="Cancelar"
+          title={t('Cancelar')}
         >
           <X className="h-5 w-5 text-[var(--gray-500)]" />
         </button>
@@ -227,7 +230,8 @@ export default function ReviewForm({
             Classificação <span className="text-[var(--red-500)]">*</span>
           </label>
           <div className="flex items-center gap-2">
-            {Array.from({ length: 5 }, (_, i) => {
+            {Array.
+  from({ length: 5 }, (_, i) => {
               const starValue = i + 1;
               const isActive = formData.rating >= starValue;
               
@@ -265,15 +269,15 @@ export default function ReviewForm({
         <MentionInput
           value={formData.comment || ''}
           onChange={(v: string) => setFormData(prev => ({ ...prev, comment: v }))}
-          placeholder="Compartilhe sua experiência (escreve @ para mencionar)"
+          placeholder={t('Compartilhe sua experiência (escreve @ para mencionar)')}
           rows={4}
           className="w-full px-3.5 py-2.5 rounded-lg border border-white/[0.1] bg-white/[0.04] text-white/90 placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
         />
-        <p className="mt-1 text-xs text-white/40">Descreva sua visita e mencione users com @</p>
+        <p className="mt-1 text-xs text-white/40">{t('Descreva sua visita e mencione users com @')}</p>
 
         {/* Amount Spent Field */}
         <FormField
-          label="Valor Gasto"
+          label={t('Valor Gasto')}
           name="amount_spent"
           type="number"
           value={formData.amount_spent !== undefined ? formData.amount_spent.toString() : ''}
@@ -294,7 +298,7 @@ export default function ReviewForm({
           <RestaurantImageManager
             images={formData.images || []}
             max={5}
-            label="Fotos da experiencia"
+            label={t('Fotos da experiencia')}
             displayImageIndex={0}
             onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))}
             onDisplayImageIndexChange={() => {}}
@@ -306,7 +310,7 @@ export default function ReviewForm({
           onCancel={handleCancel}
           onSubmit={handleSubmit}
           submitText={isEditing ? "Atualizar Avaliação" : "Enviar Avaliação"}
-          cancelText="Cancelar"
+          cancelText={t('Cancelar')}
         />
       </form>
     </div>

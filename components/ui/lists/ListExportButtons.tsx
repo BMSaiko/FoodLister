@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { FileJson, FileSpreadsheet, FileText, Download, Check } from "lucide-react";
 import { exportListAsJSON, exportListAsCSV, exportListAsPDF } from "@/utils/listExport";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ListExportButtonsProps {
   list: { id: string; name: string; description?: string };
@@ -10,6 +11,7 @@ interface ListExportButtonsProps {
 }
 
 export default function ListExportButtons({ list, restaurants }: ListExportButtonsProps) {
+  const { t } = useLanguage();
   const [exported, setExported] = useState<string | null>(null);
 
   const handleExport = (format: "json" | "csv" | "pdf", exportFn: (l: any, r: any[]) => void) => {
@@ -23,6 +25,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
   };
 
   const handleApiDownload = (format: "json" | "csv" | "html") => {
+  const { t } = useLanguage();
     window.open(`/api/lists/${list.id}/export?format=${format}`, "_blank");
   };
 
@@ -42,7 +45,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
     <div className="space-y-4">
       {/* Client-side exports */}
       <div>
-        <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-2 block">Exportar localmente</span>
+        <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-2 block">{t('Exportar localmente')}</span>
         <div className="flex flex-wrap gap-2">
           {buttons.map(b => (
             <button
@@ -60,7 +63,7 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
 
       {/* Server-side API downloads */}
       <div>
-        <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-2 block">Download via API</span>
+        <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium mb-2 block">{t('Download via API')}</span>
         <div className="flex flex-wrap gap-2">
           {apiButtons.map(b => (
             <button
