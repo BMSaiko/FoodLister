@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
 import { trackEvent, Events } from "@/utils/analytics";
 import Modal from "@/components/ui/Modal";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SearchResult {
   id: string;
@@ -27,6 +28,7 @@ export function openGlobalSearch() {
 }
 
 export default function GlobalSearch() {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -161,7 +163,8 @@ export default function GlobalSearch() {
   return (
     <Modal
       isOpen={isOpen}
-      onClose={() => { setIsOpen(false); setQuery(""); setActiveIndex(-1); }}
+      onClose={() => {
+            setIsOpen(false); setQuery(""); setActiveIndex(-1); }}
       size="lg"
       ariaLabel="Pesquisa global"
     >
@@ -178,7 +181,7 @@ export default function GlobalSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Pesquisar restaurantes, listas, utilizadores..."
+          placeholder={t('Pesquisar restaurantes, listas, utilizadores...')}
           className="flex-1 bg-transparent text-white/90 placeholder:text-white/30 outline-none text-base"
           aria-label="Pesquisa global"
           aria-activedescendant={activeIndex >= 0 ? `result-${activeIndex}` : undefined}

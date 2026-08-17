@@ -1,6 +1,7 @@
 // components/restaurant/GoogleMapsBatchImport.tsx
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useCallback } from "react";
 import { X, Loader, MapPin, Upload, FileText, Code, CheckCircle, AlertCircle } from "lucide-react";
 import { extractBatch, parseUrlInput, BatchExtractionResult, ExtractionProgress } from "@/utils/googleMapsBatchExtractor";
@@ -206,13 +207,15 @@ export default function GoogleMapsBatchImport({
             </div>
           </div>
         </div>
-        <button
+        <TooltipFast content="Fechar">
+<button
           onClick={onClose}
           className="text-white/40 hover:text-white/60 p-1 rounded-md hover:bg-white/[0.04] transition-colors"
           aria-label="Fechar"
         >
           <X className="h-5 w-5" />
         </button>
+</TooltipFast>
       </div>
 
       {/* Content */}

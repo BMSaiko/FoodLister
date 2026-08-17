@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
 import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
@@ -18,6 +20,7 @@ export default function ImageUploader({
   disabled?: boolean;
   maxFiles?: number;
 }) {
+  const { t } = useLanguage();
   // State for upload process
   const [uploadState, setUploadState] = useState<{
     isUploading: boolean;
@@ -104,7 +107,7 @@ export default function ImageUploader({
         }));
       } catch (error) {
         console.error(`Upload ${i + 1}/${acceptedFiles.length} failed:`, error);
-        const errorMessage = error instanceof Error ? error.message : 'Erro no upload';
+        const errorMessage = error instanceof Error ? error.message : t('Erro no upload');
         uploadErrors.push(`Imagem ${i + 1}: ${errorMessage}`);
       }
     }
@@ -206,7 +209,7 @@ export default function ImageUploader({
 
           <div className="space-y-2">
             {uploadState.isUploading ? (
-              <p className="text-lg font-medium text-[var(--primary)]">Fazendo upload...</p>
+              <p className="text-lg font-medium text-[var(--primary)]">{t('Fazendo upload...')}</p>
             ) : (
               <>
                 <p className="text-base font-semibold text-[var(--gray-700)]">
@@ -264,14 +267,14 @@ export default function ImageUploader({
           <div className="flex items-start space-x-2">
             <AlertCircle className="h-4 w-4 text-[var(--red-500)] mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-[var(--red-800)]">Erro no upload</p>
+              <p className="text-sm font-medium text-[var(--red-800)]">{t('Erro no upload')}</p>
               <p className="text-sm text-[var(--red-700)] mt-1">{uploadState.error}</p>
             </div>
             <div className="flex items-center space-x-2">
               <button
                 onClick={retryUpload}
                 className="flex-shrink-0 p-1 hover:bg-[var(--blue-100)] rounded transition-colors text-[var(--blue-600)]"
-                title="Tentar novamente"
+                title={t('Tentar novamente')}
               >
                 <RefreshCw className="h-3 w-3" />
               </button>

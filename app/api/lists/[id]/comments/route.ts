@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
+import { resolveListId } from '@/libs/slug';
 import type { ApiErrorType } from '@/types/api';
 import { createNotification } from '@/libs/notifications/service';
 import { notifyMentionedUsers } from '@/libs/mentions';
@@ -33,7 +34,7 @@ export async function GET(
           user_id_code
         )
       `)
-      .eq('list_id', id)
+      .eq('list_id', (await resolveListId(supabase, id)) ?? id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -93,7 +94,7 @@ export async function POST(
     const { data: newComment, error: createError } = await supabase
       .from('list_comments')
       .insert({
-        list_id: id,
+        list_id: (await resolveListId(supabase, id)) ?? id,
         user_id: user.id,
         comment: comment.trim(),
       })
@@ -110,7 +111,7 @@ export async function POST(
     const { data: commentList } = await supabase
       .from('lists')
       .select('creator_id, name')
-      .eq('id', id)
+      .eq('id', (await resolveListId(supabase, id)) ?? id)
       .single();
     if (commentList?.creator_id && commentList.creator_id !== user.id) {
       createNotification({

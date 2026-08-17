@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
+import { resolveListId } from '@/libs/slug';
 import { logActivity } from '@/libs/activity';
 import type { ApiErrorType } from '@/types/api';
 
@@ -19,7 +20,8 @@ export async function DELETE(
       );
     }
 
-    const { id: listId, restaurantId } = await params;
+    const { id: rawListId, restaurantId } = await params;
+    const listId = (await resolveListId(supabase, rawListId)) ?? rawListId;
     if (!listId || !restaurantId) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(

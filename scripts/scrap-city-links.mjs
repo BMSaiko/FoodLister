@@ -3,15 +3,20 @@
 // Sub-zonas opcionais (bairros/freguesias) fundidas com dedup para ir alem do feed da cidade.
 // Uso:
 //   node scripts/scrap-city-links.mjs [cidade] ["bairro1,bairro2,..."]   <- interativo, 1 cidade
-//   node scripts/scrap-city-links.mjs --all [--limit N]                  <- todas as 308 cidades (batch)
+//   node scripts/scrap-city-links.mjs --all [--limit N] [--resume] [--delay MS]   <- todas as 308 cidades (batch)
+//     --resume: salta concelhos cujo output ja existe (recomeca onde parou)
+//     --delay MS: pausa entre queries (default 1200) p/ evitar detecao/bot do Google
 // Dados: subzones.json (subzonas dos centros de alto volume) + cities.json (concelhos restantes).
 import { chromium } from 'playwright';
-import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { createInterface } from 'node:readline';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+let DELAY_MS = 1200;
 
 async function ask(q) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
@@ -76,6 +81,7 @@ async function scrapeCity(page, city, subzones) {
     let novos = 0;
     links.forEach((l) => { if (!all.has(l)) { all.add(l); novos++; } });
     console.log(`  ${q} -> ${links.length} links, novos: ${novos}, total: ${all.size}`);
+    await sleep(DELAY_MS); // pacing entre queries
   }
   const file = saveLinks(city, [...all]);
   console.log(`  ${city}: total ${all.size} restaurantes. Guardado: ${file}`);
@@ -88,10 +94,21 @@ async function main() {
   if (args[0] === '--all') {
     const limitIdx = args.indexOf('--limit');
     const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : 0;
+    const resume = args.includes('--resume');
+    const delayIdx = args.indexOf('--delay');
+    if (delayIdx >= 0) DELAY_MS = parseInt(args[delayIdx + 1], 10) || 0;
     const cities = JSON.parse(readFileSync(join(__dirname, 'cities.json'), 'utf-8'));
-    const toRun = limit > 0 ? cities.slice(0, limit) : cities;
+    let toRun = limit > 0 ? cities.slice(0, limit) : cities;
 
-    console.log(`Batch: ${limit > 0 ? 'first ' + limit + ' de ' : ''}${cities.length} cidades.`);
+    if (resume) {
+      const pending = toRun.filter((c) => !existsSync(join(__dirname, 'output', `${safeName(c)}-mapas-links.json`)));
+      console.log(`Resume: ${toRun.length - pending.length} ja feitos, faltam ${pending.length}.`);
+      toRun = pending;
+    }
+
+    console.log(`Batch: ${limit > 0 ? 'first ' + limit + ' de ' : ''}${cities.length} cidades (delay ${DELAY_MS}ms).`);
+
+    if (toRun.length === 0) { console.log('Nada por fazer (resume).'); return; }
 
     const browser = await chromium.launch({ headless: true });
     const ctx = await browser.newContext({
@@ -100,10 +117,16 @@ async function main() {
     });
     const page = await ctx.newPage();
 
-    for (const city of toRun) {
+    const t0 = Date.now();
+    for (let i = 0; i < toRun.length; i++) {
+      const city = toRun[i];
       const key = city.toLowerCase();
-      const subzones = known[key] || []; // centros alto volume usam subzonas; resto so a cidade
-      console.log(`\n=== ${city} (${subzones.length} subzonas) ===`);
+      const subzones = known[key] || [];
+      const done = i + 1;
+      const pct = (done / toRun.length * 100).toFixed(0);
+      const elapsed = (Date.now() - t0) / 60000;
+      const etaMin = toRun.length > done ? elapsed / done * (toRun.length - done) : 0;
+      console.log(`\n=== [${done}/${toRun.length}] (${pct}%) ${city} (${subzones.length} subzonas) ~ETA ${(etaMin/60).toFixed(1)}h ===`);
       try {
         await scrapeCity(page, city, subzones);
       } catch (e) {

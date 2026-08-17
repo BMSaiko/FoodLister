@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
 import { Phone, Smartphone, Home } from 'lucide-react';
 
@@ -24,6 +26,7 @@ export default function ContactInfoCard({
   phoneNumbers,
   onCall
 }: ContactInfoCardProps) {
+  const { t } = useLanguage();
   
   if (!phoneNumbers || phoneNumbers.length === 0) {
     return null;
@@ -33,7 +36,7 @@ export default function ContactInfoCard({
       <div className="bg-[var(--card-bg)] rounded-xl shadow-lg border border-[var(--card-border)] p-4 sm:p-6 mb-4">
         <div className="flex items-center text-[var(--gray-300)] text-xs sm:text-sm font-medium mb-3 sm:mb-4">
           <Phone className="h-4 w-4 sm:h-5 w-5 mr-2 sm:mr-3 text-[var(--amber-500)]" />
-        <span className="text-sm sm:text-base font-semibold">Telefones para contato</span>
+        <span className="text-sm sm:text-base font-semibold">{t('Telefones para contato')}</span>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">

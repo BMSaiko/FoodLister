@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Image as ImageIcon, Star } from 'lucide-react';
 import ImageUploader from './ImageUploader';
@@ -24,6 +26,7 @@ export default function RestaurantImageManager({
   onDisplayImageIndexChange: (index: number) => void;
   disabled?: boolean;
 }) {
+  const { t } = useLanguage();
   // Create stable refs for callbacks to prevent dependency array changes
   const onImagesChangeRef = useRef(onImagesChange);
   const onDisplayImageIndexChangeRef = useRef(onDisplayImageIndexChange);
@@ -257,8 +260,8 @@ export default function RestaurantImageManager({
       ) : (
         <div className="text-center py-12 px-6 bg-[rgba(var(--amber-50),0.5)] rounded-xl border-2 border-dashed border-[var(--amber-200)]">
           <ImageIcon className="h-12 w-12 mx-auto text-[var(--amber-400)] mb-4" />
-          <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem adicionada</h3>
-          <p className="text-sm text-[var(--amber-600)] mb-4">Adicione imagens do restaurante para criar um carrossel atrativo</p>
+          <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">{t('Nenhuma imagem adicionada')}</h3>
+          <p className="text-sm text-[var(--amber-600)] mb-4">{t('Adicione imagens do restaurante para criar um carrossel atrativo')}</p>
           <p className="text-xs text-[var(--amber-500)]">A primeira imagem adicionada será automaticamente definida como principal</p>
         </div>
       )}

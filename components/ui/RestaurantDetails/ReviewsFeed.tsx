@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import ReviewForm from "./ReviewForm";
 import TruncateText from "@/components/ui/common/TruncateText";
+import ReportButton from "@/components/ui/common/ReportButton";
 
 interface ReviewsFeedProps {
   restaurantId: string;
@@ -149,6 +150,9 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] text-white/20">{formatDate(review.created_at)}</span>
+                      {user && (
+                        <ReportButton targetType="review" targetId={review.id} label="" />
+                      )}
                       {user && (review.user_id === user.id || userProfile?.isAdmin) && (
                         <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                           <button onClick={() => { setEditing(review); setShowForm(true); }} className="p-1.5 text-white/25 hover:text-amber-400 hover:bg-white/[0.04] rounded-lg transition-all duration-150"><Edit className="h-3.5 w-3.5" /></button>

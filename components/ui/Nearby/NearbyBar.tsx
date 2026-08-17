@@ -1,5 +1,6 @@
 'use client';
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import { MapPin, X } from 'lucide-react';
 
 // ponytail: presentational only — the hook lives in the page (single instance),
@@ -20,19 +21,21 @@ export default function NearbyBar({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <button
+      <TooltipFast content="Mostrar restaurantes perto de mim">
+<button
         onClick={onToggle}
         className={`flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors ${
           active
             ? 'bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30'
             : 'bg-white/5 text-white/70 ring-1 ring-white/10 hover:bg-white/10'
         }`}
-        title="Mostrar restaurantes perto de mim"
+        aria-label="Mostrar restaurantes perto de mim"
       >
         <MapPin className="h-4 w-4" />
         Perto de mim
         {active && <X className="h-3 w-3 opacity-60" />}
       </button>
+</TooltipFast>
 
       {active && (
         <select

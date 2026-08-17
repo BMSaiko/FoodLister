@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useLanguage } from "@/contexts";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useRouter } from "next/navigation";
 import { useSettings } from "@/hooks/data/useSettings";
@@ -51,7 +52,8 @@ const SECTION_ICONS: Record<number, React.ReactNode> = {
 };
 
 export default function ProfileSettingsPage() {
-  usePageTitle("Definições - FoodLister");
+  const { t } = useLanguage();
+  usePageTitle(t("Definições - FoodLister"));
   const { user, loading: authLoading } = useAuthUser();
   const router = useRouter();
   const { profile, loading: profileLoading, error, saveProfile, uploadImage, refreshProfile } = useSettings();
@@ -85,10 +87,10 @@ export default function ProfileSettingsPage() {
     try {
       const success = await saveProfile({ publicProfile: !localProfile?.publicProfile });
       if (success) {
-        toast.success(localProfile?.publicProfile ? "Perfil agora e privado!" : "Perfil agora e publico!");
+        toast.success(localProfile?.publicProfile ? t("Perfil agora e privado!") : t("Perfil agora e publico!"));
         if (localProfile) setLocalProfile({ ...localProfile, publicProfile: !localProfile.publicProfile });
       }
-    } catch { toast.error("Erro ao atualizar privacidade"); }
+    } catch { toast.error(t("Erro ao atualizar privacidade")); }
   };
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,37 +100,39 @@ export default function ProfileSettingsPage() {
       const imageUrl = await uploadImage(file);
       if (localProfile) setLocalProfile({ ...localProfile, profileImage: imageUrl });
       await saveProfile({ profileImage: imageUrl });
-      toast.success("Imagem atualizada!");
-    } catch { toast.error("Erro ao carregar imagem"); }
+      toast.success(t("Imagem atualizada!"));
+    } catch { toast.error(t("Erro ao carregar imagem")); }
   };
 
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
-    if (!localProfile?.name || localProfile.name.trim() === "") errors.display_name = "Nome de exibicao e obrigatorio";
+    if (!localProfile?.name || localProfile.name.trim() === "") errors.display_name = t("Nome de exibicao e obrigatorio");
     if (localProfile?.website && localProfile.website.trim() !== "") {
-      try { new URL(localProfile.website); } catch { errors.website = "Formato de URL invalido"; }
+      try { new URL(localProfile.website); } catch { errors.website = t("Formato de URL invalido"); }
     }
-    if (localProfile?.bio && localProfile.bio.length > 500) errors.bio = "A biografia deve ter no maximo 500 caracteres";
+    if (localProfile?.bio && localProfile.bio.length > 500) errors.bio = t("A biografia deve ter no maximo 500 caracteres");
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    return Object.keys(errors).length === 0
+  ;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) { toast.error("Por favor, corrija os erros"); return; }
+    if (!validateForm()) { toast.error(t("Por favor, corrija os erros")); return; }
     setIsSubmitting(true);
     try {
       const p = localProfile;
       const success = await saveProfile({
         name: p?.name || "", bio: p?.bio || "", profileImage: p?.profileImage || "",
         phoneNumber: p?.phoneNumber || "", website: p?.website || "",
-        location: p?.location || "", publicProfile: p?.publicProfile || true,
+        location: p?.location || "", publicProfile: p?.publicProfile || true
+  ,
       });
       if (success) {
         setShowCelebration(true);
         setTimeout(() => { router.push("/restaurants"); }, 2500);
       }
-    } catch { toast.error("Erro ao salvar perfil"); }
+    } catch { toast.error(t("Erro ao salvar perfil")); }
     finally { setIsSubmitting(false); }
   };
 
@@ -138,7 +142,7 @@ export default function ProfileSettingsPage() {
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin mx-auto text-purple-500" />
-          <p className="mt-3 text-white/30 text-sm">Carregando perfil...</p>
+          <p className="mt-3 text-white/30 text-sm">{t("Carregando perfil...")}</p>
         </div>
       </div>
     );
@@ -151,10 +155,10 @@ export default function ProfileSettingsPage() {
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
-          <h1 className="text-xl font-bold text-white/80 mt-4">Erro ao carregar perfil</h1>
+          <h1 className="text-xl font-bold text-white/80 mt-4">{t("Erro ao carregar perfil")}</h1>
           <p className="text-white/40 mt-2 text-sm">{error}</p>
           <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
-            Tentar Novamente
+            {t("Tentar Novamente")}
           </button>
         </div>
       </div>
@@ -166,9 +170,9 @@ export default function ProfileSettingsPage() {
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
-          <h1 className="text-xl font-bold text-white/80 mt-4">Perfil nao encontrado</h1>
+          <h1 className="text-xl font-bold text-white/80 mt-4">{t("Perfil nao encontrado")}</h1>
           <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
-            Tentar Novamente
+            {t("Tentar Novamente")}
           </button>
         </div>
       </div>
@@ -180,13 +184,13 @@ export default function ProfileSettingsPage() {
       <Navbar />
 
       {/* Celebration */}
-      <Modal isOpen={showCelebration} onClose={() => setShowCelebration(false)} size="sm" ariaLabel="Celebração">
+      <Modal isOpen={showCelebration} onClose={() => setShowCelebration(false)} size="sm" ariaLabel={t("Celebração")}>
           <div className="text-center p-8">
             <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-purple-500/20">
               <Sparkles className="h-8 w-8 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-white tracking-tight mb-2">Perfil Atualizado!</h2>
-            <p className="text-white/40 text-sm">As suas informacoes foram salvas com sucesso.</p>
+            <h2 className="text-2xl font-bold text-white tracking-tight mb-2">{t("Perfil Atualizado!")}</h2>
+            <p className="text-white/40 text-sm">{t("As suas informacoes foram salvas com sucesso.")}</p>
           </div>
         </Modal>
 
@@ -194,8 +198,8 @@ export default function ProfileSettingsPage() {
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">Configuracoes</h1>
-          <p className="text-white/35 mt-1 text-sm">Gerencia as suas informacoes pessoais e privacidade</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">{t("Configuracoes")}</h1>
+          <p className="text-white/35 mt-1 text-sm">{t("Gerencia as suas informacoes pessoais e privacidade")}</p>
         </div>
 
         {/* Step indicator */}
@@ -211,7 +215,7 @@ export default function ProfileSettingsPage() {
               }`}
             >
               {SECTION_ICONS[step]}
-              <span className="hidden sm:inline">{step === 1 ? "Perfil" : step === 2 ? "Privacidade" : "Estatisticas"}</span>
+              <span className="hidden sm:inline">{step === 1 ? t("Perfil") : step === 2 ? t("Privacidade") : t("Estatisticas")}</span>
             </button>
           ))}
         </div>
@@ -221,7 +225,7 @@ export default function ProfileSettingsPage() {
           {currentStep === 1 && (
             <div className="space-y-4">
               {/* Avatar Card */}
-              <FormSection title="Foto de Perfil" icon={<Camera className="w-5 h-5" />}>
+              <FormSection title={t("Foto de Perfil")} icon={<Camera className="w-5 h-5" />}>
                 <div className="flex items-center gap-5">
                   <div className="relative">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-2 ring-white/[0.08] flex items-center justify-center overflow-hidden">
@@ -237,18 +241,18 @@ export default function ProfileSettingsPage() {
                     </label>
                   </div>
                   <div>
-                    <p className="text-sm text-white/60">Clique no icone para alterar a foto</p>
-                    <p className="text-xs text-white/25 mt-0.5">JPG, PNG ou GIF. Max 5MB.</p>
+                    <p className="text-sm text-white/60">{t("Clique no icone para alterar a foto")}</p>
+                    <p className="text-xs text-white/25 mt-0.5">{t("JPG, PNG ou GIF. Max 5MB.")}</p>
                   </div>
                 </div>
               </FormSection>
 
               {/* Personal Info */}
-              <FormSection title="Informacoes Pessoais" icon={<User className="w-5 h-5" />}>
+              <FormSection title={t("Informacoes Pessoais")} icon={<User className="w-5 h-5" />}>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-white/50 mb-1.5">Nome de Exibicao *</label>
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">{t("Nome de Exibicao *")}</label>
                       <input
                         type="text"
                         value={localProfile?.name || ""}
@@ -257,7 +261,7 @@ export default function ProfileSettingsPage() {
                         className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50 ${
                           formErrors.display_name ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
-                        placeholder="O seu nome"
+                        placeholder={t("O seu nome")}
                         required
                       />
                       {formErrors.display_name && <p className="text-red-400 text-xs mt-1">{formErrors.display_name}</p>}
@@ -265,7 +269,7 @@ export default function ProfileSettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-white/50 mb-1.5">
-                        <Mail className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Email
+                        <Mail className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Email")}
                       </label>
                       <input
                         type="email"
@@ -273,12 +277,12 @@ export default function ProfileSettingsPage() {
                         readOnly
                         className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.04] rounded-xl text-white/30 cursor-not-allowed"
                       />
-                      <p className="text-[10px] text-white/20 mt-1">O email nao pode ser alterado</p>
+                      <p className="text-[10px] text-white/20 mt-1">{t("O email nao pode ser alterado")}</p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-white/50 mb-1.5">
-                        <Phone className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Telefone
+                        <Phone className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Telefone")}
                       </label>
                       <input
                         type="tel"
@@ -292,7 +296,7 @@ export default function ProfileSettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-white/50 mb-1.5">
-                        <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Localizacao
+                        <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Localizacao")}
                       </label>
                       <input
                         type="text"
@@ -300,13 +304,13 @@ export default function ProfileSettingsPage() {
                         onChange={e => handleInputChange("location", e.target.value)}
                         disabled={isSubmitting}
                         className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50"
-                        placeholder="Porto, Portugal"
+                        placeholder={t("Porto, Portugal")}
                       />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-white/50 mb-1.5">
-                        <Globe className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Website
+                        <Globe className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Website")}
                       </label>
                       <input
                         type="url"
@@ -323,7 +327,7 @@ export default function ProfileSettingsPage() {
 
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-white/50 mb-1.5">
-                        <FileText className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />Bio
+                        <FileText className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Bio")}
                       </label>
                       <textarea
                         value={localProfile?.bio || ""}
@@ -333,11 +337,11 @@ export default function ProfileSettingsPage() {
                         className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors resize-none disabled:opacity-50 ${
                           formErrors.bio ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
-                        placeholder="Conte um pouco sobre si..."
+                        placeholder={t("Conte um pouco sobre si...")}
                         maxLength={500}
                       />
                       <div className="flex justify-between mt-1">
-                        <p className="text-[10px] text-white/20">Maximo 500 caracteres</p>
+                        <p className="text-[10px] text-white/20">{t("Maximo 500 caracteres")}</p>
                         <span className="text-[10px] text-white/25">{(localProfile?.bio || "").length}/500</span>
                       </div>
                       {formErrors.bio && <p className="text-red-400 text-xs mt-1">{formErrors.bio}</p>}
@@ -351,9 +355,10 @@ export default function ProfileSettingsPage() {
           {/* Step 2: Privacy */}
           {currentStep === 2 && (
             <div className="space-y-4">
-              <FormSection title="Privacidade do Perfil" icon={<Shield className="w-5 h-5" />} description="Escolha quem pode ver o seu perfil.">
+              <FormSection title={t("Privacidade do Perfil")} icon={<Shield className="w-5 h-5" />} description={t("Escolha quem pode ver o seu perfil.")}>
                 <div className="space-y-3">
-                  {/* Public option */}
+            
+        {/* Public option */}
                   <button
                     type="button"
                     onClick={() => { if (!localProfile?.publicProfile) handlePrivacyToggle(); }}
@@ -369,11 +374,12 @@ export default function ProfileSettingsPage() {
                       <Globe className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-white/80">Perfil Publico</p>
-                      <p className="text-xs text-white/35 mt-0.5">Qualquer pessoa pode encontrar e ver o seu perfil</p>
+                      <p className="text-sm font-semibold text-white/80">{t("Perfil Publico")}</p>
+                      <p className="text-xs text-white/35 mt-0.5">{t("Qualquer pessoa pode encontrar e ver o seu perfil")}</p>
                     </div>
                     {localProfile?.publicProfile && <CheckCircle className="h-5 w-5 text-emerald-400" />}
-                  </button>
+           
+         </button>
 
                   {/* Private option */}
                   <button
@@ -391,8 +397,8 @@ export default function ProfileSettingsPage() {
                       <EyeOff className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-white/80">Perfil Privado</p>
-                      <p className="text-xs text-white/35 mt-0.5">Apenas voce pode ver o seu perfil</p>
+                      <p className="text-sm font-semibold text-white/80">{t("Perfil Privado")}</p>
+                      <p className="text-xs text-white/35 mt-0.5">{t("Apenas voce pode ver o seu perfil")}</p>
                     </div>
                     {!localProfile?.publicProfile && <CheckCircle className="h-5 w-5 text-red-400" />}
                   </button>
@@ -409,8 +415,8 @@ export default function ProfileSettingsPage() {
                     <Eye className="h-5 w-5 text-purple-400" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white/70">Ver Perfil Publico</p>
-                    <p className="text-xs text-white/30">Como outros utilizadores veem o seu perfil</p>
+                    <p className="text-sm font-medium text-white/70">{t("Ver Perfil Publico")}</p>
+                    <p className="text-xs text-white/30">{t("Como outros utilizadores veem o seu perfil")}</p>
                   </div>
                 </Link>
               )}
@@ -420,7 +426,7 @@ export default function ProfileSettingsPage() {
           {/* Step 3: Stats */}
           {currentStep === 3 && (
             <div className="space-y-4">
-              <FormSection title="Estatisticas" icon={<Sparkles className="w-5 h-5" />} description="O seu impacto na comunidade FoodLister.">
+              <FormSection title={t("Estatisticas")} icon={<Sparkles className="w-5 h-5" />} description={t("O seu impacto na comunidade FoodLister.")}>
                 <div className="grid grid-cols-2 gap-3">
 
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
@@ -429,7 +435,7 @@ export default function ProfileSettingsPage() {
                         <Star className="h-5 w-5 text-blue-400" />
                       </div>
                       <p className="text-2xl font-bold text-blue-400">{localProfile?.stats?.totalReviews || 0}</p>
-                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Reviews</p>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">{t("Reviews")}</p>
                     </div>
                   </div>
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
@@ -438,7 +444,7 @@ export default function ProfileSettingsPage() {
                         <List className="h-5 w-5 text-emerald-400" />
                       </div>
                       <p className="text-2xl font-bold text-emerald-400">{localProfile?.stats?.totalLists || 0}</p>
-                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Listas</p>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">{t("Listas")}</p>
                     </div>
                   </div>
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
@@ -447,7 +453,7 @@ export default function ProfileSettingsPage() {
                         <User className="h-5 w-5 text-purple-400" />
                       </div>
                       <p className="text-2xl font-bold text-purple-400">{localProfile?.stats?.totalRestaurantsAdded || 0}</p>
-                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Adicionados</p>
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">{t("Adicionados")}</p>
                     </div>
                   </div>
                 </div>
@@ -462,10 +468,10 @@ export default function ProfileSettingsPage() {
               onClick={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : router.back()}
               className="px-4 py-2.5 text-sm font-medium text-white/40 hover:text-white/70 transition-colors min-h-[44px]"
             >
-              {currentStep === 1 ? "Cancelar" : "Anterior"}
+              {currentStep === 1 ? t("Cancelar") : t("Anterior")}
             </button>
 
-            <span className="text-xs text-white/20">{currentStep} de 3</span>
+            <span className="text-xs text-white/20">{t("{current} de 3", { current: currentStep })}</span>
 
             {currentStep < 3 ? (
               <button
@@ -473,7 +479,7 @@ export default function ProfileSettingsPage() {
                 onClick={() => setCurrentStep(currentStep + 1)}
                 className="px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-colors min-h-[44px]"
               >
-                Proximo
+                {t("Proximo")}
               </button>
             ) : (
               <button
@@ -486,7 +492,7 @@ export default function ProfileSettingsPage() {
                 ) : (
                   <CheckCircle className="w-4 h-4" />
                 )}
-                {isSubmitting ? "A salvar..." : "Salvar Alteracoes"}
+                {isSubmitting ? t("A salvar...") : t("Salvar Alteracoes")}
               </button>
             )}
           </div>

@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Loader2 } from 'lucide-react';
+import { TooltipFast } from "@/components/ui/Tooltip";
+import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Heart, Loader2 } from 'lucide-react';
 import useNotifications from '@/hooks/data/useNotifications';
 import type { Notification } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
@@ -17,6 +18,7 @@ function getNotificationIcon(type: string) {
     case 'comment_reply': return <MessageCircle className={`${iconClass} text-blue-400`} />;
     case 'list_invite': return <ListPlus className={`${iconClass} text-emerald-400`} />;
     case 'list_update': return <ListChecks className={`${iconClass} text-teal-400`} />;
+    case 'like': return <Heart className={`${iconClass} text-pink-400`} />;
         default: return <Bell className={`${iconClass} text-white/40`} />;
   }
 }
@@ -290,13 +292,15 @@ export default function NotificationsDropdown({ mobile = false }: NotificationsD
                           </div>
 
                           {/* Delete */}
-                          <button
+                          <TooltipFast content="Apagar notificação">
+<button
                             onClick={(e) => handleDelete(e, notification.id)}
                             className="flex-shrink-0 p-1.5 rounded-lg text-white/15 hover:text-[var(--error)] hover:bg-white/[0.04] transition-all opacity-0 group-hover/item:opacity-100"
                             aria-label="Apagar notificação"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
+</TooltipFast>
                         </div>
                       );
                     })}

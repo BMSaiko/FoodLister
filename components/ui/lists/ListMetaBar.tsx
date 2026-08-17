@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React from "react";
 import { Star, Euro, MapPin, Calendar, Filter, RefreshCw } from "lucide-react";
 
@@ -15,6 +17,7 @@ interface ListMetaBarProps {
 export default function ListMetaBar({
   restaurantCount, avgRating, avgPrice, uniqueLocations, createdAt, hasFilters, applyingFilters, onApplyFilters
 }: ListMetaBarProps) {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-4 md:mb-6 p-3 md:p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
       <div className="flex items-center gap-2">
@@ -30,7 +33,7 @@ export default function ListMetaBar({
       <div className="flex items-center gap-2">
         <div className="bg-orange-500/10 rounded-lg p-1.5"><Euro className="h-4 w-4 text-orange-400" /></div>
         <div>
-          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">Preco medio</div>
+          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">{t('Preco medio')}</div>
           <div className="text-xs sm:text-sm font-semibold text-white/85">{avgPrice ? "€" + avgPrice.toFixed(0) : "—"}</div>
         </div>
       </div>
@@ -64,7 +67,7 @@ export default function ListMetaBar({
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium hover:bg-blue-500/20 transition-all duration-150 disabled:opacity-50"
           >
             {applyingFilters ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Filter className="h-3 w-3" />}
-            <span>Aplicar filtros</span>
+            <span>{t('Aplicar filtros')}</span>
           </button>
         </>
       )}

@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { Filter, X, Search, ArrowUpDown } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ListFiltersProps {
   onFilterChange: (filters: ListFilters) => void;
@@ -44,6 +45,7 @@ export default function ListFilters({
   initialFilters,
   initialSort 
 }: ListFiltersProps) {
+  const { t } = useLanguage();
   const [filters, setFilters] = useState<ListFilters>(initialFilters || defaultFilters);
   const [sort, setSort] = useState<SortOption>(initialSort || defaultSort);
   const [showFilters, setShowFilters] = useState(false);
@@ -81,7 +83,7 @@ export default function ListFilters({
             type="text"
             value={filters.search}
             onChange={(e) => updateFilter('search', e.target.value)}
-            placeholder="Pesquisar listas..."
+            placeholder={t('Pesquisar listas...')}
             className="w-full pl-10 pr-4 py-2 border border-[var(--gray-300)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
           />
         </div>

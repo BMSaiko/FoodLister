@@ -19,12 +19,13 @@ export function trackEvent(eventName: string, properties?: Record<string, string
     console.log('[Analytics]', event);
   }
 
-  // Send to analytics endpoint if configured
-  if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_ANALYTICS_URL) {
-    fetch(process.env.NEXT_PUBLIC_ANALYTICS_URL, {
+  // T32: fire-and-forget to our analytics endpoint (auth cookie included)
+  // ponytail: 404/401 from unauthenticated visits are swallowed silently.
+  if (typeof window !== 'undefined') {
+    fetch('/api/analytics/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(event),
+      body: JSON.stringify({ event: eventName, metadata: properties }),
       keepalive: true,
     }).catch(() => {});
   }

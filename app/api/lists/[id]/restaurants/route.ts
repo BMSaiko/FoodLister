@@ -1,6 +1,7 @@
 // app/api/lists/[id]/restaurants/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { resolveListId } from '@/libs/slug';
 import { getErrorMessage } from '@/types/api';
 import { logActivity } from '@/libs/activity';
 import type { ApiErrorType } from '@/types/api';
@@ -20,7 +21,8 @@ export async function POST(
       );
     }
 
-    const { id: listId } = await params;
+    const { id: rawListId } = await params;
+    const listId = (await resolveListId(supabase, rawListId)) ?? rawListId;
     if (!listId) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(

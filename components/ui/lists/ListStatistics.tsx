@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useMemo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Star, Euro, MapPin, TrendingUp, UtensilsCrossed } from "lucide-react";
@@ -9,6 +11,7 @@ interface ListStatisticsProps {
 }
 
 export default function ListStatistics({ restaurants }: ListStatisticsProps) {
+  const { t } = useLanguage();
   const stats = useMemo(() => {
     if (!restaurants.length) return null;
     const ratings = restaurants.filter(r => r.rating != null && (r.review_count ?? 0) > 0).map(r => r.rating);
@@ -64,7 +67,7 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
           <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.03] h-full">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-amber-500/10 rounded-lg p-1.5"><Star className="h-4 w-4 text-amber-400" /></div>
-              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Rating medio</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">{t('Rating medio')}</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-amber-400">{stats.avgRating ? stats.avgRating.toFixed(1) : "—"}</div>
             <div className="flex items-center gap-0.5 mt-1">
@@ -79,7 +82,7 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
           <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.03] h-full">
             <div className="flex items-center gap-2 mb-2">
               <div className="bg-orange-500/10 rounded-lg p-1.5"><Euro className="h-4 w-4 text-orange-400" /></div>
-              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">Preco medio</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-wider font-medium">{t('Preco medio')}</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-orange-400">{stats.avgPrice ? "€" + stats.avgPrice.toFixed(0) : "—"}</div>
             {stats.minPrice != null && stats.maxPrice != null && (
@@ -148,7 +151,7 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
             <div className="p-4 rounded-2xl bg-white/[0.03]">
               <div className="flex items-center gap-2 mb-3">
                 <TrendingUp className="h-4 w-4 text-orange-400" />
-                <span className="text-sm font-semibold text-white/75">Distribuicao de precos</span>
+                <span className="text-sm font-semibold text-white/75">{t('Distribuicao de precos')}</span>
               </div>
               <div className="space-y-2.5">
                 {stats.priceRanges.map(r => {

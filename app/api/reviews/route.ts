@@ -11,6 +11,7 @@ import { checkRateLimit } from '@/libs/rate-limit';
 import { createNotification } from '@/libs/notifications/service';
 import { notifyMentionedUsers } from '@/libs/mentions';
 import { parsePaginationFromRequest } from '@/libs/utils/pagination';
+import { isUuid, resolveRestaurantId } from '@/libs/slug';
 
 type DbClient = SupabaseClient<Database>;
 // Database type is incomplete — use explicit query types
@@ -92,10 +93,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // ponytail: param may be slug (T64 friendly URLs) or UUID — resolve to real id
+    const resolvedRestaurantId = (await resolveRestaurantId(supabase, restaurantId)) ?? restaurantId;
+    if (!isUuid(resolvedRestaurantId)) {
+      return NextResponse.json({ reviews: [], pagination: { page, limit, returned: 0, hasNext: false } });
+    }
+
     const { data: reviewsData, error: reviewsError } = await supabase
       .from('reviews')
       .select('id, restaurant_id, user_id, rating, comment, amount_spent, images, created_at, updated_at, user_name')
-      .eq('restaurant_id', restaurantId)
+      .eq('restaurant_id', resolvedRestaurantId)
       .order('created_at', { ascending: false })
       .range(from, to);
 
@@ -211,6 +218,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ponytail: restaurant_id may be slug (T64) — resolve to real UUID before FK insert
+    const resolvedRestaurantId = (await resolveRestaurantId(supabase, restaurant_id)) ?? restaurant_id;
+    if (!isUuid(resolvedRestaurantId)) {
+      const errorType = 'NOT_FOUND' as ApiErrorType;
+      return NextResponse.json(
+        { error: getErrorMessage(errorType), code: errorType },
+        { status: 404 }
+      );
+    }
+
     if (rating < 1 || rating > 5) {
       const errorType = 'VALIDATION_ERROR' as ApiErrorType;
       return NextResponse.json(
@@ -243,7 +260,7 @@ export async function POST(request: NextRequest) {
     const { data: existingReview, error: checkError } = await supabase
       .from('reviews')
       .select('id')
-      .eq('restaurant_id', restaurant_id)
+      .eq('restaurant_id', resolvedRestaurantId)
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -280,7 +297,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await (supabase as unknown as { from: (table: string) => { insert: (obj: Record<string, unknown>) => { select: (cols: string) => { single: () => Promise<{ data: ReviewRow | null; error: { code: string; message: string; details?: string; hint?: string } | null }> } } } })
       .from('reviews')
       .insert({
-        restaurant_id,
+        restaurant_id: resolvedRestaurantId,
         user_id: user.id,
         user_name: userDisplayName,
         rating,
@@ -300,13 +317,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await updateRestaurantRating(restaurant_id);
+    await updateRestaurantRating(resolvedRestaurantId);
 
     // ponytail: notify the restaurant owner that a review was posted
     const { data: reviewRestaurant } = await supabase
       .from('restaurants')
       .select('creator_id, name')
-      .eq('id', restaurant_id)
+      .eq('id', resolvedRestaurantId)
       .single();
     if (reviewRestaurant?.creator_id && reviewRestaurant.creator_id !== user.id) {
       createNotification({
@@ -314,7 +331,7 @@ export async function POST(request: NextRequest) {
         type: 'review_created',
         title: 'Novo review',
         message: `Novo review de ${userDisplayName} em ${reviewRestaurant?.name ?? 'um restaurante'}.`,
-        link: `/restaurants/${restaurant_id}?review=${data.id}`,
+        link: `/restaurants/${resolvedRestaurantId}?review=${data.id}`,
       }).catch(() => {});
     }
 
@@ -324,7 +341,7 @@ export async function POST(request: NextRequest) {
         type: 'mention',
         title: 'Menção num review',
         message: `Foste mencionado num review de ${reviewRestaurant?.name ?? 'um restaurante'}.`,
-        link: `/restaurants/${restaurant_id}?review=${data.id}`,
+        link: `/restaurants/${resolvedRestaurantId}?review=${data.id}`,
       });
     }
 

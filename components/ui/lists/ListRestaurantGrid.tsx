@@ -19,7 +19,7 @@ export default function ListRestaurantGrid({ restaurants }: ListRestaurantGridPr
     const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setIsVisible(true); }, { threshold: 0.05 });
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [restaurants.length]);
 
   // Extract unique cuisines
   const cuisines = useMemo(() => {

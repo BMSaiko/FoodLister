@@ -1,6 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 
+// Mock LanguageContext (ponytail: t stub returns key → PT passthrough)
+jest.mock('@/contexts/LanguageContext', () => ({
+  useLanguage: () => ({ lang: 'pt', setLang: jest.fn(), t: (k) => k }),
+}));
+
 // Mock lucide-react icons
 jest.mock('lucide-react', () => ({
   Filter: () => <span data-testid="filter-icon" />,

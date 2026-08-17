@@ -5,6 +5,7 @@
 
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState } from 'react';
 import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -72,13 +73,15 @@ export default function FilterPanel({
               >
                 <span className="mr-2 w-2 h-2 bg-[var(--primary)] rounded-full"></span>
                 <span className="font-medium">{filter.label}</span>
-                <button
+                <TooltipFast content="Remover filtro">
+<button
                   onClick={filter.onRemove}
                   className="ml-2 p-0.5 rounded-full hover:bg-[var(--primary-light)]/50 transition-colors"
                   aria-label="Remover filtro"
                 >
                   <X className="h-3.5 w-3.5 text-[var(--primary-dark)]" />
                 </button>
+</TooltipFast>
               </span>
             ))}
             {onClearAll && (

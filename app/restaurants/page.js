@@ -11,6 +11,7 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { trackEvent, Events } from '@/utils/analytics';
 
 import HeroRestaurantCard from '@/components/ui/RestaurantList/HeroRestaurantCard';
 import { RestaurantGrid } from '@/components/ui/RestaurantList/RestaurantGrid';
@@ -37,6 +38,14 @@ function RestaurantsContent() {
   })();
 
   const handleFiltersChange = (f) => {
+    const isCleared = !f.cuisines.length && f.priceMin == null && f.priceMax == null && f.ratingMin == null && !f.location;
+    trackEvent(isCleared ? Events.FILTER_CLEARED : Events.FILTER_APPLIED, {
+      cuisines: f.cuisines.length ? f.cuisines.join(',') : undefined,
+      price_min: f.priceMin ?? undefined,
+      price_max: f.priceMax ?? undefined,
+      rating_min: f.ratingMin ?? undefined,
+      location: f.location || undefined,
+    });
     const params = new URLSearchParams();
     if (f.cuisines.length) params.set('cuisines', f.cuisines.join(','));
     if (f.priceMin != null) params.set('price_min', String(f.priceMin));

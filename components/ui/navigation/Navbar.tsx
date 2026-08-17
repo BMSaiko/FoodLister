@@ -5,10 +5,12 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
 import { Menu, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils, Map } from 'lucide-react';
-import { useAuth, useFilters } from '@/contexts';
+import {useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
 import { getClient } from '@/libs/supabase/client';
 import NotificationsDropdown from './NotificationsDropdown';
+import LanguageCombobox from './LanguageCombobox';
+import { useLanguage } from '@/contexts/LanguageContext';
 import useNotifications from '@/hooks/data/useNotifications';
 
 interface ProfileData {
@@ -25,6 +27,7 @@ const NAV_ITEMS = [
 ] as const;
 
 export default function Navbar() {
+  const { t } = useLanguage();
   const { user, signOut, loading } = useAuth();
   const { clearFilters: clearFiltersFromContext } = useFilters();
   const { unreadCount } = useNotifications({ polling: false });
@@ -93,7 +96,7 @@ export default function Navbar() {
       className="hidden md:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.08] hover:bg-white/[0.08] transition-colors cursor-text group"
     >
       <Search className="h-4 w-4 text-white/25 flex-shrink-0" />
-      <span className="text-sm text-white/25 truncate flex-1 text-left">Pesquisar...</span>
+      <span className="text-sm text-white/25 truncate flex-1 text-left">{t("Pesquisar...")}</span>
       <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-white/20 bg-white/[0.04] border border-white/[0.06]">⌘K</kbd>
     </button>
   );
@@ -123,7 +126,8 @@ export default function Navbar() {
                         key={item.id}
                         href={item.href}
                         prefetch={false}
-                        onClick={() => { if (pathname === item.href) window.location.reload(); }}
+         
+                 onClick={() => { if (pathname === item.href) window.location.reload(); }}
                         className="relative z-10"
                       >
                 <motion.span
@@ -135,7 +139,7 @@ export default function Navbar() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {item.label}
+                  {t(item.label)}
                   {activeSection === item.id && (
                     <motion.div
                       layoutId="nav-indicator"
@@ -155,13 +159,15 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-1.5">
+            {/* Language selector */}
+            <LanguageCombobox />
             {/* Create button (logged in) */}
             {user && (
               <Link
                 href="/restaurants/create"
                 prefetch={false}
                 className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
-                title="Criar restaurante"
+                title={t("Criar restaurante")}
               >
                 <Plus className="w-4 h-4 text-[var(--foreground)]" />
               </Link>
@@ -171,14 +177,15 @@ export default function Navbar() {
             {user && (
               <Link
                 href="/roulette"
-                prefetch={false}
+   
+               prefetch={false}
                 onClick={() => { if (pathname === '/roulette') window.location.reload(); }}
                 className={`hidden md:flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
                   pathname === '/roulette'
                     ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/40 scale-110'
                     : 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 hover:border-purple-500/30 hover:scale-110'
                 }`}
-                title="Roleta de Restaurantes"
+                title={t("Roleta de Restaurantes")}
               >
                 <Shuffle className="w-4 h-4 text-purple-400" />
               </Link>
@@ -206,7 +213,7 @@ export default function Navbar() {
                   className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                     hasNotifications ? 'animate-notification-glow' : ''
                   }`}
-                  aria-label="Menu do usuário"
+                  aria-label={t("Menu do usuário")}
                   aria-expanded={userMenuOpen}
                 >
                   {userProfile?.avatar_url ? (
@@ -290,7 +297,7 @@ export default function Navbar() {
                           onClick={handleSignOut}
                           className="magnetic-hover flex items-center gap-3 w-full px-3 py-2.5 text-sm text-[var(--error)] hover:bg-[var(--error-light)]"
                         >
-                          <LogOut className="w-4 h-4" /> Sair
+                          <LogOut className="w-4 h-4" />{t("Sair")}
                         </button>
                       </div>
                     </motion.div>
@@ -327,7 +334,8 @@ export default function Navbar() {
             { id: 'search', icon: Search, label: 'Search', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
-            { id: 'profile', icon: User, label: 'Perfil', href: user ? `/users/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
+            { id: 'profile', icon: User, label: 'Perfil', href: user ? `/u
+  sers/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
           ].map((item) => {
             const isActive =
               (item.id === 'home' && pathname === '/') ||
@@ -344,10 +352,10 @@ export default function Navbar() {
                   key={item.id}
                   onClick={() => openGlobalSearch()}
                   className={baseClass}
-                  aria-label="Pesquisar"
+                  aria-label={t("Pesquisar")}
                 >
                   <item.icon className="w-5 h-5" />
-                  <span className="text-[9px] sm:text-[10px] font-medium">{item.label}</span>
+                  <span className="text-[9px] sm:text-[10px] font-medium">{t(item.label)}</span>
                 </button>
               );
             }
@@ -360,7 +368,7 @@ export default function Navbar() {
               className={baseClass}
             >
                 <item.icon className="w-5 h-5" />
-                <span className="text-[9px] sm:text-[10px] font-medium">{item.label}</span>
+                <span className="text-[9px] sm:text-[10px] font-medium">{t(item.label)}</span>
               </Link>
             );
           })}

@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
 import { MapPin, Globe, FileText, ImageIcon, Phone, Smartphone } from 'lucide-react';
 import HorizontalImageList from './HorizontalImageList';
@@ -37,6 +39,7 @@ export default function RestaurantInfoSection({
   longitude,
   source_url
 }: RestaurantInfoSectionProps) {
+  const { t } = useLanguage();
 
   const { openMapModal } = useModal();
 
@@ -80,7 +83,7 @@ export default function RestaurantInfoSection({
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-white/40 mb-0.5">Website</div>
-              <p className="text-sm text-blue-400 truncate">Abrir site</p>
+              <p className="text-sm text-blue-400 truncate">{t('Abrir site')}</p>
             </div>
           </a>
         )}
@@ -97,7 +100,7 @@ export default function RestaurantInfoSection({
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-white/40 mb-0.5">Menu</div>
-              <p className="text-sm text-orange-400 truncate">Ver menu</p>
+              <p className="text-sm text-orange-400 truncate">{t('Ver menu')}</p>
             </div>
           </a>
         )}
@@ -128,11 +131,11 @@ export default function RestaurantInfoSection({
             <div className="bg-purple-500/10 rounded-lg p-1.5 mr-2">
               <ImageIcon className="h-4 w-4 text-purple-400" />
             </div>
-            <span className="text-sm font-medium text-white/70">Fotos do Menu</span>
+            <span className="text-sm font-medium text-white/70">{t('Fotos do Menu')}</span>
           </div>
           <HorizontalImageList
             images={menuImages}
-            title="Imagens do Menu"
+            title={t('Imagens do Menu')}
           />
         </div>
       )}

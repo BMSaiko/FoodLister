@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, UtensilsCrossed, Star, BarChart3, Megaphone, ArrowLeft, List } from 'lucide-react';
+import { LayoutDashboard, Users, UtensilsCrossed, Star, BarChart3, Megaphone, ArrowLeft, List, Flag } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/admin/restaurants', label: 'Restaurantes', icon: UtensilsCrossed },
   { href: '/admin/lists', label: 'Listas', icon: List },
   { href: '/admin/reviews', label: 'Reviews', icon: Star },
+  { href: '/admin/reports', label: 'Reports', icon: Flag },
   { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
   { href: '/admin/statistics', label: 'Estatísticas', icon: BarChart3 },
   { href: '/restaurants', label: 'Voltar à App', icon: ArrowLeft, external: true },

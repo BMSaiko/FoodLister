@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useVerification } from '@/hooks/auth/useVerification';
+import { useLanguage } from '@/contexts';
 
 interface EmailVerificationProps {
   email?: string;
@@ -9,6 +10,7 @@ interface EmailVerificationProps {
 }
 
 export default function EmailVerification({ email, onVerificationSent }: EmailVerificationProps) {
+  const { t } = useLanguage();
   const { sendEmail, loading, error } = useVerification();
   const [emailInput, setEmailInput] = useState(email || '');
   const [success, setSuccess] = useState(false);
@@ -27,19 +29,19 @@ export default function EmailVerification({ email, onVerificationSent }: EmailVe
   return (
     <div className="max-w-md mx-auto p-6 bg-[var(--card-bg)] rounded-lg shadow-md">
       <h2 className="text-xl font-semibold text-[var(--foreground)] mb-4">
-        Verificação de Email
+        {t("Verificação de Email")}
       </h2>
 
       {success ? (
         <div className="p-4 bg-[var(--green-100)] border border-[var(--green-200)] rounded-md">
           <p className="text-[var(--green-800)]">
-            Email de verificação enviado! Verifique sua caixa de entrada.
+            {t("Email de verificação enviado! Verifique sua caixa de entrada.")}
           </p>
         </div>
       ) : (
         <form onSubmit={handleResend}>
           <p className="text-[var(--gray-400)] mb-4">
-            Não recebeu o email de verificação? Insira seu email abaixo para reenviar.
+            {t("Não recebeu o email de verificação? Insira seu email abaixo para reenviar.")}
           </p>
 
           <div className="mb-4">
@@ -69,7 +71,7 @@ export default function EmailVerification({ email, onVerificationSent }: EmailVe
             disabled={loading || !emailInput}
             className="w-full px-4 py-2 bg-[var(--primary)] text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Enviando...' : 'Reenviar Email de Verificação'}
+            {loading ? t('Enviando...') : t('Reenviar Email de Verificação')}
           </button>
         </form>
       )}

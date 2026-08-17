@@ -6,10 +6,12 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useUserData } from "@/hooks/data/useUserData";
 import { toast } from "react-toastify";
+import { useLanguage } from "@/contexts";
 import { AlertCircle, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import UserProfileHeader from "@/components/ui/profile/UserProfileHeader";
+import ReportButton from "@/components/ui/common/ReportButton";
 import ProfileStats from "@/components/ui/profile/ProfileStats";
 import ProfileTabs from "@/components/ui/profile/ProfileTabs";
 import UserReviewsSection from "@/components/ui/profile/sections/reviews/UserReviewsSection";
@@ -42,6 +44,7 @@ interface UserProfile {
 }
 
 const UserProfilePage = () => {
+  const { t } = useLanguage();
   const { user, loading: authLoading } = useAuthUser();
   const router = useRouter();
   const params = useParams();
@@ -66,7 +69,7 @@ const UserProfilePage = () => {
     autoFetch: true, cacheTTL: 5 * 60 * 1000,
   });
 
-  usePageTitle(profile?.name ? `${profile.name} - FoodLister` : "FoodLister - Perfil");
+  usePageTitle(profile?.name ? `${profile.name} - FoodLister` : t("FoodLister - Perfil"));
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
@@ -118,7 +121,7 @@ const UserProfilePage = () => {
     const url = `${window.location.origin}/users/${profile?.userIdCode || userId}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopySuccess(true);
-      toast.success("Link copiado!");
+      toast.success(t("Link copiado!"));
       setTimeout(() => setCopySuccess(false), 2000);
     });
   };
@@ -126,7 +129,7 @@ const UserProfilePage = () => {
   const handleShareProfile = async () => {
     const url = `${window.location.origin}/users/${profile?.userIdCode || userId}`;
     if (navigator.share) {
-      try { await navigator.share({ title: `${profile?.name} - FoodLister`, text: `Ve o perfil de ${profile?.name}`, url }); } catch { /* cancelled */ }
+      try { await navigator.share({ title: `${profile?.name} - FoodLister`, text: t("Ve o perfil de {name}", { name: profile?.name || "" }), url }); } catch { /* cancelled */ }
     } else {
       handleCopyProfileLink();
     }
@@ -147,10 +150,10 @@ const UserProfilePage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(!profile.publicProfile ? "Perfil agora e publico!" : "Perfil agora e privado!");
+        toast.success(!profile.publicProfile ? t("Perfil agora e publico!") : t("Perfil agora e privado!"));
         await refreshProfile();
       } else { throw new Error(data.error || "Erro"); }
-    } catch { toast.error("Erro ao atualizar privacidade"); }
+    } catch { toast.error(t("Erro ao atualizar privacidade")); }
     finally { setIsUpdatingPrivacy(false); }
   };
 
@@ -184,11 +187,11 @@ const UserProfilePage = () => {
       if (!res.ok) { throw new Error(data.error || "Erro"); }
       setIsFollowing(data.following);
       setFollowCount(data.followers || 0);
-      toast.success(data.following ? `A seguir ${profile.name} agora!` : "Deixaste de seguir.");
+      toast.success(data.following ? t("A seguir {name} agora!", { name: profile.name }) : t("Deixaste de seguir."));
     } catch {
       setIsFollowing(prev => !prev);
       setFollowCount(prev => prev + (isFollowing ? 1 : -1));
-      toast.error("Erro ao alterar seguimento");
+      toast.error(t("Erro ao alterar seguimento"));
     } finally {
       setIsTogglingFollow(false);
     }
@@ -203,9 +206,9 @@ const UserProfilePage = () => {
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400/60 mx-auto" />
-          <h1 className="text-xl font-bold text-white/70 mt-4">{error || "Perfil nao encontrado"}</h1>
+          <h1 className="text-xl font-bold text-white/70 mt-4">{error || t("Perfil nao encontrado")}</h1>
           <button onClick={() => router.push("/restaurants")} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
-            Explorar Restaurantes
+            {t("Explorar Restaurantes")}
           </button>
         </div>
       </div>
@@ -247,6 +250,11 @@ const UserProfilePage = () => {
           onToggleFollow={handleToggleFollow}
           isTogglingFollow={isTogglingFollow}
         />
+        {user && !isOwnProfile && (
+          <div className="px-4 pb-2 flex justify-end">
+            <ReportButton targetType="profile" targetId={profile.id} label="Reportar perfil" />
+          </div>
+        )}
 
         {/* Stats */}
         <ProfileStats
@@ -281,7 +289,7 @@ const UserProfilePage = () => {
                   {/* Recent Reviews */}
                   <div>
                     <h3 className="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
-                      <Star className="h-5 w-5 text-amber-400" />Ultimas Reviews
+                      <Star className="h-5 w-5 text-amber-400" />{t("Ultimas Reviews")}
                     </h3>
                     {(profile.recentReviews || []).length > 0 ? (
                       <div className="space-y-3">
@@ -289,7 +297,7 @@ const UserProfilePage = () => {
                           <div key={review.id} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <p className="font-medium text-white/80 text-sm">{review.restaurant?.name || "Restaurante"}</p>
+                                <p className="font-medium text-white/80 text-sm">{review.restaurant?.name || t("Restaurante")}</p>
                                 <div className="flex items-center gap-2 mt-1">
                                   <span className="text-amber-400 text-sm font-semibold">{review.rating}/5</span>
                                   <span className="text-white/25 text-xs">{new Date(review.createdAt).toLocaleDateString("pt-PT")}</span>
@@ -304,7 +312,7 @@ const UserProfilePage = () => {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-white/30 text-sm py-4 text-center">Nenhuma review encontrada.</p>
+                      <p className="text-white/30 text-sm py-4 text-center">{t("Nenhuma review encontrada.")}</p>
                     )}
                   </div>
                 </div>

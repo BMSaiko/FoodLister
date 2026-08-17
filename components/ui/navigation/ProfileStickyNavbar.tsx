@@ -1,3 +1,4 @@
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect } from 'react';
 import { ArrowUp, Share2, Copy, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -96,7 +97,8 @@ export default function ProfileStickyNavbar({
         {/* Horizontal scrollable container for buttons */}
         <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2">
           {/* Scroll Button - Far Left */}
-          <button
+          <TooltipFast content="Voltar ao topo">
+<button
             onClick={handleScrollToTop}
             className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 transform hover:scale-110 ${
               isVisible
@@ -104,11 +106,12 @@ export default function ProfileStickyNavbar({
                 : 'bg-[var(--gray-100)] text-[var(--gray-400)] shadow-sm'
             } ${isVisible ? 'animate-bounce' : ''}`}
             aria-label="Voltar ao topo"
-            title="Voltar ao topo"
+            
             style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(10px)' }}
           >
             <ArrowUp className="h-5 w-5" />
           </button>
+</TooltipFast>
 
           {/* Spacer to center the remaining buttons */}
           <div className="flex-1"></div>

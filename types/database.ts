@@ -128,6 +128,17 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['list_activities']['Row'], 'id' | 'created_at'>;
         Update: Partial<Database['public']['Tables']['list_activities']['Insert']>;
       };
+      user_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          event: string;
+          metadata: Record<string, unknown> | null;
+          created_at: string;
+        };
+        Insert: Omit<Database['public']['Tables']['user_events']['Row'], 'id' | 'created_at'>;
+        Update: Partial<Database['public']['Tables']['user_events']['Insert']>;
+      };
       reviews: {
         Row: {
           id: string;

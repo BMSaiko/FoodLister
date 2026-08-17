@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState } from "react";
 import { MapPin, Globe, FileText, Phone, Smartphone } from "lucide-react";
 import { useModal } from "@/contexts/ModalContext";
@@ -22,6 +24,7 @@ const detectPhoneType = (phone: string) => {
 };
 
 export default function InfoBento({ location, sourceUrl, menuLinks = [], menuImages = [], phoneNumbers = [], latitude, longitude }: InfoBentoProps) {
+  const { t } = useLanguage();
   const { openMapModal } = useModal();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const hasInfo = location || sourceUrl || menuLinks.length > 0 || phoneNumbers.length > 0;
@@ -71,7 +74,7 @@ export default function InfoBento({ location, sourceUrl, menuLinks = [], menuIma
                 <IconBox color="bg-blue-500/10"><Globe className="h-5 w-5 text-blue-400" /></IconBox>
                 <div className="flex-1 min-w-0">
                   <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Website</div>
-                  <p className="text-sm text-blue-400 truncate">Abrir site</p>
+                  <p className="text-sm text-blue-400 truncate">{t('Abrir site')}</p>
                 </div>
               </a>
             </CardShell>
@@ -84,7 +87,7 @@ export default function InfoBento({ location, sourceUrl, menuLinks = [], menuIma
                 <IconBox color="bg-orange-500/10"><FileText className="h-5 w-5 text-orange-400" /></IconBox>
                 <div className="flex-1 min-w-0">
                   <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Menu</div>
-                  <p className="text-sm text-orange-400 truncate">Ver menu</p>
+                  <p className="text-sm text-orange-400 truncate">{t('Ver menu')}</p>
                 </div>
               </a>
             </CardShell>

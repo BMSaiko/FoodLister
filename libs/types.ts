@@ -398,6 +398,7 @@ export interface DashboardStats {
   growth: AdminGrowthStats;
   topRestaurants: { id: string; name: string; rating: number; review_count: number; price_per_person: number; score: number }[];
   topLists: { id: string; name: string; count: number }[];
+  behavior: { events30d: number; topSearches: { query: string; count: number }[]; filters: { filter: string; count: number }[] };
 }
 
 export interface AdminUserStats {

@@ -1,5 +1,6 @@
 'use client';
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Filter, 
@@ -140,13 +141,15 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[var(--primary-50)] text-[var(--primary-dark)] border border-[var(--primary-light)]/80 shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer group">
       <span className="mr-2 w-2 h-2 bg-[var(--primary)] rounded-full group-hover:bg-[var(--primary-hover)] transition-colors duration-200"></span>
       <span className="font-medium">{label}</span>
-      <button
+      <TooltipFast content="Remover filtro">
+<button
         onClick={onRemove}
         className="ml-2 p-1 rounded-full hover:bg-[var(--primary-light)]/50 transition-colors duration-200"
         aria-label="Remover filtro"
       >
         <XIcon className="h-4 w-4 text-[var(--primary-dark)] group-hover:text-[var(--primary-dark)]" />
       </button>
+</TooltipFast>
     </span>
   ));
 

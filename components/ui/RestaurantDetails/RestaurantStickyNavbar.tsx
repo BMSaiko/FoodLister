@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Share2, Calendar, Edit, Check, X, Plus, ArrowUp, ArrowDown } from 'lucide-react';
+import { TooltipFast } from "@/components/ui/Tooltip";
 
 interface RestaurantStickyNavbarProps {
   onShare: () => void;
@@ -203,6 +204,7 @@ export default function RestaurantStickyNavbar({
 
           {/* Right side: Action buttons - made scrollable */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            <TooltipFast content="Compartilhar">
             <button
               onClick={onShare}
               className="flex items-center justify-center w-12 h-12 bg-[var(--white)] text-[var(--gray-700)] border border-[var(--gray-200)] rounded-full hover:bg-[var(--gray-50)] active:bg-[var(--gray-100)] transition-all duration-200 shadow-sm hover:shadow-md"
@@ -210,7 +212,9 @@ export default function RestaurantStickyNavbar({
             >
               <Share2 className="h-5 w-5" />
             </button>
+            </TooltipFast>
             
+            <TooltipFast content="Agendar refeição">
             <button
               onClick={onSchedule}
               className="flex items-center justify-center w-12 h-12 bg-[var(--blue-500)] text-white rounded-full hover:bg-[var(--blue-600)] active:bg-[var(--blue-700)] transition-all duration-200 shadow-md hover:shadow-lg"
@@ -218,15 +222,18 @@ export default function RestaurantStickyNavbar({
             >
               <Calendar className="h-5 w-5" />
             </button>
+            </TooltipFast>
             
             {user && restaurant?.creator_id === user.id && onEdit && (
-              <button
+              <TooltipFast content="Editar restaurante">
+            <button
                 onClick={onEdit}
                 className="flex items-center justify-center w-12 h-12 bg-[var(--amber-500)] text-white rounded-full hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] transition-all duration-200 shadow-md hover:shadow-lg"
-                aria-label="Editar restaurante"
+              aria-label="Editar restaurante"
               >
                 <Edit className="h-5 w-5" />
               </button>
+            </TooltipFast>
             )}
           </div>
         </div>

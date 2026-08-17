@@ -29,6 +29,11 @@ jest.mock('react-toastify', () => ({
   },
 }));
 
+// Mock LanguageContext (powtail: hook stub returns key as t() → PT passthrough)
+jest.mock('@/contexts/LanguageContext', () => ({
+  useLanguage: () => ({ lang: 'pt', setLang: jest.fn(), t: (k) => k }),
+}));
+
 // Mock lucide-react icons
 jest.mock('lucide-react', () => ({
   X: () => <span data-testid="x-icon" />,

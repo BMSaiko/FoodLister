@@ -6,7 +6,7 @@
 supabase/
 ├── schema.sql              # Canonical schema (idempotent, complete setup)
 ├── reset_and_seed.sql      # Dev utility: TRUNCATE all tables + re-seed
-├── migrations/             # Sequential migrations 000→051
+├── migrations/             # Sequential migrations 000→210
 ├── seed/                   # Idempotent seed data
 └── README.md
 ```
@@ -33,7 +33,7 @@ for f in migrations/*.sql; do psql -f "$f"; done
 
 ## Migration history
 
-Migrations are sequential `000`→`051`. Apply in order.
+Migrations are sequential `000`→`210`. Apply in order.
 All migrations use `IF NOT EXISTS` / idempotent patterns where possible.
 
 ### Cleanup performed (2026-06-26)

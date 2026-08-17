@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useRef, useEffect, useState } from "react";
 
 interface CategoryChipsProps {
@@ -7,6 +9,7 @@ interface CategoryChipsProps {
 }
 
 export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], features = [] }: CategoryChipsProps) {
+  const { t } = useLanguage();
   const hasAny = cuisineTypes.length > 0 || dietaryOptions.length > 0 || features.length > 0;
   if (!hasAny) return null;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -15,7 +18,8 @@ export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setIsVisible(true); }, { threshold: 0.1 });
+    const obs = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true); }, { threshold: 0.1 });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -42,7 +46,7 @@ export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], 
 
         {dietaryOptions.length > 0 && (
           <div className="mb-4">
-            <span className="text-[10px] font-bold text-emerald-400/70 uppercase tracking-[0.15em] mb-2 block">Opcoes Dieteticas</span>
+            <span className="text-[10px] font-bold text-emerald-400/70 uppercase tracking-[0.15em] mb-2 block">{t('Opcoes Dieteticas')}</span>
             <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
               {dietaryOptions.map((opt, i) => (
                 <span

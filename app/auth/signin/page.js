@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts";
+import {useAuth } from "@/contexts";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -22,7 +22,7 @@ function SignInForm() {
     const urlParams = new URLSearchParams(window.location.search);
     const message = urlParams.get("message");
     if (message === "check-email") {
-      toast.info("Verifique o seu email e clique no link de confirmacao antes de fazer login.");
+      toast.info(t("Verifique o seu email e clique no link de confirmacao antes de fazer login."));
     }
   }, []);
 
@@ -31,10 +31,10 @@ function SignInForm() {
     setIsLoading(true);
     try {
       const { error } = await signIn(email, password);
-      if (error) { toast.error("Erro ao fazer login: " + (error.message || "Tente novamente")); return; }
+      if (error) { toast.error(t("Erro ao fazer login: {error}", { error: error.message || t("Tente novamente") })); return; }
       router.push("/restaurants");
     } catch (err) {
-      toast.error("Erro inesperado. Tente novamente.");
+      toast.error(t("Erro inesperado. Tente novamente."));
     } finally { setIsLoading(false); }
   };
 
@@ -52,8 +52,8 @@ function SignInForm() {
           <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
             <ArrowRight className="h-7 w-7 text-purple-400" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">Bem-vindo de volta</h1>
-          <p className="text-white/40 text-sm">Continua a organizar as tuas experiencias gastronomicas</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Bem-vindo de volta")}</h1>
+          <p className="text-white/40 text-sm">{t("Continua a organizar as tuas experiencias gastronomicas")}</p>
         </div>
 
         {/* Card */}
@@ -62,7 +62,7 @@ function SignInForm() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
               <div>
-                <label htmlFor="email" className="sr-only">Email</label>
+                <label htmlFor="email" className="sr-only">{t("Email")}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-white/25" />
@@ -70,7 +70,7 @@ function SignInForm() {
                   <input
                     id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
                     className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder="Endereco de email"
+                    placeholder={t("Endereco de email")}
                     value={email} onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
@@ -78,7 +78,7 @@ function SignInForm() {
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="sr-only">Password</label>
+                <label htmlFor="password" className="sr-only">{t("Password")}</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-white/25" />
@@ -86,7 +86,7 @@ function SignInForm() {
                   <input
                     id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required disabled={isLoading}
                     className="w-full pl-12 pr-12 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder="Password"
+                    placeholder={t("Password")}
                     value={password} onChange={(e) => setPassword(e.target.value)}
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/25 hover:text-white/50 transition-colors">
@@ -98,7 +98,7 @@ function SignInForm() {
               {/* Forgot password */}
               <div className="text-right">
                 <Link href="/auth/reset-password" className="text-xs text-purple-400/70 hover:text-purple-400 transition-colors">
-                  Esqueceu a password?
+                  {t("Esqueceu a password?")}
                 </Link>
               </div>
 
@@ -110,7 +110,7 @@ function SignInForm() {
                 {isLoading ? (
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <>Entrar <ArrowRight className="h-4 w-4" /></>
+                  <>{t("Entrar")} <ArrowRight className="h-4 w-4" /></>
                 )}
               </button>
             </form>
@@ -119,9 +119,9 @@ function SignInForm() {
 
         {/* Footer */}
         <p className="text-center text-sm text-white/30 mt-6">
-          Nao tem conta?{" "}
+          {t("Nao tem conta?")}{" "}
           <Link href="/auth/signup" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
-            Crie uma gratuita
+            {t("Crie uma gratuita")}
           </Link>
         </p>
       </div>
@@ -130,7 +130,7 @@ function SignInForm() {
 }
 
 export default function SigninPage() {
-  usePageTitle("Entrar - FoodLister");
+  usePageTitle(t("Entrar - FoodLister"));
   return (
     <Suspense fallback={
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">

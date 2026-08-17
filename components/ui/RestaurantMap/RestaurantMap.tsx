@@ -85,7 +85,7 @@ function SelectedRestaurantPopup({ restaurant, onDeselect }: { restaurant: Resta
         <h3 class="font-semibold text-sm">${restaurant.name}</h3>
         ${restaurant.rating != null ? `<p className="text-xs text-white/60 mt-0.5">${"★".repeat(Math.round(restaurant.rating))} ${restaurant.rating.toFixed(1)}</p>` : ""}
         ${restaurant.location ? `<p className="text-xs text-white/40 mt-0.5">${restaurant.location}</p>` : ""}
-        <a href="/restaurants/${restaurant.id}" class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium popup-cta" style="color:#fbbf24;text-decoration:none;transition:color 0.2s ease,gap 0.2s ease;">
+        <a href="/restaurants/${restaurant.slug || restaurant.id}" class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium popup-cta" style="color:#fbbf24;text-decoration:none;transition:color 0.2s ease,gap 0.2s ease;">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
           Explorar
         </a>

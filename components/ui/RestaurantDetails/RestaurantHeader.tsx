@@ -1,3 +1,5 @@
+'use client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
 import { Star, Share2, Calendar, Edit } from 'lucide-react';
 import { Restaurant } from '@/libs/types';
@@ -27,6 +29,7 @@ export default function RestaurantHeader({
   onToggleVisited,
   isUpdating = false,
 }: RestaurantHeaderProps) {
+  const { t } = useLanguage();
   const ratingClass = getRatingClass(restaurant.rating || 0);
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
 
@@ -44,7 +47,7 @@ export default function RestaurantHeader({
         <span className="ml-2 text-sm text-amber-500 font-bold">{priceCategory.label}</span>
         <div className="ml-auto text-amber-500 font-semibold">
           {formatPrice(restaurant.price_per_person || 0)}
-          <span className="text-sm text-white/40 ml-1">por pessoa</span>
+          <span className="text-sm text-white/40 ml-1">{t('por pessoa')}</span>
         </div>
       </div>
     );
@@ -98,7 +101,7 @@ export default function RestaurantHeader({
                   className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors duration-150 text-sm font-medium min-h-[44px]"
                 >
                   <Calendar className="h-4 w-4" />
-                  <span>Agendar Refeicao</span>
+                  <span>{t('Agendar Refeicao')}</span>
                 </button>
                 {user && restaurant?.creator_id === user.id && onEdit && (
                   <button

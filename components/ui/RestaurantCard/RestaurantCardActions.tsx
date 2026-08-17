@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React from "react";
 import { MapPin } from "lucide-react";
 import { toast } from "react-toastify";
@@ -75,14 +76,16 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
       )}
 
       {restaurant.location && (
-        <button
+        <TooltipFast content="Ver no mapa">
+<button
           onClick={handleOpenMapModal}
           className="px-3 py-1.5 rounded-full bg-white/[0.03] text-[var(--foreground-secondary)] hover:bg-white/[0.06] border border-white/[0.08] flex items-center gap-1.5 cursor-pointer transition-all"
-          title="Ver no mapa"
+          aria-label="Ver no mapa"
         >
           <MapPin className="h-4 w-4" />
           <span className="text-xs font-medium hidden sm:inline">Mapa</span>
         </button>
+</TooltipFast>
       )}
     </div>
   );

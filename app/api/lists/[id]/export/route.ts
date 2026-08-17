@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { resolveListId } from '@/libs/slug';
 import { cookies } from 'next/headers';
 
 function sanitizeFilename(name: string): string {
@@ -133,12 +134,13 @@ export async function GET(
       },
     }
   );
+  const listId = (await resolveListId(supabase, id)) ?? id;
 
   // Fetch the list
   const { data: list, error: listError } = await supabase
     .from('lists')
     .select('*')
-    .eq('id', id)
+    .eq('id', listId)
     .single();
 
   if (listError || !list) {
@@ -159,7 +161,7 @@ export async function GET(
       const { data: collab } = await supabase
         .from('list_collaborators')
         .select('id')
-        .eq('list_id', id)
+        .eq('list_id', listId)
         .eq('user_id', userId)
         .single();
 
@@ -173,7 +175,7 @@ export async function GET(
   const { data: listRestaurants } = await supabase
     .from('list_restaurants')
     .select('restaurant_id')
-    .eq('list_id', id)
+    .eq('list_id', listId)
     .limit(100);
 
   const restaurantIds = (listRestaurants || []).map((lr: any) => lr.restaurant_id);
