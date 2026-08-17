@@ -59,8 +59,8 @@ describe('Lists Comments API', () => {
     it('returns comments for a list', async () => {
       const { GET } = await import('@/app/api/lists/[id]/comments/route');
       const { NextRequest } = require('next/server');
-      const request = new NextRequest('http://localhost:3000/api/lists/list-1/comments');
-      const response = await GET(request, { params: Promise.resolve({ id: 'list-1' }) });
+      const request = new NextRequest('http://localhost:3000/api/lists/22222222-2222-4222-8222-222222222222/comments');
+      const response = await GET(request, { params: Promise.resolve({ id: '22222222-2222-4222-8222-222222222222' }) });
       const data = await response.json();
       expect(response.status).toBe(200);
       expect(data.comments).toBeDefined();
@@ -71,11 +71,11 @@ describe('Lists Comments API', () => {
     it('creates a new comment', async () => {
       const { POST } = await import('@/app/api/lists/[id]/comments/route');
       const { NextRequest } = require('next/server');
-      const request = new NextRequest('http://localhost:3000/api/lists/list-1/comments', {
+      const request = new NextRequest('http://localhost:3000/api/lists/22222222-2222-4222-8222-222222222222/comments', {
         method: 'POST',
         body: JSON.stringify({ comment: 'New comment' }),
       });
-      const response = await POST(request, { params: Promise.resolve({ id: 'list-1' }) });
+      const response = await POST(request, { params: Promise.resolve({ id: '22222222-2222-4222-8222-222222222222' }) });
       expect(response.status).toBeDefined();
     });
   });

@@ -8,6 +8,7 @@ jest.mock('@/hooks/auth/useVerification', () => ({
 }));
 
 import VerificationStatus from '@/components/auth/VerificationStatus';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('VerificationStatus', () => {
   beforeEach(() => {
@@ -16,13 +17,13 @@ describe('VerificationStatus', () => {
 
   it('should show loading state', () => {
     mockUseVerification.mockReturnValue({ status: null, loading: true });
-    render(<VerificationStatus />);
+    render(<LanguageProvider><VerificationStatus /></LanguageProvider>);
     expect(screen.getByText('Carregando status de verificação...')).toBeDefined();
   });
 
   it('should show unavailable when no status', () => {
     mockUseVerification.mockReturnValue({ status: null, loading: false });
-    render(<VerificationStatus />);
+    render(<LanguageProvider><VerificationStatus /></LanguageProvider>);
     expect(screen.getByText('Status de verificação indisponível.')).toBeDefined();
   });
 
@@ -31,7 +32,7 @@ describe('VerificationStatus', () => {
       status: { isVerified: true, emailConfirmed: true, verifiedAt: '2024-01-15T10:30:00Z', verificationMethod: 'email' },
       loading: false,
     });
-    render(<VerificationStatus />);
+    render(<LanguageProvider><VerificationStatus /></LanguageProvider>);
     expect(screen.getByText('Email Verificado')).toBeDefined();
   });
 
@@ -40,7 +41,7 @@ describe('VerificationStatus', () => {
       status: { isVerified: false, emailConfirmed: false, verifiedAt: null, verificationMethod: null },
       loading: false,
     });
-    render(<VerificationStatus />);
+    render(<LanguageProvider><VerificationStatus /></LanguageProvider>);
     expect(screen.getByText('Email Não Verificado')).toBeDefined();
     expect(screen.getByText('Por favor, verifique seu email para ativar todas as funcionalidades.')).toBeDefined();
   });
@@ -51,7 +52,7 @@ describe('VerificationStatus', () => {
       loading: false,
     });
     const propStatus = { isVerified: true, emailConfirmed: true, verifiedAt: '2024-06-01T00:00:00Z', verificationMethod: 'email' as const };
-    render(<VerificationStatus status={propStatus} />);
+    render(<LanguageProvider><VerificationStatus status={propStatus} /></LanguageProvider>);
     expect(screen.getByText('Email Verificado')).toBeDefined();
   });
 
@@ -60,7 +61,7 @@ describe('VerificationStatus', () => {
       status: { isVerified: false, emailConfirmed: false, verifiedAt: null, verificationMethod: null },
       loading: false,
     });
-    render(<VerificationStatus showResendButton={false} />);
+    render(<LanguageProvider><VerificationStatus showResendButton={false} /></LanguageProvider>);
     expect(screen.getByText('Email Não Verificado')).toBeDefined();
     expect(screen.queryByText('Por favor, verifique seu email para ativar todas as funcionalidades.')).toBeNull();
   });
