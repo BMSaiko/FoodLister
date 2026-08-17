@@ -66,6 +66,10 @@ jest.mock('crypto', () => ({
   })),
 }));
 
+jest.mock('@/libs/rate-limit', () => ({
+  checkRateLimit: jest.fn(() => ({ allowed: true, remaining: 9 })),
+}));
+
 describe('Upload API', () => {
   const originalEnv = process.env;
 
@@ -153,6 +157,22 @@ describe('Upload API', () => {
     const data = await res.json();
     expect(res.status).toBe(200);
     expect(data.url).toBeDefined();
+  });
+
+  it('returns 429 when rate limited', async () => {
+    const { checkRateLimit } = require('@/libs/rate-limit');
+    checkRateLimit.mockReturnValueOnce({ allowed: false, remaining: 0 });
+    const { POST } = await import('@/app/api/upload/route');
+    const { NextRequest } = require('next/server');
+    const req = new NextRequest('http://localhost/api/upload', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ imageData: 'iVBORw0KGgo=', mimeType: 'image/png' }),
+    });
+    const res = await POST(req);
+    expect(res.status).toBe(429);
+    const data = await res.json();
+    expect(data.code).toBe('RATE_LIMITED');
   });
 
   it('returns 400 for unsupported content type', async () => {
