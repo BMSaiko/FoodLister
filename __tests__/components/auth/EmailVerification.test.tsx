@@ -13,6 +13,7 @@ jest.mock('@/hooks/auth/useVerification', () => ({
 
 import EmailVerification from '@/components/auth/EmailVerification';
 import { useVerification } from '@/hooks/auth/useVerification';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 describe('EmailVerification', () => {
   beforeEach(() => {
@@ -25,7 +26,7 @@ describe('EmailVerification', () => {
   });
 
   it('should render verification form', () => {
-    render(<EmailVerification />);
+    render(<LanguageProvider><EmailVerification /></LanguageProvider>);
     expect(screen.getByPlaceholderText('seu@email.com')).toBeDefined();
     expect(screen.getByText('Reenviar Email de Verificação')).toBeDefined();
   });
@@ -36,7 +37,7 @@ describe('EmailVerification', () => {
       loading: true,
       error: null,
     });
-    render(<EmailVerification />);
+    render(<LanguageProvider><EmailVerification /></LanguageProvider>);
     const button = screen.getByText('Enviando...') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
@@ -47,7 +48,7 @@ describe('EmailVerification', () => {
       loading: false,
       error: 'Failed to send email',
     });
-    render(<EmailVerification />);
+    render(<LanguageProvider><EmailVerification /></LanguageProvider>);
     await waitFor(() => {
       expect(screen.getByText('Failed to send email')).toBeDefined();
     });

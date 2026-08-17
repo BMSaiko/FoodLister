@@ -81,8 +81,8 @@ describe('Export API', () => {
     const { GET } = await import('@/app/api/lists/[id]/export/route');
     const { NextRequest } = require('next/server');
 
-    const request = new NextRequest('http://localhost:3000/api/lists/123/export?format=xml');
-    const response = await GET(request, { params: Promise.resolve({ id: '123' }) });
+    const request = new NextRequest('http://localhost:3000/api/lists/11111111-1111-4111-8111-111111111111/export?format=xml');
+    const response = await GET(request, { params: Promise.resolve({ id: '11111111-1111-4111-8111-111111111111' }) });
 
     expect(response.status).toBe(400);
     const body = await response.json();
@@ -93,8 +93,8 @@ describe('Export API', () => {
     const { GET } = await import('@/app/api/lists/[id]/export/route');
     const { NextRequest } = require('next/server');
 
-    const request = new NextRequest('http://localhost:3000/api/lists/123/export?format=json');
-    const response = await GET(request, { params: Promise.resolve({ id: '123' }) });
+    const request = new NextRequest('http://localhost:3000/api/lists/11111111-1111-4111-8111-111111111111/export?format=json');
+    const response = await GET(request, { params: Promise.resolve({ id: '11111111-1111-4111-8111-111111111111' }) });
 
     expect(response.status).toBe(404);
     const body = await response.json();
@@ -139,8 +139,8 @@ describe('Export API', () => {
     const { GET } = await import('@/app/api/lists/[id]/export/route');
     const { NextRequest } = require('next/server');
 
-    const request = new NextRequest('http://localhost:3000/api/lists/list-1/export?format=json');
-    const response = await GET(request, { params: Promise.resolve({ id: 'list-1' }) });
+    const request = new NextRequest('http://localhost:3000/api/lists/11111111-1111-4111-8111-111111111112/export?format=json');
+    const response = await GET(request, { params: Promise.resolve({ id: '11111111-1111-4111-8111-111111111112' }) });
 
     expect(response.status).toBe(200);
     const body = await response.json();
@@ -188,8 +188,8 @@ describe('Export API', () => {
     const { GET } = await import('@/app/api/lists/[id]/export/route');
     const { NextRequest } = require('next/server');
 
-    const request = new NextRequest('http://localhost:3000/api/lists/list-2/export?format=csv');
-    const response = await GET(request, { params: Promise.resolve({ id: 'list-2' }) });
+    const request = new NextRequest('http://localhost:3000/api/lists/11111111-1111-4111-8111-111111111113/export?format=csv');
+    const response = await GET(request, { params: Promise.resolve({ id: '11111111-1111-4111-8111-111111111113' }) });
 
     expect(response.status).toBe(200);
   });
@@ -230,8 +230,8 @@ describe('Export API', () => {
     const { GET } = await import('@/app/api/lists/[id]/export/route');
     const { NextRequest } = require('next/server');
 
-    const request = new NextRequest('http://localhost:3000/api/lists/list-3/export?format=html');
-    const response = await GET(request, { params: Promise.resolve({ id: 'list-3' }) });
+    const request = new NextRequest('http://localhost:3000/api/lists/11111111-1111-4111-8111-111111111114/export?format=html');
+    const response = await GET(request, { params: Promise.resolve({ id: '11111111-1111-4111-8111-111111111114' }) });
 
     expect(response.status).toBe(200);
   });
@@ -250,8 +250,8 @@ describe('Export API', () => {
     const { GET } = await import('@/app/api/lists/[id]/export/route');
     const { NextRequest } = require('next/server');
 
-    const request = new NextRequest('http://localhost:3000/api/lists/list-4/export?format=json');
-    const response = await GET(request, { params: Promise.resolve({ id: 'list-4' }) });
+    const request = new NextRequest('http://localhost:3000/api/lists/11111111-1111-4111-8111-111111111115/export?format=json');
+    const response = await GET(request, { params: Promise.resolve({ id: '11111111-1111-4111-8111-111111111115' }) });
 
     expect(response.status).toBe(401);
     const body = await response.json();
