@@ -164,7 +164,7 @@ export default function GlobalSearch() {
     <Modal
       isOpen={isOpen}
       onClose={() => {
-  const { t } = useLanguage(); setIsOpen(false); setQuery(""); setActiveIndex(-1); }}
+            setIsOpen(false); setQuery(""); setActiveIndex(-1); }}
       size="lg"
       ariaLabel="Pesquisa global"
     >

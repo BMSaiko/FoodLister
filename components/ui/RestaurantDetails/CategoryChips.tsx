@@ -19,7 +19,7 @@ export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], 
     const el = scrollRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(([entry]) => {
-  const { t } = useLanguage(); if (entry.isIntersecting) setIsVisible(true); }, { threshold: 0.1 });
+        if (entry.isIntersecting) setIsVisible(true); }, { threshold: 0.1 });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);

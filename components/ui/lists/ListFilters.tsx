@@ -66,7 +66,6 @@ export default function ListFilters({
   }, [sort, onSortChange]);
 
   const clearAll = useCallback(() => {
-  const { t } = useLanguage();
     setFilters(defaultFilters);
     setSort(defaultSort);
     onClearFilters();

@@ -16,7 +16,6 @@ export default function EmailVerification({ email, onVerificationSent }: EmailVe
   const [success, setSuccess] = useState(false);
 
   const handleResend = async (e: React.FormEvent) => {
-  const { t } = useLanguage();
     e.preventDefault();
     if (!emailInput) return;
 

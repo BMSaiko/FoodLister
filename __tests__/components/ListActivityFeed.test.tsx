@@ -2,6 +2,11 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import ListActivityFeed from '@/components/ui/lists/ListActivityFeed';
 
+// Mock LanguageContext (ponytail: t stub returns key → PT passthrough)
+jest.mock('@/contexts/LanguageContext', () => ({
+  useLanguage: () => ({ lang: 'pt', setLang: jest.fn(), t: (k) => k }),
+}));
+
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 

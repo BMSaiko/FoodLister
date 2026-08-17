@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Link from "next/link";
+import { TooltipFast } from "@/components/ui/Tooltip";
 import { MessageCircle, Send, Trash2, Pencil, Check, X, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import MentionText from "@/components/ui/common/MentionText";
@@ -248,7 +249,8 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                         disabled={saving}
                       />
                       <div className="flex items-center justify-end gap-2">
-                        <button
+                        <TooltipFast content="Cancelar">
+<button
                           onClick={cancelEdit}
                           disabled={saving}
                           className="p-1.5 text-white/40 hover:text-white/60 hover:bg-white/[0.04] rounded-lg transition-all duration-150"
@@ -256,7 +258,9 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>
-                        <button
+</TooltipFast>
+                        <TooltipFast content="Guardar">
+<button
                           onClick={() => handleEdit(comment.id)}
                           disabled={saving || !editText.trim()}
                           className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition-all duration-150 disabled:opacity-30"
@@ -264,6 +268,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                         >
                           {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                         </button>
+</TooltipFast>
                       </div>
                     </div>
                   ) : (
@@ -281,22 +286,26 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                         </div>
                         <div className="flex items-center gap-1 flex-shrink-0">
                           {user?.id === comment.user_id && (
-                            <button
+                            <TooltipFast content="Editar comentario">
+<button
                               onClick={() => startEdit(comment)}
                               className="p-1 text-white/20 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
                               aria-label="Editar comentario"
                             >
                               <Pencil className="h-3.5 w-3.5" />
                             </button>
+</TooltipFast>
                           )}
                           {(user?.id === comment.user_id || isOwner) && (
-                            <button
+                            <TooltipFast content="Eliminar comentario">
+<button
                               onClick={() => handleDelete(comment.id)}
                               className="p-1 text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
                               aria-label="Eliminar comentario"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
+</TooltipFast>
                           )}
                         </div>
                       </div>

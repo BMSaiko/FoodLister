@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { 
   Filter, 
@@ -137,13 +138,15 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
     <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[var(--amber-100)] text-[var(--amber-800)] border border-[var(--amber-200)] shadow-sm cursor-pointer group">
       <span className="mr-2 w-2 h-2 bg-[var(--amber-400)] rounded-full"></span>
       <span className="font-medium">{label}</span>
-      <button
+      <TooltipFast content="Remover filtro">
+<button
         onClick={onRemove}
         className="ml-2 p-1 rounded-full hover:bg-[var(--amber-200)]"
         aria-label="Remover filtro"
       >
         <XIcon className="h-4 w-4 text-[var(--amber-600)]" />
       </button>
+</TooltipFast>
     </span>
   ));
 

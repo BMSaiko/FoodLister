@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Users, UserPlus, Trash2, Loader2, Search, X, Shield, Eye } from "lucide-react";
 import { toast } from "react-toastify";
@@ -374,13 +375,15 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
                 </div>
               </div>
               {isOwner && (
-                <button
+                <TooltipFast content="Remover colaborador">
+<button
                   onClick={() => handleRemoveCollaborator(collab.user_id)}
                   className="p-2 text-[var(--error)] hover:bg-red-500/10 rounded-lg transition-colors"
                   aria-label="Remover colaborador"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
+</TooltipFast>
               )}
             </div>
           ))}

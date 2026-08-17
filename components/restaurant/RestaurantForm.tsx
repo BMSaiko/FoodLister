@@ -129,7 +129,6 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
         restaurantId={createdRestaurant?.id || ''}
         restaurantName={createdRestaurant?.name || ''}
         onClose={() => {
-  const { t } = useLanguage();
           setShowCelebration(false);
           router.push(`/restaurants/${createdRestaurant?.id}`);
         }}

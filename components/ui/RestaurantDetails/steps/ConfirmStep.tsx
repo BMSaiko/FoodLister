@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React from "react";
 import { Calendar, Clock, Users, Utensils } from "lucide-react";
 
@@ -79,7 +80,8 @@ export default function ConfirmStep({
           <p className="text-sm text-white/70">Adicionar ao Google Calendar</p>
           <p className="text-xs text-white/30">Criar evento automaticamente</p>
         </div>
-        <button
+        <TooltipFast content="Toggle Google Calendar">
+<button
           onClick={onToggleCalendar}
           className={"relative w-11 h-6 rounded-full transition-colors duration-200 " +
             (googleCalendar ? "bg-amber-500" : "bg-white/10")}
@@ -90,6 +92,7 @@ export default function ConfirmStep({
               (googleCalendar ? "translate-x-5" : "translate-x-0.5")}
           />
         </button>
+</TooltipFast>
       </div>
     </div>
   );

@@ -34,7 +34,6 @@ export default function RestaurantHeader({
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
 
   const renderPriceLevel = () => {
-  const { t } = useLanguage();
     return (
       <div className="flex items-center mt-3 bg-white/[0.03] p-3 rounded-xl ring-1 ring-white/10">
         <div className="flex items-center">

@@ -11,6 +11,7 @@ import { AlertCircle, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import UserProfileHeader from "@/components/ui/profile/UserProfileHeader";
+import ReportButton from "@/components/ui/common/ReportButton";
 import ProfileStats from "@/components/ui/profile/ProfileStats";
 import ProfileTabs from "@/components/ui/profile/ProfileTabs";
 import UserReviewsSection from "@/components/ui/profile/sections/reviews/UserReviewsSection";
@@ -249,6 +250,11 @@ const UserProfilePage = () => {
           onToggleFollow={handleToggleFollow}
           isTogglingFollow={isTogglingFollow}
         />
+        {user && !isOwnProfile && (
+          <div className="px-4 pb-2 flex justify-end">
+            <ReportButton targetType="profile" targetId={profile.id} label="Reportar perfil" />
+          </div>
+        )}
 
         {/* Stats */}
         <ProfileStats

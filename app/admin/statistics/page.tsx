@@ -92,6 +92,40 @@ export default function AdminStatisticsPage() {
           </div>
         </div>
       </div>
+
+      {/* User-behavior (T32) — searches + filters used, last 30d */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h2 className="text-lg font-semibold mb-3 text-foreground">Top Pesquisas (30d)</h2>
+          <div className="rounded-xl border border-white/10 bg-card overflow-hidden">
+            {stats.behavior?.topSearches?.length ? (
+              <ul className="divide-y divide-white/5">
+                {stats.behavior.topSearches.map((s: any, i: number) => (
+                  <li key={i} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                    <span className="flex-1 text-foreground truncate">{s.query}</span>
+                    <span className="text-purple-400/80 text-xs">{s.count}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="p-4 text-sm text-foreground-muted">Sem dados.</p>}
+          </div>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold mb-3 text-foreground">Filtros Usados (30d)</h2>
+          <div className="rounded-xl border border-white/10 bg-card overflow-hidden">
+            {stats.behavior?.filters?.length ? (
+              <ul className="divide-y divide-white/5">
+                {stats.behavior.filters.map((f: any, i: number) => (
+                  <li key={i} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                    <span className="text-foreground">{f.filter}</span>
+                    <span className="text-emerald-400/80 text-xs">{f.count}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="p-4 text-sm text-foreground-muted">Sem dados.</p>}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

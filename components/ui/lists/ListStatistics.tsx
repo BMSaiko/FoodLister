@@ -22,7 +22,6 @@ export default function ListStatistics({ restaurants }: ListStatisticsProps) {
     const cuisineCount: Record<string, number> = {};
     restaurants.forEach(r => {
       (r.cuisine_types || []).forEach((c: any) => {
-  const { t } = useLanguage();
         const name = c.cuisine_type?.name || c.name || "Outro";
         cuisineCount[name] = (cuisineCount[name] || 0) + 1;
       });

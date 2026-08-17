@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, {  useRef } from 'react';
 import { X, MapPin, Navigation, Globe } from 'lucide-react';
 import { logError } from '@/utils/logger';
@@ -96,7 +97,8 @@ export default function MapSelectorModal() {
             <MapPin className="h-5 w-5 mr-2 text-white/60" />
             <h2 id="map-modal-title" className="text-lg font-semibold text-white/80">Abrir localização em</h2>
           </div>
-          <button
+          <TooltipFast content="Fechar">
+<button
             ref={initialFocusRef}
             onClick={closeMapModal}
             className="text-white/40 hover:text-white/60 p-1 rounded-md hover:bg-[var(--gray-100)] transition-colors"
@@ -104,6 +106,7 @@ export default function MapSelectorModal() {
           >
             <X className="h-5 w-5" />
           </button>
+</TooltipFast>
         </div>
 
         {/* Content */}

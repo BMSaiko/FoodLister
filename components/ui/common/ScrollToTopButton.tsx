@@ -1,3 +1,4 @@
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect } from 'react';
 import { ArrowUp } from 'lucide-react';
 
@@ -86,11 +87,12 @@ export default function ScrollToTopButton({
   }
 
   return (
-    <button
+    <TooltipFast content="Voltar ao topo">
+<button
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       aria-label="Voltar ao topo"
-      title="Voltar ao topo"
+      
       className={`
         fixed
         bottom-6
@@ -125,5 +127,6 @@ export default function ScrollToTopButton({
     >
       <ArrowUp className="w-6 h-6" />
     </button>
+</TooltipFast>
   );
 }

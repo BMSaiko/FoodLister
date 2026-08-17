@@ -25,7 +25,6 @@ export default function ListExportButtons({ list, restaurants }: ListExportButto
   };
 
   const handleApiDownload = (format: "json" | "csv" | "html") => {
-  const { t } = useLanguage();
     window.open(`/api/lists/${list.id}/export?format=${format}`, "_blank");
   };
 

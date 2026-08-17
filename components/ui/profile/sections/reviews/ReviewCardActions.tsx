@@ -1,6 +1,7 @@
 // components/ui/profile/sections/ReviewCardActions.tsx
 "use client";
 
+import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState } from 'react';
 import { MapPin, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -93,14 +94,16 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
     <div className={`absolute top-3 right-3 flex flex-col gap-2 ${className}`}>
       {/* Map Button - Available for all users */}
       {restaurant?.location && (
-        <button
+        <TooltipFast content="Abrir mapa">
+<button
           onClick={handleOpenMapModal}
           className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
-          title="Abrir mapa"
+          aria-label="Abrir mapa"
         >
           <MapPin className="h-4 w-4 text-gray-600" />
           <span className="text-xs font-medium hidden sm:inline text-gray-600">Mapa</span>
         </button>
+</TooltipFast>
       )}
 
       {/* Share Button - Available for all users */}

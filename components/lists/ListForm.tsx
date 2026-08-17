@@ -122,7 +122,6 @@ export default function ListForm({
         listId={createdListId}
         listName={formData.name}
         onClose={() => {
-  const { t } = useLanguage();
           setShowCelebration(false);
           window.location.href = `/lists/${createdListId}`;
         }}

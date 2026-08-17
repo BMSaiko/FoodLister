@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "@/components/layouts/ClientLayout";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
-import GlobalSearch from "@/components/ui/GlobalSearch";
 import LoadingProvider from "@/components/loading/LoadingProvider";
 
 const geistSans = Geist({
@@ -41,7 +40,6 @@ export default function RootLayout({ children }) {
         <ErrorBoundary>
           <LoadingProvider>
             <ClientLayout>{children}</ClientLayout>
-            <GlobalSearch />
           </LoadingProvider>
         </ErrorBoundary>
       </body>

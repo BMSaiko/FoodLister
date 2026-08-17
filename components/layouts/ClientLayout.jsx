@@ -5,6 +5,7 @@ import React from 'react';
 import { AuthProvider, FiltersProvider, LanguageProvider } from "@/contexts";
 
 import { ModalProvider } from "@/contexts/ModalContext";
+import { TooltipProvider } from "@/components/ui/Tooltip";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MapSelectorModal from '@/components/ui/RestaurantManagement/MapSelectorModal';
@@ -16,6 +17,7 @@ export default function ClientLayout({ children }) {
     <AuthProvider>
       <FiltersProvider>
         <ModalProvider>
+          <TooltipProvider>
           {children}
           <GlobalSearch />
           <MapSelectorModal />
@@ -33,6 +35,7 @@ export default function ClientLayout({ children }) {
             toastClassName="text-sm sm:text-base"
             bodyClassName="text-sm sm:text-base"
           />
+          </TooltipProvider>
         </ModalProvider>
       </FiltersProvider>
     </AuthProvider>

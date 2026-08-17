@@ -16,6 +16,7 @@ import { Review } from "@/libs/types";
 // New creative components
 import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
 import AddToList from "@/components/ui/RestaurantDetails/AddToList";
+import ReportButton from "@/components/ui/common/ReportButton";
 import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
 const CategoryChips = dynamic(() => import("@/components/ui/RestaurantDetails/CategoryChips"));
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), { ssr: false });
@@ -725,11 +726,14 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
             onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
             canDelete={!!userProfile?.isAdmin}
             actionExtra={user ? (
-              <AddToList
-                restaurantId={restaurant.id}
-                isAdmin={!!userProfile?.isAdmin}
-                existingListIds={(lists || []).map((l: any) => l.id)}
-              />
+              <>
+                <AddToList
+                  restaurantId={restaurant.id}
+                  isAdmin={!!userProfile?.isAdmin}
+                  existingListIds={(lists || []).map((l: any) => l.id)}
+                />
+                <ReportButton targetType="restaurant" targetId={restaurant.id} />
+              </>
             ) : undefined}
           />
 

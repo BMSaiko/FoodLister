@@ -17,7 +17,6 @@ export default function MealsPage() {
 
   useEffect(() => {
     async function fetchMeals() {
-  const { t } = useLanguage();
       if (!user) { setLoading(false); return; }
       try {
         const res = await fetch("/api/meals/scheduled?type=all&limit=50");

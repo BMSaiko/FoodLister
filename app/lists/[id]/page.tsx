@@ -16,6 +16,7 @@ import ListMetaBar from "@/components/ui/lists/ListMetaBar";
 import ListStatistics from "@/components/ui/lists/ListStatistics";
 import ListRestaurantGrid from "@/components/ui/lists/ListRestaurantGrid";
 import ListComments from "@/components/ui/lists/ListComments";
+import ReportButton from "@/components/ui/common/ReportButton";
 import ListExportButtons from "@/components/ui/lists/ListExportButtons";
 import ListCollaborators from "@/components/ui/lists/ListCollaborators";
 import ListActivityFeed from "@/components/ui/lists/ListActivityFeed";
@@ -363,7 +364,12 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
             onDuplicate={handleDuplicateList}
             onDelete={handleDeleteList}
             listId={id as string}
-            likeSlot={<LikeButton listId={id as string} />}
+            likeSlot={
+            <>
+              <LikeButton listId={id as string} />
+              <ReportButton targetType="list" targetId={list.id} label="" />
+            </>
+          }
           />
 
           {/* Meta Bar */}
