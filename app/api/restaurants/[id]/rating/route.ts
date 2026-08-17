@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getServerClient } from '@/libs/supabase/server';
+import { isUuid, resolveRestaurantId } from '@/libs/slug';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(supabase: SupabaseClient, restaurantId: string) {
@@ -50,7 +51,9 @@ export async function POST(
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
     const resolvedParams = await params;
-    const restaurantId = resolvedParams.id;
+    const rawRestaurantId = resolvedParams.id;
+    // ponytail: [id] may be slug (T64) or UUID — resolve to real id
+    const restaurantId = (await resolveRestaurantId(supabase, rawRestaurantId)) ?? rawRestaurantId;
 
     if (!restaurantId) {
       return NextResponse.json({ error: 'Restaurant ID is required' }, { status: 400 });

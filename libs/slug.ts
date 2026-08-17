@@ -12,3 +12,11 @@ export async function resolveListId(supabase: any, param: string): Promise<strin
   const { data } = await supabase.from('lists').select('id').eq('slug', param).maybeSingle();
   return data?.id ?? null;
 }
+
+/** Resolve o param de URL (UUID ou slug) para o id real do restaurante. null se nao existir ou o client faltar. */
+export async function resolveRestaurantId(supabase: any, param: string): Promise<string | null> {
+  if (!supabase) return null;
+  if (isUuid(param)) return param;
+  const { data } = await supabase.from('restaurants').select('id').eq('slug', param).maybeSingle();
+  return data?.id ?? null;
+}
