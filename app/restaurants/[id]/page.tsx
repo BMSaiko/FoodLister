@@ -570,7 +570,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
     }
 
     // Update restaurant rating after successful review submission
-    await updateRestaurantRating(id || '');
+    await updateRestaurantRating(restaurant?.id || '');
 
     // Fetch updated restaurant data to get the new rating and price_per_person
     try {
@@ -590,7 +590,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
   const handleDeleteRestaurant = async () => {
     if (!confirm('Tem certeza que deseja eliminar este restaurante?')) return;
     try {
-      const response = await del(`/api/restaurants/${id}`);
+      const response = await del(`/api/restaurants/${restaurant?.id}`);
       if (response.ok) {
         toast.success('Restaurante eliminado com sucesso!');
         window.location.href = '/restaurants';
@@ -625,7 +625,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
 
     // Update restaurant rating after successful review deletion
     if (id) {
-      await updateRestaurantRating(id);
+      await updateRestaurantRating((restaurant?.id as string) || '');
     }
 
     // Fetch updated restaurant data to get the new rating and price_per_person
@@ -720,7 +720,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
             reviewImages={reviews?.flatMap(r => (r as any).images || []).filter(Boolean) || []}
             onShare={handleShareClick}
             onSchedule={() => setIsScheduleModalOpen(true)}
-            onEdit={(user && (restaurant.creator_id === user.id || userProfile?.isAdmin)) ? () => window.location.href = `/restaurants/${id}/edit` : undefined}
+            onEdit={(user && (restaurant.creator_id === user.id || userProfile?.isAdmin)) ? () => window.location.href = `/restaurants/${restaurant?.id}/edit` : undefined}
             isOwner={!!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin))}
             onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
             canDelete={!!userProfile?.isAdmin}
