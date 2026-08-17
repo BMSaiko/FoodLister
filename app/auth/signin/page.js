@@ -131,6 +131,7 @@ function SignInForm() {
 }
 
 export default function SigninPage() {
+  const { t } = useLanguage();
   usePageTitle(t("Entrar - FoodLister"));
   return (
     <Suspense fallback={
