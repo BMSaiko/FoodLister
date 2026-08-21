@@ -35,6 +35,12 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  // ponytail: next lint (deprecado, removido no Next 16) crasha no bootstrap com flat config
+  // eslint 9 + eslint-config-next@16 -> "Cannot convert undefined or null to object" (nao-fatal).
+  // Lint corre como gate proprio: node node_modules/eslint/bin/eslint.js . (exit 0).
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
   },
