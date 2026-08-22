@@ -160,60 +160,56 @@ export default function Home() {
             </h2>
           </div>
 
-          {/* Bento Grid: 2+1+2 layout */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
-            {/* Large card */}
-            <ParallaxSection speed={0.3}>
-              <div className="md:col-span-2 md:row-span-2 p-8 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150">
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6">
-                  <MapPin className="w-7 h-7 text-[var(--primary)]" />
-                </div>
-                <h3 className="text-xl font-bold text-[var(--foreground)] mb-3">Descubra Restaurantes</h3>
-                <p className="text-[var(--foreground-secondary)] leading-relaxed">
-                  Explora uma colecao curada de restaurantes. De tapas espanholas a ramen japones,
-                  encontra o lugar perfeito para cada ocasiao.
-                </p>
-              </div>
-            </ParallaxSection>
-
-            {/* Small cards */}
-            <ParallaxSection speed={0.2}>
-              <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
-                  <List className="w-5 h-5 text-emerald-400" />
-                </div>
-                <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">Crie Listas</h3>
-                <p className="text-sm text-[var(--foreground-secondary)]">Organize por tema, ocasiao ou humor.</p>
-              </div>
-            </ParallaxSection>
-
-            <ParallaxSection speed={0.4}>
-              <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4">
-                  <Star className="w-5 h-5 text-blue-400" />
-                </div>
-                <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">Avalie & Review</h3>
-                <p className="text-sm text-[var(--foreground-secondary)]">Partilha as tuas experiencias.</p>
-              </div>
-            </ParallaxSection>
-
-            {/* Wide card */}
-            <ParallaxSection speed={0.15}>
-              <div className="md:col-span-2 p-6 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
-                    <Shuffle className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">Roleta de Descoberta</h3>
-                    <p className="text-sm text-[var(--foreground-secondary)]">
-                      Nao sabes onde comer? Gira a roleta e deixa a sorte decidir.
-                      Surpreende-te com restaurantes que nunca experimentaste.
-                    </p>
+          {/* Bento Grid: 4 cards iguais, layout lateral (padrao roleta - T92) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {[
+              {
+                speed: 0.3,
+                iconBg: 'bg-amber-500/10',
+                iconColor: 'text-[var(--primary)]',
+                Icon: MapPin,
+                title: 'Descubra Restaurantes',
+                text: 'Explora uma colecao curada de restaurantes. De tapas espanholas a ramen japones, encontra o lugar perfeito para cada ocasiao.',
+              },
+              {
+                speed: 0.2,
+                iconBg: 'bg-emerald-500/10',
+                iconColor: 'text-emerald-400',
+                Icon: List,
+                title: 'Crie Listas',
+                text: 'Organize por tema, ocasiao ou humor.',
+              },
+              {
+                speed: 0.4,
+                iconBg: 'bg-blue-500/10',
+                iconColor: 'text-blue-400',
+                Icon: Star,
+                title: 'Avalie & Review',
+                text: 'Partilha as tuas experiencias.',
+              },
+              {
+                speed: 0.15,
+                iconBg: 'bg-purple-500/10',
+                iconColor: 'text-purple-400',
+                Icon: Shuffle,
+                title: 'Roleta de Descoberta',
+                text: 'Nao sabes onde comer? Gira a roleta e deixa a sorte decidir. Surpreende-te com restaurantes que nunca experimentaste.',
+              },
+            ].map(({ speed, iconBg, iconColor, Icon, title, text }) => (
+              <ParallaxSection key={title} speed={speed}>
+                <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150 h-full">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
+                      <Icon className={`w-5 h-5 ${iconColor}`} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">{title}</h3>
+                      <p className="text-sm text-[var(--foreground-secondary)]">{text}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </ParallaxSection>
+              </ParallaxSection>
+            ))}
           </div>
         </Container>
       </ParallaxSection>
