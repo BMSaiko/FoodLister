@@ -338,7 +338,12 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
       );
     }
 
-    await Promise.all(promises);
+    const results = await Promise.all(promises);
+    for (const res of results) {
+      // RLS blocks return { error } instead of throwing - surface them,
+      // otherwise the save reports success while nothing was written (T86).
+      if (res && res.error) throw res.error;
+    }
   };
 
   // Helper to update relations (delete + insert)
@@ -350,7 +355,10 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
     promises.push((supabase.from('restaurant_dietary_options_junction') as any).delete().eq('restaurant_id', restaurantId));
     promises.push((supabase.from('restaurant_restaurant_features') as any).delete().eq('restaurant_id', restaurantId));
 
-    await Promise.all(promises);
+    const delResults = await Promise.all(promises);
+    for (const res of delResults) {
+      if (res && res.error) throw res.error;
+    }
 
     // Insert new relations
     return createRelations(restaurantId);

@@ -5,6 +5,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import type { RestaurantWithDetails } from "@/libs/types";
 import Link from "next/link";
 import L from "leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
+import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
+import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 
 // Custom map pin — SVG teardrop with optional letter init
 // No image files; fully themed via inline SVG + divIcon
@@ -224,6 +227,7 @@ export default function RestaurantMap({
         {userLocation?.lat != null && userLocation?.lng != null && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={createUserPinIcon()} />
         )}
+        <MarkerClusterGroup chunkedLoading>
         {markers.map((r) => (
           <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { if (selectedId) return; e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)); e.target.closePopup(); } }}>
             <Popup>
@@ -253,6 +257,7 @@ export default function RestaurantMap({
             </Popup>
           </Marker>
         ))}
+        </MarkerClusterGroup>
       </MapContainer>
       {markers.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center bg-[var(--background-secondary)] rounded-xl">

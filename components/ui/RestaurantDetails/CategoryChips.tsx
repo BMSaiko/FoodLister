@@ -11,9 +11,12 @@ interface CategoryChipsProps {
 export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], features = [] }: CategoryChipsProps) {
   const { t } = useLanguage();
   const hasAny = cuisineTypes.length > 0 || dietaryOptions.length > 0 || features.length > 0;
-  if (!hasAny) return null;
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  // Rules of Hooks: o early-return tem de vir DEPOIS de todos os hooks -
+  // antes quebrava a ordem quando hasAny passava de false para true no
+  // mesmo componente montado ("rendered more hooks than previous render").
+  if (!hasAny) return null;
 
   useEffect(() => {
     const el = scrollRef.current;
