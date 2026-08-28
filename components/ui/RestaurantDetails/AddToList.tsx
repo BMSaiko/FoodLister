@@ -8,6 +8,7 @@ import { ListPlus, Check, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
 import { useLanguage } from '@/contexts/LanguageContext';
+import { trackEvent, Events } from "@/utils/analytics";
 
 interface AddToListProps {
   restaurantId: string;
@@ -125,6 +126,8 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
     try {
       const res = await post(`/api/lists/${listId}/restaurants`, { restaurantId });
       if (res.status === 201) {
+        // ponytail: fire-and-forget funnel step (add-to-list)
+        trackEvent(Events.RESTAURANT_ADDED_TO_LIST, { list_id: listId, restaurant_id: restaurantId });
         toast.success(t("Adicionado a lista"));
         // marcar como existente localmente
         setLists((prev) => prev);

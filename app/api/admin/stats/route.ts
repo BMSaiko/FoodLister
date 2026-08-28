@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/libs/supabase/server';
+import { createAdminClient } from '@/libs/supabase/admin';
 import { cacheOrSet } from '@/libs/cache';
 import type {  } from '@/types/api';
 
@@ -13,7 +14,13 @@ export async function GET(request: NextRequest) {
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const weekStart = new Date(Date.now() - 7*24*60*60*1000).toISOString();
-      const [usersCount,adminsCount,newUsersMonth,newUsersWeek,restaurantsCount,newRestMonth,restRatings,reviewsCount,newReviewsMonth,revRatings,listsCount,publicLists,privateLists,collabLists,listItems,mealsCount,upcomingMeals,mealsMonth,usersGrowth,restGrowth,revGrowth,cuisineData,topRestaurants,topLists,userEvents,userEventsCount] = await Promise.all([
+      const thirtyDaysAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString();
+      // ponytail: admin reads all users' user_events via service-role (RLS only selects own rows); auth client falls back
+      const adminClient = createAdminClient();
+      const eventSource = adminClient ?? supabase;
+      const { data: adminEvents } = await eventSource.from('user_events')
+        .select('user_id,event,metadata,created_at').gte('created_at', thirtyDaysAgo).order('created_at',{ascending:false}).limit(5000);
+      const [usersCount,adminsCount,newUsersMonth,newUsersWeek,restaurantsCount,newRestMonth,restRatings,reviewsCount,newReviewsMonth,revRatings,listsCount,publicLists,privateLists,collabLists,listItems,mealsCount,upcomingMeals,mealsMonth,usersGrowth,restGrowth,revGrowth,cuisineData,topRestaurants,topLists,userEventsCount] = await Promise.all([
         supabase.from('profiles').select('id',{count:'exact',head:true}),
         supabase.from('profiles').select('id',{count:'exact',head:true}).eq('is_admin',true),
         supabase.from('profiles').select('id',{count:'exact',head:true}).gte('created_at',monthStart),
@@ -38,8 +45,7 @@ export async function GET(request: NextRequest) {
         supabase.from('cuisine_types').select('name,restaurant_cuisine_types(count)'),
         supabase.from('restaurants').select('id,name,rating,review_count,price_per_person').order('review_count',{ascending:false}).limit(10),
         supabase.from('list_likes').select('list_id,lists(id,name)'),
-        supabase.from('user_events').select('event,metadata,created_at').gte('created_at', monthStart),
-        supabase.from('user_events').select('event',{count:'exact',head:true}).gte('created_at', monthStart),
+        supabase.from('user_events').select('id',{count:'exact',head:true}).gte('created_at', monthStart),
       ]);
       const avgRev=revRatings.data?.length?revRatings.data.reduce((s:number,r:any)=>s+(r.rating||0),0)/revRatings.data.length:0;
       const avgRest=restRatings.data?.length?restRatings.data.reduce((s:number,r:any)=>s+(r.rating||0),0)/restRatings.data.length:0;
@@ -64,14 +70,25 @@ export async function GET(request: NextRequest) {
       };
       const topSorted=[...(topRestaurants.data||[])].sort((a:any,b:any)=>scoreRestaurant(b)-scoreRestaurant(a)).slice(0,5);
 
-      // ponytail: client-side agg of user_events (jsonb metadata) - fine at this scale, SQL later
+      // ponytail: client-side agg of user_events (jsonb metadata + created_at) - fine at this scale, SQL later
       const qc:Record<string,number>={};
       const fc:Record<string,number>={};
-      userEvents.data?.forEach((e:any)=>{
+      const dailySeriesMap:Record<string,{date:string,event:string,count:number}>={};
+      const funnelSteps=['search_performed','filter_applied','restaurant_added_to_list','review_created'];
+      const funnelUsers:Record<string,Set<string>>={};
+      funnelSteps.forEach((s)=>{ funnelUsers[s]=new Set<string>(); });
+      (adminEvents||[]).forEach((e:any)=>{
         if(e.event==='search_performed'){ const q=e.metadata?.query; if(q) qc[q]=(qc[q]||0)+1; }
         else if(e.event==='filter_applied'){ Object.entries(e.metadata||{}).forEach(([k,v]:[string,any])=>{ if(v) fc[k]=(fc[k]||0)+1; }); }
+        // daily series: per day + event count
+        const day=e.created_at?.slice(0,10);
+        if(day){ const key=day+'|'+e.event; const cur=dailySeriesMap[key]; dailySeriesMap[key]={ date:day, event:e.event, count:(cur?.count||0)+1 }; }
+        // funnel: distinct users per step
+        if(funnelSteps.includes(e.event)&&e.user_id) funnelUsers[e.event].add(e.user_id);
       });
-      const behavior={ events30d:userEventsCount.count||0, topSearches:Object.entries(qc).map(([q,c])=>({query:q,count:c})).sort((a:any,b:any)=>b.count-a.count).slice(0,10), filters:Object.entries(fc).map(([f,c])=>({filter:f,count:c})).sort((a:any,b:any)=>b.count-a.count) };
+      const dailySeries=Object.values(dailySeriesMap).sort((a:any,b:any)=>a.date.localeCompare(b.date));
+      const funnel=funnelSteps.map((step)=>({ step, users:funnelUsers[step].size }));
+      const behavior={ events30d:userEventsCount.count||0, dailySeries, funnel, topSearches:Object.entries(qc).map(([q,c])=>({query:q,count:c})).sort((a:any,b:any)=>b.count-a.count).slice(0,10), filters:Object.entries(fc).map(([f,c])=>({filter:f,count:c})).sort((a:any,b:any)=>b.count-a.count) };
       return {behavior,topRestaurants:topSorted.map((r:any)=>({id:r.id,name:r.name,rating:r.rating||0,review_count:r.review_count||0,price_per_person:r.price_per_person||0,score:scoreRestaurant(r)})),topLists:popularLists,users:{total:usersCount.count||0,active:0,newThisMonth:newUsersMonth.count||0,newThisWeek:newUsersWeek.count||0,admins:adminsCount.count||0,growthRate:0},restaurants:{total:restaurantsCount.count||0,averageRating:Math.round(avgRest*10)/10,newThisMonth:newRestMonth.count||0,byCuisine:cuisineData.data?.map((c:any)=>({cuisine:c.name,count:c.restaurant_cuisine_types?.[0]?.count||0}))||[]},reviews:{total:reviewsCount.count||0,averageRating:Math.round(avgRev*10)/10,byRating:Object.entries(rd).map(([r,c])=>({rating:Number(r),count:c as number})),newThisMonth:newReviewsMonth.count||0},lists:{total:listsCount.count||0,public:publicLists.count||0,private:privateLists.count||0,collaborative:collabLists.count||0,totalItems:listItems.count||0},meals:{total:mealsCount.count||0,upcoming:upcomingMeals.count||0,thisMonth:mealsMonth.count||0},growth:{users:cbm(usersGrowth.data),restaurants:cbm(restGrowth.data),reviews:cbm(revGrowth.data)}};
     }, 60);
 

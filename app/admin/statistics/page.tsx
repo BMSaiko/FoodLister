@@ -3,12 +3,19 @@
 import { useAdminStats } from '@/hooks/admin/useAdminStats';
 import StatsCard from '@/components/admin/StatsCard';
 import GrowthChart from '@/components/admin/GrowthChart';
-import { Users, UtensilsCrossed, Star, List, Shield } from 'lucide-react';
+import { Users, UtensilsCrossed, Star, List, Shield, Download } from 'lucide-react';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import FunnelChart from '@/components/admin/FunnelChart';
+import DailySeriesChart from '@/components/admin/DailySeriesChart';
 
 export default function AdminStatisticsPage() {
   usePageTitle("Admin · Estatísticas - FoodLister");
   const { stats, loading, error } = useAdminStats();
+
+  const exportCsv = () => {
+    // fresh snapshot, no cache
+    window.location.href = '/api/admin/events/export';
+  };
 
   if (loading) return <p className="text-foreground-muted">A carregar estatísticas...</p>;
   if (error) return <p className="text-red-400">Erro: {error}</p>;
@@ -90,6 +97,20 @@ export default function AdminStatisticsPage() {
               </ul>
             ) : <p className="p-4 text-sm text-foreground-muted">Sem dados.</p>}
           </div>
+        </div>
+      </div>
+
+      {/* Analytics self-service (T32): funnel + daily series + CSV export */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <FunnelChart data={stats.behavior?.funnel || []} />
+        <div className="space-y-4">
+          <DailySeriesChart data={stats.behavior?.dailySeries || []} />
+          <button
+            onClick={exportCsv}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30 text-sm font-medium hover:bg-amber-500/25 transition-colors"
+          >
+            <Download className="h-4 w-4" /> Exportar CSV (user events)
+          </button>
         </div>
       </div>
 

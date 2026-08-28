@@ -8,6 +8,7 @@ import FormActions from '@/components/ui/common/FormActions';
 import { toast } from 'react-toastify';
 import RestaurantImageManager from '@/components/ui/RestaurantManagement/RestaurantImageManager';
 import MentionInput from '@/components/ui/common/MentionInput';
+import { trackEvent, Events } from '@/utils/analytics';
 
 interface ReviewFormProps {
   restaurantId: string;
@@ -144,6 +145,8 @@ export default function ReviewForm({
       
       if (result.review) {
         onReviewSubmitted(result.review);
+        // ponytail: fire-and-forget funnel step (review created), only on create not edit
+        if (!isEditing) trackEvent(Events.REVIEW_CREATED, { restaurant_id: restaurantId });
         
         // Show success message
         toast.success(
