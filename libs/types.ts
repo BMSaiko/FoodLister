@@ -10,6 +10,8 @@ export interface Restaurant {
   rating?: number;
   location?: string;
   source_url?: string;
+  opentable_url?: string;
+  yelp_url?: string;
   creator?: string;
   menu_url?: string;
   menu_links?: string[];

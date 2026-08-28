@@ -13,7 +13,7 @@ import MenuManager from '@/components/ui/RestaurantManagement/MenuManager';
 import FormSection from '@/components/ui/common/FormSection';
 import FormField from '@/components/ui/common/FormField';
 import MultiplePhoneInput from '@/components/ui/common/MultiplePhoneInput';
-import { ArrowLeft, MapPin, Globe, Map, Save, ChevronRight, ChevronLeft, Info, Tag, Utensils, Image, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, Map, Save, ChevronRight, ChevronLeft, Info, Tag, Utensils, Image, Check, CalendarClock, Star } from 'lucide-react';
 import { useRestaurantForm } from '@/hooks/forms/useRestaurantForm';
 import Link from 'next/link';
 import RestaurantFormProgress from './RestaurantFormProgress';
@@ -282,6 +282,28 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                         icon={Globe}
                         placeholder="https://..."
                         helperText="Link para o website do restaurante"
+                      />
+
+                      <FormField
+                        label="OpenTable"
+                        name="opentable_url"
+                        type="url"
+                        value={formData.opentable_url}
+                        onChange={handleChange}
+                        icon={CalendarClock}
+                        placeholder="https://www.opentable.com/..."
+                        helperText={t('Link de reserva no OpenTable (opcional)')}
+                      />
+
+                      <FormField
+                        label="Yelp"
+                        name="yelp_url"
+                        type="url"
+                        value={formData.yelp_url}
+                        onChange={handleChange}
+                        icon={Star}
+                        placeholder="https://www.yelp.com/biz/..."
+                        helperText={t('Link para o perfil no Yelp (opcional)')}
                       />
 
                       <div>

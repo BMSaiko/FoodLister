@@ -1,13 +1,15 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState } from "react";
-import { MapPin, Globe, FileText, Phone, Smartphone } from "lucide-react";
+import { MapPin, Globe, FileText, Phone, Smartphone, CalendarClock, Star } from "lucide-react";
 import { useModal } from "@/contexts/ModalContext";
 import MenuGallery from "./MenuGallery";
 
 interface InfoBentoProps {
   location?: string;
   sourceUrl?: string;
+  opentableUrl?: string;
+  yelpUrl?: string;
   menuLinks?: string[];
   menuImages?: string[];
   phoneNumbers?: string[];
@@ -23,11 +25,11 @@ const detectPhoneType = (phone: string) => {
   return ["91", "92", "93", "96"].includes(num.substring(0, 2)) ? "mobile" : "landline";
 };
 
-export default function InfoBento({ location, sourceUrl, menuLinks = [], menuImages = [], phoneNumbers = [], latitude, longitude }: InfoBentoProps) {
+export default function InfoBento({ location, sourceUrl, opentableUrl, yelpUrl, menuLinks = [], menuImages = [], phoneNumbers = [], latitude, longitude }: InfoBentoProps) {
   const { t } = useLanguage();
   const { openMapModal } = useModal();
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const hasInfo = location || sourceUrl || menuLinks.length > 0 || phoneNumbers.length > 0;
+  const hasInfo = location || sourceUrl || opentableUrl || yelpUrl || menuLinks.length > 0 || phoneNumbers.length > 0;
   const hasMenuImages = menuImages && menuImages.length > 0;
   if (!hasInfo && !hasMenuImages) return null;
 
@@ -75,6 +77,32 @@ export default function InfoBento({ location, sourceUrl, menuLinks = [], menuIma
                 <div className="flex-1 min-w-0">
                   <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Website</div>
                   <p className="text-sm text-blue-400 truncate">{t('Abrir site')}</p>
+                </div>
+              </a>
+            </CardShell>
+          )}
+
+          {/* OpenTable */}
+          {opentableUrl && (
+            <CardShell id="opentable">
+              <a href={opentableUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 h-full group">
+                <IconBox color="bg-red-500/10"><CalendarClock className="h-5 w-5 text-red-400" /></IconBox>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">OpenTable</div>
+                  <p className="text-sm text-red-400 truncate">{t('Reservar')}</p>
+                </div>
+              </a>
+            </CardShell>
+          )}
+
+          {/* Yelp */}
+          {yelpUrl && (
+            <CardShell id="yelp">
+              <a href={yelpUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 h-full group">
+                <IconBox color="bg-red-600/10"><Star className="h-5 w-5 text-red-500" /></IconBox>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Yelp</div>
+                  <p className="text-sm text-red-500 truncate">{t('Ver avaliações')}</p>
                 </div>
               </a>
             </CardShell>

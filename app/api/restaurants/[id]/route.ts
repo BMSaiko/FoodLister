@@ -45,7 +45,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Fetch restaurant details with features and dietary options (with fallback for missing updated_at)
     const restaurantColumns = `id, slug, name, description, price_per_person, rating,
-        location, source_url, creator, menu_url, menu_links, menu_images,
+        location, source_url, opentable_url, yelp_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, created_at, updated_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
         review_count:reviews(count),
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           list:lists(id, slug, name, is_public, creator_name, created_at)
         )`;
     const restaurantColumnsFallback = `id, slug, name, description, price_per_person, rating,
-        location, source_url, creator, menu_url, menu_links, menu_images,
+        location, source_url, opentable_url, yelp_url, creator, menu_url, menu_links, menu_images,
         phone_numbers, created_at, creator_id,
         creator_name, latitude, longitude, images, display_image_index,
         review_count:reviews(count),
@@ -188,6 +188,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       display_image_index,
       location,
       source_url,
+      opentable_url,
+      yelp_url,
       menu_links,
       menu_images,
       phone_numbers,
@@ -217,6 +219,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (display_image_index !== undefined) updateData.display_image_index = display_image_index || -1;
     if (location !== undefined) updateData.location = location || null;
     if (source_url !== undefined) updateData.source_url = source_url || null;
+    if (opentable_url !== undefined) updateData.opentable_url = opentable_url || null;
+    if (yelp_url !== undefined) updateData.yelp_url = yelp_url || null;
     if (menu_links !== undefined) updateData.menu_links = menu_links || [];
     if (menu_images !== undefined) updateData.menu_images = menu_images || [];
     if (phone_numbers !== undefined) updateData.phone_numbers = phone_numbers || [];

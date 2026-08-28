@@ -16,6 +16,8 @@ export interface RestaurantFormData {
   display_image_index: number;
   location: string;
   source_url: string;
+  opentable_url: string;
+  yelp_url: string;
   menu_links: string[];
   menu_images: string[];
   phone_numbers: string[];
@@ -55,6 +57,8 @@ const DEFAULT_FORM_DATA: RestaurantFormData = {
   display_image_index: -1,
   location: '',
   source_url: '',
+  opentable_url: '',
+  yelp_url: '',
   menu_links: [],
   menu_images: [],
   phone_numbers: [],
@@ -133,6 +137,8 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
           display_image_index: data.display_image_index ?? -1,
           location: data.location || '',
           source_url: data.source_url || '',
+          opentable_url: data.opentable_url || '',
+          yelp_url: data.yelp_url || '',
           menu_links: data.menu_links || [],
           menu_images: data.menu_images || [],
           phone_numbers: data.phone_numbers || [],
@@ -243,6 +249,8 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
             display_image_index: formData.display_image_index,
             location: formData.location,
             source_url: formData.source_url,
+            opentable_url: formData.opentable_url || null,
+            yelp_url: formData.yelp_url || null,
             menu_links: formData.menu_links,
             menu_images: formData.menu_images,
             phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),
@@ -269,6 +277,8 @@ export function useRestaurantForm(options: UseRestaurantFormOptions = {}) {
             display_image_index: formData.display_image_index,
             location: formData.location || '',
             source_url: formData.source_url || '',
+            opentable_url: formData.opentable_url || null,
+            yelp_url: formData.yelp_url || null,
             menu_links: formData.menu_links,
             menu_images: formData.menu_images,
             phone_numbers: validateAndNormalizePhoneNumbers(formData.phone_numbers),

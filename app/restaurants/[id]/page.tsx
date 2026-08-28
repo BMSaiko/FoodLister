@@ -51,6 +51,8 @@ interface Restaurant {
   rating?: number;
   location?: string;
   source_url?: string;
+  opentable_url?: string;
+  yelp_url?: string;
   creator?: string;
   menu_url?: string;
   menu_links?: string[];
@@ -772,6 +774,8 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
             <InfoBento
               location={restaurant.location}
               sourceUrl={restaurant.source_url}
+              opentableUrl={restaurant.opentable_url}
+              yelpUrl={restaurant.yelp_url}
               menuLinks={restaurant.menu_links}
               menuImages={restaurant.menu_images}
               phoneNumbers={restaurant.phone_numbers}
