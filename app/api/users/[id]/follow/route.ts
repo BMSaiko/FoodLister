@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
+import { createNotification } from '@/libs/notifications/service';
 
 // GET: follower count of [id] + whether current user follows. POST: toggle follow (auth only).
 export const dynamic = 'force-dynamic';
@@ -36,5 +37,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
   await supabase.from('user_follows').insert({ follower_id: user.id, following_id: id });
   const { count } = await supabase.from('user_follows').select('id', { count: 'exact', head: true }).eq('following_id', id);
+
+  // T84: notif ao seguido (não a si próprio — já rejeitado acima). Fire-and-forget, espelho de like/route.ts
+  const { data: followerProfile } = await supabase
+    .from('profiles').select('display_name').eq('user_id', user.id).maybeSingle();
+  const followerName = (followerProfile?.display_name as string | undefined) ?? user.email?.split('@')[0] ?? 'Alguém';
+  createNotification({
+    userId: id,
+    type: 'follow',
+    title: 'Novo seguidor',
+    message: `${followerName} começou a seguir-te.`,
+    link: `/users/${user.id}`,
+  }).catch(() => {});
+
   return NextResponse.json({ followers: count || 0, following: true });
 }

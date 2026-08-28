@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { TooltipFast } from "@/components/ui/Tooltip";
-import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Heart, Loader2 } from 'lucide-react';
+import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Heart, UserPlus, Loader2 } from 'lucide-react';
 import useNotifications from '@/hooks/data/useNotifications';
 import type { Notification } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
@@ -19,6 +19,7 @@ function getNotificationIcon(type: string) {
     case 'list_invite': return <ListPlus className={`${iconClass} text-emerald-400`} />;
     case 'list_update': return <ListChecks className={`${iconClass} text-teal-400`} />;
     case 'like': return <Heart className={`${iconClass} text-pink-400`} />;
+    case 'follow': return <UserPlus className={`${iconClass} text-blue-400`} />;
         default: return <Bell className={`${iconClass} text-white/40`} />;
   }
 }

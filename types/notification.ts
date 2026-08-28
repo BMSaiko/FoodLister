@@ -6,6 +6,7 @@ export type NotificationType =
   | 'list_invite'
   | 'list_update'
   | 'like'
+  | 'follow'
   | 'mention'
   | 'system';
 
@@ -41,6 +42,7 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, { label: string;
   list_invite: { label: 'Convite para lista', color: '#22c55e' },
   list_update: { label: 'Lista atualizada', color: '#14b8a6' },
   like: { label: 'Gosto', color: '#ec4899' },
+  follow: { label: 'Novo seguidor', color: '#3b82f6' },
   mention: { label: 'Menção', color: '#a855f7' },
   system: { label: 'Sistema', color: 'rgba(255,255,255,0.5)' },
 };
