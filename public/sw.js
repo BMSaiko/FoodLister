@@ -71,6 +71,24 @@ define(['./workbox-e43f5367'], (function (workbox) { 'use strict';
 
   importScripts();
   self.skipWaiting();
+
+
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'FoodLister';
+  const options = {
+    body: data.message || '',
+    icon: '/icon.png',
+    data: { url: data.url || data.link || '/' },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow(event.notification.data.url));
+});
+
   workbox.clientsClaim();
   workbox.registerRoute("/", new workbox.NetworkFirst({
     "cacheName": "start-url",

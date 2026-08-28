@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { sendWebPush } from './push';
 
 /**
  * Notification Service — centralizes all notification logic.
@@ -73,6 +74,9 @@ export async function createNotification(input: CreateNotificationInput): Promis
     return { success: false, error: error.message };
   }
 
+  // T84: push nativo best-effort — nunca falha a notif in-app.
+  sendWebPush(input.userId, { title: input.title, message: input.message, link: input.link ?? '/', type: input.type }).catch(() => {});
+
   return { success: true };
 }
 
@@ -116,6 +120,11 @@ export async function createNotificationsForUsers(
     console.error('[NotificationService] Batch create error:', error);
     return { success: false, count: 0, error: error.message };
   }
+
+  // T84: push nativo best-effort por destinatario (fire-and-forget).
+  allowedIds.forEach((uid) => {
+    sendWebPush(uid, { title, message, link: link ?? '/', type }).catch(() => {});
+  });
 
   return { success: true, count: allowedIds.length };
 }
