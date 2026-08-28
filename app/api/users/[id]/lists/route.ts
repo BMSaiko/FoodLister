@@ -76,7 +76,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const targetUserId = profileData.user_id;
 
     // Get user lists with pagination (with fallback for missing updated_at)
-    let { data: listsData, error: listsError } = await supabase
+    let listsQuery = supabase
       .from('lists')
       .select(`
         id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at,
@@ -84,30 +84,50 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           restaurant_id
         )
       `)
-      .eq('creator_id', targetUserId)
+      .eq('creator_id', targetUserId);
+    // IDOR guard: non-owner visitors must not see private lists on a public profile.
+    const showPrivateLists = isOwnProfile;
+    if (!showPrivateLists) {
+      listsQuery = listsQuery.eq('is_public', true);
+    }
+    listsQuery = listsQuery
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
+    let listsData: any[] | null = null;
+    let listsError: any = null;
+    const listsResult = await listsQuery;
+    listsData = listsResult.data ?? null;
+    listsError = listsResult.error;
     if (listsError && listsError.code === '42703') {
       console.warn('Missing column in lists (migration 050 not applied):', listsError.message);
-      const fallback = await supabase.from('lists')
+      let fallbackQuery = supabase.from('lists')
         .select(`
           id, name, description, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at,
           list_restaurants (
             restaurant_id
           )
         `)
-        .eq('creator_id', targetUserId)
+        .eq('creator_id', targetUserId);
+      if (!showPrivateLists) {
+        fallbackQuery = fallbackQuery.eq('is_public', true);
+      }
+      fallbackQuery = fallbackQuery
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
-      listsData = fallback.data?.map((l: any) => ({ ...l, updated_at: l.created_at })) || null;
-      listsError = fallback.error;
+      const fallbackResult = await fallbackQuery;
+      listsData = fallbackResult.data?.map((l: any) => ({ ...l, updated_at: l.created_at })) || null;
+      listsError = fallbackResult.error;
     }
 
     // Get total count
-    const { count } = await supabase
+    let countQuery = supabase
       .from('lists')
       .select('id', { count: 'exact', head: true })
       .eq('creator_id', targetUserId);
+    if (!showPrivateLists) {
+      countQuery = countQuery.eq('is_public', true);
+    }
+    const { count } = await countQuery;
 
     if (listsError) {
       console.error('Error fetching user lists:', listsError);

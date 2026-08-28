@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import {
+  checkRateLimitEdge,
+  clientIp,
+  isOriginAllowed,
+  rateLimitBudget,
+  CORS_ALLOW_METHODS,
+  CORS_ALLOW_HEADERS,
+  CORS_MAX_AGE,
+} from '@/libs/security';
 
 // Routes that require admin access
 const ADMIN_ROUTES = ['/admin'];
@@ -7,10 +16,51 @@ const ADMIN_ROUTES = ['/admin'];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Universal API rate limiting (Edge-safe, in-memory). Mitigates scraping/abuse with 429.
+  // ponytail: per-instance/efémero on serverless — enough for the current threat model;
+  // swap for Upstash Ratelimit when multi-region/scale.
+  if (pathname.startsWith('/api/')) {
+    const budget = rateLimitBudget(pathname);
+    const rl = checkRateLimitEdge(clientIp(request.headers), budget.max, budget.windowMs);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests', code: 'RATE_LIMITED' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } }
+      );
+    }
+  }
+
   // Create a response object for cookie manipulation
   let response = NextResponse.next({
     request: { headers: request.headers },
   });
+
+  // CORS for API routes — whitelist only, no more Access-Control-Allow-Origin: *.
+  if (pathname.startsWith('/api/')) {
+    const origin = request.headers.get('origin');
+    const allowed = origin ? isOriginAllowed(origin) : undefined;
+
+    if (allowed && origin) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+      response.headers.set('Access-Control-Allow-Methods', CORS_ALLOW_METHODS);
+      response.headers.set('Access-Control-Allow-Headers', CORS_ALLOW_HEADERS);
+      response.headers.set('Access-Control-Max-Age', CORS_MAX_AGE);
+    }
+
+    // Handle preflight requests
+    if (request.method === 'OPTIONS') {
+      // Reject preflight from a disallowed origin (browser will not proceed).
+      if (origin && !allowed) {
+        return new NextResponse(null, { status: 403 });
+      }
+      return new NextResponse(null, { status: 204, headers: response.headers });
+    }
+
+    if (origin) {
+      // Let caches key on the selected origin when it varies.
+      response.headers.set('Vary', 'Origin');
+    }
+  }
 
   // Create Supabase client for middleware
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
@@ -61,19 +111,6 @@ export async function middleware(request: NextRequest) {
       const redirectUrl = new URL('/unauthorized', request.url);
       redirectUrl.searchParams.set('reason', 'admin_required');
       return NextResponse.redirect(redirectUrl);
-    }
-  }
-
-  // Add CORS headers for API routes
-  if (pathname.startsWith('/api/')) {
-    response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    response.headers.set('Access-Control-Max-Age', '86400');
-
-    // Handle preflight requests
-    if (request.method === 'OPTIONS') {
-      return new NextResponse(null, { status: 204, headers: response.headers });
     }
   }
 
