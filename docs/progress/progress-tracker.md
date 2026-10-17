@@ -186,10 +186,10 @@
 ## 📈 Recent Updates (2026-05-07)
 
 ### Documentation Update Session
-- [x] Updated `docs/api/api-documentation.md`
+- [x] Updated `docs/api/api-endpoints-reference.md`
 - [x] Updated `docs/api/api-endpoints-reference.md`
 - [x] Updated `docs/architecture/architecture-overview.md`
-- [x] Updated `docs/database/database-schema.md`
+- [x] Updated `docs/database/database-schema-reference.md`
 - [x] Updated `docs/database/database-schema-reference.md`
 - [x] Updated `docs/features/feature-create-pipeline.md`
 - [x] Updated `docs/features/lists-feature-roadmap.md`

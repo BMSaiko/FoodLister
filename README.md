@@ -40,7 +40,7 @@ A full-featured Next.js 15 application for discovering, organizing, and sharing 
 ### ✅ Technical
 - **PWA** — Service Worker, offline fallback, install prompt
 - **Caching** — TTL in-memory cache, HTTP caching, client-side caching
-- **Testing** — 57 test files, 414 tests passing (100% pass rate)
+- **Testing** — 54 test suites, 404 tests passing (100% pass rate)
 - **Storybook** — Component development environment
 - **CI/CD** — GitHub Actions (lint + build + test)
 - **RLS** — Row Level Security on all 20+ database tables
@@ -59,7 +59,7 @@ A full-featured Next.js 15 application for discovering, organizing, and sharing 
 | **AI** | OpenAI GPT-4o-mini |
 | **Push** | Web Push API + VAPID |
 | **PWA** | next-pwa |
-| **Testing** | Jest 30, React Testing Library, Storybook |
+| **Testing** | Jest 29, React Testing Library, Storybook |
 | **Deployment** | Vercel |
 
 ## Getting Started
@@ -171,7 +171,7 @@ foodlister/
 │   └── subscription.ts     # Feature gate config
 ├── supabase/migrations/    # 47 SQL migrations
 ├── types/                  # Database + API types
-├── __tests__/              # 57 test files
+├── __tests__/              # 54 test suites
 ├── docs/                   # Documentation
 │   ├── adr/                # Architecture Decision Records
 │   ├── api/                # API documentation
@@ -198,7 +198,7 @@ foodlister/
 | **Marketing** | marketing_campaigns, social_media_posts, ai_workflows, content_generation_logs |
 | **Admin** | admin_roles |
 
-See `docs/database/database-schema.md` for full schema.
+See `docs/database/database-schema-reference.md` for full schema.
 
 ## API
 
@@ -213,20 +213,21 @@ See `docs/database/database-schema.md` for full schema.
 - `POST /api/marketing/posts` — Create posts with AI generation
 - `GET /api/admin/stats` — Admin dashboard statistics
 
-See `docs/api/api-documentation.md` for complete reference.
+See `docs/api/api-endpoints-reference.md` for complete reference.
 
 ## Documentation
 
-- **Architecture:** `docs/architecture/architecture-overview.md`
-- **API:** `docs/api/api-documentation.md`
-- **Database:** `docs/database/database-schema.md`
+- **Index:** `docs/INDEX.md`
+- **Architecture:** `docs/ARCHITECTURE.md`
+- **API:** `docs/api/api-endpoints-reference.md`
+- **Database:** `docs/database/database-schema-reference.md`
 - **ADR:** `docs/adr/` (Architecture Decision Records)
 - **Guides:** `docs/guides/` (development, deployment, error handling)
 
 ## Testing
 
-- **57 test files** across API, components, hooks, libs
-- **387 tests passing** (93% pass rate)
+- **54 test suites** across API, components, hooks, libs
+- **404 tests passing** (100% pass rate)
 - Run: `npm test`
 
 ## Progress
@@ -242,7 +243,7 @@ See `docs/api/api-documentation.md` for complete reference.
 | Marketing AI | ✅ 100% |
 | Performance & Caching | ✅ 100% |
 | PWA | ✅ 100% |
-| Testing | ✅ 100% (414/414 tests) |
+| Testing | ✅ 100% (404/404 tests) |
 | Documentation | ✅ 100% |
 | Accessibility | ✅ 100% (ARIA labels) |
 | Error Handling | ✅ 100% (Error Boundaries) |

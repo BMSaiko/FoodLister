@@ -221,7 +221,7 @@ NEXTAUTH_URL=https://your-domain.com
    - Choose a strong database password#
 
 2. **Database Schema**#
-   Run the following SQL in Supabase SQL Editor (see `docs/database/database-schema.md` for full migration scripts):#
+   Run the following SQL in Supabase SQL Editor (see `docs/database/database-schema-reference.md` for full migration scripts):#
 
    ```sql
    -- Enable UUID extension
@@ -377,7 +377,7 @@ NEXTAUTH_URL=https://your-domain.com
    ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
    ALTER TABLE scheduled_meals ENABLE ROW LEVEL SECURITY;
    
-   -- Create policies (see docs/database/database-schema.md for full policies)
+   -- Create policies (see docs/database/database-schema-reference.md for full policies)
    ```
 
 4. **Seed Data**#

@@ -176,7 +176,7 @@ Fix the following database error:
 - Current: [current behavior]
 
 Check:
-- RLS policies in docs/database/database-schema.md
+- RLS policies in docs/database/database-schema-reference.md
 - Schema in docs/database/database-schema-reference.md
 - Supabase client setup in libs/supabase/
 ```
@@ -276,7 +276,7 @@ Optimize the query for [operation]:
 - Issue: [slow/missing index/N+1]
 - Target: [expected performance]
 - Use: [indexes, joins, RPC calls]
-- Check: docs/database/database-schema.md for best practices
+- Check: docs/database/database-schema-reference.md for best practices
 ```
 
 ---
