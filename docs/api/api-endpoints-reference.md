@@ -1,5 +1,7 @@
 # API Endpoints Reference - FoodLister
 
+> Canonical API document. Absorbed the former `api-documentation.md` (meals, notifications, subscriptions, marketing and admin groups).
+
 Complete reference of all API routes in the FoodLister application.
 
 ---
@@ -535,6 +537,95 @@ Authorization: Bearer <jwt-token>
   "total_visits": 60
 }
 ```
+
+---
+
+### Other endpoint groups (merged from the former `api-documentation.md`)
+
+> Summary tables by route group (`app/api/{meals,notifications,subscriptions,stripe,marketing,admin}` exist). Per-endpoint request/response details not re-verified against the code; TODO: confirmar com o BMS.
+
+#### Meals
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/meals/scheduled` | Yes | List scheduled meals |
+| GET | `/api/meals/[id]` | Yes | Get meal details |
+| PUT | `/api/meals/[id]` | Yes | Update meal |
+| DELETE | `/api/meals/[id]` | Yes | Delete meal |
+| POST | `/api/meals/participants` | Yes | Add participants |
+| PATCH | `/api/meals/participants` | Yes | Update participant status |
+| DELETE | `/api/meals/participants` | Yes | Remove participant |
+
+
+#### Notifications
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/notifications` | Yes | Get notifications (limit, unreadOnly) |
+| PATCH | `/api/notifications` | Yes | Mark read / mark all read |
+| DELETE | `/api/notifications` | Yes | Delete notification |
+| GET | `/api/notifications/preferences` | Yes | Get preferences |
+| PUT | `/api/notifications/preferences` | Yes | Update preferences |
+| POST | `/api/notifications/email` | Yes | Trigger email notification |
+| GET | `/api/notifications/push/vapid-key` | No | Get VAPID public key |
+| POST | `/api/notifications/push/subscribe` | Yes | Save push subscription |
+
+
+#### Subscriptions (Stripe)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/subscriptions` | Yes | Get subscription + plans |
+| POST | `/api/subscriptions` | Yes | Create Stripe checkout |
+| PUT | `/api/subscriptions/[id]` | Yes | Cancel at period end |
+| DELETE | `/api/subscriptions/[id]` | Yes | Cancel immediately |
+| POST | `/api/stripe/webhook` | No | Stripe webhook handler |
+
+##### POST /api/subscriptions — Body
+```json
+{ "planId": "uuid", "interval": "monthly" | "yearly" }
+```
+
+##### Response
+```json
+{ "url": "https://checkout.stripe.com/..." }
+```
+
+
+#### Marketing AI
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/api/marketing/campaigns` | Yes | List campaigns |
+| POST | `/api/marketing/campaigns` | Yes | Create campaign |
+| GET | `/api/marketing/posts` | Yes | List posts |
+| POST | `/api/marketing/posts` | Yes | Create post (with optional AI generation) |
+| GET | `/api/marketing/workflows` | Yes | List AI workflows |
+| POST | `/api/marketing/workflows` | Yes | Create workflow |
+
+##### POST /api/marketing/posts — AI Generation
+```json
+{
+  "restaurantId": "uuid",
+  "platform": "twitter",
+  "postType": "restaurant_promo",
+  "aiGenerate": true,
+  "scheduledFor": "2026-06-15T12:00:00Z"
+}
+```
+
+
+#### Admin (Admin role required)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/stats` | Dashboard statistics |
+| GET | `/api/admin/users` | List users (page, limit, search) |
+| PUT | `/api/admin/users/[id]` | Update user (admin toggle) |
+| GET | `/api/admin/restaurants` | List restaurants (page, limit) |
+| DELETE | `/api/admin/restaurants/[id]` | Delete restaurant |
+| GET | `/api/admin/reviews` | List reviews (page, limit) |
+| DELETE | `/api/admin/reviews/[id]` | Delete review |
 
 ---
 

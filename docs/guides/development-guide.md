@@ -53,7 +53,7 @@ Before starting development, ensure you have the following installed:
 
    - Create a new Supabase project at [supabase.com](https://supabase.com)
    - Copy your project URL and anon key to the environment variables
-   - Run the SQL migrations in your Supabase SQL editor (see `docs/database/database-schema.md`)
+   - Run the SQL migrations in your Supabase SQL editor (see `docs/database/database-schema-reference.md`)
 
 ## Development Workflow#
 
@@ -533,7 +533,7 @@ Required variables:
 
 ```sql
 -- Run these in Supabase SQL editor for production
--- (See docs/database/database-schema.md for full migration scripts)
+-- (See docs/database/database-schema-reference.md for full migration scripts)
 ```
 
 ## Security Checklist#
