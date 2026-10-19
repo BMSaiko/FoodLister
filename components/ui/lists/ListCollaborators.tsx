@@ -4,6 +4,7 @@ import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Users, UserPlus, Trash2, Loader2, Search, X, Shield, Eye } from "lucide-react";
 import { toast } from "react-toastify";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface Collaborator {
   id: string;
@@ -199,7 +200,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+        <ToviLoader size="sm" />
       </div>
     );
   }

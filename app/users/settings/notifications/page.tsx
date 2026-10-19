@@ -8,6 +8,7 @@ import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLanguage } from "@/contexts";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface PreferenceToggleProps {
   id: string;
@@ -64,7 +65,7 @@ export default function NotificationPreferencesPage() {
 
         {loading && !preferences ? (
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-8 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
+            <ToviLoader size="sm" />
             <span className="ml-3 text-white/40">{t("A carregar preferencias...")}</span>
           </div>
         ) : (

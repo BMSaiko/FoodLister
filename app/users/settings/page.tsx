@@ -17,6 +17,7 @@ import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import FormSection from "@/components/ui/common/FormSection";
 import Modal from '@/components/ui/Modal';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface FormErrors {
   display_name?: string;
@@ -141,7 +142,7 @@ export default function ProfileSettingsPage() {
     return (
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin mx-auto text-purple-500" />
+          <ToviLoader size="sm" />
           <p className="mt-3 text-white/30 text-sm">{t("Carregando perfil...")}</p>
         </div>
       </div>

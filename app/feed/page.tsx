@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Activity, Loader2, ChevronDown, User } from "lucide-react";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 // ponytail: fetch inline no page, sem hook separado. Padrão {data,total,page,limit,hasMore}.
 interface FeedItem {
@@ -70,7 +71,7 @@ export default function FeedPage() {
 
         {loading && items.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+            <ToviLoader size="sm" />
           </div>
         ) : items.length === 0 ? (
           <p className="text-[var(--gray-500)] text-sm text-center py-12">Ainda sem atividade.</p>

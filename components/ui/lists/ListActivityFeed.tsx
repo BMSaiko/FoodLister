@@ -4,6 +4,7 @@ import React from "react";
 import { useListActivities } from "@/hooks/lists/useListActivities";
 import { Activity, Loader2, ChevronDown, User } from "lucide-react";
 import type { ListActivityAction } from "@/libs/types";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface ListActivityFeedProps {
   listId: string;
@@ -59,7 +60,7 @@ export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
 
       {isLoading && activities.length === 0 ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+          <ToviLoader size="sm" />
         </div>
       ) : activities.length === 0 ? (
         <p className="text-[var(--gray-500)] text-sm text-center py-4">

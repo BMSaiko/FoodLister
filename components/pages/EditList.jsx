@@ -7,6 +7,7 @@ import { useListForm } from "hooks/forms/useListForm";
 import Navbar from "components/ui/navigation/Navbar";
 import ListForm from "components/lists/ListForm";
 import { toast } from "react-toastify";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 export default function EditList({ listId }) {
   const router = useRouter();
@@ -63,7 +64,7 @@ export default function EditList({ listId }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500" />
+        <ToviLoader size="sm" />
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { useScheduledMeals } from '@/hooks/data/useScheduledMeals';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import MealCard from './MealCard';
 import MealSearchBar, { MealFilters } from './MealSearchBar';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface ScheduledMealsSectionProps {
   userId?: string;
@@ -101,7 +102,7 @@ export default function ScheduledMealsSection({
         />
         
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 text-[var(--amber-500)] animate-spin mb-3" />
+          <ToviLoader size="sm" />
           <p className="text-[var(--gray-500)] text-sm">A carregar refeições agendadas...</p>
         </div>
       </div>

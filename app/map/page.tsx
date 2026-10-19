@@ -13,6 +13,7 @@ import NearbyBar from "@/components/ui/Nearby/NearbyBar";
 import { useNearbyRestaurants } from "@/hooks/restaurants/useNearbyRestaurants";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), {
   ssr: false,
@@ -29,7 +30,7 @@ const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/Restau
           }}
         />
         {/* Center spinner */}
-        <div className="relative z-10 w-10 h-10 border-2 border-white/[0.08] border-t-amber-500/60 rounded-full animate-spin" />
+        <ToviLoader size="sm" />
         <p className="relative z-10 text-[11px] text-white/25 mt-3">A carregar mapa...</p>
       </div>
     </div>

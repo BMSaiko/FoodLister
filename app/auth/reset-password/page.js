@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { useLanguage } from "@/contexts";
 import { Eye, EyeOff, Mail, Lock, Key, ArrowRight, CheckCircle } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 function ResetPasswordForm() {
   const [email, setEmail] = useState("");
@@ -232,7 +233,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+        <ToviLoader size="sm" />
       </div>
     }>
       <ResetPasswordForm />

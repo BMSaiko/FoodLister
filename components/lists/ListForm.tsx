@@ -10,6 +10,7 @@ import ListFormProgress from "./ListFormProgress";
 import ListFormPreview from "./ListFormPreview";
 import ListFormCelebration from "./ListFormCelebration";
 import { useLanguage } from '@/contexts/LanguageContext';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface Restaurant {
   id: string;
@@ -110,7 +111,7 @@ export default function ListForm({
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500" />
+        <ToviLoader size="sm" />
       </div>
     );
   }

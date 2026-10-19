@@ -4,6 +4,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
 import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 /**
  * ImageUploader component using react-dropzone with Cloudinary API
@@ -199,7 +200,7 @@ export default function ImageUploader({
         <div className="text-center">
           <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--primary)]/10 group-hover:bg-[var(--primary)]/15 group-hover:scale-105 transition-all duration-200">
             {uploadState.isUploading ? (
-              <Loader className="h-8 w-8 text-[var(--primary)] animate-spin" />
+              <ToviLoader size="sm" />
             ) : isMobile === true ? (
               <Camera className="h-8 w-8 text-[var(--primary)]" />
             ) : (
