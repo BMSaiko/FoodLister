@@ -92,6 +92,7 @@ export const EN: Record<string, string> = {
   "Fazer primeira avaliacao": "Write first review",
   "Editar avaliacao": "Edit review",
   "Eliminar avaliacao": "Delete review",
+  "Pesquisa": "Search",
   "Restaurante n\u00e3o encontrado": "Restaurant not found",
   "Nome da Lista *": "List Name *",
   "URL da Imagem de Capa": "Cover Image URL",
