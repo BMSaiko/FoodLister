@@ -215,6 +215,10 @@ See `docs/database/database-schema.md` for full schema.
 
 See `docs/api/api-documentation.md` for complete reference.
 
+## Workflow Git
+
+Ramos `feat|fix|docs|chore/<slug>` nascem de `dev`, entram em `dev` por PR (squash) e `dev` entra em `main` por PR (merge commit). Detalhe em [docs/guides/git-workflow.md](docs/guides/git-workflow.md).
+
 ## Documentation
 
 - **Architecture:** `docs/architecture/architecture-overview.md`
