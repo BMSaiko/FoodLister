@@ -1,4 +1,6 @@
 // Teste de restauro: carrega o backup mais recente numa base temporária do Postgres local (Docker).
+// Erros esperados: "internos" (~89, schemas auth/storage/vault copiados do Postgres local) e 1 no schema
+// (publication "supabase_realtime" não existe na base temporária). Qualquer outro erro: correr com --verbose.
 import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -19,7 +21,10 @@ const docker = (args, input) =>
   spawnSync('docker', args, { input, encoding: 'utf8', maxBuffer: 1 << 30 });
 const psql = (database, args, input) =>
   docker(['exec', '-i', container, 'psql', '-U', 'postgres', '-d', database, ...args], input);
-const errorCount = (r) => ((r.stderr || '').match(/ERROR:/g) || []).length;
+const errorLines = (r) => (r.stderr || '').split(/\r?\n/).filter((l) => l.includes('ERROR:'));
+const errorCount = (r) => errorLines(r).length;
+const verbose = process.argv.includes('--verbose');
+const show = (label, r) => verbose && errorLines(r).forEach((l) => console.log(`[${label}] ${l}`));
 
 // Schemas internos do Supabase (auth, extensions, ...) vêm da base local para as FKs do backup resolverem.
 const internals = docker([
@@ -31,9 +36,14 @@ if (internals.status !== 0) throw new Error(`pg_dump local falhou: ${internals.s
 psql('postgres', ['-c', `DROP DATABASE IF EXISTS ${db}`]);
 psql('postgres', ['-c', `CREATE DATABASE ${db}`]);
 
-const errInternals = errorCount(psql(db, ['-q'], internals.stdout));
-const errSchema = errorCount(psql(db, ['-q'], readFileSync(join(root, latest, 'schema.sql'), 'utf8')));
-const errData = errorCount(psql(db, ['-q'], readFileSync(join(root, latest, 'data.sql'), 'utf8')));
+const rInternals = psql(db, ['-q'], internals.stdout);
+const errInternals = errorCount(rInternals);
+const rSchema = psql(db, ['-q'], readFileSync(join(root, latest, 'schema.sql'), 'utf8'));
+const errSchema = errorCount(rSchema);
+const rData = psql(db, ['-q'], readFileSync(join(root, latest, 'data.sql'), 'utf8'));
+const errData = errorCount(rData);
+show('schema', rSchema);
+show('dados', rData);
 
 const scalar = (sql) => psql(db, ['-tAc', sql]).stdout.trim();
 const tables = scalar("SELECT count(*) FROM information_schema.tables WHERE table_schema='public'");

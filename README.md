@@ -219,6 +219,10 @@ See `docs/api/api-documentation.md` for complete reference.
 
 Ramos `feat|fix|docs|chore/<slug>` nascem de `dev`, entram em `dev` por PR (squash) e `dev` entra em `main` por PR (merge commit). Detalhe em [docs/guides/git-workflow.md](docs/guides/git-workflow.md).
 
+## Supabase
+
+Desenvolvimento contra o Supabase local (`npm run db:start`, `db:reset`); backups e promoção para o cloud com `db:backup` e `db:promote`. Detalhe em [docs/guides/supabase-workflow.md](docs/guides/supabase-workflow.md).
+
 ## Documentation
 
 - **Architecture:** `docs/architecture/architecture-overview.md`
