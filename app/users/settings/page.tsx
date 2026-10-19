@@ -157,7 +157,7 @@ export default function ProfileSettingsPage() {
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
           <h1 className="text-xl font-bold text-white/80 mt-4">{t("Erro ao carregar perfil")}</h1>
           <p className="text-white/40 mt-2 text-sm">{error}</p>
-          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
+          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-amber-500/15 text-amber-400 rounded-xl hover:bg-amber-500/25 transition-colors text-sm font-medium">
             {t("Tentar Novamente")}
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function ProfileSettingsPage() {
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
           <h1 className="text-xl font-bold text-white/80 mt-4">{t("Perfil não encontrado")}</h1>
-          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
+          <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-amber-500/15 text-amber-400 rounded-xl hover:bg-amber-500/25 transition-colors text-sm font-medium">
             {t("Tentar Novamente")}
           </button>
         </div>
@@ -186,7 +186,7 @@ export default function ProfileSettingsPage() {
       {/* Celebration */}
       <Modal isOpen={showCelebration} onClose={() => setShowCelebration(false)} size="sm" ariaLabel={t("Celebração")}>
           <div className="text-center p-8">
-            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-purple-500/20">
+            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20">
               <Sparkles className="h-8 w-8 text-white" />
             </div>
             <h2 className="text-2xl font-bold text-white tracking-tight mb-2">{t("Perfil Atualizado!")}</h2>
@@ -210,7 +210,7 @@ export default function ProfileSettingsPage() {
               onClick={() => setCurrentStep(step)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-150 ${
                 currentStep === step
-                  ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25"
+                  ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
                   : "bg-white/[0.03] text-white/30 hover:bg-white/[0.06]"
               }`}
             >
@@ -228,14 +228,14 @@ export default function ProfileSettingsPage() {
               <FormSection title={t("Foto de Perfil")} icon={<Camera className="w-5 h-5" />}>
                 <div className="flex items-center gap-5">
                   <div className="relative">
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-2 ring-white/[0.08] flex items-center justify-center overflow-hidden">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 ring-2 ring-white/[0.08] flex items-center justify-center overflow-hidden">
                       {localProfile?.profileImage ? (
                         <img src={localProfile.profileImage} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <User className="h-8 w-8 text-white/20" />
                       )}
                     </div>
-                    <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-purple-500 hover:bg-purple-400 flex items-center justify-center cursor-pointer transition-colors shadow-lg">
+                    <label className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-400 flex items-center justify-center cursor-pointer transition-colors shadow-lg">
                       <Camera className="h-3.5 w-3.5 text-white" />
                       <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
                     </label>
@@ -258,7 +258,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.name || ""}
                         onChange={e => handleInputChange("name", e.target.value)}
                         disabled={isSubmitting}
-                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50 ${
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-colors disabled:opacity-50 ${
                           formErrors.display_name ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
                         placeholder={t("O seu nome")}
@@ -289,7 +289,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.phoneNumber || ""}
                         onChange={e => handleInputChange("phoneNumber", e.target.value)}
                         disabled={isSubmitting}
-                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-colors disabled:opacity-50"
                         placeholder="+351 912 345 678"
                       />
                     </div>
@@ -303,7 +303,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.location || ""}
                         onChange={e => handleInputChange("location", e.target.value)}
                         disabled={isSubmitting}
-                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-colors disabled:opacity-50"
                         placeholder={t("Porto, Portugal")}
                       />
                     </div>
@@ -317,7 +317,7 @@ export default function ProfileSettingsPage() {
                         value={localProfile?.website || ""}
                         onChange={e => handleInputChange("website", e.target.value)}
                         disabled={isSubmitting}
-                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors disabled:opacity-50 ${
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-colors disabled:opacity-50 ${
                           formErrors.website ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
                         placeholder="https://o-seu-site.com"
@@ -334,7 +334,7 @@ export default function ProfileSettingsPage() {
                         onChange={e => handleInputChange("bio", e.target.value)}
                         rows={3}
                         disabled={isSubmitting}
-                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-colors resize-none disabled:opacity-50 ${
+                        className={`w-full px-4 py-3 bg-white/[0.03] border rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-colors resize-none disabled:opacity-50 ${
                           formErrors.bio ? "border-red-500/50" : "border-white/[0.08]"
                         }`}
                         placeholder={t("Conte um pouco sobre si...")}
@@ -411,8 +411,8 @@ export default function ProfileSettingsPage() {
                   href={`/users/${localProfile.userIdCode}`}
                   className="flex items-center gap-3 p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                    <Eye className="h-5 w-5 text-purple-400" />
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                    <Eye className="h-5 w-5 text-amber-400" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-white/70">{t("Ver Perfil Publico")}</p>
@@ -449,10 +449,10 @@ export default function ProfileSettingsPage() {
                   </div>
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
                     <div className="p-4 rounded-xl bg-white/[0.03] text-center">
-                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                        <User className="h-5 w-5 text-purple-400" />
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                        <User className="h-5 w-5 text-amber-400" />
                       </div>
-                      <p className="text-2xl font-bold text-purple-400">{localProfile?.stats?.totalRestaurantsAdded || 0}</p>
+                      <p className="text-2xl font-bold text-amber-400">{localProfile?.stats?.totalRestaurantsAdded || 0}</p>
                       <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">{t("Adicionados")}</p>
                     </div>
                   </div>
@@ -477,7 +477,7 @@ export default function ProfileSettingsPage() {
               <button
                 type="button"
                 onClick={() => setCurrentStep(currentStep + 1)}
-                className="px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-colors min-h-[44px]"
+                className="px-5 py-2.5 bg-amber-500/15 text-amber-400 text-sm font-semibold rounded-xl hover:bg-amber-500/25 transition-colors min-h-[44px]"
               >
                 {t("Próximo")}
               </button>
@@ -485,7 +485,7 @@ export default function ProfileSettingsPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-colors disabled:opacity-50 min-h-[44px]"
+                className="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-black font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-colors disabled:opacity-50 min-h-[44px]"
               >
                 {isSubmitting ? (
                   <ToviSpinner className="w-4 h-4" />

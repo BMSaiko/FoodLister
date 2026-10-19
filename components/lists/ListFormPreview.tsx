@@ -36,7 +36,7 @@ export default function ListFormPreview({ name, description, isPublic, coverImag
             {coverImageUrl ? (
               <img src={coverImageUrl} alt="Capa" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/10 to-pink-500/10">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-500/10 to-orange-500/10">
                 <ImageIcon className="h-10 w-10 text-white/10" />
               </div>
             )}

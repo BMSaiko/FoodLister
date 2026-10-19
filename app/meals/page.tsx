@@ -65,7 +65,7 @@ export default function MealsPage() {
             </div>
             <h3 className="text-lg font-semibold text-white/60 mb-2">{t("Nenhuma refeição agendada")}</h3>
             <p className="text-sm text-white/30 mb-4">{t("Agenda uma refeição a partir de qualquer restaurante.")}</p>
-            <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
+            <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500/15 text-amber-400 rounded-xl hover:bg-amber-500/25 transition-colors text-sm font-medium">
               {t("Explorar Restaurantes")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -79,11 +79,11 @@ export default function MealsPage() {
               >
                 <div className="p-4 rounded-xl bg-white/[0.03] flex items-center gap-4">
                   {/* Date badge */}
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-purple-500/10 flex flex-col items-center justify-center">
-                    <span className="text-xs text-purple-400/70 uppercase font-medium">
+                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-amber-500/10 flex flex-col items-center justify-center">
+                    <span className="text-xs text-amber-400/70 uppercase font-medium">
                       {meal.meal_date ? new Date(meal.meal_date).toLocaleDateString("pt-PT", { month: "short" }) : "—"}
                     </span>
-                    <span className="text-lg font-bold text-purple-400">
+                    <span className="text-lg font-bold text-amber-400">
                       {meal.meal_date ? new Date(meal.meal_date).getDate() : "—"}
                     </span>
                   </div>
