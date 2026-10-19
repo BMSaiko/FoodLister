@@ -21,8 +21,13 @@ export const metadata = {
   description: "Aplicativo para organizar e descobrir restaurantes",
   manifest: '/manifest.json',
   icons: {
-    icon: '/logo.svg',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
+  openGraph: { images: ['/og-image.png'] },
 };
 
 export const viewport = {

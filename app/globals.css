@@ -718,3 +718,28 @@ html { scroll-behavior: smooth; }
     transform: scale(1);
   }
 }
+
+/* ===== Tovi (mascote/loader) — ciclo 2,6 s, só CSS ===== */
+.tovi { --tovi-plate: #f5f5f5; --tovi-ink: #1a1203; --tovi-light: #fde68a; height: auto; overflow: visible; display: block; }
+[data-theme="light"] .tovi { --tovi-plate: #16130d; }
+.tovi * { transform-box: fill-box; }
+.tovi-body { animation: tovi-bob 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.tovi-lid { animation: tovi-lid 2.6s cubic-bezier(.4, 0, .2, 1) infinite; transform-origin: 10% 100%; }
+.tovi-pop { animation: tovi-pop 2.6s cubic-bezier(.3, 1.4, .5, 1) infinite; transform-origin: 50% 100%; }
+.tovi-eye { animation: tovi-blink 2.6s infinite; transform-origin: 50% 50%; }
+.tovi-shadow { animation: tovi-shadow 2.6s ease-in-out infinite; transform-origin: 50% 50%; }
+.tovi-steam path { opacity: 0; animation: tovi-steam 2.6s ease-out infinite; }
+.tovi-steam path:nth-child(2) { animation-delay: .25s; }
+.tovi-steam path:nth-child(3) { animation-delay: .5s; }
+.tovi-compact .tovi-steam, .tovi-compact .tovi-pop { display: none; }
+@keyframes tovi-bob { 0%, 100% { transform: translateY(0) scale(1, 1); } 12% { transform: translateY(2px) scale(1.04, .95); } 28% { transform: translateY(-5px) scale(.98, 1.03); } }
+@keyframes tovi-lid { 0%, 30% { transform: rotate(0) translateY(0); } 45%, 62% { transform: rotate(-16deg) translateY(-16px); } 78%, 100% { transform: rotate(0) translateY(0); } }
+@keyframes tovi-pop { 0%, 38% { transform: translateY(8px) scale(0); opacity: 0; } 50% { transform: translateY(-6px) scale(1.15); opacity: 1; } 62% { transform: translateY(-6px) scale(1); opacity: 1; } 72%, 100% { transform: translateY(8px) scale(0); opacity: 0; } }
+@keyframes tovi-blink { 0%, 40%, 48%, 100% { transform: scaleY(1); } 44% { transform: scaleY(.1); } }
+@keyframes tovi-shadow { 0%, 100% { transform: scaleX(1); opacity: .35; } 28% { transform: scaleX(.88); opacity: .22; } }
+@keyframes tovi-steam { 0% { opacity: 0; transform: translateY(6px); } 30% { opacity: .55; } 100% { opacity: 0; transform: translateY(-14px); } }
+@media (prefers-reduced-motion: reduce) {
+  .tovi-body, .tovi-lid, .tovi-pop, .tovi-eye, .tovi-shadow, .tovi-steam path { animation: none; }
+  .tovi-lid { transform: rotate(-10deg) translateY(-9px); }
+  .tovi-pop { opacity: 1; transform: translateY(-6px); }
+}
