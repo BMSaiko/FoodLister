@@ -1,0 +1,402 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ToviLoader lg com texto: mostra o texto e usa-o como etiqueta 1`] = `
+<div
+  aria-label="A guardar"
+  aria-live="polite"
+  class="flex flex-col items-center gap-3 "
+  role="status"
+>
+  <svg
+    aria-hidden="true"
+    class="tovi "
+    height="160"
+    viewBox="0 0 120 120"
+    width="160"
+  >
+    <ellipse
+      class="tovi-shadow"
+      cx="60"
+      cy="108"
+      fill="#000"
+      opacity=".35"
+      rx="36"
+      ry="5"
+    />
+    <g
+      class="tovi-body"
+    >
+      <g
+        class="tovi-steam"
+        fill="none"
+        stroke="var(--tovi-light)"
+        stroke-linecap="round"
+        stroke-width="2.4"
+      >
+        <path
+          d="M44 62c-4-5 4-8 0-13"
+        />
+        <path
+          d="M60 58c-4-5 4-8 0-13"
+        />
+        <path
+          d="M76 62c-4-5 4-8 0-13"
+        />
+      </g>
+      <g
+        class="tovi-pop"
+      >
+        <path
+          d="M60 60l3.6 7.8 8.4 1-6.2 5.8 1.7 8.4-7.5-4.2-7.5 4.2 1.7-8.4-6.2-5.8 8.4-1z"
+          fill="var(--tovi-light)"
+        />
+      </g>
+      <path
+        d="M14 96h92"
+        stroke="var(--tovi-plate)"
+        stroke-linecap="round"
+        stroke-width="5"
+      />
+      <path
+        d="M24 100h72"
+        opacity=".5"
+        stroke="var(--tovi-plate)"
+        stroke-linecap="round"
+        stroke-width="3"
+      />
+      <g
+        class="tovi-lid"
+      >
+        <path
+          d="M20 94a40 38 0 0 1 80 0Z"
+          fill="var(--primary)"
+        />
+        <path
+          d="M28 80a33 30 0 0 1 14-18"
+          fill="none"
+          stroke="#fff"
+          stroke-linecap="round"
+          stroke-opacity=".5"
+          stroke-width="3.2"
+        />
+        <circle
+          cx="60"
+          cy="52"
+          fill="var(--tovi-light)"
+          r="5"
+        />
+        <g
+          fill="var(--tovi-ink)"
+        >
+          <ellipse
+            class="tovi-eye"
+            cx="46"
+            cy="76"
+            rx="3.6"
+            ry="5"
+          />
+          <ellipse
+            class="tovi-eye"
+            cx="74"
+            cy="76"
+            rx="3.6"
+            ry="5"
+          />
+        </g>
+        <ellipse
+          cx="38"
+          cy="85"
+          fill="#ef4444"
+          opacity=".35"
+          rx="5"
+          ry="3"
+        />
+        <ellipse
+          cx="82"
+          cy="85"
+          fill="#ef4444"
+          opacity=".35"
+          rx="5"
+          ry="3"
+        />
+        <path
+          d="M54 83q6 6 12 0"
+          fill="none"
+          stroke="var(--tovi-ink)"
+          stroke-linecap="round"
+          stroke-width="3"
+        />
+      </g>
+    </g>
+  </svg>
+  <p
+    class="font-mono text-xs tracking-wider text-white/40"
+  >
+    A guardar
+  </p>
+</div>
+`;
+
+exports[`ToviLoader md: snapshot e estado acessível por defeito 1`] = `
+<div
+  aria-label="A carregar"
+  aria-live="polite"
+  class="flex flex-col items-center gap-3 "
+  role="status"
+>
+  <svg
+    aria-hidden="true"
+    class="tovi "
+    height="96"
+    viewBox="0 0 120 120"
+    width="96"
+  >
+    <ellipse
+      class="tovi-shadow"
+      cx="60"
+      cy="108"
+      fill="#000"
+      opacity=".35"
+      rx="36"
+      ry="5"
+    />
+    <g
+      class="tovi-body"
+    >
+      <g
+        class="tovi-steam"
+        fill="none"
+        stroke="var(--tovi-light)"
+        stroke-linecap="round"
+        stroke-width="2.4"
+      >
+        <path
+          d="M44 62c-4-5 4-8 0-13"
+        />
+        <path
+          d="M60 58c-4-5 4-8 0-13"
+        />
+        <path
+          d="M76 62c-4-5 4-8 0-13"
+        />
+      </g>
+      <g
+        class="tovi-pop"
+      >
+        <path
+          d="M60 60l3.6 7.8 8.4 1-6.2 5.8 1.7 8.4-7.5-4.2-7.5 4.2 1.7-8.4-6.2-5.8 8.4-1z"
+          fill="var(--tovi-light)"
+        />
+      </g>
+      <path
+        d="M14 96h92"
+        stroke="var(--tovi-plate)"
+        stroke-linecap="round"
+        stroke-width="5"
+      />
+      <path
+        d="M24 100h72"
+        opacity=".5"
+        stroke="var(--tovi-plate)"
+        stroke-linecap="round"
+        stroke-width="3"
+      />
+      <g
+        class="tovi-lid"
+      >
+        <path
+          d="M20 94a40 38 0 0 1 80 0Z"
+          fill="var(--primary)"
+        />
+        <path
+          d="M28 80a33 30 0 0 1 14-18"
+          fill="none"
+          stroke="#fff"
+          stroke-linecap="round"
+          stroke-opacity=".5"
+          stroke-width="3.2"
+        />
+        <circle
+          cx="60"
+          cy="52"
+          fill="var(--tovi-light)"
+          r="5"
+        />
+        <g
+          fill="var(--tovi-ink)"
+        >
+          <ellipse
+            class="tovi-eye"
+            cx="46"
+            cy="76"
+            rx="3.6"
+            ry="5"
+          />
+          <ellipse
+            class="tovi-eye"
+            cx="74"
+            cy="76"
+            rx="3.6"
+            ry="5"
+          />
+        </g>
+        <ellipse
+          cx="38"
+          cy="85"
+          fill="#ef4444"
+          opacity=".35"
+          rx="5"
+          ry="3"
+        />
+        <ellipse
+          cx="82"
+          cy="85"
+          fill="#ef4444"
+          opacity=".35"
+          rx="5"
+          ry="3"
+        />
+        <path
+          d="M54 83q6 6 12 0"
+          fill="none"
+          stroke="var(--tovi-ink)"
+          stroke-linecap="round"
+          stroke-width="3"
+        />
+      </g>
+    </g>
+  </svg>
+</div>
+`;
+
+exports[`ToviLoader sm: versão compacta 40 px sem vapor nem estrela visíveis 1`] = `
+<div
+  aria-label="A carregar"
+  aria-live="polite"
+  class="flex flex-col items-center gap-3 "
+  role="status"
+>
+  <svg
+    aria-hidden="true"
+    class="tovi tovi-compact"
+    height="40"
+    viewBox="0 0 120 120"
+    width="40"
+  >
+    <ellipse
+      class="tovi-shadow"
+      cx="60"
+      cy="108"
+      fill="#000"
+      opacity=".35"
+      rx="36"
+      ry="5"
+    />
+    <g
+      class="tovi-body"
+    >
+      <g
+        class="tovi-steam"
+        fill="none"
+        stroke="var(--tovi-light)"
+        stroke-linecap="round"
+        stroke-width="2.4"
+      >
+        <path
+          d="M44 62c-4-5 4-8 0-13"
+        />
+        <path
+          d="M60 58c-4-5 4-8 0-13"
+        />
+        <path
+          d="M76 62c-4-5 4-8 0-13"
+        />
+      </g>
+      <g
+        class="tovi-pop"
+      >
+        <path
+          d="M60 60l3.6 7.8 8.4 1-6.2 5.8 1.7 8.4-7.5-4.2-7.5 4.2 1.7-8.4-6.2-5.8 8.4-1z"
+          fill="var(--tovi-light)"
+        />
+      </g>
+      <path
+        d="M14 96h92"
+        stroke="var(--tovi-plate)"
+        stroke-linecap="round"
+        stroke-width="5"
+      />
+      <path
+        d="M24 100h72"
+        opacity=".5"
+        stroke="var(--tovi-plate)"
+        stroke-linecap="round"
+        stroke-width="3"
+      />
+      <g
+        class="tovi-lid"
+      >
+        <path
+          d="M20 94a40 38 0 0 1 80 0Z"
+          fill="var(--primary)"
+        />
+        <path
+          d="M28 80a33 30 0 0 1 14-18"
+          fill="none"
+          stroke="#fff"
+          stroke-linecap="round"
+          stroke-opacity=".5"
+          stroke-width="3.2"
+        />
+        <circle
+          cx="60"
+          cy="52"
+          fill="var(--tovi-light)"
+          r="5"
+        />
+        <g
+          fill="var(--tovi-ink)"
+        >
+          <ellipse
+            class="tovi-eye"
+            cx="46"
+            cy="76"
+            rx="3.6"
+            ry="5"
+          />
+          <ellipse
+            class="tovi-eye"
+            cx="74"
+            cy="76"
+            rx="3.6"
+            ry="5"
+          />
+        </g>
+        <ellipse
+          cx="38"
+          cy="85"
+          fill="#ef4444"
+          opacity=".35"
+          rx="5"
+          ry="3"
+        />
+        <ellipse
+          cx="82"
+          cy="85"
+          fill="#ef4444"
+          opacity=".35"
+          rx="5"
+          ry="3"
+        />
+        <path
+          d="M54 83q6 6 12 0"
+          fill="none"
+          stroke="var(--tovi-ink)"
+          stroke-linecap="round"
+          stroke-width="3"
+        />
+      </g>
+    </g>
+  </svg>
+</div>
+`;
