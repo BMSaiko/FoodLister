@@ -62,7 +62,7 @@ INSERT INTO restaurant_features (name, description, icon) VALUES
 ('Regional', 'Especialidades regionais', '🗺️'),
 ('Internacional', 'Culinária internacional', '🌐'),
 ('Sazonal', 'Pratos sazonais', '🍂'),
-('Festivo', 'Para ocasiões especiais', '🎉');
+('Festivo', 'Para ocasiões especiais', '🎉') ON CONFLICT DO NOTHING;
 
 -- Seed data for dietary options (limited to 50 practical options)
 INSERT INTO restaurant_dietary_options (name, description, icon) VALUES
@@ -159,7 +159,7 @@ INSERT INTO restaurant_dietary_options (name, description, icon) VALUES
 ('Sem Alimentos Ricos em Ácidos Graxos Essenciais de Cadeia Longa', 'Sem alimentos ricos em ácidos graxos essenciais de cadeia longa', '🚫🐟'),
 ('Sem Alimentos Ricos em Ácidos Graxos Não Essenciais de Cadeia Curta', 'Sem alimentos ricos em ácidos graxos não essenciais de cadeia curta', '🚫🥑'),
 ('Sem Alimentos Ricos em Ácidos Graxos Não Essenciais de Cadeia Média', 'Sem alimentos ricos em ácidos graxos não essenciais de cadeia média', '🚫🥑'),
-('Sem Alimentos Ricos em Ácidos Graxos Não Essenciais de Cadeia Longa', 'Sem alimentos ricos em ácidos graxos não essenciais de cadeia longa', '🚫🐟');
+('Sem Alimentos Ricos em Ácidos Graxos Não Essenciais de Cadeia Longa', 'Sem alimentos ricos em ácidos graxos não essenciais de cadeia longa', '🚫🐟') ON CONFLICT DO NOTHING;
 
 -- Sample data for restaurant_cuisine_types (if needed)
 -- INSERT INTO restaurant_cuisine_types (restaurant_id, cuisine_type_id) VALUES
