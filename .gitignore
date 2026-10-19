@@ -43,14 +43,18 @@ _tmp_*
 _fix*
 _gen*
 
-# scripts
-tools/
-scripts/
+# scripts (so lixo gerado)
+__pycache__/
+scripts/output/
+scripts/apply_changes.py
+scripts/gen_tests.py
+scripts/write_files.py
+scripts/write_test.ps1
 
-# vitest
-vitest.config.ts
-vitest.shims.d.ts
-.storybook/
+# logs e builds locais
+build-output.txt
+dev-server.log
+COMMIT_*.md
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
