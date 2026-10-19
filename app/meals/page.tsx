@@ -51,7 +51,7 @@ export default function MealsPage() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{t("Refeições")}</h1>
-          <p className="text-white/35 mt-1 text-sm">{t("Gere as tuas refeições agendadas")}</p>
+          <p className="text-white/50 mt-1 text-sm">{t("Gere as tuas refeições agendadas")}</p>
         </div>
 
         {loading ? (
@@ -64,7 +64,7 @@ export default function MealsPage() {
               <UtensilsCrossed className="h-8 w-8 text-white/15" />
             </div>
             <h3 className="text-lg font-semibold text-white/60 mb-2">{t("Nenhuma refeição agendada")}</h3>
-            <p className="text-sm text-white/30 mb-4">{t("Agenda uma refeição a partir de qualquer restaurante.")}</p>
+            <p className="text-sm text-white/50 mb-4">{t("Agenda uma refeição a partir de qualquer restaurante.")}</p>
             <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500/15 text-amber-400 rounded-xl hover:bg-amber-500/25 transition-colors text-sm font-medium">
               {t("Explorar Restaurantes")} <ArrowRight className="h-4 w-4" />
             </Link>

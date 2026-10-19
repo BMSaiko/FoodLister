@@ -149,7 +149,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
             <h3 className="text-base sm:text-lg font-semibold text-white/70 mb-2">
               Nenhuma avaliacao ainda
             </h3>
-            <p className="text-white/40 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs sm:max-w-sm mx-auto">
+            <p className="text-white/50 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs sm:max-w-sm mx-auto">
               Este restaurante ainda não foi avaliado. Seja o primeiro a compartilhar sua experiência!
             </p>
             {user && !showReviewForm && (

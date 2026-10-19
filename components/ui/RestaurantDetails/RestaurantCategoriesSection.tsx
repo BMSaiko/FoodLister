@@ -32,7 +32,7 @@ export default function RestaurantCategoriesSection({
             <Tag className="h-6 w-6 text-white/30" />
           </div>
           <h3 className="text-base font-semibold text-white/60 mb-2">{t('Sem categorias definidas')}</h3>
-          <p className="text-white/40 text-xs">
+          <p className="text-white/50 text-xs">
             Este restaurante ainda não possui categorias ou características definidas
           </p>
         </div>

@@ -307,7 +307,7 @@ export default function ListForm({
                   {selectedRestaurants.length === 0 ? (
                     <div className="text-center py-10">
                       <Search className="h-10 w-10 text-white/10 mx-auto mb-3" />
-                      <p className="text-sm text-white/30">{t('Ainda não adicionaste restaurantes.')}</p>
+                      <p className="text-sm text-white/50">{t('Ainda não adicionaste restaurantes.')}</p>
                       <button type="button" onClick={() => goToStep(3)} className="mt-3 text-sm text-amber-400 hover:text-amber-300 transition-colors">
                         Adicionar restaurantes →
                       </button>
