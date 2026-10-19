@@ -223,6 +223,10 @@ Ramos `feat|fix|docs|chore/<slug>` nascem de `dev`, entram em `dev` por PR (squa
 
 Desenvolvimento contra o Supabase local (`npm run db:start`, `db:reset`); backups e promoção para o cloud com `db:backup` e `db:promote`. Detalhe em [docs/guides/supabase-workflow.md](docs/guides/supabase-workflow.md).
 
+## Marca
+
+Logo: cloche (SVG claro, escuro e monocromático em `public/brand/`), favicon, ícones PWA e maskable em `public/icons/`. Mascote **Tovi** com 6 emotes em `public/mascot/`, usada no `ToviLoader` (`components/loading/`), estados vazios e erros. Regras de uso em [docs/guides/brand-mascote.md](docs/guides/brand-mascote.md); os ícones regeneram-se com `node scripts/generate-brand-icons.mjs`.
+
 ## Documentation
 
 - **Architecture:** `docs/architecture/architecture-overview.md`
@@ -234,7 +238,7 @@ Desenvolvimento contra o Supabase local (`npm run db:start`, `db:reset`); backup
 ## Testing
 
 - **57 test files** across API, components, hooks, libs
-- **387 tests passing** (93% pass rate)
+- **54+ suites** (404+ testes, incluindo snapshot do `ToviLoader`) a passar
 - Run: `npm test`
 
 ## Progress
