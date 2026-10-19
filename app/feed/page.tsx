@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { Activity, Loader2, ChevronDown, User } from "lucide-react";
+import { Activity, ChevronDown, User } from "lucide-react";
 import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 // ponytail: fetch inline no page, sem hook separado. Padrão {data,total,page,limit,hasMore}.
 interface FeedItem {
@@ -114,7 +115,7 @@ export default function FeedPage() {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-2 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors disabled:opacity-50"
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronDown className="h-4 w-4" />}
+                {loading ? <ToviSpinner className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 Carregar mais
               </button>
             )}

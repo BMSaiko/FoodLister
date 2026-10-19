@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 function SignUpForm() {
   const [email, setEmail] = useState("");
@@ -114,7 +115,7 @@ function SignUpForm() {
                 className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
               >
                 {isLoading ? (
-                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <ToviSpinner className="w-5 h-5" />
                 ) : (
                   <>{t("Criar Conta")} <ArrowRight className="h-4 w-4" /></>
                 )}

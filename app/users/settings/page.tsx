@@ -8,7 +8,7 @@ import { useSettings } from "@/hooks/data/useSettings";
 import { toast } from "react-toastify";
 import {
   Mail, Globe, MapPin, FileText, Camera, Eye, EyeOff,
-  Shield, AlertCircle, CheckCircle, Loader2, User, Phone,
+  Shield, AlertCircle, CheckCircle, User, Phone,
   Star, List, UtensilsCrossed, Sparkles
 } from "lucide-react";
 import Link from "next/link";
@@ -18,6 +18,7 @@ import FormSection from "@/components/ui/common/FormSection";
 import Modal from '@/components/ui/Modal';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface FormErrors {
   display_name?: string;
@@ -49,8 +50,7 @@ interface UserProfile {
 const SECTION_ICONS: Record<number, React.ReactNode> = {
   1: <User className="w-5 h-5" />,
   2: <Shield className="w-5 h-5" />,
-  3: <Sparkles className="w-5 h-5" />,
-};
+  3: <Sparkles className="w-5 h-5" /> };
 
 export default function ProfileSettingsPage() {
   const { t } = useLanguage();
@@ -127,8 +127,7 @@ export default function ProfileSettingsPage() {
         name: p?.name || "", bio: p?.bio || "", profileImage: p?.profileImage || "",
         phoneNumber: p?.phoneNumber || "", website: p?.website || "",
         location: p?.location || "", publicProfile: p?.publicProfile || true
-  ,
-      });
+   });
       if (success) {
         setShowCelebration(true);
         setTimeout(() => { router.push("/restaurants"); }, 2500);
@@ -489,7 +488,7 @@ export default function ProfileSettingsPage() {
                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-colors disabled:opacity-50 min-h-[44px]"
               >
                 {isSubmitting ? (
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <ToviSpinner className="w-4 h-4" />
                 ) : (
                   <CheckCircle className="w-4 h-4" />
                 )}

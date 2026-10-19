@@ -2,9 +2,10 @@
 
 import React from "react";
 import { useListActivities } from "@/hooks/lists/useListActivities";
-import { Activity, Loader2, ChevronDown, User } from "lucide-react";
+import { Activity, ChevronDown, User } from "lucide-react";
 import type { ListActivityAction } from "@/libs/types";
 import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface ListActivityFeedProps {
   listId: string;
@@ -16,8 +17,7 @@ const ACTION_LABELS: Record<ListActivityAction, string> = {
   list_updated: "atualizou a lista",
   collaborator_added: "adicionou um colaborador",
   collaborator_removed: "removeu um colaborador",
-  list_duplicated: "duplicou a lista",
-};
+  list_duplicated: "duplicou a lista" };
 
 function formatTimeAgo(dateString: string): string {
   const date = new Date(dateString);
@@ -112,7 +112,7 @@ export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
               className="w-full flex items-center justify-center gap-2 py-2 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors disabled:opacity-50"
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <ToviSpinner className="h-4 w-4" />
               ) : (
                 <>
                   <ChevronDown className="h-4 w-4" />

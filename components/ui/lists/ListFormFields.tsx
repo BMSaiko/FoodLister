@@ -1,9 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Globe, Lock, Filter, Search, Plus, X, Loader2, Star, Euro } from 'lucide-react';
+import { Globe, Lock, Filter, Search, Plus, X, Star, Euro } from 'lucide-react';
 import type { ListFilters, FilterOption, Restaurant } from '@/hooks/lists/useListFilters';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface VisibilityToggleProps {
   isPublic: boolean;
@@ -297,7 +298,7 @@ export const FilterPreview: React.FC<FilterPreviewProps> = ({ restaurants, loadi
     <h4 className="text-sm font-semibold text-[var(--foreground-secondary)] mb-2">
       Restaurantes Encontrados
       {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin inline ml-2 text-[var(--primary)]" />
+        <ToviSpinner className="h-4 w-4 inline ml-2 text-[var(--primary)]" />
       ) : (
         <span className="ml-2 bg-[var(--primary-50)] text-[var(--primary-dark)] text-xs font-bold px-2 py-0.5 rounded-full">
           {restaurants.length}

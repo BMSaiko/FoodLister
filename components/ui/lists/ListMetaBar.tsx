@@ -1,7 +1,8 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React from "react";
-import { Star, Euro, MapPin, Calendar, Filter, RefreshCw } from "lucide-react";
+import { Star, Euro, MapPin, Calendar, Filter } from "lucide-react";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface ListMetaBarProps {
   restaurantCount: number;
@@ -66,7 +67,7 @@ export default function ListMetaBar({
             disabled={applyingFilters}
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium hover:bg-blue-500/20 transition-all duration-150 disabled:opacity-50"
           >
-            {applyingFilters ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Filter className="h-3 w-3" />}
+            {applyingFilters ? <ToviSpinner className="h-3 w-3" /> : <Filter className="h-3 w-3" />}
             <span>{t('Aplicar filtros')}</span>
           </button>
         </>

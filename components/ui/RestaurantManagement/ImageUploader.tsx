@@ -2,9 +2,10 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
-import { Upload, X, AlertCircle, CheckCircle, Loader, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
+import { Upload, X, AlertCircle, CheckCircle, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
 import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 /**
  * ImageUploader component using react-dropzone with Cloudinary API
@@ -237,14 +238,14 @@ export default function ImageUploader({
 
       {uploadState.isUploading && uploadState.multipleProgress && (
         <div className="mt-3 flex items-center justify-center text-[var(--blue-600)] text-sm">
-          <Loader className="h-4 w-4 mr-2 animate-spin" />
+          <ToviSpinner className="h-4 w-4 mr-2" />
           Enviando {uploadState.multipleProgress.current} de {uploadState.multipleProgress.total} imagens...
         </div>
       )}
 
       {uploadState.isUploading && !uploadState.multipleProgress && (
         <div className="mt-3 flex items-center justify-center text-[var(--blue-600)] text-sm">
-          <Loader className="h-4 w-4 mr-2 animate-spin" />
+          <ToviSpinner className="h-4 w-4 mr-2" />
           Fazendo upload da imagem...
         </div>
       )}

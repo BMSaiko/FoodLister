@@ -4,10 +4,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { TooltipFast } from "@/components/ui/Tooltip";
-import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Heart, Loader2 } from 'lucide-react';
+import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Heart } from 'lucide-react';
 import useNotifications from '@/hooks/data/useNotifications';
 import type { Notification } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 function getNotificationIcon(type: string) {
   const iconClass = 'h-4 w-4';
@@ -222,7 +223,7 @@ export default function NotificationsDropdown({ mobile = false }: NotificationsD
             <div className="max-h-[380px] overflow-y-auto" role="presentation" aria-live="polite">
               {loading && notifications.length === 0 ? (
                 <div className="flex items-center justify-center py-10">
-                  <Loader2 className="h-5 w-5 text-[var(--primary)] animate-spin" />
+                  <ToviSpinner className="h-5 w-5 text-[var(--primary)]" />
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center px-4">

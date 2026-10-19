@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowUp, Share2, Copy, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {  } from 'react-toastify';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface ProfileStickyNavbarProps {
   scrollThreshold?: number;
@@ -129,7 +130,7 @@ export default function ProfileStickyNavbar({
             title={isSharing ? 'Compartilhando...' : 'Compartilhar perfil'}
           >
             {isSharing ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+              <ToviSpinner className="h-5 w-5" />
             ) : (
               <Share2 className="h-5 w-5" />
             )}
@@ -148,7 +149,7 @@ export default function ProfileStickyNavbar({
             title={isCopying ? 'Copiando...' : 'Copiar link do perfil'}
           >
             {isCopying ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+              <ToviSpinner className="h-5 w-5" />
             ) : (
               <Copy className="h-5 w-5" />
             )}
@@ -168,7 +169,7 @@ export default function ProfileStickyNavbar({
               title={isEditing ? 'Editando...' : 'Editar perfil'}
             >
               {isEditing ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                <ToviSpinner className="h-5 w-5" />
               ) : (
                 <Edit className="h-5 w-5" />
               )}

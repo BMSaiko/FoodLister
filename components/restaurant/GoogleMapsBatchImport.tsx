@@ -3,11 +3,12 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useCallback } from "react";
-import { X, Loader, MapPin, Upload, FileText, Code, CheckCircle, AlertCircle } from "lucide-react";
+import { X, MapPin, Upload, FileText, Code, CheckCircle, AlertCircle } from "lucide-react";
 import { extractBatch, parseUrlInput, BatchExtractionResult, ExtractionProgress } from "@/utils/googleMapsBatchExtractor";
 import Modal from "@/components/ui/Modal";
 import { BatchImportProgress } from "./BatchImportProgress";
 import { BatchExtractionProgress } from "./BatchExtractionProgress";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface GoogleMapsBatchImportProps {
   isOpen: boolean;
@@ -20,8 +21,7 @@ type InputTab = "urls" | "csv" | "json";
 export default function GoogleMapsBatchImport({
   isOpen,
   onClose,
-  onImportComplete,
-}: GoogleMapsBatchImportProps) {
+  onImportComplete }: GoogleMapsBatchImportProps) {
   const [activeTab, setActiveTab] = useState<InputTab>("urls");
   const [rawInput, setRawInput] = useState("");
   const [fileContent, setFileContent] = useState("");
@@ -78,9 +78,7 @@ export default function GoogleMapsBatchImport({
           body: JSON.stringify({
             restaurants: results
               .filter((r) => r.status === "ready")
-              .map((r) => r.data),
-          }),
-        });
+              .map((r) => r.data) }) });
         if (res.ok) {
           const d = await res.json();
           const dupSet = new Set<string>();
@@ -127,8 +125,7 @@ export default function GoogleMapsBatchImport({
         const res = await fetch("/api/restaurants/batch", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ restaurants: chunk }),
-        });
+          body: JSON.stringify({ restaurants: chunk }) });
 
         if (!res.ok) {
           const err = await res.json();
@@ -320,7 +317,7 @@ export default function GoogleMapsBatchImport({
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <Loader className="h-4 w-4 animate-spin" />
+                <ToviSpinner className="h-4 w-4" />
                 A extrair...
               </span>
             ) : (

@@ -6,6 +6,7 @@ import useNotifications from "@/hooks/data/useNotifications";
 import type { Notification } from "@/types/notification";
 import NotificationGroup, { groupByDate } from "./NotificationGroup";
 import NotificationEmptyState from "./NotificationEmptyState";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 export default function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -92,7 +93,7 @@ export default function NotificationsDropdown() {
               <NotificationEmptyState />
             ) : loading && !hasNotifications ? (
               <div className="flex items-center justify-center py-12">
-                <div className="w-5 h-5 border-2 border-white/10 border-t-amber-500 rounded-full animate-spin" />
+                <ToviSpinner className="w-5 h-5" />
               </div>
             ) : (
               Array.from(grouped.entries()).map(([label, items]) => (

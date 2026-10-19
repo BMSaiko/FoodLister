@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Share2, Calendar, Edit, Check, X, Plus, ArrowUp, ArrowDown } from 'lucide-react';
 import { TooltipFast } from "@/components/ui/Tooltip";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface RestaurantStickyNavbarProps {
   onShare: () => void;
@@ -168,7 +169,7 @@ export default function RestaurantStickyNavbar({
                 }
               >
                 {loadingVisits ? (
-                  <div className="h-3 w-3 rounded-full border-2 border-[var(--gray-400)] border-t-transparent animate-spin" />
+                  <ToviSpinner className="h-3 w-3" />
                 ) : visited ? (
                   <Check className="h-3 w-3" />
                 ) : (

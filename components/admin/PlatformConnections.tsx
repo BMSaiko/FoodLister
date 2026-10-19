@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 // ponytail: supported platforms per social_media_posts.platform CHECK. No OAuth exists,
 // so "connected" = admin has >=1 post targeting the platform (data-driven, no dead UI).
@@ -15,8 +15,7 @@ const PLATFORMS: { id: string; label: string }[] = [
 
 export default function PlatformConnections({
   data,
-  loading,
-}: {
+  loading }: {
   data: { posts: { byPlatform: Record<string, number> } } | null;
   loading: boolean;
 }) {
@@ -31,7 +30,7 @@ export default function PlatformConnections({
           Plataformas Ligadas
         </h3>
         {loading && !data ? (
-          <Loader2 className="w-5 h-5 animate-spin text-white/40" />
+          <ToviSpinner className="w-5 h-5 text-white/40" />
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PLATFORMS.map((p) => {

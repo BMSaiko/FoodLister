@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface BaseFormProps {
   children: React.ReactNode;
@@ -88,7 +89,7 @@ export default function BaseForm({
             >
               {loading ? (
                 <div className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <ToviSpinner className="h-4 w-4" />
                   <span>{actions?.loadingText || 'Salvando...'}</span>
                 </div>
               ) : (

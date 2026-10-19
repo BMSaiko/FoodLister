@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Search, X, Loader2, UserPlus, Users } from "lucide-react";
+import { Search, X, UserPlus, Users } from "lucide-react";
 import { getClient } from "@/libs/supabase/client";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface SearchResult {
   id: string;
@@ -23,8 +24,7 @@ export default function ParticipantsStep({
   participants,
   onAdd,
   onRemove,
-  currentUserId,
-}: ParticipantsStepProps) {
+  currentUserId }: ParticipantsStepProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -114,7 +114,7 @@ export default function ParticipantsStep({
             className="w-full pl-10 pr-10 py-3 bg-white/[0.06] border border-white/[0.1] rounded-xl text-sm text-white/90 placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
           />
           {loading && (
-            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 animate-spin" />
+            <ToviSpinner className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
           )}
           {!loading && query.length > 0 && (
             <button

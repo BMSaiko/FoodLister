@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface FormActionsProps {
   onCancel: () => void;
@@ -41,7 +42,7 @@ export default function FormActions({
       >
         {loading ? (
           <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+            <ToviSpinner className="h-4 w-4" />
             <span className="hidden sm:inline">{t('Salvando...')}</span>
           </div>
         ) : (

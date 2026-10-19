@@ -1,4 +1,5 @@
 import React from 'react';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface TouchButtonProps {
   children: React.ReactNode;
@@ -70,7 +71,7 @@ export const TouchButton: React.FC<TouchButtonProps> = ({
   const content = (
     <>
       {loading && (
-        <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>
+        <ToviSpinner className="h-4 w-4" />
       )}
       {icon && !loading && icon}
       {children}

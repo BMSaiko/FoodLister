@@ -11,6 +11,7 @@ import ListFormPreview from "./ListFormPreview";
 import ListFormCelebration from "./ListFormCelebration";
 import { useLanguage } from '@/contexts/LanguageContext';
 import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface Restaurant {
   id: string;
@@ -403,7 +404,7 @@ export default function ListForm({
                     className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 min-h-[44px]"
                   >
                     {saving ? (
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <ToviSpinner className="w-4 h-4" />
                     ) : (
                       <Sparkles className="w-4 h-4" />
                     )}

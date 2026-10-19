@@ -8,6 +8,7 @@ import { ListPlus, Check, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
 import { useLanguage } from '@/contexts/LanguageContext';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface AddToListProps {
   restaurantId: string;
@@ -182,7 +183,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
             {alreadyIn(l.id) ? (
               <span className="text-xs text-emerald-400 flex items-center gap-1"><Check className="h-3.5 w-3.5" />{t('Na lista')}</span>
             ) : adding === l.id ? (
-              <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              <ToviSpinner className="w-3.5 h-3.5" />
             ) : null}
           </button>
           ));

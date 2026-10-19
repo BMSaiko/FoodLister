@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts";
 import { Eye, EyeOff, Mail, Lock, Key, ArrowRight, CheckCircle } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 function ResetPasswordForm() {
   const [email, setEmail] = useState("");
@@ -118,7 +119,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{t("Enviar Codigo")} <ArrowRight className="h-4 w-4" /></>}
+                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Enviar Codigo")} <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -151,7 +152,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{t("Verificar")} <ArrowRight className="h-4 w-4" /></>}
+                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Verificar")} <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -206,7 +207,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>{t("Atualizar Password")} <CheckCircle className="h-4 w-4" /></>}
+                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Atualizar Password")} <CheckCircle className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
