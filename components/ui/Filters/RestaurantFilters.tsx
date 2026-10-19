@@ -209,7 +209,7 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Euro className="h-4 w-4 text-orange-400/60" />
-              <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Preco</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Preço</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
@@ -240,7 +240,7 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Star className="h-4 w-4 text-amber-400/60" />
-              <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Rating minimo</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Rating mínimo</span>
             </div>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map(r => (

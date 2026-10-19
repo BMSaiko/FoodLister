@@ -273,7 +273,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
       },
       () => {
         setNearbyLoading(false);
-        setLocationError('Nao foi possivel obter a posicao. Verifica as permissoes.');
+        setLocationError('Nao foi possível obter a posicao. Verifica as permissoes.');
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
     );

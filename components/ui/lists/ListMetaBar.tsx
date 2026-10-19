@@ -34,7 +34,7 @@ export default function ListMetaBar({
       <div className="flex items-center gap-2">
         <div className="bg-orange-500/10 rounded-lg p-1.5"><Euro className="h-4 w-4 text-orange-400" /></div>
         <div>
-          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">{t('Preco medio')}</div>
+          <div className="text-[9px] sm:text-[10px] text-white/30 uppercase tracking-wider font-medium">{t('Preço médio')}</div>
           <div className="text-xs sm:text-sm font-semibold text-white/85">{avgPrice ? "€" + avgPrice.toFixed(0) : "—"}</div>
         </div>
       </div>

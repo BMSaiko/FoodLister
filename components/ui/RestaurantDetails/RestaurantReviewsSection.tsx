@@ -70,14 +70,14 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm('Tem certeza que deseja eliminar esta avaliacao?')) {
+    if (!confirm('Tem certeza que deseja eliminar esta avaliação?')) {
       return;
     }
     try {
       onDeleteReview(reviewId);
     } catch (error) {
       console.error('Error deleting review:', error);
-      toast.error('Erro ao eliminar avaliacao. Tente novamente.');
+      toast.error('Erro ao eliminar avaliação. Tente novamente.');
     }
   };
 
@@ -92,7 +92,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-white">Avaliações</h2>
-              <p className="text-xs sm:text-sm text-white/40">{reviewCount} avaliacao{reviewCount !== 1 ? 'oes' : ''}</p>
+              <p className="text-xs sm:text-sm text-white/40">{reviewCount} {reviewCount !== 1 ? 'avaliações' : 'avaliação'}</p>
             </div>
           </div>
 
@@ -147,7 +147,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
               <Star className="h-8 w-8 sm:h-10 w-10 text-amber-400/50" />
             </div>
             <h3 className="text-base sm:text-lg font-semibold text-white/70 mb-2">
-              Nenhuma avaliacao ainda
+              Nenhuma avaliação ainda
             </h3>
             <p className="text-white/50 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs sm:max-w-sm mx-auto">
               Este restaurante ainda não foi avaliado. Seja o primeiro a compartilhar sua experiência!
@@ -158,8 +158,8 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
                 className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors duration-150 font-medium text-sm"
               >
                 <Star className="h-4 w-4 sm:h-5 w-5 mr-2 fill-current" />
-                <span className="hidden sm:inline">Fazer primeira avaliacao</span>
-                <span className="sm:hidden">Fazer avaliacao</span>
+                <span className="hidden sm:inline">Fazer primeira avaliação</span>
+                <span className="sm:hidden">Fazer avaliação</span>
               </button>
             )}
           </div>
@@ -218,14 +218,14 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
                             <button
                               onClick={() => handleEditReview(review)}
                               className="p-1.5 text-white/40 hover:text-amber-400 hover:bg-white/[0.05] rounded-lg transition-colors duration-150"
-                              title="Editar avaliacao"
+                              title="Editar avaliação"
                             >
                               <Edit className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => handleDeleteReview(review.id)}
                               className="p-1.5 text-white/40 hover:text-red-400 hover:bg-white/[0.05] rounded-lg transition-colors duration-150"
-                              title="Eliminar avaliacao"
+                              title="Eliminar avaliação"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>

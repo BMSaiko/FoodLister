@@ -27,7 +27,7 @@ const features = [
   {
     icon: <Shield className="w-7 h-7" />,
     title: "Perfil Verificado",
-    description: "O teu perfil mostra o que tens visitado, as tuas listas e as tuas avaliacoes. Transparente e confianvel.",
+    description: "O teu perfil mostra o que tens visitado, as tuas listas e as tuas avaliações. Transparente e confianvel.",
   },
   {
     icon: <Star className="w-7 h-7" />,
@@ -117,7 +117,7 @@ export default function MarketingPage() {
                 href="/auth/signup"
                 className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--primary)] text-black font-semibold rounded-full min-h-[52px] hover:bg-[var(--primary-hover)] transition-colors duration-150"
               >
-                Comecar Gratis
+                Comecar Grátis
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
@@ -161,7 +161,7 @@ export default function MarketingPage() {
               <h3 className="text-xl font-bold text-[var(--foreground)] mb-3">Descubra Restaurantes</h3>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
                 Explora uma colecao curada de restaurantes. De tapas espanholas a ramen japones,
-                encontra o lugar perfeito para cada ocasiao. Filtra por localizacao, tipo de cozinha ou preco.
+                encontra o lugar perfeito para cada ocasiao. Filtra por localizacao, tipo de cozinha ou preço.
               </p>
             </motion.div>
 
@@ -266,7 +266,7 @@ export default function MarketingPage() {
               className="text-lg text-[var(--foreground-secondary)] mb-10 leading-relaxed"
             >
               Junte-se a milhares de food hunters que ja organizam suas experiências culinarias conosco.
-              Gratis para sempre. Sem cartao de credito.
+              Grátis para sempre. Sem cartao de credito.
             </motion.p>
 
             <motion.div
@@ -285,7 +285,7 @@ export default function MarketingPage() {
             </motion.div>
 
             <p className="mt-6 text-sm text-[var(--foreground-muted)]">
-              Gratis para sempre &middot; Sem cartao de credito &middot; Comeca em segundos
+              Grátis para sempre &middot; Sem cartao de credito &middot; Comeca em segundos
             </p>
           </div>
         </Container>

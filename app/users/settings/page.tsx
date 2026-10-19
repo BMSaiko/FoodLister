@@ -88,7 +88,7 @@ export default function ProfileSettingsPage() {
     try {
       const success = await saveProfile({ publicProfile: !localProfile?.publicProfile });
       if (success) {
-        toast.success(localProfile?.publicProfile ? t("Perfil agora e privado!") : t("Perfil agora e publico!"));
+        toast.success(localProfile?.publicProfile ? t("Perfil agora é privado!") : t("Perfil agora é público!"));
         if (localProfile) setLocalProfile({ ...localProfile, publicProfile: !localProfile.publicProfile });
       }
     } catch { toast.error(t("Erro ao atualizar privacidade")); }
@@ -107,11 +107,11 @@ export default function ProfileSettingsPage() {
 
   const validateForm = (): boolean => {
     const errors: FormErrors = {};
-    if (!localProfile?.name || localProfile.name.trim() === "") errors.display_name = t("Nome de exibicao e obrigatorio");
+    if (!localProfile?.name || localProfile.name.trim() === "") errors.display_name = t("Nome de exibição é obrigatório");
     if (localProfile?.website && localProfile.website.trim() !== "") {
-      try { new URL(localProfile.website); } catch { errors.website = t("Formato de URL invalido"); }
+      try { new URL(localProfile.website); } catch { errors.website = t("Formato de URL inválido"); }
     }
-    if (localProfile?.bio && localProfile.bio.length > 500) errors.bio = t("A biografia deve ter no maximo 500 caracteres");
+    if (localProfile?.bio && localProfile.bio.length > 500) errors.bio = t("A biografia deve ter no máximo 500 caracteres");
     setFormErrors(errors);
     return Object.keys(errors).length === 0
   ;
@@ -341,7 +341,7 @@ export default function ProfileSettingsPage() {
                         maxLength={500}
                       />
                       <div className="flex justify-between mt-1">
-                        <p className="text-[10px] text-white/20">{t("Maximo 500 caracteres")}</p>
+                        <p className="text-[10px] text-white/20">{t("Máximo 500 caracteres")}</p>
                         <span className="text-[10px] text-white/25">{(localProfile?.bio || "").length}/500</span>
                       </div>
                       {formErrors.bio && <p className="text-red-400 text-xs mt-1">{formErrors.bio}</p>}
@@ -374,7 +374,7 @@ export default function ProfileSettingsPage() {
                       <Globe className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-white/80">{t("Perfil Publico")}</p>
+                      <p className="text-sm font-semibold text-white/80">{t("Perfil Público")}</p>
                       <p className="text-xs text-white/35 mt-0.5">{t("Qualquer pessoa pode encontrar e ver o seu perfil")}</p>
                     </div>
                     {localProfile?.publicProfile && <CheckCircle className="h-5 w-5 text-emerald-400" />}
@@ -398,7 +398,7 @@ export default function ProfileSettingsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-white/80">{t("Perfil Privado")}</p>
-                      <p className="text-xs text-white/35 mt-0.5">{t("Apenas voce pode ver o seu perfil")}</p>
+                      <p className="text-xs text-white/35 mt-0.5">{t("Apenas você pode ver o seu perfil")}</p>
                     </div>
                     {!localProfile?.publicProfile && <CheckCircle className="h-5 w-5 text-red-400" />}
                   </button>
@@ -415,7 +415,7 @@ export default function ProfileSettingsPage() {
                     <Eye className="h-5 w-5 text-amber-400" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white/70">{t("Ver Perfil Publico")}</p>
+                    <p className="text-sm font-medium text-white/70">{t("Ver Perfil Público")}</p>
                     <p className="text-xs text-white/30">{t("Como outros utilizadores veem o seu perfil")}</p>
                   </div>
                 </Link>

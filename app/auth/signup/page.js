@@ -68,7 +68,7 @@ function SignUpForm() {
                   <input
                     id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
                     className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder={t("Endereco de email")}
+                    placeholder={t("Endereço de email")}
                     value={email} onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>

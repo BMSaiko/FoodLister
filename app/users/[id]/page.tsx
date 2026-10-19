@@ -150,7 +150,7 @@ const UserProfilePage = () => {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(!profile.publicProfile ? t("Perfil agora e publico!") : t("Perfil agora e privado!"));
+        toast.success(!profile.publicProfile ? t("Perfil agora é público!") : t("Perfil agora é privado!"));
         await refreshProfile();
       } else { throw new Error(data.error || "Erro"); }
     } catch { toast.error(t("Erro ao atualizar privacidade")); }

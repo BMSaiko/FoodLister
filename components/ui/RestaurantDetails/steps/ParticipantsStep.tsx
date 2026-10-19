@@ -110,7 +110,7 @@ export default function ParticipantsStep({
             value={query}
             onChange={(e) => handleSearchChange(e.target.value)}
             onFocus={() => results.length > 0 && setShowDropdown(true)}
-            placeholder="Pesquisar por nome ou codigo..."
+            placeholder="Pesquisar por nome ou código..."
             className="w-full pl-10 pr-10 py-3 bg-white/[0.06] border border-white/[0.1] rounded-xl text-sm text-white/90 placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
           />
           {loading && (
@@ -218,7 +218,7 @@ export default function ParticipantsStep({
         <div className="text-center py-8 bg-white/[0.02] rounded-xl border border-dashed border-white/[0.08]">
           <Users className="h-8 w-8 text-white/10 mx-auto mb-2" />
           <p className="text-xs text-white/30">Adiciona amigos para esta refeição</p>
-          <p className="text-[10px] text-white/20 mt-1">Pesquisa por nome ou codigo FL000001</p>
+          <p className="text-[10px] text-white/20 mt-1">Pesquisa por nome ou código FL000001</p>
         </div>
       )}
     </div>
