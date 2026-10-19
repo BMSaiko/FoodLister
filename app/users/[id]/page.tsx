@@ -206,7 +206,7 @@ const UserProfilePage = () => {
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400/60 mx-auto" />
-          <h1 className="text-xl font-bold text-white/70 mt-4">{error || t("Perfil nao encontrado")}</h1>
+          <h1 className="text-xl font-bold text-white/70 mt-4">{error || t("Perfil não encontrado")}</h1>
           <button onClick={() => router.push("/restaurants")} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
             {t("Explorar Restaurantes")}
           </button>

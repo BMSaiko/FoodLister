@@ -56,7 +56,7 @@ function ResetPasswordForm() {
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) { toast.error(t("As senhas nao coincidem")); return; }
+    if (password !== confirmPassword) { toast.error(t("As senhas não coincidem")); return; }
     if (password.length < 6) { toast.error(t("A password deve ter pelo menos 6 caracteres")); return; }
     setIsLoading(true);
     try {

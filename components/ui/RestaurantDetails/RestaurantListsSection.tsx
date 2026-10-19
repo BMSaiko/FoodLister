@@ -24,7 +24,7 @@ export default function RestaurantListsSection({
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-semibold text-white/70">Listas</h3>
-            <p className="text-xs sm:text-sm text-white/40">Este restaurante nao esta em nenhuma lista.</p>
+            <p className="text-xs sm:text-sm text-white/40">Este restaurante não está em nenhuma lista.</p>
           </div>
         </div>
 

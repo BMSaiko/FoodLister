@@ -91,7 +91,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
               <Star className="h-5 w-5 sm:h-6 w-6 text-amber-400 fill-current" />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-white">Avaliacoes</h2>
+              <h2 className="text-lg sm:text-xl font-bold text-white">Avaliações</h2>
               <p className="text-xs sm:text-sm text-white/40">{reviewCount} avaliacao{reviewCount !== 1 ? 'oes' : ''}</p>
             </div>
           </div>
@@ -150,7 +150,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
               Nenhuma avaliacao ainda
             </h3>
             <p className="text-white/40 text-xs sm:text-sm mb-4 sm:mb-6 max-w-xs sm:max-w-sm mx-auto">
-              Este restaurante ainda nao foi avaliado. Seja o primeiro a compartilhar sua experiencia!
+              Este restaurante ainda não foi avaliado. Seja o primeiro a compartilhar sua experiência!
             </p>
             {user && !showReviewForm && (
               <button

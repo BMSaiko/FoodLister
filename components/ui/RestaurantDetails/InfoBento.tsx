@@ -59,7 +59,7 @@ export default function InfoBento({ location, sourceUrl, menuLinks = [], menuIma
               <div className="flex items-center gap-3 cursor-pointer h-full" onClick={() => openMapModal({ location, latitude, longitude, source_url: sourceUrl })}>
                 <IconBox color="bg-amber-500/10"><MapPin className="h-5 w-5 text-amber-400" /></IconBox>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Localizacao</div>
+                  <div className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-0.5">Localização</div>
                   <p className="text-sm text-white/75 truncate">{location}</p>
                 </div>
                 <span className="text-xs text-amber-400/50 font-medium flex-shrink-0 transition-all duration-200 group-hover:text-amber-400 group-hover:translate-x-0.5">Mapa</span>

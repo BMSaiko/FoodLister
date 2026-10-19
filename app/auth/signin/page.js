@@ -56,7 +56,7 @@ function SignInForm() {
             <ArrowRight className="h-7 w-7 text-purple-400" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Bem-vindo de volta")}</h1>
-          <p className="text-white/40 text-sm">{t("Continua a organizar as tuas experiencias gastronomicas")}</p>
+          <p className="text-white/40 text-sm">{t("Continua a organizar as tuas experiências gastronómicas")}</p>
         </div>
 
         {/* Card */}

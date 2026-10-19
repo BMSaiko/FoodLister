@@ -170,7 +170,7 @@ export default function ProfileSettingsPage() {
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
           <AlertCircle className="h-12 w-12 text-red-400 mx-auto" />
-          <h1 className="text-xl font-bold text-white/80 mt-4">{t("Perfil nao encontrado")}</h1>
+          <h1 className="text-xl font-bold text-white/80 mt-4">{t("Perfil não encontrado")}</h1>
           <button onClick={refreshProfile} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
             {t("Tentar Novamente")}
           </button>
@@ -198,7 +198,7 @@ export default function ProfileSettingsPage() {
       <div className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">{t("Configuracoes")}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">{t("Configurações")}</h1>
           <p className="text-white/35 mt-1 text-sm">{t("Gerencia as suas informacoes pessoais e privacidade")}</p>
         </div>
 
@@ -248,11 +248,11 @@ export default function ProfileSettingsPage() {
               </FormSection>
 
               {/* Personal Info */}
-              <FormSection title={t("Informacoes Pessoais")} icon={<User className="w-5 h-5" />}>
+              <FormSection title={t("Informações Pessoais")} icon={<User className="w-5 h-5" />}>
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-white/50 mb-1.5">{t("Nome de Exibicao *")}</label>
+                      <label className="block text-sm font-medium text-white/50 mb-1.5">{t("Nome de Exibição *")}</label>
                       <input
                         type="text"
                         value={localProfile?.name || ""}
@@ -277,7 +277,7 @@ export default function ProfileSettingsPage() {
                         readOnly
                         className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.04] rounded-xl text-white/30 cursor-not-allowed"
                       />
-                      <p className="text-[10px] text-white/20 mt-1">{t("O email nao pode ser alterado")}</p>
+                      <p className="text-[10px] text-white/20 mt-1">{t("O email não pode ser alterado")}</p>
                     </div>
 
                     <div>
@@ -296,7 +296,7 @@ export default function ProfileSettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-white/50 mb-1.5">
-                        <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Localizacao")}
+                        <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Localização")}
                       </label>
                       <input
                         type="text"
@@ -479,7 +479,7 @@ export default function ProfileSettingsPage() {
                 onClick={() => setCurrentStep(currentStep + 1)}
                 className="px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-colors min-h-[44px]"
               >
-                {t("Proximo")}
+                {t("Próximo")}
               </button>
             ) : (
               <button

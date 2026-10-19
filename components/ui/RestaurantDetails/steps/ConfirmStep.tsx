@@ -16,7 +16,7 @@ interface ConfirmStepProps {
 }
 
 function formatDate(dateStr: string): string {
-  if (!dateStr) return "Data nao definida";
+  if (!dateStr) return "Data não definida";
   const d = new Date(dateStr + "T00:00:00");
   return d.toLocaleDateString("pt-PT", { day: "numeric", month: "long", year: "numeric" });
 }

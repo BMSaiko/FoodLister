@@ -156,7 +156,7 @@ export default function ListForm({
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Step 1: Basic Info */}
               {currentStep === 1 && (
-                <FormSection title={t('Informacoes Basicas')} icon={SECTION_ICONS[1]} description="Dá um nome e descrição à tua lista.">
+                <FormSection title={t('Informações Básicas')} icon={SECTION_ICONS[1]} description="Dá um nome e descrição à tua lista.">
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-white/60 mb-1.5">{t('Nome da Lista *')}</label>
@@ -170,7 +170,7 @@ export default function ListForm({
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-1.5">Descricao</label>
+                      <label className="block text-sm font-medium text-white/60 mb-1.5">Descrição</label>
                       <textarea
                         value={formData.description}
                         onChange={e => onFormChange({ description: e.target.value })}
@@ -307,7 +307,7 @@ export default function ListForm({
                   {selectedRestaurants.length === 0 ? (
                     <div className="text-center py-10">
                       <Search className="h-10 w-10 text-white/10 mx-auto mb-3" />
-                      <p className="text-sm text-white/30">{t('Ainda nao adicionaste restaurantes.')}</p>
+                      <p className="text-sm text-white/30">{t('Ainda não adicionaste restaurantes.')}</p>
                       <button type="button" onClick={() => goToStep(3)} className="mt-3 text-sm text-purple-400 hover:text-purple-300 transition-colors">
                         Adicionar restaurantes →
                       </button>
@@ -394,7 +394,7 @@ export default function ListForm({
                     onClick={() => goToStep(currentStep + 1)}
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-all min-h-[44px]"
                   >
-                    Proximo
+                    Próximo
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 ) : (

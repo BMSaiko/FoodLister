@@ -265,7 +265,7 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
           <div>
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-4 w-4 text-amber-400/60" />
-              <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Localizacao</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Localização</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
               <MapPin className="h-3.5 w-3.5 text-white/25" />

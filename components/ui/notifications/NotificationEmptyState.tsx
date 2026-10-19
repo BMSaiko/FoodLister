@@ -26,7 +26,7 @@ export default function NotificationEmptyState({ hasQuery }: NotificationEmptySt
         <Bell className="h-5 w-5 text-white/10" />
       </div>
       <p className="text-sm text-white/60 font-medium mb-1">Tudo limpo!</p>
-      <p className="text-xs text-white/30">As tuas notificacoes aparecem aqui</p>
+      <p className="text-xs text-white/30">As tuas notificações aparecem aqui</p>
     </div>
   );
 }

@@ -60,7 +60,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold text-white">Avaliacoes</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-white">Avaliações</h2>
           <p className="text-xs text-white/35 mt-0.5">{reviewCount} avaliacao{reviewCount !== 1 ? "oes" : ""}</p>
         </div>
         {user && !showForm && (
@@ -121,7 +121,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
         <div className="text-center py-14 rounded-3xl bg-white/[0.02] border border-white/[0.04]">
           <MessageSquare className="h-14 w-14 text-white/[0.06] mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-white/45 mb-2">Nenhuma avaliacao ainda</h3>
-          <p className="text-sm text-white/25 mb-5">Seja o primeiro a partilhar a sua experiencia!</p>
+          <p className="text-sm text-white/25 mb-5">Seja o primeiro a partilhar a sua experiência!</p>
           {user && !showForm && (
             <button onClick={() => setShowForm(true)} className="inline-flex items-center px-5 py-2.5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-all duration-200 text-sm font-semibold hover:scale-105">
               <Star className="h-4 w-4 mr-2 fill-current" />Fazer avaliacao

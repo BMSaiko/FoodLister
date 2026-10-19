@@ -24,7 +24,7 @@ function SignUpForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) { toast.error(t("As senhas nao coincidem")); return; }
+    if (password !== confirmPassword) { toast.error(t("As senhas não coincidem")); return; }
     if (password.length < 6) { toast.error(t("A password deve ter pelo menos 6 caracteres")); return; }
     setIsLoading(true);
     try {
@@ -128,7 +128,7 @@ function SignUpForm() {
         <p className="text-center text-sm text-white/30 mt-6">
           {t("Ja tem conta?")}{" "}
           <Link href="/auth/signin" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
-            {t("Faca login")}
+            {t("Faça login")}
           </Link>
         </p>
       </div>

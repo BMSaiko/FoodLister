@@ -206,7 +206,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
           <div className="text-center py-10">
             <MessageCircle className="h-12 w-12 text-white/[0.06] mx-auto mb-3" />
             <p className="text-sm text-white/30">
-              {user ? "Ainda nao ha comentarios. Seja o primeiro!" : "Faca login para comentar."}
+              {user ? "Ainda não ha comentarios. Seja o primeiro!" : "Faça login para comentar."}
             </p>
           </div>
         ) : (
