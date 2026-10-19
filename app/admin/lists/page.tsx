@@ -55,7 +55,7 @@ export default function AdminListsPage() {
         onChange={(e) => { setSearch(e.target.value); setPage(1); }}
         className="w-full max-w-sm px-4 py-2 rounded-lg border text-sm mb-4 bg-[var(--card-bg)] border-white/10 text-foreground placeholder:text-foreground-muted"
       />
-      <div className="rounded-xl border border-white/10 bg-card overflow-hidden">
+      <div className="rounded-xl border border-white/10 bg-card overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-foreground-muted border-b border-white/10">
