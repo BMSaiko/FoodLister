@@ -33,30 +33,30 @@ function ResetPasswordForm() {
     try {
       const supabase = getClient();
       const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false } });
-      if (error) { toast.error(t("Erro ao enviar codigo. Verifique se o email esta correto.")); return; }
+      if (error) { toast.error(t("Erro ao enviar código. Verifique se o email está correto.")); return; }
       setIsOtpMode(true);
-      toast.success(t("Codigo de 6 digitos enviado para o seu email!"));
+      toast.success(t("Código de 6 digitos enviado para o seu email!"));
     } catch { toast.error(t("Erro inesperado. Tente novamente.")); }
     finally { setIsLoading(false); }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!otpCode.trim() || otpCode.length !== 6) { toast.error(t("Digite o codigo de 6 digitos")); return; }
+    if (!otpCode.trim() || otpCode.length !== 6) { toast.error(t("Digite o código de 6 digitos")); return; }
     setIsLoading(true);
     try {
       const supabase = getClient();
       const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: otpCode.trim(), type: "recovery" });
-      if (error) { toast.error(t("Codigo invalido ou expirado.")); return; }
+      if (error) { toast.error(t("Código inválido ou expirado.")); return; }
       setIsResetMode(true);
-      toast.success(t("Codigo verificado! Defina a sua nova password."));
-    } catch { toast.error(t("Erro ao verificar codigo.")); }
+      toast.success(t("Código verificado! Defina a sua nova password."));
+    } catch { toast.error(t("Erro ao verificar código.")); }
     finally { setIsLoading(false); }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) { toast.error(t("As senhas nao coincidem")); return; }
+    if (password !== confirmPassword) { toast.error(t("As senhas não coincidem")); return; }
     if (password.length < 6) { toast.error(t("A password deve ter pelo menos 6 caracteres")); return; }
     setIsLoading(true);
     try {
@@ -97,7 +97,7 @@ function ResetPasswordForm() {
                 <Mail className="h-7 w-7 text-purple-400" />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Recuperar Password")}</h1>
-              <p className="text-white/40 text-sm">{t("Introduza o seu email para receber um codigo de verificacao")}</p>
+              <p className="text-white/40 text-sm">{t("Introduza o seu email para receber um código de verificação")}</p>
             </div>
             <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
               <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03]">
@@ -111,7 +111,7 @@ function ResetPasswordForm() {
                       <input
                         id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
                         className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                        placeholder={t("Endereco de email")}
+                        placeholder={t("Endereço de email")}
                         value={email} onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
@@ -119,7 +119,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Enviar Codigo")} <ArrowRight className="h-4 w-4" /></>}
+                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Enviar Código")} <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -134,14 +134,14 @@ function ResetPasswordForm() {
               <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
                 <Key className="h-7 w-7 text-purple-400" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Verificar Codigo")}</h1>
-              <p className="text-white/40 text-sm">{t("Introduza o codigo de 6 digitos enviado para ")}<span className="text-purple-400">{email}</span></p>
+              <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Verificar Código")}</h1>
+              <p className="text-white/40 text-sm">{t("Introduza o código de 6 digitos enviado para ")}<span className="text-purple-400">{email}</span></p>
             </div>
             <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
               <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03]">
                 <form onSubmit={handleVerifyOtp} className="space-y-4">
                   <div>
-                    <label htmlFor="otpCode" className="sr-only">{t("Codigo")}</label>
+                    <label htmlFor="otpCode" className="sr-only">{t("Código")}</label>
                     <input
                       id="otpCode" name="otpCode" type="text" maxLength={6} required disabled={isLoading}
                       className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px] text-center text-2xl tracking-[0.5em] font-mono"

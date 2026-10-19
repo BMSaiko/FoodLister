@@ -252,7 +252,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
 
   const requestNearby = () => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setLocationError('Geolocalizacao nao suportada neste navegador.');
+      setLocationError('Geolocalização não suportada neste navegador.');
       return;
     }
     setNearbyLoading(true);
@@ -273,7 +273,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
       },
       () => {
         setNearbyLoading(false);
-        setLocationError('Nao foi possivel obter a posicao. Verifica as permissoes.');
+        setLocationError('Nao foi possível obter a posicao. Verifica as permissoes.');
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
     );
@@ -326,7 +326,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
           <Navbar />
           <div className="min-h-[60dvh] flex items-center justify-center">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white/60 mb-4">Lista nao encontrada</h2>
+              <h2 className="text-2xl font-bold text-white/60 mb-4">Lista não encontrada</h2>
               <Link href="/lists" className="text-amber-400 hover:text-amber-300 transition-colors">Voltar as listas</Link>
             </div>
           </div>

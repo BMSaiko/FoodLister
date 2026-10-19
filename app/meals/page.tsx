@@ -38,7 +38,7 @@ export default function MealsPage() {
       <div className="min-h-[100dvh] bg-[var(--background)]">
         <Navbar />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <p className="text-white/50">{t("Precisa de estar autenticado para ver as suas refeicoes.")}</p>
+          <p className="text-white/50">{t("Precisa de estar autenticado para ver as suas refeições.")}</p>
         </div>
       </div>
     );
@@ -50,8 +50,8 @@ export default function MealsPage() {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{t("Refeicoes")}</h1>
-          <p className="text-white/35 mt-1 text-sm">{t("Gere as tuas refeicoes agendadas")}</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">{t("Refeições")}</h1>
+          <p className="text-white/50 mt-1 text-sm">{t("Gere as tuas refeições agendadas")}</p>
         </div>
 
         {loading ? (
@@ -63,9 +63,9 @@ export default function MealsPage() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] flex items-center justify-center">
               <UtensilsCrossed className="h-8 w-8 text-white/15" />
             </div>
-            <h3 className="text-lg font-semibold text-white/60 mb-2">{t("Nenhuma refeicao agendada")}</h3>
-            <p className="text-sm text-white/30 mb-4">{t("Agenda uma refeicao a partir de qualquer restaurante.")}</p>
-            <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
+            <h3 className="text-lg font-semibold text-white/60 mb-2">{t("Nenhuma refeição agendada")}</h3>
+            <p className="text-sm text-white/50 mb-4">{t("Agenda uma refeição a partir de qualquer restaurante.")}</p>
+            <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500/15 text-amber-400 rounded-xl hover:bg-amber-500/25 transition-colors text-sm font-medium">
               {t("Explorar Restaurantes")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -79,11 +79,11 @@ export default function MealsPage() {
               >
                 <div className="p-4 rounded-xl bg-white/[0.03] flex items-center gap-4">
                   {/* Date badge */}
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-purple-500/10 flex flex-col items-center justify-center">
-                    <span className="text-xs text-purple-400/70 uppercase font-medium">
+                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-amber-500/10 flex flex-col items-center justify-center">
+                    <span className="text-xs text-amber-400/70 uppercase font-medium">
                       {meal.meal_date ? new Date(meal.meal_date).toLocaleDateString("pt-PT", { month: "short" }) : "—"}
                     </span>
-                    <span className="text-lg font-bold text-purple-400">
+                    <span className="text-lg font-bold text-amber-400">
                       {meal.meal_date ? new Date(meal.meal_date).getDate() : "—"}
                     </span>
                   </div>

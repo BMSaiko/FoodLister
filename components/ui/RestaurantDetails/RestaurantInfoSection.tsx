@@ -52,7 +52,7 @@ export default function RestaurantInfoSection({
   return (
     <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 sm:p-6 mb-4">
       <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
-        Informacoes
+        Informações
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -65,7 +65,7 @@ export default function RestaurantInfoSection({
               <MapPin className="h-4 w-4 text-amber-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-white/40 mb-0.5">Localizacao</div>
+              <div className="text-xs font-medium text-white/40 mb-0.5">Localização</div>
               <p className="text-sm text-white/80 truncate">{location}</p>
             </div>
           </div>

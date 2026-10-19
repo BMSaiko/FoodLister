@@ -126,7 +126,7 @@ export default function UserProfileHeader({
             } disabled:opacity-50`}
           >
             {isPublic ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-            {isPublic ? "Perfil Publico" : "Perfil Privado"}
+            {isPublic ? "Perfil Público" : "Perfil Privado"}
           </button>
         )}
 

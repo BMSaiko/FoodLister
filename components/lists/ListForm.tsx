@@ -131,7 +131,7 @@ export default function ListForm({
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-24 md:pb-8">
         {/* Back link */}
-        <Link href={backLink} className="inline-flex items-center text-white/40 hover:text-purple-400 mb-4 transition-colors text-sm">
+        <Link href={backLink} className="inline-flex items-center text-white/40 hover:text-amber-400 mb-4 transition-colors text-sm">
           <ArrowLeft className="h-4 w-4 mr-2" />
           {backText}
         </Link>
@@ -156,7 +156,7 @@ export default function ListForm({
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Step 1: Basic Info */}
               {currentStep === 1 && (
-                <FormSection title={t('Informacoes Basicas')} icon={SECTION_ICONS[1]} description="Dá um nome e descrição à tua lista.">
+                <FormSection title={t('Informações Básicas')} icon={SECTION_ICONS[1]} description="Dá um nome e descrição à tua lista.">
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-white/60 mb-1.5">{t('Nome da Lista *')}</label>
@@ -164,18 +164,18 @@ export default function ListForm({
                         type="text"
                         value={formData.name}
                         onChange={e => onFormChange({ name: e.target.value })}
-                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/30 transition-all"
                         placeholder={t('Ex: Melhores restaurantes italianos')}
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-white/60 mb-1.5">Descricao</label>
+                      <label className="block text-sm font-medium text-white/60 mb-1.5">Descrição</label>
                       <textarea
                         value={formData.description}
                         onChange={e => onFormChange({ description: e.target.value })}
                         rows={3}
-                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all resize-none"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/30 transition-all resize-none"
                         placeholder={t('Descreve o tema desta lista...')}
                       />
                     </div>
@@ -205,7 +205,7 @@ export default function ListForm({
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         placeholder={t('Pesquisar por nome...')}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
+                        className="w-full pl-10 pr-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
                       />
                     </div>
 
@@ -216,7 +216,7 @@ export default function ListForm({
                           type="button"
                           onClick={() => setSelectedCuisine(null)}
                           className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                            !selectedCuisine ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25" : "bg-white/[0.04] text-white/40 border border-white/[0.06] hover:bg-white/[0.08]"
+                            !selectedCuisine ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25" : "bg-white/[0.04] text-white/40 border border-white/[0.06] hover:bg-white/[0.08]"
                           }`}
                         >
                           Todas
@@ -227,7 +227,7 @@ export default function ListForm({
                             type="button"
                             onClick={() => setSelectedCuisine(selectedCuisine === name ? null : name)}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
-                              selectedCuisine === name ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25" : "bg-white/[0.04] text-white/40 border border-white/[0.06] hover:bg-white/[0.08]"
+                              selectedCuisine === name ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25" : "bg-white/[0.04] text-white/40 border border-white/[0.06] hover:bg-white/[0.08]"
                             }`}
                           >
                             {name} <span className="text-white/20 ml-0.5">{count}</span>
@@ -260,7 +260,7 @@ export default function ListForm({
                             <button
                               type="button"
                               onClick={() => onAddRestaurant(r)}
-                              className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors flex-shrink-0"
+                              className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors flex-shrink-0"
                             >
                               <Plus className="w-4 h-4" />
                             </button>
@@ -286,7 +286,7 @@ export default function ListForm({
                         type="url"
                         value={formData.cover_image_url || ""}
                         onChange={e => onFormChange({ cover_image_url: e.target.value })}
-                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
+                        className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/80 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
                         placeholder={t('https://exemplo.com/imagem.jpg')}
                       />
                     </div>
@@ -307,8 +307,8 @@ export default function ListForm({
                   {selectedRestaurants.length === 0 ? (
                     <div className="text-center py-10">
                       <Search className="h-10 w-10 text-white/10 mx-auto mb-3" />
-                      <p className="text-sm text-white/30">{t('Ainda nao adicionaste restaurantes.')}</p>
-                      <button type="button" onClick={() => goToStep(3)} className="mt-3 text-sm text-purple-400 hover:text-purple-300 transition-colors">
+                      <p className="text-sm text-white/50">{t('Ainda não adicionaste restaurantes.')}</p>
+                      <button type="button" onClick={() => goToStep(3)} className="mt-3 text-sm text-amber-400 hover:text-amber-300 transition-colors">
                         Adicionar restaurantes →
                       </button>
                     </div>
@@ -350,7 +350,7 @@ export default function ListForm({
               {/* Step 6: Create */}
               {currentStep === 6 && (
                 <FormSection title={t('Concluir')} icon={SECTION_ICONS[6]} description="Revisão final antes de criar a lista.">
-                  <div className="space-y-4 p-4 rounded-xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-purple-500/10">
+                  <div className="space-y-4 p-4 rounded-xl bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/10">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-white/30">Nome</span>
@@ -392,16 +392,16 @@ export default function ListForm({
                   <button
                     type="button"
                     onClick={() => goToStep(currentStep + 1)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/15 text-purple-400 text-sm font-semibold rounded-xl hover:bg-purple-500/25 transition-all min-h-[44px]"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500/15 text-amber-400 text-sm font-semibold rounded-xl hover:bg-amber-500/25 transition-all min-h-[44px]"
                   >
-                    Proximo
+                    Próximo
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 ) : (
                   <button
                     type="submit"
                     disabled={saving}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 transition-all disabled:opacity-50 min-h-[44px]"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-black font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-all disabled:opacity-50 min-h-[44px]"
                   >
                     {saving ? (
                       <ToviSpinner className="w-4 h-4" />

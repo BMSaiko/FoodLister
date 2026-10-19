@@ -137,7 +137,7 @@ export default function ScheduleMealModal({
       isOpen={isOpen}
       onClose={() => { setCurrentStep(1); onClose(); }}
       size="md"
-      ariaLabel="Agendar refeicao"
+      ariaLabel="Agendar refeição"
     >
       {/* Step indicator */}
       <div className="flex items-center justify-center gap-2 pt-2 pb-1">
@@ -154,7 +154,7 @@ export default function ScheduleMealModal({
       {/* Step title */}
       <div className="px-5 pt-3 pb-4 border-b border-white/0.06">
         <h2 className="text-base font-medium text-white/90">
-          {currentStep === 1 && "Detalhes da refeicao"}
+          {currentStep === 1 && "Detalhes da refeição"}
           {currentStep === 2 && "Participantes"}
           {currentStep === 3 && "Confirmar"}
         </h2>
@@ -222,7 +222,7 @@ export default function ScheduleMealModal({
           disabled={!canProceed() || submitting}
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors bg-amber-500 text-black hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {currentStep === totalSteps ? (submitting ? "A agendar..." : "Agendar") : "Proximo"}
+          {currentStep === totalSteps ? (submitting ? "A agendar..." : "Agendar") : "Próximo"}
           {currentStep < totalSteps && <ChevronRight className="h-4 w-4" />}
         </button>
       </div>

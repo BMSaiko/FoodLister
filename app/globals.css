@@ -121,6 +121,12 @@ body {
   font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* A barra inferior (Navbar, só mobile) é fixa: reserva o espaço para não tapar o fim das páginas. */
+:root { --bottom-nav-h: 5.75rem; }
+@media (max-width: 767px) {
+  body { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom)); }
+}
+
 code, pre {
   font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }

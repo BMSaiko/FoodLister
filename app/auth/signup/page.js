@@ -24,7 +24,7 @@ function SignUpForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) { toast.error(t("As senhas nao coincidem")); return; }
+    if (password !== confirmPassword) { toast.error(t("As senhas não coincidem")); return; }
     if (password.length < 6) { toast.error(t("A password deve ter pelo menos 6 caracteres")); return; }
     setIsLoading(true);
     try {
@@ -68,7 +68,7 @@ function SignUpForm() {
                   <input
                     id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
                     className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder={t("Endereco de email")}
+                    placeholder={t("Endereço de email")}
                     value={email} onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
@@ -128,7 +128,7 @@ function SignUpForm() {
         <p className="text-center text-sm text-white/30 mt-6">
           {t("Ja tem conta?")}{" "}
           <Link href="/auth/signin" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
-            {t("Faca login")}
+            {t("Faça login")}
           </Link>
         </p>
       </div>

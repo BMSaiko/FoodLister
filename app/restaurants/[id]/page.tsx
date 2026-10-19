@@ -707,7 +707,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
       ) : !restaurant ? (
         <div className="min-h-[60dvh] flex items-center justify-center">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-white/70 mb-4">Restaurante nao encontrado</h2>
+            <h2 className="text-2xl font-bold text-white/70 mb-4">Restaurante não encontrado</h2>
             <Link href="/restaurants" className="text-amber-400 hover:text-amber-300 transition-colors">
               Voltar aos restaurantes
             </Link>

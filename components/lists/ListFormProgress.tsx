@@ -22,7 +22,7 @@ export default function ListFormProgress({ currentStep, onStepClick }: ListFormP
     <div className="mb-8">
       <div className="h-1 bg-white/[0.06] rounded-full mb-5 overflow-hidden">
         <motion.div
-          className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
+          className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
           initial={{ width: "0%" }}
           animate={{ width: ((currentStep - 1) / (STEPS.length - 1)) * 100 + "%" }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -45,7 +45,7 @@ export default function ListFormProgress({ currentStep, onStepClick }: ListFormP
                 className={
                   "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 " +
                   (isActive
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/20"
+                    ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20"
                     : isCompleted
                     ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/25"
                     : "bg-white/[0.03] border border-white/[0.06] text-white/30")
@@ -57,7 +57,7 @@ export default function ListFormProgress({ currentStep, onStepClick }: ListFormP
               </motion.div>
               <span className={
                 "text-[10px] font-semibold uppercase tracking-wider hidden sm:block transition-colors duration-200 " +
-                (isActive ? "text-purple-400" : isCompleted ? "text-emerald-400" : "text-white/25")
+                (isActive ? "text-amber-400" : isCompleted ? "text-emerald-400" : "text-white/25")
               }>
                 {step.label}
               </span>

@@ -329,7 +329,7 @@ export default function Navbar() {
             { id: 'home', icon: Menu, label: 'Home', href: '/' },
             { id: 'restaurants', icon: Utensils, label: 'Restaurantes', href: '/restaurants' },
             { id: 'map', icon: Map, label: 'Mapa', href: '/map' },
-            { id: 'search', icon: Search, label: 'Search', action: 'search' },
+            { id: 'search', icon: Search, label: 'Pesquisa', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
             { id: 'profile', icon: User, label: 'Perfil', href: user ? `/u

@@ -193,7 +193,7 @@ export default function RoulettePage() {
           {/* Spin button */}
           <div className="flex items-center justify-between pt-2">
             <p className="text-sm text-white/30">
-              {filteredRestaurants.length} restaurante{filteredRestaurants.length !== 1 ? "s" : ""} disponivel{filteredRestaurants.length !== 1 ? "is" : ""}
+              {filteredRestaurants.length} restaurante{filteredRestaurants.length !== 1 ? "s" : ""} disponível{filteredRestaurants.length !== 1 ? "is" : ""}
               {(nearbyActive ? nearby.restaurants.length : sourceRestaurants.length) > 0 && (
                 <span className="text-white/30"> (filtrados de {nearbyActive ? nearby.restaurants.length : sourceRestaurants.length})</span>
               )}

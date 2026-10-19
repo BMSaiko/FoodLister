@@ -224,7 +224,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
                 onFocus={() => suggestions.length > 0 && collaborators.length === 0 ? setShowDropdown(true) : null}
-                placeholder="Pesquisar por nome ou codigo FL000001..."
+                placeholder="Pesquisar por nome ou código FL000001..."
                 className="w-full pl-10 pr-10 py-3 bg-white/[0.06] border border-white/[0.1] rounded-xl text-sm text-white/90 placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
               />
               {searching && (

@@ -49,8 +49,8 @@ export default function NotificationsDropdown() {
   const grouped = groupByDate(notifications);
   const hasNotifications = notifications.length > 0;
   const ariaLabel = unreadCount > 0
-    ? "Notificacoes (" + unreadCount + " novas)"
-    : "Notificacoes";
+    ? "Notificações (" + unreadCount + " novas)"
+    : "Notificações";
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -72,11 +72,11 @@ export default function NotificationsDropdown() {
         <div
           className="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-[var(--card-bg)] ring-1 ring-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50"
           role="listbox"
-          aria-label="Lista de notificacoes"
+          aria-label="Lista de notificações"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
-            <h3 className="text-sm font-medium text-white/80">Notificacoes</h3>
+            <h3 className="text-sm font-medium text-white/80">Notificações</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
@@ -105,7 +105,7 @@ export default function NotificationsDropdown() {
           {/* Footer */}
           {hasNotifications && (
             <div className="px-4 py-2 border-t border-white/[0.06] text-center">
-              <span className="text-[10px] text-white/25">{notifications.length} notificacoes</span>
+              <span className="text-[10px] text-white/25">{notifications.length} notificações</span>
             </div>
           )}
         </div>

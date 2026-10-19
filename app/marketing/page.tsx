@@ -22,12 +22,12 @@ const features = [
   {
     icon: <BarChart3 className="w-7 h-7" />,
     title: "Avalie & Review",
-    description: "Partilha as tuas experiencias. Cada review ajuda a comunidade a descobrir os melhores sitios.",
+    description: "Partilha as tuas experiências. Cada review ajuda a comunidade a descobrir os melhores sítios.",
   },
   {
     icon: <Shield className="w-7 h-7" />,
     title: "Perfil Verificado",
-    description: "O teu perfil mostra o que tens visitado, as tuas listas e as tuas avaliacoes. Transparente e confianvel.",
+    description: "O teu perfil mostra o que tens visitado, as tuas listas e as tuas avaliações. Transparente e confianvel.",
   },
   {
     icon: <Star className="w-7 h-7" />,
@@ -37,13 +37,13 @@ const features = [
   {
     icon: <Users className="w-7 h-7" />,
     title: "Comunidade Ativa",
-    description: "Milhares de food hunters ja organizam suas experiencias. Junta-te a eles e expande o teu paladar.",
+    description: "Milhares de food hunters ja organizam suas experiências. Junta-te a eles e expande o teu paladar.",
   },
 ];
 
 const testimonials = [
   {
-    quote: "Finalmente organizei todos os meus restaurantes favoritos num so lugar!",
+    quote: "Finalmente organizei todos os meus restaurantes favoritos num só lugar!",
     name: "Maria S.",
     role: "Food Blogger",
   },
@@ -92,9 +92,9 @@ export default function MarketingPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--foreground)] tracking-tighter mb-6 leading-[1.1]"
             >
-              {"O teu diario de"}
+              {"O teu diário de"}
               <br />
-              <span className="text-[var(--primary)]">{"descobertas gastronomicas"}</span>
+              <span className="text-[var(--primary)]">{"descobertas gastronómicas"}</span>
             </motion.h1>
 
             <motion.p
@@ -117,7 +117,7 @@ export default function MarketingPage() {
                 href="/auth/signup"
                 className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--primary)] text-black font-semibold rounded-full min-h-[52px] hover:bg-[var(--primary-hover)] transition-colors duration-150"
               >
-                Comecar Gratis
+                Comecar Grátis
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
@@ -141,7 +141,7 @@ export default function MarketingPage() {
             <h2 className="text-3xl md:text-5xl font-bold text-[var(--foreground)] tracking-tighter">
               Tudo que precisas
               <br />
-              <span className="text-[var(--primary)]">num so lugar</span>
+              <span className="text-[var(--primary)]">num só lugar</span>
             </h2>
           </div>
 
@@ -161,7 +161,7 @@ export default function MarketingPage() {
               <h3 className="text-xl font-bold text-[var(--foreground)] mb-3">Descubra Restaurantes</h3>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
                 Explora uma colecao curada de restaurantes. De tapas espanholas a ramen japones,
-                encontra o lugar perfeito para cada ocasiao. Filtra por localizacao, tipo de cozinha ou preco.
+                encontra o lugar perfeito para cada ocasiao. Filtra por localizacao, tipo de cozinha ou preço.
               </p>
             </motion.div>
 
@@ -196,7 +196,7 @@ export default function MarketingPage() {
                 <div>
                   <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">Comunidade Ativa</h3>
                   <p className="text-sm text-[var(--foreground-secondary)]">
-                    Milhares de food hunters ja organizam suas experiencias. Cada review, cada lista,
+                    Milhares de food hunters ja organizam suas experiências. Cada review, cada lista,
                     cada restaurante adicionado torna a plataforma melhor para todos.
                   </p>
                 </div>
@@ -265,8 +265,8 @@ export default function MarketingPage() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-lg text-[var(--foreground-secondary)] mb-10 leading-relaxed"
             >
-              Junte-se a milhares de food hunters que ja organizam suas experiencias culinarias conosco.
-              Gratis para sempre. Sem cartao de credito.
+              Junte-se a milhares de food hunters que ja organizam suas experiências culinarias conosco.
+              Grátis para sempre. Sem cartao de credito.
             </motion.p>
 
             <motion.div
@@ -285,7 +285,7 @@ export default function MarketingPage() {
             </motion.div>
 
             <p className="mt-6 text-sm text-[var(--foreground-muted)]">
-              Gratis para sempre &middot; Sem cartao de credito &middot; Comeca em segundos
+              Grátis para sempre &middot; Sem cartao de credito &middot; Comeca em segundos
             </p>
           </div>
         </Container>
