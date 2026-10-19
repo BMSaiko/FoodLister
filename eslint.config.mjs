@@ -16,6 +16,7 @@ export default [// Ignore build output and other generated files
     "dist/**",
     "scripts/run-database-fixes.js",
     "snippets/**",
+    "docs/agent/**",
     "__tests__/**",
     "agents/**",
     "instructions/**",

@@ -39,6 +39,7 @@
     "jest.setup.ts",
     "jest.config.js",
     "snippets",
+    "docs/agent",
     "__tests__",
     "agents",
     "instructions",
