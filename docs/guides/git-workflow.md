@@ -65,3 +65,4 @@ Só quando o BMS disser que `dev` está operacional. PR `dev`→`main` com **mer
 - `ci.yml`: push em `main` e `dev`; PR para `dev` e `main`.
 - `deploy.yml`: preview Vercel só em PR para `main`; produção só em push a `main`.
 - Proteção (PR obrigatório, CI verde, sem force-push) em `main` e `dev` via GitHub.
+- Checks obrigatórios: Lint, Type Check, Test, Build. Ativa desde 2026-10-19; o admin pode contornar em emergência.
