@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { toast } from 'react-toastify';
 import RestaurantForm from '@/components/restaurant/RestaurantForm';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 // Auth guard component
 function AuthGuard({ children }) {
@@ -26,7 +27,7 @@ function AuthGuard({ children }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--background-secondary)] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--amber-500)]"></div>
+        <ToviLoader size="sm" />
       </div>
     );
   }

@@ -6,6 +6,7 @@ import { MapPin, Edit, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useModal } from '@/contexts/ModalContext';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface RestaurantCardActionsProps {
   restaurant: {
@@ -137,7 +138,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
         title={isSharing ? 'Compartilhando...' : 'Compartilhar restaurante'}
       >
         {isSharing ? (
-          <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
+          <ToviSpinner className="h-4 w-4" />
         ) : (
           <Share2 className="h-4 w-4 text-gray-600" />
         )}

@@ -1,7 +1,8 @@
 import React from "react";
-import { Share2, Shuffle, Edit, Copy, Trash2, Globe, Lock, RefreshCw } from "lucide-react";
+import { Share2, Shuffle, Edit, Copy, Trash2, Globe, Lock } from "lucide-react";
 import Link from "next/link";
 import { CreatorLink } from "@/components/ui/common/CreatorLink";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface ListCoverProps {
   name: string;
@@ -83,10 +84,10 @@ export default function ListCover({
               {isOwner && (
                 <>
                   <button onClick={onDuplicate} disabled={duplicating} className="flex items-center justify-center w-11 h-11 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-colors duration-150 hover:scale-105 disabled:opacity-50">
-                    {duplicating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+                    {duplicating ? <ToviSpinner className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </button>
                   <button onClick={onDelete} disabled={deleting} className="flex items-center justify-center w-11 h-11 rounded-full bg-red-500/10 backdrop-blur-xl border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors duration-150 hover:scale-105 disabled:opacity-50">
-                    {deleting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                    {deleting ? <ToviSpinner className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                   </button>
                 </>
               )}

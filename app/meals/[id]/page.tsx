@@ -11,6 +11,7 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { toast } from 'react-toastify';
 import { useLanguage } from "@/contexts";
 import Modal from '@/components/ui/Modal';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface Meal {
   id: string;
@@ -273,7 +274,7 @@ export default function MealDetailsPage() {
           <Navbar />
           <div className="container mx-auto px-4 py-8">
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 text-amber-500 animate-spin" />
+              <ToviLoader size="sm" />
               <span className="ml-3 text-white/50">{t("A carregar detalhes da refeição...")}</span>
             </div>
           </div>

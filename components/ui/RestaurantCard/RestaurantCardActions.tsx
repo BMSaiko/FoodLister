@@ -6,6 +6,7 @@ import { MapPin } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useModal } from "@/contexts/ModalContext";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface RestaurantCardActionsProps {
   restaurant: {
@@ -60,7 +61,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
         >
           {isUpdating ? (
             <>
-              <div className="h-4 w-4 rounded-full border-2 border-[var(--gray-400)] border-t-transparent animate-spin" />
+              <ToviSpinner className="h-4 w-4" />
               <span className="text-xs font-medium hidden sm:inline">Carregando</span>
             </>
           ) : visited ? (

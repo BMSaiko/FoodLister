@@ -4,10 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Link from "next/link";
 import { TooltipFast } from "@/components/ui/Tooltip";
-import { MessageCircle, Send, Trash2, Pencil, Check, X, Loader2 } from "lucide-react";
+import { MessageCircle, Send, Trash2, Pencil, Check, X } from "lucide-react";
 import { toast } from "react-toastify";
 import MentionText from "@/components/ui/common/MentionText";
 import MentionInput from "@/components/ui/common/MentionInput";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface Comment {
   id: string;
@@ -67,8 +68,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
     try {
       const res = await fetch(`/api/lists/${listId}/comments`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment: newComment.trim() }),
-      });
+        body: JSON.stringify({ comment: newComment.trim() }) });
       if (res.ok) {
         const data = await res.json();
         setComments(prev => [data.comment, ...prev]);
@@ -108,8 +108,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
       const res = await fetch(`/api/lists/${listId}/comments`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ commentId, comment: editText.trim() }),
-      });
+        body: JSON.stringify({ commentId, comment: editText.trim() }) });
       if (res.ok) {
         const data = await res.json();
         setComments(prev => prev.map(c => c.id === commentId ? data.comment : c));
@@ -194,7 +193,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                   disabled={submitting || !newComment.trim()}
                   className="px-4 py-2.5 bg-amber-500 text-black rounded-xl hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-semibold transition-all duration-200 min-h-[44px] hover:scale-105 disabled:hover:scale-100"
                 >
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {submitting ? <ToviSpinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
                   <span className="hidden sm:inline">Enviar</span>
                 </button>
               </div>
@@ -266,7 +265,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                           className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition-all duration-150 disabled:opacity-30"
                           aria-label="Guardar"
                         >
-                          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          {saving ? <ToviSpinner className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
                         </button>
 </TooltipFast>
                       </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import {  Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLanguage } from "@/contexts";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 export default function MealsPage() {
   const { t } = useLanguage();
@@ -55,7 +56,7 @@ export default function MealsPage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+            <ToviLoader size="sm" />
           </div>
         ) : meals.length === 0 ? (
           <div className="text-center py-16">

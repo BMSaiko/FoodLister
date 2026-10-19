@@ -2,11 +2,13 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Calendar, Utensils, Loader2, SearchX, Plus } from 'lucide-react';
+import { Calendar, Utensils, SearchX, Plus } from 'lucide-react';
 import { useScheduledMeals } from '@/hooks/data/useScheduledMeals';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import MealCard from './MealCard';
 import MealSearchBar, { MealFilters } from './MealSearchBar';
+import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface ScheduledMealsSectionProps {
   userId?: string;
@@ -101,7 +103,7 @@ export default function ScheduledMealsSection({
         />
         
         <div className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 text-[var(--amber-500)] animate-spin mb-3" />
+          <ToviLoader size="sm" />
           <p className="text-[var(--gray-500)] text-sm">A carregar refeições agendadas...</p>
         </div>
       </div>
@@ -216,7 +218,7 @@ export default function ScheduledMealsSection({
           >
             {loading ? (
               <span className="flex items-center space-x-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <ToviSpinner className="h-4 w-4" />
                 <span>A carregar...</span>
               </span>
             ) : (

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 import { useVerification } from "@/hooks/auth/useVerification";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ToviLoader from "@/components/loading/ToviLoader";
 
 export default function VerifyEmailPage() {
   const { t } = useLanguage();
@@ -70,7 +71,7 @@ export default function VerifyEmailPage() {
           <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03]">
             {status === "loading" && (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/[0.08] border-t-purple-500 mx-auto mb-4" />
+                <ToviLoader size="sm" />
                 <p className="text-white/50">{t("A verificar o seu email...")}</p>
               </div>
             )}

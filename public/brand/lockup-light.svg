@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" role="img" aria-label="FoodLister">
+  <g>
+  <path d="M7 44a25 25 0 0 1 50 0Z" fill="#d97706"/>
+  <path d="M3 49h58" stroke="#16130d" stroke-width="3.6" stroke-linecap="round"/>
+  <circle cx="32" cy="14.5" r="4" fill="#16130d"/>
+  <path d="M18 38a15 15 0 0 1 8-10" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" fill="none" opacity=".55"/>
+  </g>
+  <text x="76" y="44" font-family="Geist, Inter, system-ui, sans-serif" font-size="34" font-weight="700" letter-spacing="-1.5" fill="#16130d">Food<tspan fill="#d97706">Lister</tspan></text>
+</svg>

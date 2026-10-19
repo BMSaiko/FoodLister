@@ -10,6 +10,7 @@ import RestaurantFilters from "@/components/ui/Filters/RestaurantFilters";
 import NearbyBar from "@/components/ui/Nearby/NearbyBar";
 import { useNearbyRestaurants } from "@/hooks/restaurants/useNearbyRestaurants";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface Restaurant {
   id: string;
@@ -158,7 +159,7 @@ export default function RoulettePage() {
                 >
                   <span className="flex items-center gap-1.5">
                     {listLoading === list.id ? (
-                      <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-amber-400 rounded-full animate-spin" />
+                      <ToviSpinner className="w-3.5 h-3.5" />
                     ) : (
                       <List className="h-3.5 w-3.5" />
                     )}

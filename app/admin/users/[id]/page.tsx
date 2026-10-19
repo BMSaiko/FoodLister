@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ArrowLeft, Mail, MapPin, Globe, Calendar, Star, List, UserX } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import { useState } from 'react';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface UserDetailPageProps {
   params: Promise<{ id: string }>;
@@ -36,7 +37,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-8 h-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+        <ToviLoader size="sm" />
       </div>
     );
   }
