@@ -169,7 +169,7 @@ foodlister/
 │   ├── cache.ts            # TTL in-memory cache
 │   ├── stripe.ts           # Stripe SDK + utilities
 │   └── subscription.ts     # Feature gate config
-├── supabase/migrations/    # 47 SQL migrations
+├── supabase/migrations/    # baseline + migrations por timestamp (histórico em migrations_legacy/)
 ├── types/                  # Database + API types
 ├── __tests__/              # 57 test files
 ├── docs/                   # Documentation

@@ -57,4 +57,4 @@ INSERT INTO cuisine_types (name, description, icon) VALUES
 ('Tradicional', 'Comida tradicional', '🏺'),
 ('Contemporânea', 'Culinária contemporânea', '✨'),
 ('Fusão', 'Culinária de fusão', '🔀'),
-('Orgânica', 'Alimentos orgânicos', '🌿');
+('Orgânica', 'Alimentos orgânicos', '🌿') ON CONFLICT DO NOTHING;

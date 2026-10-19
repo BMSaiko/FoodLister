@@ -6,7 +6,8 @@
 supabase/
 ├── schema.sql              # Canonical schema (idempotent, complete setup)
 ├── reset_and_seed.sql      # Dev utility: TRUNCATE all tables + re-seed
-├── migrations/             # Sequential migrations 000→210
+├── migrations/             # Baseline 20261019000000 + migrations por timestamp
+├── migrations_legacy/      # Histórico 000→211 (arquivo, não corre)
 ├── seed/                   # Idempotent seed data
 └── README.md
 ```
@@ -33,8 +34,7 @@ for f in migrations/*.sql; do psql -f "$f"; done
 
 ## Migration history
 
-Migrations are sequential `000`→`210`. Apply in order.
-All migrations use `IF NOT EXISTS` / idempotent patterns where possible.
+`migrations/` começa num baseline (`20261019000000_baseline.sql`, schema do cloud a 2026-10-19); as novas usam timestamp (`supabase migration new <nome>`). As antigas `000`→`211` ficam em `migrations_legacy/` porque não correm do zero. Local: `supabase start` e `supabase db reset` (aplica o baseline e `seed/*.sql`).
 
 ### Cleanup performed (2026-06-26)
 
