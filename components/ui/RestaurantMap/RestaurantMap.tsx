@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "react-leaflet";
 import type { RestaurantWithDetails } from "@/libs/types";
 import Link from "next/link";
 import L from "leaflet";
@@ -9,34 +9,23 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 
-// Custom map pin — SVG teardrop with optional letter init
-// No image files; fully themed via inline SVG + divIcon
-// active=true inverts colors (amber fill, dark stroke) to highlight selected/hovered pin
-function createRestaurantIcon(letter?: string, active?: boolean): L.DivIcon {
-  const fill = active ? "#fbbf24" : "#050505";
-  const stroke = active ? "#050505" : "#fbbf24";
-  const letterFill = active ? "#050505" : "#fbbf24";
-  const letterSvg = letter
-    ? `<text x="16" y="21" text-anchor="middle" fill="${letterFill}" font-size="12" font-weight="700" font-family="system-ui">${letter}</text>`
-    : "";
+// Custom map pin — SVG da iconografia (pin garfo; pin estrela, maior, quando ativo)
+// No image files; inline SVG + divIcon. Cores do acento âmbar da marca.
+const PIN_PATH = "M32 5C19.8 5 11 14.4 11 26c0 14.5 21 33 21 33s21-18.5 21-33C53 14.4 44.2 5 32 5Z";
+
+function createRestaurantIcon(active?: boolean): L.DivIcon {
+  const size = active ? 48 : 40;
+  const body = active
+    ? `<path d="${PIN_PATH}" fill="#050505" fill-opacity="0.55" stroke="#f59e0b" stroke-width="4.2" stroke-linejoin="round"/>
+       <path d="M32 15.5 35.2 22.3 42.6 23.2 37.3 28.4 38.6 35.8 32 32.3 25.4 35.8 26.7 28.4 21.4 23.2 28.8 22.3Z" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.6" stroke-linejoin="round"/>`
+    : `<path d="${PIN_PATH}" fill="#f59e0b"/>
+       <g stroke="#050505" stroke-width="3.2" stroke-linecap="round" fill="none"><path d="M25.5 16.5v9M32 16.5v9M38.5 16.5v9"/><path d="M25.5 25.5a6.5 6.5 0 0 0 13 0"/><path d="M32 32v11"/></g>`;
   return L.divIcon({
     className: "",
-    html: `<div style="
-      width: 36px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
-      transition: transform 0.2s ease;
-    "><svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40" fill="none">
-      <path d="M16 0C7.16 0 0 7.16 0 16c0 10.5 16 24 16 24s16-13.5 16-24C32 7.16 24.84 0 16 0z" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
-      <circle cx="16" cy="15" r="8" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
-      <text x="16" y="15" text-anchor="middle" dominant-baseline="central" fill="${letterFill}" font-size="14" font-weight="700" font-family="system-ui">${letter}</text>
-    </svg></div>`,
-    iconSize: [36, 42],
-    iconAnchor: [18, 42],
-    popupAnchor: [0, -42],
+    html: `<div style="width:${size}px;height:${size}px;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.55));transition:transform 0.2s ease;"><svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 64 64" fill="none">${body}</svg></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size * 0.92],
+    popupAnchor: [0, -size * 0.92],
   });
 }
 
@@ -133,10 +122,10 @@ function ZoomOutOnClose({ selectedRestaurant }: { selectedRestaurant: Restaurant
 function ResetZoomButton() {
   const map = useMap();
   return (
-    <div className="absolute top-3 right-16 z-[1000]">
+    <div className="absolute top-[108px] right-[10px] z-[1000]">
       <button
         onClick={() => { map.flyTo(map.getCenter(), 10, { duration: 1.5 }); }}
-        className="w-10 h-10 rounded-xl bg-black/80 border border-white/10 flex items-center justify-center text-white/70 hover:text-amber-400 hover:bg-black transition-colors shadow-lg"
+        className="w-11 h-11 rounded-xl bg-black/80 border border-white/10 flex items-center justify-center text-white/70 hover:text-amber-400 hover:bg-black transition-colors shadow-lg"
         title="Reset zoom"
         aria-label="Reset map zoom"
       >
@@ -177,6 +166,19 @@ function MapResize() {
   return null;
 }
 
+// Enquadra todos os restaurantes na abertura (padding para controlos e barra inferior)
+function FitToMarkers({ markers }: { markers: RestaurantWithDetails[] }) {
+  const map = useMap();
+  const done = useRef(false);
+  useEffect(() => {
+    if (done.current || markers.length === 0) return;
+    done.current = true;
+    const bounds = L.latLngBounds(markers.map((r) => [r.latitude!, r.longitude!] as [number, number]));
+    map.fitBounds(bounds, { padding: [48, 48], maxZoom: 15 });
+  }, [markers, map]);
+  return null;
+}
+
 export default function RestaurantMap({
   restaurants,
   className = "",
@@ -211,7 +213,7 @@ export default function RestaurantMap({
         zoom={zoom}
         scrollWheelZoom={true}
         className="w-full h-full rounded-xl"
-        zoomControl={true}
+        zoomControl={false}
       >
 
         <TileLayer
@@ -223,13 +225,15 @@ export default function RestaurantMap({
       <ZoomOutOnClose selectedRestaurant={selectedRestaurant} />
                 <ResetZoomButton />
         {showPopup && selectedRestaurant && <SelectedRestaurantPopup restaurant={selectedRestaurant} onDeselect={() => onSelect?.(null)} />}
+        <ZoomControl position="topright" />
+        <FitToMarkers markers={markers} />
         <MapResize />
         {userLocation?.lat != null && userLocation?.lng != null && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={createUserPinIcon()} />
         )}
         <MarkerClusterGroup chunkedLoading>
         {markers.map((r) => (
-          <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { if (selectedId) return; e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(r.name[0].toUpperCase(), selectedId === r.id)); e.target.closePopup(); } }}>
+          <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { if (selectedId) return; e.target.setIcon(createRestaurantIcon(true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(selectedId === r.id)); e.target.closePopup(); } }}>
             <Popup>
               <div className="p-2 min-w-[180px]">
                 <h3 className="font-semibold text-sm">
