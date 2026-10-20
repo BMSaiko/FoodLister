@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
+import EmptyState from "@/components/ui/EmptyState";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { Activity, ChevronDown, User } from "lucide-react";
 import ToviLoader from "@/components/loading/ToviLoader";
@@ -75,7 +76,12 @@ export default function FeedPage() {
             <ToviLoader size="sm" />
           </div>
         ) : items.length === 0 ? (
-          <p className="text-[var(--gray-500)] text-sm text-center py-12">Ainda sem atividade.</p>
+          <EmptyState
+            mascot="a-dormir"
+            title="Ainda sem atividade"
+            description="Segue amigos e restaurantes para ver aqui as novidades."
+            action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">Explorar restaurantes</Link>}
+          />
         ) : (
           <div className="space-y-3">
             {items.map((item) => (
