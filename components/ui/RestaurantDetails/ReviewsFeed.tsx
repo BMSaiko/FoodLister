@@ -21,17 +21,23 @@ interface ReviewsFeedProps {
   onDeleteReview: (id: string) => void;
   restaurantRating?: number;
   highlightReviewId?: string;
+  /** Incrementar para abrir o formulário de avaliação (botão «Avaliar» do topo). */
+  openFormSignal?: number;
 }
 
 const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) => {
-  const { restaurantId, reviews, reviewCount, user, userProfile, loading, onReviewSubmitted, onEditReview, onDeleteReview, restaurantRating, highlightReviewId } = props;
+  const { restaurantId, reviews, reviewCount, user, userProfile, loading, onReviewSubmitted, onEditReview, onDeleteReview, restaurantRating, highlightReviewId, openFormSignal = 0 } = props;
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Review | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (editing && formRef.current) formRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [editing]);
+    if (openFormSignal > 0 && user) setShowForm(true);
+  }, [openFormSignal, user]);
+
+  useEffect(() => {
+    if ((editing || showForm) && formRef.current) formRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [editing, showForm]);
 
   // Scroll to highlighted review (from ?review=XXX param) + visual highlight
   useEffect(() => {

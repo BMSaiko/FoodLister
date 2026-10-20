@@ -101,6 +101,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
   const [shareUrl, setShareUrl] = useState('');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [allDataLoaded, setAllDataLoaded] = useState(false);
+  const [openReviewForm, setOpenReviewForm] = useState(0);
   const reviewsSectionRef = useRef<HTMLDivElement>(null);
   const reviewFormRef = useRef<HTMLDivElement>(null);
 
@@ -723,7 +724,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
             reviewCount={reviewCount}
             onShare={handleShareClick}
             onSchedule={() => setIsScheduleModalOpen(true)}
-            onReview={user ? () => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }) : undefined}
+            onReview={user ? () => setOpenReviewForm(n => n + 1) : undefined}
             onEdit={(user && (restaurant.creator_id === user.id || userProfile?.isAdmin)) ? () => window.location.href = `/restaurants/${restaurant?.id}/edit` : undefined}
             isOwner={!!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin))}
             onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
@@ -802,6 +803,7 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
               onDeleteReview={handleDeleteReview}
               restaurantRating={restaurant.rating}
               highlightReviewId={reviewId || undefined}
+              openFormSignal={openReviewForm}
             />
 
             {/* Lists */}
