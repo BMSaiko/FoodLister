@@ -9,6 +9,8 @@ import {useLanguage, useAuth } from "@/contexts";
 import { toast } from "react-toastify";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 function SignInForm() {
   const [email, setEmail] = useState("");
@@ -23,7 +25,7 @@ function SignInForm() {
     const urlParams = new URLSearchParams(window.location.search);
     const message = urlParams.get("message");
     if (message === "check-email") {
-      toast.info(t("Verifique o seu email e clique no link de confirmacao antes de fazer login."));
+      toast.info(t("Verifique o seu email e clique no link de confirmação antes de fazer login."));
     }
   }, []);
 
@@ -43,18 +45,18 @@ function SignInForm() {
     <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
       {/* Mesh gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/[0.04] rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-pink-500/[0.03] rounded-full blur-[100px]" />
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-[var(--primary)]/[0.04] rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[var(--primary)]/[0.04] rounded-full blur-[100px]" />
       </div>
 
       <div className="max-w-md w-full relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
-            <ArrowRight className="h-7 w-7 text-purple-400" />
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-[var(--primary-lighter)] ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
+            <ArrowRight className="h-7 w-7 text-[var(--primary)]" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Bem-vindo de volta")}</h1>
-          <p className="text-white/40 text-sm">{t("Continua a organizar as tuas experiencias gastronomicas")}</p>
+          <p className="text-white/40 text-sm">{t("Continua a organizar as tuas experiências gastronómicas")}</p>
         </div>
 
         {/* Card */}
@@ -70,8 +72,8 @@ function SignInForm() {
                   </div>
                   <input
                     id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
-                    className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder={t("Endereco de email")}
+                    className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-colors disabled:opacity-50 min-h-[48px]"
+                    placeholder={t("Endereço de email")}
                     value={email} onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
@@ -86,11 +88,11 @@ function SignInForm() {
                   </div>
                   <input
                     id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required disabled={isLoading}
-                    className="w-full pl-12 pr-12 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-colors disabled:opacity-50 min-h-[48px]"
+                    className="w-full pl-12 pr-12 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-colors disabled:opacity-50 min-h-[48px]"
                     placeholder={t("Password")}
                     value={password} onChange={(e) => setPassword(e.target.value)}
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-4 flex items-center text-white/25 hover:text-white/50 transition-colors">
+                  <button type="button" aria-label={showPassword ? t("Ocultar password") : t("Mostrar password")} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 min-w-[48px] justify-center flex items-center text-white/25 hover:text-white/50 transition-colors">
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
@@ -98,7 +100,7 @@ function SignInForm() {
 
               {/* Forgot password */}
               <div className="text-right">
-                <Link href="/auth/reset-password" className="text-xs text-purple-400/70 hover:text-purple-400 transition-colors">
+                <Link href="/auth/reset-password" className="inline-flex items-center min-h-[44px] text-xs text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors">
                   {t("Esqueceu a password?")}
                 </Link>
               </div>
@@ -106,10 +108,10 @@ function SignInForm() {
               {/* Submit */}
               <button
                 type="submit" disabled={isLoading}
-                className="w-full py-3.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[var(--primary)] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
               >
                 {isLoading ? (
-                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <ToviSpinner className="w-5 h-5" />
                 ) : (
                   <>{t("Entrar")} <ArrowRight className="h-4 w-4" /></>
                 )}
@@ -120,8 +122,8 @@ function SignInForm() {
 
         {/* Footer */}
         <p className="text-center text-sm text-white/30 mt-6">
-          {t("Nao tem conta?")}{" "}
-          <Link href="/auth/signup" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+          {t("Não tem conta?")}{" "}
+          <Link href="/auth/signup" className="inline-flex items-center min-h-[44px] text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors">
             {t("Crie uma gratuita")}
           </Link>
         </p>
@@ -136,7 +138,7 @@ export default function SigninPage() {
   return (
     <Suspense fallback={
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+        <ToviLoader size="sm" />
       </div>
     }>
       <SignInForm />

@@ -2,7 +2,8 @@
 "use client";
 
 import React from "react";
-import { CheckCircle, XCircle, Loader, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface BatchImportProgressProps {
   results?: Array<{
@@ -19,13 +20,12 @@ interface BatchImportProgressProps {
 export function BatchImportProgress({
   results,
   importing,
-  progress,
-}: BatchImportProgressProps) {
+  progress }: BatchImportProgressProps) {
   if (importing && !results) {
     return (
       <div className="mt-4 p-4 bg-white/[0.02] border border-white/[0.04] rounded-xl">
         <div className="flex items-center gap-3 mb-3">
-          <Loader className="h-5 w-5 animate-spin text-[var(--primary)]" />
+          <ToviSpinner className="h-5 w-5 text-[var(--primary)]" />
           <span className="text-sm text-white/60">A importar restaurantes...</span>
         </div>
         {progress && (

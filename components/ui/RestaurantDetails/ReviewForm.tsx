@@ -298,7 +298,7 @@ export default function ReviewForm({
           <RestaurantImageManager
             images={formData.images || []}
             max={5}
-            label={t('Fotos da experiencia')}
+            label={t('Fotos da experiência')}
             displayImageIndex={0}
             onImagesChange={(images) => setFormData(prev => ({ ...prev, images }))}
             onDisplayImageIndexChange={() => {}}

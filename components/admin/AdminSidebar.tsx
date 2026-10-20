@@ -16,11 +16,16 @@ const navItems = [
   { href: '/restaurants', label: 'Voltar à App', icon: ArrowLeft, external: true },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ id, open = false }: { id?: string; open?: boolean }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 min-h-[100dvh] border-r border-white/5 p-6 relative z-20 bg-[#080808]/80 backdrop-blur-2xl">
+    <aside
+      id={id}
+      className={`fixed inset-y-0 left-0 z-40 w-64 overflow-y-auto border-r border-white/5 p-6 bg-[#080808]/95 backdrop-blur-2xl transition-transform duration-200 md:static md:z-20 md:min-h-[100dvh] md:translate-x-0 md:bg-[#080808]/80 md:visible ${
+        open ? 'translate-x-0' : '-translate-x-full invisible'
+      }`}
+    >
       {/* Logo */}
       <div className="mb-10">
         <Link href="/admin" className="flex items-center gap-3 group">
@@ -42,7 +47,7 @@ export default function AdminSidebar() {
             <Link
               key={href}
               href={href}
-              className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
+              className={`group flex items-center gap-3 px-3 py-3 min-h-11 rounded-xl text-sm font-medium transition-colors duration-150 ${
                 isActive
                   ? 'bg-white/10 text-white shadow-lg shadow-white/5'
                   : 'text-white/50 hover:text-white/80 hover:bg-white/5'

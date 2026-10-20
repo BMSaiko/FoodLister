@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Search, X, Loader2, Utensils, List, User } from "lucide-react";
+import { Search, X, Utensils, List, User } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
 import { trackEvent, Events } from "@/utils/analytics";
 import Modal from "@/components/ui/Modal";
 import { useLanguage } from '@/contexts/LanguageContext';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface SearchResult {
   id: string;
@@ -120,16 +121,13 @@ export default function GlobalSearch() {
       ]);
       const combined: SearchResult[] = [
         ...((restaurants.data || []) as any[]).map((r: any) => ({
-          id: r.id, slug: r.slug || null, type: "restaurant" as const, title: r.name, subtitle: r.location || undefined,
-        })),
+          id: r.id, slug: r.slug || null, type: "restaurant" as const, title: r.name, subtitle: r.location || undefined })),
         ...((lists.data || []) as any[]).map((l: any) => ({
-          id: l.id, slug: l.slug || null, type: "list" as const, title: l.name, subtitle: l.description || undefined,
-        })),
+          id: l.id, slug: l.slug || null, type: "list" as const, title: l.name, subtitle: l.description || undefined })),
         ...((users.data || []) as any[]).map((u: any) => ({
           id: u.id, type: "user" as const, title: u.display_name,
           subtitle: u.user_id_code ? `#${u.user_id_code}` : undefined,
-          userIdCode: u.user_id_code || undefined,
-        })),
+          userIdCode: u.user_id_code || undefined })),
       ];
       setResults(combined);
     } catch (err) {
@@ -171,7 +169,7 @@ export default function GlobalSearch() {
       {/* Input */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.08]">
         {loading ? (
-          <Loader2 className="h-5 w-5 text-amber-400 animate-spin flex-shrink-0" />
+          <ToviSpinner className="h-5 w-5 text-amber-400 flex-shrink-0" />
         ) : (
           <Search className="h-5 w-5 text-white/30 flex-shrink-0" />
         )}
@@ -219,7 +217,7 @@ export default function GlobalSearch() {
         )}
         {loading && (
           <div className="flex items-center gap-2 px-4 py-6 justify-center text-white/30 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <ToviSpinner className="h-4 w-4" />
             A pesquisar...
           </div>
         )}

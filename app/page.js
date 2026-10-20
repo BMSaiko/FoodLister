@@ -70,7 +70,7 @@ export default function Home() {
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--foreground)] tracking-tighter leading-[1.1] mb-6 min-h-[2.5em]">
                 <TypewriterText
-                  text="O teu diario de descobertas gastronomicas"
+                  text="O teu diário de descobertas gastronómicas"
                   delay={800}
                   speed={35}
                 />
@@ -156,7 +156,7 @@ export default function Home() {
               Como funciona
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-[var(--foreground)] tracking-tighter">
-              Tudo que precisas<br />num so lugar
+              Tudo que precisas<br />num só lugar
             </h2>
           </div>
 
@@ -185,7 +185,7 @@ export default function Home() {
                 iconColor: 'text-blue-400',
                 Icon: Star,
                 title: 'Avalie & Review',
-                text: 'Partilha as tuas experiencias.',
+                text: 'Partilha as tuas experiências.',
               },
               {
                 speed: 0.15,
@@ -236,7 +236,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
             {[
               {
-                quote: 'Finalmente organizei todos os meus restaurantes favoritos num so lugar!',
+                quote: 'Finalmente organizei todos os meus restaurantes favoritos num só lugar!',
                 name: 'Maria S.',
                 role: 'Food Blogger',
               },
@@ -277,27 +277,27 @@ export default function Home() {
         items={[
           {
             q: "O que e o FoodLister?",
-            a: "Uma plataforma de curadoria de restaurantes. Descobre lugares, avalia as tuas experiencias, cria listas personalizadas e decide onde comer — seja numa roleta ou no mapa.",
+            a: "Uma plataforma de curadoria de restaurantes. Descobre lugares, avalia as tuas experiências, cria listas personalizadas e decide onde comer — seja numa roleta ou no mapa.",
           },
           {
             q: "E gratuito?",
             a: "Sim, o plano Free inclui as funcionalidades essenciais: criar listas, avaliar restaurantes, filtros basicos e colaborar em listas. Podeste fazer upgrade para Premium ou Pro se quiseres funcionalidades avancadas.",
           },
           {
-            q: "O que sao as listas e como crio uma?",
-            a: "As listas permitem organizar restaurantes por tema, ocasiao ou humor. Para criar uma, inicia sessao, vai a secao Listas e usa o botao criar. Depois, adiciona restaurantes e partilha-a com amigos.",
+            q: "O que são as listas e como crio uma?",
+            a: "As listas permitem organizar restaurantes por tema, ocasiao ou humor. Para criar uma, inicia sessao, vai a secção Listas e usa o botao criar. Depois, adiciona restaurantes e partilha-a com amigos.",
           },
           {
             q: "O que e a roleta de descoberta?",
-            a: "Quando nao sabes onde comer, a roleta escolhe por ti: gira e deixa a sorte decidir entre os restaurantes da tua regiao. Uma forma divertida de descobrir sitios que nunca experimentaste.",
+            a: "Quando não sabes onde comer, a roleta escolhe por ti: gira e deixa a sorte decidir entre os restaurantes da tua região. Uma forma divertida de descobrir sítios que nunca experimentaste.",
           },
           {
-            q: "Posso adicionar um restaurante que nao existe?",
-            a: "Sim. Se um restaurante ainda nao estiver na base, podes adiciona-lo pelo botao criar no menu. Esforcos de todos ajudam a construir a comunidade.",
+            q: "Posso adicionar um restaurante que não existe?",
+            a: "Sim. Se um restaurante ainda não estiver na base, podes adicioná-lo pelo botao criar no menu. Esforços de todos ajudam a construir a comunidade.",
           },
           {
-            q: "O que sao as refeicoes?",
-            a: "A secao Refeicoes permite agendar as tuas saidas e planear com quem e onde vais comer, mantendo tudo organizado num so lugar.",
+            q: "O que são as refeições?",
+            a: "A secção Refeições permite agendar as tuas saídas e planear com quem e onde vais comer, mantendo tudo organizado num só lugar.",
           },
         ]}
       />
@@ -324,7 +324,7 @@ export default function Home() {
               transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="text-lg text-[var(--foreground-secondary)] mb-10 leading-relaxed"
             >
-              Junte-se a milhares de food hunters que ja organizam suas experiencias culinarias conosco.
+              Junte-se a milhares de food hunters que ja organizam suas experiências culinarias conosco.
             </motion.p>
 
             <motion.div

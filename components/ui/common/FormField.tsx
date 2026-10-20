@@ -15,6 +15,8 @@ interface FormFieldProps {
   children?: React.ReactNode;
   error?: string;
   disabled?: boolean;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  autoComplete?: string;
 }
 
 export default function FormField({
@@ -30,8 +32,13 @@ export default function FormField({
   helperText,
   children,
   error,
-  disabled = false
+  disabled = false,
+  inputMode,
+  autoComplete
 }: FormFieldProps) {
+  const describedBy = error ? `${name}-error` : helperText ? `${name}-help` : undefined;
+  const defaultInputMode = { url: 'url', email: 'email', tel: 'tel' }[type as 'url' | 'email' | 'tel'] as FormFieldProps['inputMode'];
+  const a11y = { 'aria-describedby': describedBy, 'aria-invalid': error ? true : undefined } as const;
   const inputClasses = `w-full px-4 py-3 min-h-[48px] bg-white/[0.03] border rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${error ? 'border-red-500/70' : 'border-white/10'}`;
 
   return (
@@ -58,6 +65,7 @@ export default function FormField({
             placeholder={placeholder}
             rows={rows}
             disabled={disabled}
+            {...a11y}
             className={`${inputClasses} resize-none ${Icon ? 'pl-10' : ''}`}
           />
         ) : (
@@ -70,6 +78,9 @@ export default function FormField({
             required={required}
             placeholder={placeholder}
             disabled={disabled}
+            inputMode={inputMode ?? defaultInputMode}
+            autoComplete={autoComplete}
+            {...a11y}
             className={`${inputClasses} ${Icon ? 'pl-10' : ''}`}
           />
         )}
@@ -82,11 +93,11 @@ export default function FormField({
       </div>
 
       {helperText && !error && (
-        <p className="text-xs text-white/40">{helperText}</p>
+        <p id={`${name}-help`} className="text-xs text-white/40">{helperText}</p>
       )}
 
       {error && (
-        <p className="text-xs text-red-400">{error}</p>
+        <p id={`${name}-error`} role="alert" className="text-xs text-red-400">{error}</p>
       )}
     </div>
   );

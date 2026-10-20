@@ -1,5 +1,6 @@
 import React from 'react';
 import {  } from '../shared';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 interface RestaurantSkeletonLoaderProps {
   count?: number;
@@ -18,7 +19,7 @@ const RestaurantSkeletonLoader: React.FC<RestaurantSkeletonLoaderProps> = ({
       {showProgress && (
         <div className="text-center py-4">
           <div className="flex items-center justify-center gap-3 text-[var(--amber-600)]">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--amber-500)]"></div>
+            <ToviLoader size="sm" />
             <span className="text-lg font-medium">{message}</span>
           </div>
           <p className="text-sm text-[var(--gray-500)] mt-2">

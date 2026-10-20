@@ -20,7 +20,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description
         {icon}
       </div>
       <h3 className="text-lg font-semibold text-white/70 mb-2">{title}</h3>
-      <p className="text-sm text-white/35 max-w-sm mx-auto">{description}</p>
+      <p className="text-sm text-white/50 max-w-sm mx-auto">{description}</p>
       {action && (
         action.href ? (
           <Link href={action.href} className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium">

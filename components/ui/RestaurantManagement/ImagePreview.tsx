@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Image as ImageIcon, Upload, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import { useImagePreview } from '@/hooks/ui/useImagePreview';
+import ToviLoader from "@/components/loading/ToviLoader";
 
 /**
  * ImagePreview component for displaying and editing image URLs
@@ -79,7 +80,7 @@ export default function ImagePreview({
               {loading && (
                  <div className="w-full h-full bg-gradient-to-br from-[var(--gray-100)] to-[var(--gray-200)] flex items-center justify-center">
                    <div className="flex flex-col items-center justify-center space-y-2">
-                     <Loader className="h-8 w-8 text-[var(--primary)] animate-spin" />
+                     <ToviLoader size="sm" />
                      <p className="text-sm text-[var(--gray-500)]">Carregando imagem...</p>
                   </div>
                 </div>

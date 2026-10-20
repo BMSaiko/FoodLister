@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Search, X, Loader2, UserPlus, Users } from "lucide-react";
+import { Search, X, UserPlus, Users } from "lucide-react";
 import { getClient } from "@/libs/supabase/client";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface SearchResult {
   id: string;
@@ -23,8 +24,7 @@ export default function ParticipantsStep({
   participants,
   onAdd,
   onRemove,
-  currentUserId,
-}: ParticipantsStepProps) {
+  currentUserId }: ParticipantsStepProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -110,11 +110,11 @@ export default function ParticipantsStep({
             value={query}
             onChange={(e) => handleSearchChange(e.target.value)}
             onFocus={() => results.length > 0 && setShowDropdown(true)}
-            placeholder="Pesquisar por nome ou codigo..."
+            placeholder="Pesquisar por nome ou código..."
             className="w-full pl-10 pr-10 py-3 bg-white/[0.06] border border-white/[0.1] rounded-xl text-sm text-white/90 placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all"
           />
           {loading && (
-            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 animate-spin" />
+            <ToviSpinner className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
           )}
           {!loading && query.length > 0 && (
             <button
@@ -218,7 +218,7 @@ export default function ParticipantsStep({
         <div className="text-center py-8 bg-white/[0.02] rounded-xl border border-dashed border-white/[0.08]">
           <Users className="h-8 w-8 text-white/10 mx-auto mb-2" />
           <p className="text-xs text-white/30">Adiciona amigos para esta refeição</p>
-          <p className="text-[10px] text-white/20 mt-1">Pesquisa por nome ou codigo FL000001</p>
+          <p className="text-[10px] text-white/20 mt-1">Pesquisa por nome ou código FL000001</p>
         </div>
       )}
     </div>

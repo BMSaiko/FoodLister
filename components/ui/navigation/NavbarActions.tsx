@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Plus, User } from 'lucide-react';
 import { useAuth } from '@/contexts';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: { activeSection: 'restaurants' | 'lists'; showLogin?: boolean; showSignout?: boolean }) => {
   const { user, signOut, loading } = useAuth();
@@ -16,7 +17,7 @@ const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: 
   if (loading) {
     return (
       <div className="flex items-center justify-center w-full sm:w-auto min-h-[44px] sm:min-h-[40px]">
-        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+        <ToviSpinner className="h-4 w-4" />
       </div>
     );
   }

@@ -113,9 +113,7 @@ export default function Navbar() {
         >
           {/* Logo */}
           <Link href="/" prefetch={false} className="flex items-center gap-2 flex-shrink-0 animate-logo-breathe">
-            <div className="w-8 h-8 rounded-xl bg-[var(--primary)] flex items-center justify-center">
-              <img src="/logo.svg" alt="FoodLister" className="w-5 h-5 text-black" />
-            </div>
+            <img src="/logo.svg" alt="FoodLister" className="w-9 h-9" />
             <span className="font-bold text-[var(--foreground)] hidden sm:inline text-sm">FoodLister</span>
           </Link>
 
@@ -331,7 +329,7 @@ export default function Navbar() {
             { id: 'home', icon: Menu, label: 'Home', href: '/' },
             { id: 'restaurants', icon: Utensils, label: 'Restaurantes', href: '/restaurants' },
             { id: 'map', icon: Map, label: 'Mapa', href: '/map' },
-            { id: 'search', icon: Search, label: 'Search', action: 'search' },
+            { id: 'search', icon: Search, label: 'Pesquisa', action: 'search' },
             { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
             { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
             { id: 'profile', icon: User, label: 'Perfil', href: user ? `/u

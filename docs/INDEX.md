@@ -35,6 +35,9 @@ One canonical document per topic. Files marked *redirect* only point to the cano
 ## Guides
 | Document | Topic |
 |---|---|
+| [guides/git-workflow.md](guides/git-workflow.md) | Git workflow (dev/main, PRs, releases) |
+| [guides/supabase-workflow.md](guides/supabase-workflow.md) | Supabase local, backups e promoção |
+| [guides/brand-mascote.md](guides/brand-mascote.md) | Marca e mascote Tovi |
 | [guides/development-guide.md](guides/development-guide.md) | Development |
 | [guides/deployment-guide.md](guides/deployment-guide.md) | Deployment |
 | [guides/contribution-guide.md](guides/contribution-guide.md) | Contributing |

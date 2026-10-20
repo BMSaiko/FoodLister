@@ -3,8 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
+import EmptyState from "@/components/ui/EmptyState";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { Activity, Loader2, ChevronDown, User } from "lucide-react";
+import { Activity, ChevronDown, User } from "lucide-react";
+import ToviLoader from "@/components/loading/ToviLoader";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 // ponytail: fetch inline no page, sem hook separado. Padrão {data,total,page,limit,hasMore}.
 interface FeedItem {
@@ -70,10 +73,15 @@ export default function FeedPage() {
 
         {loading && items.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-[var(--primary)]" />
+            <ToviLoader size="sm" />
           </div>
         ) : items.length === 0 ? (
-          <p className="text-[var(--gray-500)] text-sm text-center py-12">Ainda sem atividade.</p>
+          <EmptyState
+            mascot="a-dormir"
+            title="Ainda sem atividade"
+            description="Segue amigos e restaurantes para ver aqui as novidades."
+            action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">Explorar restaurantes</Link>}
+          />
         ) : (
           <div className="space-y-3">
             {items.map((item) => (
@@ -113,7 +121,7 @@ export default function FeedPage() {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-2 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors disabled:opacity-50"
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronDown className="h-4 w-4" />}
+                {loading ? <ToviSpinner className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                 Carregar mais
               </button>
             )}

@@ -18,8 +18,8 @@ export default function ListFormCelebration({ show, listId, listName, onClose }:
     <Modal isOpen={show} onClose={onClose} size="sm" ariaLabel="Celebração">
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-purple-500/[0.06] rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-pink-500/[0.06] rounded-full blur-[100px]" />
+        <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-amber-500/[0.06] rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/3 right-1/3 w-64 h-64 bg-orange-500/[0.06] rounded-full blur-[100px]" />
       </div>
 
       <motion.div
@@ -33,7 +33,7 @@ export default function ListFormCelebration({ show, listId, listName, onClose }:
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-xl shadow-purple-500/20"
+          className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20"
         >
           <Sparkles className="h-10 w-10 text-white" />
         </motion.div>
@@ -47,7 +47,7 @@ export default function ListFormCelebration({ show, listId, listName, onClose }:
             Lista Criada!
           </h2>
           <p className="text-white/40 mb-8">
-            A sua lista <span className="text-purple-400 font-semibold">"{listName}"</span> foi criada com sucesso.
+            A sua lista <span className="text-amber-400 font-semibold">"{listName}"</span> foi criada com sucesso.
           </p>
         </motion.div>
 
@@ -59,7 +59,7 @@ export default function ListFormCelebration({ show, listId, listName, onClose }:
         >
           <Link
             href={`/lists/${listId}`}
-            className="flex-1 py-3.5 px-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+            className="flex-1 py-3.5 px-5 bg-amber-500 text-black font-semibold rounded-2xl hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
           >
             <Eye className="h-4 w-4" />
             Ver Lista

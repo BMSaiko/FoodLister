@@ -49,7 +49,7 @@ export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], 
 
         {dietaryOptions.length > 0 && (
           <div className="mb-4">
-            <span className="text-[10px] font-bold text-emerald-400/70 uppercase tracking-[0.15em] mb-2 block">{t('Opcoes Dieteticas')}</span>
+            <span className="text-[10px] font-bold text-emerald-400/70 uppercase tracking-[0.15em] mb-2 block">{t('Opções Dieteticas')}</span>
             <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
               {dietaryOptions.map((opt, i) => (
                 <span

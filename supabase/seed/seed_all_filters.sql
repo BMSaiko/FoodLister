@@ -42,7 +42,7 @@ INSERT INTO restaurant_features (name, description, icon) VALUES
 ('Organic Options', 'Organic food options', '🍎'),
 ('Local Products', 'Uses local products', '📍'),
 ('Seasonal Menu', 'Seasonal menu changes', '🍂'),
-('Chef Specials', 'Daily chef specials', '👨‍🍳');
+('Chef Specials', 'Daily chef specials', '👨‍🍳') ON CONFLICT DO NOTHING;
 
 -- Seed data for dietary options (15+ options)
 INSERT INTO restaurant_dietary_options (name, description, icon) VALUES
@@ -60,7 +60,7 @@ INSERT INTO restaurant_dietary_options (name, description, icon) VALUES
 ('Pescatarian', 'Restaurant offers pescatarian options', '🐟'),
 ('Lactose-free', 'Restaurant offers lactose-free options', '🧀'),
 ('Sugar-free', 'Restaurant offers sugar-free options', '🍭'),
-('Whole30', 'Restaurant offers Whole30 compliant options', '🥕');
+('Whole30', 'Restaurant offers Whole30 compliant options', '🥕') ON CONFLICT DO NOTHING;
 
 -- Seed data for cuisine types (40+ options)
 INSERT INTO cuisine_types (name, description, icon) VALUES
@@ -103,7 +103,7 @@ INSERT INTO cuisine_types (name, description, icon) VALUES
 ('Street Food', 'Street food and food trucks', '🚚'),
 ('Home Cooking', 'Home-style and comfort food', '🏠'),
 ('Organic', 'Organic and healthy options', '🍎'),
-('Gluten-free', 'Gluten-free specialized cuisine', '🌾');
+('Gluten-free', 'Gluten-free specialized cuisine', '🌾') ON CONFLICT DO NOTHING;
 
 -- Note: You may need to add sample data to the junction tables
 -- to associate restaurants with their features, dietary options, and cuisine types

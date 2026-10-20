@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Loader, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation, Tag } from 'lucide-react';
+import { X, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation, Tag } from 'lucide-react';
 import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData, OSMService, formatPriceLevel } from '@/utils/googleMapsExtractor';
-import {  } from '@/contexts';
 import Modal from '@/components/ui/Modal';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface GoogleMapsModalProps {
   isOpen: boolean;
@@ -257,7 +257,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               >
                 {loading ? (
                   <>
-                    <Loader className="h-5 w-5 animate-spin" />
+                    <ToviSpinner className="h-5 w-5" />
                     {loadingStep || "A processar..."}
                   </>
                 ) : (
@@ -336,7 +336,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                       </label>
                       <div className="bg-purple-500/[0.08] border border-[var(--purple-200)] rounded-lg p-3">
                         <div className="flex items-center gap-2">
-                          <Loader className="h-4 w-4 animate-spin text-[var(--purple-600)]" />
+                          <ToviSpinner className="h-4 w-4 text-[var(--purple-600)]" />
                           <span className="text-sm text-[var(--purple-700)]">Buscando endereço...</span>
                         </div>
                       </div>

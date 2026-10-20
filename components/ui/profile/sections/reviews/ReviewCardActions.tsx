@@ -7,6 +7,7 @@ import { MapPin, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useModal } from '@/contexts/ModalContext';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface ReviewCardActionsProps {
   review: {
@@ -116,7 +117,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
         title={isSharing ? 'Compartilhando...' : 'Compartilhar avaliação'}
       >
         {isSharing ? (
-          <div className="h-4 w-4 rounded-full border-2 border-gray-400 border-t-transparent animate-spin" />
+          <ToviSpinner className="h-4 w-4" />
         ) : (
           <Share2 className="h-4 w-4 text-gray-600" />
         )}

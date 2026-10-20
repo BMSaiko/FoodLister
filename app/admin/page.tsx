@@ -7,6 +7,7 @@ import GrowthChart from '@/components/admin/GrowthChart';
 import Link from 'next/link';
 import { Users, UtensilsCrossed, Star, ArrowUpRight, RefreshCw } from 'lucide-react';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 export default function AdminDashboardPage() {
   usePageTitle("Admin - FoodLister");
@@ -26,7 +27,7 @@ export default function AdminDashboardPage() {
             className="group flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors duration-150"
           >
             {loading ? (
-              <span className='w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin' style={{ animationDuration: '1s' }} />
+              <ToviSpinner className="w-4 h-4" />
             ) : (
               <RefreshCw className='w-4 h-4' />
             )}

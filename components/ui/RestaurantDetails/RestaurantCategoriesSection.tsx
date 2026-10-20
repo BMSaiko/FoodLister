@@ -32,8 +32,8 @@ export default function RestaurantCategoriesSection({
             <Tag className="h-6 w-6 text-white/30" />
           </div>
           <h3 className="text-base font-semibold text-white/60 mb-2">{t('Sem categorias definidas')}</h3>
-          <p className="text-white/40 text-xs">
-            Este restaurante ainda nao possui categorias ou caracteristicas definidas
+          <p className="text-white/50 text-xs">
+            Este restaurante ainda não possui categorias ou características definidas
           </p>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function RestaurantCategoriesSection({
           <div>
             <div className="flex items-center mb-2 sm:mb-3">
               <span className="text-xs sm:text-sm font-medium text-green-400 flex items-center gap-1.5">
-                {'🥗'} Opcoes Dieteticas
+                {'🥗'} Opções Dieteticas
               </span>
             </div>
             <div className="flex flex-wrap gap-1.5 sm:gap-2">

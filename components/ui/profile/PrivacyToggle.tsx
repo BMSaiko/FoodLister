@@ -1,5 +1,6 @@
 import React from 'react';
-import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface PrivacyToggleProps {
   isPublic: boolean;
@@ -28,7 +29,7 @@ const PrivacyToggle: React.FC<PrivacyToggleProps> = ({
       title={isPublic ? 'Tornar perfil privado' : 'Tornar perfil público'}
     >
       {isLoading ? (
-        <Loader2 className={`h-5 w-5 ${statusColor} animate-spin`} />
+        <ToviSpinner className={`h-5 w-5 ${statusColor}`} />
       ) : (
         <Icon className={`h-5 w-5 ${statusColor}`} />
       )}

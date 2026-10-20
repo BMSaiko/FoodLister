@@ -55,7 +55,7 @@ export default function MealDetailsStep({
 
       <div>
         <label className="block text-xs text-white/40 uppercase tracking-wider mb-2">
-          Tipo de refeicao
+          Tipo de refeição
         </label>
         <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           {mealTypes.map((type) => (

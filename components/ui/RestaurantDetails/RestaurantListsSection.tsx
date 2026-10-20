@@ -24,7 +24,7 @@ export default function RestaurantListsSection({
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-semibold text-white/70">Listas</h3>
-            <p className="text-xs sm:text-sm text-white/40">Este restaurante nao esta em nenhuma lista.</p>
+            <p className="text-xs sm:text-sm text-white/50">Este restaurante não está em nenhuma lista.</p>
           </div>
         </div>
 
@@ -32,7 +32,7 @@ export default function RestaurantListsSection({
           <div className="bg-white/[0.03] rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
             <ListChecks className="h-6 w-6 text-white/20" />
           </div>
-          <p className="text-white/40 text-xs sm:text-sm">
+          <p className="text-white/50 text-xs sm:text-sm">
             Adicione este restaurante a uma lista para organiza-lo melhor!
           </p>
         </div>

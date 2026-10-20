@@ -13,10 +13,10 @@ import MenuManager from '@/components/ui/RestaurantManagement/MenuManager';
 import FormSection from '@/components/ui/common/FormSection';
 import FormField from '@/components/ui/common/FormField';
 import MultiplePhoneInput from '@/components/ui/common/MultiplePhoneInput';
-import { ArrowLeft, MapPin, Globe, Map, Save, ChevronRight, ChevronLeft, Info, Tag, Utensils, Image, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Globe, Map, Info, Tag, Utensils, Image, Check } from 'lucide-react';
 import { useRestaurantForm } from '@/hooks/forms/useRestaurantForm';
 import Link from 'next/link';
-import RestaurantFormProgress from './RestaurantFormProgress';
+import { FormStepper, WizardNav, type WizardStep } from '@/components/ui/FormWizard';
 import RestaurantFormPreview from './RestaurantFormPreview';
 import RestaurantFormCelebration from './RestaurantFormCelebration';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -29,6 +29,15 @@ export interface RestaurantFormProps {
   enableBatchImport?: boolean;
   onSuccess?: (restaurant: { id: string; name: string } | { count: number }) => void;
 }
+
+const STEPS: WizardStep[] = [
+  { id: 1, label: 'Básico', icon: Info },
+  { id: 2, label: 'Categorias', icon: Tag },
+  { id: 3, label: 'Dietética', icon: Utensils },
+  { id: 4, label: 'Características', icon: MapPin },
+  { id: 5, label: 'Imagens', icon: Image },
+  { id: 6, label: 'Detalhes', icon: Check },
+];
 
 const SECTION_ICONS = {
   basic: Info,
@@ -134,7 +143,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
         }}
       />
 
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-24 md:pb-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-48 md:pb-8">
         {/* Back link */}
         <Link href={backUrl} className="inline-flex items-center text-[var(--foreground-secondary)] hover:text-[var(--primary)] mb-6 transition-colors">
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -142,7 +151,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
         </Link>
 
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between">
+        <div className="mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[var(--foreground)] tracking-tighter">
               {isEdit ? 'Editar Restaurante' : 'Novo Restaurante'}
@@ -151,20 +160,10 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {isEdit ? 'Atualiza as informações do restaurante.' : 'Conta a história do teu restaurante.'}
             </p>
           </div>
-          {enableBatchImport && (
-            <button
-              type="button"
-              onClick={() => setBatchImportOpen(true)}
-              className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
-            >
-              <MapPin className="h-4 w-4" />
-              Importar lista do Google Maps
-            </button>
-          )}
         </div>
 
         {/* Progress */}
-        <RestaurantFormProgress currentStep={currentStep} onStepClick={goToStep} />
+        <FormStepper steps={STEPS} currentStep={currentStep} onStepClick={goToStep} />
 
         {/* Main content: Form + Preview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -176,6 +175,17 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                 <div className="wizard-step-enter">
                   <FormSection title={t('Informações Básicas')}  icon={<SECTION_ICONS.basic className="w-5 h-5" />}>
                     <div className="space-y-4">
+                      {enableBatchImport && (
+                        <button
+                          type="button"
+                          onClick={() => setBatchImportOpen(true)}
+                          className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
+                        >
+                          <MapPin className="h-4 w-4" />
+                          Importar lista do Google Maps
+                        </button>
+                      )}
+
                       <FormField label={t('Nome')} name="name" type="text" value={formData.name} onChange={handleChange} required>
                         <button
                           type="button"
@@ -307,42 +317,15 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                 </div>
               )}
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between pt-4">
-                <button
-                  type="button"
-                  onClick={() => goToStep(currentStep - 1)}
-                  disabled={currentStep === 1}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Anterior
-                </button>
-
-                <span className="text-sm text-[var(--foreground-muted)]">
-                  {currentStep} de 6
-                </span>
-
-                {currentStep < 6 ? (
-                  <button
-                    type="button"
-                    onClick={() => goToStep(currentStep + 1)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-black text-sm font-medium rounded-full hover:bg-[var(--primary-hover)] transition-colors"
-                  >
-                    Próximo
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="inline-flex items-center gap-2 px-6 py-2 bg-[var(--primary)] text-black font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4" />
-                    {saving ? 'A guardar...' : isEdit ? 'Guardar' : 'Criar Restaurante'}
-                  </button>
-                )}
-              </div>
+              <WizardNav
+                currentStep={currentStep}
+                totalSteps={STEPS.length}
+                onPrevious={() => goToStep(currentStep - 1)}
+                onNext={() => goToStep(currentStep + 1)}
+                onCancel={() => router.push(backUrl)}
+                saving={saving}
+                submitLabel={isEdit ? 'Guardar' : 'Criar Restaurante'}
+              />
             </form>
           </div>
 
