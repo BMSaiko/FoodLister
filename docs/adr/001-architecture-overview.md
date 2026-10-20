@@ -12,7 +12,7 @@ FoodLister is a restaurant discovery and list management web application. The ar
 ## Decision
 
 ### Tech Stack
-- **Frontend**: Next.js 15 (App Router) + React 18 + Tailwind CSS 3
+- **Frontend**: Next.js 15 (App Router) + React 19 + Tailwind CSS 3 (React 19 per `package.json`; this ADR originally said React 18)
 - **Backend**: Next.js API Routes + Supabase
 - **Database**: PostgreSQL (Supabase)
 - **Auth**: Supabase Auth (email/password + OAuth)
