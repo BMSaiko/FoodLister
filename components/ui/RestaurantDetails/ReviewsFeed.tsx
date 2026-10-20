@@ -1,5 +1,6 @@
+import EmptyState from "@/components/ui/EmptyState";
 import React, { useState, useEffect, forwardRef, useRef } from "react";
-import { Star, Edit, X, MessageSquare } from "lucide-react";
+import { Star, Edit, X } from "lucide-react";
 import { Review } from "@/libs/types";
 import { formatDate } from "@/utils/formatters";
 import { toast } from "react-toastify";
@@ -20,17 +21,23 @@ interface ReviewsFeedProps {
   onDeleteReview: (id: string) => void;
   restaurantRating?: number;
   highlightReviewId?: string;
+  /** Incrementar para abrir o formulário de avaliação (botão «Avaliar» do topo). */
+  openFormSignal?: number;
 }
 
 const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) => {
-  const { restaurantId, reviews, reviewCount, user, userProfile, loading, onReviewSubmitted, onEditReview, onDeleteReview, restaurantRating, highlightReviewId } = props;
+  const { restaurantId, reviews, reviewCount, user, userProfile, loading, onReviewSubmitted, onEditReview, onDeleteReview, restaurantRating, highlightReviewId, openFormSignal = 0 } = props;
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Review | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (editing && formRef.current) formRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [editing]);
+    if (openFormSignal > 0 && user) setShowForm(true);
+  }, [openFormSignal, user]);
+
+  useEffect(() => {
+    if ((editing || showForm) && formRef.current) formRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [editing, showForm]);
 
   // Scroll to highlighted review (from ?review=XXX param) + visual highlight
   useEffect(() => {
@@ -118,16 +125,17 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
           ))}
         </div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-14 rounded-3xl bg-white/[0.02] border border-white/[0.04]">
-          <MessageSquare className="h-14 w-14 text-white/[0.06] mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white/45 mb-2">Nenhuma avaliação ainda</h3>
-          <p className="text-sm text-white/25 mb-5">Seja o primeiro a partilhar a sua experiência!</p>
-          {user && !showForm && (
-            <button onClick={() => setShowForm(true)} className="inline-flex items-center px-5 py-2.5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-all duration-200 text-sm font-semibold hover:scale-105">
+        <EmptyState
+          mascot="a-dormir"
+          title="Ainda sem avaliações"
+          description="Seja o primeiro a partilhar a sua experiência."
+          className="rounded-3xl bg-white/[0.02] border border-white/[0.04]"
+          action={user && !showForm ? (
+            <button onClick={() => setShowForm(true)} className="inline-flex items-center px-5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors text-sm font-semibold">
               <Star className="h-4 w-4 mr-2 fill-current" />Fazer avaliação
             </button>
-          )}
-        </div>
+          ) : undefined}
+        />
       ) : (
         <div className="space-y-3">
           {reviews.map((review, i) => (
