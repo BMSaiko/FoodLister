@@ -132,6 +132,12 @@ npm run dev
 | `npm test` | Run tests |
 | `npm run test:coverage` | Tests with coverage |
 | `npm run storybook` | Start Storybook |
+| `npm run db:start` / `db:stop` | Supabase local (Docker) |
+| `npm run db:reset` | Aplica migrations e seeds ao Supabase local |
+| `npm run db:diff` | Diferenças de esquema |
+| `npm run db:backup` | `pg_dump` do cloud (só leitura), rotação das últimas 8 |
+| `npm run db:restore-test` | Testa o restauro de um backup |
+| `npm run db:promote` | Backup + `db push --dry-run`; o push real é manual |
 
 ## Project Structure
 
@@ -171,13 +177,15 @@ foodlister/
 │   └── subscription.ts     # Feature gate config
 ├── supabase/migrations/    # baseline + migrations por timestamp (histórico em migrations_legacy/)
 ├── types/                  # Database + API types
-├── __tests__/              # 57 test files
+├── __tests__/              # Jest + React Testing Library
+├── e2e/                    # Playwright
 ├── docs/                   # Documentation
 │   ├── adr/                # Architecture Decision Records
 │   ├── api/                # API documentation
 │   ├── architecture/       # Architecture overview
 │   ├── database/           # Database schema
-│   └── guides/             # How-to guides
+│   ├── guides/             # How-to guides
+│   └── agent/              # Notas e planos de agentes
 └── public/
     └── sw.js               # Service Worker (PWA + Push)
 ```
@@ -223,12 +231,17 @@ Ramos `feat|fix|docs|chore/<slug>` nascem de `dev`, entram em `dev` por PR (squa
 
 Desenvolvimento contra o Supabase local (`npm run db:start`, `db:reset`); backups e promoção para o cloud com `db:backup` e `db:promote`. Detalhe em [docs/guides/supabase-workflow.md](docs/guides/supabase-workflow.md).
 
+## UX mobile
+
+Auditoria de todas as páginas a 390 px (escuro): admin com gaveta, estados vazios com Tovi, mapa sem sobreposições, detalhe do restaurante com carrossel, wizard com passos rotulados, `/auth/*` e `/subscribe/*` com tokens âmbar e alvos de 44 px. Botões em `.btn`/`.btn-primary`/`.btn-ghost` (`app/globals.css`); sem roxo.
+
 ## Marca
 
 Logo: cloche (SVG claro, escuro e monocromático em `public/brand/`), favicon, ícones PWA e maskable em `public/icons/`. Mascote **Tovi** com 6 emotes em `public/mascot/`, usada no `ToviLoader` (`components/loading/`), estados vazios e erros. Regras de uso em [docs/guides/brand-mascote.md](docs/guides/brand-mascote.md); os ícones regeneram-se com `node scripts/generate-brand-icons.mjs`.
 
 ## Documentation
 
+- **Índice:** `docs/INDEX.md`
 - **Architecture:** `docs/architecture/architecture-overview.md`
 - **API:** `docs/api/api-documentation.md`
 - **Database:** `docs/database/database-schema.md`
@@ -237,8 +250,8 @@ Logo: cloche (SVG claro, escuro e monocromático em `public/brand/`), favicon, �
 
 ## Testing
 
-- **57 test files** across API, components, hooks, libs
-- **54+ suites** (404+ testes, incluindo snapshot do `ToviLoader`) a passar
+- **61 suites** (436 testes, incluindo snapshots do `ToviLoader`) a passar
+- E2E com Playwright em `e2e/`
 - Run: `npm test`
 
 ## Progress
@@ -254,7 +267,7 @@ Logo: cloche (SVG claro, escuro e monocromático em `public/brand/`), favicon, �
 | Marketing AI | ✅ 100% |
 | Performance & Caching | ✅ 100% |
 | PWA | ✅ 100% |
-| Testing | ✅ 100% (414/414 tests) |
+| Testing | ✅ 100% (436/436 tests) |
 | Documentation | ✅ 100% |
 | Accessibility | ✅ 100% (ARIA labels) |
 | Error Handling | ✅ 100% (Error Boundaries) |
@@ -269,4 +282,4 @@ Private and proprietary. All rights reserved.
 
 ---
 
-*Last updated: 2026-08-10*
+*Last updated: 2026-10-20*
