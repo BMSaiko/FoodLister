@@ -99,6 +99,11 @@ export default function MapPage() {
     border-top: none !important;
     border-radius: 0 0 1rem 1rem !important;
   }
+  .leaflet-control-zoom a {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+  }
   .leaflet-popup-close-button {
     color: var(--foreground-muted) !important;
     font-size: 1.1rem !important;
@@ -123,7 +128,7 @@ export default function MapPage() {
     transform: translateX(3px);
   }
 `}</style>
-      <div className="flex flex-col lg:flex-row h-[calc(100dvh-60px)] min-h-0">
+      <div className="flex flex-col lg:flex-row h-[calc(100dvh-60px)] min-h-0 pb-[88px] lg:pb-0">
         {/* Sidebar - Restaurant list */}
         <div
           className={`hidden lg:block w-80 xl:w-96 border-r border-white/[0.06] overflow-y-auto flex-shrink-0 min-h-0 ${
@@ -248,7 +253,7 @@ export default function MapPage() {
           <div className="lg:hidden absolute top-2 left-2 z-[1001] flex gap-2">
             <button
               onClick={() => setShowList(!showList)}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/60 backdrop-blur text-white/80 text-sm border border-white/[0.08]"
+              className="flex items-center gap-2 px-4 min-h-[44px] rounded-xl bg-black/80 backdrop-blur text-white/80 text-sm border border-white/[0.08]"
             >
               <Filter className="w-4 h-4" />
               {showList ? "Esconder lista" : `Lista (${filteredRestaurants.length})`}
