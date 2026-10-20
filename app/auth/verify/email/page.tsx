@@ -51,15 +51,15 @@ export default function VerifyEmailPage() {
     <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
       {/* Mesh gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-500/[0.04] rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-pink-500/[0.03] rounded-full blur-[100px]" />
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-[var(--primary)]/[0.04] rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[var(--primary)]/[0.04] rounded-full blur-[100px]" />
       </div>
 
       <div className="max-w-md mx-auto w-full relative z-10">
         {/* Premium email icon with gradient */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
-            <Mail className="h-7 w-7 text-purple-400" />
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-[var(--primary-lighter)] ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
+            <Mail className="h-7 w-7 text-[var(--primary)]" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
             {t("Verificação de Email")}
@@ -106,7 +106,7 @@ export default function VerifyEmailPage() {
                 <div className="space-y-3">
                   <Link
                     href="/auth/signin"
-                    className="block w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98] transition-colors text-center min-h-[48px]"
+                    className="block w-full py-3 bg-[var(--primary)] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-colors text-center min-h-[48px]"
                   >
                     {t("Ir para Login")}
                   </Link>
