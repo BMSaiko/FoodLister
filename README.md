@@ -40,7 +40,7 @@ A full-featured Next.js 15 application for discovering, organizing, and sharing 
 ### ✅ Technical
 - **PWA** — Service Worker, offline fallback, install prompt
 - **Caching** — TTL in-memory cache, HTTP caching, client-side caching
-- **Testing** — 57 test files, 414 tests passing (100% pass rate)
+- **Testing** — 54 test suites, 404 tests passing (100% pass rate)
 - **Storybook** — Component development environment
 - **CI/CD** — GitHub Actions (lint + build + test)
 - **RLS** — Row Level Security on all 20+ database tables
@@ -59,7 +59,7 @@ A full-featured Next.js 15 application for discovering, organizing, and sharing 
 | **AI** | OpenAI GPT-4o-mini |
 | **Push** | Web Push API + VAPID |
 | **PWA** | next-pwa |
-| **Testing** | Jest 30, React Testing Library, Storybook |
+| **Testing** | Jest 29, React Testing Library, Storybook |
 | **Deployment** | Vercel |
 
 ## Getting Started
@@ -206,7 +206,7 @@ foodlister/
 | **Marketing** | marketing_campaigns, social_media_posts, ai_workflows, content_generation_logs |
 | **Admin** | admin_roles |
 
-See `docs/database/database-schema.md` for full schema.
+See `docs/database/database-schema-reference.md` for full schema.
 
 ## API
 
@@ -221,7 +221,7 @@ See `docs/database/database-schema.md` for full schema.
 - `POST /api/marketing/posts` — Create posts with AI generation
 - `GET /api/admin/stats` — Admin dashboard statistics
 
-See `docs/api/api-documentation.md` for complete reference.
+See `docs/api/api-endpoints-reference.md` for complete reference.
 
 ## Workflow Git
 
@@ -242,9 +242,9 @@ Logo: cloche (SVG claro, escuro e monocromático em `public/brand/`), favicon, �
 ## Documentation
 
 - **Índice:** `docs/INDEX.md`
-- **Architecture:** `docs/architecture/architecture-overview.md`
-- **API:** `docs/api/api-documentation.md`
-- **Database:** `docs/database/database-schema.md`
+- **Architecture:** `docs/ARCHITECTURE.md`
+- **API:** `docs/api/api-endpoints-reference.md`
+- **Database:** `docs/database/database-schema-reference.md`
 - **ADR:** `docs/adr/` (Architecture Decision Records)
 - **Guides:** `docs/guides/` (development, deployment, error handling)
 

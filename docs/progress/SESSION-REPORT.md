@@ -16,14 +16,14 @@ Durante esta sessão de desenvolvimento, foram **atualizados 12 documentos** no 
 ## 📝 Documentação Atualizada#
 
 ### 1. API Documentation#
-- [x] `docs/api/api-documentation.md` - Atualizado com todos os endpoints atuais (20+ endpoints)#
+- [x] `docs/api/api-endpoints-reference.md` - Atualizado com todos os endpoints atuais (20+ endpoints)#
 - [x] `docs/api/api-endpoints-reference.md` - Referência completa de endpoints#
 
 ### 2. Architecture Documentation#
 - [x] `docs/architecture/architecture-overview.md` - Visão geral atualizada (Tailwind 3, todas as tabelas, componentes)#
 
 ### 3. Database Documentation#
-- [x] `docs/database/database-schema.md` - Schema completo com todas as tabelas (restaurants, lists, reviews, user_stats, notifications, scheduled_meals, etc.)#
+- [x] `docs/database/database-schema-reference.md` - Schema completo com todas as tabelas (restaurants, lists, reviews, user_stats, notifications, scheduled_meals, etc.)#
 - [x] `docs/database/database-schema-reference.md` - Referência técnica atualizada#
 
 ### 4. Features Documentation#
