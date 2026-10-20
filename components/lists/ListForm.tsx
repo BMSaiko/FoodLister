@@ -1,17 +1,16 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ArrowLeft, Globe, Lock, Search, Plus, Star, ChevronRight, ChevronLeft, Sparkles, Info, Tag, Image, X } from "lucide-react";
+import { ArrowLeft, Globe, Lock, Search, Plus, Star, List, Eye, Sparkles, Info, Tag, Image, X } from "lucide-react";
 import Link from "next/link";
 import { VisibilityToggle } from "components/ui/lists/ListFormFields";
 import ListTagsInput from "components/ui/lists/ListTagsInput";
 import FormSection from "@/components/ui/common/FormSection";
-import ListFormProgress from "./ListFormProgress";
+import { FormStepper, WizardNav, type WizardStep } from "@/components/ui/FormWizard";
 import ListFormPreview from "./ListFormPreview";
 import ListFormCelebration from "./ListFormCelebration";
 import { useLanguage } from '@/contexts/LanguageContext';
 import ToviLoader from "@/components/loading/ToviLoader";
-import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface Restaurant {
   id: string;
@@ -47,6 +46,15 @@ interface ListFormProps {
   onRemoveRestaurant: (restaurantId: string) => void;
   availableRestaurants: Restaurant[];
 }
+
+const STEPS: WizardStep[] = [
+  { id: 1, label: "Info", icon: Info },
+  { id: 2, label: "Visibilidade", icon: Globe },
+  { id: 3, label: "Restaurantes", icon: Search },
+  { id: 4, label: "Organizar", icon: List },
+  { id: 5, label: "Preview", icon: Eye },
+  { id: 6, label: "Criar", icon: Sparkles },
+];
 
 const SECTION_ICONS: Record<number, React.ReactNode> = {
   1: <Info className="w-5 h-5" />,
@@ -129,7 +137,7 @@ export default function ListForm({
         }}
       />
 
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-24 md:pb-8">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-48 md:pb-8">
         {/* Back link */}
         <Link href={backLink} className="inline-flex items-center text-white/40 hover:text-amber-400 mb-4 transition-colors text-sm">
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -147,7 +155,7 @@ export default function ListForm({
         </div>
 
         {/* Progress */}
-        <ListFormProgress currentStep={currentStep} onStepClick={goToStep} />
+        <FormStepper steps={STEPS} currentStep={currentStep} onStepClick={goToStep} />
 
         {/* Main content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -375,47 +383,19 @@ export default function ListForm({
                 </FormSection>
               )}
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between pt-4">
-                <button
-                  type="button"
-                  onClick={() => currentStep > 1 ? goToStep(currentStep - 1) : (window.location.href = backLink)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white/50 hover:text-white/80 transition-colors min-h-[44px]"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  {currentStep === 1 ? "Cancelar" : "Anterior"}
-                </button>
-
-                <span className="text-xs text-white/20">{currentStep} de 6</span>
-
-                {currentStep < 6 ? (
-                  <button
-                    type="button"
-                    onClick={() => goToStep(currentStep + 1)}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500/15 text-amber-400 text-sm font-semibold rounded-xl hover:bg-amber-500/25 transition-all min-h-[44px]"
-                  >
-                    Próximo
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-black font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-all disabled:opacity-50 min-h-[44px]"
-                  >
-                    {saving ? (
-                      <ToviSpinner className="w-4 h-4" />
-                    ) : (
-                      <Sparkles className="w-4 h-4" />
-                    )}
-                    {saving ? "A criar..." : isCreate ? "Criar Lista" : "Guardar"}
-                  </button>
-                )}
-              </div>
-
               {error && (
                 <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
               )}
+
+              <WizardNav
+                currentStep={currentStep}
+                totalSteps={STEPS.length}
+                onPrevious={() => goToStep(currentStep - 1)}
+                onNext={() => goToStep(currentStep + 1)}
+                onCancel={() => { window.location.href = backLink; }}
+                saving={saving}
+                submitLabel={isCreate ? "Criar Lista" : "Guardar"}
+              />
             </form>
           </div>
 

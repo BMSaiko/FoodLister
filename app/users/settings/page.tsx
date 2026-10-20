@@ -195,32 +195,37 @@ export default function ProfileSettingsPage() {
         </Modal>
 
 
-      <div className="container mx-auto px-4 py-6 max-w-3xl">
+      <div className="container mx-auto px-4 py-6 pb-48 md:pb-6 max-w-3xl">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">{t("Configurações")}</h1>
-          <p className="text-white/35 mt-1 text-sm">{t("Gerencia as suas informacoes pessoais e privacidade")}</p>
+          <p className="text-white/35 mt-1 text-sm">{t("Gere as suas informações pessoais e privacidade")}</p>
         </div>
 
-        {/* Step indicator */}
-        <div className="flex items-center gap-2 mb-6">
+        {/* Separadores */}
+        <div role="tablist" aria-label={t("Secções das definições")} className="flex items-center gap-2 mb-6">
           {[1, 2, 3].map(step => (
             <button
               key={step}
+              type="button"
+              role="tab"
+              id={`settings-tab-${step}`}
+              aria-selected={currentStep === step}
+              aria-controls="settings-panel"
               onClick={() => setCurrentStep(step)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors duration-150 ${
+              className={`flex-1 min-w-0 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 ${
                 currentStep === step
                   ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
-                  : "bg-white/[0.03] text-white/30 hover:bg-white/[0.06]"
+                  : "bg-white/[0.03] text-white/50 hover:bg-white/[0.06]"
               }`}
             >
               {SECTION_ICONS[step]}
-              <span className="hidden sm:inline">{step === 1 ? t("Perfil") : step === 2 ? t("Privacidade") : t("Estatisticas")}</span>
+              <span>{step === 1 ? t("Perfil") : step === 2 ? t("Privacidade") : t("Estatísticas")}</span>
             </button>
           ))}
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} role="tabpanel" id="settings-panel" aria-labelledby={`settings-tab-${currentStep}`}>
           {/* Step 1: Personal Info */}
           {currentStep === 1 && (
             <div className="space-y-4">
@@ -252,9 +257,13 @@ export default function ProfileSettingsPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-white/50 mb-1.5">{t("Nome de Exibição *")}</label>
+                      <label htmlFor="settings-name" className="block text-sm font-medium text-white/50 mb-1.5">{t("Nome de Exibição *")}</label>
                       <input
+                        id="settings-name"
                         type="text"
+                        autoComplete="name"
+                        aria-invalid={formErrors.display_name ? true : undefined}
+                        aria-describedby={formErrors.display_name ? "settings-name-error" : undefined}
                         value={localProfile?.name || ""}
                         onChange={e => handleInputChange("name", e.target.value)}
                         disabled={isSubmitting}
@@ -264,7 +273,7 @@ export default function ProfileSettingsPage() {
                         placeholder={t("O seu nome")}
                         required
                       />
-                      {formErrors.display_name && <p className="text-red-400 text-xs mt-1">{formErrors.display_name}</p>}
+                      {formErrors.display_name && <p id="settings-name-error" role="alert" className="text-red-400 text-xs mt-1">{formErrors.display_name}</p>}
                     </div>
 
                     <div>
@@ -273,6 +282,8 @@ export default function ProfileSettingsPage() {
                       </label>
                       <input
                         type="email"
+                        inputMode="email"
+                        autoComplete="email"
                         value={user.email || ""}
                         readOnly
                         className="w-full px-4 py-3 bg-white/[0.02] border border-white/[0.04] rounded-xl text-white/30 cursor-not-allowed"
@@ -281,11 +292,14 @@ export default function ProfileSettingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                      <label htmlFor="settings-phone" className="block text-sm font-medium text-white/50 mb-1.5">
                         <Phone className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Telefone")}
                       </label>
                       <input
+                        id="settings-phone"
                         type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
                         value={localProfile?.phoneNumber || ""}
                         onChange={e => handleInputChange("phoneNumber", e.target.value)}
                         disabled={isSubmitting}
@@ -295,11 +309,13 @@ export default function ProfileSettingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                      <label htmlFor="settings-location" className="block text-sm font-medium text-white/50 mb-1.5">
                         <MapPin className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Localização")}
                       </label>
                       <input
+                        id="settings-location"
                         type="text"
+                        autoComplete="address-level2"
                         value={localProfile?.location || ""}
                         onChange={e => handleInputChange("location", e.target.value)}
                         disabled={isSubmitting}
@@ -309,11 +325,16 @@ export default function ProfileSettingsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                      <label htmlFor="settings-website" className="block text-sm font-medium text-white/50 mb-1.5">
                         <Globe className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Website")}
                       </label>
                       <input
+                        id="settings-website"
                         type="url"
+                        inputMode="url"
+                        autoComplete="url"
+                        aria-invalid={formErrors.website ? true : undefined}
+                        aria-describedby={formErrors.website ? "settings-website-error" : undefined}
                         value={localProfile?.website || ""}
                         onChange={e => handleInputChange("website", e.target.value)}
                         disabled={isSubmitting}
@@ -322,14 +343,17 @@ export default function ProfileSettingsPage() {
                         }`}
                         placeholder="https://o-seu-site.com"
                       />
-                      {formErrors.website && <p className="text-red-400 text-xs mt-1">{formErrors.website}</p>}
+                      {formErrors.website && <p id="settings-website-error" role="alert" className="text-red-400 text-xs mt-1">{formErrors.website}</p>}
                     </div>
 
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-white/50 mb-1.5">
+                      <label htmlFor="settings-bio" className="block text-sm font-medium text-white/50 mb-1.5">
                         <FileText className="h-3.5 w-3.5 inline mr-1.5 text-white/25" />{t("Bio")}
                       </label>
                       <textarea
+                        id="settings-bio"
+                        aria-invalid={formErrors.bio ? true : undefined}
+                        aria-describedby={formErrors.bio ? "settings-bio-error" : undefined}
                         value={localProfile?.bio || ""}
                         onChange={e => handleInputChange("bio", e.target.value)}
                         rows={3}
@@ -344,7 +368,7 @@ export default function ProfileSettingsPage() {
                         <p className="text-[10px] text-white/20">{t("Máximo 500 caracteres")}</p>
                         <span className="text-[10px] text-white/25">{(localProfile?.bio || "").length}/500</span>
                       </div>
-                      {formErrors.bio && <p className="text-red-400 text-xs mt-1">{formErrors.bio}</p>}
+                      {formErrors.bio && <p id="settings-bio-error" role="alert" className="text-red-400 text-xs mt-1">{formErrors.bio}</p>}
                     </div>
                   </div>
                 </div>
@@ -426,7 +450,7 @@ export default function ProfileSettingsPage() {
           {/* Step 3: Stats */}
           {currentStep === 3 && (
             <div className="space-y-4">
-              <FormSection title={t("Estatisticas")} icon={<Sparkles className="w-5 h-5" />} description={t("O seu impacto na comunidade FoodLister.")}>
+              <FormSection title={t("Estatísticas")} icon={<Sparkles className="w-5 h-5" />} description={t("O seu impacto na comunidade FoodLister.")}>
                 <div className="grid grid-cols-2 gap-3">
 
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
@@ -461,45 +485,34 @@ export default function ProfileSettingsPage() {
             </div>
           )}
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between mt-6 pt-4">
-            <button
-              type="button"
-              onClick={() => currentStep > 1 ? setCurrentStep(currentStep - 1) : router.back()}
-              className="px-4 py-2.5 text-sm font-medium text-white/40 hover:text-white/70 transition-colors min-h-[44px]"
-            >
-              {currentStep === 1 ? t("Cancelar") : t("Anterior")}
-            </button>
+          {error && (
+            <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+          )}
 
-            <span className="text-xs text-white/20">{t("{current} de 3", { current: currentStep })}</span>
-
-            {currentStep < 3 ? (
+          {/* Barra de ações: fixa acima da barra inferior em mobile */}
+          <div className="fixed inset-x-0 z-30 border-t border-white/[0.08] bg-[var(--background)] px-4 py-2.5 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] md:static md:z-auto md:border-0 md:bg-transparent md:p-0 md:mt-6 md:pt-4">
+            <div className="flex items-center justify-between gap-2 max-w-3xl mx-auto md:max-w-none">
               <button
                 type="button"
-                onClick={() => setCurrentStep(currentStep + 1)}
-                className="px-5 py-2.5 bg-amber-500/15 text-amber-400 text-sm font-semibold rounded-xl hover:bg-amber-500/25 transition-colors min-h-[44px]"
+                onClick={() => router.back()}
+                className="px-4 text-sm font-medium text-white/60 hover:text-white/80 transition-colors min-h-[44px]"
               >
-                {t("Próximo")}
+                {t("Cancelar")}
               </button>
-            ) : (
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-amber-500 text-black font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-colors disabled:opacity-50 min-h-[44px]"
+                className="inline-flex items-center justify-center gap-2 px-6 bg-amber-500 text-black font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-colors disabled:opacity-50 min-h-[44px]"
               >
                 {isSubmitting ? (
                   <ToviSpinner className="w-4 h-4" />
                 ) : (
                   <CheckCircle className="w-4 h-4" />
                 )}
-                {isSubmitting ? t("A salvar...") : t("Salvar Alteracoes")}
+                {isSubmitting ? t("A guardar...") : t("Guardar")}
               </button>
-            )}
+            </div>
           </div>
-
-          {error && (
-            <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
-          )}
         </form>
       </div>
 
