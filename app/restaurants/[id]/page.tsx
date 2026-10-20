@@ -18,6 +18,7 @@ import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
 import AddToList from "@/components/ui/RestaurantDetails/AddToList";
 import ReportButton from "@/components/ui/common/ReportButton";
 import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
+import { PinIcon } from "@/components/icons";
 const CategoryChips = dynamic(() => import("@/components/ui/RestaurantDetails/CategoryChips"));
 const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), { ssr: false });
 const ReviewsSkeleton = () => (
@@ -715,12 +716,14 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
         </div>
       ) : (
         <>
-          {/* Hero Section */}
+          {/* Hero: carrossel, título, rating e preço, atalhos e ações */}
           <HeroSection
             restaurant={restaurant}
             reviewImages={reviews?.flatMap(r => (r as any).images || []).filter(Boolean) || []}
+            reviewCount={reviewCount}
             onShare={handleShareClick}
             onSchedule={() => setIsScheduleModalOpen(true)}
+            onReview={user ? () => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' }) : undefined}
             onEdit={(user && (restaurant.creator_id === user.id || userProfile?.isAdmin)) ? () => window.location.href = `/restaurants/${restaurant?.id}/edit` : undefined}
             isOwner={!!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin))}
             onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
@@ -737,25 +740,18 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
             ) : undefined}
           />
 
-          {/* Restaurant Map — compact card with restaurant pin */}
-          <div className="max-w-7xl mx-auto px-4 pb-4">
+          {/* Localização: uma só vez (mapa + morada + Google Maps), com margem para a barra de ações */}
+          <div id="localizacao" className="max-w-7xl mx-auto px-4 pt-4 pb-4 scroll-mt-20">
             {restaurant.latitude && restaurant.longitude ? (
               <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-                <div className="px-4 py-3 flex items-center justify-between border-b border-white/[0.04]">
-                  <h3 className="text-sm font-semibold text-white/70 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <div className="px-4 py-3 border-b border-white/[0.04]">
+                  <h2 className="text-sm font-semibold text-white/80 flex items-center gap-2">
+                    <PinIcon size={18} />
                     Localização
-                  </h3>
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-medium text-amber-400/70 hover:text-amber-400 transition-colors"
-                  >
-                    Abrir no Google Maps →
-                  </a>
+                  </h2>
+                  {restaurant.location && <p className="mt-1 text-sm text-white/60">{restaurant.location}</p>}
                 </div>
-                <div className="h-64 md:h-80">
+                <div className="h-56 md:h-80 isolate">
                   <RestaurantMap
                     restaurants={[{ ...restaurant, id: restaurant.id } as import('@/libs/types').RestaurantWithDetails]}
                     height="h-full"
@@ -763,20 +759,25 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
                     showPopup={false}
                   />
                 </div>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center min-h-[44px] px-4 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors"
+                >
+                  Abrir no Google Maps →
+                </a>
               </div>
+            ) : restaurant.location ? (
+              <p className="text-sm text-white/60 flex items-center gap-2"><PinIcon size={18} />{restaurant.location}</p>
             ) : null}
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+          <div className="max-w-7xl mx-auto px-4 py-6 md:py-8 pb-24 md:pb-8">
             {/* Bento Info Grid */}
             <InfoBento
-              location={restaurant.location}
-              sourceUrl={restaurant.source_url}
-              menuLinks={restaurant.menu_links}
               menuImages={restaurant.menu_images}
               phoneNumbers={restaurant.phone_numbers}
-              latitude={restaurant.latitude}
-              longitude={restaurant.longitude}
             />
 
             {/* Category Chips */}
