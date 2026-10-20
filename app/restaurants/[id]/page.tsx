@@ -676,6 +676,14 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
   };
   
 
+  const addToListEl = restaurant ? (
+    <AddToList
+      restaurantId={restaurant.id}
+      isAdmin={!!userProfile?.isAdmin}
+      existingListIds={(lists || []).map((l: any) => l.id)}
+    />
+  ) : null;
+
   return (
     <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
@@ -729,13 +737,10 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
             isOwner={!!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin))}
             onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
             canDelete={!!userProfile?.isAdmin}
+            listAction={user ? addToListEl : undefined}
             actionExtra={user ? (
               <>
-                <AddToList
-                  restaurantId={restaurant.id}
-                  isAdmin={!!userProfile?.isAdmin}
-                  existingListIds={(lists || []).map((l: any) => l.id)}
-                />
+                <div className="lg:hidden">{addToListEl}</div>
                 <ReportButton targetType="restaurant" targetId={restaurant.id} />
               </>
             ) : undefined}

@@ -40,12 +40,14 @@ interface HeroSectionProps {
   canDelete?: boolean;
   /** itens extra do menu «⋯» (ex.: T75 AddToList, denunciar) */
   actionExtra?: ReactNode;
+  /** «Guardar numa lista»: só visível no painel desktop (≥1024 px) */
+  listAction?: ReactNode;
 }
 
 const chipClass =
   "flex flex-none items-center gap-2 min-h-[44px] px-4 rounded-full border border-white/[0.1] bg-white/[0.05] text-sm text-white/85 hover:bg-white/[0.1] transition-colors";
 
-export default function HeroSection({ restaurant, reviewImages, reviewCount, onShare, onSchedule, onReview, onEdit, isOwner, onDelete, canDelete, actionExtra }: HeroSectionProps) {
+export default function HeroSection({ restaurant, reviewImages, reviewCount, onShare, onSchedule, onReview, onEdit, isOwner, onDelete, canDelete, actionExtra, listAction }: HeroSectionProps) {
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -94,9 +96,10 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
   const count = reviewCount ?? restaurant.review_count ?? 0;
 
   return (
-    <>
+    <div className="lg:max-w-7xl lg:mx-auto lg:px-4 lg:pt-6 lg:grid lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-8 lg:items-start">
+      <div className="min-w-0">
       {/* Carrossel (ou faixa de marca quando não há fotos) */}
-      <div className="relative w-full">
+      <div className="relative w-full lg:rounded-2xl lg:overflow-hidden">
         {hasImages ? (
           <>
             <div
@@ -168,8 +171,11 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
         </div>
       )}
 
-      {/* Título, rating e preço, atalhos e ações */}
-      <div className="max-w-7xl mx-auto px-4 pt-4 pb-2">
+      </div>
+
+      {/* Painel: título, rating e preço, atalhos e ações (sticky no desktop) */}
+      <div className="lg:sticky lg:top-20 min-w-0">
+      <div className="max-w-7xl mx-auto px-4 pt-4 pb-2 lg:p-0">
         {restaurant.creator_name && (
           <div className="text-sm text-white/45">
             Por <span className="text-white/70 font-medium"><CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_display_name || restaurant.creator_name} /></span>
@@ -215,8 +221,8 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
       </div>
 
       {/* Ações: fixas acima da navegação em mobile, em linha no desktop */}
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="fixed inset-x-0 z-30 border-t border-white/[0.08] bg-[var(--background)] px-4 py-2.5 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] md:static md:z-auto md:border-0 md:bg-transparent md:p-0 md:max-w-md">
+      <div className="max-w-7xl mx-auto px-4 lg:p-0 lg:mt-4">
+        <div className="fixed inset-x-0 z-30 border-t border-white/[0.08] bg-[var(--background)] px-4 py-2.5 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] md:static md:z-auto md:border-0 md:bg-transparent md:p-0 md:max-w-md lg:max-w-none">
           <RestaurantActions
             onReview={onReview ?? (() => undefined)}
             hideReview={!onReview}
@@ -228,6 +234,8 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
             menuExtra={actionExtra}
           />
         </div>
+        {listAction && <div className="hidden lg:block mt-2 [&>*]:w-full">{listAction}</div>}
+      </div>
       </div>
 
       {/* Lightbox */}
@@ -259,6 +267,6 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
           </div>
         </div>
       </Modal>
-    </>
+    </div>
   );
 }

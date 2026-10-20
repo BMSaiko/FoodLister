@@ -61,6 +61,7 @@ export default function RestaurantActions({
         <button
           type="button"
           onClick={onReview}
+          style={{ '--accent': '#000' } as React.CSSProperties}
           className="flex flex-1 items-center justify-center gap-2 min-h-[44px] rounded-full bg-amber-500 px-5 text-sm font-semibold text-black hover:bg-amber-400 transition-colors"
         >
           <StarIcon size={18} />
