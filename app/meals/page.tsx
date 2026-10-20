@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import Link from "next/link";
+import EmptyState from "@/components/ui/EmptyState";
 import {  Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLanguage } from "@/contexts";
@@ -59,16 +60,12 @@ export default function MealsPage() {
             <ToviLoader size="sm" />
           </div>
         ) : meals.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] flex items-center justify-center">
-              <UtensilsCrossed className="h-8 w-8 text-white/15" />
-            </div>
-            <h3 className="text-lg font-semibold text-white/60 mb-2">{t("Nenhuma refeição agendada")}</h3>
-            <p className="text-sm text-white/50 mb-4">{t("Agenda uma refeição a partir de qualquer restaurante.")}</p>
-            <Link href="/restaurants" className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500/15 text-amber-400 rounded-xl hover:bg-amber-500/25 transition-colors text-sm font-medium">
-              {t("Explorar Restaurantes")} <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
+          <EmptyState
+            mascot="a-pensar"
+            title={t("Nenhuma refeição agendada")}
+            description={t("Agenda uma refeição a partir de qualquer restaurante.")}
+            action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">{t("Explorar Restaurantes")} <ArrowRight className="h-4 w-4" /></Link>}
+          />
         ) : (
           <div className="space-y-3">
             {meals.map((meal) => (

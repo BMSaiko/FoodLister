@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, ArrowLeft, Inbox } from 'lucide-react';
 import Link from 'next/link';
+import EmptyState from '@/components/ui/EmptyState';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -291,31 +292,14 @@ export default function NotificationsPage() {
                 {[...Array(3)].map((_, i) => <SkeletonItem key={i} />)}
               </div>
             ) : displayNotifications.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col items-center justify-center py-16 text-center"
-              >
-                <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mb-5">
-                  <Inbox className="h-8 w-8 text-white/15" />
-                </div>
-                <h3 className="text-lg font-semibold text-white/40 mb-2">
-                  {activeFilter === 'unread' ? 'Sem notificações não lidas' : 'Sem notificações'}
-                </h3>
-                <p className="text-sm text-white/20 max-w-xs">
-                  {activeFilter === 'unread'
-                    ? 'Estás a dia com tudo. Boa!'
-                    : 'Quando receberes notificações, elas aparecem aqui.'}
-                </p>
-                <Link
-                  href="/restaurants"
-                  className="mt-6 inline-flex items-center gap-2 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Explorar restaurantes
-                </Link>
-              </motion.div>
+              <EmptyState
+                mascot={activeFilter === 'unread' ? 'feliz' : 'a-dormir'}
+                title={activeFilter === 'unread' ? 'Sem notificações não lidas' : 'Sem notificações'}
+                description={activeFilter === 'unread'
+                  ? 'Estás a dia com tudo. Boa!'
+                  : 'Quando receberes notificações, elas aparecem aqui.'}
+                action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">Explorar restaurantes</Link>}
+              />
             ) : (
               <AnimatePresence mode="wait">
                 <motion.div
