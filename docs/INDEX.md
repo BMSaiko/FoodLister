@@ -59,6 +59,7 @@ One canonical document per topic. Files marked *redirect* only point to the cano
 | [tasks/TASKS_ROADMAP.md](tasks/TASKS_ROADMAP.md) | Task roadmap |
 
 ## Verified facts (2026-10-17)
-- Tests: 54 suites, 404 tests passing (`node node_modules/jest/bin/jest.js`).
+- Tests: 61 suites, 436 tests passing (`npm test`, medido 3x em 2026-10-21; no Windows com PATH > 8191 caracteres deduplicar o PATH antes, senão `jest` "is not recognized").
+- Jest (`npm test`) cobre `__tests__/`; Vitest (`npx vitest`) corre as stories do Storybook (`.storybook`); Playwright (`npx playwright test`) corre `e2e/` e precisa da app em `localhost:3000`.
 - Jest 29.7 (`package.json`), React 19, Next.js 15, Tailwind 3.4, TypeScript 5.8.2.
 - Migrations: 81 files, `000`–`211`.
