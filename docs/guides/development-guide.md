@@ -71,7 +71,7 @@ The application will be available at `http://localhost:3000`.
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
-- `npm test` - Run Jest tests
+- `npm test` - Run Jest tests (unit/integration, `__tests__/`). Vitest (`npx vitest`) = stories do Storybook; Playwright (`npx playwright test`) = `e2e/`. No Windows, se `jest` "is not recognized", o PATH excede 8191 caracteres: deduplicá-lo.
 - `npm run test:watch` - Run tests in watch mode
 
 ### Development with Turbopack#

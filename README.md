@@ -40,7 +40,7 @@ A full-featured Next.js 15 application for discovering, organizing, and sharing 
 ### ✅ Technical
 - **PWA** — Service Worker, offline fallback, install prompt
 - **Caching** — TTL in-memory cache, HTTP caching, client-side caching
-- **Testing** — 54 test suites, 404 tests passing (100% pass rate)
+- **Testing** — 61 test suites, 436 tests passing (100% pass rate)
 - **Storybook** — Component development environment
 - **CI/CD** — GitHub Actions (lint + build + test)
 - **RLS** — Row Level Security on all 20+ database tables
