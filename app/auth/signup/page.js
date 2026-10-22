@@ -3,139 +3,162 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, Suspense } from "react";
-import Link from "next/link";
+import FadeLink from "@/components/auth/FadeLink";
 import { useRouter } from "next/navigation";
-import {useLanguage,  useAuth } from "@/contexts";
-import { toast } from "react-toastify";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
+import { useLanguage, useAuth } from "@/contexts";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useRandomToviMood } from "@/hooks/useRandomToviMood";
 import ToviLoader from "@/components/loading/ToviLoader";
-import ToviSpinner from '@/components/loading/ToviSpinner';
+import ToviSpinner from "@/components/loading/ToviSpinner";
+
+const EGG_MOODS = ["a-celebrar", "apaixonada", "a-piscar-o-olho", "fixe", "a-dormir", "surpreendida", "zangada", "triste", "a-pensar", "feliz"];
+const MIN_LEN = 6;
+const STRONG_LEN = 12;
+const FIELD =
+  "w-full min-h-[48px] pl-3.5 pr-[52px] bg-white/50 border border-black/30 hover:border-black/60 hover:bg-white/60 rounded-[10px] text-[#111] placeholder:text-black/55 focus:outline-none focus:bg-white/75 focus:border-[#111] focus:ring-[3px] focus:ring-black/20 transition-colors disabled:opacity-50 text-ellipsis aria-[invalid=true]:border-red-900";
+
+const strength = (v) => (!v ? 0 : v.length < MIN_LEN ? 1 : v.length >= STRONG_LEN ? 3 : 2);
+
+function EyeButton({ shown, onClick, label }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={shown}
+      onClick={onClick}
+      className="absolute right-0 top-[25.5px] h-12 min-w-[48px] flex items-center justify-center text-[#111]/70 hover:text-black transition-colors"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="w-[22px] h-[22px]" aria-hidden="true">
+        <path d="M3 15a9 9 0 0 1 18 0Z" fill={shown ? "currentColor" : "none"} fillOpacity={shown ? 0.18 : 0} />
+        <path d="M2 18h20" />
+        {shown ? <path d="M8 8l8 8" /> : <circle cx="12" cy="9.5" r="1.4" fill="currentColor" stroke="none" />}
+      </svg>
+    </button>
+  );
+}
 
 function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pwBad, setPwBad] = useState(false);
+  const [cfBad, setCfBad] = useState(false);
+  const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [egg, setEgg] = useState({ n: 0, mood: null });
+  const idleMood = useRandomToviMood();
   const { signUp } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
 
+  const level = strength(password);
+  const mood = egg.mood || (serverError ? "triste" : cfBad ? "surpreendida" : isLoading || pwBad ? "a-pensar" : idleMood);
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError("");
-    if (password !== confirmPassword) { setFormError(t("As senhas não coincidem")); return; }
-    if (password.length < 6) { setFormError(t("A password deve ter pelo menos 6 caracteres")); return; }
+    setServerError("");
+    const short = password.length < MIN_LEN;
+    const diff = password !== confirmPassword;
+    setPwBad(short);
+    setCfBad(diff);
+    if (short || diff) return;
     setIsLoading(true);
     try {
       const { error } = await signUp(email, password);
-      if (error) { toast.error(t("Erro ao criar conta: {error}", { error: error.message || t("Tente novamente") })); return; }
+      if (error) { setServerError(t("Erro ao criar conta: {error}", { error: error.message || t("Tente novamente") })); return; }
       router.push("/auth/signin?message=check-email");
     } catch (err) {
-      toast.error(t("Erro inesperado. Tente novamente."));
+      setServerError(t("Erro inesperado. Tente novamente."));
     } finally { setIsLoading(false); }
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-hidden flex items-center justify-center p-4">
-      {/* Mesh gradient orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 right-1/4 w-72 h-72 bg-[var(--primary)]/[0.04] rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 bg-[var(--primary)]/[0.04] rounded-full blur-[100px]" />
-      </div>
-
-      <div className="max-w-md w-full relative z-10">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-[var(--primary-lighter)] ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
-            <User className="h-7 w-7 text-[var(--primary)]" />
-          </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Criar Conta")}</h1>
-          <p className="text-white/40 text-sm">{t("Junta-te à comunidade FoodLister")}</p>
+    <main className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center px-4 pt-4 pb-8 [background-image:radial-gradient(600px_300px_at_50%_0,rgba(245,158,11,.08),transparent)]">
+      <div className="w-full max-w-[400px]">
+        <div className="text-center">
+          <button
+            type="button" aria-label="Tovi" key={egg.n}
+            onClick={() => setEgg(({ n, mood }) => ({ n: n + 1, mood: EGG_MOODS[(EGG_MOODS.indexOf(mood) + 1) % EGG_MOODS.length] }))}
+            className={`block mx-auto mb-3 transition-transform duration-200 hover:scale-110 hover:-rotate-3 active:scale-95 ${egg.n ? "tovi-egg" : ""}`}
+          >
+            <img src={`/mascot/tovi-${mood}.svg`} alt="" className="block w-[72px] h-[72px] md:w-[84px] md:h-[84px]" />
+          </button>
+          <h1 className="text-2xl md:text-[28px] font-semibold tracking-tight text-white mb-1.5">{t("Criar Conta")}</h1>
+          <p className="text-white/45 text-sm mb-5">{t("Junta-te à comunidade FoodLister")}</p>
         </div>
 
-        {/* Card */}
-        <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-          <div className="p-6 md:p-8 rounded-2xl bg-white/[0.03]">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="sr-only">{t("Email")}</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-white/25" />
-                  </div>
-                  <input
-                    id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
-                    className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder={t("Endereço de email")}
-                    value={email} onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </div>
+        <div className="p-5 md:p-7 rounded-2xl bg-[var(--primary)] border border-[var(--primary)] text-[#111] transition-shadow hover:shadow-[0_8px_40px_rgba(245,158,11,.18)]">
+          {serverError && (
+            <div role="alert" className="mb-4 px-3.5 py-2.5 rounded-[10px] border border-[#7f1d1d]/40 bg-[#7f1d1d]/10 text-[#7f1d1d] text-[13px]">
+              {serverError}
+            </div>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div className="relative">
+              <label htmlFor="email" className="block text-[13px] font-medium mb-1.5">{t("Email")}</label>
+              <input
+                id="email" name="email" type="email" inputMode="email" autoCapitalize="off" autoCorrect="off" spellCheck={false}
+                enterKeyHint="next" autoComplete="email" required autoFocus disabled={isLoading}
+                className={FIELD} placeholder={t("nome@exemplo.pt")}
+                value={email} onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="sr-only">{t("Password")}</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-white/25" />
-                  </div>
-                  <input
-                    id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required disabled={isLoading}
-                    className="w-full pl-12 pr-12 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder={t("Password (min. 6 caracteres)")}
-                    value={password} onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <button type="button" aria-label={showPassword ? t("Ocultar password") : t("Mostrar password")} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 min-w-[48px] justify-center flex items-center text-white/25 hover:text-white/50 transition-colors">
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
+            <div className="relative mt-3.5">
+              <label htmlFor="password" className="block text-[13px] font-medium mb-1.5">{t("Password")}</label>
+              <input
+                id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password"
+                enterKeyHint="next" required disabled={isLoading}
+                aria-invalid={pwBad} aria-describedby={pwBad ? "err-pw" : undefined}
+                className={FIELD} placeholder={t("Mínimo 6 caracteres")}
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); if (pwBad && e.target.value.length >= MIN_LEN) setPwBad(false); }}
+                onBlur={() => { if (password) setPwBad(password.length < MIN_LEN); }}
+              />
+              <EyeButton shown={showPassword} onClick={() => setShowPassword(!showPassword)} label={showPassword ? t("Ocultar password") : t("Mostrar password")} />
+              {pwBad && <p id="err-pw" role="alert" className="text-[13px] text-[#7f1d1d] mt-1.5">{t("A password deve ter pelo menos 6 caracteres")}</p>}
+              <div className="flex gap-1 mt-2" aria-hidden="true" data-level={level}>
+                {[1, 2, 3].map((i) => (
+                  <i key={i} className={`flex-1 h-[3px] rounded-sm transition-colors ${level >= i ? "bg-[#111]" : "bg-black/20"}`} />
+                ))}
               </div>
+            </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label htmlFor="confirmPassword" className="sr-only">{t("Confirmar Password")}</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-white/25" />
-                  </div>
-                  <input
-                    id="confirmPassword" name="confirmPassword" type="password" aria-invalid={!!formError} aria-describedby={formError ? "form-error" : undefined} autoComplete="new-password" required disabled={isLoading}
-                    className="w-full pl-12 pr-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white/90 placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/30 focus:border-[var(--primary)]/30 transition-colors disabled:opacity-50 min-h-[48px]"
-                    placeholder={t("Confirmar password")}
-                    value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                  />
-                </div>
-              </div>
+            <div className="relative mt-3.5">
+              <label htmlFor="confirmPassword" className="block text-[13px] font-medium mb-1.5">{t("Confirmar password")}</label>
+              <input
+                id="confirmPassword" name="confirmPassword" type={showConfirm ? "text" : "password"} autoComplete="new-password"
+                enterKeyHint="done" required disabled={isLoading}
+                aria-invalid={cfBad} aria-describedby={cfBad ? "err-cf" : undefined}
+                className={FIELD} placeholder={t("Repita a password")}
+                value={confirmPassword}
+                onChange={(e) => { setConfirmPassword(e.target.value); if (cfBad && e.target.value === password) setCfBad(false); }}
+                onBlur={() => { if (confirmPassword) setCfBad(confirmPassword !== password); }}
+              />
+              <EyeButton shown={showConfirm} onClick={() => setShowConfirm(!showConfirm)} label={showConfirm ? t("Ocultar confirmação") : t("Mostrar confirmação")} />
+              {cfBad && <p id="err-cf" role="alert" className="text-[13px] text-[#7f1d1d] mt-1.5">{t("As senhas não coincidem")}</p>}
+            </div>
 
-              {/* Submit */}
-              {formError && <p id="form-error" role="alert" className="text-sm text-red-400">{formError}</p>}
-              <button
-                type="submit" disabled={isLoading}
-                className="w-full py-3.5 bg-[var(--primary)] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
-              >
-                {isLoading ? (
-                  <ToviSpinner className="w-5 h-5" />
-                ) : (
-                  <>{t("Criar Conta")} <ArrowRight className="h-4 w-4" /></>
-                )}
-              </button>
-            </form>
-          </div>
+            <button
+              type="submit" disabled={isLoading}
+              className="mt-6 w-full min-h-[48px] rounded-[10px] bg-[#111] text-[var(--primary)] font-semibold hover:bg-black active:scale-[.98] transition disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {isLoading ? <ToviSpinner className="w-5 h-5" /> : t("Criar Conta")}
+            </button>
+          </form>
+
+          <p className="text-center text-sm mt-3">
+            {t("Já tem conta?")}{" "}
+            <FadeLink href="/auth/signin" className="inline-flex items-center min-h-[44px] underline underline-offset-[3px] font-medium hover:underline-offset-[5px] transition-all">
+              {t("Faça login")}
+            </FadeLink>
+          </p>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-white/30 mt-6">
-          {t("Já tem conta?")}{" "}
-          <Link href="/auth/signin" className="inline-flex items-center min-h-[44px] text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors">
-            {t("Faça login")}
-          </Link>
-        </p>
       </div>
-    </div>
+    </main>
   );
 }
 

@@ -1,0 +1,38 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Entrar - FoodLister (A centrado v2)</title><link rel="stylesheet" href="shared.css">
+<style>main{min-height:100dvh;display:grid;place-items:center;padding:16px 16px 90px;background:radial-gradient(600px 300px at 50% 0,rgba(245,158,11,.08),transparent)}
+.card{width:100%;max-width:400px}
+.lockup{height:34px;display:block;margin:0 auto 24px}
+.tovi{display:block;width:84px;height:84px;margin:0 auto 12px;transition:opacity .2s}
+.head{text-align:center}.head .sub{margin-bottom:20px}
+.card .in{padding:28px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+.lblrow{display:flex;justify-content:space-between;align-items:baseline}.lblrow a{font-size:13px}
+.eye svg{width:22px;height:22px;display:block;margin:auto}.eye{color:var(--mut)}.eye:hover{color:var(--p)}
+.eye .shut{display:none}.eye[aria-pressed=true] .open{display:none}.eye[aria-pressed=true] .shut{display:block}
+.eye[aria-pressed=true]{color:var(--p)}
+.cap{display:none;color:var(--ph);font-size:12px;margin-top:6px}
+@media(max-width:480px){.card .in{padding:20px}h1{font-size:24px}.tovi{width:72px;height:72px}}</style></head><body>
+<main><div class="card">
+<div class="head"><img id="tovi" class="tovi" src="assets/tovi-feliz.svg" alt=""><h1>Bem-vindo de volta</h1><p class="sub">Continua a organizar as tuas experiências gastronómicas.</p></div>
+<div class="in">
+<div class="banner info" role="status">Verifique o seu email e clique no link de confirmação antes de fazer login.</div>
+<div class="banner error" role="alert" id="msg-err"></div>
+<form onsubmit="return false">
+<div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" required autofocus placeholder="nome@exemplo.pt"><div class="err">Verifique o email.</div></div>
+<div class="field" style="margin-top:14px"><div class="lblrow"><label for="password">Password</label><a href="#">Esqueceu a password?</a></div><input id="password" type="password" autocomplete="current-password" required placeholder="Password">
+<button type="button" class="eye" aria-label="Mostrar password" aria-pressed="false">
+<svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z"/><path d="M2 18h20"/><circle cx="12" cy="9.5" r="1.4" fill="currentColor" stroke="none"/></svg>
+<svg class="shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z" fill="currentColor" fill-opacity=".18"/><path d="M2 18h20"/><path d="M8 8l8 8" /></svg>
+</button><div class="err">Email ou password incorretos.</div></div>
+<div class="cap" id="cap">Caps Lock ligado</div>
+<div style="height:16px"></div>
+<button class="btn" type="submit"><span class="spin"></span><span class="lbl">Entrar</span></button>
+</form>
+<p class="foot">Não tem conta? <a href="#">Crie uma gratuita</a></p>
+</div></div></main>
+<script src="states.js"></script>
+<script>
+const T={default:"feliz",checkemail:"a-pensar",error:"triste",unexpected:"surpreendida",loading:"a-pensar",long:"feliz"};
+const _set=set;set=function(k){_set(k);document.getElementById("tovi").src="assets/tovi-"+T[k]+".svg"};set("default");
+document.getElementById("password").addEventListener("keyup",e=>{document.getElementById("cap").style.display=e.getModifierState&&e.getModifierState("CapsLock")?"block":"none"});
+document.querySelectorAll(".eye").forEach(b=>b.addEventListener("click",()=>b.setAttribute("aria-label",b.getAttribute("aria-pressed")==="true"?"Ocultar password":"Mostrar password")));
+</script></body></html>

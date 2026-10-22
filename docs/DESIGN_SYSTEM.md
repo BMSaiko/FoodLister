@@ -302,3 +302,12 @@ Mapping: `borderRadius` no `tailwind.config.js` mapeia vars 1:1 (ponte Tailwind 
 - **Re-exports via index** — `components/index.ts` barrel
 - **Feature gates** — `<FeatureGate feature="key">` com tier hierarchy
 - **Types** — `libs/types.ts` (domínio), `types/database.ts` (Supabase gerados)
+
+## Claude Design (design system para mockups)
+
+O design system FoodLister vive no projeto **«FoodLister»** do Claude Design (`e5405688-d8f4-4a4b-aa8c-06eb00e00533`), criado com `/design-sync` a partir de `app/globals.css`, `tailwind.config.js` e `components/ui/*` (só leitura; o código não foi alterado).
+
+- **Conteúdo:** `tokens.css` (bloco `:root` copiado), cartões de cores, tipografia (Geist), raios e sombras, ícones (roleta, «+», sino, pin, marcador, lista), mascote Tovi (6 expressões) e componentes botão, cartão de restaurante (Tovi quando não há imagem) e navbar (logo, links, pesquisa centrada com `Ctrl K`, «+», roleta, sino e avatar com sessão; só «Entrar» sem sessão).
+- **Tema:** escuro único (fundo `#050505`, primário âmbar `#f59e0b`). Espaçamento e escala tipográfica são os do Tailwind por defeito.
+- **Fonte de verdade:** o código. Se `globals.css` mudar, voltar a correr `/design-sync` para atualizar os tokens.
+- **Uso:** os SPs `foodlister-reformular-*-mockups` geram os mockups com `/design` com este design system.
