@@ -1,0 +1,20 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Criar conta - FoodLister (A centrado)</title><link rel="stylesheet" href="shared.css">
+<style>main{min-height:100dvh;display:grid;place-items:center;padding:16px 16px 90px;background:radial-gradient(600px 300px at 50% 0,rgba(245,158,11,.08),transparent)}
+.card{width:100%;max-width:400px}.tovi{display:block;width:84px;height:84px;margin:0 auto 12px}.head{text-align:center}.head .sub{margin-bottom:20px}
+.in{padding:28px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+@media(max-width:480px){.in{padding:20px}h1{font-size:24px}.tovi{width:72px;height:72px}}</style></head><body>
+<main><div class="card"><div class="head"><img id="tovi" class="tovi" src="assets/tovi-feliz.svg" alt=""><h1>Criar Conta</h1><p class="sub">Junta-te à comunidade FoodLister</p></div><div class="in inv">
+<div class="banner error" role="alert" id="msg-err"></div>
+<form onsubmit="return false">
+<div class="field"><label for="email">Email</label><input id="email" name="email" type="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" autofocus autocomplete="email" required placeholder="nome@exemplo.pt"></div>
+<div class="field" style="margin-top:14px"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="new-password" enterkeyhint="next" required placeholder="Mínimo 6 caracteres" aria-describedby="err-pw"><button type="button" class="eye" aria-label="Mostrar password" aria-pressed="false"><svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z"/><path d="M2 18h20"/><circle cx="12" cy="9.5" r="1.4" fill="currentColor" stroke="none"/></svg><svg class="shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z" fill="currentColor" fill-opacity=".18"/><path d="M2 18h20"/><path d="M8 8l8 8"/></svg></button><p class="err" id="err-pw">A password deve ter pelo menos 6 caracteres</p><div class="meter" data-n="0" aria-hidden="true"><i></i><i></i><i></i></div></div>
+<div class="field" style="margin-top:14px"><label for="confirmPassword">Confirmar password</label><input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required enterkeyhint="done" placeholder="Repita a password" aria-describedby="err-cf"><button type="button" class="eye" aria-label="Mostrar confirmação" aria-pressed="false"><svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z"/><path d="M2 18h20"/><circle cx="12" cy="9.5" r="1.4" fill="currentColor" stroke="none"/></svg><svg class="shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z" fill="currentColor" fill-opacity=".18"/><path d="M2 18h20"/><path d="M8 8l8 8"/></svg></button><p class="err" id="err-cf">As senhas não coincidem</p></div>
+<p id="form-error" class="msg-form" role="alert"></p>
+<div style="height:16px"></div>
+<button class="btn" type="submit"><span class="spin"></span><span class="lbl">Criar Conta</span></button>
+</form>
+<p class="foot">Já tem conta? <a href="signin-a.html" data-go="signin-a.html">Faça login</a></p>
+</div></div></main>
+<script src="states.js"></script><script src="nav.js"></script>
+<script>const T={default:"feliz",short:"a-pensar",mismatch:"surpreendida",error:"triste",unexpected:"surpreendida",loading:"a-pensar",long:"feliz"};
+const _s=set;set=function(k){_s(k);document.getElementById("tovi").src="assets/tovi-"+T[k]+".svg"};set("default");</script></body></html>
