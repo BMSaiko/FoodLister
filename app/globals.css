@@ -759,3 +759,14 @@ html { scroll-behavior: smooth; }
 }
 .tovi-egg { animation: tovi-egg 0.5s ease-out; }
 @media (prefers-reduced-motion: reduce) { .tovi-egg { animation: none; } }
+
+/* Tovi do signup: salto ao clicar */
+@keyframes tovi-hop{0%{transform:scale(1,1)}15%{transform:scale(1.15,.8)}40%{transform:translateY(-22px) scale(.92,1.1) rotate(-8deg)}60%{transform:translateY(-8px) rotate(7deg)}80%{transform:translateY(0) scale(1.06,.94) rotate(-3deg)}100%{transform:none}}
+.tovi-hop{animation:tovi-hop .75s cubic-bezier(.3,1.4,.5,1);transform-origin:50% 100%}
+@media (prefers-reduced-motion:reduce){.tovi-hop{animation:none}}
+
+/* Transição entre páginas de auth (template.js + FadeLink) */
+@keyframes auth-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.auth-enter { animation: auth-enter .32s ease-out both; transition: opacity .22s ease, transform .22s ease; }
+.auth-leaving .auth-enter { opacity: 0; transform: translateY(-8px); animation: none; }
+@media (prefers-reduced-motion: reduce) { .auth-enter { animation: none; transition: none; } }
