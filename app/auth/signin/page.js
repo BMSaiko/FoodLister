@@ -8,6 +8,7 @@ import FadeLink from "@/components/auth/FadeLink";
 import { useRouter } from "next/navigation";
 import {useLanguage, useAuth } from "@/contexts";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useRandomToviMood } from "@/hooks/useRandomToviMood";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
 
@@ -27,6 +28,7 @@ function SignInForm() {
   const [unexpected, setUnexpected] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
   const [egg, setEgg] = useState({ n: 0, mood: null });
+  const idleMood = useRandomToviMood();
   const { signIn } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
@@ -50,7 +52,7 @@ function SignInForm() {
     } finally { setIsLoading(false); }
   };
 
-  const mascot = egg.mood || (unexpected ? "surpreendida" : loginError ? "triste" : (isLoading || checkEmail) ? "a-pensar" : "feliz");
+  const mascot = egg.mood || (unexpected ? "surpreendida" : loginError ? "triste" : (isLoading || checkEmail) ? "a-pensar" : idleMood);
   const bad = !!loginError;
   const banner = "px-3.5 py-2.5 rounded-[10px] text-[13px] mb-4 border";
 
