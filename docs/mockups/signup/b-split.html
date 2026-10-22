@@ -1,0 +1,19 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Criar conta - FoodLister (B split)</title><link rel="stylesheet" href="shared.css">
+<style>.wrap{display:grid;grid-template-columns:1fr 1fr;min-height:100dvh}
+aside{padding:48px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--line);background:radial-gradient(500px 400px at 20% 90%,rgba(245,158,11,.12),transparent),#080808}
+aside img.lk{height:30px;align-self:flex-start}aside q{font-size:22px;letter-spacing:-.01em;line-height:1.35;max-width:420px;quotes:none;display:block}aside ul{list-style:none;padding:0;margin:20px 0 0;color:var(--mut);font-size:14px;display:grid;gap:8px}aside li:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--p);margin-right:10px}
+main{display:grid;place-items:center;padding:24px 16px 90px}.form{width:100%;max-width:360px}.m-logo{display:none;height:28px;margin-bottom:24px}
+@media(max-width:820px){.wrap{grid-template-columns:1fr}aside{display:none}.m-logo{display:block}}</style></head><body>
+<div class="wrap"><aside><img class="lk" src="assets/lockup-dark.svg" alt="FoodLister"><div><q>Começa o teu diário de descobertas gastronómicas.</q><ul><li>Guarda restaurantes e pratos</li><li>Organiza em listas</li><li>Partilha com quem gostas</li></ul></div></aside>
+<main><div class="form"><img class="m-logo" src="assets/lockup-dark.svg" alt="FoodLister"><h1>Criar Conta</h1><p class="sub">Junta-te à comunidade FoodLister</p>
+<div class="banner error" role="alert" id="msg-err"></div>
+<form onsubmit="return false">
+<div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autofocus autocomplete="email" required placeholder="nome@exemplo.pt"></div>
+<div class="field" style="margin-top:14px"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="new-password" required placeholder="Mínimo 6 caracteres"><button type="button" class="eye" aria-label="Mostrar password" aria-pressed="false"><svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z"/><path d="M2 18h20"/><circle cx="12" cy="9.5" r="1.4" fill="currentColor" stroke="none"/></svg><svg class="shut" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 15a9 9 0 0 1 18 0Z" fill="currentColor" fill-opacity=".18"/><path d="M2 18h20"/><path d="M8 8l8 8"/></svg></button><div class="meter" data-n="0" aria-hidden="true"><i></i><i></i><i></i></div></div>
+<div class="field" style="margin-top:14px"><label for="confirmPassword">Confirmar password</label><input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" required placeholder="Repita a password" aria-describedby="form-error"></div>
+<p id="form-error" class="msg-form" role="alert"></p>
+<div style="height:16px"></div>
+<button class="btn" type="submit"><span class="spin"></span><span class="lbl">Criar Conta</span></button>
+</form>
+<p class="foot">Já tem conta? <a href="signin-a.html" data-go="signin-a.html">Faça login</a></p>
+</div></main></div><script src="states.js"></script></body></html>

@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import FadeLink from "@/components/auth/FadeLink";
 import { useRouter } from "next/navigation";
 import {useLanguage, useAuth } from "@/contexts";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -13,7 +14,7 @@ import ToviSpinner from '@/components/loading/ToviSpinner';
 const EGG_MOODS = ["a-celebrar", "apaixonada", "a-piscar-o-olho", "fixe", "a-dormir", "surpreendida", "zangada", "triste", "a-pensar", "feliz"];
 
 const inputBase = "w-full min-h-[48px] pl-3.5 bg-white/[0.03] border rounded-[10px] text-white/90 placeholder:text-white/25 focus:outline-none transition-colors disabled:opacity-50 text-ellipsis";
-const inputOk = "border-white/[0.08] focus:border-[rgba(245,158,11,0.6)] focus:shadow-[0_0_0_3px_rgba(245,158,11,0.15)]";
+const inputOk = "border-white/[0.08] hover:border-white/[0.2] focus:border-[rgba(245,158,11,0.6)] focus:shadow-[0_0_0_3px_rgba(245,158,11,0.15)]";
 const inputBad = "border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(248,113,113,0.15)]";
 
 function SignInForm() {
@@ -60,7 +61,7 @@ function SignInForm() {
           <button
             type="button" aria-label="Tovi" key={egg.n}
             onClick={() => setEgg(({ n, mood }) => ({ n: n + 1, mood: EGG_MOODS[(EGG_MOODS.indexOf(mood) + 1) % EGG_MOODS.length] }))}
-            className={`block mx-auto mb-3 ${egg.n ? "tovi-egg" : ""}`}
+            className={`block mx-auto mb-3 transition-transform duration-200 hover:scale-110 hover:-rotate-3 active:scale-95 ${egg.n ? "tovi-egg" : ""}`}
           >
             <img src={`/mascot/tovi-${mascot}.svg`} alt="" className="block w-[72px] h-[72px] sm:w-[84px] sm:h-[84px]" />
           </button>
@@ -68,7 +69,7 @@ function SignInForm() {
           <p className="text-sm text-white/45 mb-5">{t("Continua a organizar as tuas experiências gastronómicas")}.</p>
         </div>
 
-        <div className="p-5 sm:p-7 border border-white/[0.08] rounded-2xl bg-white/[0.02]">
+        <div className="p-5 sm:p-7 border border-white/[0.08] rounded-2xl bg-white/[0.02] transition-colors hover:border-white/[0.14]">
           {checkEmail && (
             <div role="status" className={`${banner} border-[var(--primary)]/30 bg-[var(--primary)]/[0.08] text-amber-300`}>
               {t("Verifique o seu email e clique no link de confirmação antes de fazer login.")}
@@ -139,9 +140,9 @@ function SignInForm() {
 
           <p className="text-center text-sm text-white/45 mt-3">
             {t("Não tem conta?")}{" "}
-            <Link href="/auth/signup" className="inline-flex items-center min-h-[44px] text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors">
+            <FadeLink href="/auth/signup" className="inline-flex items-center min-h-[44px] text-[var(--primary)] hover:text-[var(--primary-hover)] font-medium transition-colors">
               {t("Crie uma gratuita")}
-            </Link>
+            </FadeLink>
           </p>
         </div>
       </div>
