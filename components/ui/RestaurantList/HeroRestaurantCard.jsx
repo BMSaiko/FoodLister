@@ -94,7 +94,7 @@ export default function HeroRestaurantCard() {
       />
 
       {/* Content */}
-      <div className="relative z-10 p-8 md:p-12 min-h-[360px] md:min-h-[460px] flex flex-col justify-end max-w-[70%]">
+      <div className="relative z-10 p-8 md:p-12 min-h-[240px] md:min-h-[300px] flex flex-col justify-end max-w-[70%]">
         {/* Cuisine tags */}
         <div className="flex items-center gap-2 mb-3">
           {hero.cuisine_types?.slice(0, 2)?.map((cuisine) => (

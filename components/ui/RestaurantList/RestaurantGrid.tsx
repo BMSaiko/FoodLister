@@ -44,7 +44,7 @@ export function RestaurantGrid({
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {restaurants.map((restaurant, index) => (
           <motion.div
             key={restaurant.id}
@@ -65,7 +65,7 @@ export function RestaurantGrid({
         <div ref={sentinelRef} aria-hidden="true" className="h-2" />
       )}
       {loadingMore && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} variant="restaurant-card" />
           ))}

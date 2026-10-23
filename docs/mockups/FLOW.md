@@ -24,3 +24,11 @@ Fonte: `app/auth/signin/page.js` (lido a 2026-10-22). Rota real: `/auth/signin` 
 
 ## Estado visual atual (para a auditoria)
 Fundo `--background` (#050505) com 2 orbes âmbar desfocados; ícone de seta no topo (genérico); título «Bem-vindo de volta»; cartão duplo-bisel 3xl/2xl; ícones lucide (Mail, Lock, Eye, ArrowRight); erros só em toast; sem estado de erro inline.
+
+# Fluxo e inventário: /restaurants
+
+## Fluxo
+- Entrada: navbar («Restaurantes»), pesquisa (`?search=`), links da home. Tarefas: descobrir, filtrar, ordenar, procurar perto, abrir restaurante, criar (FAB, com sessão).
+- Saída: `/restaurants/[id]`, perfil do criador, `/restaurants/new`.
+- Paridade por direção: `restaurants/PARIDADE.md`. Navbar fora do âmbito (sem mudanças de acessos).
+

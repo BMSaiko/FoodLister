@@ -57,14 +57,19 @@ function RestaurantsContent() {
   };
   const { user } = useAuthUser();
   const [filtersActive, setFiltersActive] = useState(false);
-  const [sort, setSort] = useState({ sortBy: "name", sortDirection: "asc" });
+  const [sort, setSort] = useState({ sortBy: "random", sortDirection: "asc" });
   const { restaurants, loading, error, hasNext, total, loadingMore, loadMore } = usePaginatedRestaurants({
     searchQuery,
-    all: filtersActive,
+    all: filtersActive || sort.sortBy === 'random',
     sortBy: sort.sortBy,
     sortDirection: sort.sortDirection,
   });
   const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
+  // Aleatório: fotos primeiro (partição estável, mantém a ordem aleatória dentro de cada grupo)
+  const hasPhoto = (r) => (r.images || []).some((u) => typeof u === 'string' && u.trim().startsWith('http'));
+  const displayRestaurants = sort.sortBy === 'random'
+    ? [...filteredRestaurants.filter(hasPhoto), ...filteredRestaurants.filter((r) => !hasPhoto(r))]
+    : filteredRestaurants;
   const [nearbyActive, setNearbyActive] = useState(false);
   const [nearbyRadius, setNearbyRadius] = useState(10);
   const nearby = useNearbyRestaurants();
@@ -117,7 +122,7 @@ function RestaurantsContent() {
 
         {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {Array.from({ length: 9 }).map((_, i) => (
               <Skeleton key={i} variant="restaurant-card" />
             ))}
@@ -125,7 +130,7 @@ function RestaurantsContent() {
         ) : (nearbyActive && (nearby.restaurants?.length || nearby.error)) ? (
           <div className="space-y-6">
             {nearby.loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} variant="restaurant-card" />)}
               </div>
             ) : nearby.error ? (
@@ -137,10 +142,10 @@ function RestaurantsContent() {
               </>
             )}
           </div>
-        ) : filteredRestaurants.length > 0 ? (
+        ) : displayRestaurants.length > 0 ? (
           <>
             <RestaurantGrid
-              restaurants={filteredRestaurants}
+              restaurants={displayRestaurants}
               searchQuery={searchQuery}
               hasMore={hasNext}
               loadingMore={loadingMore}

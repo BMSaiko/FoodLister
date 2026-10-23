@@ -14,7 +14,7 @@ function RestaurantCardSkeleton() {
   return (
     <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden animate-pulse">
       {/* Image placeholder */}
-      <div className="h-40 sm:h-48 bg-gray-200 dark:bg-gray-800" />
+      <div className="aspect-[3/2] bg-gray-200 dark:bg-gray-800" />
       <div className="p-4 space-y-3">
         {/* Title + rating */}
         <div className="flex items-center justify-between">
