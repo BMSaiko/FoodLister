@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { TooltipFast } from "@/components/ui/Tooltip";
+import Ico from '@/components/ui/icons/Ico';
 import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Heart } from 'lucide-react';
 import useNotifications from '@/hooks/data/useNotifications';
 import type { Notification } from '@/types/notification';
@@ -164,10 +165,10 @@ export default function NotificationsDropdown({ mobile = false }: NotificationsD
     return (
       <Link
         href="/notifications"
-        className="relative flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+        className="relative flex items-center justify-center min-h-[44px] min-w-[44px] rounded-[10px] text-white/55 hover:text-[var(--foreground)] hover:bg-white/5 transition-colors"
         aria-label={`Notificações${unreadCount > 0 ? `, ${unreadCount} não lidas` : ''}`}
       >
-        <Bell className="h-4 w-4 text-[var(--foreground-secondary)]" />
+        <Ico name="bell" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--primary)] text-black text-[10px] font-bold px-1">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -183,12 +184,12 @@ export default function NotificationsDropdown({ mobile = false }: NotificationsD
       <button
         ref={bellButtonRef}
         onClick={toggleDropdown}
-        className="relative flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+        className="relative flex items-center justify-center min-h-[44px] min-w-[44px] rounded-[10px] text-white/55 hover:text-[var(--foreground)] hover:bg-white/5 transition-colors"
         aria-label={`Notificações${unreadCount > 0 ? `, ${unreadCount} não lidas` : ''}`}
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
-        <Bell className="h-4 w-4 text-[var(--foreground-secondary)]" />
+        <Ico name="bell" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--primary)] text-black text-[10px] font-bold px-1 animate-[scale-in_0.2s_ease-out]">
             {unreadCount > 9 ? '9+' : unreadCount}

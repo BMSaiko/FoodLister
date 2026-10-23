@@ -7,6 +7,7 @@ import FadeLink from "@/components/auth/FadeLink";
 import { useRouter } from "next/navigation";
 import { useLanguage, useAuth } from "@/contexts";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useRandomToviMood } from "@/hooks/useRandomToviMood";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from "@/components/loading/ToviSpinner";
 
@@ -47,12 +48,13 @@ function SignUpForm() {
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [egg, setEgg] = useState({ n: 0, mood: null });
+  const idleMood = useRandomToviMood();
   const { signUp } = useAuth();
   const { t } = useLanguage();
   const router = useRouter();
 
   const level = strength(password);
-  const mood = egg.mood || (serverError ? "triste" : cfBad ? "surpreendida" : isLoading || pwBad ? "a-pensar" : "feliz");
+  const mood = egg.mood || (serverError ? "triste" : cfBad ? "surpreendida" : isLoading || pwBad ? "a-pensar" : idleMood);
 
 
   const handleSubmit = async (e) => {
