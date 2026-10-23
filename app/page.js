@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useScroll, useSpring } from 'motion/react';
-import { ArrowRight, ArrowDown, MapPin, List, Star, Shuffle } from 'lucide-react';
+import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
+import Ico from '@/components/ui/icons/Ico';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
-import TypewriterText from '@/components/landing/TypewriterText';
-import RestaurantCard from '@/components/landing/RestaurantCard';
+import RoletaDeck from '@/components/landing/RoletaDeck';
 import TasteProfile from '@/components/landing/TasteProfile';
-import ParallaxSection from '@/components/landing/ParallaxSection';
 import FAQSection from '@/components/ui/common/FAQSection';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { useAuthUser } from '@/hooks/auth/useAuthUser';
 
 // ponytail: generic rounded counts, no exact numbers
 function formatCount(n) {
@@ -21,329 +20,189 @@ function formatCount(n) {
   return String(n);
 }
 
+const FEATURES = [
+  { Icon: (p) => <Ico name="pin" {...p} />, title: 'Descobre restaurantes', text: 'Uma coleção curada, de tapas a ramen. Encontra o sítio certo para cada ocasião.' },
+  { Icon: (p) => <Ico name="list" {...p} />, title: 'Cria listas', text: 'Organiza por tema, ocasião ou humor e partilha com amigos.' },
+  { Icon: (p) => <Ico name="star" {...p} />, title: 'Avalia e escreve reviews', text: 'Guarda o que comeste e o que achaste.' },
+  { Icon: (p) => <Ico name="dice" {...p} />, title: 'Gira a roleta', text: 'Sem ideias? A sorte escolhe entre os restaurantes da tua região.' },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "O que é o FoodLister?",
+    a: "Uma plataforma de curadoria de restaurantes. Descobre lugares, avalia as tuas experiências, cria listas personalizadas e decide onde comer — seja numa roleta ou no mapa.",
+  },
+  {
+    q: "É gratuito?",
+    a: "Sim, o plano Free inclui as funcionalidades essenciais: criar listas, avaliar restaurantes, filtros básicos e colaborar em listas. Podes fazer upgrade para Premium ou Pro se quiseres funcionalidades avançadas.",
+  },
+  {
+    q: "O que são as listas e como crio uma?",
+    a: "As listas permitem organizar restaurantes por tema, ocasião ou humor. Para criar uma, inicia sessão, vai à secção Listas e usa o botão criar. Depois, adiciona restaurantes e partilha-a com amigos.",
+  },
+  {
+    q: "O que é a roleta de descoberta?",
+    a: "Quando não sabes onde comer, a roleta escolhe por ti: gira e deixa a sorte decidir entre os restaurantes da tua região. Uma forma divertida de descobrir sítios que nunca experimentaste.",
+  },
+  {
+    q: "Posso adicionar um restaurante que não existe?",
+    a: "Sim. Se um restaurante ainda não estiver na base, podes adicioná-lo pelo botão criar no menu. Os esforços de todos ajudam a construir a comunidade.",
+  },
+  {
+    q: "O que são as refeições?",
+    a: "A secção Refeições permite agendar as tuas saídas e planear com quem e onde vais comer, mantendo tudo organizado num só lugar.",
+  },
+];
+
+const btnPrimary =
+  'inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--primary)] text-black font-semibold rounded-full min-h-[52px] hover:bg-[var(--primary-hover)] transition-colors duration-150';
+
+function Stats({ home, status }) {
+  if (status === 'error') return null;
+  const items = [
+    { value: home && formatCount(home.restaurants), label: 'Restaurantes' },
+    { value: home && formatCount(home.users), label: 'Utilizadores' },
+    { value: home && home.avgRating, label: 'Rating médio' },
+  ];
+  return (
+    <div className="border-y border-white/[0.08] py-7">
+      <Container>
+        <div className="flex justify-center gap-6 md:gap-9" aria-live="polite">
+          {items.map((s) => (
+            <div key={s.label}>
+              {status === 'loading' ? (
+                <div className="h-8 w-[3ch] rounded-md bg-white/[0.08] animate-pulse" aria-hidden="true" />
+              ) : (
+                <div className="text-3xl font-semibold tracking-tight tabular-nums text-[var(--foreground)]">{s.value}</div>
+              )}
+              <div className="text-sm text-[var(--foreground-muted)]">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </div>
+  );
+}
 
 export default function Home() {
   usePageTitle("FoodLister - Início");
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const spring = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const reduceMotion = useReducedMotion();
+  const scaleX = reduceMotion ? scrollYProgress : spring;
+  const { user } = useAuthUser();
 
   const [home, setHome] = useState(null);
+  const [status, setStatus] = useState('loading'); // loading | ok | error
   useEffect(() => {
+    let off = false;
     fetch('/api/home/stats')
       .then((res) => (res.ok ? res.json() : null))
-      .then((d) => d?.data && setHome(d.data))
-      .catch(() => {});
+      .then((d) => {
+        if (off) return;
+        if (d?.data) { setHome(d.data); setStatus('ok'); } else setStatus('error');
+      })
+      .catch(() => !off && setStatus('error'));
+    return () => { off = true; };
   }, []);
 
+  const cta = user ? (
+    <Link href="/restaurants" className={btnPrimary}>
+      Explorar restaurantes <Ico name="arrow" />
+    </Link>
+  ) : (
+    <Link href="/auth/signup" className={btnPrimary}>
+      Criar conta <Ico name="arrow" />
+    </Link>
+  );
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--background)] relative grain-overlay">
-      {/* Scroll Progress Bar */}
+    <div className="min-h-[100dvh] bg-[var(--background)] relative overflow-x-clip pb-28 md:pb-0">
       <motion.div
         style={{ scaleX }}
         className="fixed top-0 left-0 right-0 h-[2px] bg-[var(--primary)] origin-left z-[100]"
       />
 
-      {/* Mesh gradient background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] rounded-full bg-amber-500/[0.03] blur-[150px]" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-orange-500/[0.02] blur-[120px]" />
-      </div>
-
       <Navbar />
 
-      {/* Hero Section — Split Layout com Typewriter + Floating Card */}
-      <section className="min-h-[100dvh] flex items-center relative overflow-hidden">
-        <Container className="relative z-10 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Text */}
-            <div>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-              >
-                <span className="inline-block text-xs uppercase tracking-[0.2em] text-[var(--primary)] font-mono mb-4">
-                  FoodLister Journal
-                </span>
-              </motion.div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[var(--foreground)] tracking-tighter leading-[1.1] mb-6 min-h-[2.5em]">
-                <TypewriterText
-                  text="O teu diário de descobertas gastronómicas"
-                  delay={800}
-                  speed={35}
-                />
-              </h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 2.5 }}
-                className="text-lg text-[var(--foreground-secondary)] mb-8 max-w-lg leading-relaxed"
-              >
-                Descubra restaurantes ocultos, crie listas personalizadas e
-                nunca mais esqueca um lugar incrivel. A tua jornada culinaria comeca aqui.
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 3 }}
-                className="flex flex-col sm:flex-row gap-4"
-              >
-                <Link
-                  href="/auth/signup"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--primary)] text-black font-semibold rounded-full min-h-[52px] hover:bg-[var(--primary-hover)] transition-colors duration-150"
-                >
-                  Comecar Jornada
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </Link>
-                <Link
-                  href="/restaurants"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 ring-1 ring-white/10 text-[var(--foreground)] font-semibold rounded-full min-h-[52px] hover:bg-white/[0.05] transition-colors duration-150"
-                >
-                  Explorar Restaurantes
-                </Link>
-              </motion.div>
-
-              {/* Stats */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 3.5 }}
-                className="flex gap-8 mt-12"
-              >
-                {[
-                  { value: home ? formatCount(home.restaurants) : '...', label: 'Restaurantes' },
-                  { value: home ? formatCount(home.users) : '...', label: 'Utilizadores' },
-                  { value: home ? home.avgRating : '...', label: 'Rating' },
-                ].map((stat, i) => (
-                  <div key={i}>
-                    <div className="text-2xl font-bold text-[var(--foreground)]">{stat.value}</div>
-                    <div className="text-sm text-[var(--foreground-muted)]">{stat.label}</div>
-                  </div>
-                ))}
-              </motion.div>
-            </div>
-
-            {/* Right: Floating Restaurant Card */}
-            <RestaurantCard restaurants={home?.topRestaurants || []} />
-          </div>
-        </Container>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 4 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+      <section className="relative isolate">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{ background: 'radial-gradient(900px 420px at 50% 0, rgba(245,158,11,.1), transparent)' }}
+        />
+        <Container className="flex flex-col items-center text-center gap-7 py-10 md:py-16 md:min-h-[calc(100dvh-60px)] justify-center">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold text-[var(--foreground)] tracking-tighter leading-[1.05] max-w-[14ch]">
+            Não sabes onde comer?
+          </h1>
+          <p className="text-lg md:text-xl text-[var(--foreground-secondary)] max-w-[46ch]">
+            Gira a roleta, descobre um restaurante e guarda-o no teu diário de descobertas.
+          </p>
+          <RoletaDeck
+            restaurants={home?.topRestaurants || []}
+            loading={status === 'loading'}
+            error={status === 'error'}
+            anon={!user}
           >
-            <ArrowDown className="w-5 h-5 text-[var(--foreground-muted)]" />
-          </motion.div>
-        </motion.div>
+            {cta}
+          </RoletaDeck>
+        </Container>
       </section>
 
-      {/* Features — Bento Grid Assimetrico */}
-      <ParallaxSection>
-        <Container className="py-20 md:py-28">
-          <div className="text-center mb-16">
-            <span className="text-xs uppercase tracking-[0.2em] text-[var(--primary)] font-mono mb-4 block">
-              Como funciona
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-[var(--foreground)] tracking-tighter">
-              Tudo que precisas<br />num só lugar
-            </h2>
-          </div>
+      <Stats home={home} status={status} />
 
-          {/* Bento Grid: 4 cards iguais, layout lateral (padrao roleta - T92) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {[
-              {
-                speed: 0.3,
-                iconBg: 'bg-amber-500/10',
-                iconColor: 'text-[var(--primary)]',
-                Icon: MapPin,
-                title: 'Descubra Restaurantes',
-                text: 'Explora uma colecao curada de restaurantes. De tapas espanholas a ramen japones, encontra o lugar perfeito para cada ocasiao.',
-              },
-              {
-                speed: 0.2,
-                iconBg: 'bg-emerald-500/10',
-                iconColor: 'text-emerald-400',
-                Icon: List,
-                title: 'Crie Listas',
-                text: 'Organize por tema, ocasiao ou humor.',
-              },
-              {
-                speed: 0.4,
-                iconBg: 'bg-blue-500/10',
-                iconColor: 'text-blue-400',
-                Icon: Star,
-                title: 'Avalie & Review',
-                text: 'Partilha as tuas experiências.',
-              },
-              {
-                speed: 0.15,
-                iconBg: 'bg-purple-500/10',
-                iconColor: 'text-purple-400',
-                Icon: Shuffle,
-                title: 'Roleta de Descoberta',
-                text: 'Nao sabes onde comer? Gira a roleta e deixa a sorte decidir. Surpreende-te com restaurantes que nunca experimentaste.',
-              },
-            ].map(({ speed, iconBg, iconColor, Icon, title, text }) => (
-              <ParallaxSection key={title} speed={speed}>
-                <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150 h-full">
-                  <div className="flex items-start gap-4">
-                    <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
-                      <Icon className={`w-5 h-5 ${iconColor}`} />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">{title}</h3>
-                      <p className="text-sm text-[var(--foreground-secondary)]">{text}</p>
-                    </div>
-                  </div>
-                </div>
-              </ParallaxSection>
-            ))}
-          </div>
-        </Container>
-      </ParallaxSection>
+      <Container className="pt-14 md:pt-24 pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 md:gap-8">
+          {FEATURES.map(({ Icon, title, text }) => (
+            <div key={title} className="border-t border-white/[0.08] py-5 md:pt-5 flex flex-col gap-3">
+              <Icon className="w-7 h-7 text-[var(--primary)]" aria-hidden="true" />
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">{title}</h3>
+                <p className="mt-1.5 text-[var(--foreground-secondary)]">{text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Container>
 
-      {/* Interactive Taste Profile */}
-      <ParallaxSection>
-        <Container className="py-20 md:py-28">
+      <Container className="py-16 md:py-20" >
+        <section aria-labelledby="taste-h">
           <TasteProfile />
-        </Container>
-      </ParallaxSection>
+        </section>
+      </Container>
 
-      {/* Social Proof — Testimonials */}
-      <ParallaxSection>
-        <Container className="py-20 md:py-28">
-          <div className="text-center mb-16">
-            <span className="text-xs uppercase tracking-[0.2em] text-[var(--primary)] font-mono mb-4 block">
-              Comunidade
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-[var(--foreground)] tracking-tighter">
-              O que dizem os<br />food hunters
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {[
-              {
-                quote: 'Finalmente organizei todos os meus restaurantes favoritos num só lugar!',
-                name: 'Maria S.',
-                role: 'Food Blogger',
-              },
-              {
-                quote: 'A roleta de descoberta mudou a forma como escolho onde jantar.',
-                name: 'Joao P.',
-                role: 'Gourmet',
-              },
-              {
-                quote: 'Nunca mais esqueci aquele restaurante incrivel que me recomendaram.',
-                name: 'Ana L.',
-                role: 'Chef',
-              },
-            ].map((testimonial, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="p-6 md:p-8 rounded-3xl bg-white/[0.03] border border-white/[0.06]"
-              >
-                <p className="text-[var(--foreground)] mb-4 leading-relaxed">&ldquo;{testimonial.quote}&rdquo;</p>
-                <div>
-                  <div className="font-semibold text-[var(--foreground)]">{testimonial.name}</div>
-                  <div className="text-sm text-[var(--foreground-muted)]">{testimonial.role}</div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </Container>
-      </ParallaxSection>
-
-      {/* FAQ Section */}
       <FAQSection
-        title="Perguntas Frequentes"
-        subtitle="Tudo o que precisas de saber para comecar a explorar."
-        items={[
-          {
-            q: "O que e o FoodLister?",
-            a: "Uma plataforma de curadoria de restaurantes. Descobre lugares, avalia as tuas experiências, cria listas personalizadas e decide onde comer — seja numa roleta ou no mapa.",
-          },
-          {
-            q: "E gratuito?",
-            a: "Sim, o plano Free inclui as funcionalidades essenciais: criar listas, avaliar restaurantes, filtros basicos e colaborar em listas. Podeste fazer upgrade para Premium ou Pro se quiseres funcionalidades avancadas.",
-          },
-          {
-            q: "O que são as listas e como crio uma?",
-            a: "As listas permitem organizar restaurantes por tema, ocasiao ou humor. Para criar uma, inicia sessao, vai a secção Listas e usa o botao criar. Depois, adiciona restaurantes e partilha-a com amigos.",
-          },
-          {
-            q: "O que e a roleta de descoberta?",
-            a: "Quando não sabes onde comer, a roleta escolhe por ti: gira e deixa a sorte decidir entre os restaurantes da tua região. Uma forma divertida de descobrir sítios que nunca experimentaste.",
-          },
-          {
-            q: "Posso adicionar um restaurante que não existe?",
-            a: "Sim. Se um restaurante ainda não estiver na base, podes adicioná-lo pelo botao criar no menu. Esforços de todos ajudam a construir a comunidade.",
-          },
-          {
-            q: "O que são as refeições?",
-            a: "A secção Refeições permite agendar as tuas saídas e planear com quem e onde vais comer, mantendo tudo organizado num só lugar.",
-          },
-        ]}
+        title="Perguntas frequentes"
+        subtitle="Tudo o que precisas de saber para começar."
+        items={FAQ_ITEMS}
       />
 
-      {/* CTA Section */}
-      <section className="py-20 md:py-28 relative">
+      <section className="py-16 md:py-24 text-center">
         <Container>
-          <div className="text-center max-w-3xl mx-auto">
-            <motion.h2
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="text-3xl md:text-5xl font-bold text-[var(--foreground)] tracking-tighter mb-6"
-            >
-              Pronto para comecar a tua<br />
-              <span className="text-[var(--primary)]">jornada gastronomica</span>?
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-lg text-[var(--foreground-secondary)] mb-10 leading-relaxed"
-            >
-              Junte-se a milhares de food hunters que ja organizam suas experiências culinarias conosco.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <Link
-                href="/auth/signup"
-                className="inline-flex items-center gap-3 px-10 py-5 bg-[var(--primary)] text-black font-bold text-lg rounded-full hover:bg-[var(--primary-hover)] transition-colors duration-150 min-h-[60px]"
-              >
-                Criar Conta Gratuita
+          <img
+            src="/mascot/tovi-a-celebrar.svg"
+            alt=""
+            className="w-[88px] h-[88px] mx-auto mb-5"
+          />
+          <h2 className="text-3xl md:text-5xl font-semibold text-[var(--foreground)] tracking-tighter">
+            Pronto para começar a tua<br />
+            <span className="text-[var(--primary)]">jornada gastronómica</span>?
+          </h2>
+          <div className="mt-7 flex flex-col items-center">
+            {user ? (
+              <Link href="/restaurants" className={btnPrimary}>
+                Explorar restaurantes <Ico name="arrow" />
               </Link>
-            </motion.div>
-
-            <p className="mt-6 text-sm text-[var(--foreground-muted)]">
-              Gratis para sempre · Sem cartao de credito · Comeca em segundos
-            </p>
+            ) : (
+              <>
+                <Link href="/auth/signup" className={btnPrimary}>
+                  Criar conta gratuita <Ico name="arrow" />
+                </Link>
+                <p className="mt-4 text-sm text-[var(--foreground-muted)]">
+                  Grátis para sempre · Sem cartão · Começa em segundos
+                </p>
+              </>
+            )}
           </div>
         </Container>
       </section>
