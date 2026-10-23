@@ -306,7 +306,7 @@ export default function Navbar() {
             { id: 'restaurants', icon: ForkIc, label: 'Restaurantes', href: '/restaurants' },
             { id: 'map', icon: PinIc, label: 'Mapa', href: '/map' },
             { id: 'search', icon: SearchIc, label: 'Pesquisa', action: 'search' },
-            { id: 'roulette', icon: DiceIc, label: 'Roleta', href: '/roulette' },
+            ...(user ? [{ id: 'roulette', icon: DiceIc, label: 'Roleta', href: '/roulette' }] : []),
             { id: 'lists', icon: ListIc, label: 'Listas', href: '/lists' },
             user
               ? { id: 'profile', icon: UserIc, label: 'Perfil', href: `/users/${userProfile?.user_id_code || user.id}` }
