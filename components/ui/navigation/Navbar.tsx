@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { Menu, User, LogOut, Settings, Shield, Search, Plus, Bell, List, Shuffle, Calendar, Sparkles, Megaphone, Utensils, Map } from 'lucide-react';
+import { User, LogOut, Settings, Shield, Calendar, Sparkles, Megaphone } from 'lucide-react';
+import Ico from '@/components/ui/icons/Ico';
 import {useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
 import { getClient } from '@/libs/supabase/client';
@@ -25,6 +26,14 @@ const NAV_ITEMS = [
   { id: 'map', label: 'Mapa', href: '/map' },
   { id: 'lists', label: 'Listas', href: '/lists' },
 ] as const;
+
+const HomeIc = ({ className }: { className?: string }) => <Ico name="home" className={className} />;
+const ForkIc = ({ className }: { className?: string }) => <Ico name="fork" className={className} />;
+const PinIc = ({ className }: { className?: string }) => <Ico name="pin" className={className} />;
+const SearchIc = ({ className }: { className?: string }) => <Ico name="search" className={className} />;
+const DiceIc = ({ className }: { className?: string }) => <Ico name="dice" className={className} />;
+const ListIc = ({ className }: { className?: string }) => <Ico name="list" className={className} />;
+const UserIc = ({ className }: { className?: string }) => <Ico name="user" className={className} />;
 
 export default function Navbar() {
   const { t } = useLanguage();
@@ -90,112 +99,79 @@ export default function Navbar() {
     router.push('/');
   };
 
-  const SearchTrigger = () => (
-    <button
-      onClick={() => openGlobalSearch()}
-      className="hidden md:flex items-center gap-2 w-full max-w-[280px] px-3 py-2 rounded-xl bg-white/[0.06] border border-white/[0.08] hover:bg-white/[0.08] transition-colors cursor-text group"
-    >
-      <Search className="h-4 w-4 text-white/25 flex-shrink-0" />
-      <span className="text-sm text-white/25 truncate flex-1 text-left">{t("Pesquisar...")}</span>
-      <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono text-white/20 bg-white/[0.04] border border-white/[0.06]">⌘K</kbd>
-    </button>
-  );
-
   return (
     <>
-      {/* Desktop: Floating Pill Navbar */}
-      <motion.header
-        style={{ height: springHeight }}
-        className="fixed top-3 left-1/2 -translate-x-1/2 z-[800] w-[calc(100%-1.5rem)] max-w-4xl"
-      >
-        <motion.nav
-          className="navbar-glass h-full rounded-2xl px-3 sm:px-5 flex items-center justify-between gap-3"
-        >
+      {/* Desktop: barra fixa ao topo (design da home) */}
+      <header className="sticky top-0 z-[800] bg-[rgba(5,5,5,0.8)] backdrop-blur-[14px] border-b border-white/[0.08]">
+        <div className="mx-auto flex items-center gap-1.5 md:gap-5 min-h-[60px] w-[min(1120px,calc(100%-32px))]">
           {/* Logo */}
-          <Link href="/" prefetch={false} className="flex items-center gap-2 flex-shrink-0 animate-logo-breathe">
-            <img src="/logo.svg" alt="FoodLister" className="w-9 h-9" />
-            <span className="font-bold text-[var(--foreground)] hidden sm:inline text-sm">FoodLister</span>
+          <Link href="/" prefetch={false} className="flex-shrink-0" aria-label={t("FoodLister, início")}>
+            <img src="/brand/lockup-dark.svg" alt="FoodLister" className="h-7 w-auto max-w-none" />
           </Link>
 
-          {/* Nav Items with Animated Indicator */}
-          <div className="hidden md:flex items-center gap-0.5 bg-white/[0.03] rounded-full p-1 relative">
+          {/* Links */}
+          <nav className="hidden md:flex gap-1 ml-3" aria-label={t("Principal")}>
             {NAV_ITEMS.map((item) => (
               <Link
-                        key={item.id}
-                        href={item.href}
-                        prefetch={false}
-         
-                 onClick={() => { if (pathname === item.href) window.location.reload(); }}
-                        className="relative z-10"
-                      >
-                <motion.span
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors duration-150 ${
-                    activeSection === item.id
-                      ? 'text-black'
-                      : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
-                  }`}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {t(item.label)}
-                  {activeSection === item.id && (
-                    <motion.div
-                      layoutId="nav-indicator"
-                      className="absolute inset-0 bg-[var(--primary)] rounded-full -z-10"
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                </motion.span>
+                key={item.id}
+                href={item.href}
+                prefetch={false}
+                onClick={() => { if (pathname === item.href) window.location.reload(); }}
+                aria-current={activeSection === item.id ? 'page' : undefined}
+                className={`min-h-[44px] px-3 inline-flex items-center rounded-[10px] text-sm transition-colors hover:bg-white/5 ${
+                  activeSection === item.id ? 'text-[var(--primary)]' : 'text-white/55 hover:text-[var(--foreground)]'
+                }`}
+              >
+                {t(item.label)}
               </Link>
             ))}
-          </div>
+          </nav>
 
-          {/* Search — opens global search modal */}
-          <div className="hidden md:block flex-1 max-w-[280px]">
-            <SearchTrigger />
-          </div>
+          <span className="flex-1" />
 
-          {/* Actions */}
+          {/* Pesquisa — abre a pesquisa global */}
+          <button
+            onClick={() => openGlobalSearch()}
+            aria-label={t("Pesquisar")}
+            className="hidden md:inline-flex min-h-[44px] px-3 items-center gap-1.5 rounded-[10px] text-sm text-white/55 hover:text-[var(--foreground)] hover:bg-white/5 transition-colors"
+          >
+            <Ico name="search" />
+            <span>{t("Pesquisar")}</span>
+            <kbd className="font-sans text-[11px] border border-white/[0.08] rounded-md px-1.5 py-px">Ctrl K</kbd>
+          </button>
+
           <div className="flex items-center gap-1.5">
-            {/* Language selector */}
             <LanguageCombobox />
-            {/* Create button (logged in) */}
             {user && (
               <Link
                 href="/restaurants/create"
                 prefetch={false}
-                className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-white/[0.03] hover:bg-white/[0.06] transition-colors"
+                className="hidden md:inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] text-white/55 hover:text-[var(--foreground)] hover:bg-white/5 transition-colors"
+                aria-label={t("Criar restaurante")}
                 title={t("Criar restaurante")}
               >
-                <Plus className="w-4 h-4 text-[var(--foreground)]" />
+                <Ico name="plus" />
               </Link>
             )}
-
-            {/* Roulette button (logged in) */}
             {user && (
               <Link
                 href="/roulette"
-   
-               prefetch={false}
+                prefetch={false}
                 onClick={() => { if (pathname === '/roulette') window.location.reload(); }}
-                className={`hidden md:flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
-                  pathname === '/roulette'
-                    ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 border border-purple-500/40 scale-110'
-                    : 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 hover:border-purple-500/30 hover:scale-110'
+                className={`hidden md:inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] hover:bg-white/5 transition-colors ${
+                  pathname === '/roulette' ? 'text-[var(--primary)]' : 'text-white/55 hover:text-[var(--foreground)]'
                 }`}
+                aria-label={t("Roleta de Restaurantes")}
                 title={t("Roleta de Restaurantes")}
               >
-                <Shuffle className="w-4 h-4 text-purple-400" />
+                <Ico name="dice" />
               </Link>
             )}
-
-            {/* Notifications (logged in) */}
             {user && (
               <>
                 <div className="hidden md:block">
                   <NotificationsDropdown />
                 </div>
-                {/* Mobile: bell icon hidden on desktop */}
                 <div className="md:hidden">
                   <NotificationsDropdown mobile />
                 </div>
@@ -305,7 +281,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="px-4 py-1.5 bg-[var(--primary)] text-black text-sm font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors min-h-[36px] flex items-center"
+                className="px-4 min-h-[44px] inline-flex items-center rounded-xl border border-white/[0.08] text-sm font-semibold text-[var(--foreground)] hover:bg-white/5 transition-colors"
               >
                 Entrar
               </Link>
@@ -313,8 +289,8 @@ export default function Navbar() {
 
             {/* Mobile: minimal padding, no menu button */}
           </div>
-        </motion.nav>
-      </motion.header>
+        </div>
+      </header>
 
       {/* Mobile: Bottom Tab Bar */}
       {/* Mobile: Bottom Tab Bar */}
@@ -326,14 +302,15 @@ export default function Navbar() {
       >
         <nav className="bottom-tab-bar rounded-2xl bg-[var(--card-bg)]/90 backdrop-blur-2xl border border-white/[0.08] px-1 py-1.5 flex items-center justify-around">
           {[
-            { id: 'home', icon: Menu, label: 'Home', href: '/' },
-            { id: 'restaurants', icon: Utensils, label: 'Restaurantes', href: '/restaurants' },
-            { id: 'map', icon: Map, label: 'Mapa', href: '/map' },
-            { id: 'search', icon: Search, label: 'Pesquisa', action: 'search' },
-            { id: 'roulette', icon: Shuffle, label: 'Roleta', href: '/roulette' },
-            { id: 'lists', icon: List, label: 'Listas', href: '/lists' },
-            { id: 'profile', icon: User, label: 'Perfil', href: user ? `/u
-  sers/${userProfile?.user_id_code || user.id}` : '/auth/signin' },
+            { id: 'home', icon: HomeIc, label: 'Home', href: '/' },
+            { id: 'restaurants', icon: ForkIc, label: 'Restaurantes', href: '/restaurants' },
+            { id: 'map', icon: PinIc, label: 'Mapa', href: '/map' },
+            { id: 'search', icon: SearchIc, label: 'Pesquisa', action: 'search' },
+            { id: 'roulette', icon: DiceIc, label: 'Roleta', href: '/roulette' },
+            { id: 'lists', icon: ListIc, label: 'Listas', href: '/lists' },
+            user
+              ? { id: 'profile', icon: UserIc, label: 'Perfil', href: `/users/${userProfile?.user_id_code || user.id}` }
+              : { id: 'signin', icon: UserIc, label: 'Entrar', href: '/auth/signin' },
           ].map((item) => {
             const isActive =
               (item.id === 'home' && pathname === '/') ||
@@ -375,8 +352,6 @@ export default function Navbar() {
 
       {/* No mobile menu — navbar is minimal on mobile */}
 
-      {/* Spacer for floating navbar */}
-      <div className="h-20 md:h-16" />
     </>
   );
 }
