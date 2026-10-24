@@ -19,3 +19,7 @@
 | Cartão: rating/preço/nome/criador/local/ver | Grelha 3 col | Cartões em linha |
 | Ações de hover | Visíveis em touch | Visíveis em touch |
 | Mobile: filtros | Painel expansível | Folha de filtros |
+
+## Verificação na implementação (A, 2026-10-24)
+
+Todas as linhas da coluna A verificadas no código (`app/restaurants/page.js`, `RestaurantFilters.tsx`, `NearbyBar.tsx`, `RestaurantGrid.tsx`) e nas screenshots `proofs/impl-desktop.png` e `proofs/impl-mobile.png`: herói, filtros, Perto de mim, ordenação (Aleatório por defeito), limpar, contagem, skeleton/vazio/erro, load-more, FAB `/restaurants/create`, cartões 3:2 em 4 colunas. Gates: tsc OK, jest 439/439, e2e `restaurants.spec.ts` 5/5.

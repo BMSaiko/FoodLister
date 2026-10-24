@@ -35,7 +35,7 @@ const RestaurantImagePlaceholder: React.FC<RestaurantImagePlaceholderProps> = ({
   const size = variant === 'hero' ? 160 : 72;
   return (
     <div
-      className={`absolute inset-0 flex flex-col items-center justify-center gap-2 overflow-hidden bg-gradient-to-br ${GRADIENTS[(h >> 5) % GRADIENTS.length]} ${className}`}
+      className={`absolute inset-0 flex flex-col items-center ${variant === 'hero' ? 'justify-start pt-6 md:justify-center md:pt-0' : 'justify-center'} gap-2 overflow-hidden bg-gradient-to-br ${GRADIENTS[(h >> 5) % GRADIENTS.length]} ${className}`}
     >
       <div aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
       {/* eslint-disable-next-line @next/next/no-img-element */}

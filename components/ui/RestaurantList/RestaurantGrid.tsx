@@ -48,6 +48,7 @@ export function RestaurantGrid({
         {restaurants.map((restaurant, index) => (
           <motion.div
             key={restaurant.id}
+            className="h-full"
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.1 }}
