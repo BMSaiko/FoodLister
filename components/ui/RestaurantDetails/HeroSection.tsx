@@ -205,20 +205,9 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
             Por <span className="text-white/70 font-medium"><CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_display_name || restaurant.creator_name} /></span>
           </div>
         )}
-        <div className="mt-1 flex items-start justify-between gap-3">
-          <h1 className="min-w-0 text-3xl md:text-5xl font-bold text-white tracking-tight leading-[1.1] text-balance">
-            {restaurant.name}
-          </h1>
-          {hasMenuImages && (
-            <button
-              type="button"
-              onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              className={chipClass + " flex-none"}
-            >
-              <MenuBookIcon size={18} />Menu
-            </button>
-          )}
-        </div>
+        <h1 className="mt-1 text-3xl md:text-5xl font-bold text-white tracking-tight leading-[1.1] text-balance">
+          {restaurant.name}
+        </h1>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/60">
           {hasRating && (
@@ -237,12 +226,20 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
           {restaurant.location && <span className="truncate max-w-[14rem]">{restaurant.location}</span>}
         </div>
 
-        {(mapsHref || menuHref || phone || restaurant.source_url) && (
+        {(mapsHref || menuHref || hasMenuImages || phone || restaurant.source_url) && (
           <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4">
             {mapsHref && (
               <a href="#localizacao" className={chipClass}><PinIcon size={18} />Mapa</a>
             )}
-            {menuHref && (
+            {hasMenuImages ? (
+              <button
+                type="button"
+                onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                className={chipClass}
+              >
+                <MenuBookIcon size={18} />Menu
+              </button>
+            ) : menuHref && (
               <a href={menuHref} target="_blank" rel="noopener noreferrer" className={chipClass}><MenuBookIcon size={18} />Menu</a>
             )}
             {phone && (
