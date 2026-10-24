@@ -25,6 +25,7 @@ interface HeroSectionProps {
     longitude?: number;
     source_url?: string;
     menu_links?: string[];
+    menu_images?: string[];
     phone_numbers?: string[];
   };
   /** T42: consolidated experience photos from all reviews, appended to main carousel */
@@ -93,6 +94,7 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
     ? `https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`
     : null;
   const menuHref = restaurant.menu_links?.[0];
+  const hasMenuImages = (restaurant.menu_images ?? []).some(img => img && img !== "/placeholder-restaurant.jpg" && !img.startsWith("data:image"));
   const phone = restaurant.phone_numbers?.[0];
   const hasRating = restaurant.rating != null && (reviewCount ?? restaurant.review_count ?? 0) > 0;
   const count = reviewCount ?? restaurant.review_count ?? 0;
@@ -224,12 +226,20 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
           {restaurant.location && <span className="truncate max-w-[14rem]">{restaurant.location}</span>}
         </div>
 
-        {(mapsHref || menuHref || phone || restaurant.source_url) && (
+        {(mapsHref || menuHref || hasMenuImages || phone || restaurant.source_url) && (
           <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4">
             {mapsHref && (
               <a href="#localizacao" className={chipClass}><PinIcon size={18} />Mapa</a>
             )}
-            {menuHref && (
+            {hasMenuImages ? (
+              <button
+                type="button"
+                onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                className={chipClass}
+              >
+                <MenuBookIcon size={18} />Menu
+              </button>
+            ) : menuHref && (
               <a href={menuHref} target="_blank" rel="noopener noreferrer" className={chipClass}><MenuBookIcon size={18} />Menu</a>
             )}
             {phone && (

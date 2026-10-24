@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from "react";
-import { ImageIcon, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import Modal from '@/components/ui/Modal';
 
 interface MenuGalleryProps {
@@ -20,24 +20,17 @@ export default function MenuGallery({ images = [], restaurantName = "Menu" }: Me
   const prev = () => setIdx(p => (p - 1 + valid.length) % valid.length);
 
   return (
-    <section className="mb-4">
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="bg-orange-500/10 rounded-xl p-2.5"><ImageIcon className="h-5 w-5 text-orange-400" /></div>
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold text-white">Menu</h2>
-          <p className="text-xs text-white/35">{valid.length} imagem{valid.length !== 1 ? "ens" : "m"}</p>
-        </div>
-      </div>
+    <section id="menu" className="scroll-mt-20 mt-11">
+      <h2 className="mb-4 flex items-baseline gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-white/45">
+        Menu
+        <span className="normal-case tracking-normal text-white/35">{valid.length} {valid.length !== 1 ? "imagens" : "imagem"}</span>
+      </h2>
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      {/* Grelha */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
         {valid.map((img, i) => (
-          <button key={i} onClick={() => { setIdx(i); setOpen(true); }} className="relative aspect-square rounded-2xl overflow-hidden bg-white/[0.03] ring-1 ring-white/[0.06] group cursor-pointer">
-            <img src={img} alt={`${restaurantName} ${i + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.06]" />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-200 flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/15 backdrop-blur-xl rounded-full p-2.5"><ZoomIn className="h-5 w-5 text-white" /></div>
-            </div>
-            <div className="absolute top-2 left-2 bg-black/30 backdrop-blur-md text-white/70 px-2 py-0.5 rounded-full text-[10px] font-semibold">{i + 1}</div>
+          <button key={i} onClick={() => { setIdx(i); setOpen(true); }} aria-label={`Abrir ${restaurantName} ${i + 1}`} className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[#0c0c0c] border border-white/[0.08] hover:border-white/25 transition-colors cursor-pointer">
+            <img src={img} alt={`${restaurantName} ${i + 1}`} className="w-full h-full object-cover" />
           </button>
         ))}
       </div>
