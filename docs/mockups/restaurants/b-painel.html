@@ -1,0 +1,67 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Explorar Restaurantes - FoodLister (B painel)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.layout{display:grid;gap:28px;grid-template-columns:1fr}
+@media(min-width:960px){.layout{grid-template-columns:280px 1fr}}
+.aside{display:none}
+@media(min-width:960px){.aside{display:block;position:sticky;top:76px;align-self:start;max-height:calc(100dvh - 96px);overflow:auto;padding-right:4px}.mbar{display:none!important}}
+.aside .panel{grid-template-columns:1fr;margin:16px 0 0;background:none;border:0;padding:0;gap:22px}
+.aside h1{font-size:22px;letter-spacing:-.02em;margin:0 0 4px}
+.aside .row2{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.aside .row2 .sel,.aside .row2 .btn{width:100%;justify-content:flex-start}
+.aside .row2 .btn.nearby{justify-content:flex-start}
+.mbar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+/* folha de filtros no mobile */
+@media(max-width:959px){body.sheet .aside{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;max-height:85dvh;overflow:auto;background:#0b0b0b;border-top:1px solid var(--line2);border-radius:20px 20px 0 0;padding:20px 16px 28px}
+body.sheet::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:55}}
+.sheetx{display:none}@media(max-width:959px){body.sheet .sheetx{display:inline-flex;float:right}}
+/* herói compacto */
+.hero{min-height:0;border-radius:20px;margin-bottom:20px;display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch}
+@media(min-width:620px){.hero{grid-template-columns:minmax(0,1fr) 42%}}
+.hero::after{display:none}
+.hero .in{order:1;padding:24px;max-width:none;align-self:center}
+.hero .img{position:absolute;inset:auto;right:0;top:0;bottom:0;width:100%;height:100%}
+.hero .img{position:static;grid-area:1/1;opacity:0}.hero .img.on{opacity:1}
+.hero h2{font-size:clamp(22px,3vw,30px)}
+.hero .dots{bottom:12px;right:12px}
+@media(min-width:620px){.hero .img{grid-column:2;grid-row:1;height:100%;min-height:240px}.hero .in{grid-column:1;grid-row:1}}
+@media(max-width:619px){.hero .img{grid-row:1;height:200px}.hero .in{grid-row:2}}
+/* cartões em linha */
+.grid{grid-template-columns:1fr}
+@media(min-width:1180px){.grid{grid-template-columns:repeat(2,1fr)}}
+.card{flex-direction:row;align-items:stretch}
+.card .ph{aspect-ratio:auto;width:132px;flex:none;min-height:132px}
+@media(min-width:620px){.card .ph{width:168px}}
+.card .noimg b{font-size:30px}.card .tag.r{top:auto;bottom:8px;right:8px}
+.card .bd{justify-content:center}.card .price{color:var(--ph);font-weight:600;font-size:14px}
+.card .go{opacity:1;color:var(--mut)}
+.layout .nav-sp{display:none}
+</style></head><body>
+<header class="nav"><div class="logo"><i>F</i>FoodLister</div><div class="sch"><i data-ic="search"></i><span>Pesquisar restaurantes</span></div><small>Navbar existente (fora do âmbito)</small></header>
+<main class="wrap"><div class="layout">
+<aside class="aside" aria-label="Filtros"><button class="link sheetx" data-sheet aria-label="Fechar filtros"><i data-ic="x"></i>Fechar</button>
+<h1>Explorar</h1><span class="meta cnt"></span>
+<div class="row2">
+<button class="btn nearby" aria-label="Mostrar restaurantes perto de mim"><i data-ic="pin"></i>Perto de mim</button>
+<select class="sel radius" aria-label="Raio de pesquisa" style="display:none"><option value="2">2 km</option><option value="5">5 km</option><option value="10">10 km</option><option value="25">25 km</option><option value="50">50 km</option><option value="100">100 km</option></select>
+<span class="nstat" role="status"></span>
+<select class="sel sort" aria-label="Ordenar"><option value="name:asc">Nome A-Z</option><option value="name:desc">Nome Z-A</option><option value="rating:desc">Rating (maior primeiro)</option><option value="price:asc">Preço ↑</option><option value="price:desc">Preço ↓</option><option value="popularity:desc">Populares</option><option value="random:asc">Aleatório</option></select>
+<button class="link clear" style="display:none"><i data-ic="x"></i>Limpar filtros</button></div>
+<div class="panel open"><div class="grp"><h4>Preço por pessoa</h4><div class="row"><label class="fld num"><span class="meta">€</span><input class="pmin" type="number" min="0" placeholder="Min" aria-label="Preço mínimo"></label><span class="meta">—</span><label class="fld num"><span class="meta">€</span><input class="pmax" type="number" min="0" placeholder="Max" aria-label="Preço máximo"></label></div></div>
+<div class="grp"><h4>Rating mínimo</h4><div class="row"><button class="chip rate" data-r="1">1 <i data-ic="star"></i></button><button class="chip rate" data-r="2">2 <i data-ic="star"></i></button><button class="chip rate" data-r="3">3 <i data-ic="star"></i></button><button class="chip rate" data-r="4">4 <i data-ic="star"></i></button><button class="chip rate" data-r="5">5 <i data-ic="star"></i></button></div></div>
+<div class="grp"><h4>Localização</h4><label class="fld"><i data-ic="pin"></i><input class="loc-in" type="text" placeholder="Cidade, país..." aria-label="Localização"></label></div>
+<div class="grp cuis"><h4>Culinária</h4><p class="empty-note">Só aparece quando há tipos de cozinha nos restaurantes carregados (máx. 12, com contagem).</p></div></div></aside>
+<div>
+<div class="mbar"><button class="btn" data-sheet aria-label="Abrir filtros"><i data-ic="sliders"></i>Filtros <span class="badge fbadge" style="display:none">0</span></button>
+<button class="btn nearby" aria-label="Mostrar restaurantes perto de mim"><i data-ic="pin"></i>Perto de mim</button><span class="meta cnt"></span></div>
+<span class="qchip" style="margin-bottom:12px"><span></span><button aria-label="Limpar pesquisa"><i data-ic="x"></i></button></span>
+<section id="hero" class="hero" aria-label="Sugestão de hoje"></section>
+<div id="grid" class="grid"></div>
+<div class="grid sk" aria-hidden="true"><div class="skc" style="display:flex"><i class="a" style="width:132px;aspect-ratio:auto;min-height:132px"></i><div style="flex:1"><i class="b" style="margin-top:28px"></i><i class="c"></i></div></div><div class="skc" style="display:flex"><i class="a" style="width:132px;aspect-ratio:auto;min-height:132px"></i><div style="flex:1"><i class="b" style="margin-top:28px"></i><i class="c"></i></div></div><div class="skc" style="display:flex"><i class="a" style="width:132px;aspect-ratio:auto;min-height:132px"></i><div style="flex:1"><i class="b" style="margin-top:28px"></i><i class="c"></i></div></div><div class="skc" style="display:flex"><i class="a" style="width:132px;aspect-ratio:auto;min-height:132px"></i><div style="flex:1"><i class="b" style="margin-top:28px"></i><i class="c"></i></div></div><div class="skc" style="display:flex"><i class="a" style="width:132px;aspect-ratio:auto;min-height:132px"></i><div style="flex:1"><i class="b" style="margin-top:28px"></i><i class="c"></i></div></div><div class="skc" style="display:flex"><i class="a" style="width:132px;aspect-ratio:auto;min-height:132px"></i><div style="flex:1"><i class="b" style="margin-top:28px"></i><i class="c"></i></div></div></div>
+<div id="msg" class="msg" role="status"></div>
+<div id="more" class="more" role="status">A carregar mais restaurantes...</div>
+<p id="foot" class="foot"></p></div>
+</div></main>
+<a class="fab" href="#" title="Criar restaurante" aria-label="Criar restaurante"><i data-ic="plus"></i></a>
+<script src="data.js"></script><script src="states.js"></script></body></html>

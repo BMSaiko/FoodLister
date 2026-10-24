@@ -84,3 +84,12 @@ Fonte: `app/page.js` (352 linhas), `components/landing/*`, `Navbar.tsx`, `app/ap
 
 ## Estado visual atual (para a auditoria)
 Fundo #050505 com 2 orbes âmbar e grain; hero split com typewriter; bento de 4 cartões iguais com ícones lucide coloridos (verde/azul/roxo fora da paleta); chips com emoji; testemunhos genéricos; muitos efeitos (parallax, grain, mesh blur, barra de scroll).
+
+---
+
+# Fluxo e inventário: /restaurants
+
+## Fluxo
+- Entrada: navbar («Restaurantes»), pesquisa (`?search=`), links da home. Tarefas: descobrir, filtrar, ordenar, procurar perto, abrir restaurante, criar (FAB, com sessão).
+- Saída: `/restaurants/[id]`, perfil do criador, `/restaurants/new`.
+- Paridade por direção: `restaurants/PARIDADE.md`. Navbar fora do âmbito (sem mudanças de acessos).
