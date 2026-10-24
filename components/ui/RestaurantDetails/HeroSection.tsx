@@ -25,6 +25,7 @@ interface HeroSectionProps {
     longitude?: number;
     source_url?: string;
     menu_links?: string[];
+    menu_images?: string[];
     phone_numbers?: string[];
   };
   /** T42: consolidated experience photos from all reviews, appended to main carousel */
@@ -93,6 +94,7 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
     ? `https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`
     : null;
   const menuHref = restaurant.menu_links?.[0];
+  const hasMenuImages = (restaurant.menu_images ?? []).some(img => img && img !== "/placeholder-restaurant.jpg" && !img.startsWith("data:image"));
   const phone = restaurant.phone_numbers?.[0];
   const hasRating = restaurant.rating != null && (reviewCount ?? restaurant.review_count ?? 0) > 0;
   const count = reviewCount ?? restaurant.review_count ?? 0;
@@ -203,9 +205,20 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
             Por <span className="text-white/70 font-medium"><CreatorLink creatorId={restaurant.creator_user_code || restaurant.creator_id} name={restaurant.creator_display_name || restaurant.creator_name} /></span>
           </div>
         )}
-        <h1 className="mt-1 text-3xl md:text-5xl font-bold text-white tracking-tight leading-[1.1] text-balance">
-          {restaurant.name}
-        </h1>
+        <div className="mt-1 flex items-start justify-between gap-3">
+          <h1 className="min-w-0 text-3xl md:text-5xl font-bold text-white tracking-tight leading-[1.1] text-balance">
+            {restaurant.name}
+          </h1>
+          {hasMenuImages && (
+            <button
+              type="button"
+              onClick={() => document.getElementById("menu")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className={chipClass + " flex-none"}
+            >
+              <MenuBookIcon size={18} />Menu
+            </button>
+          )}
+        </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/60">
           {hasRating && (
