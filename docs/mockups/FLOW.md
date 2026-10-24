@@ -93,3 +93,15 @@ Fundo #050505 com 2 orbes âmbar e grain; hero split com typewriter; bento de 4 
 - Entrada: navbar («Restaurantes»), pesquisa (`?search=`), links da home. Tarefas: descobrir, filtrar, ordenar, procurar perto, abrir restaurante, criar (FAB, com sessão).
 - Saída: `/restaurants/[id]`, perfil do criador, `/restaurants/new`.
 - Paridade por direção: `restaurants/PARIDADE.md`. Navbar fora do âmbito (sem mudanças de acessos).
+
+---
+
+# Fluxo e inventário: /restaurants/[id]
+
+Inventário completo (30 linhas) e destino de cada funcionalidade nas direções A e B: `restaurante-detalhe/PARIDADE.md`.
+
+## Fluxo
+- Entrada: cartão em `/restaurants`, mapa, listas (`/lists/...`), pesquisa global, notificações (`?review=<id>`), partilha por link.
+- Tarefas: ver fotos/info, contactar (ligar, site, menu, mapa), avaliar, agendar, guardar numa lista, partilhar, denunciar; dono/admin: editar; admin: eliminar.
+- Saída: `/restaurants` (não encontrado), `/users/<código>` (criador, autores), `/lists/<slug>`, `/restaurants/<id>/edit`, Google Maps, `tel:`, menu e site externos.
+- Navbar fora do âmbito (sem mudanças de acessos).
