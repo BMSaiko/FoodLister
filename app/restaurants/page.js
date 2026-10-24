@@ -123,7 +123,7 @@ function RestaurantsContent() {
         {/* Grid */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {Array.from({ length: 9 }).map((_, i) => (
+            {Array.from({ length: 12 }).map((_, i) => (
               <Skeleton key={i} variant="restaurant-card" />
             ))}
           </div>
@@ -131,7 +131,7 @@ function RestaurantsContent() {
           <div className="space-y-6">
             {nearby.loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} variant="restaurant-card" />)}
+                {Array.from({ length: 12 }).map((_, i) => <Skeleton key={i} variant="restaurant-card" />)}
               </div>
             ) : nearby.error ? (
               <div className="text-center py-12 text-white/40">{nearby.error}</div>
