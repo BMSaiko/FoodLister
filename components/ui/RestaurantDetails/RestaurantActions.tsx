@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { StarIcon, CalendarIcon, ShareIcon, MoreIcon, EditIcon, TrashIcon } from '@/components/icons';
 
@@ -16,6 +17,8 @@ interface RestaurantActionsProps {
   menuExtra?: ReactNode;
   /** esconder «Avaliar» (utilizador sem sessão) */
   hideReview?: boolean;
+  /** com `hideReview`: «Avaliar» passa a ligação para este destino (ex.: iniciar sessão) */
+  reviewHref?: string;
 }
 
 const secondary =
@@ -34,6 +37,7 @@ export default function RestaurantActions({
   canDelete,
   menuExtra,
   hideReview,
+  reviewHref,
 }: RestaurantActionsProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -57,6 +61,15 @@ export default function RestaurantActions({
 
   return (
     <div ref={wrapRef} className="relative flex items-center gap-2">
+      {hideReview && reviewHref && (
+        <Link
+          href={reviewHref}
+          className="flex flex-1 items-center justify-center gap-2 min-h-[44px] rounded-full bg-amber-500 px-5 text-sm font-semibold text-black hover:bg-amber-400 transition-colors"
+        >
+          <StarIcon size={18} />
+          Avaliar
+        </Link>
+      )}
       {!hideReview && (
         <button
           type="button"

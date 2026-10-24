@@ -209,7 +209,7 @@ export default function ReviewForm({
   };
 
   return (
-    <div className="bg-[var(--card-bg)] rounded-lg p-4 sm:p-6 border border-[var(--card-border)] shadow-sm">
+    <div className="rounded-2xl p-5 border border-amber-500/35 bg-white/[0.03]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-[var(--gray-800)]">
           {isEditing ? 'Editar Avaliação' : 'Avaliar Restaurante'}

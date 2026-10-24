@@ -30,6 +30,8 @@ interface HeroSectionProps {
   /** T42: consolidated experience photos from all reviews, appended to main carousel */
   reviewImages?: string[];
   reviewCount?: number;
+  /** Conteúdo por baixo das fotos (coluna esquerda); o painel fixo acompanha o scroll. */
+  children?: React.ReactNode;
   onShare: () => void;
   onSchedule: () => void;
   /** «Avaliar»: abre o formulário de avaliação; ausente para visitantes sem sessão */
@@ -47,7 +49,7 @@ interface HeroSectionProps {
 const chipClass =
   "flex flex-none items-center gap-2 min-h-[44px] px-4 rounded-full border border-white/[0.1] bg-white/[0.05] text-sm text-white/85 hover:bg-white/[0.1] transition-colors";
 
-export default function HeroSection({ restaurant, reviewImages, reviewCount, onShare, onSchedule, onReview, onEdit, isOwner, onDelete, canDelete, actionExtra, listAction }: HeroSectionProps) {
+export default function HeroSection({ restaurant, reviewImages, reviewCount, children, onShare, onSchedule, onReview, onEdit, isOwner, onDelete, canDelete, actionExtra, listAction }: HeroSectionProps) {
   const priceCategory = categorizePriceLevel(restaurant.price_per_person || 0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -96,16 +98,36 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
   const count = reviewCount ?? restaurant.review_count ?? 0;
 
   return (
-    <div className="lg:max-w-7xl lg:mx-auto lg:px-4 lg:pt-6 lg:grid lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-8 lg:items-start">
-      <div className="min-w-0">
+    <div className="lg:max-w-7xl lg:mx-auto lg:px-4 lg:pt-6 lg:grid lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-x-8 lg:items-start">
+      <div className="min-w-0 lg:col-start-1 lg:row-start-1">
       {/* Carrossel (ou faixa de marca quando não há fotos) */}
       <div className="relative w-full lg:rounded-2xl lg:overflow-hidden">
         {hasImages ? (
           <>
+            {/* Mosaico 1+3 (≥lg) */}
+            <div data-testid="photo-mosaic" className="hidden lg:grid h-[480px] grid-cols-[2fr_1fr] gap-1.5">
+              <button type="button" onClick={() => openLightbox(0)} aria-label={`Abrir foto 1 de ${allImages.length}`} className="row-span-3 overflow-hidden bg-[var(--card-bg)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={allImages[0]} alt={restaurant.name} className="h-full w-full object-cover" loading="eager" />
+              </button>
+              {allImages.slice(1, 4).map((img, i) => (
+                <button key={img + i} type="button" onClick={() => openLightbox(i + 1)} aria-label={`Abrir foto ${i + 2} de ${allImages.length}`} className="overflow-hidden bg-[var(--card-bg)]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img} alt={`${restaurant.name} - Foto ${i + 2}`} className="h-full w-full object-cover" loading="lazy" />
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => openLightbox(0)}
+                className="absolute right-3 bottom-3 flex items-center gap-2 min-h-[44px] px-4 rounded-full bg-black/60 backdrop-blur-md text-white text-sm font-medium"
+              >
+                {`Ver as ${allImages.length} fotos`}
+              </button>
+            </div>
             <div
               ref={trackRef}
               onScroll={onScroll}
-              className="flex gap-1.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide h-[260px] md:h-[420px] lg:h-[480px]"
+              className="flex gap-1.5 overflow-x-auto snap-x snap-mandatory scrollbar-hide h-[260px] md:h-[420px] lg:hidden"
               aria-roledescription="carrossel"
               aria-label={`Fotos de ${restaurant.name}`}
             >
@@ -131,7 +153,7 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
               type="button"
               onClick={() => openLightbox(slide)}
               aria-label="Ver fotos em ecrã inteiro"
-              className="absolute left-3 bottom-3 flex items-center gap-2 min-h-[44px] px-4 rounded-full bg-black/60 backdrop-blur-md text-white text-sm font-medium"
+              className="lg:hidden absolute left-3 bottom-3 flex items-center gap-2 min-h-[44px] px-4 rounded-full bg-black/60 backdrop-blur-md text-white text-sm font-medium"
             >
               {slide + 1} / {allImages.length}
               <ExpandIcon size={16} />
@@ -150,7 +172,7 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
 
       {/* Miniaturas */}
       {hasImages && allImages.length > 1 && (
-        <div className="max-w-7xl mx-auto px-4 pt-2">
+        <div className="lg:hidden max-w-7xl mx-auto px-4 pt-2">
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
             {allImages.map((img, i) => (
               <button
@@ -174,7 +196,7 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
       </div>
 
       {/* Painel: título, rating e preço, atalhos e ações (sticky no desktop) */}
-      <div className="lg:sticky lg:top-20 min-w-0">
+      <div className="lg:sticky lg:top-20 min-w-0 lg:col-start-2 lg:row-start-1 lg:row-span-2">
       <div className="max-w-7xl mx-auto px-4 pt-4 pb-2 lg:p-0">
         {restaurant.creator_name && (
           <div className="text-sm text-white/45">
@@ -226,6 +248,7 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
           <RestaurantActions
             onReview={onReview ?? (() => undefined)}
             hideReview={!onReview}
+            reviewHref="/auth/signin"
             onSchedule={onSchedule}
             onShare={onShare}
             onEdit={isOwner ? onEdit : undefined}
@@ -235,8 +258,17 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, onS
           />
         </div>
         {listAction && <div className="hidden lg:block mt-2 [&>*]:w-full">{listAction}</div>}
+        {!onReview && (
+          <p className="mt-2 text-sm text-white/55">Inicie sessão para avaliar e guardar em listas.</p>
+        )}
       </div>
       </div>
+
+      {children && (
+        <div className="min-w-0 lg:col-start-1 lg:row-start-2 max-w-7xl mx-auto w-full px-4 lg:px-0 py-6 md:py-8 pb-24 md:pb-8">
+          {children}
+        </div>
+      )}
 
       {/* Lightbox */}
       <Modal
