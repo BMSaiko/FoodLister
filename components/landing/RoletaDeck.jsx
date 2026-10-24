@@ -111,15 +111,22 @@ export default function RoletaDeck({ restaurants = [], loading = false, error = 
         {cards.map((r, k) => {
           const img = photo(r);
           const d = phase === 'reveal' ? `${260 + [2, 1, 0, 1, 2][k] * 90}ms` : '0s';
-          return (
-            <div
-              key={`${r.id}-${phase === 'reveal' ? 'r' : 'i'}`}
-              className={`roleta-card${phase === 'reveal' ? ' flip' : ''}${img ? '' : ' none'}`}
-              style={{ '--i': k + 1, '--d': d }}
-            >
+          const cardCls = `roleta-card${phase === 'reveal' ? ' flip' : ''}${img ? '' : ' none'}`;
+          const inner = (
+            <>
               {img && <img src={img} alt={`Foto de ${r.name}`} loading={k === 2 ? 'eager' : 'lazy'} />}
               <div className="roleta-cap"><span>{r.name}</span></div>
-            </div>
+            </>
+          );
+          const key = `${r.id}-${phase === 'reveal' ? 'r' : 'i'}`;
+          const style = { '--i': k + 1, '--d': d };
+          // a animação Girar ignora cliques: só há link com o baralho parado
+          return busy ? (
+            <div key={key} className={cardCls} style={style} aria-hidden="true">{inner}</div>
+          ) : (
+            <Link key={key} href={`/restaurants/${r.id}`} className={cardCls} style={style} aria-label={`Abrir ${r.name}`}>
+              {inner}
+            </Link>
           );
         })}
       </div>

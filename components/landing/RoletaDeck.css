@@ -1,6 +1,9 @@
 .roleta{display:grid;justify-items:center;gap:16px;width:100%}
 .roleta-deck{position:relative;width:min(560px,100%);height:240px;display:grid;place-items:center}
 .roleta-card{position:absolute;width:168px;height:224px;overflow:hidden;border-radius:16px;background:#141414;border:1px solid rgba(255,255,255,.08);box-shadow:0 20px 50px rgba(0,0,0,.5);transition:transform .5s cubic-bezier(.22,1.1,.36,1),opacity .4s}
+.roleta-card{display:block;color:inherit;text-decoration:none}
+a.roleta-card:focus-visible{outline:2px solid var(--primary);outline-offset:3px;z-index:6}
+a.roleta-card:hover{border-color:rgba(245,158,11,.5)}
 .roleta-card img{width:100%;height:100%;object-fit:cover;display:block}
 .roleta-card.none::before{content:"Sem foto";position:absolute;left:12px;bottom:40px;font-size:12px;color:rgba(255,255,255,.55);z-index:1}
 .roleta-card.none{background:radial-gradient(circle at 50% 40%,rgba(245,158,11,.22),transparent 60%),#141414}
