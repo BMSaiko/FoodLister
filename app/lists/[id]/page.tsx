@@ -341,7 +341,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
 
         <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-5 md:py-6">
           <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
-            <div>
+            <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
               <Link href="/lists" className="inline-flex items-center text-white/50 hover:text-white transition-colors mb-2 text-sm min-h-[44px]">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 <span>Listas</span>
@@ -361,6 +361,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
                 avgRating={metaStats.avgRating}
                 avgPrice={metaStats.avgPrice}
                 uniqueLocations={metaStats.uniqueLocations}
+                showComments={!!list.is_public}
                 hasFilters={!!list.filters}
                 applyingFilters={applyingFilters}
                 onShare={handleShareList}
@@ -423,12 +424,12 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
               )}
 
               {list.is_public && (
-                <div className="mb-4">
+                <div id="comentarios" className="mb-4 scroll-mt-20">
                   <ListComments listId={id as string} isOwner={userRole === 'owner'} highlightCommentId={highlightCommentId} />
                 </div>
               )}
 
-              <div className="mb-8">
+              <div id="atividade" className="mb-8 scroll-mt-20">
                 <ListActivityFeed listId={id as string} />
               </div>
             </main>
