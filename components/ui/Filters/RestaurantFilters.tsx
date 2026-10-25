@@ -37,6 +37,8 @@ interface RestaurantFiltersProps {
   totalRestaurants?: number;
   /** T50: sorting (server-side) */
   onSortChange?: (sortBy: string, sortDirection: string) => void;
+  /** "mock": estilo limpo do mockup de /lists/[id] */
+  variant?: "default" | "mock";
 }
 
 const DEFAULT_FILTERS: Filters = {
@@ -48,7 +50,7 @@ const DEFAULT_FILTERS: Filters = {
   location: "",
 };
 
-export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange, onSortChange, totalRestaurants }: RestaurantFiltersProps) {
+export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange, onSortChange, totalRestaurants, variant = "default" }: RestaurantFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(initialFilters || DEFAULT_FILTERS);
 
@@ -119,6 +121,74 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
 
   const clearFilters = () => setFilters(DEFAULT_FILTERS);
 
+  if (variant === "mock") {
+    const field = "mt-1.5 w-full min-h-[40px] rounded-[10px] border border-white/[0.08] bg-transparent px-2.5 text-sm text-white/90 placeholder:text-white/30 focus:outline-none focus:border-amber-500/50";
+    const label = "block text-xs uppercase text-white/50";
+    return (
+      <div className="mb-3">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          {availableCuisines.map(([name, count]) => {
+            const on = filters.cuisines.includes(name);
+            return (
+              <button
+                key={name}
+                aria-pressed={on}
+                onClick={() => setFilters(f => ({
+                  ...f,
+                  cuisines: on ? f.cuisines.filter(c => c !== name) : [...f.cuisines, name]
+                }))}
+                className={`min-h-[36px] rounded-full border px-3 text-[13px] ${on ? "border-amber-500/50 bg-amber-500/15 text-amber-300" : "border-white/[0.08] text-white/70 hover:bg-white/[0.05]"}`}
+              >
+                {name} <span className="text-white/40">{count}</span>
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            aria-expanded={showFilters}
+            className={`ml-auto inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-[13px] ${showFilters || activeCount > 0 ? "border-amber-500/50 bg-amber-500/15 text-amber-300" : "border-white/[0.08] text-white/70"}`}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" /> Filtros{activeCount > 0 && ` (${activeCount})`}
+          </button>
+          {activeCount > 0 && (
+            <button onClick={clearFilters} className="inline-flex min-h-[36px] items-center gap-1 text-xs text-white/50 hover:text-white/80">
+              <X className="h-3 w-3" /> Limpar
+            </button>
+          )}
+          {rightSlot}
+        </div>
+        {showFilters && (
+          <div className="mb-3 grid gap-3 rounded-[14px] border border-white/[0.08] bg-[#0c0c0c] p-3.5 [grid-template-columns:repeat(auto-fit,minmax(170px,1fr))]">
+            <label className={label}>Preço
+              <span className="flex gap-1.5">
+                <input type="number" placeholder="Min" value={filters.priceMin ?? ""} onChange={e => setFilters(f => ({ ...f, priceMin: e.target.value ? Number(e.target.value) : null }))} className={field} />
+                <input type="number" placeholder="Max" value={filters.priceMax ?? ""} onChange={e => setFilters(f => ({ ...f, priceMax: e.target.value ? Number(e.target.value) : null }))} className={field} />
+              </span>
+            </label>
+            <div className={label}>Rating mínimo
+              <div className="mt-1.5 flex gap-1" role="group" aria-label="Rating mínimo">
+                {[1, 2, 3, 4, 5].map(r => (
+                  <button
+                    key={r}
+                    aria-label={`${r} estrelas ou mais`}
+                    aria-pressed={filters.ratingMin === r}
+                    onClick={() => setFilters(f => ({ ...f, ratingMin: f.ratingMin === r ? null : r }))}
+                    className="flex h-10 w-9 items-center justify-center"
+                  >
+                    <Star className={`h-5 w-5 ${filters.ratingMin != null && r <= filters.ratingMin ? "fill-amber-400 text-amber-400" : "text-white/25"}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label className={label}>Localização
+              <input type="text" placeholder="Cidade, país..." value={filters.location} onChange={e => setFilters(f => ({ ...f, location: e.target.value }))} className={field} />
+            </label>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="mb-6 md:mb-8">
       {/* Filter toggle + stats */}
@@ -128,14 +198,14 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 min-h-[48px] ${
             showFilters || activeCount > 0
-              ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25"
+              ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
               : "bg-white/[0.04] text-white/50 border border-white/[0.06] hover:bg-white/[0.08]"
           }`}
         >
           <SlidersHorizontal className="h-4 w-4" />
           <span>Filtros Avancados</span>
           {activeCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-purple-500 text-white text-[10px] font-bold flex items-center justify-center">{activeCount}</span>
+            <span className="w-5 h-5 rounded-full bg-amber-500 text-black text-[10px] font-bold flex items-center justify-center">{activeCount}</span>
           )}
           <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${showFilters ? "rotate-180" : ""}`} />
         </button>
@@ -155,10 +225,11 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
                 const [sb, sd] = e.target.value.split(':');
                 onSortChange(sb, sd || 'asc');
               }}
-              defaultValue="name:asc"
+              defaultValue="random:asc"
               aria-label="Ordenar"
               className="px-2.5 py-1.5 rounded-full text-xs bg-white/[0.04] ring-1 ring-white/[0.1] text-white/70 [&>option]:bg-[#0a0a0a] [&>option]:text-white focus:outline-none"
             >
+              <option value="random:asc">Aleatório</option>
               <option value="name:asc">Nome A-Z</option>
               <option value="name:desc">Nome Z-A</option>
               <option value="rating:desc">Rating (maior primeiro)</option>

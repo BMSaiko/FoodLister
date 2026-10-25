@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mapa — B · Mapa total</title><link rel="stylesheet" href="shared.css">
+<style>
+/* B: mapa a toda a largura; pesquisa e filtros flutuam por cima; lista = faixa de cartões (desktop) / folha inferior (mobile). */
+.top{position:absolute;left:16px;right:16px;top:68px;z-index:7;display:grid;gap:8px;max-width:460px}
+.rows{display:flex;gap:6px;flex-wrap:wrap}.radius{display:none}.near .radius{display:flex}
+.zoom{right:16px;top:68px}
+.sheet{position:absolute;left:0;right:0;bottom:0;z-index:9;background:rgba(10,10,10,.96);border-top:1px solid var(--line);border-radius:18px 18px 0 0;max-height:62%;display:flex;flex-direction:column;transform:translateY(calc(100% - 72px));transition:transform .25s}
+.sheet{touch-action:none}.sheet[data-h=half]{transform:translateY(calc(100% - 300px))}.sheet[data-h=full]{transform:none;max-height:88%}.sheet.drag{transition:none}
+.list{touch-action:pan-y}.legend{position:absolute;right:16px;bottom:96px;z-index:6;display:flex;gap:10px;font-size:12px;color:var(--mut);background:rgba(13,13,13,.92);border:1px solid var(--line);border-radius:999px;padding:6px 12px}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.grab{all:unset;display:flex;align-items:center;justify-content:space-between;min-height:72px;padding:0 16px;cursor:pointer}
+.grab::before{content:"";position:absolute;left:50%;top:8px;width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);transform:translateX(-50%)}
+.grab b{font-size:15px}.grab span{color:var(--mut);font-size:13px}
+.list{overflow:auto;padding:0 8px 8px}.sheet .warn{margin:4px 12px 12px}
+@container (min-width:701px){
+  .sheet{left:16px;right:auto;bottom:16px;width:380px;border:1px solid var(--line);border-radius:16px;max-height:60%;transform:translateY(calc(100% - 64px))}
+  .grab{min-height:64px}.grab::before{display:none}
+}
+@media(prefers-reduced-motion:reduce){.sheet{transition:none}}
+</style></head><body>
+<div class="bar"><b style="align-self:center;color:var(--ph)">B · Mapa total</b>
+<button class="on" data-act="frame" data-v="d">Desktop</button><button data-act="frame" data-v="m">Mobile</button>
+<button class="on" data-act="view" data-v="ok">Normal</button><button data-act="view" data-v="loading">A carregar</button><button data-act="view" data-v="error">Erro</button><button data-act="view" data-v="empty">Vazio</button>
+<button data-act="near">Perto de mim</button></div>
+<div class="stage"><div class="frame">
+<div class="nav"><b>FoodLister</b><span class="lk">Restaurantes</span><span class="lk">Listas</span><span class="lk act">Mapa</span><span class="lk">Perfil</span></div>
+<div class="map" id="map" style="top:52px"><svg class="bg" viewBox="0 0 100 100" preserveAspectRatio="none"><g stroke="#1c1b17" fill="none"><path d="M0 70 Q30 55 60 62 T100 45" stroke-width="1.4"/><path d="M20 0 Q35 40 30 100" stroke-width="1"/><path d="M0 30 L100 20" stroke-width=".8"/><path d="M60 0 Q70 50 90 100" stroke-width=".8"/></g><path d="M0 88 Q30 80 55 90 T100 82 V100 H0Z" fill="#0b1119"/></svg></div>
+<div class="top">
+ <div class="input"><span data-ico="search"></span><input data-q placeholder="Procurar nome ou localização" aria-label="Pesquisar"><button data-act="clear" aria-label="Limpar pesquisa"><span data-ico="x" data-s="16"></span></button></div>
+ <div class="rows"><button class="chip" data-act="near"><span data-ico="locate" data-s="16"></span> Perto de mim</button><button class="chip" data-act="nc"><span data-ico="pin" data-s="16"></span> <span data-ncn></span> sem localização</button></div>
+ <div class="rows radius" role="group" aria-label="Raio"><button class="chip" data-act="radius" data-v="2">2 km</button><button class="chip" data-act="radius" data-v="5">5 km</button><button class="chip on" data-act="radius" data-v="10">10 km</button><button class="chip" data-act="radius" data-v="25">25 km</button><button class="chip" data-act="radius" data-v="50">50 km</button><button class="chip" data-act="radius" data-v="100">100 km</button></div>
+</div>
+<div class="zoom"><button aria-label="Aproximar" data-act="zin"><span data-ico="plus"></span></button><button aria-label="Afastar" data-act="zout"><span data-ico="minus"></span></button><button aria-label="Repor zoom" data-act="reset"><span data-ico="locate"></span></button></div>
+<div class="legend"><span><i style="background:var(--ph)"></i>4,5+</span><span><i style="background:var(--p)"></i>Avaliado</span><span><i style="border:2px solid var(--p)"></i>Sem avaliações</span></div>
+<section class="sheet" data-h="closed" aria-label="Restaurantes no mapa">
+ <button class="grab" data-act="sheet" aria-label="Lista de restaurantes: alterar altura (ou arrastar)"><b>Restaurantes no mapa</b><span><span data-count aria-live="polite">0</span> resultados <span data-ico="chevron" data-s="16" style="vertical-align:-3px"></span></span></button>
+ <div class="list" data-list></div><span class="warn" data-nc></span>
+</section>
+<div class="msg load"><div><div class="spin"></div><p>A carregar mapa…</p></div></div>
+<div class="msg err"><div><h3>Erro ao carregar mapa</h3><p>Não foi possível obter os restaurantes.</p><button class="btn" data-act="view" data-v="ok">Tentar novamente</button></div></div>
+<div class="msg empty"><div><h3>Nenhum resultado</h3><p>Nenhum restaurante com coordenadas para mostrar.</p><button class="btn ghost" data-act="clear">Limpar pesquisa</button></div></div>
+</div></div>
+<script src="data.js"></script><script src="app.js"></script></body></html>

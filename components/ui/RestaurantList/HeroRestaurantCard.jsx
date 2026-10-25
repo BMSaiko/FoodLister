@@ -6,7 +6,8 @@ import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { Star, MapPin, ChevronRight } from 'lucide-react';
 import { extractPlaceParts } from '@/utils/googleMapsExtractor';
 import { pickSeeded } from '@/utils/random';
-import { useAuthUser } from '@/hooks/auth/useAuthUser';import { CreatorLink } from '@/components/ui/common/CreatorLink';
+import { useAuthUser } from '@/hooks/auth/useAuthUser';import RestaurantImagePlaceholder from '@/components/ui/RestaurantCard/RestaurantImagePlaceholder';
+import { CreatorLink } from '@/components/ui/common/CreatorLink';
 
 // ponytail: fetch own full list (limit=all) so the hero is random across ALL
 // restaurants regardless of filters/pagination (feed mode only returns page-1
@@ -74,9 +75,7 @@ export default function HeroRestaurantCard() {
             />
           </AnimatePresence>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
-            <span className="text-8xl">🍽️</span>
-          </div>
+          <RestaurantImagePlaceholder name={hero.name} variant="hero" />
         )}
         {imgs.length > 1 && (
           <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5">
@@ -94,7 +93,7 @@ export default function HeroRestaurantCard() {
       />
 
       {/* Content */}
-      <div className="relative z-10 p-8 md:p-12 min-h-[360px] md:min-h-[460px] flex flex-col justify-end max-w-[70%]">
+      <div className="relative z-10 p-8 md:p-12 min-h-[240px] md:min-h-[300px] flex flex-col justify-end max-w-full md:max-w-[70%]">
         {/* Cuisine tags */}
         <div className="flex items-center gap-2 mb-3">
           {hero.cuisine_types?.slice(0, 2)?.map((cuisine) => (

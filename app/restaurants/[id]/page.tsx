@@ -3,24 +3,27 @@
 
 import "leaflet/dist/leaflet.css";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { usePageTitle } from "@/hooks/usePageTitle";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { toast } from "react-toastify";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
-import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
-import { createClient } from "@/libs/supabase/client";
+import { useRestaurantDetail } from "@/hooks/restaurants/useRestaurantDetail";
+import { shareRestaurant } from "@/utils/shareRestaurant";
+import { logError, logWarn } from "@/utils/logger";
 import Navbar from "@/components/ui/navigation/Navbar";
-import { Review } from "@/libs/types";
-
-// New creative components
 import HeroSection from "@/components/ui/RestaurantDetails/HeroSection";
 import AddToList from "@/components/ui/RestaurantDetails/AddToList";
-import ReportButton from "@/components/ui/common/ReportButton";
 import InfoBento from "@/components/ui/RestaurantDetails/InfoBento";
-import { PinIcon } from "@/components/icons";
+import RestaurantInfoPanel from "@/components/ui/RestaurantDetails/RestaurantInfoPanel";
+import RestaurantLocation from "@/components/ui/RestaurantDetails/RestaurantLocation";
+import ReportButton from "@/components/ui/common/ReportButton";
+import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
+import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
+
 const CategoryChips = dynamic(() => import("@/components/ui/RestaurantDetails/CategoryChips"));
-const RestaurantMap = dynamic(() => import("@/components/ui/RestaurantMap/RestaurantMap"), { ssr: false });
 const ReviewsSkeleton = () => (
   <div className="space-y-3">
     {[1, 2, 3].map(i => (
@@ -32,45 +35,9 @@ const ReviewsFeed = dynamic(() => import("@/components/ui/RestaurantDetails/Revi
   loading: () => <ReviewsSkeleton />,
 });
 const ListsSection = dynamic(() => import("@/components/ui/RestaurantDetails/ListsSection"));
-import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
-
-// Existing components
 const ScheduleMealModal = dynamic(() => import("@/components/ui/RestaurantDetails/ScheduleMealModal"), { ssr: false });
-import { useModal } from "@/contexts/ModalContext";
 
-import Link from "next/link";
-import {         X, Euro } from "lucide-react";
-import { categorizePriceLevel, getRatingClass, formatPrice } from "@/utils/formatters";
-import { logError, logWarn, logInfo } from "@/utils/logger";
-import { toast } from "react-toastify";
-
-interface Restaurant {
-  id: string;
-  name: string;
-  description?: string;
-  price_per_person?: number;
-  rating?: number;
-  location?: string;
-  source_url?: string;
-  creator?: string;
-  menu_url?: string;
-  menu_links?: string[];
-  menu_images?: string[];
-  phone_numbers?: string[];
-  visited: boolean;
-  created_at: string;
-  updated_at: string;
-  creator_id?: string;
-  creator_name?: string;
-  cuisine_types?: any[];
-  review_count?: number;
-  display_image_index?: number;
-  latitude?: number;
-  longitude?: number;
-  images?: string[];
-  dietary_options?: any[];
-  features?: any[];
-}
+type UserProfile = { display_name?: string; avatar_url?: string; isAdmin?: boolean };
 
 export default function RestaurantDetails() {
   const params = useParams();
@@ -78,428 +45,71 @@ export default function RestaurantDetails() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id || '';
   const reviewId = searchParams?.get('review');
   const { user } = useAuthUser();
-    const { get: getPublic, post: postPublic, patch: patchPublic, del: delPublic } = usePublicApiClient();
-  // Alias for authenticated requests + review mutations — all via public client
-  const get = getPublic;
-  // Aliases for review mutation handlers — use correct HTTP methods
-  const post = postPublic;
-  const patch = patchPublic;
-  const del = delPublic;
-  const supabase = createClient();
+  const { get } = usePublicApiClient();
+  const {
+    status, restaurant, lists, cuisineTypes, reviews, reviewCount,
+    onReviewSubmitted, deleteReview, deleteRestaurant,
+  } = useRestaurantDetail(id);
 
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister - Restaurante");
-  const [lists, setLists] = useState([]);
-  const [cuisineTypes, setCuisineTypes] = useState([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [reviewCount, setReviewCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadingReviews, setLoadingReviews] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ display_name?: string; avatar_url?: string; isAdmin?: boolean } | null>(null);
-  const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
+  usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister - Restaurante");
+
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-  const [shareUrl, setShareUrl] = useState('');
-  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
-  const [allDataLoaded, setAllDataLoaded] = useState(false);
   const [openReviewForm, setOpenReviewForm] = useState(0);
   const reviewsSectionRef = useRef<HTMLDivElement>(null);
-  const reviewFormRef = useRef<HTMLDivElement>(null);
 
-  // Parallel fetch: restaurant + reviews + lists in one batch
-  const fetchRestaurantDetails = useCallback(async () => {
-    if (!id) return;
-
-    setLoading(true);
-
-    try {
-      // Fetch restaurant (with review_count + lists) and reviews in parallel
-      const [restaurantResponse, reviewsResponse] = await Promise.all([
-        getPublic(`/api/restaurants/${id}`),
-        getPublic(`/api/reviews?restaurant_id=${id}`).catch(() => null),
-      ]);
-
-      // Process restaurant data (includes review_count + lists from API)
-      const restaurantData = await restaurantResponse.json();
-      if (!restaurantResponse.ok || !restaurantData.restaurant) {
-        throw new Error(restaurantData.error || 'Failed to fetch restaurant details');
-      }
-      setRestaurant(restaurantData.restaurant);
-      if (restaurantData.restaurant.cuisine_types) {
-        setCuisineTypes(restaurantData.restaurant.cuisine_types);
-      }
-      // Lists now come from the API route (nested join)
-      if (restaurantData.restaurant.lists && Array.isArray(restaurantData.restaurant.lists)) {
-        setLists(restaurantData.restaurant.lists);
-      }
-
-      // Process reviews data
-      if (reviewsResponse) {
-        const reviewsData = await reviewsResponse.json();
-        if (reviewsResponse.ok && reviewsData.reviews) {
-          setReviews(reviewsData.reviews);
-          setReviewCount(reviewsData.reviews.length);
-        }
-      }
-    } catch (error) {
-      let errorMessage = 'Unknown error';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error && typeof error === 'object') {
-        errorMessage = JSON.stringify(error).substring(0, 200);
-      }
-      logError('Error fetching restaurant details', errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  // fetchReviews is now integrated into fetchRestaurantDetails (parallel)
-  // This function is kept for manual refresh only (e.g., after posting a review)
-  const fetchReviews = useCallback(async () => {
-    if (!id) return;
-    setLoadingReviews(true);
-    try {
-      const response = await getPublic(`/api/reviews?restaurant_id=${id}`);
-      const data = await response.json();
-      if (response.ok && data.reviews) {
-        // Inject current user's profile image if missing
-        const processedReviews = data.reviews.map((review: any) => {
-          if (review.user_id === user?.id && !review.user.profileImage && userProfile?.avatar_url) {
-            return { ...review, user: { ...review.user, profileImage: userProfile.avatar_url } };
-          }
-          return review;
-        });
-        setReviews(processedReviews);
-        setReviewCount(processedReviews.length);
-      }
-    } catch (error) {
-      logError('Error fetching reviews', error);
-    } finally {
-      setLoadingReviews(false);
-    }
-  }, [id, user, userProfile, getPublic]);
-
-  // Helper function to sanitize and validate external URLs
-  const sanitizeUrl = (urlString: string): string | null => {
-    if (!urlString || typeof urlString !== 'string') {
-      logWarn('sanitizeUrl: Invalid input - not a string or empty', {
-        input: urlString,
-        type: typeof urlString,
-        length: urlString?.length
-      });
-      return null;
-    }
-
-    try {
-      // Remove any potential script injection attempts
-      const sanitized = urlString.trim().replace(/[<>'"&]/g, '');
-
-      // Log if input was modified during sanitization
-      if (sanitized !== urlString.trim()) {
-        logWarn('sanitizeUrl: Input contained potentially dangerous characters', {
-          original: urlString.substring(0, 100),
-          sanitized: sanitized.substring(0, 100),
-          dangerousChars: urlString.match(/[<>'"&]/g)?.join('') || 'none'
-        });
-      }
-
-      const url = new URL(sanitized);
-
-      // Only allow HTTP/HTTPS protocols
-      if (!['http:', 'https:'].includes(url.protocol)) {
-        logWarn('sanitizeUrl: Invalid protocol', {
-          protocol: url.protocol,
-          hostname: url.hostname,
-          href: url.href.substring(0, 100)
-        });
-        return null;
-      }
-
-      // Basic length check to prevent extremely long URLs
-      if (url.href.length > 2048) {
-        logWarn('sanitizeUrl: URL too long', {
-          length: url.href.length,
-          hostname: url.hostname,
-          href: url.href.substring(0, 100)
-        });
-        return null;
-      }
-
-      // Additional security checks for common attack vectors
-      const hostname = url.hostname.toLowerCase();
-
-      // Prevent localhost/private IP access
-      if (hostname === '127.0.0.1' ||
-          hostname.startsWith('192.168.') ||
-          hostname.startsWith('10.') ||
-          hostname.startsWith('172.')) {
-        logWarn('sanitizeUrl: Blocked localhost/private IP access', {
-          hostname: hostname,
-          href: url.href.substring(0, 100)
-        });
-        return null;
-      }
-
-      return url.href;
-    } catch (error) {
-      logWarn('sanitizeUrl: URL parsing failed', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        originalUrl: urlString.substring(0, 100),
-        errorType: error instanceof Error ? error.name : typeof error
-      });
-      return null;
-    }
-  };
-
-  // Fetch user profile
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (user?.id) {
-        try {
-          const response = await get(`/api/users/me`);
-          if (response.ok) {
-            const profileData = await response.json();
-            setUserProfile({
-              display_name: profileData.display_name || undefined,
-              avatar_url: profileData.avatar_url || undefined,
-              isAdmin: profileData.isAdmin ?? false
-            });
+    if (!user?.id) return;
+    (async () => {
+      try {
+        const response = await get(`/api/users/me`);
+        if (response.ok) {
+          const profile = await response.json();
+          setUserProfile({
+            display_name: profile.display_name || undefined,
+            avatar_url: profile.avatar_url || undefined,
+            isAdmin: profile.isAdmin ?? false,
+          });
         } else if (response.status === 401) {
-          // Handle unauthorized access gracefully
           logWarn('User not authenticated for profile access');
         }
-        } catch (error) {
-          logError('Error fetching user profile', error);
-          // Don't show error toast for authentication issues
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          if (errorMessage !== 'No authentication token found') {
-            logWarn('Non-authentication error occurred');
-          }
-        }
+      } catch (error) {
+        logError('Error fetching user profile', error);
       }
-    };
-
-    fetchUserProfile();
+    })();
   }, [user?.id, get]);
 
-
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const sanitizedUrl = sanitizeUrl(window.location.href);
-      if (sanitizedUrl) {
-        setShareUrl(sanitizedUrl);
-      } else {
-        logWarn('Failed to sanitize share URL from window.location.href');
-        // Fallback to a safe default or disable sharing
-        setShareUrl('');
-      }
-    }
-
-    fetchRestaurantDetails();
-  }, [id, fetchRestaurantDetails]);
-
-  // Scroll to review handled internally by ReviewsFeed via highlightReviewId prop
-
-  // Track when all data is loaded
-  useEffect(() => {
-    if (!loading && !loadingReviews && restaurant) {
-      setAllDataLoaded(true);
-    }
-  }, [loading, loadingReviews, restaurant]);
-
-
-
-  // Function to show notifications
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => setNotification(null), 4000); // Auto-hide after 4 seconds
+  const handleShare = async () => {
+    const result = await shareRestaurant(restaurant?.name || 'Restaurante', window.location.href);
+    if (result.status === 'copied') toast.success('Link copiado para a área de transferência!');
+    else if (result.status === 'error') toast.error(result.message);
   };
 
-  // Helper function to validate URL format
-  const isValidUrl = (urlString: string): boolean => {
-    try {
-      const url = new URL(urlString);
-      return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch (error) {
-      logWarn('isValidUrl: URL validation failed', {
-        urlString: urlString?.substring(0, 100),
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      return false;
+  const handleDeleteRestaurant = async () => {
+    if (!confirm('Tem certeza que deseja eliminar este restaurante?')) return;
+    if (await deleteRestaurant()) {
+      toast.success('Restaurante eliminado com sucesso!');
+      window.location.href = '/restaurants';
+    } else {
+      toast.error('Não foi possível eliminar o restaurante.');
     }
   };
 
-  const handleShareClick = async () => {
-    // Security-first validation: check if URL was properly sanitized during initialization
-    if (!shareUrl || shareUrl.trim() === '') {
-      logWarn('Share URL is empty - likely failed sanitization during initialization');
-      showNotification('error', 'Não foi possível compartilhar: URL não disponível');
-      return;
-    }
-
-    // Additional runtime validation with security checks
-    const sanitizedUrl = sanitizeUrl(shareUrl);
-    if (!sanitizedUrl) {
-      logWarn('Share URL failed runtime sanitization', { originalUrl: shareUrl?.substring(0, 100) });
-      showNotification('error', 'Não foi possível compartilhar: URL inválida');
-      return;
-    }
-
-    const shareData = {
-      title: restaurant?.name || 'Restaurante',
-      text: `Confira este restaurante: ${restaurant?.name || ''}`,
-      url: sanitizedUrl
-    };
-
-    try {
-      // Check if Web Share API is supported
-      if (navigator.share) {
-        await navigator.share(shareData);
-        logInfo('Restaurant shared successfully using Web Share API');
-      } else {
-        // Web Share API not supported - copy to clipboard as fallback
-        logWarn('Web Share API not supported, falling back to clipboard');
-
-        if (!navigator.clipboard) {
-          logWarn('Clipboard API also not supported');
-          showNotification('error', 'Compartilhamento não suportado neste navegador. Copie o link manualmente.');
-          return;
-        }
-
-        // Final security validation before clipboard write
-        if (!sanitizedUrl || sanitizedUrl.trim() === '') {
-          logWarn('Sanitized URL is empty before clipboard operation');
-          showNotification('error', 'Erro interno: URL inválida para cópia');
-          return;
-        }
-
-        await navigator.clipboard.writeText(sanitizedUrl);
-        logInfo('Link copied to clipboard as fallback for share');
-        showNotification('success', 'Link copiado para a área de transferência!');
-      }
-    } catch (error) {
-      logError('Failed to share restaurant', error, { shareData });
-
-      // Handle specific error types
-      if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          showNotification('error', 'Compartilhamento não permitido. Verifique as permissões do navegador.');
-        } else if (error.name === 'AbortError') {
-          // User cancelled the share - don't show error
-          logWarn('User cancelled share operation');
-        } else if (error.name === 'InvalidStateError') {
-          // Another share operation is already in progress
-          showNotification('error', 'Uma operação de compartilhamento já está em andamento. Aguarde e tente novamente.');
-        } else {
-          showNotification('error', 'Erro ao compartilhar. Tente novamente.');
-        }
-      } else {
-        showNotification('error', 'Erro desconhecido ao compartilhar.');
-      }
-    }
-  };
-  
-
-
-  
-
-
-  // Get color class based on price level
-  const getPriceColorClass = (level: number): string => {
-    // Classes para os ícones - variação de cores mantendo legibilidade
-    switch(level) {
-      case 1: return 'text-amber-400';
-      case 2: return 'text-amber-500';
-      case 3: return 'text-amber-600';
-      case 4: return 'text-amber-800';
-      default: return 'text-amber-400';
-    }
-  };
-  
-  // Classe para o texto do label - garantindo melhor legibilidade
-  const getPriceLabelClass = (level: number): string => {
-    switch(level) {
-      case 1: return 'text-amber-400 font-bold';
-      case 2: return 'text-amber-500 font-bold';
-      case 3: return 'text-amber-600 font-bold';
-      case 4: return 'text-amber-800 font-bold';
-      default: return 'text-amber-400 font-medium';
-    }
+  const handleDeleteReview = async (targetId: string) => {
+    if (!confirm('Tem certeza que deseja eliminar esta avaliação?')) return;
+    if (await deleteReview(targetId)) toast.success('Avaliação eliminada com sucesso!');
+    else toast.error('Erro ao eliminar avaliação. Tente novamente.');
   };
 
-  // Renderiza o nível de preço com ícones de Euro
-  const renderPriceLevel = (price: number): React.ReactNode => {
-    const priceCategory = categorizePriceLevel(price);
-    const priceColorClass = getPriceColorClass(priceCategory.level);
-    
-    return (
-      <div className="flex items-center mt-4 bg-white/5 p-3 rounded-lg ring-1 ring-white/10">
-        <div className="flex items-center">
-          {Array(priceCategory.level).fill(0).map((_, i) => (
-            <Euro key={i} className={`h-4 w-4 ${priceColorClass}`} fill="currentColor" />
-          ))}
-          {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-            <Euro key={i + priceCategory.level} className="h-4 w-4 text-white/20" />
-          ))}
-        </div>
-        <span className={`ml-2 text-sm ${getPriceLabelClass(priceCategory.level)}`}>{priceCategory.label}</span>
-        <div className="ml-auto text-amber-600 font-semibold">
-          {formatPrice(price)}
-          <span className="text-sm text-white/40 ml-1">por pessoa</span>
-        </div>
-      </div>
-    );
+  const handleReviewSubmitted: typeof onReviewSubmitted = async (review) => {
+    await onReviewSubmitted(review);
+    toast.success('Avaliação enviada com sucesso!');
   };
-  
-  if (loading) {
+
+  if (status === 'loading') {
     return (
       <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
         <Navbar />
-      <style>{`
-  .leaflet-popup-content-wrapper {
-    background: var(--card-bg) !important;
-    border: 1px solid var(--card-border) !important;
-    border-radius: 1rem !important;
-    box-shadow: var(--card-shadow) !important;
-    color: var(--foreground) !important;
-  }
-  .leaflet-popup-content {
-    margin: 0.5rem 0.75rem !important;
-    color: var(--foreground) !important;
-  }
-  .leaflet-popup-tip {
-    background: var(--card-bg) !important;
-    border: 1px solid var(--card-border) !important;
-    border-top: none !important;
-    border-radius: 0 0 1rem 1rem !important;
-  }
-  .leaflet-popup-close-button {
-    color: var(--foreground-muted) !important;
-    font-size: 1.1rem !important;
-    top: 4px !important;
-    right: 6px !important;
-  }
-  .leaflet-popup-close-button:hover {
-    color: var(--foreground) !important;
-  }
-  .leaflet-popup-content a {
-    transition: color 0.2s ease, gap 0.2s ease;
-    color: #fbbf24 !important;
-  }
-  .leaflet-popup-content a:hover {
-    color: #f59e0b !important;
-    gap: 8px;
-  }
-  .leaflet-popup-content a svg {
-    transition: transform 0.2s ease;
-  }
-  .leaflet-popup-content a:hover svg {
-    transform: translateX(3px);
-  }
-`}</style>
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse rounded-xl h-96 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}></div>
           <div className="animate-pulse p-6 rounded-lg h-24 mb-6" style={{ backgroundColor: 'var(--card-bg)' }}></div>
@@ -507,321 +117,90 @@ usePageTitle(restaurant?.name ? `${restaurant.name} - FoodLister` : "FoodLister 
       </div>
     );
   }
-  
-    if (!restaurant) {
-      return (
-        <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
-          <Navbar />
-          <div className="container mx-auto px-4 py-8 text-center">
-            <h2 className="text-2xl font-bold text-white/90">Restaurante não encontrado</h2>
-            <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
-              Voltar para a página de restaurantes
-            </Link>
-          </div>
+
+  if (status !== 'ready' || !restaurant) {
+    return (
+      <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h2 className="text-2xl font-bold text-white/90">
+            {status === 'error' ? 'Não foi possível carregar o restaurante' : 'Restaurante não encontrado'}
+          </h2>
+          <Link href="/restaurants" className="mt-4 inline-block text-amber-600 hover:underline">
+            Voltar para a página de restaurantes
+          </Link>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 
-  // Função para detectar se um número é móvel ou fixo
-  const detectPhoneType = (phoneNumber: string): string => {
-    // Limpa o número removendo espaços, hífens, parênteses
-    const cleanNumber = phoneNumber.replace(/[\s\-\(\)]/g, '');
-
-    // Remove o código do país se existir (+351 ou 351)
-    let numberWithoutCountry = cleanNumber;
-    if (cleanNumber.startsWith('+351')) {
-      numberWithoutCountry = cleanNumber.substring(4);
-    } else if (cleanNumber.startsWith('351')) {
-      numberWithoutCountry = cleanNumber.substring(3);
-    }
-
-    // Verifica os primeiros 2 dígitos (código de área)
-    const areaCode = numberWithoutCountry.substring(0, 2);
-
-    // Códigos móveis em Portugal: 91, 92, 93, 96
-    const mobileCodes = ['91', '92', '93', '96'];
-    return mobileCodes.includes(areaCode) ? 'mobile' : 'landline';
-  };
-
-  // Obtém a classe de estilo para a avaliação
-  const ratingClass = getRatingClass(restaurant.rating || 0);
-
-  // Handle review submission (both create and edit)
-  const handleReviewSubmitted = async (newReview: Review) => {
-    // Use the review data as-is from the API response (which now includes user profile data)
-    const reviewWithUserData = newReview;
-
-    // Check if this is an edit (review already exists) or a new review
-    setReviews(prev => {
-      const existingReviewIndex = prev.findIndex(review => review.id === newReview.id);
-      
-      if (existingReviewIndex !== -1) {
-        // This is an edit - update the existing review
-        const updatedReviews = [...prev];
-        updatedReviews[existingReviewIndex] = reviewWithUserData;
-        return updatedReviews;
-      } else {
-        // This is a new review - add to the beginning
-        return [reviewWithUserData, ...prev];
-      }
-    });
-
-    // Only increment review count for new reviews, not edits
-    const existingReviewIndex = reviews.findIndex(review => review.id === newReview.id);
-    if (existingReviewIndex === -1) {
-      setReviewCount(prev => prev + 1);
-    }
-
-    // Update restaurant rating after successful review submission
-    await updateRestaurantRating(restaurant?.id || '');
-
-    // Fetch updated restaurant data to get the new rating and price_per_person
-    try {
-      const response = await get(`/api/restaurants/${id}`);
-      const data = await response.json();
-      if (response.ok && data.restaurant) {
-        setRestaurant(data.restaurant);
-      }
-    } catch (error) {
-      logError('Error fetching updated restaurant data', error);
-    }
-
-    toast.success('Avaliação enviada com sucesso!');
-  };
-
-  // Handle restaurant deletion — admin only (owner cannot delete own restaurant)
-  const handleDeleteRestaurant = async () => {
-    if (!confirm('Tem certeza que deseja eliminar este restaurante?')) return;
-    try {
-      const response = await del(`/api/restaurants/${restaurant?.id}`);
-      if (response.ok) {
-        toast.success('Restaurante eliminado com sucesso!');
-        window.location.href = '/restaurants';
-      } else {
-        toast.error('Não foi possível eliminar o restaurante.');
-      }
-    } catch (error) {
-      console.error('Error deleting restaurant:', error);
-      toast.error('Erro ao eliminar restaurante. Tente novamente.');
-    }
-  };
-
-  // Handle review edit - this is handled by RestaurantReviewsSection component
-  const handleEditReview = (review: Review) => {
-    // The RestaurantReviewsSection component handles the edit functionality internally
-    // No additional action needed here
-  };
-
-  // Handle review deletion
-  const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm('Tem certeza que deseja eliminar esta avaliação?')) {
-      return;
-    }
-
-    try {
-      const response = await del(`/api/reviews/${reviewId}`);
-      
-      if (response.ok) {
-        // Update local state
-        setReviews(prev => prev.filter(review => review.id !== reviewId));
-        setReviewCount(prev => prev - 1);
-
-    // Update restaurant rating after successful review deletion
-    if (id) {
-      await updateRestaurantRating((restaurant?.id as string) || '');
-    }
-
-    // Fetch updated restaurant data to get the new rating and price_per_person
-    try {
-      const response = await get(`/api/restaurants/${id}`);
-      const data = await response.json();
-      if (response.ok && data.restaurant) {
-        setRestaurant(data.restaurant);
-      }
-    } catch (error) {
-      logError('Error fetching updated restaurant data', error);
-    }
-
-        toast.success('Avaliação eliminada com sucesso!');
-      } else {
-        throw new Error('Failed to delete review');
-      }
-    } catch (error) {
-      console.error('Error deleting review:', error);
-      toast.error('Erro ao eliminar avaliação. Tente novamente.');
-    }
-  };
-
-  // Helper function to update restaurant rating based on reviews
-  const updateRestaurantRating = async (restaurantId: string) => {
-    try {
-      // Use the new rating-specific endpoint that doesn't require restaurant ownership
-      const response = await post(`/api/restaurants/${restaurantId}/rating`, {});
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error updating restaurant rating:', errorText);
-        // Don't throw error, just log it - rating update is not critical for user experience
-      } else {
-        const data = await response.json();
-        // Update local restaurant state with new rating
-        if (data.restaurant) {
-          setRestaurant(prev => prev ? { ...prev, rating: data.restaurant.rating } : null);
-        }
-      }
-    } catch (error) {
-      console.error('Error in updateRestaurantRating:', error);
-      // Don't throw error, just log it - rating update is not critical for user experience
-    }
-  };
-  
-
-  const addToListEl = restaurant ? (
+  const canManage = !!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin));
+  const addToListEl = (
     <AddToList
       restaurantId={restaurant.id}
       isAdmin={!!userProfile?.isAdmin}
-      existingListIds={(lists || []).map((l: any) => l.id)}
+      existingListIds={lists.map((l: any) => l.id)}
     />
-  ) : null;
+  );
 
   return (
     <div className="min-h-[100dvh]" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
 
-      {/* Notification */}
-      {notification && (
-        <div className="fixed top-4 right-4 z-50 max-w-sm">
-          <div className={`px-4 py-3 rounded-xl backdrop-blur-lg border ${
-            notification.type === 'success'
-              ? 'bg-green-500/10 border-green-500/20 text-green-400'
-              : 'bg-red-500/10 border-red-500/20 text-red-400'
-          }`}>
-            <div className="flex items-center">
-              <span className="flex-1 text-sm font-medium">{notification.message}</span>
-              <button onClick={() => setNotification(null)} className="ml-3">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <HeroSection
+        restaurant={restaurant}
+        reviewImages={reviews.flatMap(r => (r as any).images || []).filter(Boolean)}
+        reviewCount={reviewCount}
+        onShare={handleShare}
+        onSchedule={() => setIsScheduleModalOpen(true)}
+        onReview={user ? () => setOpenReviewForm(n => n + 1) : undefined}
+        onEdit={canManage ? () => { window.location.href = `/restaurants/${restaurant.id}/edit`; } : undefined}
+        isOwner={canManage}
+        onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
+        canDelete={!!userProfile?.isAdmin}
+        listAction={user ? addToListEl : undefined}
+        actionExtra={user ? (
+          <>
+            <div className="lg:hidden">{addToListEl}</div>
+            <ReportButton targetType="restaurant" targetId={restaurant.id} />
+          </>
+        ) : undefined}
+      >
+        <RestaurantInfoPanel restaurant={restaurant} />
+        <RestaurantLocation restaurant={restaurant} />
 
-      {loading ? (
-        <div className="min-h-[60dvh] flex items-center justify-center">
-          <div className="animate-pulse space-y-4 w-full max-w-3xl px-4">
-            <div className="h-8 bg-white/[0.06] rounded-lg w-1/3" />
-            <div className="h-64 bg-white/[0.06] rounded-2xl" />
-            <div className="h-32 bg-white/[0.06] rounded-2xl" />
-          </div>
-        </div>
-      ) : !restaurant ? (
-        <div className="min-h-[60dvh] flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-white/70 mb-4">Restaurante não encontrado</h2>
-            <Link href="/restaurants" className="text-amber-400 hover:text-amber-300 transition-colors">
-              Voltar aos restaurantes
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Hero: carrossel, título, rating e preço, atalhos e ações */}
-          <HeroSection
-            restaurant={restaurant}
-            reviewImages={reviews?.flatMap(r => (r as any).images || []).filter(Boolean) || []}
-            reviewCount={reviewCount}
-            onShare={handleShareClick}
-            onSchedule={() => setIsScheduleModalOpen(true)}
-            onReview={user ? () => setOpenReviewForm(n => n + 1) : undefined}
-            onEdit={(user && (restaurant.creator_id === user.id || userProfile?.isAdmin)) ? () => window.location.href = `/restaurants/${restaurant?.id}/edit` : undefined}
-            isOwner={!!(user && (restaurant.creator_id === user.id || userProfile?.isAdmin))}
-            onDelete={userProfile?.isAdmin ? handleDeleteRestaurant : undefined}
-            canDelete={!!userProfile?.isAdmin}
-            listAction={user ? addToListEl : undefined}
-            actionExtra={user ? (
-              <>
-                <div className="lg:hidden">{addToListEl}</div>
-                <ReportButton targetType="restaurant" targetId={restaurant.id} />
-              </>
-            ) : undefined}
-          />
+        <InfoBento menuImages={restaurant.menu_images} />
 
-          {/* Localização: uma só vez (mapa + morada + Google Maps), com margem para a barra de ações */}
-          <div id="localizacao" className="max-w-7xl mx-auto px-4 pt-4 pb-4 scroll-mt-20">
-            {restaurant.latitude && restaurant.longitude ? (
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-                <div className="px-4 py-3 border-b border-white/[0.04]">
-                  <h2 className="text-sm font-semibold text-white/80 flex items-center gap-2">
-                    <PinIcon size={18} />
-                    Localização
-                  </h2>
-                  {restaurant.location && <p className="mt-1 text-sm text-white/60">{restaurant.location}</p>}
-                </div>
-                <div className="h-56 md:h-80 isolate">
-                  <RestaurantMap
-                    restaurants={[{ ...restaurant, id: restaurant.id } as import('@/libs/types').RestaurantWithDetails]}
-                    height="h-full"
-                    selectedId={restaurant.id}
-                    showPopup={false}
-                  />
-                </div>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center min-h-[44px] px-4 text-sm font-medium text-amber-400 hover:text-amber-300 transition-colors"
-                >
-                  Abrir no Google Maps →
-                </a>
-              </div>
-            ) : restaurant.location ? (
-              <p className="text-sm text-white/60 flex items-center gap-2"><PinIcon size={18} />{restaurant.location}</p>
-            ) : null}
-          </div>
+        <CategoryChips
+          cuisineTypes={cuisineTypes}
+          dietaryOptions={restaurant.dietary_options || []}
+          features={restaurant.features || []}
+        />
 
-          <div className="max-w-7xl mx-auto px-4 py-6 md:py-8 pb-24 md:pb-8">
-            {/* Bento Info Grid */}
-            <InfoBento
-              menuImages={restaurant.menu_images}
-              phoneNumbers={restaurant.phone_numbers}
-            />
+        <ReviewsFeed
+          userProfile={userProfile}
+          ref={reviewsSectionRef}
+          restaurantId={id}
+          reviews={reviews}
+          reviewCount={reviewCount}
+          user={user}
+          loading={false}
+          onReviewSubmitted={handleReviewSubmitted}
+          onEditReview={() => {}}
+          onDeleteReview={handleDeleteReview}
+          restaurantRating={restaurant.rating}
+          highlightReviewId={reviewId || undefined}
+          openFormSignal={openReviewForm}
+        />
 
-            {/* Category Chips */}
-            <CategoryChips
-              cuisineTypes={cuisineTypes}
-              dietaryOptions={restaurant.dietary_options || []}
-              features={restaurant.features || []}
-            />
-
-
-            {/* Reviews Feed */}
-            <ReviewsFeed
-              userProfile={userProfile}
-              ref={reviewsSectionRef}
-              restaurantId={id}
-              reviews={reviews}
-              reviewCount={reviewCount}
-              user={user}
-              loading={loadingReviews}
-              onReviewSubmitted={handleReviewSubmitted}
-              onEditReview={handleEditReview}
-              onDeleteReview={handleDeleteReview}
-              restaurantRating={restaurant.rating}
-              highlightReviewId={reviewId || undefined}
-              openFormSignal={openReviewForm}
-            />
-
-            {/* Lists */}
-            <ListsSection lists={lists} />
-          </div>
-        </>
-      )}
+        <ListsSection lists={lists} />
+      </HeroSection>
 
       <ScheduleMealModal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
-        restaurantName={restaurant?.name || ""}
-        restaurantId={restaurant?.id}
+        restaurantName={restaurant.name}
+        restaurantId={restaurant.id}
       />
 
       <ScrollToTopButton />

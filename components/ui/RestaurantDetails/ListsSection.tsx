@@ -11,7 +11,7 @@ export default function ListsSection({ lists }: ListsSectionProps) {
 
   return (
     <section className="mb-6">
-      <h2 className="text-xl md:text-2xl font-bold text-white mb-4">Listas</h2>
+      <h2 className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/45 mb-4">Listas</h2>
       <div className="space-y-2">
         {lists.map((list) => (
           <Link

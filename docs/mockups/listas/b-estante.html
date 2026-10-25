@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup B · Estante — /lists</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .layout { display: grid; gap: 0; padding-top: 32px; }
+  @media (min-width: 900px) { .layout { grid-template-columns: 220px 1fr; gap: 48px; } }
+  .head { padding-bottom: 20px; }
+  .head h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
+  .head p { color: var(--fg-2); margin-top: 6px; }
+  .headrow { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+  .side { display: none; }
+  .side-m { margin-bottom: 20px; }
+  @media (min-width: 900px) {
+    .side { display: block; position: sticky; top: 112px; align-self: start; }
+    .side-m { display: none; }
+  }
+  .side h3 { font: 500 11px 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; color: var(--fg-3); margin-bottom: 12px; }
+  .side button { display: flex; width: 100%; justify-content: space-between; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--fg-2); text-align: left; }
+  .side button:hover { background: rgba(255, 255, 255, 0.05); }
+  .side button[aria-pressed='true'] { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+  .side small { font: 500 11px 'Geist Mono', monospace; opacity: 0.7; }
+  .rows { border-top: 1px solid var(--line); }
+  .row { position: relative; display: grid; grid-template-columns: 1fr; gap: 12px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  @media (min-width: 640px) { .row { grid-template-columns: 220px 1fr; gap: 24px; align-items: center; } }
+  .row .cover { aspect-ratio: 16 / 9; border-radius: 12px; }
+  @media (min-width: 640px) { .row .cover { aspect-ratio: 4 / 3; } }
+  .row .cover.n0 b { font-size: 36px; }
+  .row .peek { font-size: 12px; color: var(--fg-3); margin-top: 8px; display: none; }
+  @media (hover: hover) { .row:hover .peek { display: block; } }
+  .row h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.25; }
+  .row h2 a:hover { color: var(--primary); }
+  .row .desc { font-size: 14px; color: var(--fg-2); margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 64ch; }
+  .row .top { display: flex; gap: 12px; align-items: center; margin-bottom: 6px; }
+  .row .bottom { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-top: 12px; }
+  .row .tags-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row .del { top: 16px; right: 0; }
+  .sk-row { display: grid; gap: 12px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  @media (min-width: 640px) { .sk-row { grid-template-columns: 220px 1fr; gap: 24px; } }
+</style>
+</head>
+<body>
+<main class="page"><div class="wrap" id="root"></div></main>
+<script src="data.js"></script>
+<script src="states.js"></script>
+<script>
+  const L = window.Lists;
+  const row = (l) => {
+    const names = (l.preview || []).map((p) => p.name).join(' · ');
+    const tags = l.tags || [];
+    return `<article class="row">
+      <a href="#" tabindex="-1" aria-hidden="true">${L.cover(l)}</a>
+      <div>
+        <div class="top"><span class="badge ${l.is_public ? '' : 'priv'}">${L.svg(l.is_public ? 'globe' : 'lock')}${l.is_public ? 'Pública' : 'Privada'}</span><span class="meta"><span class="n">${L.plural(l.restaurant_count)}</span></span></div>
+        <h2><a href="#">${L.esc(l.name)}</a></h2>
+        ${l.description ? `<p class="desc">${L.esc(l.description)}</p>` : ''}
+        ${names ? `<p class="peek">${L.esc(names)}${l.restaurant_count > l.preview.length ? ` · +${l.restaurant_count - l.preview.length}` : ''}</p>` : ''}
+        <div class="bottom">
+          ${tags.length ? `<div class="tags-row">${tags.slice(0, 3).map((t) => `<span class="tag">${L.esc(t)}</span>`).join('')}${tags.length > 3 ? `<span class="tag" style="color:var(--fg-3)">+${tags.length - 3}</span>` : ''}</div>` : ''}
+          <div class="meta"><a class="creator" href="#">${L.svg('user')}<span>${L.esc(l.creator_name)}</span></a><span class="like">${L.svg('heart')}${l.like_count}</span><span>${L.date(l.created_at)}</span></div>
+        </div>
+      </div>
+      ${L.admin ? `<button class="del" aria-label="Eliminar lista ${L.esc(l.name)}">${L.svg('trash')}</button>` : ''}
+    </article>`;
+  };
+  const side = (tags, active, counts, total) => `<h3>Etiquetas</h3><button data-tag="" aria-pressed="${!active}">Todas <small>${total}</small></button>${tags.map((t) => `<button data-tag="${L.esc(t)}" aria-pressed="${active === t}">#${L.esc(t)} <small>${counts[t]}</small></button>`).join('')}`;
+  const chips = (tags, active, counts, total) => `<div class="scroll-x" role="group" aria-label="Filtrar por etiqueta"><button class="chip" data-tag="" aria-pressed="${!active}">Todas <small>${total}</small></button>${tags.map((t) => `<button class="chip" data-tag="${L.esc(t)}" aria-pressed="${active === t}">#${L.esc(t)} <small>${counts[t]}</small></button>`).join('')}</div>`;
+  mountLists({
+    label: 'B · ESTANTE',
+    skeleton: () => `<div class="rows">${[1, 2, 3, 4].map(() => `<div class="sk-row"><div class="sk" style="aspect-ratio:4/3;border-radius:12px"></div><div style="display:grid;gap:10px;align-content:center"><div class="sk" style="height:12px;width:25%"></div><div class="sk" style="height:22px;width:60%"></div><div class="sk" style="height:12px;width:80%"></div></div></div>`).join('')}</div>`,
+    renderGrid: (ls) => `<div class="rows">${ls.map(row).join('')}</div>`,
+    renderTags: (...a) => `<template data-side>${side(...a)}</template>${chips(...a)}`,
+    shell: ({ title, sub, body, tagsHtml }) => {
+      const m = tagsHtml.match(/<template data-side>([\s\S]*?)<\/template>([\s\S]*)/);
+      return `<div class="layout"><aside class="side" aria-label="Etiquetas">${m ? m[1] : ''}</aside><section><div class="head headrow"><div><h1>${title}</h1><p>${sub}</p></div><a class="btn hide-m" href="#">${L.svg('plus')}Nova Lista</a></div><div class="side-m">${m ? m[2] : ''}</div>${body}</section></div>`;
+    },
+  });
+</script>
+</body>
+</html>

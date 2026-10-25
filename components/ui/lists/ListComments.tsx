@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Link from "next/link";
 import { TooltipFast } from "@/components/ui/Tooltip";
-import { MessageCircle, Send, Trash2, Pencil, Check, X } from "lucide-react";
+import { Send, Trash2, Pencil, Check, X } from "lucide-react";
 import { toast } from "react-toastify";
 import MentionText from "@/components/ui/common/MentionText";
 import MentionInput from "@/components/ui/common/MentionInput";
@@ -127,11 +127,11 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
     const diff = Date.now() - new Date(dateString).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return "Agora mesmo";
-    if (mins < 60) return `ha ${mins}min`;
+    if (mins < 60) return `há ${mins}min`;
     const hours = Math.floor(diff / 3600000);
-    if (hours < 24) return `ha ${hours}h`;
+    if (hours < 24) return `há ${hours}h`;
     const days = Math.floor(diff / 86400000);
-    if (days < 7) return `ha ${days}d`;
+    if (days < 7) return `há ${days}d`;
     return new Date(dateString).toLocaleDateString("pt-PT");
   };
 
@@ -139,17 +139,22 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
     return new Date(comment.updated_at).getTime() - new Date(comment.created_at).getTime() > 1000;
   };
 
+  const panel = "rounded-[14px] border border-white/[0.08] bg-[#0c0c0c] p-5";
+  const heading = (
+    <h3 className="mb-3 text-[13px] font-medium uppercase tracking-[0.08em] text-white/50">
+      Comentários{comments.length > 0 && <span className="normal-case tracking-normal"> ({comments.length})</span>}
+    </h3>
+  );
+  const initials = (name?: string | null) => (name || "U").slice(0, 2).toUpperCase();
+
   if (loading) {
     return (
-      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-        <div className="flex items-center gap-2 mb-5">
-          <MessageCircle className="h-5 w-5 text-amber-400/50" />
-          <h3 className="text-lg font-semibold text-white/50">Comentarios</h3>
-        </div>
+      <section className={panel} id="comentarios">
+        {heading}
         <div className="space-y-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="animate-pulse flex gap-3">
-              <div className="w-9 h-9 bg-white/[0.04] rounded-full" />
+              <div className="w-8 h-8 bg-white/[0.04] rounded-full" />
               <div className="flex-1 space-y-2">
                 <div className="h-3.5 bg-white/[0.04] rounded w-1/4" />
                 <div className="h-3 bg-white/[0.04] rounded w-3/4" />
@@ -157,166 +162,138 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
             </div>
           ))}
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-      <div className="p-4 md:p-6 rounded-2xl bg-white/[0.03]">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2.5">
-            <div className="bg-amber-500/10 rounded-xl p-2"><MessageCircle className="h-5 w-5 text-amber-400" /></div>
-            <div>
-              <h3 className="text-lg font-semibold text-white/85">Comentarios</h3>
-              <p className="text-xs text-white/30">{comments.length} comentario{comments.length !== 1 ? "s" : ""}</p>
-            </div>
-          </div>
-        </div>
+    <section className={panel} id="comentarios">
+      {heading}
 
-        {/* Comment Form */}
-        {user && (
-          <form onSubmit={handleSubmit} className="mb-6">
-            <div className="p-1 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-              <div className="flex gap-2 p-2 rounded-xl bg-white/[0.03]">
-                <MentionInput
-                    wrapperClassName="flex-1"
-                    value={newComment}
-                    onChange={setNewComment}
-                    placeholder="Adicionar comentario... escreve @ para mencionar"
-                    disabled={submitting}
-                    className="w-full px-4 py-2.5 bg-transparent text-white/85 placeholder:text-white/25 text-sm rounded-xl focus:outline-none"
-                  />
-                <button
-                  type="submit"
-                  disabled={submitting || !newComment.trim()}
-                  className="px-4 py-2.5 bg-amber-500 text-black rounded-xl hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-semibold transition-all duration-200 min-h-[44px] hover:scale-105 disabled:hover:scale-100"
-                >
-                  {submitting ? <ToviSpinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
-                  <span className="hidden sm:inline">Enviar</span>
-                </button>
-              </div>
-            </div>
-          </form>
-        )}
+      {comments.length === 0 ? (
+        <p className="py-4 text-center text-sm text-white/50">
+          {user ? "Ainda não há comentários. Seja o primeiro!" : "Faça login para comentar."}
+        </p>
+      ) : (
+        <div>
+          {comments.map((comment, i) => (
+            <div
+              key={comment.id}
+              ref={(el) => { commentRefs.current[comment.id] = el; }}
+              className={`group flex gap-3 py-3 ${i === 0 ? "pt-0" : "border-t border-white/[0.08]"} ${
+                highlightCommentId === comment.id ? "rounded-[10px] bg-amber-500/10 ring-1 ring-amber-500/30 px-3" : ""
+              }`}
+            >
+              <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="flex-shrink-0">
+                {comment.profiles?.avatar_url ? (
+                  <img src={comment.profiles.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/[0.18] text-xs text-amber-300">
+                    {initials(comment.profiles?.display_name)}
+                  </div>
+                )}
+              </Link>
 
-        {/* Comments List */}
-        {comments.length === 0 ? (
-          <div className="text-center py-10">
-            <MessageCircle className="h-12 w-12 text-white/[0.06] mx-auto mb-3" />
-            <p className="text-sm text-white/50">
-              {user ? "Ainda não há comentários. Seja o primeiro!" : "Faça login para comentar."}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {comments.map(comment => (
-              <div
-                key={comment.id}
-                ref={(el) => { commentRefs.current[comment.id] = el; }}
-                className={`group flex gap-3 p-3 rounded-xl transition-all duration-200 ${
-                  highlightCommentId === comment.id
-                    ? 'bg-amber-500/10 ring-1 ring-amber-500/30'
-                    : 'bg-white/[0.02] hover:bg-white/[0.04]'
-                }`}
-              >
-                {/* Avatar - clickable */}
-                <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="flex-shrink-0">
-                  {comment.profiles?.avatar_url ? (
-                    <img src={comment.profiles.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-white/[0.06] hover:ring-amber-500/30 transition-all duration-150" />
-                  ) : (
-                    <div className="w-9 h-9 bg-amber-500/10 rounded-full flex items-center justify-center ring-1 ring-amber-500/15 hover:ring-amber-500/30 transition-all duration-150">
-                      <span className="text-xs font-semibold text-amber-400">
-                        {(comment.profiles?.display_name || "U").charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
-                </Link>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  {editingId === comment.id ? (
-                    /* Edit Mode */
-                    <div className="space-y-2">
-                      <textarea
-                        ref={editRef}
-                        value={editText}
-                        onChange={e => setEditText(e.target.value)}
-                        className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white/85 placeholder:text-white/25 focus:outline-none focus:border-amber-500/40 resize-none"
-                        rows={2}
-                        disabled={saving}
-                      />
-                      <div className="flex items-center justify-end gap-2">
-                        <TooltipFast content="Cancelar">
-<button
+              <div className="min-w-0 flex-1 text-sm">
+                {editingId === comment.id ? (
+                  <div className="space-y-2">
+                    <textarea
+                      ref={editRef}
+                      value={editText}
+                      onChange={e => setEditText(e.target.value)}
+                      className="w-full resize-none rounded-[10px] border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white/85 focus:border-amber-500/40 focus:outline-none"
+                      rows={2}
+                      disabled={saving}
+                    />
+                    <div className="flex items-center justify-end gap-2">
+                      <TooltipFast content="Cancelar">
+                        <button
                           onClick={cancelEdit}
                           disabled={saving}
-                          className="p-1.5 text-white/40 hover:text-white/60 hover:bg-white/[0.04] rounded-lg transition-all duration-150"
+                          className="flex h-11 w-11 items-center justify-center rounded-[10px] text-white/50 hover:bg-white/[0.06]"
                           aria-label="Cancelar"
                         >
-                          <X className="h-3.5 w-3.5" />
+                          <X className="h-4 w-4" />
                         </button>
-</TooltipFast>
-                        <TooltipFast content="Guardar">
-<button
+                      </TooltipFast>
+                      <TooltipFast content="Guardar">
+                        <button
                           onClick={() => handleEdit(comment.id)}
                           disabled={saving || !editText.trim()}
-                          className="p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition-all duration-150 disabled:opacity-30"
+                          className="flex h-11 w-11 items-center justify-center rounded-[10px] text-amber-300 hover:bg-amber-500/10 disabled:opacity-30"
                           aria-label="Guardar"
                         >
-                          {saving ? <ToviSpinner className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
+                          {saving ? <ToviSpinner className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                         </button>
-</TooltipFast>
+                      </TooltipFast>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="truncate font-semibold hover:text-amber-300">
+                          {comment.profiles?.display_name || "Utilizador"}
+                        </Link>
+                        <span className="flex-shrink-0 text-xs text-white/50">{formatDate(comment.created_at)}</span>
+                        {wasEdited(comment) && (
+                          <span className="flex-shrink-0 text-xs italic text-white/30">(editado)</span>
+                        )}
+                      </div>
+                      <div className="flex flex-shrink-0 items-center">
+                        {user?.id === comment.user_id && (
+                          <TooltipFast content="Editar comentário">
+                            <button
+                              onClick={() => startEdit(comment)}
+                              className="flex h-11 w-11 items-center justify-center rounded-[10px] text-white/40 hover:bg-amber-500/10 hover:text-amber-300"
+                              aria-label="Editar comentário"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                          </TooltipFast>
+                        )}
+                        {(user?.id === comment.user_id || isOwner) && (
+                          <TooltipFast content="Eliminar comentário">
+                            <button
+                              onClick={() => handleDelete(comment.id)}
+                              className="flex h-11 w-11 items-center justify-center rounded-[10px] text-white/40 hover:bg-red-500/10 hover:text-red-400"
+                              aria-label="Eliminar comentário"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </TooltipFast>
+                        )}
                       </div>
                     </div>
-                  ) : (
-                    /* View Mode */
-                    <>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="text-sm font-semibold text-white/80 truncate hover:text-amber-400 transition-colors duration-150">
-                            {comment.profiles?.display_name || "Utilizador"}
-                          </Link>
-                          <span className="text-[11px] text-white/25 flex-shrink-0">{formatDate(comment.created_at)}</span>
-                          {wasEdited(comment) && (
-                            <span className="text-[10px] text-white/15 italic flex-shrink-0">(editado)</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          {user?.id === comment.user_id && (
-                            <TooltipFast content="Editar comentario">
-<button
-                              onClick={() => startEdit(comment)}
-                              className="p-1 text-white/20 hover:text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
-                              aria-label="Editar comentario"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </button>
-</TooltipFast>
-                          )}
-                          {(user?.id === comment.user_id || isOwner) && (
-                            <TooltipFast content="Eliminar comentario">
-<button
-                              onClick={() => handleDelete(comment.id)}
-                              className="p-1 text-white/20 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all duration-150 opacity-0 group-hover:opacity-100"
-                              aria-label="Eliminar comentario"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-</TooltipFast>
-                          )}
-                        </div>
-                      </div>
-                      <MentionText text={comment.comment} className="text-sm text-white/50 leading-relaxed mt-0.5 whitespace-pre-wrap" />
-                    </>
-                  )}
-                </div>
+                    <MentionText text={comment.comment} className="whitespace-pre-wrap leading-relaxed" />
+                  </>
+                )}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {user && (
+        <form onSubmit={handleSubmit} className="mt-2 flex gap-2">
+          <MentionInput
+            wrapperClassName="flex-1"
+            value={newComment}
+            onChange={setNewComment}
+            placeholder="Escrever comentário… @ para mencionar"
+            disabled={submitting}
+            className="min-h-[44px] w-full rounded-[10px] border border-white/[0.08] bg-white/[0.03] px-3.5 text-sm text-white/85 placeholder:text-white/30 focus:border-amber-500/40 focus:outline-none"
+          />
+          <button
+            type="submit"
+            disabled={submitting || !newComment.trim()}
+            className="flex min-h-[44px] items-center gap-2 rounded-[10px] bg-amber-500 px-4 text-sm font-semibold text-[#111] transition-colors hover:bg-amber-400 disabled:opacity-40"
+          >
+            {submitting ? <ToviSpinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+            Enviar
+          </button>
+        </form>
+      )}
+    </section>
   );
 }

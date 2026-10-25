@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lista detalhe · B Painel</title><style>
+:root{--bg:#050505;--s1:#0c0c0c;--s2:#141414;--fg:#ededed;--mut:rgba(255,255,255,.5);--line:rgba(255,255,255,.08);--p:#f59e0b;--ph:#fbbf24;--err:#f87171;--r:14px}
+*{box-sizing:border-box}html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 "Geist",Inter,system-ui,sans-serif;min-height:100dvh;padding-bottom:84px}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;cursor:pointer}
+.ico{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#frame{margin:0 auto;max-width:1240px;container-type:inline-size;container-name:pg;transition:max-width .2s}
+body.m #frame{max-width:390px;border-left:1px solid var(--line);border-right:1px solid var(--line);min-height:100dvh}
+.wrap{padding:20px 32px 48px}@container pg (max-width:700px){.wrap{padding:16px 16px 40px}}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:14px;font-weight:500;transition:background .15s,border-color .15s,transform .1s;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.07)}.btn:active{transform:scale(.98)}
+.btn.pri{background:var(--p);border-color:var(--p);color:#111;font-weight:600}.btn.pri:hover{background:var(--ph)}
+.btn.dng{color:var(--err)}.btn.ic{padding:0;width:44px;justify-content:center}
+.btn:focus-visible,.chip:focus-visible,.card:focus-visible{outline:2px solid var(--p);outline-offset:2px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:none;font-size:13px;color:var(--mut)}
+.chip.on{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.4);color:var(--ph)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid rgba(245,158,11,.35);color:var(--ph);background:rgba(245,158,11,.08)}
+.mut{color:var(--mut)}.back{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--mut);font-size:14px}.back:hover{color:var(--fg)}
+h1{margin:0;letter-spacing:-.03em;font-weight:600;line-height:1.05;text-wrap:balance;overflow-wrap:anywhere}
+.card{display:block;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .15s,transform .15s}
+.card:hover{border-color:rgba(245,158,11,.4)}
+.ph{background:repeating-linear-gradient(135deg,#101010 0 10px,#151515 10px 20px);display:grid;place-items:center;color:var(--mut);font-size:12px}
+.thumb{width:100%;height:100%;object-fit:cover;display:block}
+.nm{font-weight:600;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lc{font-size:13px;color:var(--mut);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.pill{font-size:12px;padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.06);color:var(--mut)}
+.rm{position:absolute;top:8px;right:8px;width:44px;height:44px;border-radius:10px;border:0;background:rgba(0,0,0,.65);display:grid;place-items:center;color:var(--err);opacity:0;transition:opacity .15s}
+.card:hover .rm,.card:focus-within .rm{opacity:1}@media (hover:none){.rm{opacity:1}}
+.skel{background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:sk 1.4s linear infinite;border-radius:10px}
+@keyframes sk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.state{text-align:center;padding:64px 16px;border:1px dashed var(--line);border-radius:var(--r);color:var(--mut)}
+.state b{display:block;color:var(--fg);font-size:17px;margin-bottom:6px}
+.banner{padding:12px 16px;border-radius:10px;border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:var(--err);font-size:14px;margin-bottom:16px}
+.panel{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.panel h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);font-weight:500}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.bar{height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}.bar i{display:block;height:100%;background:var(--p)}
+.states{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:4px;flex-wrap:wrap;justify-content:center;padding:6px;background:#111;border:1px solid var(--line);border-radius:12px;z-index:30;max-width:96vw}
+.states button{background:none;border:0;color:var(--mut);padding:8px 10px;border-radius:8px;font-size:12px;min-height:36px}
+.states button.on{background:rgba(245,158,11,.15);color:var(--ph)}
+.sep{width:1px;background:var(--line);margin:4px 2px}
+details.more{position:relative}details.more summary{list-style:none}details.more summary::-webkit-details-marker{display:none}
+.menu{position:absolute;right:0;top:48px;z-index:20;min-width:230px;background:#111;border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.menu a,.menu button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:0 12px;border:0;background:none;border-radius:8px;text-align:left;font-size:14px}
+.menu a:hover,.menu button:hover{background:rgba(255,255,255,.06)}.menu hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.cm{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.av{width:32px;height:32px;border-radius:50%;background:rgba(245,158,11,.18);display:grid;place-items:center;color:var(--ph);font-size:12px;flex:none}
+
+.shell{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start}
+.side{position:sticky;top:16px;display:grid;gap:14px}
+.side h1{font-size:30px}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:10px}.big>div{background:var(--s2);border-radius:10px;padding:12px}.big b{display:block;font-size:20px;font-weight:600}.big span{font-size:12px;color:var(--mut)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg button{background:none;border:0;min-height:40px;min-width:44px;display:grid;place-items:center;color:var(--mut)}.seg .on{background:rgba(245,158,11,.15);color:var(--ph)}
+.lrow{display:grid;grid-template-columns:76px 1fr auto;gap:14px;align-items:center;padding:10px 12px;position:relative}
+.lrow .t{width:76px;height:76px;border-radius:10px;overflow:hidden}.lrow+.lrow{margin-top:8px}
+.lrow .n{display:grid;gap:3px;min-width:0}.lrow .r{display:flex;gap:8px;align-items:center}
+.tools{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.tiles .card{position:relative}.tiles .im{aspect-ratio:1}.tiles .bd{padding:10px 12px}
+.mtop{display:none}
+@container pg (max-width:900px){.shell{grid-template-columns:1fr}.side{position:static}}
+@container pg (max-width:700px){.lrow{grid-template-columns:64px 1fr auto;gap:12px;padding:8px}.lrow .t{width:64px;height:64px}.tiles{grid-template-columns:repeat(2,1fr)}.side h1{font-size:26px}.lbl{display:none}.fixd{position:sticky;bottom:64px}}
+</style></head>
+<body><div id="frame"><div id="app"></div></div><div id="sb"></div>
+<script>const LIST={"name": "RESTAURANTES & TASCAS POR VISITAR", "desc": "gay", "tags": ["francesinha", "prego", "cachorrinhos", "aí que boah"], "creator": "Bruno Silva", "created": "2025-03-21", "total": 94, "noimg": 22, "avgPrice": 9.7, "ratedCount": 4, "avgRating": 4.5, "places": 4, "pricedCount": 24};const ITEMS=[{"name": "Marisqueira Majára", "loc": "Rua do Godinho, Matosinhos Sul, Matosinhos, Porto, 4450-296, Portugal, PT", "price": 15, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/f_auto,q_80/f_auto,q_80/f_auto,q_80/v1768985446/foodlist/uhf4ewstxyvkz1f4xgfq.avif", "n": 1, "short": "Rua do Godinho, Porto"}, {"name": "Restaurante Dur Essência", "loc": "Travessa da Rua da Alegria, Peso da Régua e Godim, Peso da Régua, Vila Real, 5950-282, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786902813/foodlist/hdwabyez23k6obm0vhw9.png", "n": 5, "short": "Travessa da Rua da Alegria, Vila Real"}, {"name": "Café Regina", "loc": "EM 320-1, Eiras, Lousada, Caíde de Rei, Porto, 4620-331, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786903087/foodlist/ekjvahpfawsjb3kdnjjy.png", "n": 5, "short": "EM 320-1, Porto"}, {"name": "Tasca do Luís. O panado maior cupom.", "loc": "Rua das Oliveiras, 73, Conjunto Urbano da Ribeira, Zona Histórica do Porto, Baixa do Porto, Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória, Porto, 4050-449, Portugal, PT", "price": 1, "rating": 0, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786903320/foodlist/ifvmsfkteqfevr9ruf2e.png", "n": 4, "short": "Rua das Oliveiras, Porto"}, {"name": "Rota 93 Burguer", "loc": "Rua de Goa, Porto Carreiro, Ermesinde, Palmilheira, Porto, 4445-512, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786903630/foodlist/tysqnylwbdjjimpjg3ey.png", "n": 6, "short": "Rua de Goa, Porto"}, {"name": "Café Snack-Bar A.B. Campa do Preto", "loc": "Rua Engenheiro Frederico Ulrich, Gemunde, Castêlo da Maia, Maia, Porto, 4475-130, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786904000/foodlist/ylbosso8zqdvffkgcp46.png", "n": 6, "short": "Rua Engenheiro Frederico Ulrich, Porto"}, {"name": "Sublime Brunch | Snack & Drinks", "loc": "Rua do Senhor dos Navegantes, Caxinas, Vila do Conde, Porto, 4480-665, Portugal, PT", "price": 1, "rating": 5, "rc": 1, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1769229721/foodlist/g0vgqvtoetamgatuwvrq.jpg", "n": 5, "short": "Rua do Senhor dos Navegantes, Porto"}, {"name": "Taverna's Tapas", "loc": "Rua de Bernadim Ribeiro, 51, Gandra, Ermesinde, Porto, 4445-310, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786904257/foodlist/orn0l6nli1k3g8c1tp1c.png", "n": 4, "short": "Rua de Bernadim Ribeiro, Porto"}, {"name": "Casa Guedes Tradicional", "loc": "Praça dos Poveiros, 130, Conjunto Urbano da Ribeira, Centro Histórico do Porto, Baixa do Porto, Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória, Porto, 4000-393, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786904494/foodlist/kxgz9fhyt6ekrwdlyymt.png", "n": 6, "short": "Praça dos Poveiros, Porto"}, {"name": "Venham Mais 5 - Original", "loc": "Rua de Santo Ildefonso, 219, Conjunto Urbano da Ribeira, Centro Histórico do Porto, Baixa do Porto, Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória, Porto, 4000-470, Portugal, PT", "price": 15, "rating": 0, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786909826/foodlist/lkduj3mbjwnqyiw3l5zv.jpg", "n": 6, "short": "Rua de Santo Ildefonso, Porto"}, {"name": "Mirone - Cachorrinhos do Morro", "loc": "Rua de Mesquita, Santa Marinha, Vila Nova de Gaia, Devesas, Porto, 4430-424, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786909979/foodlist/wlqmpjsyhahajkzbuy4s.png", "n": 7, "short": "Rua de Mesquita, Porto"}, {"name": "O Cantinho D’Avó Júlia", "loc": "Rua do Padre Cid, Vila Nova de Gaia, Gulpilhares, Porto, 4405-677, Portugal, PT", "price": 15, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786910125/foodlist/pujtas5snkbfpaxgynto.png", "n": 4, "short": "Rua do Padre Cid, Porto"}, {"name": "Café Velasquez", "loc": "Rua de Bartolomeu Dias, Bonfim, Antas, Porto, 4200-314, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786910297/foodlist/ria21ta4qen4kpmfftwx.png", "n": 4, "short": "Rua de Bartolomeu Dias, Porto"}, {"name": "O Recomeço", "loc": "Rua Central de Gandra, 1299, Vilarinho, Gandra, Porto, 4580, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786910509/foodlist/okuf8jdmfzxu7rferwpj.jpg", "n": 4, "short": "Rua Central de Gandra, 4580"}, {"name": "Taberna ti João", "loc": "Rua Alto de Vilar, Alfena, Maia, Porto, 4445-000, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": null, "n": 0, "short": "Rua Alto de Vilar, Porto"}, {"name": "AMMA PARQUE - Restaurante Trofa", "loc": "Rua Professor Mário Padrão, Bougado (São Martinho e Santiago), Trofa, Lagoa, Porto, 4785-000, Portugal, PT", "price": null, "rating": null, "rc": 0, "img": null, "n": 0, "short": "Rua Professor Mário Padrão, Porto"}, {"name": "Steakhouse Churrasqueira Nacional Paredes - Mouriz", "loc": "Rua Central de Mouriz, 550, Mouriz, Paredes, Porto, 4580-580, Portugal, PT", "price": 20, "rating": 0, "rc": 0, "img": "https://i.imgur.com/dv2t9Vll.jpg", "n": 1, "short": "Rua Central de Mouriz, Porto"}, {"name": "Café Santiago", "loc": "Rua de Passos Manuel, 226, Café Santiago, Conjunto Urbano da Ribeira, Centro Histórico do Porto, Baixa do Porto, Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória, Porto, 4000-385, Portugal, PT", "price": 15, "rating": null, "rc": 0, "img": "https://res.cloudinary.com/dkh7cedpm/image/upload/v1786980420/foodlist/aiz7f4l4elkx8kifev5o.jpg", "n": 6, "short": "Rua de Passos Manuel, Porto"}];
+const $=(s,e=document)=>e.querySelector(s);
+const I={
+back:'<path d="M15 6l-6 6 6 6"/>',share:'<path d="M12 3v12M7 8l5-5 5 5M5 14v6h14v-6"/>',dice:'<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/>',
+edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 012-2h9"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+heart:'<path d="M12 20s-7-4.6-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.400-7 10-7 10z"/>',flag:'<path d="M5 21V4h12l-2 4 2 4H5"/>',dl:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+pin:'<path d="M12 21s7-6 7-11a7 7 0 10-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.500"/>',users:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M16 5a3 3 0 010 6M18 20a6 6 0 00-3-5"/>',
+more:'<circle cx="5" cy="12" r="1.500"/><circle cx="12" cy="12" r="1.500"/><circle cx="19" cy="12" r="1.500"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',filter:'<path d="M4 6h16M7 12h10M10 18h4"/>',star:'<path d="M12 4l2.500 5 5.500.8-4 3.900.9 5.500-4.900-2.600-4.900 2.600.9-5.500-4-3.900 5.500-.8z"/>',
+list:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/>',grid:'<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>'};
+const ic=(n)=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmtD=s=>new Date(s).toLocaleDateString('pt-PT',{day:'numeric',month:'long',year:'numeric'});
+const price=p=>p?`${p} €`:'sem preço';
+let STATE='normal',VIEW='d';
+function items(){
+ if(STATE==='muitos'){const o=[];for(let i=0;i<5;i++)ITEMS.forEach(x=>o.push(x));return o.slice(0,LIST.total);}
+ if(STATE==='semimg')return ITEMS.map(x=>({...x,img:null}));
+ if(STATE==='texto')return ITEMS.slice().sort((a,b)=>(b.name.length+b.loc.length)-(a.name.length+a.loc.length));
+ return ITEMS;}
+function setState(s){STATE=s;document.querySelectorAll('.states [data-s]').forEach(b=>b.classList.toggle('on',b.dataset.s===s));render();}
+function setView(v){VIEW=v;document.body.classList.toggle('m',v==='m');document.querySelectorAll('.states [data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===v));}
+function bar(){const S=[['normal','Normal'],['loading','Loading'],['vazio','Vazia'],['erro','Erro'],['404','Não encontrada'],['muitos','94 itens'],['texto','Texto longo'],['semimg','Sem imagem']];
+ return `<div class="states" role="toolbar" aria-label="Estados do mockup">${S.map(([k,l])=>`<button data-s="${k}" onclick="setState('${k}')">${l}</button>`).join('')}<span class="sep"></span><button data-v="d" class="on" onclick="setView('d')">Desktop</button><button data-v="m" onclick="setView('m')">Mobile 390</button></div>`;}
+function img(x,cls=''){return x.img?`<img class="thumb ${cls}" loading="lazy" src="${esc(x.img)}" alt="${esc(x.name)}">`:`<div class="ph ${cls}" style="width:100%;height:100%;gap:4px;align-content:center;justify-items:center;background:var(--s1)"><img src="${tovi(x.name)}" alt="" width="56" height="56" style="width:min(56px,60%);height:auto"><span style="font-size:11px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x.name)}</span></div>`;}
+function hash(t){let h=0;for(let i=0;i<t.length;i++)h=t.charCodeAt(i)+((h<<5)-h);return h|0}
+const TOVIS=['a-celebrar','a-dormir','a-pensar','a-piscar-o-olho','apaixonada','feliz','fixe','surpreendida','triste','zangada'];
+function tovi(k){return 'assets/tovi-'+TOVIS[Math.abs(hash(k))%TOVIS.length]+'.svg'}
+function cover(name,h){const a=Math.abs(hash(name)%360);return `<div style="position:relative;height:${h}px;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,hsl(${a},70%,15%),hsl(${(a+60)%360},60%,12%) 50%,hsl(${(a+120)%360},50%,10%))"><svg viewBox="0 0 200 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><circle cx="80%" cy="20%" r="40" fill="hsl(${a},80%,65%)" opacity=".15"/><circle cx="20%" cy="80%" r="30" fill="hsl(${a},80%,65%)" opacity=".1"/></svg><img src="${tovi(name)}" alt="" style="position:absolute;right:12%;bottom:6px;height:84%;width:auto"></div>`}
+function moreMenu(){return `<details class="more"><summary class="btn ic" aria-label="Mais ações">${ic('more')}</summary><div class="menu">
+ <a href="#" onclick="return false">${ic('copy')} Duplicar lista</a>
+ <div class="mut" style="padding:6px 12px;font-size:12px">Exportar</div>
+ <a href="#" onclick="return false">${ic('dl')} JSON · CSV · PDF</a>
+ <a href="#" onclick="return false">${ic('flag')} Denunciar lista</a><hr>
+ <button class="dng" onclick="confirm('Eliminar esta lista? (mockup)')">${ic('trash')} Eliminar lista</button></div></details>`;}
+function notFound(){return `<div class="wrap"><a class="back" href="#">${ic('back')} Listas</a><div class="state"><b>Lista não encontrada</b>Pode ter sido eliminada ou ser privada.<br><br><a class="btn pri" href="#">Ver todas as listas</a></div></div>`;}
+function comments(){return `<section class="panel" id="comentarios"><h3>Comentários · lista pública</h3>
+ <div class="cm"><div class="av">AM</div><div><b>Ana M.</b> <span class="mut">há 2 dias</span><div>A francesinha do Cantinho é a melhor da zona.</div></div></div>
+ <div class="cm"><div class="av">RP</div><div><b>Rui P.</b> <span class="mut">há 1 semana</span><div>Falta a tasca de Gaia, já a adiciono.</div></div></div>
+ <div class="row" style="margin-top:8px"><input aria-label="Novo comentário" placeholder="Escrever comentário" style="flex:1;min-height:44px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;color:inherit;padding:0 14px;font:inherit"><button class="btn pri">Enviar</button></div></section>`;}
+function activity(){return `<section class="panel"><h3>Atividade</h3><div class="cm" style="border:0;padding-top:0"><div class="av">BS</div><div><b>${esc(LIST.creator)}</b> adicionou <b>Café Velasquez</b><div class="mut">há 3 dias</div></div></div><div class="cm"><div class="av">BS</div><div><b>${esc(LIST.creator)}</b> atualizou a lista<div class="mut">${fmtD('2026-06-21')}</div></div></div></section>`;}
+function collab(){return `<section class="panel"><h3>Colaboradores · só dono</h3><div class="row"><span class="pill">Bruno Silva · dono</span><span class="pill">Ana M. · editora</span><button class="btn" style="min-height:36px">${ic('users')} Convidar</button></div></section>`;}
+function nearby(){return `<div class="row"><button class="chip" id="nb" onclick="this.classList.toggle('on');$('#rad').hidden=!this.classList.contains('on')">${ic('pin')} Perto de mim</button><span id="rad" hidden class="mut" style="font-size:13px">raio <input type="range" min="1" max="50" value="10" aria-label="Raio em km"> 10 km · <b style="color:var(--ph)">7 a 10 km</b></span></div>`;}
+function cuisineChips(){return ['Todas','Francesinha','Marisco','Tasca','Hambúrguer','Café'].map((c,i)=>`<button class="chip ${i?'':'on'}" onclick="document.querySelectorAll('.cz .chip').forEach(x=>x.classList.remove('on'));this.classList.add('on')">${c}</button>`).join('');}
+
+let LAY='list',Q='',SORT='ord';
+function setLay(l){LAY=l;render();}
+function view(it){let o=it.filter(x=>(x.name+' '+x.loc).toLowerCase().includes(Q.toLowerCase()));
+ const k={preco:(a,b)=>(a.price??1e9)-(b.price??1e9),rating:(a,b)=>(b.rating??-1)-(a.rating??-1),nome:(a,b)=>a.name.localeCompare(b.name,'pt')}[SORT];if(k)o=o.slice().sort(k);return o;}
+function body(it){const v=view(it);
+ if(!it.length)return `<div class="state"><b>Não há restaurantes nesta lista</b>Adiciona restaurantes a partir da página de cada restaurante.<br><br><a class="btn pri" href="#">Explorar restaurantes</a></div>`;
+ if(!v.length)return `<div class="state"><img src="assets/tovi-a-pensar.svg" alt="" width="72" height="72"><b>Nenhum resultado para «${esc(Q)}»</b>Tenta outro nome ou morada.<br><br><button class="btn" onclick="Q='';render()">Limpar pesquisa</button></div>`;
+ const n=`<div class="mut" style="font-size:13px;margin-bottom:10px" aria-live="polite">${v.length} de ${LIST.total} restaurantes</div>`;
+ return n+(LAY==='list'?v.map(x=>`<a class="card lrow" href="#"><div class="t">${img(x)}</div><div class="n"><div class="nm">${esc(x.name)}</div><div class="lc" title="${esc(x.loc)}">${ic('pin')} ${esc(x.short)}</div></div><div class="r"><span class="pill">${price(x.price)}</span>${x.rating?`<span class="pill">${ic('star')} ${x.rating}</span>`:''}<button class="btn ic" style="border:0;color:var(--err);background:none" aria-label="Remover ${esc(x.name)}" onclick="event.preventDefault();confirm('Remover? (mockup)')">${ic('trash')}</button></div></a>`).join(''):
+ `<div class="tiles">${v.map(x=>`<a class="card" href="#"><div class="im">${img(x)}</div><div class="bd"><div class="nm">${esc(x.name)}</div><div class="lc" title="${esc(x.loc)}">${esc(x.short)} · ${price(x.price)}</div></div><button class="rm" aria-label="Remover ${esc(x.name)}" onclick="event.preventDefault();confirm('Remover? (mockup)')">${ic('trash')}</button></a>`).join('')}</div>`);}
+function upd(){$('#res').innerHTML=body(STATE==='vazio'?[]:items());}
+function render(){const app=$('#app');
+ if(STATE==='404'){app.innerHTML=notFound();return;}
+ const it=STATE==='vazio'?[]:items();
+ if(STATE==='loading'){app.innerHTML=`<div class="wrap"><div class="shell"><div class="skel" style="height:520px"></div><div style="display:grid;gap:8px">${'<div class="skel" style="height:96px"></div>'.repeat(7)}</div></div></div>`;return;}
+ const side=`<aside class="side"><a class="back" href="#">${ic('back')} Listas</a>
+  <div class="panel">${cover(LIST.name,96)}<div class="row" style="margin:14px 0 12px"><span class="badge">Pública</span><span class="mut">${LIST.total} restaurantes</span></div>
+  <h1>${esc(LIST.name)}</h1><p class="mut" style="margin:10px 0">${esc(LIST.desc)}</p>
+  <div class="row" style="margin-bottom:14px">${LIST.tags.map(t=>`<span class="pill">#${esc(t)}</span>`).join('')}</div>
+  <div class="mut" style="font-size:13px">Criada por <a href="#" style="color:var(--ph)">${esc(LIST.creator)}</a><br>${fmtD(LIST.created)}</div>
+  <div class="row" style="margin-top:16px"><button class="btn pri" style="flex:1;justify-content:center" ${it.length?'':'disabled'}>${ic('dice')} Roleta</button>${moreMenu()}</div>
+  <div class="row" style="margin-top:10px"><button class="btn" style="flex:1;justify-content:center">${ic('heart')} 12</button><button class="btn ic" aria-label="Partilhar">${ic('share')}</button><a class="btn ic" href="#" aria-label="Editar">${ic('edit')}</a></div></div>
+  ${it.length?`<div class="panel"><h3>Estatísticas</h3><div class="big"><div><b>${LIST.avgRating??'-'}</b><span>rating médio · ${LIST.ratedCount} com rating</span></div><div><b>${LIST.avgPrice} €</b><span>preço médio · ${LIST.pricedCount} com preço</span></div><div><b>${LIST.places}</b><span>locais únicos</span></div><div><b>${LIST.noimg}</b><span>sem imagem</span></div></div>
+  <div style="margin-top:14px;font-size:12px" class="mut">Com preço</div><div class="bar"><i style="width:${Math.round(LIST.pricedCount/LIST.total*100)}%"></i></div>
+  <div style="margin-top:10px;font-size:12px" class="mut">Com imagem</div><div class="bar"><i style="width:${Math.round((LIST.total-LIST.noimg)/LIST.total*100)}%"></i></div></div>`:''}
+  ${collab()}</aside>`;
+ const list=it.length?(LAY==='list'?it.map(x=>`<a class="card lrow" href="#"><div class="t">${img(x)}</div><div class="n"><div class="nm">${esc(x.name)}</div><div class="lc">${ic('pin')} ${esc(x.loc)}</div></div><div class="r"><span class="pill">${price(x.price)}</span>${x.rating?`<span class="pill">${ic('star')} ${x.rating}</span>`:''}<button class="btn ic" style="border:0;color:var(--err);background:none" aria-label="Remover ${esc(x.name)}" onclick="event.preventDefault();confirm('Remover? (mockup)')">${ic('trash')}</button></div></a>`).join(''):
+  `<div class="tiles">${it.map(x=>`<a class="card" href="#"><div class="im">${img(x)}</div><div class="bd"><div class="nm">${esc(x.name)}</div><div class="lc">${price(x.price)}</div></div><button class="rm" aria-label="Remover ${esc(x.name)}" onclick="event.preventDefault();confirm('Remover? (mockup)')">${ic('trash')}</button></a>`).join('')}</div>`):
+  `<div class="state"><b>Não há restaurantes nesta lista</b>Adiciona restaurantes a partir da página de cada restaurante.<br><br><a class="btn pri" href="#">Explorar restaurantes</a></div>`;
+ app.innerHTML=`<div class="wrap">${STATE==='erro'?`<div class="banner" role="alert">Não foi possível carregar os restaurantes. <a href="#" style="text-decoration:underline">Tentar de novo</a></div>`:''}
+ <div class="shell">${side}<main><div class="tools"><div class="row cz">${cuisineChips()}</div><div class="row"><button class="chip">${ic('filter')} Filtros</button><div class="seg" role="group" aria-label="Vista"><button class="${LAY==='list'?'on':''}" aria-label="Lista" onclick="setLay('list')">${ic('list')}</button><button class="${LAY==='tiles'?'on':''}" aria-label="Mosaico" onclick="setLay('tiles')">${ic('grid')}</button></div></div></div>
+ <div class="tools" style="margin-bottom:10px"><div class="row" style="flex:1"><input id="q" type="search" value="${esc(Q)}" placeholder="Pesquisar por nome ou morada" aria-label="Pesquisar restaurantes" oninput="Q=this.value;upd()" style="flex:1;min-width:180px;min-height:44px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;color:inherit;padding:0 14px;font:inherit"><select aria-label="Ordenar" onchange="SORT=this.value;upd()" style="min-height:44px;background:#111;border:1px solid var(--line);border-radius:10px;color:inherit;padding:0 12px;font:inherit"><option value="ord" ${SORT==='ord'?'selected':''}>Ordem da lista</option><option value="nome" ${SORT==='nome'?'selected':''}>Nome</option><option value="preco" ${SORT==='preco'?'selected':''}>Preço</option><option value="rating" ${SORT==='rating'?'selected':''}>Rating</option></select></div>${nearby()}</div><div id="res">${body(it)}</div>
+ <div style="display:grid;gap:16px;margin-top:32px">${LIST.total?comments():''}${activity()}</div></main></div></div>`;}
+
+$('#sb').innerHTML=bar();setState('normal');</script></body></html>

@@ -1,0 +1,11 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Restaurante - FoodLister (A galeria)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css"><link rel="stylesheet" href="detail.css"></head><body data-layout="A">
+<header class="nav"><div class="logo"><i>F</i>FoodLister</div><div class="sch"><i data-ic="search"></i><span>Pesquisar restaurantes</span></div><small>Navbar existente (fora do âmbito)</small></header>
+<p class="legend">Skills aplicadas: taste-skill, soft-skill, ui-ux-pro-max, redesign-skill, artifact-design. Dados reais de dev (Restaurante Teste 1, 4 avaliações); «Muitos itens» repete-os e traz listas/contactos/menu ilustrativos.</p>
+<main class="wrap" id="root"></main>
+<div class="ov" id="lb" role="dialog" aria-modal="true" aria-label="Galeria"><span class="ct"></span><button class="cl" aria-label="Fechar"><svg class="ic" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><button class="nav2 p" aria-label="Anterior"><svg class="ic" viewBox="0 0 24 24" style="transform:rotate(180deg)"><path d="M9 6l6 6-6 6"/></svg></button><img class="lbimg" alt=""><button class="nav2 n" aria-label="Seguinte"><svg class="ic" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+<div class="dlg" id="dlg"></div><div class="toast" id="toast" role="status"></div>
+<button class="totop" id="totop" aria-label="Voltar ao topo"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+<script>document.querySelectorAll("[data-ic]").forEach(e=>e.outerHTML='<svg class="ic" viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM21 21l-5-5"/></svg>')</script>
+<script src="data.js"></script><script src="states.js"></script></body></html>

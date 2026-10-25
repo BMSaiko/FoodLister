@@ -91,7 +91,6 @@ This document describes the comprehensive refactoring performed on the FoodListe
 | `auth.ts` | `utils/auth.ts` | Consolidated auth utilities (logging + redirects + storage) |
 | `logger.ts` | `utils/logger.ts` | General logging utility |
 | `cloudinaryConverter.ts` | `utils/cloudinaryConverter.ts` | Cloudinary image management |
-| `listExport.ts` | `utils/listExport.ts` | List export (ICS calendar, JSON) |
 | `googleMapsExtractor.ts` | `utils/googleMapsExtractor.ts` | Google Maps URL parsing |
 | `formatters.ts` | `utils/formatters.ts` | Data formatting utilities |
 | `filters.ts` | `utils/filters.ts` | Filter logic and utilities |
@@ -202,7 +201,6 @@ foodlister/
 │   ├── performanceMonitor.ts      # Re-exports (backward compat)
 │   ├── logger.ts                 # General logging
 │   ├── cloudinaryConverter.ts     # Cloudinary management
-│   ├── listExport.ts             # List export
 │   ├── search.ts                  # Search utilities
 │   ├── filters.ts                # Filter logic
 │   ├── formatters.ts             # Data formatters

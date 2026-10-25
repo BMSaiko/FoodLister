@@ -3,16 +3,8 @@ import { getPublicServerClient } from '@/libs/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+// roleta da home: top 10 por melhor avaliação (rating desc, desempate por nº de reviews)
 const cols = 'id, name, rating, review_count, price_per_person, location, images, display_image_index';
-
-// ponytail: same composite as /api/admin/stats (rating 60 / review-volume 30 / price 10)
-function scoreRestaurant(r: any) {
-  const rating = Math.min(Math.max(r.rating || 0, 0), 5);
-  const reviewScore = Math.min(Math.log10((r.review_count || 0) + 1) / Math.log10(51), 1) * 5;
-  const p = r.price_per_person || 0;
-  const priceScore = p >= 60 ? 0 : Math.max(0, Math.min((60 - p) / 60 * 5, 5));
-  return Math.round((0.6 * rating + 0.3 * reviewScore + 0.1 * priceScore) * 10) / 10;
-}
 
 export async function GET() {
   try {
@@ -27,18 +19,17 @@ export async function GET() {
       supabase.from('restaurants').select('rating').not('rating', 'is', null).gt('review_count', 0),
       supabase.from('restaurants')
         .select(cols)
+        .gt('review_count', 0)
+        .not('rating', 'is', null)
+        .order('rating', { ascending: false })
         .order('review_count', { ascending: false })
-        .limit(100),
+        .limit(10),
     ]);
     const ratingsList = ratings.data || [];
     const avg = ratingsList.length
       ? Math.round((ratingsList.reduce((s, r) => s + (r.rating || 0), 0) / ratingsList.length) * 10) / 10
       : 0;
     const topRestaurants = (top.data || [])
-      .map((r) => ({ ...r, score: scoreRestaurant(r) }))
-      .filter((r: any) => (r.review_count || 0) > 0)
-      .sort((a: any, b: any) => b.score - a.score)
-      .slice(0, 10)
       .map((r: any) => ({
         id: r.id,
         name: r.name,
@@ -48,7 +39,6 @@ export async function GET() {
         location: r.location || '',
         images: r.images || [],
         display_image_index: r.display_image_index,
-        score: r.score,
       }));
     return NextResponse.json({
       data: {

@@ -1,5 +1,6 @@
 "use client";
 
+import RestaurantImagePlaceholder from "./RestaurantImagePlaceholder";
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
@@ -45,7 +46,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
     >
       {/* Image — fixed height, same for all cards */}
       <Link href={`/restaurants/${restaurant.slug || restaurant.id}`} className="block">
-        <div className={`relative overflow-hidden ${isLarge ? "h-60 md:h-64" : "h-52"}`}>
+        <div className={`relative overflow-hidden aspect-[3/2]`}>
           {hasImage ? (
             <img
               src={imageUrl}
@@ -53,9 +54,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center">
-              <span className="text-4xl">🍽️</span>
-            </div>
+            <RestaurantImagePlaceholder name={restaurant.name} />
           )}
 
           {/* Gradient overlay */}

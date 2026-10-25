@@ -202,7 +202,6 @@ code/                              # Repositório principal (BMSaiko/FoodLister)
 │   ├── googleMapsBatchExtractor.ts # Batch Google Maps extraction
 │   ├── googleMapsExtractor.ts     # Google Maps URL parsing
 │   ├── index.ts                   # Barrel exports
-│   ├── listExport.ts              # List export utilities
 │   ├── logger.ts                  # Logging with SENSITIVE_KEYS sanitization
 │   ├── passwordValidation.js      # Password strength validation
 │   ├── performanceMonitor.ts      # Performance metrics
@@ -354,7 +353,6 @@ Next.js API Route (app/api/[resource]/route.ts)
 | `GET/POST /api/lists/[id]/comments` | Comments | List comments |
 | `GET/POST /api/lists/[id]/collaborators` | Collaborators | Role management |
 | `GET /api/lists/[id]/activities` | Activity feed | List activity history |
-| `GET /api/lists/[id]/export` | Export | PDF/CSV export |
 | `GET/POST /api/reviews` | Reviews | Create and list reviews |
 | `POST /api/upload` | Cloudinary upload | Image upload with rate limiting |
 | `POST /api/auth/session` | Session tokens | Returns access/refresh tokens |

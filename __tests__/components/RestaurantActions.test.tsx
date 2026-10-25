@@ -62,4 +62,10 @@ describe('RestaurantActions', () => {
     expect(base.onSchedule).toHaveBeenCalledTimes(1);
     expect(base.onShare).toHaveBeenCalledTimes(1);
   });
+
+  it('visitante: «Avaliar» vira ligação para iniciar sessão', () => {
+    render(<RestaurantActions {...base} hideReview reviewHref="/auth/signin" />);
+    expect(screen.getByRole('link', { name: 'Avaliar' })).toHaveAttribute('href', '/auth/signin');
+    expect(screen.queryByRole('button', { name: 'Avaliar' })).not.toBeInTheDocument();
+  });
 });
