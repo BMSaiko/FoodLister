@@ -7,6 +7,7 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { FiltersProvider } from '@/contexts';
 import { usePaginatedRestaurants } from '@/hooks/restaurants/usePaginatedRestaurants';
+import { useCuisineOptions } from '@/hooks/restaurants/useCuisineOptions';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -37,7 +38,12 @@ function RestaurantsContent() {
     return { cuisines, priceMin, priceMax, ratingMin, visitedOnly: false, location };
   })();
 
+  // filtros aplicados no servidor (/api/restaurants); o estado espelha o URL
+  const [filters, setFilters] = useState(initialFilters);
+  const cuisineOptions = useCuisineOptions();
+
   const handleFiltersChange = (f) => {
+    setFilters(f);
     const isCleared = !f.cuisines.length && f.priceMin == null && f.priceMax == null && f.ratingMin == null && !f.location;
     trackEvent(isCleared ? Events.FILTER_CLEARED : Events.FILTER_APPLIED, {
       cuisines: f.cuisines.length ? f.cuisines.join(',') : undefined,
@@ -56,34 +62,26 @@ function RestaurantsContent() {
     router.replace(qs ? `/restaurants?${qs}` : '/restaurants', { scroll: false });
   };
   const { user } = useAuthUser();
-  const [filtersActive, setFiltersActive] = useState(false);
   const [sort, setSort] = useState({ sortBy: "random", sortDirection: "asc" });
   const { restaurants, loading, error, hasNext, total, loadingMore, loadMore } = usePaginatedRestaurants({
     searchQuery,
-    all: filtersActive || sort.sortBy === 'random',
+    filters,
     sortBy: sort.sortBy,
     sortDirection: sort.sortDirection,
   });
-  const [filteredRestaurants, setFilteredRestaurants] = useState(restaurants);
   // Aleatório: fotos primeiro (partição estável, mantém a ordem aleatória dentro de cada grupo)
   const hasPhoto = (r) => (r.images || []).some((u) => typeof u === 'string' && u.trim().startsWith('http'));
   const displayRestaurants = sort.sortBy === 'random'
-    ? [...filteredRestaurants.filter(hasPhoto), ...filteredRestaurants.filter((r) => !hasPhoto(r))]
-    : filteredRestaurants;
+    ? [...restaurants.filter(hasPhoto), ...restaurants.filter((r) => !hasPhoto(r))]
+    : restaurants;
   const [nearbyActive, setNearbyActive] = useState(false);
   const [nearbyRadius, setNearbyRadius] = useState(10);
   const nearby = useNearbyRestaurants();
 
-  // Sync when new data loads (e.g. search query change, refetch)
+  // ponytail: uma pesquisa nova repõe a vista «perto de mim»
   useEffect(() => {
-    setFilteredRestaurants(restaurants);
-    // ponytail: a search change resets nearby view
     setNearbyActive(false);
-  }, [restaurants, searchQuery]);
-
-  // Import useEffect
-
-
+  }, [searchQuery]);
 
   return (
     <main className="min-h-[100dvh] bg-[var(--background)]">
@@ -94,10 +92,8 @@ function RestaurantsContent() {
         {/* Filters */}
         <div className="mb-6 md:mb-8 space-y-3">
           <RestaurantFilters
-            restaurants={restaurants}
+            cuisineOptions={cuisineOptions.map((c) => c.name)}
             totalRestaurants={total}
-            onFiltered={(filtered) => setFilteredRestaurants(filtered)}
-            onActiveChange={setFiltersActive}
             initialFilters={initialFilters}
             onFiltersChange={handleFiltersChange}
             onSortChange={(sortBy, sortDirection) => setSort({ sortBy, sortDirection })}

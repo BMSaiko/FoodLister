@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import RestaurantCard from "@/components/ui/RestaurantCard";
 import { RestaurantWithDetails } from "@/libs/types";
 import { EmptyState } from "@/components/ui/common/EmptyState";
@@ -14,6 +13,51 @@ interface RestaurantGridProps {
   hasMore?: boolean;
   loadingMore?: boolean;
   onLoadMore?: () => void;
+}
+
+// 12 = mmc(1,2,3,4 colunas): cada bloco acaba sempre numa linha cheia, sem buracos ao mudar o nº de colunas
+const CHUNK_SIZE = 12;
+const GRID_CLASS = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
+
+/**
+ * Janela de renderização: cada bloco de 12 longe do ecrã troca os cartões por um espaço
+ * com a altura medida, mantendo o DOM em poucos blocos (<=~60 cartões).
+ */
+function GridChunk({ restaurants }: { restaurants: RestaurantWithDetails[] }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const heightRef = useRef(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[entries.length - 1];
+        if (entry.isIntersecting) setVisible(true);
+        else {
+          if (entry.boundingClientRect.height > 0) heightRef.current = entry.boundingClientRect.height;
+          setVisible(false);
+        }
+      },
+      { rootMargin: "800px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  if (!visible && heightRef.current > 0) {
+    return <div ref={ref} aria-hidden="true" style={{ height: heightRef.current }} />;
+  }
+  return (
+    <div ref={ref} className={GRID_CLASS}>
+      {restaurants.map((restaurant) => (
+        <div key={restaurant.id} className="h-full">
+          <RestaurantCard restaurant={restaurant} />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function RestaurantGrid({
@@ -42,24 +86,14 @@ export function RestaurantGrid({
     return <EmptyState searchQuery={searchQuery || null} />;
   }
 
+  const chunks: RestaurantWithDetails[][] = [];
+  for (let i = 0; i < restaurants.length; i += CHUNK_SIZE) chunks.push(restaurants.slice(i, i + CHUNK_SIZE));
+
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {restaurants.map((restaurant, index) => (
-          <motion.div
-            key={restaurant.id}
-            className="h-full"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{
-              duration: 0.5,
-              delay: (index % 6) * 0.06,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-          >
-            <RestaurantCard restaurant={restaurant} />
-          </motion.div>
+      <div className="space-y-4">
+        {chunks.map((chunk) => (
+          <GridChunk key={chunk[0].id} restaurants={chunk} />
         ))}
       </div>
       {hasMore && (
