@@ -117,17 +117,36 @@ let codesClient: any = supabase;
 
     const listIds = listsData.map((list: DbList) => list.id);
     const countsMap = new Map<string, number>();
+    const PREVIEW_SIZE = 4;
+    const previewIds = new Map<string, string[]>();
+    const previewById = new Map<string, { name: string; image: string | null }>();
 
     if (listIds.length > 0) {
       const { data: allListRestaurants } = await resolvedCountClient
         .from('list_restaurants')
-        .select('list_id')
-        .in('list_id', listIds);
+        .select('list_id, restaurant_id')
+        .in('list_id', listIds)
+        .order('position', { ascending: true });
 
       if (allListRestaurants) {
-        allListRestaurants.forEach((lr: { list_id: string }) => {
+        allListRestaurants.forEach((lr: { list_id: string; restaurant_id: string }) => {
           countsMap.set(lr.list_id, (countsMap.get(lr.list_id) || 0) + 1);
+          const ids = previewIds.get(lr.list_id) || [];
+          if (ids.length < PREVIEW_SIZE) { ids.push(lr.restaurant_id); previewIds.set(lr.list_id, ids); }
         });
+      }
+
+      // preview (aditivo): nome + foto dos primeiros restaurantes, para capa e hover do cartão
+      const wanted = Array.from(new Set(Array.from(previewIds.values()).flat()));
+      if (wanted.length > 0) {
+        const { data: previewRestaurants } = await resolvedCountClient
+          .from('restaurants')
+          .select('id, name, images, display_image_index')
+          .in('id', wanted);
+        for (const r of (previewRestaurants || []) as { id: string; name: string; images?: string[] | null; display_image_index?: number | null }[]) {
+          const imgs = r.images || [];
+          previewById.set(r.id, { name: r.name, image: imgs[r.display_image_index ?? 0] || imgs[0] || null });
+        }
       }
     }
 
@@ -135,6 +154,7 @@ let codesClient: any = supabase;
     const processedData = listsData.map((list: DbList) => ({
       ...list,
       restaurantCount: countsMap.get(list.id) || 0,
+      preview: (previewIds.get(list.id) || []).map((id) => previewById.get(id)).filter(Boolean),
       userRole: roleMap.get(list.id) || (list.creator_id === currentUserId ? 'owner' : 'none'),
     }));
 

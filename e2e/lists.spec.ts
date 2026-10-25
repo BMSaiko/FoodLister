@@ -32,7 +32,7 @@ test.describe('Lists', () => {
   test('should navigate to list detail', async ({ page }) => {
     await page.goto('/lists');
     await page.waitForTimeout(2000);
-    const firstCard = page.locator('article, [class*="card"]').first();
+    const firstCard = page.locator('article a[href^="/lists/"]').first();
     if (await firstCard.isVisible()) {
       await firstCard.click();
       await page.waitForURL(/.*lists\/.+/);

@@ -60,6 +60,7 @@ export interface List {
     dietaryOptions?: string[];
   };
   like_count?: number | { count: number } | Array<{ count: number }> | null;
+  preview?: Array<{ name: string; image: string | null }>;
 }
 
 export interface User {
