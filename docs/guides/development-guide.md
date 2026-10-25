@@ -144,7 +144,6 @@ foodlister/
 │   ├── filters.ts                # Filter logic
 │   ├── formatters.ts             # Data formatters
 │   ├── googleMapsExtractor.ts    # Google Maps integration
-│   ├── listExport.ts             # List export (ICS calendar)
 │   ├── logger.ts                 # Logging utilities
 │   ├── performanceMonitor.ts      # Performance monitoring
 │   └── search.ts                 # Search functionality

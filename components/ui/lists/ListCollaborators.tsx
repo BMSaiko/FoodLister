@@ -2,7 +2,7 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Users, UserPlus, Trash2, Search, X, Shield, Eye } from "lucide-react";
+import { Users, UserPlus, Trash2, Search, X } from "lucide-react";
 import { toast } from "react-toastify";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
@@ -193,6 +193,8 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
     }
   };
 
+  const [showInvite, setShowInvite] = useState(false);
+
   const isAdded = (userId: string) => collaborators.some((c) => c.user_id === userId);
 
   if (loading) {
@@ -203,16 +205,52 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
     );
   }
 
+  const roleLabel = (r: string) => (r === "editor" ? "editor" : "visualizador");
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 text-lg font-semibold text-[var(--gray-800)]">
-        <Users className="h-5 w-5" />
-        <span>Colaboradores ({collaborators.length})</span>
+    <section className="rounded-[14px] border border-white/[0.08] bg-[#0c0c0c] p-5">
+      <h3 className="mb-3 text-[13px] font-medium uppercase tracking-[0.08em] text-white/50">
+        Colaboradores · só dono {collaborators.length > 0 && <span className="normal-case tracking-normal">({collaborators.length})</span>}
+      </h3>
+
+      <div className="flex flex-wrap items-center gap-2">
+        {collaborators.length === 0 && (
+          <span className="text-sm text-white/50">Nenhum colaborador nesta lista</span>
+        )}
+        {collaborators.map((collab) => (
+          <span
+            key={collab.id}
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] pl-3 pr-1 text-[13px] text-white/80"
+          >
+            {collab.profiles?.display_name || "Utilizador"} · {roleLabel(collab.role)}
+            {isOwner && (
+              <TooltipFast content="Remover colaborador">
+                <button
+                  onClick={() => handleRemoveCollaborator(collab.user_id)}
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-red-400 hover:bg-red-500/10"
+                  aria-label={`Remover ${collab.profiles?.display_name || "colaborador"}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </TooltipFast>
+            )}
+          </span>
+        ))}
+        {isOwner && (
+          <button
+            type="button"
+            onClick={() => setShowInvite((v) => !v)}
+            aria-expanded={showInvite}
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-[10px] border border-white/[0.08] px-3 text-[13px] text-white/80 hover:bg-white/[0.05]"
+          >
+            <Users className="h-4 w-4" /> Convidar
+          </button>
+        )}
       </div>
 
       {/* Add Collaborator Form */}
-      {isOwner && (
-        <form onSubmit={handleAddCollaborator} className="space-y-3">
+      {isOwner && showInvite && (
+        <form onSubmit={handleAddCollaborator} className="mt-4 space-y-3">
           <div>
             <label className="block text-xs text-white/40 uppercase tracking-wider mb-2">
               Pesquisar utilizador
@@ -342,52 +380,6 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
           )}
         </form>
       )}
-
-      {/* Collaborators List */}
-      {collaborators.length === 0 ? (
-        <p className="text-[var(--gray-500)] text-sm text-center py-4">
-          Nenhum colaborador nesta lista
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {collaborators.map((collab) => (
-            <div
-              key={collab.id}
-              className="flex items-center justify-between p-3 bg-white/[0.04] rounded-xl border border-white/[0.06]"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--primary-light)] flex items-center justify-center text-[var(--primary-dark)] font-semibold">
-                  {collab.profiles?.display_name?.[0]?.toUpperCase() || "U"}
-                </div>
-                <div>
-                  <p className="font-medium text-[var(--gray-800)]">
-                    {collab.profiles?.display_name || "Utilizador"}
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-[var(--gray-500)]">
-                    {collab.role === "editor" ? (
-                      <Shield className="h-3 w-3" />
-                    ) : (
-                      <Eye className="h-3 w-3" />
-                    )}
-                    <span className="capitalize">{collab.role}</span>
-                  </div>
-                </div>
-              </div>
-              {isOwner && (
-                <TooltipFast content="Remover colaborador">
-<button
-                  onClick={() => handleRemoveCollaborator(collab.user_id)}
-                  className="p-2 text-[var(--error)] hover:bg-red-500/10 rounded-lg transition-colors"
-                  aria-label="Remover colaborador"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-</TooltipFast>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    </section>
   );
 }

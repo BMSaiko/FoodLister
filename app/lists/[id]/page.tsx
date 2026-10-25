@@ -11,13 +11,11 @@ import { toast } from "react-toastify";
 import { useShare } from "@/hooks/utilities/useShare";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import Skeleton from "@/components/ui/Skeleton";
-import ListCover from "@/components/ui/lists/ListCover";
-import ListMetaBar from "@/components/ui/lists/ListMetaBar";
+import ListSidePanel from "@/components/ui/lists/ListSidePanel";
 import ListStatistics from "@/components/ui/lists/ListStatistics";
-import ListRestaurantGrid from "@/components/ui/lists/ListRestaurantGrid";
+import ListRestaurantView from "@/components/ui/lists/ListRestaurantView";
 import ListComments from "@/components/ui/lists/ListComments";
 import ReportButton from "@/components/ui/common/ReportButton";
-import ListExportButtons from "@/components/ui/lists/ListExportButtons";
 import ListCollaborators from "@/components/ui/lists/ListCollaborators";
 import ListActivityFeed from "@/components/ui/lists/ListActivityFeed";
 import { ArrowLeft } from "lucide-react";
@@ -64,6 +62,7 @@ interface List {
   updated_at: string;
   is_public?: boolean;
   filters?: any;
+  tags?: string[];
   userRole?: string;
   restaurants: Restaurant[];
 }
@@ -340,112 +339,99 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
       <div className="min-h-[100dvh]" style={{ backgroundColor: "var(--background)" }}>
         <Navbar />
 
-        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-          {/* Back link */}
-          <Link href="/lists" className="inline-flex items-center text-amber-400/70 hover:text-amber-400 transition-colors mb-4 text-sm min-h-[44px]">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            <span>Voltar as listas</span>
-          </Link>
+        <div className="max-w-[1240px] mx-auto px-4 md:px-8 py-5 md:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
+            <div>
+              <Link href="/lists" className="inline-flex items-center text-white/50 hover:text-white transition-colors mb-2 text-sm min-h-[44px]">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                <span>Listas</span>
+              </Link>
+              <ListSidePanel
+                list={list}
+                restaurants={restaurants}
+                tags={list.tags}
+                isPublic={list.is_public}
+                creator={list.creator_display_name || list.creator_name || list.creator}
+                creatorId={list.creator_user_code || list.creator_id}
+                createdAt={list.created_at}
+                isOwner={userRole === 'owner'}
+                canEdit={userRole === 'owner' || userRole === 'editor'}
+                duplicating={duplicating}
+                deleting={deleting}
+                avgRating={metaStats.avgRating}
+                avgPrice={metaStats.avgPrice}
+                uniqueLocations={metaStats.uniqueLocations}
+                hasFilters={!!list.filters}
+                applyingFilters={applyingFilters}
+                onShare={handleShareList}
+                onRoulette={() => setShowRoulette(true)}
+                onDuplicate={handleDuplicateList}
+                onDelete={handleDeleteList}
+                onApplyFilters={applyFilters}
+                likeSlot={
+                  <>
+                    <LikeButton listId={id as string} />
+                    <ReportButton targetType="list" targetId={list.id} label="" />
+                  </>
+                }
+              />
+            </div>
 
-          {/* Hero Cover */}
-          <ListCover
-            name={list.name}
-            description={list.description}
-            isPublic={list.is_public}
-            restaurantCount={restaurants.length}
-            creator={list.creator_display_name || list.creator_name || list.creator}
-            creatorId={list.creator_user_code || list.creator_id}
-            isOwner={userRole === 'owner'}
-                          canEdit={userRole === 'owner' || userRole === 'editor'}
-                          duplicating={duplicating}
-            deleting={deleting}
-            onShare={handleShareList}
-            onRoulette={() => setShowRoulette(true)}
-            onDuplicate={handleDuplicateList}
-            onDelete={handleDeleteList}
-            listId={id as string}
-            likeSlot={
-            <>
-              <LikeButton listId={id as string} />
-              <ReportButton targetType="list" targetId={list.id} label="" />
-            </>
-          }
-          />
+            <main className="min-w-0 font-sans">
+              <RestaurantFilters
+                variant="mock"
+                restaurants={restaurants}
+                onFiltered={(filtered) => setFilteredRestaurants(filtered as Restaurant[])}
+                rightSlot={
+                  <>
+                    <NearbyBar
+                      active={nearbyActive}
+                      onToggle={toggleNearby}
+                      radius={nearbyRadius}
+                      onRadius={changeNearbyRadius}
+                      loading={nearbyLoading}
+                      error={nearbyError}
+                      locationError={locationError}
+                    />
+                    {nearbyActive && nearbyRestaurants.length > 0 && (
+                      <span className="text-xs text-white/40">{nearbyRestaurants.length} a {nearbyRadius} km</span>
+                    )}
+                  </>
+                }
+              />
 
-          {/* Meta Bar */}
-          <ListMetaBar
-            restaurantCount={restaurants.length}
-            avgRating={metaStats.avgRating}
-            avgPrice={metaStats.avgPrice}
-            uniqueLocations={metaStats.uniqueLocations}
-            createdAt={list.created_at}
-            hasFilters={!!list.filters}
-            applyingFilters={applyingFilters}
-            onApplyFilters={applyFilters}
-          />
-
-          {/* Statistics Dashboard */}
-          {restaurants.length > 0 && <ListStatistics restaurants={restaurants} />}
-
-          {/* Advanced Filters + Perto de mim */}
-          <RestaurantFilters
-            restaurants={restaurants}
-            onFiltered={(filtered) => setFilteredRestaurants(filtered as Restaurant[])}
-            rightSlot={
-              <>
-                <NearbyBar
-                  active={nearbyActive}
-                  onToggle={toggleNearby}
-                  radius={nearbyRadius}
-                  onRadius={changeNearbyRadius}
-                  loading={nearbyLoading}
-                  error={nearbyError}
-                  locationError={locationError}
+              <div className="mb-8">
+                <ListRestaurantView
+                  restaurants={nearbyActive ? nearbyRestaurants : filteredRestaurants}
+                  totalCount={restaurants.length}
+                  canRemove={userRole === 'owner' || userRole === 'editor'}
+                  onRemove={handleRemoveRestaurant}
                 />
-                {nearbyActive && nearbyRestaurants.length > 0 && (
-                  <span className="text-xs text-white/40">{nearbyRestaurants.length} a {nearbyRadius} km</span>
-                )}
-              </>
-            }
-          />
-
-          {/* Restaurant Grid */}
-          <ListRestaurantGrid
-            restaurants={nearbyActive ? nearbyRestaurants : filteredRestaurants}
-            listId={id as string}
-            isOwner={userRole === 'owner' || userRole === 'editor'}
-                          onRemove={handleRemoveRestaurant}
-          />
-
-          {/* Export */}
-          {restaurants.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold text-white/70 mb-3">Exportar Lista</h3>
-              <ListExportButtons list={list} restaurants={restaurants} />
-            </div>
-          )}
-
-          {/* Collaborators */}
-          {(userRole === 'owner') && (
-            <div className="mb-8 p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-              <div className="p-4 md:p-5 rounded-2xl bg-white/[0.03]">
-                <ListCollaborators listId={id as string} isOwner={true} />
               </div>
-            </div>
-          )}
 
-          {/* Comments */}
-          {list.is_public && (
-            <div className="mb-8">
-              <ListComments listId={id as string} isOwner={userRole === 'owner'} highlightCommentId={highlightCommentId} />
-            </div>
-          )}
+              {restaurants.length > 0 && (
+                <details className="mb-4 rounded-[14px] border border-white/[0.08] bg-[#0c0c0c] p-4">
+                  <summary className="min-h-[44px] cursor-pointer text-[13px] font-medium uppercase tracking-[0.08em] text-white/50">Mais estatísticas (cozinhas, preços)</summary>
+                  <div className="mt-4"><ListStatistics restaurants={restaurants} /></div>
+                </details>
+              )}
 
-          {/* Activity Feed */}
-          <div className="mb-8 p-1.5 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-            <div className="p-4 md:p-5 rounded-2xl bg-white/[0.03]">
-              <ListActivityFeed listId={id as string} />
-            </div>
+              {userRole === 'owner' && (
+                <div className="mb-4">
+                  <ListCollaborators listId={id as string} isOwner={true} />
+                  </div>
+              )}
+
+              {list.is_public && (
+                <div className="mb-4">
+                  <ListComments listId={id as string} isOwner={userRole === 'owner'} highlightCommentId={highlightCommentId} />
+                </div>
+              )}
+
+              <div className="mb-8">
+                <ListActivityFeed listId={id as string} />
+              </div>
+            </main>
           </div>
         </div>
 

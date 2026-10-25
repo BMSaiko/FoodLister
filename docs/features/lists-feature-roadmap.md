@@ -146,7 +146,6 @@ ADD COLUMN IF NOT EXISTS position integer NOT NULL DEFAULT 0;
 - [x] Export as ICS calendar (for scheduled meals)
 
 **Files to Create:**
-- `utils/listExport.ts` - Export utility functions (✅ implemented)
 - `app/lists/[id]/page.jsx` - Add export button
 
 ---
@@ -350,7 +349,6 @@ ADD COLUMN IF NOT EXISTS cover_image_url text;
 | `components/lists/ListForm.tsx` | Reusable list form | ✅ Implemented |
 | `hooks/lists/useListFilterLogic.ts` | List filtering logic | ✅ Implemented |
 | `hooks/lists/useListFilters.ts` | List filters state | ✅ Implemented |
-| `utils/listExport.ts` | Export utility (JSON, ICS) | ✅ Implemented |
 | `contexts/AuthContext.tsx` | Auth state for lists | ✅ Implemented |
 
 ---
