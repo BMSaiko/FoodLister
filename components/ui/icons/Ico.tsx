@@ -14,6 +14,9 @@ const P: Record<string, { w?: number; d: React.ReactNode }> = {
   user: { d: <><circle cx="12" cy="8.5" r="3.6" /><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" /></> },
   home: { d: <path d="M4 11 12 4l8 7v8.5H4Z" /> },
   fork: { d: <path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8a2 2 0 0 1-2 2M17 21V3c-2.5 1.5-3 5-3 8h3" /> },
+  x: { d: <path d="M6 6l12 12M18 6 6 18" /> },
+  locate: { d: <><circle cx="12" cy="12" r="6.5" /><circle cx="12" cy="12" r="1.6" fill="currentColor" /><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" /></> },
+  chevron: { d: <path d="m6 15 6-6 6 6" /> },
 };
 
 export type IcoName = keyof typeof P;

@@ -149,3 +149,36 @@ Fonte: `app/lists/[id]/page.tsx` (458 linhas) e `components/ui/lists/*` (lidos a
 ## Fluxo
 - Chega de: `/lists`, partilha por link, notificações (`?comment=`), duplicar.
 - Segue para: `/lists/[id]/edit`, `/lists` (voltar, eliminar), `/lists/[novo-id]` (duplicar), restaurante (cartão da grelha), perfil do criador.
+
+---
+
+# Fluxo e inventário: /map
+
+Fonte: `app/map/page.tsx` (339 l), `components/ui/RestaurantMap/RestaurantMap.tsx` (275 l), `components/ui/Nearby/NearbyBar.tsx` (60 l), hooks `useAllRestaurants`, `useNearbyRestaurants` (lido a 2026-10-25).
+
+## Funcionalidades
+| # | Funcionalidade | Detalhe |
+|---|---|---|
+| 1 | Mapa Leaflet OSM | centro [39.4,-8.3] zoom 10; `FitToMarkers` enquadra tudo na abertura (padding 48, maxZoom 15); scroll zoom |
+| 2 | Pins por restaurante | pin âmbar garfo; ativo = pin estrela maior; só coords válidas; clusters (`MarkerClusterGroup`) |
+| 3 | Hover no pin | troca para pin ativo e abre popup (se nada selecionado) |
+| 4 | Click no pin / item da lista | `selectedId`; `FlyToMarker` zoom 16; popup programático |
+| 5 | Popup | nome, estrelas+rating, localização, link «Explorar» para `/restaurants/{slug\|id}` |
+| 6 | Fechar popup | desseleciona e `ZoomOutOnClose` recua 2 níveis (mín. 10) |
+| 7 | Controlos mapa | zoom +/- (44px), reset zoom (flyTo zoom 10) |
+| 8 | Pesquisa | nome ou localização, botão limpar ✕ |
+| 9 | Perto de mim | toggle pede geolocalização; seletor de raio 2/5/10/25/50/100 km; mapa recentra (`FlyToFocus`, zoom por raio); pin azul da posição do utilizador; mostra só resultados no raio |
+| 10 | Estados do Perto de mim | «A localizar…», erro de localização, erro de pesquisa, «Sem resultados Perto de..» |
+| 11 | Lista lateral (desktop ≥lg) | título «Restaurantes no Mapa» + contagem; item: ícone, nome, localização («Sem localização»), ★ rating; item ativo destacado |
+| 12 | Aviso sem coordenadas | «N restaurante(s) sem coordenadas — ver lista completa» → `/restaurants/no-coords` (só na lista desktop) |
+| 13 | Mobile: botão «Lista (N)» / «Esconder lista» | overlay com NearbyBar, pesquisa e até 30 itens (nome — localização); selecionar fecha overlay |
+| 14 | Estados da página | loading (skeleton lista + skeleton mapa + loader do mapa com ToviLoader), erro («Erro: …», «Erro ao carregar mapa: …»), vazio («Nenhum restaurante com coordenadas para mostrar.», «Nenhum resultado.») |
+| 15 | Navbar + barra inferior mobile | entrada «Mapa» ativa em `/map`; `pb-[88px]` reserva a barra |
+| 16 | Título | «Mapa - FoodLister» |
+
+## Lacunas atuais (a auditar)
+Lista mobile sem rating, sem aviso de sem-coordenadas e cortada a 30; sem filtros além de texto e raio; erros sem ação de repetir; textos de popup com classes `className` em string HTML (bug cosmético no popup programático); ícones lucide (Filter, Search, MapPin, X) a substituir pelo SP `foodlister-icones-custom-substituir-lucide`.
+
+## Fluxo
+- Chega de: Navbar/barra inferior («Mapa»), links «ver no mapa» em `restaurants/[id]` (HeroSection) e importação Google Maps.
+- Segue para: `/restaurants/{slug|id}` (Explorar no popup), `/restaurants/no-coords` (aviso).
