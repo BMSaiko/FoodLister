@@ -1,23 +1,31 @@
 "use client";
 
-import React, { useMemo, useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "react-leaflet";
+import React, { useMemo, useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from "react-leaflet";
 import type { RestaurantWithDetails } from "@/libs/types";
-import Link from "next/link";
+import { thumbFor, toviFor } from "@/utils/restaurantThumb";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "react-leaflet-cluster/dist/assets/MarkerCluster.css";
-import "react-leaflet-cluster/dist/assets/MarkerCluster.Default.css";
 
 // Custom map pin — SVG da iconografia (pin garfo; pin estrela, maior, quando ativo)
 // No image files; inline SVG + divIcon. Cores do acento âmbar da marca.
 const PIN_PATH = "M32 5C19.8 5 11 14.4 11 26c0 14.5 21 33 21 33s21-18.5 21-33C53 14.4 44.2 5 32 5Z";
 
-function createRestaurantIcon(active?: boolean): L.DivIcon {
+// Estado do pin: ativo (estrela, contorno), 4,5+ (estrela âmbar claro), sem avaliações (contorno), avaliado (garfo)
+function createRestaurantIcon(active?: boolean, rating?: number | null): L.DivIcon {
+  const top = rating != null && rating >= 4.5;
+  const unrated = rating == null;
   const size = active ? 48 : 40;
   const body = active
     ? `<path d="${PIN_PATH}" fill="#050505" fill-opacity="0.55" stroke="#f59e0b" stroke-width="4.2" stroke-linejoin="round"/>
        <path d="M32 15.5 35.2 22.3 42.6 23.2 37.3 28.4 38.6 35.8 32 32.3 25.4 35.8 26.7 28.4 21.4 23.2 28.8 22.3Z" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.6" stroke-linejoin="round"/>`
+    : top
+    ? `<path d="${PIN_PATH}" fill="#fbbf24"/>
+       <path d="M32 15.5 35.2 22.3 42.6 23.2 37.3 28.4 38.6 35.8 32 32.3 25.4 35.8 26.7 28.4 21.4 23.2 28.8 22.3Z" fill="#050505" stroke="#050505" stroke-width="1.6" stroke-linejoin="round"/>`
+    : unrated
+    ? `<path d="${PIN_PATH}" fill="#050505" fill-opacity="0.7" stroke="#f59e0b" stroke-width="3.6" stroke-linejoin="round"/>
+       <g stroke="#f59e0b" stroke-width="3.2" stroke-linecap="round" fill="none"><path d="M25.5 16.5v9M32 16.5v9M38.5 16.5v9"/><path d="M25.5 25.5a6.5 6.5 0 0 0 13 0"/><path d="M32 32v11"/></g>`
     : `<path d="${PIN_PATH}" fill="#f59e0b"/>
        <g stroke="#050505" stroke-width="3.2" stroke-linecap="round" fill="none"><path d="M25.5 16.5v9M32 16.5v9M38.5 16.5v9"/><path d="M25.5 25.5a6.5 6.5 0 0 0 13 0"/><path d="M32 32v11"/></g>`;
   return L.divIcon({
@@ -27,6 +35,31 @@ function createRestaurantIcon(active?: boolean): L.DivIcon {
     iconAnchor: [size / 2, size * 0.92],
     popupAnchor: [0, -size * 0.92],
   });
+}
+
+// Aglomerado próprio: disco escuro com anel âmbar; tamanho cresce com a contagem
+function createClusterIcon(cluster: { getChildCount: () => number }): L.DivIcon {
+  const n = cluster.getChildCount();
+  const size = n < 10 ? 40 : n < 100 ? 48 : n < 1000 ? 56 : 64;
+  const label = n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n);
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#1a1a1a,#050505);border:2px solid #f59e0b;box-shadow:0 0 0 5px rgba(245,158,11,0.18),0 4px 12px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;color:#fbbf24;font:700 ${size > 48 ? 15 : 13}px/1 system-ui,sans-serif;">${label}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
+
+// ponytail: 2000+ pins — icons are cached per variant, never rebuilt per marker/render
+const iconCache = new Map<string, L.DivIcon>();
+function getRestaurantIcon(active: boolean, rating?: number | null): L.DivIcon {
+  const key = active ? "active" : rating == null ? "unrated" : rating >= 4.5 ? "top" : "rated";
+  let icon = iconCache.get(key);
+  if (!icon) {
+    icon = createRestaurantIcon(active, rating);
+    iconCache.set(key, icon);
+  }
+  return icon;
 }
 
 if (typeof window !== "undefined") {
@@ -66,24 +99,76 @@ function isValidCoords(r: RestaurantWithDetails): boolean {
 }
 
 
+function escapeHtml(v: string): string {
+  return v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+// Conteúdo do popup (selecionado e hover): um só popup partilhado em vez de um por marcador
+function buildPopupContent(r: RestaurantWithDetails): HTMLElement {
+  const container = document.createElement("div");
+  const stars = r.rating != null ? Math.round(r.rating) : 0;
+  container.innerHTML = `
+    <div class="fl-popup">
+      <img class="fl-popup-img" src="${escapeHtml(thumbFor(r))}" alt="" onerror="if(!this.src.includes('/mascot/'))this.src='${toviFor(r.id)}'" />
+      <div class="fl-popup-body">
+        <h3 class="fl-popup-title">${escapeHtml(r.name)}</h3>
+        ${r.rating != null
+          ? `<p class="fl-popup-rating"><span aria-hidden="true">${"★".repeat(stars)}<i>${"★".repeat(5 - stars)}</i></span> ${r.rating.toFixed(1)}</p>`
+          : `<p class="fl-popup-muted">Sem avaliações</p>`}
+        ${r.location ? `<p class="fl-popup-muted">${escapeHtml(r.location)}</p>` : ""}
+        <a href="/restaurants/${encodeURIComponent(r.slug || r.id)}" class="fl-popup-cta popup-cta">
+          Explorar
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>`;
+  return container;
+}
+
+// Marcador memoizado: só re-renderiza quando muda o próprio restaurante ou o estado ativo
+const RestaurantMarker = React.memo(function RestaurantMarker({
+  r, active, hoverBlocked, onSelect,
+}: {
+  r: RestaurantWithDetails;
+  active: boolean;
+  hoverBlocked: boolean;
+  onSelect?: (id: string | null) => void;
+}) {
+  const handlers = useMemo(
+    () => ({
+      click: () => onSelect?.(r.id),
+      mouseover: (e: L.LeafletMouseEvent) => {
+        if (hoverBlocked) return;
+        const m = e.target as L.Marker;
+        m.setIcon(getRestaurantIcon(true, r.rating));
+        const map = (m as unknown as { _map?: L.Map })._map;
+        map?.openPopup(L.popup({ maxWidth: 260, minWidth: 240, closeButton: false, offset: [0, -36] }).setLatLng(m.getLatLng()).setContent(buildPopupContent(r)));
+      },
+      mouseout: (e: L.LeafletMouseEvent) => {
+        const m = e.target as L.Marker;
+        m.setIcon(getRestaurantIcon(active, r.rating));
+        if (!hoverBlocked) (m as unknown as { _map?: L.Map })._map?.closePopup();
+      },
+    }),
+    [r, active, hoverBlocked, onSelect]
+  );
+  return (
+    <Marker
+      position={[r.latitude!, r.longitude!]}
+      icon={getRestaurantIcon(active, r.rating)}
+      alt={r.rating == null ? `${r.name}, sem avaliações` : `${r.name}, ${r.rating.toFixed(1)} estrelas`}
+      eventHandlers={handlers}
+    />
+  );
+});
+
 // Opens a popup programmatically when a restaurant is selected from the sidebar
 function SelectedRestaurantPopup({ restaurant, onDeselect }: { restaurant: RestaurantWithDetails; onDeselect?: () => void }) {
   const map = useMap();
   useEffect(() => {
     if (!restaurant.latitude || !restaurant.longitude) return;
-    const container = document.createElement("div");
-    container.innerHTML = `
-      <div class="p-2 min-w-[180px]">
-        <h3 class="font-semibold text-sm">${restaurant.name}</h3>
-        ${restaurant.rating != null ? `<p className="text-xs text-white/60 mt-0.5">${"★".repeat(Math.round(restaurant.rating))} ${restaurant.rating.toFixed(1)}</p>` : ""}
-        ${restaurant.location ? `<p className="text-xs text-white/40 mt-0.5">${restaurant.location}</p>` : ""}
-        <a href="/restaurants/${restaurant.slug || restaurant.id}" class="mt-2 inline-flex items-center gap-1.5 text-xs font-medium popup-cta" style="color:#fbbf24;text-decoration:none;transition:color 0.2s ease,gap 0.2s ease;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-          Explorar
-        </a>
-      </div>
-    `;
-    const popup = L.popup({ maxWidth: 250 })
+    const container = buildPopupContent(restaurant);
+    const popup = L.popup({ maxWidth: 260, minWidth: 240 })
       .setLatLng([restaurant.latitude!, restaurant.longitude!])
       .setContent(container)
       .openOn(map);
@@ -231,35 +316,9 @@ export default function RestaurantMap({
         {userLocation?.lat != null && userLocation?.lng != null && (
           <Marker position={[userLocation.lat, userLocation.lng]} icon={createUserPinIcon()} />
         )}
-        <MarkerClusterGroup chunkedLoading>
+        <MarkerClusterGroup chunkedLoading maxClusterRadius={60} iconCreateFunction={createClusterIcon}>
         {markers.map((r) => (
-          <Marker key={r.id} position={[r.latitude!, r.longitude!]} icon={createRestaurantIcon(selectedId === r.id)} eventHandlers={{ click: () => onSelect?.(r.id), mouseover: (e) => { if (selectedId) return; e.target.setIcon(createRestaurantIcon(true)); e.target.openPopup(); }, mouseout: (e) => { e.target.setIcon(createRestaurantIcon(selectedId === r.id)); e.target.closePopup(); } }}>
-            <Popup>
-              <div className="p-2 min-w-[180px]">
-                <h3 className="font-semibold text-sm">
-                  {r.name}
-                </h3>
-                {r.rating != null && (
-                  <p className="text-xs text-white/60 mt-0.5">
-                    {"★".repeat(Math.round(r.rating))} {r.rating.toFixed(1)}
-                  </p>
-                )}
-                {r.location && (
-                  <p className="text-xs text-white/40 mt-0.5">
-                    {r.location}
-                  </p>
-                )}
-                <Link
-                  href={`/restaurants/${r.slug || r.id}`}
-                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium popup-cta"
-                  style={{ color: '#fbbf24', transition: 'color 0.2s ease, gap 0.2s ease' }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-                  Explorar
-                </Link>
-              </div>
-            </Popup>
-          </Marker>
+          <RestaurantMarker key={r.id} r={r} active={selectedId === r.id} hoverBlocked={!!selectedId} onSelect={onSelect} />
         ))}
         </MarkerClusterGroup>
       </MapContainer>
