@@ -198,14 +198,14 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 min-h-[48px] ${
             showFilters || activeCount > 0
-              ? "bg-purple-500/15 text-purple-400 ring-1 ring-purple-500/25"
+              ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
               : "bg-white/[0.04] text-white/50 border border-white/[0.06] hover:bg-white/[0.08]"
           }`}
         >
           <SlidersHorizontal className="h-4 w-4" />
           <span>Filtros Avancados</span>
           {activeCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-purple-500 text-white text-[10px] font-bold flex items-center justify-center">{activeCount}</span>
+            <span className="w-5 h-5 rounded-full bg-amber-500 text-black text-[10px] font-bold flex items-center justify-center">{activeCount}</span>
           )}
           <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${showFilters ? "rotate-180" : ""}`} />
         </button>
@@ -225,10 +225,11 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
                 const [sb, sd] = e.target.value.split(':');
                 onSortChange(sb, sd || 'asc');
               }}
-              defaultValue="name:asc"
+              defaultValue="random:asc"
               aria-label="Ordenar"
               className="px-2.5 py-1.5 rounded-full text-xs bg-white/[0.04] ring-1 ring-white/[0.1] text-white/70 [&>option]:bg-[#0a0a0a] [&>option]:text-white focus:outline-none"
             >
+              <option value="random:asc">Aleatório</option>
               <option value="name:asc">Nome A-Z</option>
               <option value="name:desc">Nome Z-A</option>
               <option value="rating:desc">Rating (maior primeiro)</option>

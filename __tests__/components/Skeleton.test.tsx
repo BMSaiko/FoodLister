@@ -3,14 +3,11 @@ import { render, screen } from '@testing-library/react';
 import Skeleton from '@/components/ui/Skeleton';
 
 describe('Skeleton', () => {
-  it('renders default restaurant-card variant with count=6', () => {
+  it('renders default restaurant-card variant as a single card without its own grid', () => {
     const { container } = render(<Skeleton />);
-    // Default variant is restaurant-card, default count is 6
-    const grid = container.querySelector('.grid');
-    expect(grid).toBeInTheDocument();
-    // 6 skeleton cards should be rendered
+    expect(container.querySelector('.grid')).not.toBeInTheDocument();
     const cards = container.querySelectorAll('.animate-pulse');
-    expect(cards).toHaveLength(6);
+    expect(cards).toHaveLength(1);
   });
 
   it('renders list-card variant', () => {
@@ -32,21 +29,21 @@ describe('Skeleton', () => {
   });
 
   it('applies custom className to grid', () => {
-    const { container } = render(<Skeleton className="custom-class" />);
+    const { container } = render(<Skeleton className="custom-class" count={2} />);
     const grid = container.querySelector('.custom-class');
     expect(grid).toBeInTheDocument();
   });
 
   it('has grid layout classes', () => {
-    const { container } = render(<Skeleton />);
+    const { container } = render(<Skeleton count={2} />);
     const grid = container.querySelector('.grid');
-    expect(grid).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3');
+    expect(grid).toHaveClass('grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4', 'gap-4');
   });
 
   it('renders restaurant-card skeleton with image placeholder', () => {
     const { container } = render(<Skeleton variant="restaurant-card" count={1} />);
     // Restaurant card has an image placeholder div
-    const imagePlaceholder = container.querySelector('.h-40');
+    const imagePlaceholder = container.querySelector('[class*="aspect-[3/2]"]');
     expect(imagePlaceholder).toBeInTheDocument();
   });
 

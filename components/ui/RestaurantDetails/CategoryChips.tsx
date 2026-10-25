@@ -16,8 +16,6 @@ export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], 
   // Rules of Hooks: o early-return tem de vir DEPOIS de todos os hooks -
   // antes quebrava a ordem quando hasAny passava de false para true no
   // mesmo componente montado ("rendered more hooks than previous render").
-  if (!hasAny) return null;
-
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -25,7 +23,9 @@ export default function CategoryChips({ cuisineTypes = [], dietaryOptions = [], 
         if (entry.isIntersecting) setIsVisible(true); }, { threshold: 0.1 });
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [hasAny]);
+
+  if (!hasAny) return null;
 
   return (
     <section ref={scrollRef} className="mb-8">
