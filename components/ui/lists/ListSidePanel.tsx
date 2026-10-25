@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Globe, Lock } from "lucide-react";
+import { Globe, Lock, MessageSquare, Activity } from "lucide-react";
 import { Share2, Shuffle, Edit, Copy, Trash2, MoreHorizontal, Filter } from "./MockIcons";
 import { CreatorLink } from "@/components/ui/common/CreatorLink";
 import ToviSpinner from "@/components/loading/ToviSpinner";
@@ -23,6 +23,7 @@ interface ListSidePanelProps {
   avgRating?: number;
   avgPrice?: number;
   uniqueLocations?: number;
+  showComments?: boolean;
   hasFilters: boolean;
   applyingFilters: boolean;
   onShare: () => void;
@@ -36,6 +37,15 @@ interface ListSidePanelProps {
 const iconBtn =
   "flex items-center justify-center w-11 h-11 rounded-[10px] border border-white/[0.08] bg-white/[0.03] text-white/80 hover:bg-white/[0.07] transition-colors duration-150";
 
+const navBtn =
+  "flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-[10px] border border-white/[0.08] bg-white/[0.03] text-sm text-white/80 hover:bg-white/[0.07] transition-colors duration-150";
+
+const goTo = (id: string) => (e: React.MouseEvent) => {
+  e.preventDefault();
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.getElementById(id)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+};
+
 function cover(name: string) {
   const h = Math.abs(hashString(name) % 360);
   return `linear-gradient(135deg, hsl(${h},70%,15%), hsl(${(h + 60) % 360},60%,12%) 50%, hsl(${(h + 120) % 360},50%,10%))`;
@@ -43,7 +53,7 @@ function cover(name: string) {
 
 export default function ListSidePanel({
   list, restaurants, tags, isPublic, creator, creatorId, createdAt, isOwner, canEdit, duplicating, deleting,
-  avgRating, avgPrice, uniqueLocations, hasFilters, applyingFilters,
+  avgRating, avgPrice, uniqueLocations, showComments, hasFilters, applyingFilters,
   onShare, onRoulette, onDuplicate, onDelete, onApplyFilters, likeSlot,
 }: ListSidePanelProps) {
   const hasItems = restaurants.length > 0;
@@ -68,7 +78,7 @@ export default function ListSidePanel({
   );
 
   return (
-    <aside className="lg:sticky lg:top-4 grid gap-3.5">
+    <aside className="grid gap-3.5">
       <div className="rounded-[14px] border border-white/[0.08] bg-[#0c0c0c] p-5">
         <div className="relative h-24 overflow-hidden rounded-[10px]" style={{ background: cover(list.name) }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -145,6 +155,17 @@ export default function ListSidePanel({
             </Link>
           )}
         </div>
+
+        <nav aria-label="Ir para secção" className="mt-2.5 flex items-center gap-2.5">
+          {showComments && (
+            <a href="#comentarios" onClick={goTo("comentarios")} className={navBtn}>
+              <MessageSquare className="h-4 w-4" /> Comentários
+            </a>
+          )}
+          <a href="#atividade" onClick={goTo("atividade")} className={navBtn}>
+            <Activity className="h-4 w-4" /> Atividade
+          </a>
+        </nav>
       </div>
 
       {hasItems && (
