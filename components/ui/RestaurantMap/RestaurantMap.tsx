@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useEffect, useRef } from "react";
+import { MAP_CSS } from "./mapStyles";
 import { MapContainer, TileLayer, Marker, ZoomControl, useMap } from "react-leaflet";
 import type { RestaurantWithDetails } from "@/libs/types";
 import { thumbFor, toviFor } from "@/utils/restaurantThumb";
@@ -289,6 +290,7 @@ export default function RestaurantMap({
 
   return (
     <div className={`relative w-full ${height} ${className}`} style={{ minHeight: "300px" }}>
+        <style>{MAP_CSS}</style>
         {/* Skeleton overlay — shown until TileLayer renders */}
         <div className="absolute inset-0 flex items-center justify-center bg-white/[0.02] rounded-xl z-[1] pointer-events-none animate-pulse">
           <div className="w-full h-full bg-gradient-to-b from-transparent via-white/[0.03] to-transparent" />
