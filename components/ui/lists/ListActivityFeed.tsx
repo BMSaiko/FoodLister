@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useListActivities } from "@/hooks/lists/useListActivities";
-import { Activity, ChevronDown, User } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import type { ListActivityAction } from "@/libs/types";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
@@ -37,70 +37,59 @@ function formatTimeAgo(dateString: string): string {
 export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
   const { activities, total, isLoading, error, hasMore, loadMore } = useListActivities(listId);
 
+  const panel = "rounded-[14px] border border-white/[0.08] bg-[#0c0c0c] p-5";
+  const heading = (
+    <h3 className="mb-3 text-[13px] font-medium uppercase tracking-[0.08em] text-white/50">
+      Atividade {total > 0 && <span className="normal-case tracking-normal">({total})</span>}
+    </h3>
+  );
+
   if (error) {
     return (
-      <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Activity className="h-5 w-5 text-[var(--primary)]" />
-          <h3 className="text-lg font-semibold text-[var(--gray-900)]">Atividade</h3>
-        </div>
-        <p className="text-[var(--error)] text-sm">Erro ao carregar atividade: {error}</p>
-      </div>
+      <section className={panel}>
+        {heading}
+        <p className="text-sm text-red-400">Erro ao carregar atividade: {error}</p>
+      </section>
     );
   }
 
   return (
-    <div className="bg-[var(--card-bg)] rounded-xl shadow-[var(--card-shadow)] p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Activity className="h-5 w-5 text-[var(--primary)]" />
-        <h3 className="text-lg font-semibold text-[var(--gray-900)]">
-          Atividade {total > 0 && <span className="text-[var(--gray-500)] font-normal">({total})</span>}
-        </h3>
-      </div>
+    <section className={panel}>
+      {heading}
 
       {isLoading && activities.length === 0 ? (
         <div className="flex items-center justify-center py-8">
           <ToviLoader size="sm" />
         </div>
       ) : activities.length === 0 ? (
-        <p className="text-[var(--gray-500)] text-sm text-center py-4">
-          Sem atividade registada.
-        </p>
+        <p className="py-4 text-center text-sm text-white/50">Sem atividade registada.</p>
       ) : (
-        <div className="space-y-3">
-          {activities.map((activity) => (
+        <div>
+          {activities.map((activity, i) => (
             <div
               key={activity.id}
-              className="flex gap-3 p-3 bg-[var(--gray-50)] rounded-lg"
+              className={`flex gap-3 py-3 ${i === 0 ? "pt-0" : "border-t border-white/[0.08]"}`}
             >
-              <div className="w-8 h-8 bg-[var(--primary-light)] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-amber-500/[0.18] text-xs text-amber-300">
                 {activity.profiles?.avatar_url ? (
                   <img
                     src={activity.profiles.avatar_url}
                     alt={activity.profiles.display_name || ""}
-                    className="w-8 h-8 rounded-full object-cover"
+                    className="h-8 w-8 rounded-full object-cover"
                   />
                 ) : (
-                  <User className="h-4 w-4 text-[var(--primary-dark)]" />
+                  (activity.profiles?.display_name || "U").slice(0, 2).toUpperCase()
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-medium text-[var(--gray-900)]">
-                    {activity.profiles?.display_name || "Utilizador"}
-                  </span>
-                  <span className="text-sm text-[var(--gray-600)]">
-                    {ACTION_LABELS[activity.action]}
-                  </span>
+              <div className="min-w-0 flex-1 text-sm">
+                <div>
+                  <b className="font-semibold">{activity.profiles?.display_name || "Utilizador"}</b>{" "}
+                  {ACTION_LABELS[activity.action]}
+                  {activity.details?.restaurant_name && (
+                    <> <b className="font-semibold">{activity.details.restaurant_name}</b></>
+                  )}
                 </div>
-                {activity.details?.restaurant_name && (
-                  <p className="text-xs text-[var(--gray-500)] mt-0.5 truncate">
-                    {activity.details.restaurant_name}
-                  </p>
-                )}
-                <span className="text-xs text-[var(--gray-400)]">
-                  {formatTimeAgo(activity.created_at)}
-                </span>
+                <div className="text-xs text-white/50">{formatTimeAgo(activity.created_at)}</div>
               </div>
             </div>
           ))}
@@ -109,7 +98,7 @@ export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
             <button
               onClick={loadMore}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-2 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors disabled:opacity-50"
+              className="mt-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[10px] border border-white/[0.08] bg-white/[0.03] text-sm hover:bg-white/[0.07] disabled:opacity-50"
             >
               {isLoading ? (
                 <ToviSpinner className="h-4 w-4" />
@@ -123,7 +112,6 @@ export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 }
-

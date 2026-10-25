@@ -433,7 +433,6 @@ Allow users to export their lists as JSON, CSV, or PDF.
 - [x] Download file triggered from list detail page
 
 **Files Created:**
-- `utils/listExport.ts` ✅
 
 **Files Modified:**
 - `app/lists/[id]/page.tsx` ✅
