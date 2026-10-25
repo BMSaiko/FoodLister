@@ -1,0 +1,118 @@
+/* /lists — tokens reais de app/globals.css (fundo #050505, âmbar #f59e0b). Fonte: Geist, como a app. */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500&display=swap');
+
+:root {
+  --background: #050505;
+  --foreground: #f5f5f5;
+  --primary: #f59e0b;
+  --primary-hover: #d97706;
+  --primary-soft: rgba(245, 158, 11, 0.1);
+  --card-bg: #0a0a0a;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --fg-2: rgba(255, 255, 255, 0.6);
+  --fg-3: rgba(255, 255, 255, 0.4);
+  --line: rgba(255, 255, 255, 0.06);
+  --danger: #f87171;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --r: 16px;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html { color-scheme: dark; }
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
+svg { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 8px; }
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .wrap { padding: 0 32px; } }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---- barra do mockup (só protótipo) ---- */
+.mockbar { position: sticky; top: 0; z-index: 60; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 8px 16px; background: #000; border-bottom: 1px dashed rgba(245, 158, 11, 0.35); font: 500 11px 'Geist Mono', monospace; color: var(--fg-3); }
+.mockbar b { color: var(--primary); font-weight: 500; margin-right: 6px; }
+.mockbar a { padding: 3px 8px; border-radius: 99px; border: 1px solid var(--card-border); }
+.mockbar a[aria-current] { background: var(--primary); color: #000; border-color: var(--primary); }
+
+/* ---- navbar (existente, só referência) ---- */
+.nav { position: sticky; top: 36px; z-index: 50; background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.logo { font-weight: 800; letter-spacing: -0.04em; font-size: 18px; }
+.logo i { color: var(--primary); font-style: normal; }
+.nav ul { display: none; list-style: none; padding: 0; gap: 4px; }
+.nav li a { padding: 6px 12px; border-radius: 99px; font-size: 14px; color: var(--fg-2); }
+.nav li a[aria-current] { color: var(--foreground); background: rgba(255, 255, 255, 0.06); }
+@media (min-width: 768px) { .nav ul { display: flex; } }
+.avatar { width: 30px; height: 30px; border-radius: 99px; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.tabbar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; display: flex; justify-content: space-around; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background: rgba(5, 5, 5, 0.92); backdrop-filter: blur(12px); border-top: 1px solid var(--line); }
+.tabbar a { display: grid; justify-items: center; gap: 2px; min-width: 56px; min-height: 44px; font-size: 10px; color: var(--fg-3); }
+.tabbar a[aria-current] { color: var(--primary); }
+.tabbar svg { width: 20px; height: 20px; }
+@media (min-width: 768px) { .tabbar { display: none; } }
+main.page { padding-bottom: 96px; }
+
+/* ---- botões e chips ---- */
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 99px; font-weight: 600; font-size: 14px; background: var(--primary); color: #000; transition: background 0.15s; }
+.btn:hover { background: var(--primary-hover); }
+.btn.ghost { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--card-border); color: var(--foreground); font-weight: 500; }
+.btn.ghost:hover { background: rgba(255, 255, 255, 0.08); }
+.hide-m { display: none; }
+@media (min-width: 640px) { .hide-m { display: inline-flex; } }
+.fab { position: fixed; right: 16px; bottom: 80px; z-index: 40; width: 56px; height: 56px; border-radius: 99px; display: grid; place-items: center; background: var(--primary); color: #000; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); }
+.fab svg { width: 22px; height: 22px; }
+@media (min-width: 640px) { .fab { display: none; } }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 99px; font-size: 14px; font-weight: 500; color: var(--fg-2); background: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); white-space: nowrap; transition: background 0.15s, color 0.15s; }
+.chip:hover { background: rgba(255, 255, 255, 0.07); }
+.chip[aria-pressed='true'] { background: var(--primary); border-color: var(--primary); color: #000; }
+.chip small { font: 500 11px 'Geist Mono', monospace; opacity: 0.7; }
+.scroll-x { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px 4px; }
+.scroll-x::-webkit-scrollbar { display: none; }
+
+.tag { font-size: 12px; color: var(--primary); }
+.tag::before { content: '#'; opacity: 0.5; }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; color: var(--fg-3); }
+.badge.priv { color: var(--primary); }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 12px; color: var(--fg-3); }
+.meta .n { font: 500 12px 'Geist Mono', monospace; color: var(--foreground); }
+.meta .like { color: var(--danger); display: inline-flex; gap: 4px; align-items: center; }
+.meta .like svg { fill: currentColor; width: 12px; height: 12px; }
+.creator { display: inline-flex; align-items: center; gap: 4px; max-width: 140px; }
+.creator span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.creator:hover { color: var(--primary); text-decoration: underline; }
+.del { position: absolute; z-index: 5; top: 10px; right: 10px; width: 44px; height: 44px; border-radius: 99px; background: rgba(0, 0, 0, 0.7); display: grid; place-items: center; opacity: 0; transition: opacity 0.15s; }
+.card:hover .del, .row:hover .del, .del:focus-visible { opacity: 1; }
+@media (hover: none) { .del { opacity: 1; } }
+
+/* ---- capa de lista: fotos reais ou gradiente (mesma lógica de ListCardCover) ---- */
+.cover { position: relative; display: grid; gap: 2px; overflow: hidden; background: #111; }
+.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover.n1 { grid-template: 1fr / 1fr; }
+.cover.n2 { grid-template: 1fr / 1fr 1fr; }
+.cover.n3 { grid-template: 1fr 1fr / 2fr 1fr; }
+.cover.n3 img:first-child { grid-row: span 2; }
+.cover.n4 { grid-template: 1fr 1fr / 1fr 1fr; }
+.cover.n0 { display: grid; place-items: center; }
+.cover.n0 b { font-size: 44px; font-weight: 800; opacity: 0.35; letter-spacing: -0.04em; }
+.cover .more { position: absolute; right: 8px; bottom: 8px; padding: 2px 8px; border-radius: 99px; background: rgba(0, 0, 0, 0.7); font: 500 11px 'Geist Mono', monospace; }
+.cover::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06); pointer-events: none; border-radius: inherit; }
+
+/* ---- skeleton / vazio / erro ---- */
+.sk { background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04)); background-size: 200% 100%; animation: sk 1.4s linear infinite; border-radius: 8px; }
+@keyframes sk { to { background-position: -200% 0; } }
+.state { text-align: center; padding: 72px 16px; max-width: 440px; margin: 0 auto; }
+.state .ico { width: 64px; height: 64px; border-radius: 99px; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; margin: 0 auto 20px; }
+.state .ico svg { width: 26px; height: 26px; }
+.state h2 { font-size: 22px; letter-spacing: -0.02em; margin-bottom: 8px; }
+.state p { color: var(--fg-2); margin-bottom: 24px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

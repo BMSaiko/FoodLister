@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup C · Lateral — /lists</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; padding: 40px 0 20px; }
+  .head h1 { font-size: clamp(30px, 5vw, 48px); font-weight: 800; letter-spacing: -0.045em; line-height: 1.05; }
+  .head p { color: var(--fg-2); margin-top: 8px; max-width: 46ch; }
+  .tags { padding-bottom: 24px; }
+  .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); gap: 28px 24px; } }
+  .card { position: relative; display: flex; flex-direction: column; gap: 14px; }
+  .card > a.open { display: flex; flex-direction: column; gap: 14px; border-radius: var(--r); }
+  .card .cover { aspect-ratio: 16 / 10; border-radius: var(--r); transition: transform 0.4s var(--ease); }
+  .card:hover .cover { transform: translateY(-3px); }
+  .card .peek { position: absolute; left: 0; right: 0; top: 0; aspect-ratio: 16 / 10; border-radius: var(--r); display: flex; align-items: flex-end; padding: 12px; background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.85)); opacity: 0; transition: opacity 0.2s; pointer-events: none; font-size: 12px; line-height: 1.4; color: #fff; }
+  .card:hover .peek, .card:focus-within .peek { opacity: 1; }
+  @media (hover: none) { .peek { display: none; } }
+  .card h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card .desc { font-size: 13px; color: var(--fg-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: -6px; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tags-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .sk-card { display: grid; gap: 14px; }
+  .layout { display: grid; gap: 0; padding-top: 32px; grid-template-columns: minmax(0, 1fr); }
+  .layout > * { min-width: 0; }
+  @media (min-width: 900px) { .layout { grid-template-columns: 220px minmax(0, 1fr); gap: 48px; } }
+  .head { padding-bottom: 20px; }
+  .head h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
+  .head p { color: var(--fg-2); margin-top: 6px; }
+  .headrow { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+  .side { display: none; }
+  .side-m { margin-bottom: 20px; }
+  @media (min-width: 900px) {
+    .side { display: block; position: sticky; top: 112px; align-self: start; }
+    .side-m { display: none; }
+  }
+  .side h3 { font: 500 11px 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; color: var(--fg-3); margin-bottom: 12px; }
+  .side button { display: flex; width: 100%; justify-content: space-between; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; font-size: 14px; color: var(--fg-2); text-align: left; }
+  .side button:hover { background: rgba(255, 255, 255, 0.05); }
+  .side button[aria-pressed='true'] { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+  .side small { font: 500 11px 'Geist Mono', monospace; opacity: 0.7; }
+  .grid { grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr) !important; } }
+  .headrow { display:flex; justify-content:space-between; align-items:end; gap:16px; flex-wrap:wrap; }
+  .head { padding: 0 0 20px; } .head h1 { font-size: clamp(28px,4vw,40px); }
+  .card .acts { position: absolute; z-index: 5; top: 10px; right: 10px; display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
+  .card:hover .acts, .card:focus-within .acts { opacity: 1; }
+  @media (hover: none) { .card .acts { opacity: 1; } }
+  .card .acts button { width: 44px; height: 44px; border-radius: 99px; background: rgba(0, 0, 0, 0.7); border: 1px solid rgba(255, 255, 255, 0.35); backdrop-filter: blur(6px); display: grid; place-items: center; color: #fff; }
+  .card .acts button:hover { background: rgba(0, 0, 0, 0.9); }
+  .card .acts button[aria-pressed='true'] { color: #f87171; }
+  .card .acts svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .card .del { right: 112px; }
+  .side [hidden] { display: none; }
+  .side-tools { display: grid; gap: 8px; margin-bottom: 12px; }
+  .side-tools input, .side-tools select { width: 100%; min-height: 40px; padding: 0 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line); color: var(--foreground); font: inherit; font-size: 14px; }
+  .side-tools select option { background: #111; }
+  .side { max-height: calc(100vh - 128px); overflow-y: auto; }
+</style>
+</head>
+<body>
+<main class="page"><div class="wrap" id="root"></div></main>
+<script src="data.js"></script>
+<script src="states.js"></script>
+<script>
+  const L = window.Lists;
+  let sortKey = 'recent', tagQ = '';
+  const origCover = L.cover;
+  L.cover = (l, c) => {
+    const h = origCover(l, c);
+    if (!h.includes('cover n0')) return h;
+    const r = 150 + Math.floor(Math.random() * 150);
+    return h.replace(/style="[^"]*"/, `style="background:linear-gradient(135deg,hsl(${r} 65% 24%),hsl(${(r + 70) % 360} 60% 13%))"`).replace(/<b[^>]*>[\s\S]*?<\/b>/, `<img src="assets/${['a-celebrar', 'a-dormir', 'a-pensar', 'a-piscar-o-olho', 'apaixonada', 'feliz', 'fixe', 'surpreendida', 'triste', 'zangada'].map(m => 'tovi-' + m)[Math.floor(Math.random() * 10)]}.svg" alt="" style="position:absolute;inset:0;margin:auto;width:45%;max-width:140px;aspect-ratio:1;object-fit:contain">`);
+  };
+  const sorters = { recent: (a, b) => b.created_at.localeCompare(a.created_at), likes: (a, b) => b.like_count - a.like_count, size: (a, b) => b.restaurant_count - a.restaurant_count, name: (a, b) => a.name.localeCompare(b.name, 'pt') };
+  const share = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg>';
+  const card = (l) => {
+    const names = (l.preview || []).map((p) => p.name).join(' · ');
+    const tags = l.tags || [];
+    return `<article class="card">
+      <a class="open" href="#"><div class="cover-wrap">${L.cover(l)}</div>
+        <div class="top"><span class="badge ${l.is_public ? '' : 'priv'}">${L.svg(l.is_public ? 'globe' : 'lock')}${l.is_public ? 'Pública' : 'Privada'}</span><span class="meta"><span class="n">${L.plural(l.restaurant_count)}</span></span></div>
+        <h2>${L.esc(l.name)}</h2>
+        ${l.description ? `<p class="desc">${L.esc(l.description)}</p>` : ''}
+      </a>
+      ${names ? `<div class="peek">${L.esc(names)}${l.restaurant_count > l.preview.length ? ` · +${l.restaurant_count - l.preview.length}` : ''}</div>` : ''}
+      ${tags.length ? `<div class="tags-row">${tags.slice(0, 3).map((t) => `<span class="tag">${L.esc(t)}</span>`).join('')}${tags.length > 3 ? `<span class="tag" style="color:var(--fg-3)">+${tags.length - 3}</span>` : ''}</div>` : ''}
+      <div class="foot"><div class="meta"><a class="creator" href="#">${L.svg('user')}<span>${L.esc(l.creator_name)}</span></a><span class="like">${L.svg('heart')}${l.like_count}</span></div><span class="meta">${L.date(l.created_at)}</span></div>
+      <div class="acts"><button aria-label="Gostar de ${L.esc(l.name)}" aria-pressed="false" onclick="this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')!=='true')">${L.svg('heart')}</button><button aria-label="Partilhar ${L.esc(l.name)}">${share}</button></div>
+      ${L.admin ? `<button class="del" aria-label="Eliminar lista ${L.esc(l.name)}">${L.svg('trash')}</button>` : ''}
+    </article>`;
+  };
+  const side = (tags, active, counts, total) => `<div class="side-tools"><select id="sortSel" aria-label="Ordenar listas">${[['recent','Mais recentes'],['likes','Mais gostadas'],['size','Mais restaurantes'],['name','Nome A–Z']].map(([k, n]) => `<option value="${k}"${k === sortKey ? ' selected' : ''}>${n}</option>`).join('')}</select><input id="tagQ" type="search" placeholder="Procurar etiqueta" aria-label="Procurar etiqueta" value="${L.esc(tagQ)}"></div><h3>Etiquetas</h3><button data-tag="" aria-pressed="${!active}">Todas <small>${total}</small></button>${tags.filter((t) => t.toLowerCase().includes(tagQ.toLowerCase())).map((t) => `<button data-tag="${L.esc(t)}" aria-pressed="${active === t}">#${L.esc(t)} <small>${counts[t]}</small></button>`).join('')}`;
+  const chips = (tags, active, counts, total) => `<div class="scroll-x" role="group" aria-label="Filtrar por etiqueta"><button class="chip" data-tag="" aria-pressed="${!active}">Todas <small>${total}</small></button>${tags.map((t) => `<button class="chip" data-tag="${L.esc(t)}" aria-pressed="${active === t}">#${L.esc(t)} <small>${counts[t]}</small></button>`).join('')}</div>`;
+  mountLists({
+    label: 'C · LATERAL',
+    skeleton: () => `<div class="grid">${[1, 2, 3, 4, 5, 6].map(() => `<div class="sk-card"><div class="sk" style="aspect-ratio:16/10;border-radius:16px"></div><div class="sk" style="height:14px;width:30%"></div><div class="sk" style="height:20px;width:75%"></div><div class="sk" style="height:12px;width:55%"></div></div>`).join('')}</div>`,
+    renderGrid: (ls) => `<div class="grid">${ls.slice().sort(sorters[sortKey]).map(card).join('')}</div>`,
+    renderTags: (...a) => `<template data-side>${side(...a)}</template>${chips(...a)}`,
+    shell: ({ title, sub, body, tagsHtml }) => {
+      const m = tagsHtml.match(/<template data-side>([\s\S]*?)<\/template>([\s\S]*)/);
+      return `<div class="layout"><aside class="side" aria-label="Etiquetas">${m ? m[1] : ''}</aside><section><div class="head headrow"><div><h1>${title}</h1><p>${sub}</p></div><a class="btn hide-m" href="#">${L.svg('plus')}Nova Lista</a></div><div class="side-m">${m ? m[2] : ''}</div>${body}</section></div>`;
+    },
+  });
+  document.addEventListener('input', (e) => {
+    if (e.target.id !== 'tagQ') return;
+    tagQ = e.target.value;
+    document.querySelectorAll('.side [data-tag]').forEach((b) => { b.hidden = !!b.dataset.tag && !b.dataset.tag.toLowerCase().includes(tagQ.toLowerCase()); });
+  });
+  document.addEventListener('change', (e) => {
+    if (e.target.id !== 'sortSel') return;
+    sortKey = e.target.value;
+    const b = document.querySelector('.side [aria-pressed="true"]');
+    b.click();
+    if (b.dataset.tag) document.querySelector(`.side [data-tag="${b.dataset.tag}"]`).click();
+  });
+</script>
+</body>
+</html>

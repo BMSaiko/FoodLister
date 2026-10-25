@@ -105,3 +105,15 @@ Inventário completo (30 linhas) e destino de cada funcionalidade nas direções
 - Tarefas: ver fotos/info, contactar (ligar, site, menu, mapa), avaliar, agendar, guardar numa lista, partilhar, denunciar; dono/admin: editar; admin: eliminar.
 - Saída: `/restaurants` (não encontrado), `/users/<código>` (criador, autores), `/lists/<slug>`, `/restaurants/<id>/edit`, Google Maps, `tel:`, menu e site externos.
 - Navbar fora do âmbito (sem mudanças de acessos).
+
+---
+
+# Fluxo e inventário: `/lists`
+
+Fonte: `app/lists/page.js` (198 linhas), `ListCard.tsx`, `ListCardCover.tsx`, `app/api/lists/route.ts` (lido a 2026-10-25). Paridade nas direções A e B: `listas/PARIDADE.md`.
+
+## Fluxo
+- Entrada: Navbar «Listas» e tab bar, home (`/`), pesquisa global (`?search=`), «guardar numa lista» no detalhe de restaurante.
+- Tarefas: ver listas, filtrar por tag, pesquisar, criar lista, abrir lista, ir ao perfil do criador; admin: eliminar.
+- Saída: `/lists/<slug>`, `/users/<código>`, criar lista (botão/FAB), `/lists` (limpar pesquisa).
+- Navbar e tab bar fora do âmbito (sem mudanças de acessos).

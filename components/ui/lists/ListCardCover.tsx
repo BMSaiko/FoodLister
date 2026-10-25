@@ -4,56 +4,63 @@ import React from 'react';
 
 interface ListCardCoverProps {
   name: string;
+  photos?: Array<{ name: string; image: string | null }>;
+  total?: number;
   className?: string;
 }
+
+const TOVIS = ['a-celebrar', 'a-dormir', 'a-pensar', 'a-piscar-o-olho', 'apaixonada', 'feliz', 'fixe', 'surpreendida', 'triste', 'zangada'];
 
 const hashCode = (str: string): number => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  return hash;
+  return Math.abs(hash);
 };
 
-const getGradient = (hash: number) => {
-  const hue1 = Math.abs(hash % 360);
-  const hue2 = (hue1 + 60) % 360;
-  const hue3 = (hue1 + 120) % 360;
-  return {
-    from: `hsl(${hue1}, 70%, 15%)`,
-    via: `hsl(${hue2}, 60%, 12%)`,
-    to: `hsl(${hue3}, 50%, 10%)`,
-    accent: `hsl(${hue1}, 80%, 65%)`,
-  };
-};
+// Capa 16/10: 1-4 fotos dos restaurantes (+N) ou, sem fotos, um Tovi sobre gradiente frio.
+// ponytail: «random» estável por nome (Math.random quebraria a hidratação SSR).
+export default function ListCardCover({ name, photos = [], total = 0, className = '' }: ListCardCoverProps) {
+  const withImage = photos.filter((p) => p.image).slice(0, 4);
+  const extra = total - withImage.length;
 
-const PATTERNS = [
-  (accent: string) => `<circle cx="80%" cy="20%" r="40" fill="${accent}" opacity="0.15"/><circle cx="20%" cy="80%" r="30" fill="${accent}" opacity="0.1"/>`,
-  (accent: string) => `<line x1="0" y1="100%" x2="100%" y2="0" stroke="${accent}" stroke-width="20" opacity="0.08"/><line x1="0" y1="50%" x2="50%" y2="0" stroke="${accent}" stroke-width="15" opacity="0.06"/>`,
-  (accent: string) => `<circle cx="25%" cy="25%" r="4" fill="${accent}" opacity="0.2"/><circle cx="75%" cy="75%" r="3" fill="${accent}" opacity="0.15"/><circle cx="50%" cy="10%" r="2" fill="${accent}" opacity="0.1"/><circle cx="10%" cy="60%" r="3" fill="${accent}" opacity="0.12"/>`,
-  (accent: string) => `<path d="M0,50 Q50,0 100,50 T200,50" stroke="${accent}" stroke-width="8" fill="none" opacity="0.1"/>`,
-];
-
-export default function ListCardCover({ name, className = '' }: ListCardCoverProps) {
-  const colors = getGradient(hashCode(name));
-  const patternIndex = Math.abs(hashCode(name + 'pattern')) % PATTERNS.length;
-  const pattern = PATTERNS[patternIndex](colors.accent);
-  const initial = name.charAt(0).toUpperCase();
-
-  return (
-    <div className={`relative overflow-hidden ${className}`}>
+  if (withImage.length === 0) {
+    const h = hashCode(name);
+    const hue = 150 + (h % 150);
+    return (
       <div
-        className="absolute inset-0"
-        style={{ background: `linear-gradient(135deg, ${colors.from} 0%, ${colors.via} 50%, ${colors.to} 100%)` }}
-      />
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
-        <g dangerouslySetInnerHTML={{ __html: pattern }} />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-4xl font-bold opacity-20" style={{ color: colors.accent }}>
-          {initial}
-        </span>
+        className={`relative overflow-hidden aspect-[16/10] rounded-2xl ${className}`}
+        style={{ background: `linear-gradient(135deg, hsl(${hue} 65% 24%), hsl(${(hue + 70) % 360} 60% 13%))` }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`/mascot/tovi-${TOVIS[h % TOVIS.length]}.svg`}
+          alt=""
+          className="absolute inset-0 m-auto w-[45%] max-w-[140px] aspect-square object-contain"
+        />
       </div>
+    );
+  }
+
+  const cols = withImage.length === 1 ? 'grid-cols-1' : 'grid-cols-2';
+  return (
+    <div className={`relative overflow-hidden aspect-[16/10] rounded-2xl bg-white/[0.04] grid ${cols} gap-0.5 ${className}`}>
+      {withImage.map((p, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={i}
+          src={p.image as string}
+          alt=""
+          loading="lazy"
+          className={`w-full h-full object-cover ${withImage.length === 3 && i === 0 ? 'row-span-2' : ''}`}
+        />
+      ))}
+      {extra > 0 && (
+        <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-xs font-semibold">
+          +{extra}
+        </span>
+      )}
     </div>
   );
 }

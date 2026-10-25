@@ -2,13 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
-import { Globe, Lock, Trash2, User, Tag, Heart } from 'lucide-react';
+import { Globe, Lock, Trash2, User, Heart, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import type { List } from '@/libs/types';
 import ListCardCover from '@/components/ui/lists/ListCardCover';
-import ListHoverPreview from '@/components/ui/lists/ListHoverPreview';
 
 interface ListCardProps {
   list: List & { restaurants?: any[] };
@@ -18,20 +15,28 @@ interface ListCardProps {
   onDelete?: (listId: string) => void;
 }
 
-const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false, onDelete }: ListCardProps) => {
+const actBtn =
+  'w-11 h-11 rounded-full bg-black/70 border border-white/35 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/90 transition-colors';
+
+const ListCard = ({ list, restaurantCount = 0, isAdmin = false, onDelete }: ListCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const router = useRouter();
+  const [liked, setLiked] = useState(false);
 
   const isPublic = list.is_public !== false;
   // ponytail: nested count can be number | {count} | [{count}] depending on client
   const lc = list.like_count;
-  const likeCount = Array.isArray(lc) ? (lc[0]?.count ?? 0) : (typeof lc === 'object' && lc ? (lc.count ?? 0) : (typeof lc === 'number' ? lc : 0));
+  const baseLikes = Array.isArray(lc) ? (lc[0]?.count ?? 0) : (typeof lc === 'object' && lc ? (lc.count ?? 0) : (typeof lc === 'number' ? lc : 0));
+  const [likeCount, setLikeCount] = useState(baseLikes);
   const tags = (list as any).tags as string[] | undefined;
+  const preview = list.preview || [];
+  const href = `/lists/${list.slug || list.id}`;
+  const creator = list.creator_display_name || list.creator_name || list.creator;
   const createdDate = new Date(list.created_at).toLocaleDateString('pt-PT', {
     day: '2-digit',
     month: 'short',
     year: 'numeric'
   });
+  const peekNames = preview.map((p) => p.name).join(' · ');
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -47,102 +52,99 @@ const ListCard = ({ list, restaurantCount = 0, isOwner = false, isAdmin = false,
     }
   };
 
+  const handleLike = async () => {
+    try {
+      const res = await fetch(`/api/lists/${list.id}/like`, { method: 'POST' });
+      if (res.status === 401) { toast.info('Inicia sessão para gostar de listas'); return; }
+      if (!res.ok) throw new Error('like');
+      const data = await res.json();
+      setLiked(!!data.liked);
+      setLikeCount(data.count ?? 0);
+    } catch {
+      toast.error('Erro ao gostar da lista');
+    }
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}${href}`;
+    try {
+      if (navigator.share) await navigator.share({ title: list.name, url });
+      else { await navigator.clipboard.writeText(url); toast.success('Ligação copiada!'); }
+    } catch { /* partilha cancelada */ }
+  };
+
   return (
-    <ListHoverPreview restaurants={list.restaurants || []}>
-      <motion.article
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-        className="group relative h-full"
-      >
-        <Link href={`/lists/${list.slug || list.id}`} className="block h-full">
-          <div className="rounded-2xl overflow-hidden bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-150 h-full flex flex-col">
-            {/* Cover */}
-            <ListCardCover name={list.name} className="h-28 sm:h-32" />
-
-            {/* Content */}
-            <div className="p-4 sm:p-5 flex-1 flex flex-col">
-              {/* Header */}
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="font-bold text-[var(--foreground)] line-clamp-1 group-hover:text-[var(--primary)] transition-colors">
-                  {list.name}
-                </h3>
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium flex-shrink-0 ${
-                  isPublic
-                    ? 'bg-emerald-500/10 text-emerald-400'
-                    : 'bg-red-500/10 text-red-400'
-                }`}>
-                  {isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
-                  {isPublic ? 'Pública' : 'Privada'}
-                </span>
-              </div>
-
-              {/* Description */}
-              {list.description && (
-                <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2 mb-3 flex-1">
-                  {list.description}
-                </p>
-              )}
-
-              {/* Tags */}
-              {tags && tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  {tags.slice(0, 3).map((tag: string, i: number) => (
-                    <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-medium">
-                      <Tag className="w-2.5 h-2.5" />
-                      {tag}
-                    </span>
-                  ))}
-                  {tags.length > 3 && (
-                    <span className="text-[10px] text-[var(--foreground-muted)] px-1">+{tags.length - 3}</span>
-                  )}
-                </div>
-              )}
-
-              {/* Footer */}
-              <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs text-[var(--foreground-muted)]">
-                  <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full font-medium">
-                    {restaurantCount} {restaurantCount === 1 ? 'restaurante' : 'restaurantes'}
-                  </span>
-                  {likeCount > 0 && (
-                    <span className="inline-flex items-center gap-1 text-red-400/80">
-                      <Heart className="w-3 h-3 fill-current" /> {likeCount}
-                    </span>
-                  )}
-                  <span>{createdDate}</span>
-                </div>
-
-                {(list.creator_display_name || list.creator_name || list.creator) && (
-                  <div className="flex items-center gap-1 text-xs text-[var(--foreground-muted)]">
-                    <User className="w-3 h-3" />
-                    <span
-      className="truncate max-w-[80px] hover:text-[var(--primary)] hover:underline transition-colors cursor-pointer"
-      title={list.creator_display_name || list.creator_name || list.creator || ''}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        router.push(`/users/${list.creator_user_code || list.creator_id}`);
-      }}
-    >{list.creator_display_name || list.creator_name || list.creator}</span>
-                  </div>
-                )}
-              </div>
+    <article className="group relative flex flex-col gap-3.5">
+      <Link href={href} className="flex flex-col gap-3.5 rounded-2xl">
+        <div className="relative transition-transform duration-300 group-hover:-translate-y-0.5">
+          <ListCardCover name={list.name} photos={preview} total={restaurantCount} />
+          {peekNames && (
+            <div className="pointer-events-none absolute inset-0 rounded-2xl flex items-end p-3 text-xs leading-snug text-white bg-gradient-to-b from-transparent from-40% to-black/85 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity [@media(hover:none)]:hidden">
+              {peekNames}{restaurantCount > preview.length ? ` · +${restaurantCount - preview.length}` : ''}
             </div>
-          </div>
-        </Link>
+          )}
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${isPublic ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+            {isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+            {isPublic ? 'Pública' : 'Privada'}
+          </span>
+          <span className="text-xs text-[var(--foreground-muted)]">
+            {restaurantCount} {restaurantCount === 1 ? 'restaurante' : 'restaurantes'}
+          </span>
+        </div>
+        <h3 className="after:absolute after:inset-0 after:content-[''] text-lg font-bold tracking-tight leading-tight text-[var(--foreground)] line-clamp-2 group-hover:text-[var(--primary)] transition-colors">
+          {list.name}
+        </h3>
+        {list.description && (
+          <p className="-mt-1.5 text-[13px] text-[var(--foreground-secondary)] line-clamp-2">{list.description}</p>
+        )}
+      </Link>
 
-        {/* Delete button */}
+      {tags && tags.length > 0 && (
+        <div className="relative z-[6] flex flex-wrap gap-2.5 pointer-events-none">
+          {tags.slice(0, 3).map((tag, i) => (
+            <span key={i} className="text-xs font-medium text-amber-400">#{tag}</span>
+          ))}
+          {tags.length > 3 && <span className="text-xs text-[var(--foreground-muted)]">+{tags.length - 3}</span>}
+        </div>
+      )}
+
+      <div className="relative z-[6] pt-3 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 text-xs text-[var(--foreground-muted)]">
+        <div className="flex items-center gap-3">
+          {creator && (
+            <Link
+              href={`/users/${list.creator_user_code || list.creator_id}`}
+              className="inline-flex items-center gap-1 hover:text-[var(--primary)] hover:underline transition-colors"
+              title={creator}
+            >
+              <User className="w-3 h-3" />
+              <span className="truncate max-w-[110px]">{creator}</span>
+            </Link>
+          )}
+          {likeCount > 0 && (
+            <span className="inline-flex items-center gap-1 text-red-400/80">
+              <Heart className="w-3 h-3 fill-current" /> {likeCount}
+            </span>
+          )}
+        </div>
+        <span>{createdDate}</span>
+      </div>
+
+      <div className="absolute z-[5] top-2.5 right-2.5 flex gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity [@media(hover:none)]:opacity-100">
+        <button type="button" onClick={handleLike} aria-pressed={liked} aria-label={`Gostar de ${list.name}`} className={`${actBtn} ${liked ? 'text-red-400' : ''}`}>
+          <Heart className={`w-[18px] h-[18px] ${liked ? 'fill-current' : ''}`} />
+        </button>
+        <button type="button" onClick={handleShare} aria-label={`Partilhar ${list.name}`} className={actBtn}>
+          <Share2 className="w-[18px] h-[18px]" />
+        </button>
         {isAdmin && (
-          <button
-            onClick={(e) => { e.preventDefault(); handleDelete(); }}
-            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-            title="Eliminar lista"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-white/80" />
+          <button type="button" onClick={handleDelete} disabled={isDeleting} aria-label={`Eliminar lista ${list.name}`} className={actBtn}>
+            <Trash2 className="w-[18px] h-[18px]" />
           </button>
         )}
-      </motion.article>
-    </ListHoverPreview>
+      </div>
+    </article>
   );
 };
 
