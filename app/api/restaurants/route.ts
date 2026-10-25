@@ -78,6 +78,15 @@ export async function GET(request: NextRequest) {
     const openNowParam = searchParams.get('open_now');
     const priceMin = searchParams.get('price_min');
     const priceMax = searchParams.get('price_max');
+    const ratingMin = searchParams.get('rating_min');
+    const locationParam = searchParams.get('location');
+    const cuisineList = (searchParams.get('cuisines') || '').split(',').map((c) => c.trim()).filter(Boolean);
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const cuisinesAreIds = cuisineList.length > 0 && cuisineList.every((c) => UUID_RE.test(c));
+    // junção !inner só para filtrar (alias próprio: não altera o array cuisine_types devolvido)
+    const cuisineFilterEmbed = cuisineList.length
+      ? ', cuisine_filter:restaurant_cuisine_types!inner(cuisine_type:cuisine_types!inner(id, name))'
+      : '';
     const sortByParam = (searchParams.get('sort_by') || 'name') as RestaurantSortBy;
     const sortDirectionParam = (searchParams.get('sort_direction') || 'asc') as SortDirection;
     const randomParam = isRandomSort(request);
@@ -121,6 +130,9 @@ export async function GET(request: NextRequest) {
       if (search && search.trim()) q = q.ilike('name', '%' + search.trim() + '%');
       if (priceMin !== null) { const v = parseFloat(priceMin); if (!isNaN(v)) q = q.gte('price_per_person', v); }
       if (priceMax !== null) { const v = parseFloat(priceMax); if (!isNaN(v)) q = q.lte('price_per_person', v); }
+      if (ratingMin !== null) { const v = parseFloat(ratingMin); if (!isNaN(v)) q = q.gte('rating', v); }
+      if (locationParam && locationParam.trim()) q = q.ilike('location', '%' + locationParam.trim() + '%');
+      if (cuisineList.length) q = q.in(cuisinesAreIds ? 'cuisine_filter.cuisine_type.id' : 'cuisine_filter.cuisine_type.name', cuisineList);
       return q;
     };
 
@@ -151,7 +163,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Fetch + map + filter — cached by full query params (300s TTL)
-    const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}`;
+    const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${ratingMin||''}:${locationParam||''}:${cuisineList.join('|')}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}`;
     const { restaurants, pagination, meta } = await cacheOrSet(cacheKey, async () => {
       // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
       let allRestaurants: any[] = [];
@@ -162,14 +174,14 @@ export async function GET(request: NextRequest) {
       let hasMore = true;
       
       while (hasMore) {
-        let batchQuery = client.from('restaurants').select(baseColumns + ', updated_at, opening_hours').range(offset, offset + batchSize - 1);
+        let batchQuery = client.from('restaurants').select(baseColumns + cuisineFilterEmbed + ', updated_at, opening_hours').range(offset, offset + batchSize - 1);
         batchQuery = applyFilters(batchQuery);
         if (!isAll && !isPopularity) batchQuery = applySort(batchQuery);
         const { data: batchData, error: batchError } = await batchQuery;
         
         if (batchError) {
           if (batchError.code === '42703') {
-            let fbQuery = client.from('restaurants').select(baseColumns).range(offset, offset + batchSize - 1);
+            let fbQuery = client.from('restaurants').select(baseColumns + cuisineFilterEmbed).range(offset, offset + batchSize - 1);
             fbQuery = applyFilters(fbQuery);
             const { data: fbData, error: fbError } = await fbQuery;
             if (fbError) { throw fbError; }
@@ -226,10 +238,12 @@ export async function GET(request: NextRequest) {
       // ponytail: real total for feed (api counts rows); all/popularity already hold the full set
       let realTotal = restaurants.length;
       if (!isAll && !isPopularity) {
-        const cq = client.from('restaurants').select('*', { count: 'exact', head: true });
+        const cq = client.from('restaurants').select('id' + cuisineFilterEmbed, { count: 'exact', head: true });
         const { count } = await applyFilters(cq);
         if (typeof count === 'number') realTotal = count;
       }
+      // popularity ordena o conjunto completo no servidor mas devolve só a página pedida
+      if (isPopularity && !isAll) restaurants = restaurants.slice((page - 1) * limit, page * limit);
       const pagination = {
         page,
         limit,
@@ -243,6 +257,9 @@ export async function GET(request: NextRequest) {
           search: search || null, open_now: openNowParam,
           price_min: priceMin ? parseFloat(priceMin) : null,
           price_max: priceMax ? parseFloat(priceMax) : null,
+          rating_min: ratingMin ? parseFloat(ratingMin) : null,
+          location: locationParam || null,
+          cuisines: cuisineList,
           sort_by: sortByParam, sort_direction: sortDirectionParam,
         }
       };
@@ -264,6 +281,9 @@ export async function GET(request: NextRequest) {
           search: search || null, open_now: openNowParam,
           price_min: priceMin ? parseFloat(priceMin) : null,
           price_max: priceMax ? parseFloat(priceMax) : null,
+          rating_min: ratingMin ? parseFloat(ratingMin) : null,
+          location: locationParam || null,
+          cuisines: cuisineList,
           sort_by: sortByParam, sort_direction: sortDirectionParam,
         }
       }

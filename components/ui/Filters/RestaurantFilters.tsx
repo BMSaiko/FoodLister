@@ -23,8 +23,12 @@ interface Filters {
 }
 
 interface RestaurantFiltersProps {
-  restaurants: Restaurant[];
-  onFiltered: (filtered: Restaurant[]) => void;
+  /** só para o modo cliente (roulette, listas); em /restaurants o servidor filtra */
+  restaurants?: Restaurant[];
+  /** modo cliente: recebe a lista filtrada. Sem isto o componente só emite `onFiltersChange` */
+  onFiltered?: (filtered: Restaurant[]) => void;
+  /** opções de cozinha de fonte própria (ex.: /api/cuisine-types); sem isto derivam de `restaurants` */
+  cuisineOptions?: string[];
   /** signals whether any filter is active (drives paginated vs all-mode feed) */
   onActiveChange?: (active: boolean) => void;
   /** extra controls rendered on the same row, right of the filters toggle */
@@ -41,6 +45,8 @@ interface RestaurantFiltersProps {
   variant?: "default" | "mock";
 }
 
+const EMPTY_RESTAURANTS: Restaurant[] = [];
+
 const DEFAULT_FILTERS: Filters = {
   cuisines: [],
   priceMin: null,
@@ -50,12 +56,13 @@ const DEFAULT_FILTERS: Filters = {
   location: "",
 };
 
-export default function RestaurantFilters({ restaurants, onFiltered, onActiveChange, rightSlot, initialFilters, onFiltersChange, onSortChange, totalRestaurants, variant = "default" }: RestaurantFiltersProps) {
+export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onFiltered, cuisineOptions, onActiveChange, rightSlot, initialFilters, onFiltersChange, onSortChange, totalRestaurants, variant = "default" }: RestaurantFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>(initialFilters || DEFAULT_FILTERS);
 
   // Extract unique cuisines
-  const availableCuisines = useMemo(() => {
+  const availableCuisines = useMemo<Array<[string, number | undefined]>>(() => {
+    if (cuisineOptions) return cuisineOptions.map(name => [name, undefined]);
     const map = new Map<string, number>();
     restaurants.forEach(r => {
       (r.cuisine_types || []).forEach((c: any) => {
@@ -64,10 +71,11 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
       });
     });
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 12);
-  }, [restaurants]);
+  }, [restaurants, cuisineOptions]);
 
-  // Apply filters
+  // Apply filters (modo cliente)
   const filtered = useMemo(() => {
+    if (!onFiltered) return restaurants;
     return restaurants.filter(r => {
       if (filters.cuisines.length > 0) {
         const rCuisines = (r.cuisine_types || []).map((c: any) => c.cuisine_type?.name || c.name);
@@ -83,11 +91,11 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
       }
       return true;
     });
-  }, [restaurants, filters]);
+  }, [restaurants, filters, onFiltered]);
 
   // Notify parent of filtered results
   React.useEffect(() => {
-    onFiltered(filtered);
+    onFiltered?.(filtered);
   }, [filtered, onFiltered]);
 
   const activeCount = useMemo(() => {
@@ -139,7 +147,7 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
                 }))}
                 className={`min-h-[36px] rounded-full border px-3 text-[13px] ${on ? "border-amber-500/50 bg-amber-500/15 text-amber-300" : "border-white/[0.08] text-white/70 hover:bg-white/[0.05]"}`}
               >
-                {name} <span className="text-white/40">{count}</span>
+                {name}{count != null && <span className="text-white/40"> {count}</span>}
               </button>
             );
           })}
@@ -269,7 +277,7 @@ export default function RestaurantFilters({ restaurants, onFiltered, onActiveCha
                         : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
                     }`}
                   >
-                    {name} <span className="text-white/20 ml-0.5">{count}</span>
+                    {name}{count != null && <span className="text-white/20 ml-0.5"> {count}</span>}
                   </button>
                 ))}
               </div>

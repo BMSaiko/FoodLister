@@ -9,9 +9,8 @@ import { pickSeeded } from '@/utils/random';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';import RestaurantImagePlaceholder from '@/components/ui/RestaurantCard/RestaurantImagePlaceholder';
 import { CreatorLink } from '@/components/ui/common/CreatorLink';
 
-// ponytail: fetch own full list (limit=all) so the hero is random across ALL
-// restaurants regardless of filters/pagination (feed mode only returns page-1
-// name-sorted rows, hence the "only A restaurants" bug).
+// ponytail: o hero é aleatório entre TODOS os restaurantes, independente de filtros/paginação
+// (escolhe um índice pelo total e pede só essa página de 1 item).
 export default function HeroRestaurantCard() {
   const [hero, setHero] = useState(null);
   const [imgIdx, setImgIdx] = useState(0);
@@ -22,13 +21,18 @@ export default function HeroRestaurantCard() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/restaurants?limit=all&random=true')
-      .then((r) => (r.ok ? r.json() : null))
+    // ponytail: sem limit=all — 1.º pedido só dá o total, 2.º traz o único restaurante escolhido (seed por user)
+    const get = (page) => fetch(`/api/restaurants?page=${page}&limit=1`).then((r) => (r.ok ? r.json() : null));
+    get(1)
+      .then((d) => {
+        const total = Number(d?.pagination?.total) || 0;
+        if (!total) return d;
+        const page = (pickSeeded(Array.from({ length: total }, (_, i) => i), user?.id) ?? 0) + 1;
+        return page === 1 ? d : get(page);
+      })
       .then((d) => {
         if (cancelled) return;
-        const items = Array.isArray(d?.restaurants) ? d.restaurants : [];
-        // ponytail: seeded pick (user + day-of-seconds, T76)
-        setHero(pickSeeded(items, user?.id) ?? null);
+        setHero(d?.restaurants?.[0] ?? null);
         setImgIdx(0);
       })
       .catch(() => {});
