@@ -770,3 +770,60 @@ html { scroll-behavior: smooth; }
 .auth-enter { animation: auth-enter .32s ease-out both; transition: opacity .22s ease, transform .22s ease; }
 .auth-leaving .auth-enter { opacity: 0; transform: translateY(-8px); animation: none; }
 @media (prefers-reduced-motion: reduce) { .auth-enter { animation: none; transition: none; } }
+
+/* Cursores próprios (SVG 32×32): tokens por tema, aplicados só com ponteiro preciso */
+:root {
+  --cursor-arrow: url("/cursors/dark/arrow.svg") 3 2, auto;
+  --cursor-pointer: url("/cursors/dark/pointer.svg") 10 2, pointer;
+  --cursor-text: url("/cursors/dark/text.svg") 12 12, text;
+  --cursor-wait: url("/cursors/dark/wait.svg") 12 12, wait;
+  --cursor-not-allowed: url("/cursors/dark/not-allowed.svg") 12 12, not-allowed;
+  --cursor-grab: url("/cursors/dark/grab.svg") 12 12, grab;
+  --cursor-grabbing: url("/cursors/dark/grabbing.svg") 12 12, grabbing;
+  --cursor-spin: url("/cursors/dark/spin.svg") 12 12, progress;
+}
+[data-theme="light"] {
+  --cursor-arrow: url("/cursors/light/arrow.svg") 3 2, auto;
+  --cursor-pointer: url("/cursors/light/pointer.svg") 10 2, pointer;
+  --cursor-text: url("/cursors/light/text.svg") 12 12, text;
+  --cursor-wait: url("/cursors/light/wait.svg") 12 12, wait;
+  --cursor-not-allowed: url("/cursors/light/not-allowed.svg") 12 12, not-allowed;
+  --cursor-grab: url("/cursors/light/grab.svg") 12 12, grab;
+  --cursor-grabbing: url("/cursors/light/grabbing.svg") 12 12, grabbing;
+  --cursor-spin: url("/cursors/light/spin.svg") 12 12, progress;
+}
+@media (pointer: fine) {
+  html, body {
+    cursor: var(--cursor-arrow);
+  }
+  a[href], button, summary, label[for], select, [role="button"], [role="tab"], [role="link"] {
+    cursor: var(--cursor-pointer);
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]), textarea, [contenteditable="true"] {
+    cursor: var(--cursor-text);
+  }
+  :disabled, [aria-disabled="true"] {
+    cursor: var(--cursor-not-allowed);
+  }
+  [aria-busy="true"] {
+    cursor: var(--cursor-wait);
+  }
+  .cursor-grab {
+    cursor: var(--cursor-grab);
+  }
+  .cursor-grabbing, .cursor-grab:active {
+    cursor: var(--cursor-grabbing);
+  }
+  .cursor-spin {
+    cursor: var(--cursor-spin);
+  }
+  .leaflet-container.leaflet-grab, .leaflet-container.leaflet-grab .leaflet-interactive.leaflet-grab {
+    cursor: var(--cursor-grab);
+  }
+  .leaflet-container.leaflet-dragging, .leaflet-dragging .leaflet-grab, .leaflet-dragging .leaflet-marker-draggable {
+    cursor: var(--cursor-grabbing);
+  }
+  .leaflet-marker-icon.leaflet-interactive, .leaflet-container a, .leaflet-control a {
+    cursor: var(--cursor-pointer);
+  }
+}
