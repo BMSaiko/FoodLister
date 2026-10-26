@@ -1,285 +1,96 @@
-# FoodLister
+<div align="center">
 
-A full-featured Next.js 15 application for discovering, organizing, and sharing restaurant lists. Built with Supabase, featuring AI-powered marketing, subscription monetization, push notifications, and PWA support.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/brand/lockup-dark.svg">
+  <img src="public/brand/lockup-light.svg" alt="FoodLister" width="280">
+</picture>
 
-## Features
+<img src="public/mascot/tovi-feliz.svg" alt="Tovi, a mascote do FoodLister: uma cloche sorridente" width="120">
 
-### ✅ Core Features
-- **Restaurant Discovery** — Search, filter (cuisine, features, dietary, price, rating), nearby search
-- **List Management** — Create, edit, share curated lists with privacy controls, positioning, tags, cover images
-- **Collaboration** — Multi-user lists with editor/viewer roles, comments, activity feed
-- **Reviews** — Star ratings, comments, amount spent tracking
-- **User Profiles** — Public/private profiles, stats (visits, reviews, lists), user search
-- **Meal Scheduling** — Group meal planning with participants, status tracking
-- **Restaurant Roulette** — Random restaurant picker
-- **Advanced Filters** — Multi-select, price range, rating, open now, sort options
-- **Menu System** — External links + Cloudinary images, carousel display
-- **Image Upload** — Cloudinary integration with retry logic
-- **Authentication** — Supabase Auth with email/password, email verification, account lockout
+**Descobre restaurantes, organiza-os em listas e partilha-as com quem comes.**
 
-### ✅ Notifications
-- **In-app** — Real-time notification dropdown + full notifications page
-- **Email** — API endpoint with preferences (requires external service)
-- **Push** — Service Worker + VAPID web push notifications
-- **Preferences** — Per-user toggle settings for all notification types
+</div>
 
-### ✅ Subscriptions & Payments
-- **3 Tiers** — Free, Premium (€4.99/mo), Pro (€9.99/mo)
-- **Stripe Checkout** — Full payment flow with webhooks
-- **Feature Gating** — Content restricted by subscription tier
-- **Subscription Management** — Create, cancel at period end, cancel immediately
+## O que é
 
-### ✅ Marketing AI
-- **AI Content Generation** — OpenAI GPT-4o-mini for social media posts
-- **Multi-Platform** — Twitter, Instagram, Facebook, LinkedIn, TikTok, YouTube
-- **Campaign Management** — Create, manage marketing campaigns
-- **Post Scheduling** — Draft → Schedule → Publish workflow
-- **AI Workflows** — Automated content generation with configurable triggers
-- **Generation Logs** — Audit trail with token usage tracking
+FoodLister é uma app web (PWA) para descobrir restaurantes, criar listas curadas, avaliá-los e planear refeições em grupo. Next.js 15 (App Router) sobre Supabase, com subscrições Stripe e conteúdos de marketing gerados por IA.
 
-### ✅ Technical
-- **PWA** — Service Worker, offline fallback, install prompt
-- **Caching** — TTL in-memory cache, HTTP caching, client-side caching
-- **Testing** — 61 test suites, 436 tests passing (100% pass rate)
-- **Storybook** — Component development environment
-- **CI/CD** — GitHub Actions (lint + build + test)
-- **RLS** — Row Level Security on all 20+ database tables
-- **Admin Dashboard** — Stats, user management, content moderation
+## Ecrãs
 
-## Tech Stack
+| Mapa (desktop) | Mapa (mobile) |
+|---|---|
+| <img src="docs/assets/readme/mapa-desktop.png" alt="Mapa de restaurantes no desktop, com marcadores e painel lateral" width="560"> | <img src="docs/assets/readme/mapa-mobile.png" alt="Mapa de restaurantes no telemóvel, ecrã inteiro" width="200"> |
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | Next.js 15 (App Router) |
-| **UI** | React 19, TypeScript 5.8.2, TailwindCSS 3 |
-| **Database** | Supabase (PostgreSQL 15+) with RLS |
-| **Auth** | Supabase Auth (JWT, email/password, OAuth) |
-| **Storage** | Cloudinary (images) |
-| **Payments** | Stripe (Checkout + Webhooks) |
-| **AI** | OpenAI GPT-4o-mini |
-| **Push** | Web Push API + VAPID |
-| **PWA** | next-pwa |
-| **Testing** | Jest 29, React Testing Library, Storybook |
-| **Deployment** | Vercel |
+<img src="docs/assets/readme/lista-detalhe.png" alt="Detalhe de uma lista de restaurantes" width="560">
 
-## Getting Started
+## Funcionalidades
 
-### Prerequisites
-- Node.js 18+
-- Supabase account + project
-- Cloudinary account (image uploads)
-- Stripe account (subscriptions, optional)
-- OpenAI API key (marketing AI, optional)
+- **Descoberta:** pesquisa global (Cmd+K), filtros avançados, restaurantes próximos, mapa e roleta.
+- **Listas:** privadas ou partilhadas, com colaboradores, comentários e exportação (CSV, JSON, texto).
+- **Social:** avaliações, perfis, visitas e refeições agendadas com participantes.
+- **Conta e negócio:** notificações (in-app, email, push), planos Free/Premium/Pro com Stripe, painel de administração.
+- **Marketing IA:** campanhas e publicações geradas com OpenAI.
 
-### Installation
+## Stack
+
+Next.js 15 · React 19 · TypeScript · Tailwind 3 · Supabase (Postgres + RLS + Auth) · Cloudinary · Stripe · OpenAI · Web Push · Jest, Playwright e Storybook · Vercel.
+
+## Arranque rápido
+
+Requisitos: Node.js 18+, Docker (Supabase local) e a CLI do Supabase.
 
 ```bash
 git clone https://github.com/BMSaiko/FoodLister.git
-cd foodlister
+cd FoodLister
 npm install
-cp .env.local.example .env.local
+npm run db:start      # Supabase local
+npm run db:reset      # migrations + seeds
+npm run dev           # http://localhost:3000
 ```
 
-Edit `.env.local`:
-```env
-# Required
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+Cria `.env.local` na raiz. Obrigatórias: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`. Opcionais: `CLOUDINARY_*` (imagens), `STRIPE_*` (pagamentos), `OPENAI_API_KEY` (IA), `NEXT_PUBLIC_VAPID_PUBLIC_KEY` e `VAPID_PRIVATE_KEY` (push). Nunca faças commit deste ficheiro.
 
-# Optional - Image uploads
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+## Scripts
 
-# Optional - Payments
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+| Comando | Para quê |
+|---|---|
+| `npm run dev` / `build` / `start` | Desenvolvimento, build e produção |
+| `npm run lint` / `typecheck` | ESLint e TypeScript |
+| `npm test` / `test:coverage` | Jest |
+| `npm run e2e` | Playwright |
+| `npm run storybook` | Storybook na porta 6006 |
+| `npm run db:start` / `db:stop` / `db:reset` / `db:diff` | Supabase local |
+| `npm run db:backup` / `db:restore-test` / `db:promote` | Backup, teste de restauro e promoção para o cloud |
 
-# Optional - AI
-OPENAI_API_KEY=sk-...
-
-# Optional - Push notifications
-NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-vapid-public-key
-VAPID_PRIVATE_KEY=your-vapid-private-key
-
-# Recommended
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-Set up database:
-```bash
-# Run all migrations in Supabase SQL Editor from supabase/migrations/
-# Or use Supabase CLI:
-npx supabase migration up
-```
-
-Start development:
-```bash
-npm run dev
-# Open http://localhost:3000
-```
-
-### Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run tests |
-| `npm run test:coverage` | Tests with coverage |
-| `npm run storybook` | Start Storybook |
-| `npm run db:start` / `db:stop` | Supabase local (Docker) |
-| `npm run db:reset` | Aplica migrations e seeds ao Supabase local |
-| `npm run db:diff` | Diferenças de esquema |
-| `npm run db:backup` | `pg_dump` do cloud (só leitura), rotação das últimas 8 |
-| `npm run db:restore-test` | Testa o restauro de um backup |
-| `npm run db:promote` | Backup + `db push --dry-run`; o push real é manual |
-
-## Project Structure
+## Estrutura
 
 ```
-foodlister/
-├── app/                    # Next.js App Router
-│   ├── api/                # 35+ API endpoints
-│   │   ├── admin/          # Admin dashboard APIs
-│   │   ├── auth/           # Session management
-│   │   ├── lists/          # Lists CRUD + restaurants + collaborators
-│   │   ├── marketing/      # Campaigns, posts, AI workflows
-│   │   ├── meals/          # Scheduled meals + participants
-│   │   ├── notifications/  # In-app, email, push
-│   │   ├── restaurants/    # CRUD + visits + nearby
-│   │   ├── reviews/        # CRUD
-│   │   ├── stripe/webhook/ # Stripe webhooks
-│   │   ├── subscriptions/  # Subscription management
-│   │   └── users/          # Profile, settings, stats
-│   ├── marketing/          # Marketing AI dashboard
-│   ├── notifications/      # Notifications page
-│   ├── pricing/            # Pricing page
-│   ├── subscribe/          # Checkout success/cancel
-│   └── users/settings/     # Settings + notification preferences
-├── components/             # 55+ React components
-│   ├── subscription/       # PricingCard, FeatureGate
-│   └── ui/                 # Reusable UI components
-├── contexts/               # AuthContext, FiltersContext, ModalContext
-├── hooks/                  # 25+ custom hooks
-│   ├── marketing/          # useMarketing
-│   ├── notifications/      # usePushNotifications
-│   ├── subscription/       # useSubscription
-│   └── data/               # Data fetching hooks
-├── libs/
-│   ├── ai.ts               # OpenAI content generation
-│   ├── cache.ts            # TTL in-memory cache
-│   ├── stripe.ts           # Stripe SDK + utilities
-│   └── subscription.ts     # Feature gate config
-├── supabase/migrations/    # baseline + migrations por timestamp (histórico em migrations_legacy/)
-├── types/                  # Database + API types
-├── __tests__/              # Jest + React Testing Library
-├── e2e/                    # Playwright
-├── docs/                   # Documentation
-│   ├── adr/                # Architecture Decision Records
-│   ├── api/                # API documentation
-│   ├── architecture/       # Architecture overview
-│   ├── database/           # Database schema
-│   ├── guides/             # How-to guides
-│   └── agent/              # Notas e planos de agentes
-└── public/
-    └── sw.js               # Service Worker (PWA + Push)
+app/          rotas (App Router) e endpoints em app/api
+components/   componentes React (ui, loading, subscription, ...)
+contexts/     Auth, filtros e modais
+hooks/        hooks de dados e de funcionalidades
+libs/         cache, Stripe, IA, subscrições
+supabase/     migrations, seeds e configuração local
+public/       marca (brand), mascote (mascot), ícones PWA e service worker
+__tests__/    Jest · e2e/ Playwright
+docs/         documentação
 ```
 
-## Database
+## Tovi, a mascote
 
-20+ tables with Row Level Security:
+<img src="public/mascot/tovi-a-pensar.svg" alt="Tovi a pensar" width="72"> <img src="public/mascot/tovi-surpreendida.svg" alt="Tovi surpreendida, com a tampa levantada" width="72"> <img src="public/mascot/tovi-a-celebrar.svg" alt="Tovi a celebrar" width="72">
 
-| Category | Tables |
-|----------|--------|
-| **Core** | profiles, restaurants, lists, reviews |
-| **Junction** | restaurant_cuisine_types, restaurant_features, restaurant_dietary_options, list_restaurants |
-| **Reference** | cuisine_types, dietary_options, restaurant_features |
-| **Social** | list_collaborators, list_comments, list_activities, user_restaurant_visits |
-| **Meals** | scheduled_meals, meal_participants |
-| **Notifications** | notifications, notification_preferences |
-| **Subscriptions** | subscription_plans, user_subscriptions |
-| **Marketing** | marketing_campaigns, social_media_posts, ai_workflows, content_generation_logs |
-| **Admin** | admin_roles |
+Tovi é a cloche do logo, com cara. Aparece onde a app espera, está vazia ou falha: carregamentos (`ToviLoader`), estados vazios, erros 404/500, roleta e toasts de sucesso. Emotes em `public/mascot/`; regras em [docs/guides/brand-mascote.md](docs/guides/brand-mascote.md).
 
-See `docs/database/database-schema-reference.md` for full schema.
+## Documentação
 
-## API
+Índice completo em [docs/INDEX.md](docs/INDEX.md).
 
-35+ REST endpoints across 12 domains. All return JSON with standardized error format.
+- [Arquitetura](docs/ARCHITECTURE.md) · [PRD](docs/PRD.md) · [Design system](docs/DESIGN_SYSTEM.md)
+- [API](docs/api/api-endpoints-reference.md) · [Base de dados](docs/database/database-schema-reference.md)
+- Guias: [Git](docs/guides/git-workflow.md) · [Supabase](docs/guides/supabase-workflow.md) · [Desenvolvimento](docs/guides/development-guide.md) · [Deploy](docs/guides/deployment-guide.md) · [Contribuir](docs/guides/contribution-guide.md)
+- [Changelog](CHANGELOG.md)
 
-**Key endpoints:**
-- `GET /api/restaurants` — Search, filter, sort restaurants
-- `GET /api/restaurants/nearby` — Geolocation search
-- `POST /api/lists` — Create/update lists
-- `GET /api/notifications` — User notifications
-- `POST /api/subscriptions` — Stripe checkout
-- `POST /api/marketing/posts` — Create posts with AI generation
-- `GET /api/admin/stats` — Admin dashboard statistics
+## Licença
 
-See `docs/api/api-endpoints-reference.md` for complete reference.
-
-## Workflow Git
-
-Ramos `feat|fix|docs|chore/<slug>` nascem de `dev`, entram em `dev` por PR (squash) e `dev` entra em `main` por PR (merge commit). Detalhe em [docs/guides/git-workflow.md](docs/guides/git-workflow.md).
-
-## Supabase
-
-Desenvolvimento contra o Supabase local (`npm run db:start`, `db:reset`); backups e promoção para o cloud com `db:backup` e `db:promote`. Detalhe em [docs/guides/supabase-workflow.md](docs/guides/supabase-workflow.md).
-
-## UX mobile
-
-Auditoria de todas as páginas a 390 px (escuro): admin com gaveta, estados vazios com Tovi, mapa sem sobreposições, detalhe do restaurante com carrossel, wizard com passos rotulados, `/auth/*` e `/subscribe/*` com tokens âmbar e alvos de 44 px. Botões em `.btn`/`.btn-primary`/`.btn-ghost` (`app/globals.css`); sem roxo.
-
-## Marca
-
-Logo: cloche (SVG claro, escuro e monocromático em `public/brand/`), favicon, ícones PWA e maskable em `public/icons/`. Mascote **Tovi** com 6 emotes em `public/mascot/`, usada no `ToviLoader` (`components/loading/`), estados vazios e erros. Regras de uso em [docs/guides/brand-mascote.md](docs/guides/brand-mascote.md); os ícones regeneram-se com `node scripts/generate-brand-icons.mjs`.
-
-## Documentation
-
-- **Índice:** `docs/INDEX.md`
-- **Architecture:** `docs/ARCHITECTURE.md`
-- **API:** `docs/api/api-endpoints-reference.md`
-- **Database:** `docs/database/database-schema-reference.md`
-- **ADR:** `docs/adr/` (Architecture Decision Records)
-- **Guides:** `docs/guides/` (development, deployment, error handling)
-
-## Testing
-
-- **61 suites** (436 testes, incluindo snapshots do `ToviLoader`) a passar
-- E2E com Playwright em `e2e/`
-- Run: `npm test`
-
-## Progress
-
-| Area | Status |
-|------|--------|
-| Core CRUD | ✅ 100% |
-| Auth & Security | ✅ 100% |
-| Social & Collaboration | ✅ 100% |
-| Admin Dashboard | ✅ 100% |
-| Subscriptions (Stripe) | ✅ 100% |
-| Notifications | ✅ 100% |
-| Marketing AI | ✅ 100% |
-| Performance & Caching | ✅ 100% |
-| PWA | ✅ 100% |
-| Testing | ✅ 100% (436/436 tests) |
-| Documentation | ✅ 100% |
-| Accessibility | ✅ 100% (ARIA labels) |
-| Error Handling | ✅ 100% (Error Boundaries) |
-| Search | ✅ 100% (Global Cmd+K) |
-| Export | ✅ 100% (CSV/JSON/TXT) |
-
-**Overall: ~98% complete**
-
-## License
-
-Private and proprietary. All rights reserved.
-
----
-
-*Last updated: 2026-10-20*
+Privado e proprietário. Todos os direitos reservados.
