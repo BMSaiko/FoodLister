@@ -58,7 +58,7 @@ export default function Navbar() {
   const springHeight = useSpring(navbarHeight, { stiffness: 120, damping: 20 });
 
   // Active section
-  const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
+  const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' || pathname === '/feed' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -105,8 +105,8 @@ export default function Navbar() {
       <header className="sticky top-0 z-[800] bg-[rgba(5,5,5,0.8)] backdrop-blur-[14px] border-b border-white/[0.08]">
         <div className="mx-auto flex items-center gap-1.5 md:gap-5 min-h-[60px] w-[min(1120px,calc(100%-32px))]">
           {/* Logo */}
-          <Link href="/" prefetch={false} className="flex-shrink-0" aria-label={t("FoodLister, início")}>
-            <img src="/brand/lockup-dark.svg" alt="FoodLister" className="h-7 w-auto max-w-none" />
+          <Link href="/" prefetch={false} className="flex-shrink-0 inline-flex items-center min-h-[44px]" aria-label={t("FoodLister, início")}>
+            <img src="/brand/lockup-dark.svg" alt="FoodLister" className="block h-7 w-auto max-w-none" />
           </Link>
 
           {/* Links */}
@@ -151,6 +151,21 @@ export default function Navbar() {
                 title={t("Criar restaurante")}
               >
                 <Ico name="plus" />
+              </Link>
+            )}
+            {user && (
+              <Link
+                href="/feed"
+                prefetch={false}
+                onClick={() => { if (pathname === '/feed') window.location.reload(); }}
+                aria-current={pathname === '/feed' ? 'page' : undefined}
+                className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] hover:bg-white/5 transition-colors ${
+                  pathname === '/feed' ? 'text-[var(--primary)]' : 'text-white/55 hover:text-[var(--foreground)]'
+                }`}
+                aria-label={t("Feed")}
+                title={t("Feed")}
+              >
+                <Icon name="atividade" className="h-5 w-5" />
               </Link>
             )}
             {user && (

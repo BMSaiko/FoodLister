@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/feed · A Linha do tempo</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* A: trilho vertical, agrupado por dia, linhas compactas sem caixas pesadas */
+.list{position:relative;padding-left:36px}
+.list:before{content:"";position:absolute;left:15px;top:30px;bottom:8px;width:1px;background:linear-gradient(var(--line),var(--line) 92%,transparent)}
+.day{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:500;margin:28px 0 12px -36px;padding-left:36px}
+.day:first-child{margin-top:0}
+.row{position:relative;margin-bottom:10px}
+.node{position:absolute;left:-36px;top:12px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--line);color:var(--dim)}
+.node svg{width:15px;height:15px}.node.t-review{color:var(--ph);border-color:rgba(245,158,11,.4)}
+.card{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;border:1px solid transparent;transition:background .15s,border-color .15s;position:relative}
+.row:hover .card{background:var(--card);border-color:var(--line)}
+.main{flex:1;display:block}.main:before{content:"";position:absolute;inset:0;border-radius:14px}
+.main p{margin:2px 0 4px;font-size:15px;line-height:1.45}
+.card .av{position:relative;z-index:2}
+</style></head>
+<body data-state="default">
+<nav class="nav"><img src="assets/lockup-dark.svg" alt="FoodLister"><span class="me">A</span></nav>
+<main class="wrap">
+  <div class="head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><div><h1>Feed</h1><p class="sub">O que anda a acontecer à tua volta</p></div></div>
+  <div class="err" role="alert">Erro ao carregar atividade: API 500</div>
+  <div class="loading" role="status" aria-label="A carregar"><i></i></div>
+  <div class="full empty"><img src="assets/tovi-a-dormir.svg" alt=""><h2>Ainda sem atividade</h2><p>Segue amigos e restaurantes para ver aqui as novidades.</p><a class="cta" href="#restaurants">Explorar restaurantes</a></div>
+  <div class="full fatal"><img src="assets/tovi-triste.svg" alt=""><h2>Não conseguimos carregar o feed</h2><p>Erro ao carregar atividade: API 500</p><button class="cta">Tentar novamente</button></div>
+  <div class="list" id="list"></div>
+  <button class="more"><i class="spin"></i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>Carregar mais</button>
+</main>
+<div class="bn"><i>Início</i><i>Restaurantes</i><i class="on">Feed</i><i>Listas</i><i>Perfil</i></div>
+<script src="feed.js"></script><script>init("a")</script>
+</body></html>
