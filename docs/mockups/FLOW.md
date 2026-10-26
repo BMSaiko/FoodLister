@@ -224,3 +224,38 @@ Fonte: `app/users/settings/page.tsx` (517 linhas), `app/users/settings/notificat
 ## Fluxo
 - Chega de: menu de utilizador da `Navbar` (linha 231), `ProfileStickyNavbar` (push), cabeçalho do perfil próprio `UserProfileHeader` (botão), `/subscribe/success` (só para notificações).
 - Segue para: `/restaurants` (guardar), página anterior (cancelar), `/users/{userIdCode}` (ver perfil), `/users/settings/notifications`, `/auth/signin` (sem sessão).
+
+---
+
+# Fluxo e inventário: `/feed` (atividade)
+
+Fonte: `app/feed/page.tsx` (133 linhas), `app/api/feed/route.ts`, `libs/feed.ts` (lido a 2026-10-26).
+
+## Funcionalidades
+| # | Funcionalidade | Detalhe |
+|---|---|---|
+| 1 | Título | «Feed» (`usePageTitle`), ícone `atividade` + h1 |
+| 2 | Auth | a API devolve 401 sem sessão; a página não redireciona, mostra «Erro ao carregar atividade: API 401» |
+| 3 | Item `review` | «{ator} fez um review em {restaurante}»; link `/restaurants/{slug}` |
+| 4 | Item `list` | «{ator} criou a lista {nome}»; link `/lists/{slug}`; só listas públicas |
+| 5 | Item `follow` | «{ator} começou a seguir {utilizador}»; link `/users/{código}` |
+| 6 | Cartão clicável | todo o cartão é link para o destino do item |
+| 7 | Avatar | imagem, ou ícone `perfil` se não houver; com `user_id_code` leva a `/users/{código}` (sem propagar o clique do cartão) |
+| 8 | Tempo relativo | «Agora mesmo», «há Nmin», «há Nh», «há Nd», depois `dd/mm/aaaa` |
+| 9 | Privacidade | atores com perfil privado ficam de fora; sem perfil = visível |
+| 10 | Ordem e janela | mais recente primeiro; 30 por fonte, 15 por página |
+| 11 | Carregar mais | botão só com `hasMore`; spinner enquanto carrega; acrescenta |
+| 12 | Loading inicial | `ToviLoader` centrado |
+| 13 | Vazio | Tovi a dormir, «Ainda sem atividade», CTA «Explorar restaurantes» (`/restaurants`) |
+| 14 | Erro | texto vermelho por cima da lista (não substitui o conteúdo; sem «tentar de novo») |
+| 15 | Navbar + título | mantêm-se |
+
+## Achados (a decidir com o BMS)
+- Nenhum link da app aponta para `/feed` (só se chega por URL): propor entrada na navegação.
+- Erro sem recuperação: propor ecrã Tovi com «Tentar novamente».
+- Erro ao «Carregar mais» não tem estado próprio (o `loading` nunca volta a `true` no append, o spinner depende do mesmo flag).
+- Cartão `<a>` dentro de `<a>` (avatar dentro do cartão): HTML inválido, resolver na implementação.
+
+## Fluxo
+- Chega de: URL direto (sem entrada na `Navbar`).
+- Segue para: `/restaurants/{slug}`, `/lists/{slug}`, `/users/{código}`, `/restaurants` (vazio).

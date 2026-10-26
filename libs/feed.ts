@@ -3,6 +3,7 @@
 // ponytail: janela recente fixa por fonte; RPC/View no Postgres p/ true full-history.
 
 export const SOURCE_LIMIT = 30;
+export const LIST_COVERS = 3;
 
 interface RawProfile { user_id: string; display_name?: string | null; avatar_url?: string | null; user_id_code?: string | null; public_profile?: boolean | null; }
 
@@ -12,7 +13,15 @@ export interface FeedItem {
   actor: { name: string; avatar: string | null; user_id_code: string | null };
   text: string;
   link: string;
+  images: string[]; // review: foto do restaurante; lista: até 3 capas; follow: []
   createdAt: string;
+}
+
+// Foto de capa do restaurante (mesma regra de /api/lists: display_image_index, senão a primeira)
+export function restaurantImage(r: { images?: string[] | null; display_image_index?: number | null } | null | undefined): string[] {
+  const imgs = r?.images || [];
+  const img = imgs[r?.display_image_index ?? 0] || imgs[0];
+  return img ? [img] : [];
 }
 
 export function buildFeedItems(
@@ -21,7 +30,8 @@ export function buildFeedItems(
   follows: any[],
   profileRows: RawProfile[],
   offset: number,
-  limit: number
+  limit: number,
+  listImages: Record<string, string[]> = {}
 ): { data: FeedItem[]; total: number; hasMore: boolean } {
   const profileMap = new Map(profileRows.map((p) => [p.user_id, p]));
 
@@ -40,6 +50,7 @@ export function buildFeedItems(
       actor: actor(r.user_id, r.user_name),
       text: `fez um review em ${r.restaurants?.name || "um restaurante"}`,
       link: `/restaurants/${r.restaurants?.slug || r.restaurants?.id || ""}`,
+      images: restaurantImage(r.restaurants),
       createdAt: r.created_at,
     });
   }
@@ -50,6 +61,7 @@ export function buildFeedItems(
       actor: actor(l.creator_id, l.creator_name),
       text: `criou a lista ${l.name || ""}`,
       link: `/lists/${l.slug || l.id}`,
+      images: (listImages[l.id] || []).slice(0, LIST_COVERS),
       createdAt: l.created_at,
     });
   }
@@ -61,6 +73,7 @@ export function buildFeedItems(
       actor: actor(f.follower_id, ""),
       text: `começou a seguir ${target?.display_name || "outro utilizador"}`,
       link: `/users/${target?.user_id_code || f.following_id}`,
+      images: [],
       createdAt: f.created_at,
     });
   }
