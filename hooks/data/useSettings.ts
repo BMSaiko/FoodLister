@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import { useLocalStorage } from '../utilities/useLocalStorage';
 
 interface UserProfile {
   id: string;
@@ -54,6 +55,7 @@ export const useSettings = (): UseSettingsResult => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { removeByPrefix } = useLocalStorage();
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -119,7 +121,8 @@ export const useSettings = (): UseSettingsResult => {
       
       // API already returns data in camelCase format, no transformation needed
       setProfile(result.profile);
-      toast.success('Profile updated successfully!');
+      // O perfil público (useUserData) tem cache de 5 min; sem isto mostra a foto antiga
+      removeByPrefix('user_profile_');
       return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error updating profile';
@@ -129,7 +132,7 @@ export const useSettings = (): UseSettingsResult => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [removeByPrefix]);
 
   const uploadImage = useCallback(async (file: File): Promise<string> => {
     try {
@@ -140,7 +143,6 @@ export const useSettings = (): UseSettingsResult => {
       const { uploadToCloudinary } = await import('@/utils/cloudinaryConverter');
       const imageUrl = await uploadToCloudinary(file);
       
-      toast.success('Image uploaded successfully!');
       return imageUrl;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error uploading image';

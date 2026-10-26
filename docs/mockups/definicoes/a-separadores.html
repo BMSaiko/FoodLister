@@ -1,0 +1,68 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Definições - FoodLister (A separadores laterais)</title><link rel="stylesheet" href="shared.css">
+<style>
+.layout{display:grid;grid-template-columns:220px 1fr;gap:32px;align-items:start}
+.side{position:sticky;top:20px;display:flex;flex-direction:column;gap:4px}
+.side button,.side a{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border-radius:10px;border:0;background:none;color:var(--mut);font:inherit;font-size:14px;text-align:left;cursor:pointer}
+.side button:hover,.side a:hover{background:rgba(255,255,255,.04);color:var(--fg)}
+.side button[aria-selected=true]{background:rgba(245,158,11,.12);color:var(--ph)}
+.side hr{border:0;border-top:1px solid var(--line);width:100%;margin:8px 0}
+.panel{display:none}.panel.on{display:block}
+.head{margin-bottom:20px}
+@media(max-width:720px){.layout{grid-template-columns:1fr;gap:16px}.side{position:static;flex-direction:row;overflow-x:auto;gap:6px;margin:0 -16px;padding:0 16px}.side button,.side a{flex:none;border:1px solid var(--line)}.side hr{display:none}}
+</style></head><body>
+<header class="nav"><img src="assets/lockup-dark.svg" alt="FoodLister"><span class="me">A</span></header>
+<div class="skel"></div>
+<div class="toast" role="status">Perfil atualizado.</div>
+<div class="full"><div><img src="assets/tovi-triste.svg" alt=""><h1>Erro ao carregar perfil</h1><p class="sub">Não foi possível obter os seus dados.</p><button class="btn" type="button">Tentar novamente</button></div></div>
+<main class="wrap page">
+<div class="head"><h1>Definições</h1><p class="sub">Gere as suas informações pessoais e privacidade.</p></div>
+<div class="layout">
+<nav class="side" role="tablist" aria-label="Secções das definições">
+<button role="tab" aria-selected="true" aria-controls="p1" data-t="p1">Perfil</button>
+<button role="tab" aria-selected="false" aria-controls="p2" data-t="p2">Privacidade</button>
+<button role="tab" aria-selected="false" aria-controls="p3" data-t="p3">Estatísticas</button>
+<hr><a href="#">Notificações<span class="tag">novo acesso</span></a>
+</nav>
+<form onsubmit="return false">
+<div class="banner error" role="alert">Por favor, corrija os erros.</div>
+
+<section class="panel on" id="p1" role="tabpanel">
+<div class="card"><header><h2>Foto de perfil</h2></header>
+<div class="row"><div class="avatar" id="avatar"></div><div><button type="button" class="upl" id="upl">Alterar foto</button><div class="hint" style="justify-content:flex-start">JPG, PNG ou GIF. Máx. 5 MB. Guarda logo ao escolher.</div></div></div></div>
+<div class="card"><header><h2>Informações pessoais</h2></header>
+<div class="grid">
+<div class="field span2" id="f-name"><label for="name">Nome de exibição <em>*</em></label><input id="name" autocomplete="name" placeholder="O seu nome" aria-describedby="e-name"><div class="err" id="e-name" role="alert">Nome de exibição é obrigatório.</div></div>
+<div class="field"><label for="email">Email</label><input id="email" type="email" value="ana.ferreira@exemplo.pt" readonly><div class="hint">O email não pode ser alterado.</div></div>
+<div class="field"><label for="phone">Telefone</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+351 912 345 678"></div>
+<div class="field"><label for="loc">Localização</label><input id="loc" autocomplete="address-level2" placeholder="Porto, Portugal"></div>
+<div class="field" id="f-web"><label for="web">Website</label><input id="web" type="url" inputmode="url" autocomplete="url" placeholder="https://o-seu-site.com"><div class="err" role="alert">Formato de URL inválido.</div></div>
+<div class="field span2"><label for="bio">Bio</label><textarea id="bio" maxlength="500" rows="4" placeholder="Conte um pouco sobre si..."></textarea><div class="hint"><span>Máximo 500 caracteres</span><span id="count">0/500</span></div></div>
+</div></div>
+</section>
+
+<section class="panel" id="p2" role="tabpanel">
+<div class="card"><header><h2>Privacidade do perfil</h2><p>Escolha quem pode ver o seu perfil. A alteração guarda logo.</p></header>
+<div role="radiogroup" aria-label="Privacidade">
+<button type="button" role="radio" class="opt" data-priv="public" aria-checked="true"><i class="dot"></i><div><b>Perfil público</b><span>Qualquer pessoa pode encontrar e ver o seu perfil.</span></div></button>
+<button type="button" role="radio" class="opt" data-priv="private" aria-checked="false"><i class="dot"></i><div><b>Perfil privado</b><span>Apenas você pode ver o seu perfil.</span></div></button>
+</div></div>
+<a class="linkrow" data-view href="#" style="margin-top:16px"><div>Ver perfil público<small>Como outros utilizadores veem o seu perfil.</small></div><span>→</span></a>
+</section>
+
+<section class="panel" id="p3" role="tabpanel">
+<div class="card"><header><h2>Estatísticas</h2><p>O seu impacto na comunidade FoodLister. Membro desde março de 2026.</p></header>
+<div class="stats"><div class="stat"><b id="s1">0</b><span>Reviews</span></div><div class="stat"><b id="s2">0</b><span>Listas</span></div><div class="stat"><b id="s3">0</b><span>Adicionados</span></div></div></div>
+</section>
+
+<section class="panel" id="p4" role="tabpanel" hidden></section>
+</form>
+</div></main>
+<div class="actions"><div><div class="pill" role="group" aria-label="Ações do formulário"><button class="ghost" type="button">Cancelar</button><button class="btn" type="submit"><span class="spin"></span><span id="btnlbl">Guardar</span></button></div></div></div>
+<nav class="bn" aria-hidden="true"><i>Início</i><i>Explorar</i><i>Mapa</i><i>Listas</i><i class="on">Perfil</i></nav>
+<script src="states.js"></script>
+<script>
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("[data-t]").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("on",p.id===b.dataset.t));
+});
+</script></body></html>

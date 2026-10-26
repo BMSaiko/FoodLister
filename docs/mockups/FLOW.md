@@ -182,3 +182,45 @@ Lista mobile sem rating, sem aviso de sem-coordenadas e cortada a 30; sem filtro
 ## Fluxo
 - Chega de: Navbar/barra inferior («Mapa»), links «ver no mapa» em `restaurants/[id]` (HeroSection) e importação Google Maps.
 - Segue para: `/restaurants/{slug|id}` (Explorar no popup), `/restaurants/no-coords` (aviso).
+
+---
+
+# Fluxo e inventário: `/users/settings` (definições)
+
+Fonte: `app/users/settings/page.tsx` (517 linhas), `app/users/settings/notifications/page.tsx`, `hooks/data/useSettings.ts`, `Navbar.tsx` (lido a 2026-10-26).
+
+## Funcionalidades
+| # | Funcionalidade | Detalhe |
+|---|---|---|
+| 1 | Título da página | «Definições - FoodLister» (`usePageTitle`); h1 «Configurações» + subtítulo |
+| 2 | Guarda de auth | sem sessão redireciona para `/auth/signin` |
+| 3 | Separadores | Perfil, Privacidade, Estatísticas (`role=tablist`, 44px, estado só local, sem URL) |
+| 4 | Foto de perfil | preview ou ícone; upload `image/*` (JPG/PNG/GIF, max 5MB) grava logo (`uploadImage` + `saveProfile`), toast sucesso/erro |
+| 5 | Nome de exibição | obrigatório, erro inline `display_name` |
+| 6 | Email | só leitura, nota «não pode ser alterado» |
+| 7 | Telefone | `tel`, opcional |
+| 8 | Localização | texto, opcional |
+| 9 | Website | `url`, valida com `new URL`, erro inline |
+| 10 | Bio | textarea, máx. 500, contador, erro inline |
+| 11 | Privacidade | opção Público / Privado; clique grava logo (`handlePrivacyToggle`), toast |
+| 12 | Ver perfil público | link para `/users/{userIdCode}` (só se existir) |
+| 13 | Estatísticas | reviews, listas, restaurantes adicionados (0 por defeito); `joinedDate` existe nos dados mas não é mostrado |
+| 14 | Guardar | submit; valida, spinner e campos desativados; sucesso abre modal «Perfil Atualizado!» e vai para `/restaurants` após 2,5 s |
+| 15 | Cancelar | `router.back()` |
+| 16 | Barra de ações | fixa acima da tab bar em mobile, estática em `md+` |
+| 17 | Erro geral | `error` do hook: ecrã com «Tentar Novamente» (`refreshProfile`) |
+| 18 | Perfil não encontrado | ecrã com «Tentar Novamente» |
+| 19 | Loading | `ToviLoader` + «Carregando perfil...» |
+| 20 | ScrollToTop + Navbar | mantêm-se |
+| 21 | Preferências de notificações | subpágina `/users/settings/notifications` (8 interruptores: email, push, resumo semanal, convites, colaboradores, atividade, sistema; nota sobre permissões push). **Não há link para ela na página de definições**: só chega de `/subscribe/success` |
+| 22 | i18n | textos via `t()` |
+
+## Achados (a decidir com o BMS)
+- Notificações sem entrada na UI de definições (#21): propor ligação visível; muda o fluxo.
+- Bug: `publicProfile: p?.publicProfile || true` em `handleSubmit` força sempre `true` (privado volta a público ao guardar). Corrigir na implementação, contrato de API inalterado.
+- Guardar redireciona para `/restaurants` em vez de ficar nas definições.
+- Cores fora da paleta nas estatísticas (azul/verde), vermelho/verde na privacidade.
+
+## Fluxo
+- Chega de: menu de utilizador da `Navbar` (linha 231), `ProfileStickyNavbar` (push), cabeçalho do perfil próprio `UserProfileHeader` (botão), `/subscribe/success` (só para notificações).
+- Segue para: `/restaurants` (guardar), página anterior (cancelar), `/users/{userIdCode}` (ver perfil), `/users/settings/notifications`, `/auth/signin` (sem sessão).
