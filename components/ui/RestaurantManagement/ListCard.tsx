@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Globe, Lock, Trash2, User, Heart, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import type { List } from '@/libs/types';
 import ListCardCover from '@/components/ui/lists/ListCardCover';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ListCardProps {
   list: List & { restaurants?: any[] };
@@ -86,7 +86,7 @@ const ListCard = ({ list, restaurantCount = 0, isAdmin = false, onDelete }: List
         </div>
         <div className="flex items-center justify-between gap-2">
           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${isPublic ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-            {isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+            {isPublic ? <Icon name="globo" className="w-3 h-3" /> : <Icon name="privado" className="w-3 h-3" />}
             {isPublic ? 'Pública' : 'Privada'}
           </span>
           <span className="text-xs text-[var(--foreground-muted)]">
@@ -118,13 +118,13 @@ const ListCard = ({ list, restaurantCount = 0, isAdmin = false, onDelete }: List
               className="inline-flex items-center gap-1 hover:text-[var(--primary)] hover:underline transition-colors"
               title={creator}
             >
-              <User className="w-3 h-3" />
+              <Icon name="perfil" className="w-3 h-3" />
               <span className="truncate max-w-[110px]">{creator}</span>
             </Link>
           )}
           {likeCount > 0 && (
             <span className="inline-flex items-center gap-1 text-red-400/80">
-              <Heart className="w-3 h-3 fill-current" /> {likeCount}
+              <Icon name="coracao" className="w-3 h-3 fill-current" /> {likeCount}
             </span>
           )}
         </div>
@@ -133,14 +133,14 @@ const ListCard = ({ list, restaurantCount = 0, isAdmin = false, onDelete }: List
 
       <div className="absolute z-[5] top-2.5 right-2.5 flex gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity [@media(hover:none)]:opacity-100">
         <button type="button" onClick={handleLike} aria-pressed={liked} aria-label={`Gostar de ${list.name}`} className={`${actBtn} ${liked ? 'text-red-400' : ''}`}>
-          <Heart className={`w-[18px] h-[18px] ${liked ? 'fill-current' : ''}`} />
+          <Icon name="coracao" className={`w-[18px] h-[18px] ${liked ? 'fill-current' : ''}`} />
         </button>
         <button type="button" onClick={handleShare} aria-label={`Partilhar ${list.name}`} className={actBtn}>
-          <Share2 className="w-[18px] h-[18px]" />
+          <Icon name="partilhar" className="w-[18px] h-[18px]" />
         </button>
         {isAdmin && (
           <button type="button" onClick={handleDelete} disabled={isDeleting} aria-label={`Eliminar lista ${list.name}`} className={actBtn}>
-            <Trash2 className="w-[18px] h-[18px]" />
+            <Icon name="apagar" className="w-[18px] h-[18px]" />
           </button>
         )}
       </div>

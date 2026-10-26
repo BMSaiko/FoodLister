@@ -429,7 +429,7 @@ const nextConfig = {
   // Performance optimizations
   experimental: {
     // Enable optimizePackageImports for better tree shaking
-    optimizePackageImports: ['lucide-react', '@supabase/supabase-js'],
+    optimizePackageImports: ['@supabase/supabase-js'],
   },
   
   // Headers for security and performance

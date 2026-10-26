@@ -2,11 +2,11 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React from "react";
-import { MapPin } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useModal } from "@/contexts/ModalContext";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCardActionsProps {
   restaurant: {
@@ -83,7 +83,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
           className="px-3 py-1.5 rounded-full bg-white/[0.03] text-[var(--foreground-secondary)] hover:bg-white/[0.06] border border-white/[0.08] flex items-center gap-1.5 cursor-pointer transition-all"
           aria-label="Ver no mapa"
         >
-          <MapPin className="h-4 w-4" />
+          <Icon name="pin" className="h-4 w-4" />
           <span className="text-xs font-medium hidden sm:inline">Mapa</span>
         </button>
 </TooltipFast>

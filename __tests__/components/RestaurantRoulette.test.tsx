@@ -8,16 +8,6 @@ jest.mock('next/link', () => {
   );
 });
 
-// Mock lucide-react icons
-jest.mock('lucide-react', () => ({
-  Shuffle: () => <span data-testid="shuffle-icon" />,
-  X: () => <span data-testid="x-icon" />,
-  ExternalLink: () => <span data-testid="external-link-icon" />,
-  MapPin: () => <span data-testid="map-pin-icon" />,
-  Star: () => <span data-testid="star-icon" />,
-  EuroSign: () => <span data-testid="euro-sign-icon" />,
-}));
-
 // Mock the RestaurantRoulette component since it's JSX and uses style jsx
 const MockRestaurantRoulette = ({ restaurants, onClose }: { restaurants: any[], onClose: () => void }) => {
   const [selectedRestaurant, setSelectedRestaurant] = React.useState<any>(null);

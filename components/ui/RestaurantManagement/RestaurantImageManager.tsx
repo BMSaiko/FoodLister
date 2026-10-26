@@ -1,9 +1,9 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Image as ImageIcon, Star } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import Image from 'next/image';
+import Icon from '@/components/ui/icons/Icon';
 
 /**
  * RestaurantImageManager component - manages multiple restaurant images with display image selection
@@ -138,7 +138,7 @@ export default function RestaurantImageManager({
       {/* Header with counter */}
       <div className="flex items-center justify-between">
         <div className="flex items-center text-sm text-[var(--gray-600)]">
-          <ImageIcon className="h-4 w-4 mr-2 text-[var(--amber-500)]" />
+          <Icon name="imagem" className="h-4 w-4 mr-2 text-[var(--amber-500)]" />
           {label}
           <span className="ml-2 px-2 py-0.5 bg-[var(--amber-100)] text-[var(--amber-700)] rounded-full text-xs font-medium">
             {localImages.length}/{max}
@@ -146,7 +146,7 @@ export default function RestaurantImageManager({
         </div>
         {selectedDisplayIndex >= 0 && localImages.length > 0 && (
           <div className="flex items-center text-xs text-[var(--amber-600)] bg-[var(--amber-50)] px-2 py-1 rounded-md">
-            <Star className="h-3 w-3 mr-1 fill-current" />
+            <Icon name="estrela" className="h-3 w-3 mr-1 fill-current" />
             Imagem principal: {selectedDisplayIndex + 1}
           </div>
         )}
@@ -181,7 +181,7 @@ export default function RestaurantImageManager({
                 {/* Display image indicator */}
                 {selectedDisplayIndex === index && (
                   <div className="absolute top-2 left-2 bg-[var(--amber-500)] text-[var(--primary-foreground)] px-2 py-1 rounded-full text-xs font-medium flex items-center shadow-lg">
-                    <Star className="h-3 w-3 mr-1 fill-current" />
+                    <Icon name="estrela" className="h-3 w-3 mr-1 fill-current" />
                     Principal
                   </div>
                 )}
@@ -204,7 +204,7 @@ export default function RestaurantImageManager({
                       } shadow-lg`}
                       title={selectedDisplayIndex === index ? "Imagem principal" : "Definir como imagem principal"}
                     >
-                      <Star className={`h-4 w-4 ${selectedDisplayIndex === index ? 'fill-current' : ''}`} />
+                      <Icon name="estrela" className={`h-4 w-4 ${selectedDisplayIndex === index ? 'fill-current' : ''}`} />
                     </button>
                     <button
                       type="button"
@@ -212,7 +212,7 @@ export default function RestaurantImageManager({
                       className="p-2 bg-[var(--red-500)] text-[var(--primary-foreground)] rounded-full hover:bg-[var(--red-600)] transition-all duration-200 shadow-lg"
                       data-tooltip="Remover imagem"
                     >
-                      <X className="h-4 w-4" />
+                      <Icon name="fechar" className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -250,7 +250,7 @@ export default function RestaurantImageManager({
                   }`}
                   data-tooltip="Definir como imagem principal"
                 >
-                  <Star className={`h-3 w-3 ${selectedDisplayIndex === index ? 'fill-current' : ''}`} />
+                  <Icon name="estrela" className={`h-3 w-3 ${selectedDisplayIndex === index ? 'fill-current' : ''}`} />
                   {selectedDisplayIndex === index ? 'Principal' : 'Definir'}
                 </button>
               </div>
@@ -259,7 +259,7 @@ export default function RestaurantImageManager({
         </div>
       ) : (
         <div className="text-center py-12 px-6 bg-[rgba(var(--amber-50),0.5)] rounded-xl border-2 border-dashed border-[var(--amber-200)]">
-          <ImageIcon className="h-12 w-12 mx-auto text-[var(--amber-400)] mb-4" />
+          <Icon name="imagem" className="h-12 w-12 mx-auto text-[var(--amber-400)] mb-4" />
           <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">{t('Nenhuma imagem adicionada')}</h3>
           <p className="text-sm text-[var(--amber-600)] mb-4">{t('Adicione imagens do restaurante para criar um carrossel atrativo')}</p>
           <p className="text-xs text-[var(--amber-500)]">A primeira imagem adicionada será automaticamente definida como principal</p>

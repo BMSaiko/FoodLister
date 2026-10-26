@@ -1,12 +1,13 @@
 'use client';
 
+import type { IconName } from '@/components/ui/icons/names';
 import React from 'react';
-import { Check, ChevronLeft, ChevronRight, Save } from 'lucide-react';
+import AppIcon from '@/components/ui/icons/Icon';
 
 export interface WizardStep {
   id: number;
   label: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: IconName;
 }
 
 interface FormStepperProps {
@@ -33,7 +34,7 @@ export function FormStepper({ steps, currentStep, onStepClick }: FormStepperProp
         {steps.map((step) => {
           const isActive = step.id === currentStep;
           const isCompleted = step.id < currentStep;
-          const Icon = step.icon;
+          const stepIcon = step.icon;
           const tone = isActive
             ? 'bg-[var(--primary)] text-black'
             : isCompleted
@@ -51,9 +52,9 @@ export function FormStepper({ steps, currentStep, onStepClick }: FormStepperProp
             >
               <span className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${tone}`}>
                 {isCompleted ? (
-                  <Check className="w-4 h-4" />
-                ) : Icon ? (
-                  <Icon className="w-4 h-4" />
+                  <AppIcon name="visto" className="w-4 h-4" />
+                ) : stepIcon ? (
+                  <AppIcon name={stepIcon} className="w-4 h-4" />
                 ) : (
                   <span className="text-sm font-semibold">{step.id}</span>
                 )}
@@ -94,20 +95,20 @@ export function WizardNav({ currentStep, totalSteps, onPrevious, onNext, onCance
             </button>
           )}
           <button type="button" onClick={onPrevious} disabled={currentStep === 1} className={ghost}>
-            <ChevronLeft className="w-4 h-4" />
+            <AppIcon name="chevron-esq" className="w-4 h-4" />
             Anterior
           </button>
         </div>
         {/* keys distintas: sem elas o React reaproveita o nó e o clique em «Seguinte» submete */}
         {isLast ? (
           <button key="submit" type="submit" disabled={saving} className={primary}>
-            <Save className="w-4 h-4" />
+            <AppIcon name="guardar" className="w-4 h-4" />
             {saving ? 'A guardar...' : submitLabel}
           </button>
         ) : (
           <button key="next" type="button" onClick={onNext} className={primary}>
             Seguinte
-            <ChevronRight className="w-4 h-4" />
+            <AppIcon name="chevron-dir" className="w-4 h-4" />
           </button>
         )}
       </div>

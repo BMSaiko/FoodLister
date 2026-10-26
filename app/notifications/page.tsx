@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, ArrowLeft, Inbox } from 'lucide-react';
 import Link from 'next/link';
 import EmptyState from '@/components/ui/EmptyState';
 import Navbar from '@/components/ui/navigation/Navbar';
@@ -15,19 +14,20 @@ import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import AppIcon from '@/components/ui/icons/Icon';
 
 const ITEM_VARIANTS = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } };
 
 function getNotificationIcon(type: string, size: 'sm' | 'md' = 'md') {
   const cls = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
   switch (type) {
-    case 'meal_invitation': return <CalendarPlus className={`${cls} text-amber-400`} />;
-    case 'meal_reminder': return <Clock className={`${cls} text-orange-400`} />;
-    case 'review_created': return <Star className={`${cls} text-yellow-400`} />;
-    case 'comment_reply': return <MessageCircle className={`${cls} text-blue-400`} />;
-    case 'list_invite': return <ListPlus className={`${cls} text-emerald-400`} />;
-    case 'list_update': return <ListChecks className={`${cls} text-teal-400`} />;
-        default: return <Bell className={`${cls} text-white/30`} />;
+    case 'meal_invitation': return <AppIcon name="calendario-mais" className={`${cls} text-amber-400`} />;
+    case 'meal_reminder': return <AppIcon name="horario" className={`${cls} text-orange-400`} />;
+    case 'review_created': return <AppIcon name="estrela" className={`${cls} text-yellow-400`} />;
+    case 'comment_reply': return <AppIcon name="mensagem" className={`${cls} text-blue-400`} />;
+    case 'list_invite': return <AppIcon name="lista-mais" className={`${cls} text-emerald-400`} />;
+    case 'list_update': return <AppIcon name="lista-ok" className={`${cls} text-teal-400`} />;
+        default: return <AppIcon name="sino" className={`${cls} text-white/30`} />;
   }
 }
 
@@ -146,7 +146,7 @@ function NotificationItem({ notification, onDelete, onRead }: {
                   className="p-2 rounded-lg text-white/20 hover:text-[var(--primary)] hover:bg-white/[0.04] transition-colors"
                   aria-label="Marcar como lida"
                 >
-                  <Check className="h-4 w-4" />
+                  <AppIcon name="visto" className="h-4 w-4" />
                 </button>
               )}
               <button
@@ -154,7 +154,7 @@ function NotificationItem({ notification, onDelete, onRead }: {
                 className="p-2 rounded-lg text-white/20 hover:text-[var(--error)] hover:bg-white/[0.04] transition-colors"
                 aria-label="Apagar notificação"
               >
-                <Trash2 className="h-4 w-4" />
+                <AppIcon name="apagar" className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -243,7 +243,7 @@ export default function NotificationsPage() {
                   onClick={markAllAsRead}
                   className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)] text-black text-sm font-semibold hover:bg-[var(--primary-hover)] transition-colors min-h-[40px]"
                 >
-                  <Check className="h-4 w-4" />
+                  <AppIcon name="visto" className="h-4 w-4" />
                   <span className="hidden sm:inline">Marcar todas</span>
                 </button>
               ) : undefined

@@ -6,8 +6,8 @@
 "use client";
 
 import React from 'react';
-import { AlertCircle } from 'lucide-react';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface BaseFormProps {
   children: React.ReactNode;
@@ -62,7 +62,7 @@ export default function BaseForm({
         {/* Error Display */}
         {error && (
           <div className="bg-[var(--error-light)] text-[var(--error)] p-4 rounded-xl mb-6 border border-[var(--error-light)] flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <Icon name="alerta-circulo" className="h-5 w-5 flex-shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
@@ -130,7 +130,7 @@ export function FormField({ label, error, required, children, className = '', he
       )}
       {error && (
         <p className="text-sm text-[var(--error)] mt-1 flex items-center gap-1">
-          <AlertCircle className="h-4 w-4" />
+          <Icon name="alerta-circulo" className="h-4 w-4" />
           {error}
         </p>
       )}

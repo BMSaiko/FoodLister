@@ -1,11 +1,12 @@
 "use client";
 
+import type { IconName } from '@/components/ui/icons/names';
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, {  useRef } from 'react';
-import { X, MapPin, Navigation, Globe } from 'lucide-react';
 import { logError } from '@/utils/logger';
 import { useModal } from '@/contexts/ModalContext';
 import Modal from '@/components/ui/Modal';
+import AppIcon from '@/components/ui/icons/Icon';
 
 export default function MapSelectorModal() {
   const { isMapModalOpen, mapModalData, closeMapModal } = useModal();
@@ -50,7 +51,7 @@ export default function MapSelectorModal() {
       const mapOptions = [
         {
           name: 'Google Maps',
-          icon: MapPin,
+          icon: 'pin',
           url: source_url || (hasValidCoords
             ? `https://maps.google.com/?ll=${latitude},${longitude}`
             : 'https://maps.google.com/'),
@@ -59,7 +60,7 @@ export default function MapSelectorModal() {
         },
         {
           name: 'Waze',
-          icon: Navigation,
+          icon: 'navegar',
           url: hasValidCoords
             ? `https://waze.com/ul?ll=${latitude},${longitude}&navigate=yes`
             : 'https://waze.com/',
@@ -68,7 +69,7 @@ export default function MapSelectorModal() {
         },
         {
           name: 'Apple Maps',
-          icon: Globe,
+          icon: 'globo',
           url: (hasValidCoords && validLocation)
             ? `https://maps.apple.com/?q=${encodeURIComponent(location.trim())}&ll=${latitude},${longitude}`
             : hasValidCoords
@@ -94,7 +95,7 @@ export default function MapSelectorModal() {
         {/* Header */}
         <div className="flex justify-between items-center p-3 sm:p-4 border-b border-white/[0.08]">
           <div className="flex items-center">
-            <MapPin className="h-5 w-5 mr-2 text-white/60" />
+            <AppIcon name="pin" className="h-5 w-5 mr-2 text-white/60" />
             <h2 id="map-modal-title" className="text-lg font-semibold text-white/80">Abrir localização em</h2>
           </div>
           <TooltipFast content="Fechar">
@@ -104,7 +105,7 @@ export default function MapSelectorModal() {
             className="text-white/40 hover:text-white/60 p-1 rounded-md hover:bg-[var(--gray-100)] transition-colors"
             aria-label="Fechar"
           >
-            <X className="h-5 w-5" />
+            <AppIcon name="fechar" className="h-5 w-5" />
           </button>
 </TooltipFast>
         </div>
@@ -114,7 +115,7 @@ export default function MapSelectorModal() {
           {/* Prominent location display */}
           {validLocation && (
             <div className="mb-3 sm:mb-4 p-3 bg-[var(--blue-50)] rounded-lg border border-[var(--blue-100)] flex items-center">
-              <MapPin className="h-4 w-4 mr-2 text-[var(--blue-600)] flex-shrink-0" />
+              <AppIcon name="pin" className="h-4 w-4 mr-2 text-[var(--blue-600)] flex-shrink-0" />
               <span className="text-sm text-[var(--blue-800)] font-medium truncate">{location}</span>
             </div>
           )}
@@ -142,14 +143,13 @@ export default function MapSelectorModal() {
 
           <div className="space-y-3 sm:space-y-4">
             {mapOptions.map((option, index) => {
-              const Icon = option.icon;
               return (
                 <button
                   key={option.name}
                   onClick={() => handleOpenMap(option.url)}
                   className={`w-full flex items-center justify-center px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 ${option.color} ${option.textColor} font-medium text-sm sm:text-base hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--blue-600)] border border-transparent`}
                 >
-                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
+                  <AppIcon name={option.icon as IconName} className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 flex-shrink-0" />
                   {option.name}
                 </button>
               );

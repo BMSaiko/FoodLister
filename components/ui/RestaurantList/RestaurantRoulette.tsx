@@ -4,7 +4,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/libs/supabase/client';
 import { useAuth } from '@/contexts';
-import { RotateCcw, ChefHat, X, Search, Plus, Check, Sparkles, Save, Clock, ArrowUp } from 'lucide-react';
 import Link from 'next/link';
 import RestaurantCard from '../RestaurantCard';
 import { toast } from 'react-toastify';
@@ -12,6 +11,7 @@ import RouletteFilters from '../Filters/RouletteFilters';
 import { useFiltersLogic } from '@/hooks/forms/useFiltersLogic';
 import type { RestaurantWithDetails } from '@/libs/types';
 import Modal from '@/components/ui/Modal';
+import Icon from '@/components/ui/icons/Icon';
 
 interface FilterPreset {
   name: string;
@@ -319,7 +319,7 @@ const RestaurantRoulette = () => {
       <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4">
           <h2 className="text-xl sm:text-2xl font-bold text-white/80 flex items-center">
-            <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-[var(--amber-500)]" />
+            <Icon name="chef" className="h-5 w-5 sm:h-6 sm:w-6 mr-2 text-[var(--amber-500)]" />
             Roleta de Restaurantes
           </h2>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
@@ -327,7 +327,7 @@ const RestaurantRoulette = () => {
               onClick={() => setShowRestaurantSelector(true)}
               className="flex items-center justify-center px-4 py-2.5 sm:py-2 bg-gradient-to-r from-[var(--amber-500)] to-[var(--orange-500)] text-white rounded-lg hover:from-[var(--amber-600)] hover:to-[var(--orange-600)] active:from-[var(--amber-700)] active:to-[var(--orange-700)] transition-all duration-200 min-h-[44px] font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Icon name="mais" className="h-4 w-4 mr-2" />
               Selecionar Restaurantes
             </button>
           </div>
@@ -507,7 +507,7 @@ const RestaurantRoulette = () => {
                 filteredRestaurants.length > 15 ? 'w-14 h-14 sm:w-22 sm:h-22' : 
                 'w-16 h-16 sm:w-24 sm:h-24'
               }`}>
-                <ChefHat className={`text-[var(--amber-500)] ${
+                <Icon name="chef" className={`text-[var(--amber-500)] ${
                   filteredRestaurants.length > 20 ? 'h-4 w-4 sm:h-6 sm:w-6' : 
                   filteredRestaurants.length > 15 ? 'h-5 w-5 sm:h-7 sm:w-7' : 
                   'h-5 w-5 sm:h-8 sm:w-8'
@@ -524,7 +524,7 @@ const RestaurantRoulette = () => {
                 className="px-4 py-3.5 sm:py-3 bg-[var(--gray-200)] text-white/70 rounded-full font-bold text-base sm:text-lg hover:bg-[var(--gray-300)] active:bg-[var(--gray-400)] transition-all flex items-center justify-center gap-2 shadow-lg min-h-[52px] sm:min-h-[48px]"
                 title="Voltar ao topo"
               >
-                <ArrowUp className="h-5 w-5" />
+                <Icon name="seta-cima" className="h-5 w-5" />
               </button>
             )}
             <button
@@ -534,12 +534,12 @@ const RestaurantRoulette = () => {
             >
               {spinning ? (
                 <>
-                  <RotateCcw className="h-5 w-5 animate-spin" />
+                  <Icon name="repor" className="h-5 w-5 animate-spin" />
                   <span>Girando...</span>
                 </>
               ) : (
                 <>
-                  <RotateCcw className="h-5 w-5" />
+                  <Icon name="repor" className="h-5 w-5" />
                   <span>Girar Roleta</span>
                 </>
               )}
@@ -561,11 +561,11 @@ const RestaurantRoulette = () => {
           
           <div className="relative z-10 text-center mb-4 sm:mb-6">
             <div className="inline-flex items-center gap-3 bg-white/[0.06] backdrop-blur-sm rounded-full px-4 py-2 mb-3 sm:mb-4 border border-amber-500/20">
-              <Sparkles className="h-5 w-5 text-[var(--amber-500)] animate-pulse" />
+              <Icon name="faiscas" className="h-5 w-5 text-[var(--amber-500)] animate-pulse" />
               <h3 className="text-xl sm:text-2xl font-bold text-white/80">
                 🎉 Restaurante Escolhido! 🎉
               </h3>
-              <Sparkles className="h-5 w-5 text-[var(--orange-500)] animate-pulse" />
+              <Icon name="faiscas" className="h-5 w-5 text-[var(--orange-500)] animate-pulse" />
             </div>
             <p className="text-sm sm:text-base text-white/60">
               Este é o restaurante selecionado pela roleta
@@ -599,7 +599,7 @@ const RestaurantRoulette = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-[var(--amber-500)] rounded-lg">
-                      <Save className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                      <Icon name="guardar" className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-white/80">Presets de Filtros</h3>
                   </div>
@@ -611,7 +611,7 @@ const RestaurantRoulette = () => {
                   onClick={() => setShowPresets(false)}
                   className="text-white/40 hover:text-white/60 hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <Icon name="fechar" className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
               </div>
             </div>
@@ -652,7 +652,7 @@ const RestaurantRoulette = () => {
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <div className="w-8 h-8 bg-[var(--amber-100)] rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Save className="h-4 w-4 text-[var(--amber-600)]" />
+                          <Icon name="guardar" className="h-4 w-4 text-[var(--amber-600)]" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-white/90 text-sm sm:text-base truncate">
@@ -680,14 +680,14 @@ const RestaurantRoulette = () => {
                           }}
                           className="p-1 text-white/40 hover:text-[var(--red-500)] transition-colors"
                         >
-                          <X className="h-4 w-4" />
+                          <Icon name="fechar" className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="text-center py-12 text-white/50 text-sm sm:text-base">
-                    <Save className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
+                    <Icon name="guardar" className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
                     <p>Nenhum filtro salvo ainda</p>
                     <p className="text-xs text-white/40 mt-1">Salve filtros para usar rapidamente</p>
                   </div>
@@ -719,7 +719,7 @@ const RestaurantRoulette = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-[var(--amber-500)] rounded-lg">
-                      <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                      <Icon name="horario" className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-white/80">Histórico de Roletas</h3>
                   </div>
@@ -731,7 +731,7 @@ const RestaurantRoulette = () => {
                   onClick={() => setShowSpinHistory(false)}
                   className="text-white/40 hover:text-white/60 hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <Icon name="fechar" className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
               </div>
             </div>
@@ -749,7 +749,7 @@ const RestaurantRoulette = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-8 h-8 bg-[var(--amber-100)] rounded-lg flex items-center justify-center flex-shrink-0">
-                              <ChefHat className="h-4 w-4 text-[var(--amber-600)]" />
+                              <Icon name="chef" className="h-4 w-4 text-[var(--amber-600)]" />
                             </div>
                             <div className="font-semibold text-white/90 text-sm sm:text-base truncate">
                               {entry.restaurant.name}
@@ -794,7 +794,7 @@ const RestaurantRoulette = () => {
                   ))
                 ) : (
                   <div className="text-center py-12 text-white/50 text-sm sm:text-base">
-                    <Clock className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
+                    <Icon name="horario" className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
                     <p>Nenhum histórico ainda</p>
                     <p className="text-xs text-white/40 mt-1">Gire a roleta para começar a registrar</p>
                   </div>
@@ -826,7 +826,7 @@ const RestaurantRoulette = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-[var(--amber-500)] rounded-lg">
-                      <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                      <Icon name="chef" className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold text-white/80">Selecionar Restaurantes</h3>
                   </div>
@@ -841,7 +841,7 @@ const RestaurantRoulette = () => {
                   }}
                   className="text-white/40 hover:text-white/60 hover:bg-white/[0.08] rounded-full p-2 transition-colors flex-shrink-0"
                 >
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <Icon name="fechar" className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
               </div>
             </div>
@@ -856,7 +856,7 @@ const RestaurantRoulette = () => {
                   onChange={(e) => setRestaurantSearchQuery(e.target.value)}
                   className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-2 border border-white/[0.1] rounded-lg focus:ring-2 focus:ring-[var(--amber-500)] focus:border-transparent text-base sm:text-sm min-h-[44px] sm:min-h-0"
                 />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-white/40" />
+                <Icon name="pesquisa" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-white/40" />
               </div>
               
               {/* Lista de restaurantes */}
@@ -911,7 +911,7 @@ const RestaurantRoulette = () => {
                                   ? 'bg-[var(--amber-500)] border-[var(--amber-500)] shadow-md'
                                   : 'border-white/[0.1] group-hover:border-[var(--amber-400)] group-hover:shadow-sm'
                               }`}>
-                                {isSelected && <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />}
+                                {isSelected && <Icon name="visto" className="h-3 w-3 sm:h-4 sm:w-4 text-white" />}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="font-semibold text-white/90 text-sm sm:text-base truncate pr-2 group-hover:text-[var(--amber-900)] transition-colors">
@@ -940,7 +940,7 @@ const RestaurantRoulette = () => {
                       })}
                       {filteredRestaurants.length === 0 && (
                         <div className="text-center py-12 text-white/50 text-sm sm:text-base">
-                          <Search className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
+                          <Icon name="pesquisa" className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 text-white/60" />
                           <p>Nenhum restaurante encontrado</p>
                           <p className="text-xs text-white/40 mt-1">Tente ajustar sua busca</p>
                         </div>
@@ -982,7 +982,7 @@ const RestaurantRoulette = () => {
                           }}
                           className="ml-1 sm:ml-2 text-[var(--amber-600)] hover:text-[var(--amber-800)] flex-shrink-0"
                         >
-                          <X className="h-3 w-3" />
+                          <Icon name="fechar" className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
@@ -1005,7 +1005,7 @@ const RestaurantRoulette = () => {
                   onClick={() => setShowRestaurantSelector(false)}
                   className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-gradient-to-r from-[var(--amber-500)] to-[var(--orange-500)] text-white rounded-lg hover:from-[var(--amber-600)] hover:to-[var(--orange-600)] active:from-[var(--amber-700)] active:to-[var(--orange-700)] transition-all duration-200 text-sm sm:text-base min-h-[48px] sm:min-h-[0] font-semibold shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <Check className="h-4 w-4 mr-2 inline" />
+                  <Icon name="visto" className="h-4 w-4 mr-2 inline" />
                   Confirmar ({selectedRestaurantsForRoulette.length})
                 </button>
               </div>

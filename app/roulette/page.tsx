@@ -5,12 +5,12 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import RestaurantCard from "@/components/ui/RestaurantCard";
-import { Shuffle, Sparkles, List } from "lucide-react";
 import RestaurantFilters from "@/components/ui/Filters/RestaurantFilters";
 import NearbyBar from "@/components/ui/Nearby/NearbyBar";
 import { useNearbyRestaurants } from "@/hooks/restaurants/useNearbyRestaurants";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface Restaurant {
   id: string;
@@ -119,7 +119,7 @@ export default function RoulettePage() {
         {/* Hero */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 mb-5">
-            <Sparkles className="h-4 w-4 text-purple-400" />
+            <Icon name="faiscas" className="h-4 w-4 text-purple-400" />
             <span className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Roleta</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-4">
@@ -161,7 +161,7 @@ export default function RoulettePage() {
                     {listLoading === list.id ? (
                       <ToviSpinner className="w-3.5 h-3.5" />
                     ) : (
-                      <List className="h-3.5 w-3.5" />
+                      <Icon name="lista" className="h-3.5 w-3.5" />
                     )}
                     {list.name.length > 18 ? list.name.slice(0, 18) + "..." : list.name}
                     <span className="text-white/25">({list.restaurant_count})</span>
@@ -207,7 +207,7 @@ export default function RoulettePage() {
                   : "bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 text-white hover:shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
               }`}
             >
-              <Shuffle className="h-5 w-5" />
+              <Icon name="baralhar" className="h-5 w-5" />
               <span>Girar Roleta</span>
             </button>
           </div>

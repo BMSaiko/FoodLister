@@ -5,9 +5,9 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import DashboardStats from '@/components/admin/DashboardStats';
 import GrowthChart from '@/components/admin/GrowthChart';
 import Link from 'next/link';
-import { Users, UtensilsCrossed, Star, ArrowUpRight, RefreshCw } from 'lucide-react';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 export default function AdminDashboardPage() {
   usePageTitle("Admin - FoodLister");
@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
             {loading ? (
               <ToviSpinner className="w-4 h-4" />
             ) : (
-              <RefreshCw className='w-4 h-4' />
+              <Icon name="atualizar" className='w-4 h-4' />
             )}
             Atualizar
           </button>
@@ -64,39 +64,39 @@ export default function AdminDashboardPage() {
                   className="group/item flex items-center gap-4 p-3 rounded-xl bg-white/[0.03] ring-1 ring-white/5 hover:bg-white/[0.08] hover:ring-white/15 transition-colors duration-150"
                 >
                   <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center">
-                    <Users className="h-4 w-4 text-amber-400" />
+                    <Icon name="utilizadores" className="h-4 w-4 text-amber-400" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-white">Gerir Utilizadores</p>
                     <p className="text-xs text-white/30">{stats?.users.total || 0} utilizadores</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-white/20 group-hover/item:text-amber-400 " />
+                  <Icon name="seta-diag" className="h-4 w-4 text-white/20 group-hover/item:text-amber-400 " />
                 </Link>
                 <Link
                   href="/admin/restaurants"
                   className="group/item flex items-center gap-4 p-3 rounded-xl bg-white/[0.03] ring-1 ring-white/5 hover:bg-white/[0.08] hover:ring-white/15 transition-colors duration-150"
                 >
                   <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                    <UtensilsCrossed className="h-4 w-4 text-emerald-400" />
+                    <Icon name="refeicoes" className="h-4 w-4 text-emerald-400" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-white">Gerir Restaurantes</p>
                     <p className="text-xs text-white/30">{stats?.restaurants.total || 0} restaurantes</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-white/20 group-hover/item:text-emerald-400 " />
+                  <Icon name="seta-diag" className="h-4 w-4 text-white/20 group-hover/item:text-emerald-400 " />
                 </Link>
                 <Link
                   href="/admin/reviews"
                   className="group/item flex items-center gap-4 p-3 rounded-xl bg-white/[0.03] ring-1 ring-white/5 hover:bg-white/[0.08] hover:ring-white/15 transition-colors duration-150"
                 >
                   <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Star className="h-4 w-4 text-blue-400" />
+                    <Icon name="estrela" className="h-4 w-4 text-blue-400" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-white">Moderar Reviews</p>
                     <p className="text-xs text-white/30">{stats?.reviews.total || 0} reviews</p>
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-white/20 group-hover/item:text-blue-400 " />
+                  <Icon name="seta-diag" className="h-4 w-4 text-white/20 group-hover/item:text-blue-400 " />
                 </Link>
               </div>
             </div>

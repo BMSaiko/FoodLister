@@ -1,5 +1,5 @@
 import React from 'react';
-import { Euro } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface PriceLevelDisplayProps {
   price: number;
@@ -54,10 +54,10 @@ export default function PriceLevelDisplay({
       {/* Price Icons */}
       <div className="flex items-center">
         {Array(priceCategory.level).fill(0).map((_, i) => (
-          <Euro key={i} className={`h-3 w-3 sm:h-4 w-4 ${priceColorClass}`} fill="currentColor" />
+          <Icon name="preco" key={i} className={`h-3 w-3 sm:h-4 w-4 ${priceColorClass}`} fill="currentColor" />
         ))}
         {Array(4 - priceCategory.level).fill(0).map((_, i) => (
-          <Euro key={i + priceCategory.level} className="h-3 w-3 sm:h-4 w-4 text-gray-300" />
+          <Icon name="preco" key={i + priceCategory.level} className="h-3 w-3 sm:h-4 w-4 text-gray-300" />
         ))}
       </div>
 

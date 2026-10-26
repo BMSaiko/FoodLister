@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Filter } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface FilterStatsProps {
   activeFilters: boolean;
@@ -14,7 +14,7 @@ export const FilterStats = React.memo<FilterStatsProps>(({ activeFilters, totalR
 
   return (
     <div className="text-sm text-[var(--foreground-muted)] mb-4 flex items-center">
-      <Filter className="h-3 w-3 mr-1 text-[var(--primary)]" />
+      <Icon name="filtros" className="h-3 w-3 mr-1 text-[var(--primary)]" />
       <span>
         Mostrando {filteredCount} de {totalRestaurants} restaurantes
       </span>

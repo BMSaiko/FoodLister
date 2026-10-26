@@ -3,7 +3,6 @@
 import { useAdminStats } from '@/hooks/admin/useAdminStats';
 import StatsCard from '@/components/admin/StatsCard';
 import GrowthChart from '@/components/admin/GrowthChart';
-import { Users, UtensilsCrossed, Star, List, Shield } from 'lucide-react';
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminStatisticsPage() {
@@ -21,16 +20,16 @@ export default function AdminStatisticsPage() {
       <div>
         <h2 className="text-lg font-semibold mb-3 text-foreground">Utilizadores</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatsCard title="Total" value={stats.users.total} icon={Users} />
+          <StatsCard title="Total" value={stats.users.total} icon="utilizadores" />
           <StatsCard title="Novos este mês" value={stats.users.newThisMonth} />
-          <StatsCard title="Admins" value={stats.users.admins} icon={Shield} />
+          <StatsCard title="Admins" value={stats.users.admins} icon="escudo" />
         </div>
       </div>
 
       <div>
         <h2 className="text-lg font-semibold mb-3 text-foreground">Restaurantes</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatsCard title="Total" value={stats.restaurants.total} icon={UtensilsCrossed} />
+          <StatsCard title="Total" value={stats.restaurants.total} icon="refeicoes" />
           <StatsCard title="Rating médio" value={stats.restaurants.averageRating} />
           <StatsCard title="Novos este mês" value={stats.restaurants.newThisMonth} />
         </div>
@@ -39,7 +38,7 @@ export default function AdminStatisticsPage() {
       <div>
         <h2 className="text-lg font-semibold mb-3 text-foreground">Reviews</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StatsCard title="Total" value={stats.reviews.total} icon={Star} />
+          <StatsCard title="Total" value={stats.reviews.total} icon="estrela" />
           <StatsCard title="Rating médio" value={stats.reviews.averageRating} />
           <StatsCard title="Novos este mês" value={stats.reviews.newThisMonth} />
         </div>
@@ -48,7 +47,7 @@ export default function AdminStatisticsPage() {
       <div>
         <h2 className="text-lg font-semibold mb-3 text-foreground">Listas</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatsCard title="Total" value={stats.lists.total} icon={List} />
+          <StatsCard title="Total" value={stats.lists.total} icon="lista" />
           <StatsCard title="Públicas" value={stats.lists.public} />
           <StatsCard title="Privadas" value={stats.lists.private} />
           <StatsCard title="Colaborativas" value={stats.lists.collaborative} />

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, forwardRef, useRef } from 'react';
-import { Star, Edit, X } from 'lucide-react';
 import { Review } from '@/libs/types';
 import { formatDate } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
 import {  } from 'next/navigation';
 import ReviewForm from './ReviewForm';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantReviewsSectionProps {
   restaurantId: string;
@@ -88,7 +88,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex items-center">
             <div className="bg-amber-500/10 rounded-full p-2 sm:p-3 mr-3 sm:mr-4">
-              <Star className="h-5 w-5 sm:h-6 w-6 text-amber-400 fill-current" />
+              <Icon name="estrela" className="h-5 w-5 sm:h-6 w-6 text-amber-400 fill-current" />
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-white">Avaliações</h2>
@@ -101,7 +101,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
               onClick={() => setShowReviewForm(true)}
               className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors duration-150 font-medium text-sm min-h-[44px]"
             >
-              <Star className="h-4 w-4 fill-current" />
+              <Icon name="estrela" className="h-4 w-4 fill-current" />
               <span className="hidden sm:inline">Avaliar Restaurante</span>
               <span className="sm:hidden">Avaliar</span>
             </button>
@@ -144,7 +144,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
           /* Empty State */
           <div className="text-center py-8">
             <div className="bg-amber-500/10 rounded-full w-16 h-16 mx-auto mb-4 sm:mb-6 flex items-center justify-center">
-              <Star className="h-8 w-8 sm:h-10 w-10 text-amber-400/50" />
+              <Icon name="estrela" className="h-8 w-8 sm:h-10 w-10 text-amber-400/50" />
             </div>
             <h3 className="text-base sm:text-lg font-semibold text-white/70 mb-2">
               Nenhuma avaliação ainda
@@ -157,7 +157,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
                 onClick={() => setShowReviewForm(true)}
                 className="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors duration-150 font-medium text-sm"
               >
-                <Star className="h-4 w-4 sm:h-5 w-5 mr-2 fill-current" />
+                <Icon name="estrela" className="h-4 w-4 sm:h-5 w-5 mr-2 fill-current" />
                 <span className="hidden sm:inline">Fazer primeira avaliação</span>
                 <span className="sm:hidden">Fazer avaliação</span>
               </button>
@@ -202,7 +202,7 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
                         </Link>
                         <div className="flex items-center gap-1 sm:gap-1.5 mt-1">
                           {Array(5).fill(0).map((_, i) => (
-                            <Star
+                            <Icon name="estrela"
                               key={i}
                               className={'h-3.5 w-3.5 sm:h-4 sm:w-4 ' + (i < review.rating ? 'text-amber-400 fill-current' : 'text-white/20')}
                             />
@@ -220,14 +220,14 @@ const RestaurantReviewsSection = forwardRef<HTMLDivElement, RestaurantReviewsSec
                               className="p-1.5 text-white/40 hover:text-amber-400 hover:bg-white/[0.05] rounded-lg transition-colors duration-150"
                               title="Editar avaliação"
                             >
-                              <Edit className="h-3.5 w-3.5" />
+                              <Icon name="editar" className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => handleDeleteReview(review.id)}
                               className="p-1.5 text-white/40 hover:text-red-400 hover:bg-white/[0.05] rounded-lg transition-colors duration-150"
                               title="Eliminar avaliação"
                             >
-                              <X className="h-3.5 w-3.5" />
+                              <Icon name="fechar" className="h-3.5 w-3.5" />
                             </button>
                           </div>
                         )}

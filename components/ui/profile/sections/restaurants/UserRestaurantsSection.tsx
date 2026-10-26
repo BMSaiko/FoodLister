@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {  Utensils } from 'lucide-react';
 import Link from 'next/link';
 import { useApiClient } from '@/hooks/auth/useApiClient';
 import {  } from '@/utils/formatters';
@@ -20,6 +19,7 @@ import RestaurantCard from './RestaurantCard';
 import RestaurantSkeletonLoader from './RestaurantSkeletonLoader';
 import {  } from '@/hooks/data/';
 import { useScrollLock } from '@/utils/scrollLock';
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserRestaurantsSectionProps {
   userId: string;
@@ -391,7 +391,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   if (restaurants.length === 0 && !hookIsLoading && !hasInitialized) {
     return (
       <EmptyState
-        icon={<Utensils className="h-8 w-8 text-[var(--gray-400)]" />}
+        icon={<Icon name="restaurantes" className="h-8 w-8 text-[var(--gray-400)]" />}
         title="Nenhum restaurante encontrado"
         description={isOwnProfile 
           ? 'Você ainda não adicionou nenhum restaurante. Comece a explorar e adicionar seus restaurantes favoritos!'
@@ -400,7 +400,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
         action={isOwnProfile ? {
           label: 'Explorar restaurantes',
           onClick: () => window.location.href = '/restaurants',
-          icon: <Utensils className="h-4 w-4" />
+          icon: <Icon name="restaurantes" className="h-4 w-4" />
         } : undefined}
       />
     );

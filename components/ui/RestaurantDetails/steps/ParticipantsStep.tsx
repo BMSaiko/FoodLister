@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Search, X, UserPlus, Users } from "lucide-react";
 import { getClient } from "@/libs/supabase/client";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface SearchResult {
   id: string;
@@ -104,7 +104,7 @@ export default function ParticipantsStep({
           Adicionar participantes
         </label>
         <div className="relative" ref={dropdownRef}>
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" />
+          <Icon name="pesquisa" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" />
           <input
             type="text"
             value={query}
@@ -122,7 +122,7 @@ export default function ParticipantsStep({
               className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-white/10 transition-colors"
               aria-label="Limpar pesquisa"
             >
-              <X className="h-3.5 w-3.5 text-white/40" />
+              <Icon name="fechar" className="h-3.5 w-3.5 text-white/40" />
             </button>
           )}
 
@@ -145,7 +145,7 @@ export default function ParticipantsStep({
                       {user.avatar_url ? (
                         <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
                       ) : (
-                        <UserPlus className="h-4 w-4 text-amber-400" />
+                        <Icon name="utilizador-mais" className="h-4 w-4 text-amber-400" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -183,7 +183,7 @@ export default function ParticipantsStep({
             <label className="block text-xs text-white/40 uppercase tracking-wider">
               Participantes ({participants.length})
             </label>
-            <Users className="h-3.5 w-3.5 text-white/25" />
+            <Icon name="utilizadores" className="h-3.5 w-3.5 text-white/25" />
           </div>
           <div className="flex flex-wrap gap-2">
             {participants.map((p) => (
@@ -208,7 +208,7 @@ export default function ParticipantsStep({
                   className="w-5 h-5 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-red-500/20 transition-colors group"
                   aria-label="Remover participante"
                 >
-                  <X className="h-3 w-3 text-white/40 group-hover:text-red-400 transition-colors" />
+                  <Icon name="fechar" className="h-3 w-3 text-white/40 group-hover:text-red-400 transition-colors" />
                 </button>
               </div>
             ))}
@@ -216,7 +216,7 @@ export default function ParticipantsStep({
         </div>
       ) : (
         <div className="text-center py-8 bg-white/[0.02] rounded-xl border border-dashed border-white/[0.08]">
-          <Users className="h-8 w-8 text-white/10 mx-auto mb-2" />
+          <Icon name="utilizadores" className="h-8 w-8 text-white/10 mx-auto mb-2" />
           <p className="text-xs text-white/30">Adiciona amigos para esta refeição</p>
           <p className="text-[10px] text-white/20 mt-1">Pesquisa por nome ou código FL000001</p>
         </div>

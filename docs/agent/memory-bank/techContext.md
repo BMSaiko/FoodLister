@@ -24,7 +24,7 @@
   - Custom theme extensions in `tailwind.config.js`
 - **Headless UI**: Unstyled accessible components
 - **Framer Motion 12.9.2**: Animations and transitions
-- **Lucide React 0.487.0**: Icon library
+- **Ícones próprios**: `public/icons/sprite.svg` + `<Icon name size/>` (`components/ui/icons/Icon.tsx`); regenerar com `node scripts/icons/build-sprite.mjs`
 - **React Hook Form 7.56.4**: Form state management and validation
 
 ### Backend & Database
@@ -161,7 +161,6 @@ npm run lint:fix
   "tailwindcss": "^3.4.17",
   "@tailwindcss/postcss": "^4.1.4",
   "framer-motion": "^12.9.2",
-  "lucide-react": "^0.487.0",
   "react-hook-form": "^7.56.4",
   "cloudinary": "^2.6.1",
   "react-phone-number-input": "^3.4.12",

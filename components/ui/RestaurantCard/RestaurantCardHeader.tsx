@@ -3,9 +3,9 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Star } from 'lucide-react';
 import { convertCloudinaryUrl } from '@/utils/cloudinaryConverter';
 import RestaurantImagePlaceholder from './RestaurantImagePlaceholder';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCardHeaderProps {
   restaurant: {
@@ -111,7 +111,7 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
       {/* Rating Badge */}
       <div className={`absolute top-3 left-3 px-2 py-1 rounded ${ratingStyle}`}>
         <div className="flex items-center gap-1">
-          <Star className="h-3 w-3" fill="currentColor" />
+          <Icon name="estrela" className="h-3 w-3" fill="currentColor" />
           <span className="font-semibold text-xs">{(restaurant.rating || 0).toFixed(1)}</span>
         </div>
       </div>

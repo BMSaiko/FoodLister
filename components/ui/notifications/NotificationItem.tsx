@@ -1,18 +1,19 @@
 "use client";
 
+import Icon from '@/components/ui/icons/Icon';
+import type { IconName } from '@/components/ui/icons/names';
 import React from "react";
-import { Bell, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, AtSign } from "lucide-react";
 import type { Notification } from "@/types/notification";
 
-const iconMap: Record<string, { icon: React.ComponentType<{ className?: string }>; bg: string; color: string }> = {
-  meal_invitation: { icon: CalendarPlus, bg: "bg-amber-500/10", color: "text-amber-400" },
-  meal_reminder: { icon: Clock, bg: "bg-orange-500/10", color: "text-orange-400" },
-  review_created: { icon: Star, bg: "bg-yellow-500/10", color: "text-yellow-400" },
-  comment_reply: { icon: MessageCircle, bg: "bg-blue-500/10", color: "text-blue-400" },
-  list_invite: { icon: ListPlus, bg: "bg-emerald-500/10", color: "text-emerald-400" },
-  list_update: { icon: ListChecks, bg: "bg-teal-500/10", color: "text-teal-400" },
-  mention: { icon: AtSign, bg: "bg-purple-500/10", color: "text-purple-400" },
-  system: { icon: Bell, bg: "bg-white/5", color: "text-white/40" },
+const iconMap: Record<string, { icon: IconName; bg: string; color: string }> = {
+  meal_invitation: { icon: 'calendario-mais', bg: "bg-amber-500/10", color: "text-amber-400" },
+  meal_reminder: { icon: 'horario', bg: "bg-orange-500/10", color: "text-orange-400" },
+  review_created: { icon: 'estrela', bg: "bg-yellow-500/10", color: "text-yellow-400" },
+  comment_reply: { icon: 'mensagem', bg: "bg-blue-500/10", color: "text-blue-400" },
+  list_invite: { icon: 'lista-mais', bg: "bg-emerald-500/10", color: "text-emerald-400" },
+  list_update: { icon: 'lista-ok', bg: "bg-teal-500/10", color: "text-teal-400" },
+  mention: { icon: 'arroba', bg: "bg-purple-500/10", color: "text-purple-400" },
+  system: { icon: 'sino', bg: "bg-white/5", color: "text-white/40" },
 };
 
 interface NotificationItemProps {
@@ -38,7 +39,7 @@ function formatTimeAgo(dateString: string): string {
 
 export default function NotificationItem({ notification, onSelect }: NotificationItemProps) {
   const typeConfig = iconMap[notification.type] || iconMap["system"];
-  const Icon = typeConfig.icon;
+  const iconName = typeConfig.icon;
   const isUnread = !notification.read;
 
   return (
@@ -50,7 +51,7 @@ export default function NotificationItem({ notification, onSelect }: Notificatio
         <span className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-amber-500" />
       )}
       <div className={"w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 " + typeConfig.bg}>
-        <Icon className={"h-4 w-4 " + typeConfig.color} />
+        <Icon name={iconName} className={"h-4 w-4 " + typeConfig.color} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm text-white/85 font-medium truncate">{notification.title}</p>

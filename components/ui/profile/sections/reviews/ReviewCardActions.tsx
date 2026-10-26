@@ -3,11 +3,11 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState } from 'react';
-import { MapPin, Share2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useModal } from '@/contexts/ModalContext';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ReviewCardActionsProps {
   review: {
@@ -101,7 +101,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
           className="bg-white/[0.08] hover:bg-white/[0.12] p-2 rounded-full transition-all duration-200 hover:shadow-lg flex items-center justify-center gap-1"
           aria-label="Abrir mapa"
         >
-          <MapPin className="h-4 w-4 text-gray-600" />
+          <Icon name="pin" className="h-4 w-4 text-gray-600" />
           <span className="text-xs font-medium hidden sm:inline text-gray-600">Mapa</span>
         </button>
 </TooltipFast>
@@ -119,7 +119,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
         {isSharing ? (
           <ToviSpinner className="h-4 w-4" />
         ) : (
-          <Share2 className="h-4 w-4 text-gray-600" />
+          <Icon name="partilhar" className="h-4 w-4 text-gray-600" />
         )}
         <span className="text-xs font-medium hidden sm:inline text-gray-600">
           {isSharing ? 'Compartilhando' : 'Compartilhar'}

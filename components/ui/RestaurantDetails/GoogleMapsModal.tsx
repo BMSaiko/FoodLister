@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, MapPin, Globe, CheckCircle, AlertCircle, Copy, ExternalLink, Map, Search, Zap, MapPinHouse, Navigation, Tag } from 'lucide-react';
 import { extractGoogleMapsData, isValidGoogleMapsUrl, GoogleMapsData, OSMService, formatPriceLevel } from '@/utils/googleMapsExtractor';
 import Modal from '@/components/ui/Modal';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface GoogleMapsModalProps {
   isOpen: boolean;
@@ -142,7 +142,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
-                <Map className="h-5 w-5" />
+                <Icon name="mapa" className="h-5 w-5" />
               </div>
               <div>
                 <h2 className="text-xl font-bold">Importar do Google Maps</h2>
@@ -153,7 +153,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               onClick={resetModal}
               className="text-amber-200 hover:text-white hover:bg-white/20 rounded-full p-1 transition-colors"
             >
-              <X className="h-5 w-5" />
+              <Icon name="fechar" className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               <div className="bg-amber-500/[0.08] border border-[var(--amber-200)] rounded-xl p-4 mb-6">
                 <div className="flex items-start gap-3">
                   <div className="p-1 bg-[var(--amber-100)] rounded-lg flex-shrink-0">
-                    <Search className="h-4 w-4 text-[var(--amber-600)]" />
+                    <Icon name="pesquisa" className="h-4 w-4 text-[var(--amber-600)]" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-[var(--amber-900)] mb-2">Como fazer:</h3>
@@ -189,7 +189,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                       </li>
                     </ol>
                     <p className="text-xs text-[var(--amber-700)] mt-2 flex items-center gap-1">
-                      <Map className="h-3 w-3" />
+                      <Icon name="mapa" className="h-3 w-3" />
                       Aceita links completos (google.com/maps) e links curtos (maps.app.goo.gl)
                     </p>
                   </div>
@@ -199,7 +199,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               {/* Input URL */}
               <div className="mb-6">
                 <label className="block text-white/80 font-semibold mb-3 flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-[var(--amber-600)]" />
+                  <Icon name="globo" className="h-4 w-4 text-[var(--amber-600)]" />
                   Link do Google Maps
                 </label>
                 <div className="relative">
@@ -228,12 +228,12 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/40"
                       title="Colar do clipboard"
                     >
-                      <Copy className="h-4 w-4" />
+                      <Icon name="copiar" className="h-4 w-4" />
                     </button>
                   )}
                 </div>
                   <p className="text-xs text-white/50 mt-2 flex items-center gap-1">
-                    <ExternalLink className="h-3 w-3" />
+                    <Icon name="externo" className="h-3 w-3" />
                     Cole o link do restaurante (completo ou curto)
                   </p>
               </div>
@@ -241,7 +241,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               {/* Error Message */}
               {error && (
                 <div className="bg-red-500/[0.08] border border-[var(--red-200)] text-[var(--red-700)] p-4 rounded-xl mb-6 flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-[var(--red-500)] flex-shrink-0 mt-0.5" />
+                  <Icon name="alerta-circulo" className="h-5 w-5 text-[var(--red-500)] flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium">Erro na extração</p>
                     <p className="text-sm mt-1">{error}</p>
@@ -262,7 +262,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                   </>
                 ) : (
                   <>
-                    <Zap className="h-5 w-5" />
+                    <Icon name="raio" className="h-5 w-5" />
                     Extrair Informações
                   </>
                 )}
@@ -273,7 +273,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               {/* Success Message */}
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/[0.12] rounded-full mb-4">
-                  <CheckCircle className="h-8 w-8 text-[var(--green-600)]" />
+                  <Icon name="ok-circulo" className="h-8 w-8 text-[var(--green-600)]" />
                 </div>
                 <h3 className="text-xl font-bold text-white/90 mb-2">Informações extraídas!</h3>
                 <p className="text-white/40">Revise os dados antes de confirmar</p>
@@ -283,14 +283,14 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
               <div className="space-y-4 mb-6">
                 <div className="bg-gradient-to-r from-[var(--green-50)] to-[var(--emerald-50)] border border-[var(--green-200)] rounded-xl p-5">
                   <div className="flex items-center gap-2 mb-4">
-                    <CheckCircle className="h-5 w-5 text-[var(--green-600)]" />
+                    <Icon name="ok-circulo" className="h-5 w-5 text-[var(--green-600)]" />
                     <p className="font-semibold text-green-400">Dados extraídos com sucesso</p>
                   </div>
 
                   {extractedData.name && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-white/50" />
+                        <Icon name="pin" className="h-4 w-4 text-white/50" />
                         Nome do Restaurante
                       </label>
                       <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-3">
@@ -302,7 +302,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                   {extractedData.latitude && extractedData.longitude && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
-                        <Navigation className="h-4 w-4 text-[var(--blue-500)]" />
+                        <Icon name="navegar" className="h-4 w-4 text-[var(--blue-500)]" />
                         Coordenadas GPS
                       </label>
                       <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-3">
@@ -317,7 +317,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                   {extractedData.price_level && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-[var(--yellow-500)]" />
+                        <Icon name="etiqueta" className="h-4 w-4 text-[var(--yellow-500)]" />
                         Nível de Preço
                       </label>
                       <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-3">
@@ -331,7 +331,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                   {osmLoading && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
-                        <MapPinHouse className="h-4 w-4 text-[var(--purple-500)]" />
+                        <Icon name="casa-pin" className="h-4 w-4 text-[var(--purple-500)]" />
                         Buscando endereço via OpenStreetMap...
                       </label>
                       <div className="bg-purple-500/[0.08] border border-[var(--purple-200)] rounded-lg p-3">
@@ -346,7 +346,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                   {osmAddress && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
-                        <MapPinHouse className="h-4 w-4 text-[var(--purple-500)]" />
+                        <Icon name="casa-pin" className="h-4 w-4 text-[var(--purple-500)]" />
                         Endereço Detalhado (OpenStreetMap)
                       </label>
                       <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-3">
@@ -359,7 +359,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
                   {extractedData.address && !osmAddress && (
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-white/60 mb-2 flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-white/50" />
+                        <Icon name="pin" className="h-4 w-4 text-white/50" />
                         Endereço (Google Maps)
                       </label>
                       <div className="bg-white/[0.03] border border-white/[0.08] rounded-lg p-3">
@@ -372,7 +372,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
 
                 {error && (
                   <div className="bg-yellow-500/[0.08] border border-[var(--yellow-200)] text-[var(--yellow-800)] p-4 rounded-xl flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-[var(--yellow-600)] flex-shrink-0 mt-0.5" />
+                    <Icon name="alerta-circulo" className="h-5 w-5 text-[var(--yellow-600)] flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="font-medium">Aviso</p>
                       <p className="text-sm mt-1">{error}</p>

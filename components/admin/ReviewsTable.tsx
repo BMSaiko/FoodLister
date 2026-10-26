@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Trash2 } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ReviewsTableProps {
   reviews: any[];
@@ -68,7 +68,7 @@ export default function ReviewsTable({ reviews, onDelete }: ReviewsTableProps) {
               className="p-1 rounded hover:bg-red-50 transition-colors"
               title="Apagar review"
             >
-              <Trash2 className="h-4 w-4 text-red-500" />
+              <Icon name="apagar" className="h-4 w-4 text-red-500" />
             </button>
           </div>
         </div>

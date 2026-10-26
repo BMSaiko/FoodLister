@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Mail } from "lucide-react";
 import { useVerification } from "@/hooks/auth/useVerification";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviLoader from "@/components/loading/ToviLoader";
+import Icon from '@/components/ui/icons/Icon';
 
 export default function VerifyEmailPage() {
   const { t } = useLanguage();
@@ -59,7 +59,7 @@ export default function VerifyEmailPage() {
         {/* Premium email icon with gradient */}
         <div className="text-center mb-8">
           <div className="mx-auto w-16 h-16 rounded-2xl bg-[var(--primary-lighter)] ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
-            <Mail className="h-7 w-7 text-[var(--primary)]" />
+            <Icon name="mail" className="h-7 w-7 text-[var(--primary)]" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
             {t("Verificação de Email")}

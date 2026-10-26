@@ -1,7 +1,7 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
-import { Phone, Smartphone, Home } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ContactInfoCardProps {
   phoneNumbers: string[];
@@ -35,14 +35,14 @@ export default function ContactInfoCard({
   return (
       <div className="bg-[var(--card-bg)] rounded-xl shadow-lg border border-[var(--card-border)] p-4 sm:p-6 mb-4">
         <div className="flex items-center text-[var(--gray-300)] text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-          <Phone className="h-4 w-4 sm:h-5 w-5 mr-2 sm:mr-3 text-[var(--amber-500)]" />
+          <Icon name="telefone" className="h-4 w-4 sm:h-5 w-5 mr-2 sm:mr-3 text-[var(--amber-500)]" />
         <span className="text-sm sm:text-base font-semibold">{t('Telefones para contato')}</span>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
         {phoneNumbers.map((phone, index) => {
           const phoneType = detectPhoneType(phone);
-          const PhoneIcon = phoneType === 'mobile' ? Smartphone : Home;
+          const phoneIcon = phoneType === 'mobile' ? 'telemovel' : 'inicio';
 
           return (
             <div
@@ -50,7 +50,7 @@ export default function ContactInfoCard({
                 className="flex items-center p-2 sm:p-4 bg-gradient-to-r from-[var(--background-secondary)] to-[var(--background-tertiary)] rounded-lg border border-[var(--gray-200)] hover:border-[var(--amber-300)] transition-all duration-200 group hover:shadow-md"
             >
               <div className="flex-shrink-0 bg-white/[0.05] rounded-full p-2 sm:p-3 mr-2 sm:mr-4 group-hover:scale-110 transition-transform duration-200">
-                  <PhoneIcon className="h-4 w-4 sm:h-5 w-5 text-[var(--amber-500)]" />
+                  <Icon name={phoneIcon} className="h-4 w-4 sm:h-5 w-5 text-[var(--amber-500)]" />
               </div>
               
               <div className="flex-1 min-w-0">

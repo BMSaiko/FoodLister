@@ -3,7 +3,6 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { motion } from 'motion/react';
-import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { FiltersProvider } from '@/contexts';
 import { usePaginatedRestaurants } from '@/hooks/restaurants/usePaginatedRestaurants';
@@ -21,6 +20,7 @@ import NearbyBar from '@/components/ui/Nearby/NearbyBar';
 import { useNearbyRestaurants } from '@/hooks/restaurants/useNearbyRestaurants';
 
 import Skeleton from '@/components/ui/Skeleton';
+import Icon from '@/components/ui/icons/Icon';
 
 function RestaurantsContent() {
   const searchParams = useSearchParams();
@@ -171,7 +171,7 @@ function RestaurantsContent() {
             className="w-14 h-14 rounded-full bg-[var(--primary)] text-black flex items-center justify-center shadow-lg hover:bg-[var(--primary-hover)] transition-colors fab-pulse"
             title="Criar restaurante"
           >
-            <Plus className="w-6 h-6" />
+            <Icon name="mais" className="w-6 h-6" />
           </Link>
         </motion.div>
       )}

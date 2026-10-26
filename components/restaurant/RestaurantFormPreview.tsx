@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { Star, MapPin } from 'lucide-react';
 import ListCardCover from '@/components/ui/lists/ListCardCover';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantFormPreviewProps {
   formData: {
@@ -48,7 +48,7 @@ export default function RestaurantFormPreview({ formData }: RestaurantFormPrevie
 
             {formData.rating != null && formData.rating > 0 && (
               <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-0.5">
-                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                <Icon name="estrela" className="w-3 h-3 text-amber-400 fill-amber-400" />
                 <span className="text-xs font-semibold text-white">{formData.rating?.toFixed(1) ?? "0.0"}</span>
               </div>
             )}
@@ -62,7 +62,7 @@ export default function RestaurantFormPreview({ formData }: RestaurantFormPrevie
 
             {formData.location && (
               <div className="flex items-center gap-1 mt-1 text-xs text-[var(--foreground-muted)]">
-                <MapPin className="w-3 h-3" />
+                <Icon name="pin" className="w-3 h-3" />
                 {formData.location}
               </div>
             )}

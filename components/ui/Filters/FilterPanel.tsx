@@ -7,7 +7,7 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState } from 'react';
-import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface FilterChip {
   id: string;
@@ -44,7 +44,7 @@ export default function FilterPanel({
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-[var(--primary)] to-[var(--orange-500)] rounded-[var(--radius-xl)] shadow-md">
-            <Filter className="h-5 w-5 text-white" />
+            <Icon name="filtros" className="h-5 w-5 text-white" />
           </div>
           <div className="text-left">
             <span className="block text-lg font-bold text-[var(--foreground)]">{title}</span>
@@ -56,9 +56,9 @@ export default function FilterPanel({
           </div>
         </div>
         {isOpen ? (
-          <ChevronUp className="h-5 w-5 text-[var(--foreground-muted)]" />
+          <Icon name="chevron-cima" className="h-5 w-5 text-[var(--foreground-muted)]" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-[var(--foreground-muted)]" />
+          <Icon name="chevron-baixo" className="h-5 w-5 text-[var(--foreground-muted)]" />
         )}
       </button>
 
@@ -79,7 +79,7 @@ export default function FilterPanel({
                   className="ml-2 p-0.5 rounded-full hover:bg-[var(--primary-light)]/50 transition-colors"
                   aria-label="Remover filtro"
                 >
-                  <X className="h-3.5 w-3.5 text-[var(--primary-dark)]" />
+                  <Icon name="fechar" className="h-3.5 w-3.5 text-[var(--primary-dark)]" />
                 </button>
 </TooltipFast>
               </span>
@@ -89,7 +89,7 @@ export default function FilterPanel({
                 onClick={onClearAll}
                 className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-[var(--background-secondary)] text-[var(--foreground-secondary)] hover:bg-[var(--background-tertiary)] transition-colors"
               >
-                <X className="h-3.5 w-3.5 mr-1" />
+                <Icon name="fechar" className="h-3.5 w-3.5 mr-1" />
                 Limpar tudo
               </button>
             )}
@@ -155,7 +155,7 @@ export function FilterChip({ label, active = false, onClick, onRemove, className
           }}
           className="ml-2 p-0.5 rounded-full hover:bg-[var(--primary-foreground)]/20 transition-colors"
         >
-          <X className="h-3.5 w-3.5" />
+          <Icon name="fechar" className="h-3.5 w-3.5" />
         </span>
       )}
     </button>

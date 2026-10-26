@@ -1,10 +1,10 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
-import { Star, Share2, Calendar, Edit } from 'lucide-react';
 import { Restaurant } from '@/libs/types';
 import { CreatorLink } from '@/components/ui/common/CreatorLink';
 import { getRatingClass, formatPrice, categorizePriceLevel } from '@/utils/formatters';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantHeaderProps {
   restaurant: Restaurant;
@@ -65,7 +65,7 @@ export default function RestaurantHeader({
             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               {restaurant.rating !== null && restaurant.rating !== undefined && (
                 <div className={`flex items-center px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20`}>
-                  <Star className="h-4 w-4 sm:h-5 sm:w-5 mr-1 text-amber-400" fill="currentColor" />
+                  <Icon name="estrela" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 text-amber-400" fill="currentColor" />
                   <span className={`font-semibold text-sm sm:text-lg ${ratingClass}`}>
                     {(restaurant.rating || 0).toFixed(1)}
                   </span>
@@ -93,14 +93,14 @@ export default function RestaurantHeader({
                   onClick={onShare}
                   className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.05] text-white/70 ring-1 ring-white/10 rounded-full hover:bg-white/[0.08] transition-colors duration-150 text-sm font-medium min-h-[44px]"
                 >
-                  <Share2 className="h-4 w-4" />
+                  <Icon name="partilhar" className="h-4 w-4" />
                   <span>Compartilhar</span>
                 </button>
                 <button
                   onClick={onSchedule}
                   className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors duration-150 text-sm font-medium min-h-[44px]"
                 >
-                  <Calendar className="h-4 w-4" />
+                  <Icon name="calendario" className="h-4 w-4" />
                   <span>{t('Agendar Refeicao')}</span>
                 </button>
                 {user && restaurant?.creator_id === user.id && onEdit && (
@@ -108,7 +108,7 @@ export default function RestaurantHeader({
                     onClick={onEdit}
                     className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors duration-150 text-sm font-medium min-h-[44px]"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Icon name="editar" className="h-4 w-4" />
                     <span>Editar</span>
                   </button>
                 )}

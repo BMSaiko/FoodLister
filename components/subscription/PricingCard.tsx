@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Check, Star, Zap, Crown } from 'lucide-react';
 import type { SubscriptionPlan, SubscriptionTier } from '@/libs/types';
 import { formatPrice } from '@/libs/subscription';
+import Icon from '@/components/ui/icons/Icon';
 
 interface PricingCardProps {
   plan: SubscriptionPlan;
@@ -14,9 +14,9 @@ interface PricingCardProps {
 }
 
 const TIER_ICONS: Record<string, React.ReactNode> = {
-  'Free': <Star className="h-6 w-6" />,
-  'Premium': <Zap className="h-6 w-6" />,
-  'Pro': <Crown className="h-6 w-6" />,
+  'Free': <Icon name="estrela" className="h-6 w-6" />,
+  'Premium': <Icon name="raio" className="h-6 w-6" />,
+  'Pro': <Icon name="coroa" className="h-6 w-6" />,
 };
 
 const TIER_COLORS: Record<string, string> = {
@@ -26,7 +26,7 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 export default function PricingCard({ plan, isCurrentPlan, isPopular, onSubscribe, loading }: PricingCardProps) {
-  const icon = TIER_ICONS[plan.name] || <Star className="h-6 w-6" />;
+  const icon = TIER_ICONS[plan.name] || <Icon name="estrela" className="h-6 w-6" />;
   const gradient = TIER_COLORS[plan.name] || 'from-gray-400 to-gray-500';
 
   return (
@@ -74,7 +74,7 @@ export default function PricingCard({ plan, isCurrentPlan, isPopular, onSubscrib
           <ul className="space-y-3 mb-6">
             {plan.features.map((feature, index) => (
               <li key={index} className="flex items-start gap-3">
-                <Check className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <Icon name="visto" className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-foreground-secondary">{feature}</span>
               </li>
             ))}

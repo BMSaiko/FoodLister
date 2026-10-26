@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { List, ChevronRight, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useApiClient } from '@/hooks/auth/useApiClient';
 import {  } from '@/utils/formatters';
@@ -14,6 +13,7 @@ import {
   SkeletonLoader,
   EmptyState 
 } from '../shared';
+import AppIcon from '@/components/ui/icons/Icon';
 
 interface UserListsSectionProps {
   userId: string;
@@ -83,7 +83,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
   if (lists.length === 0) {
     return (
       <EmptyState
-        icon={<List className="h-8 w-8 text-[var(--gray-400)]" />}
+        icon={<AppIcon name="lista" className="h-8 w-8 text-[var(--gray-400)]" />}
         title="Nenhuma lista encontrada"
         description={isOwnProfile 
           ? 'Você ainda não criou nenhuma lista. Comece a organizar seus restaurantes favoritos!'
@@ -92,7 +92,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
         action={isOwnProfile ? {
           label: 'Criar primeira lista',
           onClick: () => window.location.href = '/lists/create',
-          icon: <List className="h-4 w-4" />
+          icon: <AppIcon name="lista" className="h-4 w-4" />
         } : undefined}
       />
     );
@@ -139,7 +139,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between mt-4">
                 <div className="flex items-center gap-2 text-sm text-[var(--gray-500)]">
                   <span>Ver lista completa</span>
-                  <ChevronRight className="h-4 w-4 text-[var(--gray-400)]" />
+                  <AppIcon name="chevron-dir" className="h-4 w-4 text-[var(--gray-400)]" />
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -151,7 +151,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
                     className="flex items-center gap-1 text-sm text-[var(--blue-500)] hover:text-[var(--blue-600)] hover:bg-[var(--blue-50)] px-3 py-1.5 rounded-lg transition-colors"
                     aria-label={`Partilhar lista ${list.name}`}
                   >
-                    <Share2 className="h-4 w-4" />
+                    <AppIcon name="partilhar" className="h-4 w-4" />
                     <span>Partilhar</span>
                   </button>
 
@@ -171,7 +171,7 @@ const UserListsSection: React.FC<UserListsSectionProps> = ({
             variant="primary"
             size="md"
             disabled={isLoadingMore}
-            icon={isLoadingMore ? undefined : <List className="h-4 w-4" />}
+            icon={isLoadingMore ? undefined : <AppIcon name="lista" className="h-4 w-4" />}
             fullWidth={false}
           >
             {isLoadingMore ? 'Carregando...' : 'Carregar mais listas'}

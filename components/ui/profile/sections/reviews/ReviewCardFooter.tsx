@@ -2,8 +2,8 @@
 "use client";
 
 import React from 'react';
-import {  Star, Clock } from 'lucide-react';
 import {  } from '@/utils/formatters';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ReviewCardFooterProps {
   review: {
@@ -68,7 +68,7 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 items-start sm:items-center justify-between text-sm text-[var(--gray-500)]">
         <div className="flex flex-wrap gap-2 sm:gap-4">
           <div className={`flex items-center gap-1 px-2 py-1 rounded ${getRatingStyle(review.rating)}`}>
-            <Star className="h-4 w-4 fill-current" />
+            <Icon name="estrela" className="h-4 w-4 fill-current" />
             <span className="font-semibold text-sm">{review.rating.toFixed(1)}/5</span>
           </div>
           {review.amountSpent && (
@@ -87,7 +87,7 @@ const ReviewCardFooter: React.FC<ReviewCardFooterProps> = ({
           )}
         </div>
         <div className="flex items-center gap-1 px-2 py-1 rounded border border-[var(--gray-200)]">
-          <Clock className="h-4 w-4" />
+          <Icon name="horario" className="h-4 w-4" />
           <span>{new Date(review.createdAt).toLocaleDateString('pt-PT')}</span>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCarouselProps {
   images?: string[];
@@ -60,7 +60,7 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
     return (
       <div className={`flex flex-col items-center justify-center py-12 px-6 bg-[var(--amber-50)]/50 rounded-2xl border-2 border-dashed border-[var(--amber-200)] ${className}`}>
         <div className="w-16 h-16 bg-[var(--amber-100)] rounded-full flex items-center justify-center mb-4">
-          <ImageIcon className="w-8 h-8 text-[var(--amber-500)]" />
+          <Icon name="imagem" className="w-8 h-8 text-[var(--amber-500)]" />
         </div>
         <h3 className="text-lg font-semibold text-[var(--amber-800)] mb-2">Nenhuma imagem do restaurante</h3>
         <p className="text-sm text-[var(--amber-600)] text-center max-w-xs">
@@ -242,7 +242,7 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
                     : 'opacity-0 group-active:opacity-100' // Mobile: temporary on tap
               }`}>
                 <div className="bg-[var(--white)]/95 backdrop-blur-sm rounded-full p-2 sm:p-3 shadow-lg">
-                  <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--amber-600)]" />
+                  <Icon name="imagem" className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--amber-600)]" />
                 </div>
               </div>
 
@@ -260,7 +260,7 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
                       className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--white)] hover:bg-[var(--amber-500)] active:bg-[var(--amber-600)] border-2 border-[var(--amber-200)] hover:border-[var(--amber-500)] active:border-[var(--amber-600)] text-[var(--amber-600)] hover:text-[var(--white)] active:text-[var(--white)] rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
                       aria-label="Imagens anteriores"
                     >
-                      <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7" />
+                      <Icon name="chevron-esq" className="h-6 w-6 sm:h-7 sm:w-7" />
                     </button>
                   )}
 
@@ -275,7 +275,7 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
                       className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-[var(--amber-500)] hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] border-2 border-[var(--amber-500)] text-[var(--white)] rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md touch-manipulation"
                       aria-label="Próximas imagens"
                     >
-                      <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7" />
+                      <Icon name="chevron-dir" className="h-6 w-6 sm:h-7 sm:w-7" />
                     </button>
                   )}
 
@@ -370,7 +370,7 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
                   aria-label="Imagem anterior"
                 >
-                  <ChevronLeft className="w-7 h-7" />
+                  <Icon name="chevron-esq" className="w-7 h-7" />
                 </button>
                 <button
                   onClick={(e) => {
@@ -380,7 +380,7 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
                   className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-[var(--white)]/10 hover:bg-[var(--white)]/20 backdrop-blur-sm text-[var(--white)] rounded-full transition-all duration-200 flex items-center justify-center shadow-lg"
                   aria-label="Próxima imagem"
                 >
-                  <ChevronRight className="w-7 h-7" />
+                  <Icon name="chevron-dir" className="w-7 h-7" />
                 </button>
               </>
             )}

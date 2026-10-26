@@ -2,7 +2,7 @@
 "use client";
 
 import React from 'react';
-import { Tag } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCardCategoriesProps {
   restaurant: {
@@ -24,7 +24,7 @@ const RestaurantCardCategories: React.FC<RestaurantCardCategoriesProps> = ({
         <div className={`flex flex-wrap gap-1 ${centered ? 'justify-center' : ''}`}>
           {restaurant.cuisine_types.map(type => (
             <span key={type.id} className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-[var(--primary-lighter)] text-[var(--primary-dark)]">
-              <Tag className="h-3 w-3 mr-1" />
+              <Icon name="etiqueta" className="h-3 w-3 mr-1" />
               {type.name}
             </span>
           ))}

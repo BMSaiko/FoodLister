@@ -3,8 +3,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search } from 'lucide-react';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
   const [query, setQuery] = useState('');
@@ -84,7 +84,7 @@ const SearchBar = ({ searchType }: { searchType: 'restaurants' | 'lists' }) => {
         {isSubmitting ? (
           <ToviSpinner className="h-4 w-4 sm:h-5 sm:w-5" />
         ) : (
-          <Search className="h-4 w-4 sm:h-5 sm:w-5" />
+          <Icon name="pesquisa" className="h-4 w-4 sm:h-5 sm:w-5" />
         )}
       </button>
 

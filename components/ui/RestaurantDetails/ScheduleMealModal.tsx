@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, ChevronRight } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { DEFAULT_MEAL_TYPES } from "@/hooks/forms/useMealScheduling";
@@ -10,6 +9,7 @@ import { toast } from "react-toastify";
 import MealDetailsStep from "./steps/MealDetailsStep";
 import ParticipantsStep from "./steps/ParticipantsStep";
 import ConfirmStep from "./steps/ConfirmStep";
+import Icon from '@/components/ui/icons/Icon';
 
 interface ScheduleMealModalProps {
   isOpen: boolean;
@@ -213,7 +213,7 @@ export default function ScheduleMealModal({
             onClick={goBack}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white/80 transition-colors bg-white/0.04 hover:bg-white/0.06"
           >
-            <X className="h-4 w-4 rotate-180" />
+            <Icon name="fechar" className="h-4 w-4 rotate-180" />
             Voltar
           </button>
         )}
@@ -223,7 +223,7 @@ export default function ScheduleMealModal({
           className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors bg-amber-500 text-black hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {currentStep === totalSteps ? (submitting ? "A agendar..." : "Agendar") : "Próximo"}
-          {currentStep < totalSteps && <ChevronRight className="h-4 w-4" />}
+          {currentStep < totalSteps && <Icon name="chevron-dir" className="h-4 w-4" />}
         </button>
       </div>
     </Modal>

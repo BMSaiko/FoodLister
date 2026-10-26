@@ -5,9 +5,9 @@ import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
 import EmptyState from "@/components/ui/EmptyState";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { Activity, ChevronDown, User } from "lucide-react";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 // ponytail: fetch inline no page, sem hook separado. Padrão {data,total,page,limit,hasMore}.
 interface FeedItem {
@@ -63,7 +63,7 @@ export default function FeedPage() {
       <Navbar />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="flex items-center gap-2 mb-6">
-          <Activity className="h-6 w-6 text-[var(--primary)]" />
+          <Icon name="atividade" className="h-6 w-6 text-[var(--primary)]" />
           <h1 className="text-2xl font-semibold text-[var(--gray-900)]">Feed</h1>
         </div>
 
@@ -93,7 +93,7 @@ export default function FeedPage() {
                         <img src={item.actor.avatar} alt={item.actor.name} className="w-9 h-9 rounded-full object-cover" />
                       ) : (
                         <div className="w-9 h-9 bg-[var(--primary-light)] rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-[var(--primary-dark)]" />
+                          <Icon name="perfil" className="h-4 w-4 text-[var(--primary-dark)]" />
                         </div>
                       )}
                     </Link>
@@ -101,7 +101,7 @@ export default function FeedPage() {
                     <img src={item.actor.avatar} alt={item.actor.name} className="w-9 h-9 rounded-full object-cover" />
                   ) : (
                     <div className="w-9 h-9 bg-[var(--primary-light)] rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-[var(--primary-dark)]" />
+                      <Icon name="perfil" className="h-4 w-4 text-[var(--primary-dark)]" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
@@ -121,7 +121,7 @@ export default function FeedPage() {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-2 text-sm text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors disabled:opacity-50"
               >
-                {loading ? <ToviSpinner className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                {loading ? <ToviSpinner className="h-4 w-4" /> : <Icon name="chevron-baixo" className="h-4 w-4" />}
                 Carregar mais
               </button>
             )}

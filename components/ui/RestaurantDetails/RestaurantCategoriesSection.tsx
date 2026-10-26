@@ -1,7 +1,7 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
-import { Tag } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCategoriesSectionProps {
   cuisineTypes?: any[];
@@ -29,7 +29,7 @@ export default function RestaurantCategoriesSection({
       <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-4 sm:p-6 mb-4">
         <div className="text-center py-6">
           <div className="bg-white/[0.05] rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-            <Tag className="h-6 w-6 text-white/30" />
+            <Icon name="etiqueta" className="h-6 w-6 text-white/30" />
           </div>
           <h3 className="text-base font-semibold text-white/60 mb-2">{t('Sem categorias definidas')}</h3>
           <p className="text-white/50 text-xs">

@@ -2,8 +2,8 @@
 "use client";
 
 import React from "react";
-import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface BatchImportProgressProps {
   results?: Array<{
@@ -71,16 +71,16 @@ export function BatchImportProgress({
       {/* Summary stats */}
       <div className="flex gap-4 text-sm">
         <span className="text-emerald-400 flex items-center gap-1">
-          <CheckCircle className="h-4 w-4" /> {created} criado(s)
+          <Icon name="ok-circulo" className="h-4 w-4" /> {created} criado(s)
         </span>
         {duplicates > 0 && (
           <span className="text-amber-400 flex items-center gap-1">
-            <AlertCircle className="h-4 w-4" /> {duplicates} já existente(s) ignorado(s)
+            <Icon name="alerta-circulo" className="h-4 w-4" /> {duplicates} já existente(s) ignorado(s)
           </span>
         )}
         {failed > 0 && (
           <span className="text-red-400 flex items-center gap-1">
-            <XCircle className="h-4 w-4" /> {failed} falhado(s)
+            <Icon name="erro-circulo" className="h-4 w-4" /> {failed} falhado(s)
           </span>
         )}
       </div>
@@ -111,15 +111,15 @@ export function BatchImportProgress({
                   <td className="px-4 py-2">
                     {result.status === "created" ? (
                       <span className="text-emerald-400 flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" /> Criado
+                        <Icon name="ok-circulo" className="h-3 w-3" /> Criado
                       </span>
                     ) : result.status === "duplicate" ? (
                       <span className="text-amber-400 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> {result.error || "Já existe na app"}
+                        <Icon name="alerta-circulo" className="h-3 w-3" /> {result.error || "Já existe na app"}
                       </span>
                     ) : (
                       <span className="text-red-400 flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" /> {result.error || "Falhou"}
+                        <Icon name="alerta-circulo" className="h-3 w-3" /> {result.error || "Falhou"}
                       </span>
                     )}
                   </td>

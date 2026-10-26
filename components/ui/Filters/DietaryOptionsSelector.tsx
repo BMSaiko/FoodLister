@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tag, Search, Check, Plus, X } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface DietaryOption {
   id: string;
@@ -41,7 +41,7 @@ export default function DietaryOptionsSelector({
   return (
     <div className={`mb-6 ${className}`}>
       <label className="flex items-center text-[var(--gray-300)] font-medium mb-3">
-        <Tag className="h-4 w-4 mr-2" />
+        <Icon name="etiqueta" className="h-4 w-4 mr-2" />
         Opções Dietéticas
       </label>
 
@@ -53,7 +53,7 @@ export default function DietaryOptionsSelector({
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-8 pr-3 py-2 bg-[var(--card-bg)] border border-[var(--gray-200)] rounded-lg text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-colors placeholder-[var(--gray-500)]"
         />
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--gray-500)]" />
+        <Icon name="pesquisa" className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--gray-500)]" />
       </div>
 
       {loading ? (
@@ -80,9 +80,9 @@ export default function DietaryOptionsSelector({
                   {dietaryOption.name}
                 </span>
                 {selectedDietaryOptions.includes(dietaryOption.id) ? (
-                  <Check className="h-4 w-4 text-black flex-shrink-0 ml-2" />
+                  <Icon name="visto" className="h-4 w-4 text-black flex-shrink-0 ml-2" />
                 ) : (
-                  <Plus className="h-4 w-4 text-[var(--gray-500)] flex-shrink-0 ml-2" />
+                  <Icon name="mais" className="h-4 w-4 text-[var(--gray-500)] flex-shrink-0 ml-2" />
                 )}
               </div>
             ))
@@ -113,7 +113,7 @@ export default function DietaryOptionsSelector({
                   onClick={() => handleToggleDietaryOption(dietaryOption.id)}
                   className="ml-1 text-black hover:text-[var(--gray-800)] transition-colors"
                 >
-                  <X className="h-3 w-3" />
+                  <Icon name="fechar" className="h-3 w-3" />
                 </button>
               </div>
             ))}

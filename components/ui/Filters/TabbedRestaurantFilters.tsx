@@ -2,27 +2,11 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { 
-  Filter, 
-  X, 
-  ChevronDown, 
-  ChevronUp, 
-  Search, 
-  MapPin, 
-  Star, 
-  Utensils, 
-  Sparkles,
-  Tag,
-  Check,
-  X as XIcon,
-  Search as SearchIcon,
-  Filter as FilterIcon,
-  Users
-} from 'lucide-react';
 import { createClient } from '@/libs/supabase/client';
 import { RestaurantFeature, DietaryOption } from '@/libs/types';
 import DualRangeSlider from './DualRangeSlider';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import Icon from '@/components/ui/icons/Icon';
 
 interface TabbedRestaurantFiltersProps {
   filters: any;
@@ -147,7 +131,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
         className="ml-2 p-1 rounded-full hover:bg-[var(--primary-light)]/50 transition-colors duration-200"
         aria-label="Remover filtro"
       >
-        <XIcon className="h-4 w-4 text-[var(--primary-dark)] group-hover:text-[var(--primary-dark)]" />
+        <Icon name="fechar" className="h-4 w-4 text-[var(--primary-dark)] group-hover:text-[var(--primary-dark)]" />
       </button>
 </TooltipFast>
     </span>
@@ -242,23 +226,23 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
 
   const getAvailableTabs = useCallback(() => {
     const baseTabs = [
-      { id: 'search', title: 'Busca Inteligente', icon: <SearchIcon className="h-6 w-6" /> },
-      { id: 'location', title: 'Localização', icon: <MapPin className="h-6 w-6" /> },
-      { id: 'price-rating', title: 'Preço & Avaliação', icon: <Star className="h-6 w-6" /> },
+      { id: 'search', title: 'Busca Inteligente', icon: <Icon name="pesquisa" className="h-6 w-6" /> },
+      { id: 'location', title: 'Localização', icon: <Icon name="pin" className="h-6 w-6" /> },
+      { id: 'price-rating', title: 'Preço & Avaliação', icon: <Icon name="estrela" className="h-6 w-6" /> },
       { id: 'cuisine', title: 'Culinária', icon: cuisineTypes.length > 0 ? (
         <span className="text-2xl">{cuisineTypes[0].icon || '🍽️'}</span>
       ) : (
-        <Utensils className="h-6 w-6" />
+        <Icon name="restaurantes" className="h-6 w-6" />
       ) },
       { id: 'features', title: 'Comodidades', icon: features.length > 0 ? (
         <span className="text-2xl">{features[0].icon || '✨'}</span>
       ) : (
-        <Sparkles className="h-6 w-6" />
+        <Icon name="faiscas" className="h-6 w-6" />
       ) },
       { id: 'dietary', title: 'Dietas', icon: dietaryOptions.length > 0 ? (
         <span className="text-2xl">{dietaryOptions[0].icon || '🥗'}</span>
       ) : (
-        <Tag className="h-6 w-6" />
+        <Icon name="etiqueta" className="h-6 w-6" />
       ) }
     ];
 
@@ -318,7 +302,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
-                  <Search className="h-5 w-5" />
+                  <Icon name="pesquisa" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -335,7 +319,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -383,7 +367,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
-                  <MapPin className="h-5 w-5" />
+                  <Icon name="pin" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -400,7 +384,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -464,7 +448,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
-                  <SearchIcon className="h-5 w-5" />
+                  <Icon name="pesquisa" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -492,7 +476,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -553,7 +537,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                             
                             {isSelected && (
                               <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center shadow-lg">
-                                <Check className="h-4 w-4 text-white" />
+                                <Icon name="visto" className="h-4 w-4 text-white" />
                               </div>
                             )}
                           </button>
@@ -573,7 +557,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
-                  <SearchIcon className="h-5 w-5" />
+                  <Icon name="pesquisa" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -601,7 +585,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -662,7 +646,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                             
                             {isSelected && (
                               <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center shadow-lg">
-                                <Check className="h-4 w-4 text-white" />
+                                <Icon name="visto" className="h-4 w-4 text-white" />
                               </div>
                             )}
                           </button>
@@ -682,7 +666,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--foreground-muted)]">
-                  <SearchIcon className="h-5 w-5" />
+                  <Icon name="pesquisa" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -710,7 +694,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--background-secondary)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--foreground-muted)] hover:text-[var(--foreground-secondary)]" />
                   </button>
                 )}
               </div>
@@ -771,7 +755,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                             
                             {isSelected && (
                               <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center shadow-lg">
-                                <Check className="h-4 w-4 text-white" />
+                                <Icon name="visto" className="h-4 w-4 text-white" />
                               </div>
                             )}
                           </button>
@@ -811,7 +795,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                   </span>
                   {filters.open_now && (
                     <div className="ml-auto w-6 h-6 bg-[var(--primary)] rounded-full flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
+                      <Icon name="visto" className="h-4 w-4 text-white" />
                     </div>
                   )}
                 </div>
@@ -936,7 +920,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
               <div className="relative">
                 <div className="absolute -inset-2 bg-[var(--primary-light)]/20 rounded-[var(--radius-xl)] blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 <div className="relative flex items-center justify-center w-14 h-14 bg-[var(--primary)] rounded-[var(--radius-xl)] shadow-xl group-hover:shadow-2xl transition-all duration-300 transform group-hover:scale-105 group-active:scale-95">
-                  <FilterIcon className="h-7 w-7 text-white drop-shadow-lg" />
+                  <Icon name="filtros" className="h-7 w-7 text-white drop-shadow-lg" />
                 </div>
               </div>
               
@@ -1019,7 +1003,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                 onClick={clearFilters}
                 className="group inline-flex items-center px-6 py-3 border-2 border-[var(--primary-light)]/60 text-lg font-semibold rounded-[var(--radius-xl)] text-[var(--primary-dark)] bg-[var(--primary-50)] hover:shadow-lg hover:border-[var(--primary-light)]/80 transform hover:-translate-y-1"
               >
-                <X className="h-5 w-5 mr-3 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
+                <Icon name="fechar" className="h-5 w-5 mr-3 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 <span>Limpar tudo</span>
               </button>
             )}
@@ -1031,9 +1015,9 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
             >
               <div className="flex items-center justify-center w-8 h-8">
                 {isOpen ? (
-                  <ChevronUp className="h-6 w-6 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
+                  <Icon name="chevron-cima" className="h-6 w-6 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 ) : (
-                  <ChevronDown className="h-6 w-6 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
+                  <Icon name="chevron-baixo" className="h-6 w-6 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 )}
               </div>
             </button>
@@ -1077,7 +1061,7 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
                 onClick={clearFilters}
                 className="group inline-flex items-center px-8 py-4 border-2 border-[var(--primary-light)]/60 text-lg font-semibold rounded-[var(--radius-xl)] text-[var(--primary-dark)] bg-[var(--primary-50)] hover:shadow-lg hover:border-[var(--primary-light)]/80 transform hover:-translate-y-1"
               >
-                <X className="h-5 w-5 mr-3 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
+                <Icon name="fechar" className="h-5 w-5 mr-3 text-[var(--primary)] group-hover:text-[var(--primary-dark)]" />
                 <span>Limpar filtros</span>
               </button>
               

@@ -2,9 +2,9 @@
 
 import React from "react";
 import Navbar from "@/components/ui/navigation/Navbar";
-import { MapPinOff } from "lucide-react";
 import Link from "next/link";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import Icon from '@/components/ui/icons/Icon';
 
 interface NoCoordsRestaurant {
   id: string;
@@ -74,7 +74,7 @@ export default function NoCoordsPage() {
                   key={r.id}
                   className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]"
                 >
-                  <MapPinOff className="w-5 h-5 text-amber-400/50 flex-shrink-0" />
+                  <Icon name="pin-off" className="w-5 h-5 text-amber-400/50 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/restaurants/${r.slug || r.id}`}

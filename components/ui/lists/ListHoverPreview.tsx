@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import Link from 'next/link';
-import { Star, MapPin } from 'lucide-react';
 
 interface Restaurant {
   id: string;

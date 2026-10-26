@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, MapPin, Download, ExternalLink, Check, X, Users } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface MealCardProps {
   meal: {
@@ -131,11 +131,11 @@ export default function MealCard({
         {/* Date and Time */}
         <div className="flex items-center space-x-4 text-sm text-[var(--gray-400)]">
           <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4 text-[var(--amber-500)]" />
+            <Icon name="calendario" className="h-4 w-4 text-[var(--amber-500)]" />
             <span className="capitalize">{formatDatePT(meal.mealDate)}</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4 text-[var(--amber-500)]" />
+            <Icon name="horario" className="h-4 w-4 text-[var(--amber-500)]" />
             <span>{formatTimePT(meal.mealTime)}</span>
             <span className="text-[var(--gray-400)]">({meal.durationMinutes} min)</span>
           </div>
@@ -144,7 +144,7 @@ export default function MealCard({
         {/* Location */}
         {meal.restaurant?.location && (
           <div className="flex items-center space-x-2 text-sm text-[var(--gray-400)]">
-            <MapPin className="h-4 w-4 text-[var(--amber-500)]" />
+            <Icon name="pin" className="h-4 w-4 text-[var(--amber-500)]" />
             <span>{meal.restaurant.location}</span>
           </div>
         )}
@@ -160,7 +160,7 @@ export default function MealCard({
         {meal.participants.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-sm text-[var(--gray-400)]">
-              <Users className="h-4 w-4 text-[var(--amber-500)]" />
+              <Icon name="utilizadores" className="h-4 w-4 text-[var(--amber-500)]" />
               <span>{meal.participants.length} participante(s)</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -212,7 +212,7 @@ export default function MealCard({
               className="flex items-center space-x-1 px-3 py-1.5 text-sm text-[var(--amber-700)] bg-[var(--amber-50)] hover:bg-[var(--amber-100)] rounded-lg transition-colors"
               title="Ver detalhes"
             >
-              <ExternalLink className="h-4 w-4" />
+              <Icon name="externo" className="h-4 w-4" />
               <span>Detalhes</span>
             </Link>
 
@@ -223,7 +223,7 @@ export default function MealCard({
                 className="flex items-center space-x-1 px-3 py-1.5 text-sm text-[var(--gray-300)] bg-[var(--background-secondary)] hover:bg-[var(--background-tertiary)] rounded-lg transition-colors"
                 title="Descarregar .ics"
               >
-                <Download className="h-4 w-4" />
+                <Icon name="descarregar" className="h-4 w-4" />
                 <span>.ics</span>
               </button>
             )}
@@ -241,7 +241,7 @@ export default function MealCard({
                       : 'text-white bg-[var(--green-500)] hover:bg-[var(--green-600)]'
                   }`}
                 >
-                  <Check className="h-4 w-4" />
+                  <Icon name="visto" className="h-4 w-4" />
                   <span>{meal.participantStatus === 'accepted' ? 'Aceite ✓' : 'Aceitar'}</span>
                 </button>
               )}
@@ -254,7 +254,7 @@ export default function MealCard({
                       : 'text-white bg-[var(--red-500)] hover:bg-[var(--red-600)]'
                   }`}
                 >
-                  <X className="h-4 w-4" />
+                  <Icon name="fechar" className="h-4 w-4" />
                   <span>{meal.participantStatus === 'declined' ? 'Recusado ✓' : 'Recusar'}</span>
                 </button>
               )}

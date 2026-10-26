@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Bell } from "lucide-react";
 import useNotifications from "@/hooks/data/useNotifications";
 import type { Notification } from "@/types/notification";
 import NotificationGroup, { groupByDate } from "./NotificationGroup";
 import NotificationEmptyState from "./NotificationEmptyState";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 export default function NotificationsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +60,7 @@ export default function NotificationsDropdown() {
         aria-label={ariaLabel}
         aria-expanded={isOpen}
       >
-        <Bell className="h-4 w-4 text-white/70" />
+        <Icon name="sino" className="h-4 w-4 text-white/70" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-amber-500 text-black text-[10px] font-bold px-1 ring-2 ring-[var(--background)]">
             {unreadCount > 9 ? "9+" : unreadCount}

@@ -4,11 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Link from "next/link";
 import { TooltipFast } from "@/components/ui/Tooltip";
-import { Send, Trash2, Pencil, Check, X } from "lucide-react";
 import { toast } from "react-toastify";
 import MentionText from "@/components/ui/common/MentionText";
 import MentionInput from "@/components/ui/common/MentionInput";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface Comment {
   id: string;
@@ -213,7 +213,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                           className="flex h-11 w-11 items-center justify-center rounded-[10px] text-white/50 hover:bg-white/[0.06]"
                           aria-label="Cancelar"
                         >
-                          <X className="h-4 w-4" />
+                          <Icon name="fechar" className="h-4 w-4" />
                         </button>
                       </TooltipFast>
                       <TooltipFast content="Guardar">
@@ -223,7 +223,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                           className="flex h-11 w-11 items-center justify-center rounded-[10px] text-amber-300 hover:bg-amber-500/10 disabled:opacity-30"
                           aria-label="Guardar"
                         >
-                          {saving ? <ToviSpinner className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                          {saving ? <ToviSpinner className="h-4 w-4" /> : <Icon name="visto" className="h-4 w-4" />}
                         </button>
                       </TooltipFast>
                     </div>
@@ -248,7 +248,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                               className="flex h-11 w-11 items-center justify-center rounded-[10px] text-white/40 hover:bg-amber-500/10 hover:text-amber-300"
                               aria-label="Editar comentário"
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Icon name="editar" className="h-4 w-4" />
                             </button>
                           </TooltipFast>
                         )}
@@ -259,7 +259,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                               className="flex h-11 w-11 items-center justify-center rounded-[10px] text-white/40 hover:bg-red-500/10 hover:text-red-400"
                               aria-label="Eliminar comentário"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Icon name="apagar" className="h-4 w-4" />
                             </button>
                           </TooltipFast>
                         )}
@@ -289,7 +289,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
             disabled={submitting || !newComment.trim()}
             className="flex min-h-[44px] items-center gap-2 rounded-[10px] bg-amber-500 px-4 text-sm font-semibold text-[#111] transition-colors hover:bg-amber-400 disabled:opacity-40"
           >
-            {submitting ? <ToviSpinner className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+            {submitting ? <ToviSpinner className="h-4 w-4" /> : <Icon name="enviar" className="h-4 w-4" />}
             Enviar
           </button>
         </form>
