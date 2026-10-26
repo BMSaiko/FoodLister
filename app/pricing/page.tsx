@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {  Sparkles } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -11,6 +10,7 @@ import type { SubscriptionPlan, UserSubscription, SubscriptionTier } from '@/lib
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { toast } from 'react-toastify';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import Icon from '@/components/ui/icons/Icon';
 
 export default function PricingPage() {
   usePageTitle("Premium - FoodLister");
@@ -92,7 +92,7 @@ export default function PricingPage() {
         />
 
         <div className="flex items-center gap-2 justify-center mb-8 p-4 bg-purple-500/10 rounded-2xl">
-          <Sparkles className="h-5 w-5 text-purple-400" />
+          <Icon name="faiscas" className="h-5 w-5 text-purple-400" />
           <p className="text-sm text-purple-300 font-medium">
             Todos os planos incluem acesso ao suporte da comunidade
           </p>

@@ -5,10 +5,10 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import Link from "next/link";
 import EmptyState from "@/components/ui/EmptyState";
-import {  Clock, Users, MapPin, ArrowRight, Loader2, UtensilsCrossed } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLanguage } from "@/contexts";
 import ToviLoader from "@/components/loading/ToviLoader";
+import Icon from '@/components/ui/icons/Icon';
 
 export default function MealsPage() {
   const { t } = useLanguage();
@@ -64,7 +64,7 @@ export default function MealsPage() {
             mascot="a-pensar"
             title={t("Nenhuma refeição agendada")}
             description={t("Agenda uma refeição a partir de qualquer restaurante.")}
-            action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">{t("Explorar Restaurantes")} <ArrowRight className="h-4 w-4" /></Link>}
+            action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">{t("Explorar Restaurantes")} <Icon name="seta-dir" className="h-4 w-4" /></Link>}
           />
         ) : (
           <div className="space-y-3">
@@ -92,18 +92,18 @@ export default function MealsPage() {
                     </h3>
                     <div className="flex items-center gap-3 mt-1 text-xs text-white/35">
                       {meal.meal_time && (
-                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{meal.meal_time}</span>
+                        <span className="flex items-center gap-1"><Icon name="horario" className="h-3 w-3" />{meal.meal_time}</span>
                       )}
                       {meal.restaurant?.location && meal.restaurant.location !== meal.restaurant?.name && (
-                        <span className="flex items-center gap-1 truncate"><MapPin className="h-3 w-3" />{meal.restaurant.location}</span>
+                        <span className="flex items-center gap-1 truncate"><Icon name="pin" className="h-3 w-3" />{meal.restaurant.location}</span>
                       )}
                       {meal.participant_count > 0 && (
-                        <span className="flex items-center gap-1"><Users className="h-3 w-3" />{meal.participant_count}</span>
+                        <span className="flex items-center gap-1"><Icon name="utilizadores" className="h-3 w-3" />{meal.participant_count}</span>
                       )}
                     </div>
                   </div>
 
-                  <ArrowRight className="h-4 w-4 text-white/20 flex-shrink-0" />
+                  <Icon name="seta-dir" className="h-4 w-4 text-white/20 flex-shrink-0" />
                 </div>
               </Link>
             ))}

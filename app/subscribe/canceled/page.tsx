@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { XCircle } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import Icon from '@/components/ui/icons/Icon';
 
 export default function SubscribeCanceledPage() {
   usePageTitle("Subscrição cancelada - FoodLister");
@@ -15,7 +15,7 @@ export default function SubscribeCanceledPage() {
       <Container variant="narrow" className="py-16">
         <div className="card p-8 text-center max-w-md mx-auto">
           <div className="w-16 h-16 bg-[var(--error-light)] rounded-full flex items-center justify-center mx-auto mb-6">
-            <XCircle className="h-10 w-10 text-[var(--error)]" />
+            <Icon name="erro-circulo" className="h-10 w-10 text-[var(--error)]" />
           </div>
           <h1 className="text-2xl font-bold text-white/90 mb-2">Pagamento Cancelado</h1>
           <p className="text-white/70 mb-6">

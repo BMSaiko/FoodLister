@@ -2,10 +2,10 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
-import { Upload, X, AlertCircle, CheckCircle, Camera, Image as ImageIcon, RefreshCw } from 'lucide-react';
 import { uploadToCloudinary } from '@/utils/cloudinaryConverter';
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 /**
  * ImageUploader component using react-dropzone with Cloudinary API
@@ -176,7 +176,7 @@ export default function ImageUploader({
     <div className={`mb-4 ${className}`}>
       <div className="flex items-center justify-between mb-3">
         <label className="flex items-center text-[var(--gray-700)] font-medium">
-          <Upload className="h-4 w-4 mr-2 text-[var(--primary)]" />
+          <Icon name="carregar" className="h-4 w-4 mr-2 text-[var(--primary)]" />
           Upload de Imagem
         </label>
         {!uploadState.isUploading && (
@@ -203,9 +203,9 @@ export default function ImageUploader({
             {uploadState.isUploading ? (
               <ToviLoader size="sm" />
             ) : isMobile === true ? (
-              <Camera className="h-8 w-8 text-[var(--primary)]" />
+              <Icon name="camara" className="h-8 w-8 text-[var(--primary)]" />
             ) : (
-              <ImageIcon className="h-8 w-8 text-[var(--primary)]" />
+              <Icon name="imagem" className="h-8 w-8 text-[var(--primary)]" />
             )}
           </div>
 
@@ -252,14 +252,14 @@ export default function ImageUploader({
 
       {uploadState.success && uploadState.multipleProgress && (
         <div className="mt-3 flex items-center justify-center text-[var(--green-600)] text-sm">
-          <CheckCircle className="h-4 w-4 mr-2" />
+          <Icon name="ok-circulo" className="h-4 w-4 mr-2" />
           {uploadState.multipleProgress.total} imagens carregadas com sucesso! Os previews aparecerão abaixo.
         </div>
       )}
 
       {uploadState.success && uploadState.uploadedUrl && !uploadState.multipleProgress && (
         <div className="mt-3 flex items-center justify-center text-[var(--green-600)] text-sm">
-          <CheckCircle className="h-4 w-4 mr-2" />
+          <Icon name="ok-circulo" className="h-4 w-4 mr-2" />
           Imagem carregada com sucesso! O preview aparecerá abaixo.
         </div>
       )}
@@ -267,7 +267,7 @@ export default function ImageUploader({
       {uploadState.error && (
         <div className="mt-3 p-3 bg-[var(--red-50)] border border-[var(--red-100)] rounded-lg">
           <div className="flex items-start space-x-2">
-            <AlertCircle className="h-4 w-4 text-[var(--red-500)] mt-0.5 flex-shrink-0" />
+            <Icon name="alerta-circulo" className="h-4 w-4 text-[var(--red-500)] mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-medium text-[var(--red-800)]">{t('Erro no upload')}</p>
               <p className="text-sm text-[var(--red-700)] mt-1">{uploadState.error}</p>
@@ -278,13 +278,13 @@ export default function ImageUploader({
                 className="flex-shrink-0 p-1 hover:bg-[var(--blue-100)] rounded transition-colors text-[var(--blue-600)]"
                 title={t('Tentar novamente')}
               >
-                <RefreshCw className="h-3 w-3" />
+                <Icon name="atualizar" className="h-3 w-3" />
               </button>
               <button
                 onClick={clearError}
                 className="flex-shrink-0 p-1 hover:bg-[var(--red-100)] rounded transition-colors"
               >
-                <X className="h-3 w-3 text-[var(--red-500)]" />
+                <Icon name="fechar" className="h-3 w-3 text-[var(--red-500)]" />
               </button>
             </div>
           </div>

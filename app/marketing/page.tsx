@@ -3,39 +3,39 @@
 import React from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { Sparkles, ChefHat, Users, Share2, BarChart3, Shield, ArrowRight, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { Container } from "@/components/ui/Container";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import Icon from '@/components/ui/icons/Icon';
 
 const features = [
   {
-    icon: <ChefHat className="w-7 h-7" />,
+    icon: <Icon name="chef" className="w-7 h-7" />,
     title: "Descubra Restaurantes",
     description: "Explora uma colecao curada de restaurantes. De tapas espanholas a ramen japones, encontra o lugar perfeito para cada ocasiao.",
   },
   {
-    icon: <Share2 className="w-7 h-7" />,
+    icon: <Icon name="partilhar" className="w-7 h-7" />,
     title: "Crie Listas Personalizadas",
     description: "Organiza por tema, ocasiao ou humor. Partilha com os teus amigos e descobre novos lugares juntos.",
   },
   {
-    icon: <BarChart3 className="w-7 h-7" />,
+    icon: <Icon name="grafico" className="w-7 h-7" />,
     title: "Avalie & Review",
     description: "Partilha as tuas experiências. Cada review ajuda a comunidade a descobrir os melhores sítios.",
   },
   {
-    icon: <Shield className="w-7 h-7" />,
+    icon: <Icon name="escudo" className="w-7 h-7" />,
     title: "Perfil Verificado",
     description: "O teu perfil mostra o que tens visitado, as tuas listas e as tuas avaliações. Transparente e confianvel.",
   },
   {
-    icon: <Star className="w-7 h-7" />,
+    icon: <Icon name="estrela" className="w-7 h-7" />,
     title: "Roleta de Descoberta",
     description: "Nao sabes onde comer? Gira a roleta e deixa a sorte decidir. Surpreende-te com restaurantes que nunca experimentaste.",
   },
   {
-    icon: <Users className="w-7 h-7" />,
+    icon: <Icon name="utilizadores" className="w-7 h-7" />,
     title: "Comunidade Ativa",
     description: "Milhares de food hunters ja organizam suas experiências. Junta-te a eles e expande o teu paladar.",
   },
@@ -118,7 +118,7 @@ export default function MarketingPage() {
                 className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--primary)] text-black font-semibold rounded-full min-h-[52px] hover:bg-[var(--primary-hover)] transition-colors duration-150"
               >
                 Comecar Grátis
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                <Icon name="seta-dir" className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/restaurants"
@@ -156,7 +156,7 @@ export default function MarketingPage() {
             >
               <div className="absolute top-6 right-6 w-16 h-16 rounded-full bg-amber-500/10 blur-xl group-hover:bg-amber-500/15 transition-colors duration-150" />
               <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6 relative">
-                <Sparkles className="w-7 h-7 text-[var(--primary)]" />
+                <Icon name="faiscas" className="w-7 h-7 text-[var(--primary)]" />
               </div>
               <h3 className="text-xl font-bold text-[var(--foreground)] mb-3">Descubra Restaurantes</h3>
               <p className="text-[var(--foreground-secondary)] leading-relaxed">
@@ -191,7 +191,7 @@ export default function MarketingPage() {
             >
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-emerald-400" />
+                  <Icon name="utilizadores" className="w-6 h-6 text-emerald-400" />
                 </div>
                 <div>
                   <h3 className="text-base font-semibold text-[var(--foreground)] mb-2">Comunidade Ativa</h3>
@@ -280,7 +280,7 @@ export default function MarketingPage() {
                 className="inline-flex items-center gap-3 px-10 py-5 bg-[var(--primary)] text-black font-bold text-lg rounded-full hover:bg-[var(--primary-hover)] transition-colors duration-150 min-h-[60px]"
               >
                 Criar Conta Gratuita
-                <ArrowRight className="w-5 h-5" />
+                <Icon name="seta-dir" className="w-5 h-5" />
               </Link>
             </motion.div>
 

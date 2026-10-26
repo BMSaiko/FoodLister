@@ -1,9 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, Sparkles, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantFormCelebrationProps {
   show: boolean;
@@ -72,7 +72,7 @@ export default function RestaurantFormCelebration({ show, restaurantId, restaura
               transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}
               className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6"
             >
-              <Check className="w-10 h-10 text-emerald-400" />
+              <Icon name="visto" className="w-10 h-10 text-emerald-400" />
             </motion.div>
 
             <motion.h2
@@ -103,7 +103,7 @@ export default function RestaurantFormCelebration({ show, restaurantId, restaura
                 href={'/restaurants/' + restaurantId}
                 className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary)] text-black font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors"
               >
-                <Sparkles className="w-4 h-4" />
+                <Icon name="faiscas" className="w-4 h-4" />
                 Ver Restaurante
               </Link>
               <Link
@@ -111,7 +111,7 @@ export default function RestaurantFormCelebration({ show, restaurantId, restaura
                 className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-white/[0.03] border border-white/[0.08] text-[var(--foreground)] font-medium rounded-full hover:bg-white/[0.06] transition-colors"
               >
                 Explorar
-                <ArrowRight className="w-4 h-4" />
+                <Icon name="seta-dir" className="w-4 h-4" />
               </Link>
             </motion.div>
           </motion.div>

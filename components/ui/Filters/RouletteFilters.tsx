@@ -2,25 +2,11 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { 
-  Filter, 
-  X, 
-  ChevronDown, 
-  ChevronUp, 
-  MapPin, 
-  Star, 
-  Utensils, 
-  Sparkles,
-  Tag,
-  Check,
-  X as XIcon,
-  Search as SearchIcon,
-  Users
-} from 'lucide-react';
 import { createClient } from '@/libs/supabase/client';
 import { RestaurantFeature, DietaryOption } from '@/libs/types';
 import DualRangeSlider from './DualRangeSlider';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RouletteFiltersProps {
   filters: any;
@@ -144,7 +130,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
         className="ml-2 p-1 rounded-full hover:bg-[var(--amber-200)]"
         aria-label="Remover filtro"
       >
-        <XIcon className="h-4 w-4 text-[var(--amber-600)]" />
+        <Icon name="fechar" className="h-4 w-4 text-[var(--amber-600)]" />
       </button>
 </TooltipFast>
     </span>
@@ -234,22 +220,22 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
 
   const getAvailableTabs = useCallback(() => {
     const baseTabs = [
-      { id: 'location', title: 'Localização', icon: <MapPin className="h-6 w-6" /> },
-      { id: 'price-rating', title: 'Preço & Avaliação', icon: <Star className="h-6 w-6" /> },
+      { id: 'location', title: 'Localização', icon: <Icon name="pin" className="h-6 w-6" /> },
+      { id: 'price-rating', title: 'Preço & Avaliação', icon: <Icon name="estrela" className="h-6 w-6" /> },
       { id: 'cuisine', title: 'Culinária', icon: cuisineTypes.length > 0 ? (
         <span className="text-2xl">{cuisineTypes[0].icon || '🍽️'}</span>
       ) : (
-        <Utensils className="h-6 w-6" />
+        <Icon name="restaurantes" className="h-6 w-6" />
       ) },
       { id: 'features', title: 'Comodidades', icon: features.length > 0 ? (
         <span className="text-2xl">{features[0].icon || '✨'}</span>
       ) : (
-        <Sparkles className="h-6 w-6" />
+        <Icon name="faiscas" className="h-6 w-6" />
       ) },
       { id: 'dietary', title: 'Dietas', icon: dietaryOptions.length > 0 ? (
         <span className="text-2xl">{dietaryOptions[0].icon || '🥗'}</span>
       ) : (
-        <Tag className="h-6 w-6" />
+        <Icon name="etiqueta" className="h-6 w-6" />
       ) }
     ];
 
@@ -293,7 +279,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--amber-400)]/20 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--gray-400)]">
-                  <MapPin className="h-5 w-5" />
+                  <Icon name="pin" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -310,7 +296,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--gray-100)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
                   </button>
                 )}
               </div>
@@ -374,7 +360,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--amber-400)]/20 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--gray-400)]">
-                  <SearchIcon className="h-5 w-5" />
+                  <Icon name="pesquisa" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -402,7 +388,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--gray-100)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
                   </button>
                 )}
               </div>
@@ -463,7 +449,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                             
                             {isSelected && (
                               <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--amber-500)] rounded-full flex items-center justify-center shadow-lg">
-                                <Check className="h-4 w-4 text-white" />
+                                <Icon name="visto" className="h-4 w-4 text-white" />
                               </div>
                             )}
                           </button>
@@ -483,7 +469,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--amber-400)]/20 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--gray-400)]">
-                  <SearchIcon className="h-5 w-5" />
+                  <Icon name="pesquisa" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -511,7 +497,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--gray-100)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
                   </button>
                 )}
               </div>
@@ -572,7 +558,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                             
                             {isSelected && (
                               <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--amber-500)] rounded-full flex items-center justify-center shadow-lg">
-                                <Check className="h-4 w-4 text-white" />
+                                <Icon name="visto" className="h-4 w-4 text-white" />
                               </div>
                             )}
                           </button>
@@ -592,7 +578,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
               <div className="absolute -inset-1 bg-[var(--amber-400)]/20 rounded-xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-[var(--gray-400)]">
-                  <SearchIcon className="h-5 w-5" />
+                  <Icon name="pesquisa" className="h-5 w-5" />
                 </div>
                 <input
                   type="text"
@@ -620,7 +606,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 hover:bg-[var(--gray-100)] rounded-full transition-colors duration-200"
                   >
-                    <XIcon className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
+                    <Icon name="fechar" className="h-5 w-5 text-[var(--gray-400)] hover:text-[var(--gray-600)]" />
                   </button>
                 )}
               </div>
@@ -681,7 +667,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                             
                             {isSelected && (
                               <div className="absolute top-3 right-3 w-6 h-6 bg-[var(--amber-500)] rounded-full flex items-center justify-center shadow-lg">
-                                <Check className="h-4 w-4 text-white" />
+                                <Icon name="visto" className="h-4 w-4 text-white" />
                               </div>
                             )}
                           </button>
@@ -739,7 +725,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
               <div className="relative">
                 <div className="absolute -inset-2 bg-[var(--amber-400)]/30 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
                 <div className="relative flex items-center justify-center w-14 h-14 bg-[var(--amber-500)] rounded-2xl shadow-xl group-hover:shadow-2xl group-hover:bg-[var(--amber-600)] transition-all duration-300 transform group-hover:scale-105 group-active:scale-95">
-                  <Filter className="h-7 w-7 text-white drop-shadow-lg" />
+                  <Icon name="filtros" className="h-7 w-7 text-white drop-shadow-lg" />
                 </div>
               </div>
               
@@ -804,7 +790,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                 onClick={clearFilters}
                 className="group inline-flex items-center px-6 py-3 border-2 border-[var(--amber-200)]/60 text-lg font-semibold rounded-xl text-[var(--amber-700)] bg-[var(--amber-50)] hover:bg-[var(--amber-100)] transition-all duration-300 hover:shadow-lg hover:border-[var(--amber-300)]/80 transform hover:-translate-y-1"
               >
-                <X className="h-5 w-5 mr-3 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
+                <Icon name="fechar" className="h-5 w-5 mr-3 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
                 <span>Limpar tudo</span>
               </button>
             )}
@@ -816,9 +802,9 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
             >
               <div className="flex items-center justify-center w-8 h-8">
                 {isOpen ? (
-                  <ChevronUp className="h-6 w-6 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
+                  <Icon name="chevron-cima" className="h-6 w-6 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
                 ) : (
-                  <ChevronDown className="h-6 w-6 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
+                  <Icon name="chevron-baixo" className="h-6 w-6 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
                 )}
               </div>
             </button>
@@ -862,7 +848,7 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
                 onClick={clearFilters}
                 className="group inline-flex items-center px-8 py-4 border-2 border-[var(--amber-200)]/60 text-lg font-semibold rounded-xl text-[var(--amber-700)] bg-[var(--amber-50)] hover:bg-[var(--amber-100)] transition-all duration-300 hover:shadow-lg hover:border-[var(--amber-300)]/80 transform hover:-translate-y-1"
               >
-                <X className="h-5 w-5 mr-3 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
+                <Icon name="fechar" className="h-5 w-5 mr-3 text-[var(--amber-600)] group-hover:text-[var(--amber-700)]" />
                 <span>Limpar filtros</span>
               </button>
               

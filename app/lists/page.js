@@ -8,9 +8,9 @@ import ListCard from '@/components/ui/RestaurantManagement/ListCard';
 import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
 import { motion } from 'motion/react';
-import { Plus, Search as SearchIcon, ListChecks, RefreshCw } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import Icon from '@/components/ui/icons/Icon';
 
 const likesOf = (l) => {
   const lc = l.like_count;
@@ -144,7 +144,7 @@ function ListsContent() {
                 href="/lists/create"
                 className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] text-black font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors"
               >
-                <Plus className="w-4 h-4" />
+                <Icon name="mais" className="w-4 h-4" />
                 Nova Lista
               </Link>
             </div>
@@ -189,7 +189,7 @@ function ListsContent() {
                   onClick={fetchLists}
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] text-black font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <Icon name="atualizar" className="w-4 h-4" />
                   Tentar de novo
                 </button>
               </div>
@@ -216,9 +216,9 @@ function ListsContent() {
               <div className="text-center py-20">
                 <div className="w-20 h-20 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-6 empty-state-icon">
                   {searchQuery ? (
-                    <SearchIcon className="w-8 h-8 text-amber-400" />
+                    <Icon name="pesquisa" className="w-8 h-8 text-amber-400" />
                   ) : (
-                    <ListChecks className="w-8 h-8 text-amber-400" />
+                    <Icon name="lista-ok" className="w-8 h-8 text-amber-400" />
                   )}
                 </div>
                 <h2 className="text-2xl font-bold text-[var(--foreground)] mb-3">
@@ -235,7 +235,7 @@ function ListsContent() {
                   </Link>
                 ) : (
                   <Link href="/lists/create" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] text-black font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors">
-                    <Plus className="w-4 h-4" />
+                    <Icon name="mais" className="w-4 h-4" />
                     Criar Nova Lista
                   </Link>
                 )}
@@ -257,7 +257,7 @@ function ListsContent() {
           className="w-14 h-14 rounded-full bg-[var(--primary)] text-black flex items-center justify-center shadow-lg hover:bg-[var(--primary-hover)] transition-colors fab-pulse"
           title={t('Criar lista')}
         >
-          <Plus className="w-6 h-6" />
+          <Icon name="mais" className="w-6 h-6" />
         </Link>
       </motion.div>
     </main>

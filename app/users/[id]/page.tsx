@@ -7,7 +7,6 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useUserData } from "@/hooks/data/useUserData";
 import { toast } from "react-toastify";
 import { useLanguage } from "@/contexts";
-import { AlertCircle, Star } from "lucide-react";
 import Navbar from "@/components/ui/navigation/Navbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import UserProfileHeader from "@/components/ui/profile/UserProfileHeader";
@@ -19,6 +18,7 @@ import UserListsSection from "@/components/ui/profile/sections/lists/UserListsSe
 import UserRestaurantsSection from "@/components/ui/profile/sections/restaurants/UserRestaurantsSection";
 import ScheduledMealsSection from "@/components/ui/profile/sections/meals/ScheduledMealsSection";
 import UserLoadingPage from "./loading";
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserProfile {
   id: string;
@@ -205,7 +205,7 @@ const UserProfilePage = () => {
     return (
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center p-4">
         <div className="text-center max-w-sm">
-          <AlertCircle className="h-12 w-12 text-red-400/60 mx-auto" />
+          <Icon name="alerta-circulo" className="h-12 w-12 text-red-400/60 mx-auto" />
           <h1 className="text-xl font-bold text-white/70 mt-4">{error || t("Perfil não encontrado")}</h1>
           <button onClick={() => router.push("/restaurants")} className="mt-4 px-5 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-colors text-sm font-medium">
             {t("Explorar Restaurantes")}
@@ -289,7 +289,7 @@ const UserProfilePage = () => {
                   {/* Recent Reviews */}
                   <div>
                     <h3 className="text-lg font-semibold text-white/80 mb-4 flex items-center gap-2">
-                      <Star className="h-5 w-5 text-amber-400" />{t("Ultimas Reviews")}
+                      <Icon name="estrela" className="h-5 w-5 text-amber-400" />{t("Ultimas Reviews")}
                     </h3>
                     {(profile.recentReviews || []).length > 0 ? (
                       <div className="space-y-3">

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { Filter, X, Search, ArrowUpDown } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ListFiltersProps {
   onFilterChange: (filters: ListFilters) => void;
@@ -78,7 +78,7 @@ export default function ListFilters({
       {/* Search Bar */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gray-400)]" />
+          <Icon name="pesquisa" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gray-400)]" />
           <input
             type="text"
             value={filters.search}
@@ -95,7 +95,7 @@ export default function ListFilters({
               : 'border-[var(--gray-300)] hover:bg-[var(--gray-50)]'
           }`}
         >
-          <Filter className="h-4 w-4" />
+          <Icon name="filtros" className="h-4 w-4" />
           <span className="hidden sm:inline">Filtros</span>
           {hasActiveFilters && (
             <span className="w-2 h-2 bg-[var(--primary)] rounded-full" />
@@ -200,7 +200,7 @@ export default function ListFilters({
           {/* Sort Options */}
           <div>
             <label className="block text-sm font-medium text-[var(--gray-700)] mb-2 flex items-center gap-2">
-              <ArrowUpDown className="h-4 w-4" />
+              <Icon name="ordenar" className="h-4 w-4" />
               Ordenar por
             </label>
             <div className="flex flex-wrap gap-2">
@@ -234,7 +234,7 @@ export default function ListFilters({
                 onClick={clearAll}
                 className="flex items-center gap-1 text-sm text-[var(--gray-600)] hover:text-[var(--gray-800)] transition-colors"
               >
-                <X className="h-3 w-3" />
+                <Icon name="fechar" className="h-3 w-3" />
                 Limpar filtros
               </button>
             </div>

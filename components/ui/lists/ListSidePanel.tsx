@@ -2,11 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { Globe, Lock, MessageSquare, Activity } from "lucide-react";
 import { Share2, Shuffle, Edit, Copy, Trash2, MoreHorizontal, Filter } from "./MockIcons";
 import { CreatorLink } from "@/components/ui/common/CreatorLink";
 import ToviSpinner from "@/components/loading/ToviSpinner";
 import { hashString, toviSrc } from "@/utils/toviPlaceholder";
+import Icon from '@/components/ui/icons/Icon';
 
 interface ListSidePanelProps {
   list: { id: string; name: string; description?: string };
@@ -87,7 +87,7 @@ export default function ListSidePanel({
 
         <div className="mt-3.5 mb-3 flex flex-wrap items-center gap-2.5 text-xs">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/35 bg-amber-500/10 px-2.5 py-0.5 text-amber-300">
-            {isPublic ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+            {isPublic ? <Icon name="globo" className="h-3 w-3" /> : <Icon name="privado" className="h-3 w-3" />}
             {isPublic ? "Pública" : "Privada"}
           </span>
           <span className="text-white/50">{restaurants.length} restaurante{restaurants.length !== 1 ? "s" : ""}</span>
@@ -159,11 +159,11 @@ export default function ListSidePanel({
         <nav aria-label="Ir para secção" className="mt-2.5 flex items-center gap-2.5">
           {showComments && (
             <a href="#comentarios" onClick={goTo("comentarios")} className={navBtn}>
-              <MessageSquare className="h-4 w-4" /> Comentários
+              <Icon name="mensagem-q" className="h-4 w-4" /> Comentários
             </a>
           )}
           <a href="#atividade" onClick={goTo("atividade")} className={navBtn}>
-            <Activity className="h-4 w-4" /> Atividade
+            <Icon name="atividade" className="h-4 w-4" /> Atividade
           </a>
         </nav>
       </div>

@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { User, LogOut, Settings, Shield, Calendar, Sparkles, Megaphone } from 'lucide-react';
 import Ico from '@/components/ui/icons/Ico';
 import {useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
@@ -13,6 +12,7 @@ import NotificationsDropdown from './NotificationsDropdown';
 import LanguageCombobox from './LanguageCombobox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useNotifications from '@/hooks/data/useNotifications';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ProfileData {
   display_name: string;
@@ -225,14 +225,14 @@ export default function Navbar() {
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <User className="w-4 h-4" /> Meu Perfil
+                          <Icon name="perfil" className="w-4 h-4" /> Meu Perfil
                         </Link>
                         <Link
                           href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <Settings className="w-4 h-4" /> Configurações
+                          <Icon name="definicoes" className="w-4 h-4" /> Configurações
                         </Link>
                         {userProfile?.is_admin && (
                           <Link
@@ -240,7 +240,7 @@ export default function Navbar() {
                             onClick={() => setUserMenuOpen(false)}
                             className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                           >
-                            <Shield className="w-4 h-4" /> Admin
+                            <Icon name="escudo" className="w-4 h-4" /> Admin
                           </Link>
                         )}
                         <Link
@@ -248,14 +248,14 @@ export default function Navbar() {
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <Calendar className="w-4 h-4" /> Refeições
+                          <Icon name="calendario" className="w-4 h-4" /> Refeições
                         </Link>
                         <Link
                           href="/pricing"
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <Sparkles className="w-4 h-4" /> Premium
+                          <Icon name="faiscas" className="w-4 h-4" /> Premium
                         </Link>
                         {userProfile?.is_admin && (
                           <Link
@@ -263,7 +263,7 @@ export default function Navbar() {
                             onClick={() => setUserMenuOpen(false)}
                             className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                           >
-                            <Megaphone className="w-4 h-4" /> Marketing
+                            <Icon name="marketing" className="w-4 h-4" /> Marketing
                           </Link>
                         )}
                         <div className="border-t border-white/[0.06] my-1" />
@@ -271,7 +271,7 @@ export default function Navbar() {
                           onClick={handleSignOut}
                           className="magnetic-hover flex items-center gap-3 w-full px-3 py-2.5 text-sm text-[var(--error)] hover:bg-[var(--error-light)]"
                         >
-                          <LogOut className="w-4 h-4" />{t("Sair")}
+                          <Icon name="sair" className="w-4 h-4" />{t("Sair")}
                         </button>
                       </div>
                     </motion.div>

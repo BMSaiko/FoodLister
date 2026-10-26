@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { Flag } from 'lucide-react';
 import { toast } from 'react-toastify';
+import Icon from '@/components/ui/icons/Icon';
 
 const REASONS = [
   { value: 'closed', label: 'Fechado / Não existe' },
@@ -66,7 +66,7 @@ export default function ReportButton({ targetType, targetId, label }: Props) {
         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white/50 hover:text-amber-400 hover:bg-white/[0.04] rounded-lg transition-all duration-150"
         aria-label="Reportar"
       >
-        <Flag className="h-3.5 w-3.5" />
+        <Icon name="bandeira" className="h-3.5 w-3.5" />
         {label || 'Reportar'}
       </button>
       {open && (

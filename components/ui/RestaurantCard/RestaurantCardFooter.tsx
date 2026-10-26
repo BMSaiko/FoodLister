@@ -2,9 +2,9 @@
 "use client";
 
 import React from 'react';
-import { MapPin, Star } from 'lucide-react';
 import { getDescriptionPreview } from '@/utils/formatters';
 import { CreatorLink } from '@/components/ui/common/CreatorLink';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCardFooterProps {
   restaurant: {
@@ -34,7 +34,7 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
               {Array(5).fill(0).map((_, i) => (
-                <Star
+                <Icon name="estrela"
                   key={i}
                   className={`h-3 w-3 ${
                     i < Math.floor(restaurant.rating || 0)
@@ -91,7 +91,7 @@ const RestaurantCardFooter: React.FC<RestaurantCardFooterProps> = ({
       {/* Location */}
       {restaurant.location && (
         <div className={`flex items-center text-[var(--foreground-muted)] text-xs sm:text-sm mt-2 line-clamp-1 ${centered ? 'justify-center' : ''}`}>
-          <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+          <Icon name="pin" className="h-3 w-3 mr-1 flex-shrink-0" />
           <span className="truncate">{restaurant.location}</span>
         </div>
       )}

@@ -1,9 +1,9 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React from 'react';
-import { MapPin, Globe, FileText, ImageIcon, Phone, Smartphone } from 'lucide-react';
 import HorizontalImageList from './HorizontalImageList';
 import { useModal } from '@/contexts/ModalContext';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantInfoSectionProps {
   location?: string;
@@ -62,7 +62,7 @@ export default function RestaurantInfoSection({
             onClick={() => openMapModal({ location, latitude, longitude, source_url })}
           >
             <div className="flex-shrink-0 bg-amber-500/10 rounded-lg p-2">
-              <MapPin className="h-4 w-4 text-amber-400" />
+              <Icon name="pin" className="h-4 w-4 text-amber-400" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-white/40 mb-0.5">Localização</div>
@@ -79,7 +79,7 @@ export default function RestaurantInfoSection({
             className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl ring-1 ring-white/10 hover:bg-white/[0.05] transition-colors duration-150 min-h-[48px]"
           >
             <div className="flex-shrink-0 bg-blue-500/10 rounded-lg p-2">
-              <Globe className="h-4 w-4 text-blue-400" />
+              <Icon name="globo" className="h-4 w-4 text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-white/40 mb-0.5">Website</div>
@@ -96,7 +96,7 @@ export default function RestaurantInfoSection({
             className="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl ring-1 ring-white/10 hover:bg-white/[0.05] transition-colors duration-150 min-h-[48px]"
           >
             <div className="flex-shrink-0 bg-orange-500/10 rounded-lg p-2">
-              <FileText className="h-4 w-4 text-orange-400" />
+              <Icon name="documento" className="h-4 w-4 text-orange-400" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-xs font-medium text-white/40 mb-0.5">Menu</div>
@@ -112,9 +112,9 @@ export default function RestaurantInfoSection({
           >
             <div className="flex-shrink-0 bg-green-500/10 rounded-lg p-2">
               {detectPhoneType(phoneNumbers[0]) === 'mobile' ? (
-                <Smartphone className="h-4 w-4 text-green-400" />
+                <Icon name="telemovel" className="h-4 w-4 text-green-400" />
               ) : (
-                <Phone className="h-4 w-4 text-green-400" />
+                <Icon name="telefone" className="h-4 w-4 text-green-400" />
               )}
             </div>
             <div className="flex-1 min-w-0">
@@ -129,7 +129,7 @@ export default function RestaurantInfoSection({
         <div className="mt-4 pt-4 border-t border-white/[0.06]">
           <div className="flex items-center mb-3">
             <div className="bg-purple-500/10 rounded-lg p-1.5 mr-2">
-              <ImageIcon className="h-4 w-4 text-purple-400" />
+              <Icon name="imagem" className="h-4 w-4 text-purple-400" />
             </div>
             <span className="text-sm font-medium text-white/70">{t('Fotos do Menu')}</span>
           </div>
@@ -150,9 +150,9 @@ export default function RestaurantInfoSection({
             >
               <div className="bg-white/[0.05] rounded-full p-1.5">
                 {detectPhoneType(phone) === 'mobile' ? (
-                  <Smartphone className="h-3 w-3 text-white/40" />
+                  <Icon name="telemovel" className="h-3 w-3 text-white/40" />
                 ) : (
-                  <Phone className="h-3 w-3 text-white/40" />
+                  <Icon name="telefone" className="h-3 w-3 text-white/40" />
                 )}
               </div>
               <span className="text-sm text-white/60">{phone}</span>

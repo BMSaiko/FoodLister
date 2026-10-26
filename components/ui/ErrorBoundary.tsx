@@ -1,8 +1,8 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
+import Icon from '@/components/ui/icons/Icon';
 
 interface Props {
   children: ReactNode;
@@ -43,7 +43,7 @@ class ErrorBoundary extends Component<Props, State> {
         <div className="min-h-[400px] flex items-center justify-center p-6">
           <div className="max-w-md w-full text-center">
             <div className="mx-auto w-16 h-16 rounded-full bg-[var(--error-light)] flex items-center justify-center mb-6">
-              <AlertTriangle className="h-8 w-8 text-[var(--error)]" />
+              <Icon name="alerta" className="h-8 w-8 text-[var(--error)]" />
             </div>
             <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">
               Algo correu mal
@@ -56,14 +56,14 @@ class ErrorBoundary extends Component<Props, State> {
                 onClick={this.handleReset}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] transition-colors min-h-[44px]"
               >
-                <RefreshCw className="h-4 w-4" />
+                <Icon name="atualizar" className="h-4 w-4" />
                 Tentar novamente
               </button>
               <Link
                 href="/"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[var(--gray-200)] text-[var(--foreground)] hover:bg-[var(--background-secondary)] transition-colors min-h-[44px]"
               >
-                <Home className="h-4 w-4" />
+                <Icon name="inicio" className="h-4 w-4" />
                 Página inicial
               </Link>
             </div>

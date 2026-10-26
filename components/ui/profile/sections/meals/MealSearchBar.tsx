@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, X, Utensils, Filter } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface MealSearchBarProps {
   onSearch: (filters: MealFilters) => void;
@@ -74,7 +74,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
       <div className="flex flex-col sm:flex-row gap-2">
         {/* Search Input */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gray-500)]" />
+          <Icon name="pesquisa" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--gray-500)]" />
           <input
             type="text"
             placeholder="Pesquisar por restaurante..."
@@ -87,7 +87,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
               onClick={() => handleInputChange('searchQuery', '')}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-[var(--background-secondary)]"
             >
-              <X className="h-3.5 w-3.5 text-[var(--gray-500)]" />
+              <Icon name="fechar" className="h-3.5 w-3.5 text-[var(--gray-500)]" />
             </button>
           )}
         </div>
@@ -101,7 +101,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
               : 'bg-[var(--card-bg)] border border-[var(--gray-200)] text-[var(--gray-300)] hover:bg-[var(--background-secondary)]'
           }`}
         >
-          <Filter className="h-4 w-4" />
+          <Icon name="filtros" className="h-4 w-4" />
           <span className="hidden sm:inline">Filtros</span>
           {activeFiltersCount > 0 && (
             <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-[var(--card-bg)] text-[var(--amber-600)] rounded-full text-xs font-bold">
@@ -118,7 +118,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
             {/* Date From */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-[var(--gray-500)] flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" />
+                <Icon name="calendario" className="h-3.5 w-3.5" />
                 Data início
               </label>
               <input
@@ -132,7 +132,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
             {/* Date To */}
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-[var(--gray-500)] flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" />
+                <Icon name="calendario" className="h-3.5 w-3.5" />
                 Data fim
               </label>
               <input
@@ -147,7 +147,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
           {/* Meal Type Dropdown */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-[var(--gray-500)] flex items-center gap-1.5">
-              <Utensils className="h-3.5 w-3.5" />
+              <Icon name="restaurantes" className="h-3.5 w-3.5" />
               Tipo de refeição
             </label>
             <select
@@ -170,7 +170,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
                 onClick={handleClearAll}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--gray-500)] hover:text-[var(--gray-200)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
               >
-                <X className="h-3.5 w-3.5" />
+                <Icon name="fechar" className="h-3.5 w-3.5" />
                 Limpar filtros
               </button>
             </div>
@@ -188,7 +188,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
                 onClick={() => handleInputChange('searchQuery', '')}
                 className="p-0.5 rounded-full hover:bg-[var(--amber-200)]"
               >
-                <X className="h-3 w-3" />
+                <Icon name="fechar" className="h-3 w-3" />
               </button>
             </span>
           )}
@@ -199,7 +199,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
                 onClick={() => handleInputChange('dateFrom', '')}
                 className="p-0.5 rounded-full hover:bg-[var(--blue-200)]"
               >
-                <X className="h-3 w-3" />
+                <Icon name="fechar" className="h-3 w-3" />
               </button>
             </span>
           )}
@@ -210,7 +210,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
                 onClick={() => handleInputChange('dateTo', '')}
                 className="p-0.5 rounded-full hover:bg-[var(--blue-200)]"
               >
-                <X className="h-3 w-3" />
+                <Icon name="fechar" className="h-3 w-3" />
               </button>
             </span>
           )}
@@ -221,7 +221,7 @@ export default function MealSearchBar({ onSearch, onClear, activeFiltersCount }:
                 onClick={() => handleInputChange('mealType', '')}
                 className="p-0.5 rounded-full hover:bg-[var(--green-200)]"
               >
-                <X className="h-3 w-3" />
+                <Icon name="fechar" className="h-3 w-3" />
               </button>
             </span>
           )}

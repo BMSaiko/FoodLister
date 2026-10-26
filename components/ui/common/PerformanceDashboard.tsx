@@ -1,6 +1,7 @@
 // Performance Dashboard for Roulette Filter System
 'use client';
 
+import type { IconName } from '@/components/ui/icons/names';
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart, 
@@ -17,20 +18,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { 
-  Zap, 
-  TrendingUp, 
-  Clock, 
-  Database, 
-  Smartphone, 
-  Accessibility, 
-  Users, 
-  CheckCircle, 
-  AlertTriangle,
-  Eye,
-  Target,
-  RefreshCw
-} from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 const PerformanceDashboard = () => {
   const [metrics, setMetrics] = useState({
@@ -89,7 +77,7 @@ const PerformanceDashboard = () => {
       before: '200ms',
       after: '50ms',
       improvement: '75%',
-      icon: Target,
+      icon: 'alvo',
       color: 'var(--green-500)'
     },
     {
@@ -97,7 +85,7 @@ const PerformanceDashboard = () => {
       before: '150ms',
       after: '30ms',
       improvement: '80%',
-      icon: Zap,
+      icon: 'raio',
       color: 'var(--blue-600)'
     },
     {
@@ -105,7 +93,7 @@ const PerformanceDashboard = () => {
       before: '150MB',
       after: '60MB',
       improvement: '60%',
-      icon: Database,
+      icon: 'base-dados',
       color: 'var(--purple-600)'
     },
     {
@@ -113,7 +101,7 @@ const PerformanceDashboard = () => {
       before: '200ms',
       after: '40ms',
       improvement: '80%',
-      icon: Smartphone,
+      icon: 'telemovel',
       color: 'var(--primary)'
     }
   ];
@@ -145,7 +133,7 @@ const PerformanceDashboard = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-[var(--primary)] rounded-lg">
-            <Eye className="h-6 w-6 text-[var(--primary-foreground)]" />
+            <Icon name="olho" className="h-6 w-6 text-[var(--primary-foreground)]" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-[var(--gray-800)]">Painel de Desempenho</h2>
@@ -163,10 +151,10 @@ const PerformanceDashboard = () => {
       {/* Tabs */}
       <div className="flex space-x-1 mb-6 bg-[var(--card-bg)]/50 rounded-lg p-1">
         {[
-          { id: 'overview', label: 'Visão Geral', icon: Eye },
-          { id: 'performance', label: 'Desempenho', icon: Zap },
-          { id: 'accessibility', label: 'Acessibilidade', icon: Accessibility },
-          { id: 'improvements', label: 'Melhorias', icon: TrendingUp }
+          { id: 'overview', label: 'Visão Geral', icon: 'olho' },
+          { id: 'performance', label: 'Desempenho', icon: 'raio' },
+          { id: 'accessibility', label: 'Acessibilidade', icon: 'acessibilidade' },
+          { id: 'improvements', label: 'Melhorias', icon: 'tendencia' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -177,7 +165,7 @@ const PerformanceDashboard = () => {
                 : 'text-[var(--gray-600)] hover:text-[var(--gray-800)] hover:bg-[var(--card-bg)]/70'
             }`}
           >
-            <tab.icon className="h-4 w-4" />
+            <Icon name={tab.icon as IconName} className="h-4 w-4" />
             <span>{tab.label}</span>
           </button>
         ))}
@@ -192,48 +180,48 @@ const PerformanceDashboard = () => {
                 value: `${metrics.renderTime.toFixed(1)}ms`,
                 target: '< 100ms',
                 status: metrics.renderTime < 100 ? 'good' : 'warning',
-                icon: RefreshCw
+                icon: 'atualizar'
               },
               {
                 label: 'Tempo do Filtro',
                 value: `${metrics.filterTime.toFixed(1)}ms`,
                 target: '< 100ms',
                 status: metrics.filterTime < 100 ? 'good' : 'warning',
-                icon: Target
+                icon: 'alvo'
               },
               {
                 label: 'FPS',
                 value: `${metrics.fps.toFixed(0)}`,
                 target: '> 60',
                 status: metrics.fps >= 60 ? 'good' : 'warning',
-                icon: Clock
+                icon: 'horario'
               },
               {
                 label: 'Uso de Memória',
                 value: `${metrics.memoryUsage.toFixed(0)}MB`,
                 target: '< 100MB',
                 status: metrics.memoryUsage < 100 ? 'good' : 'warning',
-                icon: Database
+                icon: 'base-dados'
               },
               {
                 label: 'Envolvimento do Utilizador',
                 value: `${metrics.userEngagement.toFixed(0)}%`,
                 target: '> 80%',
                 status: metrics.userEngagement > 80 ? 'good' : 'warning',
-                icon: Users
+                icon: 'utilizadores'
               },
               {
                 label: 'Pontuação de Acessibilidade',
                 value: `${metrics.accessibilityScore.toFixed(0)}%`,
                 target: '> 90%',
                 status: metrics.accessibilityScore > 90 ? 'good' : 'warning',
-                icon: Accessibility
+                icon: 'acessibilidade'
               }
             ].map((metric, index) => (
             <div key={index} className="bg-[var(--card-bg)] rounded-lg p-4 shadow-sm border border-[var(--gray-100)]">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
-                  <metric.icon className={`h-5 w-5 ${
+                  <Icon name={metric.icon as IconName} className={`h-5 w-5 ${
                     metric.status === 'good' ? 'text-[var(--green-500)]' : 
                     metric.status === 'warning' ? 'text-[var(--amber-500)]' : 'text-[var(--red-500)]'
                   }`} />
@@ -301,7 +289,7 @@ const PerformanceDashboard = () => {
                 <div className={`p-3 rounded-full ${
                   metrics.renderTime < 50 ? 'bg-[var(--green-100)]' : 'bg-[var(--yellow-100)]'
                 }`}>
-                  <Zap className={`h-6 w-6 ${
+                  <Icon name="raio" className={`h-6 w-6 ${
                     metrics.renderTime < 50 ? 'text-[var(--green-600)]' : 'text-[var(--yellow-600)]'
                   }`} />
                 </div>
@@ -317,7 +305,7 @@ const PerformanceDashboard = () => {
                 <div className={`p-3 rounded-full ${
                   metrics.filterTime < 30 ? 'bg-[var(--green-100)]' : 'bg-[var(--yellow-100)]'
                 }`}>
-                  <Target className={`h-6 w-6 ${
+                  <Icon name="alvo" className={`h-6 w-6 ${
                     metrics.filterTime < 30 ? 'text-[var(--green-600)]' : 'text-[var(--yellow-600)]'
                   }`} />
                 </div>
@@ -333,7 +321,7 @@ const PerformanceDashboard = () => {
                 <div className={`p-3 rounded-full ${
                   metrics.memoryUsage < 80 ? 'bg-[var(--green-100)]' : 'bg-[var(--yellow-100)]'
                 }`}>
-                  <Database className={`h-6 w-6 ${
+                  <Icon name="base-dados" className={`h-6 w-6 ${
                     metrics.memoryUsage < 80 ? 'text-[var(--green-600)]' : 'text-[var(--yellow-600)]'
                   }`} />
                 </div>
@@ -411,7 +399,7 @@ const PerformanceDashboard = () => {
             {improvements.map((improvement, index) => (
               <div key={index} className="bg-[var(--card-bg)] rounded-lg p-4 shadow-sm border-l-4" style={{ borderLeftColor: `var(--${improvement.color})` }}>
                 <div className="flex items-center justify-between mb-3">
-                  <improvement.icon className="h-6 w-6" style={{ color: `var(--${improvement.color})` }} />
+                  <Icon name={improvement.icon as IconName} className="h-6 w-6" style={{ color: `var(--${improvement.color})` }} />
                   <span className="text-xs text-[var(--gray-500)]">Antes: {improvement.before}</span>
                 </div>
                 <div className="mb-2">
@@ -422,7 +410,7 @@ const PerformanceDashboard = () => {
                   <span className="text-lg font-bold" style={{ color: `var(--${improvement.color})` }}>
                     {improvement.improvement}
                   </span>
-                  <CheckCircle className="h-5 w-5 text-[var(--green-500)]" />
+                  <Icon name="ok-circulo" className="h-5 w-5 text-[var(--green-500)]" />
                 </div>
               </div>
             ))}

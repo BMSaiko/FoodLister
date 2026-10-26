@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Shuffle, X, ExternalLink, MapPin, Star, Sparkles, Trophy, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import Modal from "./Modal";
+import Icon from '@/components/ui/icons/Icon';
 
 interface Restaurant {
   id: string;
@@ -120,13 +120,13 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
       <div className="relative w-full max-w-lg mx-4">
         {/* Close */}
         <button onClick={onClose} disabled={isSpinning} className="absolute -top-12 right-0 w-10 h-10 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.08] text-white/60 hover:bg-white/[0.12] hover:text-white/90 transition-all duration-200 flex items-center justify-center z-10 disabled:opacity-30 hover:scale-110">
-          <X className="h-4 w-4" />
+          <Icon name="fechar" className="h-4 w-4" />
         </button>
 
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 mb-4">
-            <Sparkles className="h-4 w-4 text-purple-400" />
+            <Icon name="faiscas" className="h-4 w-4 text-purple-400" />
             <span className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Roleta</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">
@@ -171,7 +171,7 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
               <div className="flex items-center justify-center gap-4 text-sm">
                 {current?.rating != null && (
                   <span className="flex items-center gap-1.5 text-white/50">
-                    <Star className="h-4 w-4 text-amber-400 fill-current" />
+                    <Icon name="estrela" className="h-4 w-4 text-amber-400 fill-current" />
                     <span className="font-medium">{current.rating.toFixed(1)}</span>
                   </span>
                 )}
@@ -181,7 +181,7 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
               </div>
               {current?.location && (
                 <p className="text-xs text-white/25 mt-1.5 flex items-center justify-center gap-1">
-                  <MapPin className="h-3 w-3" />
+                  <Icon name="pin" className="h-3 w-3" />
                   <span className="truncate max-w-[200px]">{current.location}</span>
                 </p>
               )}
@@ -211,7 +211,7 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
                 : "bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 text-white hover:shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
             }`}
           >
-            <Shuffle className={`h-5 w-5 ${isSpinning ? "animate-spin" : ""}`} />
+            <Icon name="baralhar" className={`h-5 w-5 ${isSpinning ? "animate-spin" : ""}`} />
             <span>{isSpinning ? "A girar..." : spinCount > 0 ? "Girar Novamente" : "Girar Roleta"}</span>
           </button>
         )}
@@ -230,7 +230,7 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
           >
             {/* Celebration badge */}
             <div className="flex items-center justify-center gap-2">
-              <Trophy className="h-5 w-5 text-amber-400" />
+              <Icon name="trofeu" className="h-5 w-5 text-amber-400" />
               <span className="text-sm font-semibold text-amber-400">Restaurante Selecionado!</span>
             </div>
 
@@ -240,14 +240,14 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
                 href={`/restaurants/${selected.slug || selected.id}`}
                 className="flex-1 py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold rounded-2xl hover:shadow-lg hover:shadow-emerald-500/20 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <ExternalLink className="h-4 w-4" />
+                <Icon name="externo" className="h-4 w-4" />
                 Ver Restaurante
               </Link>
               <button
                 onClick={() => { setShowResult(false); setSelected(null); setSpinCount(0); }}
                 className="py-3.5 px-4 bg-white/[0.06] border border-white/[0.08] text-white/70 text-sm font-semibold rounded-2xl hover:bg-white/[0.1] transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <RotateCcw className="h-4 w-4" />
+                <Icon name="repor" className="h-4 w-4" />
                 Girar
               </button>
             </div>

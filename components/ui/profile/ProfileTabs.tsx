@@ -1,15 +1,15 @@
 "use client";
 
+import Icon from '@/components/ui/icons/Icon';
 import React from "react";
 import { motion } from "motion/react";
-import { Star, List, UtensilsCrossed, Calendar, Clock } from "lucide-react";
 
 const TAB_CONFIG = [
-  { key: "reviews", label: "Reviews", icon: Star },
-  { key: "lists", label: "Listas", icon: List },
-  { key: "restaurants", label: "Restaurantes", icon: UtensilsCrossed },
-  { key: "meals", label: "Refeições", icon: Calendar },
-  { key: "activity", label: "Atividade", icon: Clock },
+  { key: "reviews", label: "Reviews", icon: 'estrela' },
+  { key: "lists", label: "Listas", icon: 'lista' },
+  { key: "restaurants", label: "Restaurantes", icon: 'refeicoes' },
+  { key: "meals", label: "Refeições", icon: 'calendario' },
+  { key: "activity", label: "Atividade", icon: 'horario' },
 ] as const;
 
 interface ProfileTabsProps {
@@ -24,7 +24,7 @@ export default function ProfileTabs({ activeTab, onTabChange, counts }: ProfileT
       <div className="flex overflow-x-auto scrollbar-hide">
         {TAB_CONFIG.map(tab => {
           const isActive = activeTab === tab.key;
-          const Icon = tab.icon;
+          const iconName = tab.icon;
           return (
             <button
               key={tab.key}
@@ -33,7 +33,7 @@ export default function ProfileTabs({ activeTab, onTabChange, counts }: ProfileT
                 isActive ? "text-purple-400" : "text-white/35 hover:text-white/60"
               }`}
             >
-              <Icon className="h-4 w-4" />
+              <Icon name={iconName} className="h-4 w-4" />
               <span>{tab.label}</span>
               {(counts[tab.key] ?? 0) > 0 && (
                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${

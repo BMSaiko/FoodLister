@@ -3,9 +3,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Plus, User } from 'lucide-react';
 import { useAuth } from '@/contexts';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: { activeSection: 'restaurants' | 'lists'; showLogin?: boolean; showSignout?: boolean }) => {
   const { user, signOut, loading } = useAuth();
@@ -31,7 +31,7 @@ const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: 
       <div className="flex w-full sm:w-auto">
         <Link href="/auth/signin" className="w-full sm:w-auto">
           <button className="flex items-center justify-center bg-primary text-black px-3 sm:px-4 py-2.5 sm:py-2 rounded-md hover:bg-primary-hover active:bg-primary-dark transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-[40px] text-sm sm:text-base font-medium">
-            <User className="h-4 w-4 mr-1.5 sm:mr-1" />
+            <Icon name="perfil" className="h-4 w-4 mr-1.5 sm:mr-1" />
             <span className="hidden sm:inline">Entrar</span>
             <span className="sm:hidden">Login</span>
           </button>
@@ -46,7 +46,7 @@ const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: 
       {activeSection === 'restaurants' ? (
         <Link href="/restaurants/create" className="flex-1 sm:flex-none">
           <button className="flex items-center justify-center bg-primary text-black px-3 sm:px-4 py-2.5 sm:py-2 rounded-md hover:bg-primary-hover active:bg-primary-dark transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-[40px] text-sm sm:text-base font-medium">
-            <Plus className="h-4 w-4 mr-1.5 sm:mr-1" />
+            <Icon name="mais" className="h-4 w-4 mr-1.5 sm:mr-1" />
             <span className="hidden sm:inline">Novo Restaurante</span>
             <span className="sm:hidden">+</span>
           </button>
@@ -54,7 +54,7 @@ const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: 
       ) : (
         <Link href="/lists/create" className="flex-1 sm:flex-none">
           <button className="flex items-center justify-center bg-primary text-black px-3 sm:px-4 py-2.5 sm:py-2 rounded-md hover:bg-primary-hover active:bg-primary-dark transition-colors w-full sm:w-auto min-h-[44px] sm:min-h-[40px] text-sm sm:text-base font-medium">
-            <Plus className="h-4 w-4 mr-1.5 sm:mr-1" />
+            <Icon name="mais" className="h-4 w-4 mr-1.5 sm:mr-1" />
             <span className="hidden sm:inline">Nova Lista</span>
             <span className="sm:hidden">+</span>
           </button>

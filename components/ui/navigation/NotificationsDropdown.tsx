@@ -5,23 +5,23 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { TooltipFast } from "@/components/ui/Tooltip";
 import Ico from '@/components/ui/icons/Ico';
-import { Bell, Check, Trash2, CalendarPlus, Clock, Star, MessageCircle, ListPlus, ListChecks, Heart } from 'lucide-react';
 import useNotifications from '@/hooks/data/useNotifications';
 import type { Notification } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import AppIcon from '@/components/ui/icons/Icon';
 
 function getNotificationIcon(type: string) {
   const iconClass = 'h-4 w-4';
   switch (type) {
-    case 'meal_invitation': return <CalendarPlus className={`${iconClass} text-amber-400`} />;
-    case 'meal_reminder': return <Clock className={`${iconClass} text-orange-400`} />;
-    case 'review_created': return <Star className={`${iconClass} text-yellow-400`} />;
-    case 'comment_reply': return <MessageCircle className={`${iconClass} text-blue-400`} />;
-    case 'list_invite': return <ListPlus className={`${iconClass} text-emerald-400`} />;
-    case 'list_update': return <ListChecks className={`${iconClass} text-teal-400`} />;
-    case 'like': return <Heart className={`${iconClass} text-pink-400`} />;
-        default: return <Bell className={`${iconClass} text-white/40`} />;
+    case 'meal_invitation': return <AppIcon name="calendario-mais" className={`${iconClass} text-amber-400`} />;
+    case 'meal_reminder': return <AppIcon name="horario" className={`${iconClass} text-orange-400`} />;
+    case 'review_created': return <AppIcon name="estrela" className={`${iconClass} text-yellow-400`} />;
+    case 'comment_reply': return <AppIcon name="mensagem" className={`${iconClass} text-blue-400`} />;
+    case 'list_invite': return <AppIcon name="lista-mais" className={`${iconClass} text-emerald-400`} />;
+    case 'list_update': return <AppIcon name="lista-ok" className={`${iconClass} text-teal-400`} />;
+    case 'like': return <AppIcon name="coracao" className={`${iconClass} text-pink-400`} />;
+        default: return <AppIcon name="sino" className={`${iconClass} text-white/40`} />;
   }
 }
 
@@ -214,7 +214,7 @@ export default function NotificationsDropdown({ mobile = false }: NotificationsD
                   className="flex items-center gap-1.5 text-xs text-[var(--primary)] hover:text-[var(--primary-hover)] transition-colors"
                   role="menuitem"
                 >
-                  <Check className="h-3 w-3" />
+                  <AppIcon name="visto" className="h-3 w-3" />
                   Marcar todas
                 </button>
               )}
@@ -229,7 +229,7 @@ export default function NotificationsDropdown({ mobile = false }: NotificationsD
               ) : notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center px-4">
                   <div className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center mb-3">
-                    <Bell className="h-5 w-5 text-white/20" />
+                    <AppIcon name="sino" className="h-5 w-5 text-white/20" />
                   </div>
                   <p className="text-sm text-white/30">Sem notificações</p>
                 </div>
@@ -300,7 +300,7 @@ export default function NotificationsDropdown({ mobile = false }: NotificationsD
                             className="flex-shrink-0 p-1.5 rounded-lg text-white/15 hover:text-[var(--error)] hover:bg-white/[0.04] transition-all opacity-0 group-hover/item:opacity-100"
                             aria-label="Apagar notificação"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <AppIcon name="apagar" className="h-3.5 w-3.5" />
                           </button>
 </TooltipFast>
                         </div>

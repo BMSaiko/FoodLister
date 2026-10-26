@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import Link from 'next/link';
-import { Calendar, Clock, Users, Utensils, Download, ArrowLeft, Loader2, Check, X, ExternalLink, Edit, Trash2 } from 'lucide-react';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
@@ -12,6 +11,7 @@ import { toast } from 'react-toastify';
 import { useLanguage } from "@/contexts";
 import Modal from '@/components/ui/Modal';
 import ToviLoader from "@/components/loading/ToviLoader";
+import Icon from '@/components/ui/icons/Icon';
 
 interface Meal {
   id: string;
@@ -290,14 +290,14 @@ export default function MealDetailsPage() {
           <Navbar />
           <div className="container mx-auto px-4 py-8">
             <div className="text-center py-20">
-              <Utensils className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <Icon name="restaurantes" className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h2 className="text-xl font-semibold text-white/90 mb-2">{t("Refeição não encontrada")}</h2>
               <p className="text-gray-500 mb-6">{t("A refeição que procuras não existe ou foi removida.")}</p>
               <Link
                 href="/users/me"
                 className="inline-flex items-center px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <Icon name="seta-esq" className="h-4 w-4 mr-2" />
                 {t("Voltar ao perfil")}
               </Link>
             </div>
@@ -317,7 +317,7 @@ export default function MealDetailsPage() {
           onClick={() => router.back()}
           className="flex items-center text-white/50 hover:text-amber-600 mb-6 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <Icon name="seta-esq" className="h-4 w-4 mr-2" />
           {t("Voltar")}
         </button>
 
@@ -327,7 +327,7 @@ export default function MealDetailsPage() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-amber-100 rounded-xl">
-                  <Utensils className="h-6 w-6 text-amber-600" />
+                  <Icon name="restaurantes" className="h-6 w-6 text-amber-600" />
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold text-white/90">
@@ -350,14 +350,14 @@ export default function MealDetailsPage() {
                     className="p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
                     title={t("Editar refeição")}
                   >
-                    <Edit className="h-4 w-4" />
+                    <Icon name="editar" className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
                     className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
                     title={t("Eliminar refeição")}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Icon name="apagar" className="h-4 w-4" />
                   </button>
                 </div>
               )}
@@ -369,21 +369,21 @@ export default function MealDetailsPage() {
           <div className="px-6 py-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center space-x-3 text-white/70">
-                <Calendar className="h-5 w-5 text-amber-500" />
+                <Icon name="calendario" className="h-5 w-5 text-amber-500" />
                 <div>
                   <p className="text-sm text-gray-500">{t("Data")}</p>
                   <p className="font-medium">{formatDate(meal.mealDate)}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-white/70">
-                <Clock className="h-5 w-5 text-amber-500" />
+                <Icon name="horario" className="h-5 w-5 text-amber-500" />
                 <div>
                   <p className="text-sm text-gray-500">{t("Hora")}</p>
                   <p className="font-medium">{meal.mealTime}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 text-white/70">
-                <Clock className="h-5 w-5 text-amber-500" />
+                <Icon name="horario" className="h-5 w-5 text-amber-500" />
                 <div>
                   <p className="text-sm text-gray-500">{t("Duração")}</p>
                   <p className="font-medium">{t("{n} minutos", { n: meal.durationMinutes })}</p>
@@ -438,7 +438,7 @@ export default function MealDetailsPage() {
           <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
             <div className="bg-white/[0.03] rounded-xl p-4">
               <div className="flex items-center space-x-2 mb-4">
-              <Users className="h-5 w-5 text-amber-500" />
+              <Icon name="utilizadores" className="h-5 w-5 text-amber-500" />
               <h2 className="text-lg font-semibold text-white/90">
                 {t("Participantes ({n})", { n: meal.participants.length })}
               </h2>
@@ -485,7 +485,7 @@ export default function MealDetailsPage() {
               onClick={handleDownloadIcs}
               className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
             >
-              <Download className="h-5 w-5" />
+              <Icon name="descarregar" className="h-5 w-5" />
               <span>{t("Download .ics (Calendário)")}</span>
             </button>
 
@@ -495,7 +495,7 @@ export default function MealDetailsPage() {
                 onClick={handleGoogleCalendar}
                 className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-[#0a0a0a] border border-white/[0.06] border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors font-medium"
               >
-                <ExternalLink className="h-5 w-5" />
+                <Icon name="externo" className="h-5 w-5" />
                 <span>{t("Adicionar ao Google Calendar")}</span>
               </button>
             )}
@@ -517,7 +517,7 @@ export default function MealDetailsPage() {
                       : 'bg-green-500 text-white hover:bg-green-600'
                   } disabled:opacity-50`}
                 >
-                  <Check className="h-5 w-5" />
+                  <Icon name="visto" className="h-5 w-5" />
                   <span>{updating ? t('A confirmar...') : meal.participantStatus === 'accepted' ? t('Aceite ✓') : t('Confirmar Presença')}</span>
                 </button>
                 <button
@@ -529,7 +529,7 @@ export default function MealDetailsPage() {
                       : 'bg-red-500 text-white hover:bg-red-600'
                   } disabled:opacity-50`}
                 >
-                  <X className="h-5 w-5" />
+                  <Icon name="fechar" className="h-5 w-5" />
                   <span>{updating ? t('A recusar...') : meal.participantStatus === 'declined' ? t('Recusado ✓') : t('Recusar')}</span>
                 </button>
               </div>
@@ -560,7 +560,7 @@ export default function MealDetailsPage() {
                   onClick={() => setShowEditModal(false)}
                   className="text-gray-400 hover:text-white/50"
                 >
-                  <X className="h-5 w-5" />
+                  <Icon name="fechar" className="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -637,7 +637,7 @@ export default function MealDetailsPage() {
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} size="sm" ariaLabel={t("Confirmar eliminação")}>
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="h-6 w-6 text-red-600" />
+                <Icon name="apagar" className="h-6 w-6 text-red-600" />
               </div>
               <h3 className="text-lg font-bold text-white/90 mb-2">{t("Eliminar refeição?")}</h3>
               <p className="text-white/50 text-sm mb-6">

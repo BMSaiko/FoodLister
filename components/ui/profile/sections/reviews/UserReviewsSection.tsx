@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Star, Utensils } from "lucide-react";
 
 import { useApiClient } from "@/hooks/auth/useApiClient";
 
 import {  EmptyState, TouchButton } from "../shared";
 import { toast } from "react-toastify";
 import ReviewCard from "./ReviewCard";
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserReviewsSectionProps {
   userId: string;
@@ -101,7 +101,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   if (reviews.length === 0) {
     return (
       <EmptyState
-        icon={<Star className="h-8 w-8 text-gray-400" />}
+        icon={<Icon name="estrela" className="h-8 w-8 text-gray-400" />}
         title="Nenhuma avaliação encontrada"
         description={isOwnProfile 
           ? "Você ainda não avaliou nenhum restaurante. Comece a explorar e compartilhar suas experiências!"
@@ -110,7 +110,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
         action={isOwnProfile ? {
           label: "Explorar restaurantes",
           onClick: () => window.location.href = "/restaurants",
-          icon: <Utensils className="h-4 w-4" />
+          icon: <Icon name="restaurantes" className="h-4 w-4" />
         } : undefined}
       />
     );
@@ -138,7 +138,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
             variant="primary"
             size="md"
             disabled={isLoadingMore}
-            icon={isLoadingMore ? undefined : <Star className="h-4 w-4" />}
+            icon={isLoadingMore ? undefined : <Icon name="estrela" className="h-4 w-4" />}
             fullWidth={false}
           >
             {isLoadingMore ? "Carregando..." : "Carregar mais avaliações"}

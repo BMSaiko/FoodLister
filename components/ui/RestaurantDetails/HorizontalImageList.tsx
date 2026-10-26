@@ -1,9 +1,9 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState } from 'react';
-import { ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import Modal from '../Modal';
+import Icon from '@/components/ui/icons/Icon';
 
 interface HorizontalImageListProps {
   images?: string[];
@@ -30,7 +30,7 @@ export default function HorizontalImageList({
       <div className={`bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 sm:p-6 mb-4 ${className}`}>
         <div className="flex items-center mb-3 sm:mb-4">
           <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4">
-            <ImageIcon className="h-5 w-5 sm:h-6 w-6 text-amber-600" />
+            <Icon name="imagem" className="h-5 w-5 sm:h-6 w-6 text-amber-600" />
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-semibold text-gray-800">{title}</h3>
@@ -40,7 +40,7 @@ export default function HorizontalImageList({
         
         <div className="text-center py-6">
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 flex items-center justify-center">
-            <ImageIcon className="h-6 w-6 sm:h-8 w-8 text-gray-300" />
+            <Icon name="imagem" className="h-6 w-6 sm:h-8 w-8 text-gray-300" />
           </div>
           <p className="text-gray-500 text-xs sm:text-sm">
             As imagens do menu aparecerão aqui quando adicionadas ao restaurante
@@ -96,7 +96,7 @@ export default function HorizontalImageList({
     <div className={`bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 sm:p-6 mb-4 ${className}`}>
       <div className="flex items-center mb-3 sm:mb-4">
         <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-full p-2 sm:p-3 mr-3 sm:mr-4">
-          <ImageIcon className="h-5 w-5 sm:h-6 w-6 text-amber-600" />
+          <Icon name="imagem" className="h-5 w-5 sm:h-6 w-6 text-amber-600" />
         </div>
         <div>
           <h3 className="text-base sm:text-lg font-semibold text-gray-800">{title}</h3>
@@ -139,7 +139,7 @@ export default function HorizontalImageList({
                 {/* Ícone de visualização */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="bg-black/80 backdrop-blur-sm rounded-full p-2 shadow-lg">
-                    <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                    <Icon name="imagem" className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                   </div>
                 </div>
               </div>

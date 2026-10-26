@@ -34,17 +34,6 @@ jest.mock('@/contexts/LanguageContext', () => ({
   useLanguage: () => ({ lang: 'pt', setLang: jest.fn(), t: (k) => k }),
 }));
 
-// Mock lucide-react icons
-jest.mock('lucide-react', () => ({
-  X: () => <span data-testid="x-icon" />,
-  Plus: () => <span data-testid="plus-icon" />,
-  Link: () => <span data-testid="link-icon" />,
-  Image: () => <span data-testid="image-icon" />,
-  AlertCircle: () => <span data-testid="alert-circle-icon" />,
-  Globe: () => <span data-testid="globe-icon" />,
-  FileText: () => <span data-testid="file-text-icon" />,
-}));
-
 // Mock next/image - filter out fill prop as it's not valid HTML
 jest.mock('next/image', () => ({
   __esModule: true,

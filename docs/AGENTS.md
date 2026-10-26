@@ -166,7 +166,7 @@ git log --oneline -10
   ```
 - **Verificar todos os exports:** Ao mockar um módulo, incluir TODOS os exports que a route importa
 - **Test coverage:** 52 test files, 404/404 passing (target 80%)
-- **Mock de lucide-react:** `__mocks__/lucide-react.js` já configurado em `jest.config.js`
+- **Ícones:** usar `<Icon name="…"/>` (sprite próprio); `lucide-react` foi removido e um teste falha se voltar
 
 ### Build & Deploy
 ```bash

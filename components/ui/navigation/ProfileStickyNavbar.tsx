@@ -1,9 +1,9 @@
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect } from 'react';
-import { ArrowUp, Share2, Copy, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {  } from 'react-toastify';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ProfileStickyNavbarProps {
   scrollThreshold?: number;
@@ -110,7 +110,7 @@ export default function ProfileStickyNavbar({
             
             style={{ opacity: isVisible ? 1 : 0, transform: isVisible ? 'translateY(0)' : 'translateY(10px)' }}
           >
-            <ArrowUp className="h-5 w-5" />
+            <Icon name="seta-cima" className="h-5 w-5" />
           </button>
 </TooltipFast>
 
@@ -132,7 +132,7 @@ export default function ProfileStickyNavbar({
             {isSharing ? (
               <ToviSpinner className="h-5 w-5" />
             ) : (
-              <Share2 className="h-5 w-5" />
+              <Icon name="partilhar" className="h-5 w-5" />
             )}
           </button>
 
@@ -151,7 +151,7 @@ export default function ProfileStickyNavbar({
             {isCopying ? (
               <ToviSpinner className="h-5 w-5" />
             ) : (
-              <Copy className="h-5 w-5" />
+              <Icon name="copiar" className="h-5 w-5" />
             )}
           </button>
 
@@ -171,7 +171,7 @@ export default function ProfileStickyNavbar({
               {isEditing ? (
                 <ToviSpinner className="h-5 w-5" />
               ) : (
-                <Edit className="h-5 w-5" />
+                <Icon name="editar" className="h-5 w-5" />
               )}
             </button>
           )}

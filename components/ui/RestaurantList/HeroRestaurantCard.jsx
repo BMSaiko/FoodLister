@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
-import { Star, MapPin, ChevronRight } from 'lucide-react';
 import { extractPlaceParts } from '@/utils/googleMapsExtractor';
 import { pickSeeded } from '@/utils/random';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';import RestaurantImagePlaceholder from '@/components/ui/RestaurantCard/RestaurantImagePlaceholder';
-import { CreatorLink } from '@/components/ui/common/CreatorLink';
+import { CreatorLink } from '@/components/ui/common/CreatorLink';import Icon from '@/components/ui/icons/Icon';
+
 
 // ponytail: o hero é aleatório entre TODOS os restaurantes, independente de filtros/paginação
 // (escolhe um índice pelo total e pede só essa página de 1 item).
@@ -114,7 +114,7 @@ export default function HeroRestaurantCard() {
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mb-3">
           {hero.rating != null && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur px-2.5 py-1 text-white/90">
-              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+              <Icon name="estrela" className="w-4 h-4 text-amber-400 fill-amber-400" />
               {hero.rating.toFixed(1)}
               {hero.review_count != null && hero.review_count > 0 && (
                 <span className="text-white/50">({hero.review_count})</span>
@@ -128,7 +128,7 @@ export default function HeroRestaurantCard() {
           )}
           {place && (
             <span className="inline-flex items-center gap-1 text-white/60">
-              <MapPin className="w-4 h-4" />
+              <Icon name="pin" className="w-4 h-4" />
               {place}
             </span>
           )}
@@ -151,7 +151,7 @@ export default function HeroRestaurantCard() {
           className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-black font-semibold rounded-full hover:bg-[var(--primary-hover)] transition-colors w-fit"
         >
           Ver Restaurante
-          <ChevronRight className="w-4 h-4" />
+          <Icon name="chevron-dir" className="w-4 h-4" />
         </Link>
       </div>
     </motion.div>

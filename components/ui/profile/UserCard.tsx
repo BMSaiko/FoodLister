@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { User, MapPin, Calendar, Eye, EyeOff } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserCardProps {
   user: {
@@ -43,15 +43,15 @@ export default function UserCard({ user }: UserCardProps) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <User className="h-7 w-7 text-amber-500/60" />
+                <Icon name="perfil" className="h-7 w-7 text-amber-500/60" />
               )}
             </div>
             {/* Privacy indicator */}
             <div className="absolute -bottom-1 -right-1">
               {user.publicProfile ? (
-                <Eye className="h-2.5 w-2.5 text-green-400" />
+                <Icon name="olho" className="h-2.5 w-2.5 text-green-400" />
               ) : (
-                <EyeOff className="h-2.5 w-2.5 text-red-400" />
+                <Icon name="olho-off" className="h-2.5 w-2.5 text-red-400" />
               )}
             </div>
           </div>
@@ -73,12 +73,12 @@ export default function UserCard({ user }: UserCardProps) {
             <div className="flex flex-wrap items-center gap-2 mt-2">
               {user.location && (
                 <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/40">
-                  <MapPin className="h-3 w-3" />
+                  <Icon name="pin" className="h-3 w-3" />
                   {user.location}
                 </span>
               )}
               <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-white/30">
-                <Calendar className="h-3 w-3" />
+                <Icon name="calendario" className="h-3 w-3" />
                 Desde {formatJoinedDate(user.createdAt)}
               </span>
             </div>

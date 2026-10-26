@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Globe, Lock, Star, List, ImageIcon } from "lucide-react";
+import Icon from '@/components/ui/icons/Icon';
 
 interface Restaurant {
   id: string;
@@ -37,14 +37,14 @@ export default function ListFormPreview({ name, description, isPublic, coverImag
               <img src={coverImageUrl} alt="Capa" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-500/10 to-orange-500/10">
-                <ImageIcon className="h-10 w-10 text-white/10" />
+                <Icon name="imagem" className="h-10 w-10 text-white/10" />
               </div>
             )}
             {/* Privacy badge */}
             <div className={`absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold backdrop-blur-xl border ${
               isPublic ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border-red-500/20 text-red-400"
             }`}>
-              {isPublic ? <><Globe className="w-3 h-3" />Publica</> : <><Lock className="w-3 h-3" />Privada</>}
+              {isPublic ? <><Icon name="globo" className="w-3 h-3" />Publica</> : <><Icon name="privado" className="w-3 h-3" />Privada</>}
             </div>
           </div>
 
@@ -66,7 +66,7 @@ export default function ListFormPreview({ name, description, isPublic, coverImag
 
             {/* Stats */}
             <div className="flex items-center gap-3 text-xs text-white/30 mb-3">
-              <span className="flex items-center gap-1"><List className="w-3 h-3" />{selectedRestaurants.length} restaurantes</span>
+              <span className="flex items-center gap-1"><Icon name="lista" className="w-3 h-3" />{selectedRestaurants.length} restaurantes</span>
             </div>
 
             {/* Restaurant preview */}
@@ -87,7 +87,7 @@ export default function ListFormPreview({ name, description, isPublic, coverImag
                     </div>
                     {r.rating != null && (
                       <span className="flex items-center gap-0.5 text-[10px] text-amber-400/60 flex-shrink-0">
-                        <Star className="w-2.5 h-2.5 fill-current" />{r.rating.toFixed(1)}
+                        <Icon name="estrela" className="w-2.5 h-2.5 fill-current" />{r.rating.toFixed(1)}
                       </span>
                     )}
                   </div>

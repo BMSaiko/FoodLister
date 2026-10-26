@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Share2, Calendar, Edit, Check, X, Plus, ArrowUp, ArrowDown } from 'lucide-react';
 import { TooltipFast } from "@/components/ui/Tooltip";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantStickyNavbarProps {
   onShare: () => void;
@@ -139,9 +139,9 @@ export default function RestaurantStickyNavbar({
               title={isAtTop ? 'Ir para avaliações' : 'Voltar ao topo'}
             >
               {isAtTop ? (
-                <ArrowDown className="h-5 w-5" />
+                <Icon name="seta-baixo" className="h-5 w-5" />
               ) : (
-                <ArrowUp className="h-5 w-5" />
+                <Icon name="seta-cima" className="h-5 w-5" />
               )}
             </button>
           </div>
@@ -171,9 +171,9 @@ export default function RestaurantStickyNavbar({
                 {loadingVisits ? (
                   <ToviSpinner className="h-3 w-3" />
                 ) : visited ? (
-                  <Check className="h-3 w-3" />
+                  <Icon name="visto" className="h-3 w-3" />
                 ) : (
-                  <X className="h-3 w-3" />
+                  <Icon name="fechar" className="h-3 w-3" />
                 )}
                 <span>{visited ? 'Visitado' : 'Não visitado'}</span>
               </button>
@@ -186,7 +186,7 @@ export default function RestaurantStickyNavbar({
                                       className="flex items-center justify-center w-6 h-6 bg-[var(--red-500)] hover:bg-[var(--red-600)] active:bg-[var(--red-700)] text-white rounded-full transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed shadow-sm"
                     title="Remover -1 visita"
                   >
-                    <X className="h-3 w-3" />
+                    <Icon name="fechar" className="h-3 w-3" />
                   </button>
                   <span className="text-sm font-bold text-[var(--primary-dark)] tabular-nums min-w-[20px] text-center">
                                     </span>
@@ -196,7 +196,7 @@ export default function RestaurantStickyNavbar({
                     className="flex items-center justify-center w-6 h-6 bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-dark)] text-white rounded-full transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Adicionar +1 visita"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Icon name="mais" className="h-3 w-3" />
                   </button>
                 </div>
               )}
@@ -211,7 +211,7 @@ export default function RestaurantStickyNavbar({
               className="flex items-center justify-center w-12 h-12 bg-[var(--white)] text-[var(--gray-700)] border border-[var(--gray-200)] rounded-full hover:bg-[var(--gray-50)] active:bg-[var(--gray-100)] transition-all duration-200 shadow-sm hover:shadow-md"
               aria-label="Compartilhar"
             >
-              <Share2 className="h-5 w-5" />
+              <Icon name="partilhar" className="h-5 w-5" />
             </button>
             </TooltipFast>
             
@@ -221,7 +221,7 @@ export default function RestaurantStickyNavbar({
               className="flex items-center justify-center w-12 h-12 bg-[var(--blue-500)] text-white rounded-full hover:bg-[var(--blue-600)] active:bg-[var(--blue-700)] transition-all duration-200 shadow-md hover:shadow-lg"
               aria-label="Agendar refeição"
             >
-              <Calendar className="h-5 w-5" />
+              <Icon name="calendario" className="h-5 w-5" />
             </button>
             </TooltipFast>
             
@@ -232,7 +232,7 @@ export default function RestaurantStickyNavbar({
                 className="flex items-center justify-center w-12 h-12 bg-[var(--amber-500)] text-white rounded-full hover:bg-[var(--amber-600)] active:bg-[var(--amber-700)] transition-all duration-200 shadow-md hover:shadow-lg"
               aria-label="Editar restaurante"
               >
-                <Edit className="h-5 w-5" />
+                <Icon name="editar" className="h-5 w-5" />
               </button>
             </TooltipFast>
             )}

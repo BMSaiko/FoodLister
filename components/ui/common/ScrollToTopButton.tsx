@@ -1,6 +1,6 @@
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect } from 'react';
-import { ArrowUp } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ScrollToTopButtonProps {
   className?: string;
@@ -125,7 +125,7 @@ export default function ScrollToTopButton({
         ${className}
       `}
     >
-      <ArrowUp className="w-6 h-6" />
+      <Icon name="seta-cima" className="w-6 h-6" />
     </button>
 </TooltipFast>
   );

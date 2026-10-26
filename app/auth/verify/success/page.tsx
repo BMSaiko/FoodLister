@@ -2,9 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import { CheckCircle, ArrowRight, Home } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLanguage } from "@/contexts";
+import Icon from '@/components/ui/icons/Icon';
 
 export default function VerifySuccessPage() {
   const { t } = useLanguage();
@@ -21,7 +21,7 @@ export default function VerifySuccessPage() {
         {/* Premium success icon with gradient */}
         <div className="text-center mb-8">
           <div className="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 ring-1 ring-green-500/20 flex items-center justify-center mb-6">
-            <CheckCircle className="h-10 w-10 text-green-400" />
+            <Icon name="ok-circulo" className="h-10 w-10 text-green-400" />
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2">
             {t("Email Verificado!")}
@@ -40,13 +40,13 @@ export default function VerifySuccessPage() {
                 href="/auth/signin"
                 className="flex items-center justify-center gap-2 w-full py-3 bg-[var(--primary)] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-colors min-h-[48px]"
               >
-                {t("Fazer Login")} <ArrowRight className="h-4 w-4" />
+                {t("Fazer Login")} <Icon name="seta-dir" className="h-4 w-4" />
               </Link>
               <Link
                 href="/"
                 className="flex items-center justify-center gap-2 w-full py-3 bg-white/[0.03] border border-white/[0.08] text-white/70 rounded-xl hover:bg-white/[0.06] transition-colors min-h-[48px]"
               >
-                <Home className="h-4 w-4" /> {t("Ir para Página Inicial")}
+                <Icon name="inicio" className="h-4 w-4" /> {t("Ir para Página Inicial")}
               </Link>
             </div>
           </div>

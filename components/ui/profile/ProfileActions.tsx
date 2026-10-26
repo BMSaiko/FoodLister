@@ -1,6 +1,6 @@
 import React from 'react';
-import { Copy, Share2, Edit } from 'lucide-react';
 import { toast } from 'react-toastify';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ProfileActionsProps {
   profile: {
@@ -51,7 +51,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
         onClick={handleCopyProfileLink}
         className="flex items-center gap-2 px-4 py-2 bg-[var(--gray-100)] text-[var(--gray-700)] rounded-lg hover:bg-[var(--gray-200)] transition-colors min-h-[40px] min-w-[44px] sm:min-w-[140px]"
       >
-        <Copy className="h-4 w-4" />
+        <Icon name="copiar" className="h-4 w-4" />
         <span className="hidden sm:inline">{copySuccess ? 'Copiado!' : 'Copiar Link'}</span>
       </button>
       
@@ -59,7 +59,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
         onClick={handleShareProfile}
         className="flex items-center gap-2 px-4 py-2 bg-[var(--blue-100)] text-[var(--blue-700)] rounded-lg hover:bg-[var(--blue-200)] transition-colors min-h-[40px] min-w-[44px] sm:min-w-[140px]"
       >
-        <Share2 className="h-4 w-4" />
+        <Icon name="partilhar" className="h-4 w-4" />
         <span className="hidden sm:inline">Compartilhar</span>
       </button>
 
@@ -68,7 +68,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
           onClick={onEdit}
           className="flex items-center gap-2 bg-[var(--primary)] text-[var(--primary-foreground)] px-4 py-2 rounded-lg hover:bg-[var(--primary-hover)] transition-colors min-h-[40px] min-w-[44px] sm:min-w-[140px]"
         >
-          <Edit className="h-4 w-4" />
+          <Icon name="editar" className="h-4 w-4" />
           <span className="hidden sm:inline">Editar Perfil</span>
         </button>
       )}

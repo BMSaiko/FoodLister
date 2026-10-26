@@ -2,10 +2,10 @@
 
 import React from "react";
 import { useListActivities } from "@/hooks/lists/useListActivities";
-import { ChevronDown } from "lucide-react";
 import type { ListActivityAction } from "@/libs/types";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ListActivityFeedProps {
   listId: string;
@@ -104,7 +104,7 @@ export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
                 <ToviSpinner className="h-4 w-4" />
               ) : (
                 <>
-                  <ChevronDown className="h-4 w-4" />
+                  <Icon name="chevron-baixo" className="h-4 w-4" />
                   Carregar mais
                 </>
               )}

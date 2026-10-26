@@ -1,5 +1,6 @@
+import Icon from '@/components/ui/icons/Icon';
+import type { IconName } from '@/components/ui/icons/names';
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
 
 interface FormFieldProps {
   label: string;
@@ -10,7 +11,7 @@ interface FormFieldProps {
   required?: boolean;
   placeholder?: string;
   rows?: number;
-  icon?: LucideIcon;
+  icon?: IconName;
   helperText?: string;
   children?: React.ReactNode;
   error?: string;
@@ -28,7 +29,7 @@ export default function FormField({
   required = false,
   placeholder,
   rows = 4,
-  icon: Icon,
+  icon,
   helperText,
   children,
   error,
@@ -49,9 +50,9 @@ export default function FormField({
       </label>
 
       <div className="relative">
-        {Icon && (
+        {icon && (
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-            <Icon className="h-4 w-4 text-white/30" />
+            <Icon name={icon} className="h-4 w-4 text-white/30" />
           </div>
         )}
 
@@ -66,7 +67,7 @@ export default function FormField({
             rows={rows}
             disabled={disabled}
             {...a11y}
-            className={`${inputClasses} resize-none ${Icon ? 'pl-10' : ''}`}
+            className={`${inputClasses} resize-none ${icon ? 'pl-10' : ''}`}
           />
         ) : (
           <input
@@ -81,7 +82,7 @@ export default function FormField({
             inputMode={inputMode ?? defaultInputMode}
             autoComplete={autoComplete}
             {...a11y}
-            className={`${inputClasses} ${Icon ? 'pl-10' : ''}`}
+            className={`${inputClasses} ${icon ? 'pl-10' : ''}`}
           />
         )}
 

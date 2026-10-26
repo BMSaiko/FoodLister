@@ -1,7 +1,7 @@
 'use client';
 
+import Icon from '@/components/ui/icons/Icon';
 import Link from 'next/link';
-import { UserPlus, UtensilsCrossed, Star, List } from 'lucide-react';
 
 interface RecentActivityProps {
   activities: {
@@ -13,11 +13,11 @@ interface RecentActivityProps {
 }
 
 const iconMap = {
-  user_signup: UserPlus,
-  restaurant_created: UtensilsCrossed,
-  review_added: Star,
-  list_created: List,
-};
+  user_signup: 'utilizador-mais',
+  restaurant_created: 'refeicoes',
+  review_added: 'estrela',
+  list_created: 'lista',
+} as const;
 
 const colorMap = {
   user_signup: '#f59e0b',
@@ -41,11 +41,11 @@ export default function RecentActivity({ activities }: RecentActivityProps) {
       <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--foreground)' }}>Atividade Recente</h3>
       <div className="space-y-3">
         {activities.map((activity, i) => {
-          const Icon = iconMap[activity.type];
+          const icon = iconMap[activity.type];
           return (
             <div key={i} className="flex items-center gap-3">
               <div className="p-2 rounded-lg" style={{ backgroundColor: `${colorMap[activity.type]}15` }}>
-                <Icon className="h-4 w-4" style={{ color: colorMap[activity.type] }} />
+                <Icon name={icon} className="h-4 w-4" style={{ color: colorMap[activity.type] }} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm truncate" style={{ color: 'var(--foreground)' }}>{activity.description}</p>

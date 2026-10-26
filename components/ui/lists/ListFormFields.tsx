@@ -1,10 +1,10 @@
 "use client";
 
 import React from 'react';
-import { Globe, Lock, Filter, Search, Plus, X, Star, Euro } from 'lucide-react';
 import type { ListFilters, FilterOption, Restaurant } from '@/hooks/lists/useListFilters';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface VisibilityToggleProps {
   isPublic: boolean;
@@ -26,7 +26,7 @@ export const VisibilityToggle: React.FC<VisibilityToggleProps> = ({ isPublic, on
             : 'border-[var(--card-border)] text-[var(--foreground-muted)] hover:border-[var(--primary-light)] hover:bg-[var(--background-secondary)]'
         }`}
       >
-        <Globe className="h-5 w-5" />
+        <Icon name="globo" className="h-5 w-5" />
         <span className="font-medium">Pública</span>
       </button>
       <button
@@ -38,15 +38,15 @@ export const VisibilityToggle: React.FC<VisibilityToggleProps> = ({ isPublic, on
             : 'border-[var(--card-border)] text-[var(--foreground-muted)] hover:border-[var(--primary-light)] hover:bg-[var(--background-secondary)]'
         }`}
       >
-        <Lock className="h-5 w-5" />
+        <Icon name="privado" className="h-5 w-5" />
         <span className="font-medium">Privada</span>
       </button>
     </div>
     <p className="text-xs text-[var(--foreground-muted)] mt-2 flex items-center gap-1">
       {isPublic ? (
-        <><Globe className="h-3 w-3" /> Qualquer pessoa pode ver esta lista</>
+        <><Icon name="globo" className="h-3 w-3" /> Qualquer pessoa pode ver esta lista</>
       ) : (
-        <><Lock className="h-3 w-3" /> Apenas você pode ver esta lista</>
+        <><Icon name="privado" className="h-3 w-3" /> Apenas você pode ver esta lista</>
       )}
     </p>
   </div>
@@ -83,7 +83,7 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({ mode, onChange }) =>
             : 'border-[var(--card-border)] text-[var(--foreground-muted)] hover:border-[var(--primary-light)] hover:bg-[var(--background-secondary)]'
         }`}
       >
-        <Filter className="h-5 w-5" />
+        <Icon name="filtros" className="h-5 w-5" />
         Usar Filtros
       </button>
     </div>
@@ -127,7 +127,7 @@ interface PriceRangeSliderProps {
 export const PriceRangeSlider: React.FC<PriceRangeSliderProps> = ({ value, onChange }) => (
   <div>
     <h4 className="text-sm font-semibold text-[var(--foreground-secondary)] mb-2 flex items-center gap-2">
-      <Euro className="h-4 w-4" />
+      <Icon name="preco" className="h-4 w-4" />
       Preço: €{value[0]} - €{value[1]}
     </h4>
     <div className="flex gap-4 items-center">
@@ -163,7 +163,7 @@ interface RatingSliderProps {
 export const RatingSlider: React.FC<RatingSliderProps> = ({ value, onChange }) => (
   <div>
     <h4 className="text-sm font-semibold text-[var(--foreground-secondary)] mb-2 flex items-center gap-2">
-      <Star className="h-4 w-4" />
+      <Icon name="estrela" className="h-4 w-4" />
       Avaliação Mínima: {value}★
     </h4>
     <input
@@ -205,7 +205,7 @@ export const RestaurantSearch: React.FC<RestaurantSearchProps> = ({
   return (
     <div>
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-2.5 h-5 w-5 text-[var(--foreground-muted)]" />
+        <Icon name="pesquisa" className="absolute left-3 top-2.5 h-5 w-5 text-[var(--foreground-muted)]" />
         <input
           type="text"
           placeholder={t('Procurar restaurantes...')}
@@ -232,7 +232,7 @@ export const RestaurantSearch: React.FC<RestaurantSearchProps> = ({
                     {restaurant.rating != null ? `${restaurant.rating.toFixed(1)}★` : '--★'}
                   </div>
                 </div>
-                <Plus className="h-5 w-5 text-[var(--primary-dark)] flex-shrink-0" />
+                <Icon name="mais" className="h-5 w-5 text-[var(--primary-dark)] flex-shrink-0" />
               </li>
             ))}
           </ul>
@@ -272,7 +272,7 @@ export const SelectedRestaurants: React.FC<SelectedRestaurantsProps> = ({ restau
               className="text-[var(--foreground-muted)] hover:text-red-500 transition-colors flex-shrink-0 p-1 rounded-full hover:bg-[var(--card-bg)]"
               aria-label={t('Remover restaurante')}
             >
-              <X className="h-4 w-4" />
+              <Icon name="fechar" className="h-4 w-4" />
             </button>
           </li>
         ))}
