@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Workflow git** — ramos `feat|fix|docs|chore/<slug>` → `dev` (squash) → `main` (merge commit), proteção de ramos e CI em PR para `dev` e `main` (#281-#282)
 - **Supabase local** — baseline por timestamp (histórico em `migrations_legacy/`), MCP local, scripts `db:*` de backup, restauro e promoção, portas 553xx (#283-#287)
+- **Cursor personalizado** — 8 cursores SVG 24 px (claro e escuro) em `public/cursors/`, tokens `--cursor-*` com fallback nativo e só com `pointer: fine`; estados grab/grabbing no mapa e `spin` na roleta
 - **Marca** — logo cloche, mascote Tovi com 6 emotes, `ToviLoader`, favicon e ícones PWA (#286)
 - **UX mobile** — E1 transversal (#288), admin em gaveta (#289), `EmptyState` com Tovi (#290), mapa mobile (#291), detalhe do restaurante (#292), wizard de formulários (#293), `/auth/*` (#294) e `/subscribe/*` (#295)
 - **Global Search (Cmd+K)** — Real-time search across restaurants and public lists with keyboard shortcut

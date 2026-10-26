@@ -380,7 +380,7 @@ const RestaurantRoulette = () => {
               width="100%"
               height="100%"
               viewBox="0 0 320 320"
-              className="absolute inset-0 w-full h-full"
+              className={spinning ? "absolute inset-0 w-full h-full cursor-spin" : "absolute inset-0 w-full h-full"}
               preserveAspectRatio="xMidYMid meet"
               style={{
                 transform: `rotate(${rotation}deg)`,
