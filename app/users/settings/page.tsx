@@ -10,7 +10,6 @@ import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
 import ScrollToTopButton from "@/components/ui/common/ScrollToTopButton";
 import FormSection from "@/components/ui/common/FormSection";
-import Modal from '@/components/ui/Modal';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
@@ -59,7 +58,6 @@ export default function ProfileSettingsPage() {
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localProfile, setLocalProfile] = useState<UserProfile | null>(null);
-  const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
     if (profile && (!localProfile || profile.id !== localProfile.id)) {
@@ -122,23 +120,20 @@ export default function ProfileSettingsPage() {
       const success = await saveProfile({
         name: p?.name || "", bio: p?.bio || "", profileImage: p?.profileImage || "",
         phoneNumber: p?.phoneNumber || "", website: p?.website || "",
-        location: p?.location || "", publicProfile: p?.publicProfile || true
+        location: p?.location || "", publicProfile: p?.publicProfile ?? true
    });
-      if (success) {
-        setShowCelebration(true);
-        setTimeout(() => { router.push("/restaurants"); }, 2500);
-      }
+      if (success) toast.success(t("Perfil atualizado!"));
     } catch { toast.error(t("Erro ao salvar perfil")); }
     finally { setIsSubmitting(false); }
   };
 
   // Loading
-  if (authLoading || profileLoading) {
+  // Só no carregamento inicial: guardar/carregar imagem não pode desmontar o formulário
+  if (authLoading || (profileLoading && !profile)) {
     return (
       <div className="min-h-[100dvh] bg-[var(--background)] flex items-center justify-center">
         <div className="text-center">
-          <ToviLoader size="sm" />
-          <p className="mt-3 text-white/30 text-sm">{t("Carregando perfil...")}</p>
+          <ToviLoader size="md" rotateMessages />
         </div>
       </div>
     );
@@ -179,27 +174,16 @@ export default function ProfileSettingsPage() {
     <div className="min-h-[100dvh] bg-[var(--background)] pb-24 md:pb-8">
       <Navbar />
 
-      {/* Celebration */}
-      <Modal isOpen={showCelebration} onClose={() => setShowCelebration(false)} size="sm" ariaLabel={t("Celebração")}>
-          <div className="text-center p-8">
-            <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20">
-              <Icon name="faiscas" className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-white tracking-tight mb-2">{t("Perfil Atualizado!")}</h2>
-            <p className="text-white/40 text-sm">{t("As suas informacoes foram salvas com sucesso.")}</p>
-          </div>
-        </Modal>
-
-
-      <div className="container mx-auto px-4 py-6 pb-48 md:pb-6 max-w-3xl">
+      <div className="container mx-auto px-4 py-6 pb-48 md:pb-28 max-w-4xl">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">{t("Configurações")}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tighter">{t("Definições")}</h1>
           <p className="text-white/35 mt-1 text-sm">{t("Gere as suas informações pessoais e privacidade")}</p>
         </div>
 
-        {/* Separadores */}
-        <div role="tablist" aria-label={t("Secções das definições")} className="flex items-center gap-2 mb-6">
+        <div className="md:grid md:grid-cols-[220px_1fr] md:gap-8 md:items-start">
+        {/* Separadores: laterais em desktop, horizontais em mobile */}
+        <div role="tablist" aria-label={t("Secções das definições")} aria-orientation="vertical" className="-mx-4 px-4 mb-6 flex gap-2 overflow-x-auto md:mx-0 md:px-0 md:mb-0 md:flex-col md:gap-1 md:sticky md:top-20 md:overflow-visible">
           {[1, 2, 3].map(step => (
             <button
               key={step}
@@ -209,16 +193,23 @@ export default function ProfileSettingsPage() {
               aria-selected={currentStep === step}
               aria-controls="settings-panel"
               onClick={() => setCurrentStep(step)}
-              className={`flex-1 min-w-0 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 ${
+              className={`flex-none flex items-center gap-2 px-4 min-h-[44px] rounded-xl text-sm font-medium transition-colors duration-150 ${
                 currentStep === step
                   ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/25"
-                  : "bg-white/[0.03] text-white/50 hover:bg-white/[0.06]"
+                  : "bg-white/[0.03] text-white/50 hover:bg-white/[0.06] md:bg-transparent"
               }`}
             >
               {SECTION_ICONS[step]}
               <span>{step === 1 ? t("Perfil") : step === 2 ? t("Privacidade") : t("Estatísticas")}</span>
             </button>
           ))}
+          <Link
+            href="/users/settings/notifications"
+            className="flex-none flex items-center gap-2 px-4 min-h-[44px] rounded-xl text-sm font-medium bg-white/[0.03] text-white/50 hover:bg-white/[0.06] transition-colors md:bg-transparent md:mt-2 md:border-t md:border-white/[0.08] md:rounded-none md:pt-2"
+          >
+            <Icon name="sino" className="w-5 h-5" />
+            <span>{t("Notificações")}</span>
+          </Link>
         </div>
 
         <form onSubmit={handleSubmit} role="tabpanel" id="settings-panel" aria-labelledby={`settings-tab-${currentStep}`}>
@@ -384,12 +375,12 @@ export default function ProfileSettingsPage() {
                     onClick={() => { if (!localProfile?.publicProfile) handlePrivacyToggle(); }}
                     className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors duration-150 text-left ${
                       localProfile?.publicProfile
-                        ? "border-emerald-500/30 bg-emerald-500/5"
+                        ? "border-amber-500/40 bg-amber-500/5"
                         : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      localProfile?.publicProfile ? "bg-emerald-500/15 text-emerald-400" : "bg-white/[0.04] text-white/30"
+                      localProfile?.publicProfile ? "bg-amber-500/15 text-amber-400" : "bg-white/[0.04] text-white/30"
                     }`}>
                       <Icon name="globo" className="h-5 w-5" />
                     </div>
@@ -397,7 +388,7 @@ export default function ProfileSettingsPage() {
                       <p className="text-sm font-semibold text-white/80">{t("Perfil Público")}</p>
                       <p className="text-xs text-white/35 mt-0.5">{t("Qualquer pessoa pode encontrar e ver o seu perfil")}</p>
                     </div>
-                    {localProfile?.publicProfile && <Icon name="ok-circulo" className="h-5 w-5 text-emerald-400" />}
+                    {localProfile?.publicProfile && <Icon name="ok-circulo" className="h-5 w-5 text-amber-400" />}
            
          </button>
 
@@ -407,12 +398,12 @@ export default function ProfileSettingsPage() {
                     onClick={() => { if (localProfile?.publicProfile) handlePrivacyToggle(); }}
                     className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-colors duration-150 text-left ${
                       !localProfile?.publicProfile
-                        ? "border-red-500/30 bg-red-500/5"
+                        ? "border-amber-500/40 bg-amber-500/5"
                         : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]"
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      !localProfile?.publicProfile ? "bg-red-500/15 text-red-400" : "bg-white/[0.04] text-white/30"
+                      !localProfile?.publicProfile ? "bg-amber-500/15 text-amber-400" : "bg-white/[0.04] text-white/30"
                     }`}>
                       <Icon name="olho-off" className="h-5 w-5" />
                     </div>
@@ -420,7 +411,7 @@ export default function ProfileSettingsPage() {
                       <p className="text-sm font-semibold text-white/80">{t("Perfil Privado")}</p>
                       <p className="text-xs text-white/35 mt-0.5">{t("Apenas você pode ver o seu perfil")}</p>
                     </div>
-                    {!localProfile?.publicProfile && <Icon name="ok-circulo" className="h-5 w-5 text-red-400" />}
+                    {!localProfile?.publicProfile && <Icon name="ok-circulo" className="h-5 w-5 text-amber-400" />}
                   </button>
                 </div>
               </FormSection>
@@ -451,19 +442,19 @@ export default function ProfileSettingsPage() {
 
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
                     <div className="p-4 rounded-xl bg-white/[0.03] text-center">
-                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                        <Icon name="estrela" className="h-5 w-5 text-blue-400" />
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                        <Icon name="estrela" className="h-5 w-5 text-amber-400" />
                       </div>
-                      <p className="text-2xl font-bold text-blue-400">{localProfile?.stats?.totalReviews || 0}</p>
+                      <p className="text-2xl font-bold text-amber-400">{localProfile?.stats?.totalReviews || 0}</p>
                       <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">{t("Reviews")}</p>
                     </div>
                   </div>
                   <div className="p-1.5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
                     <div className="p-4 rounded-xl bg-white/[0.03] text-center">
-                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                        <Icon name="lista" className="h-5 w-5 text-emerald-400" />
+                      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                        <Icon name="lista" className="h-5 w-5 text-amber-400" />
                       </div>
-                      <p className="text-2xl font-bold text-emerald-400">{localProfile?.stats?.totalLists || 0}</p>
+                      <p className="text-2xl font-bold text-amber-400">{localProfile?.stats?.totalLists || 0}</p>
                       <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">{t("Listas")}</p>
                     </div>
                   </div>
@@ -485,31 +476,30 @@ export default function ProfileSettingsPage() {
             <div className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
           )}
 
-          {/* Barra de ações: fixa acima da barra inferior em mobile */}
-          <div className="fixed inset-x-0 z-30 border-t border-white/[0.08] bg-[var(--background)] px-4 py-2.5 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom))] md:static md:z-auto md:border-0 md:bg-transparent md:p-0 md:mt-6 md:pt-4">
-            <div className="flex items-center justify-between gap-2 max-w-3xl mx-auto md:max-w-none">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="px-4 text-sm font-medium text-white/60 hover:text-white/80 transition-colors min-h-[44px]"
-              >
-                {t("Cancelar")}
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="inline-flex items-center justify-center gap-2 px-6 bg-amber-500 text-black font-semibold rounded-xl hover:shadow-lg hover:shadow-amber-500/20 transition-colors disabled:opacity-50 min-h-[44px]"
-              >
-                {isSubmitting ? (
-                  <ToviSpinner className="w-4 h-4" />
-                ) : (
-                  <Icon name="ok-circulo" className="w-4 h-4" />
-                )}
-                {isSubmitting ? t("A guardar...") : t("Guardar")}
-              </button>
+          {/* Ações: pílula flutuante acima da barra inferior em mobile */}
+          <div className="pointer-events-none fixed inset-x-0 z-30 px-4 bottom-[calc(var(--bottom-nav-h)+env(safe-area-inset-bottom)+12px)] md:bottom-6">
+            <div className="max-w-4xl mx-auto flex justify-center md:justify-end">
+              <div role="group" aria-label={t("Ações do formulário")} className="pointer-events-auto inline-flex items-center gap-1.5 p-1.5 rounded-full bg-[#151515]/90 backdrop-blur-xl border border-white/[0.12] shadow-2xl shadow-black/50">
+                <button
+                  type="button"
+                  onClick={() => router.back()}
+                  className="px-4 text-sm font-medium text-white/60 hover:text-white/90 hover:bg-white/[0.06] rounded-full transition-colors min-h-[44px]"
+                >
+                  {t("Cancelar")}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center justify-center gap-2 px-6 bg-amber-500 text-black font-semibold rounded-full hover:bg-amber-400 transition-colors disabled:opacity-60 min-h-[44px]"
+                >
+                  {isSubmitting && <ToviSpinner className="w-4 h-4" />}
+                  {isSubmitting ? t("A guardar...") : t("Guardar")}
+                </button>
+              </div>
             </div>
           </div>
         </form>
+        </div>
       </div>
 
       <ScrollToTopButton />

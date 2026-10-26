@@ -827,3 +827,11 @@ html { scroll-behavior: smooth; }
     cursor: var(--cursor-pointer);
   }
 }
+
+/* Toasts (react-toastify) na identidade FoodLister */
+.Toastify__toast-container { --toastify-color-dark: #151515; --toastify-text-color-dark: var(--foreground); --toastify-color-progress-dark: var(--primary); --toastify-color-info: var(--primary); --toastify-color-success: #34d399; --toastify-color-warning: var(--primary); --toastify-color-error: #f87171; --toastify-icon-color-info: var(--primary); --toastify-icon-color-warning: var(--primary); --toastify-icon-color-success: #34d399; --toastify-icon-color-error: #f87171; }
+.Toastify__toast { border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); font-family: inherit; min-height: 48px; }
+.Toastify__toast--success { border-color: rgba(52, 211, 153, 0.4); }
+.Toastify__toast--error { border-color: rgba(248, 113, 113, 0.4); }
+.Toastify__toast--info, .Toastify__toast--warning { border-color: rgba(245, 158, 11, 0.4); }
+.Toastify__close-button { color: rgba(255, 255, 255, 0.5); opacity: 1; }

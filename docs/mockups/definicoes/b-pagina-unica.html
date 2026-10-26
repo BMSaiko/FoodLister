@@ -1,0 +1,44 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Definições - FoodLister (B página única)</title><link rel="stylesheet" href="shared.css">
+<style>
+.wrap{max-width:720px}
+.id{display:flex;align-items:center;gap:16px;margin-bottom:20px}.id .avatar{width:72px;height:72px}
+.id h1{margin:0;overflow-wrap:anywhere}.id .sub{overflow-wrap:anywhere}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 20px;padding:0 16px;position:sticky;top:0;background:var(--bg);z-index:4;padding-top:8px;padding-bottom:8px}
+.chips a{flex:none;display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:99px;color:var(--mut);font-size:14px}
+.chips a:hover{color:var(--ph);border-color:rgba(245,158,11,.5)}
+.stats{margin-bottom:16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:10px}.seg .opt+.opt{margin-top:0}
+@media(max-width:720px){.seg{grid-template-columns:1fr}.seg .opt+.opt{margin-top:10px}.id .avatar{width:56px;height:56px;font-size:20px}}
+</style></head><body>
+<header class="nav"><img src="assets/lockup-dark.svg" alt="FoodLister"><span class="me">A</span></header>
+<div class="skel"></div>
+<div class="toast" role="status">Perfil atualizado.</div>
+<div class="full"><div><img src="assets/tovi-triste.svg" alt=""><h1>Erro ao carregar perfil</h1><p class="sub">Não foi possível obter os seus dados.</p><button class="btn" type="button">Tentar novamente</button></div></div>
+<main class="wrap page">
+<div class="id"><div class="avatar" id="avatar"></div><div><h1>Definições</h1><p class="sub">ana.ferreira@exemplo.pt · membro desde março de 2026</p></div></div>
+<div class="stats"><div class="stat"><b id="s1">0</b><span>Reviews</span></div><div class="stat"><b id="s2">0</b><span>Listas</span></div><div class="stat"><b id="s3">0</b><span>Adicionados</span></div></div>
+<nav class="chips" aria-label="Secções"><a href="#perfil">Perfil</a><a href="#privacidade">Privacidade</a><a href="#notificacoes">Notificações</a></nav>
+<form onsubmit="return false">
+<div class="banner error" role="alert">Por favor, corrija os erros.</div>
+<section class="card" id="perfil"><header><h2>Perfil</h2><p>Foto e informações visíveis para outros utilizadores.</p></header>
+<div class="row" style="margin-bottom:20px"><div><button type="button" class="upl" id="upl">Alterar foto</button><div class="hint" style="justify-content:flex-start">JPG, PNG ou GIF. Máx. 5 MB. Guarda logo ao escolher.</div></div></div>
+<div class="grid">
+<div class="field span2" id="f-name"><label for="name">Nome de exibição <em>*</em></label><input id="name" autocomplete="name" placeholder="O seu nome"><div class="err" role="alert">Nome de exibição é obrigatório.</div></div>
+<div class="field"><label for="email">Email</label><input id="email" type="email" value="ana.ferreira@exemplo.pt" readonly><div class="hint">O email não pode ser alterado.</div></div>
+<div class="field"><label for="phone">Telefone</label><input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+351 912 345 678"></div>
+<div class="field"><label for="loc">Localização</label><input id="loc" autocomplete="address-level2" placeholder="Porto, Portugal"></div>
+<div class="field" id="f-web"><label for="web">Website</label><input id="web" type="url" inputmode="url" autocomplete="url" placeholder="https://o-seu-site.com"><div class="err" role="alert">Formato de URL inválido.</div></div>
+<div class="field span2"><label for="bio">Bio</label><textarea id="bio" maxlength="500" rows="4" placeholder="Conte um pouco sobre si..."></textarea><div class="hint"><span>Máximo 500 caracteres</span><span id="count">0/500</span></div></div>
+</div></section>
+<section class="card" id="privacidade"><header><h2>Privacidade</h2><p>Escolha quem pode ver o seu perfil. A alteração guarda logo.</p></header>
+<div class="seg" role="radiogroup" aria-label="Privacidade">
+<button type="button" role="radio" class="opt" data-priv="public" aria-checked="true"><i class="dot"></i><div><b>Público</b><span>Qualquer pessoa pode ver.</span></div></button>
+<button type="button" role="radio" class="opt" data-priv="private" aria-checked="false"><i class="dot"></i><div><b>Privado</b><span>Apenas você.</span></div></button>
+</div>
+<a class="linkrow" data-view href="#" style="margin-top:12px"><div>Ver perfil público<small>Como outros utilizadores veem o seu perfil.</small></div><span>→</span></a></section>
+<section class="card" id="notificacoes"><header><h2>Notificações</h2><p>Email, push, resumo semanal, convites e atividade.</p></header>
+<a class="linkrow" href="#"><div>Preferências de notificações<small>8 interruptores</small></div><span>→</span></a></section>
+</form></main>
+<div class="actions"><div><button class="ghost" type="button">Cancelar</button><button class="btn" type="submit"><span class="spin"></span><span id="btnlbl">Guardar</span></button></div></div>
+<nav class="bn" aria-hidden="true"><i>Início</i><i>Explorar</i><i>Mapa</i><i>Listas</i><i class="on">Perfil</i></nav>
+<script src="states.js"></script></body></html>

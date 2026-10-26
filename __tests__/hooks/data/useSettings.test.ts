@@ -105,6 +105,24 @@ describe('useSettings', () => {
     expect(result.current.profile).toEqual(updatedProfile);
   });
 
+  it('saveProfile invalidates the cached public profile', async () => {
+    localStorage.setItem('user_profile_abc', '{"profileImage":"old.png"}');
+    localStorage.setItem('user_reviews_abc_page1', '[]');
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ profile: { ...mockProfile, profileImage: 'new.png' } }),
+    });
+
+    const { result } = renderHook(() => useSettings());
+    await act(async () => {
+      await result.current.saveProfile({ profileImage: 'new.png' });
+    });
+
+    expect(localStorage.getItem('user_profile_abc')).toBeNull();
+    expect(localStorage.getItem('user_reviews_abc_page1')).not.toBeNull();
+    localStorage.clear();
+  });
+
   it('saveProfile rejects empty name', async () => {
     const { result } = renderHook(() => useSettings());
 
