@@ -54,7 +54,7 @@ test.describe('/feed', () => {
     await page.goto('/feed');
     await expect(page.locator('article').first()).toBeVisible({ timeout: 30000 });
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(page.getByRole('alert')).toContainText('API 500');
+    await expect(page.getByRole('alert').filter({ hasText: 'API 500' })).toBeVisible();
     await expect(page.locator('article')).toHaveCount(15);
     await page.getByRole('button', { name: /tentar novamente/i }).click();
     await expect(page.locator('article')).toHaveCount(30, { timeout: 15000 });

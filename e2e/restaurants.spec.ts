@@ -34,7 +34,7 @@ test.describe('Restaurants', () => {
   test('should navigate to restaurant detail', async ({ page }) => {
     await page.goto('/restaurants');
     await page.waitForTimeout(2000);
-    const firstCard = page.locator('article, [class*="card"], [class*="restaurant"]').first();
+    const firstCard = page.locator('a[href^="/restaurants/"]:not([href="/restaurants/create"]):not([href^="/restaurants/no-coords"])').first();
     if (await firstCard.isVisible()) {
       await firstCard.click();
       await page.waitForURL(/.*restaurants\/.+/);
