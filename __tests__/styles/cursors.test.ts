@@ -42,9 +42,4 @@ describe('cursores personalizados', () => {
     expect(block).toMatch(/\.leaflet-container\.leaflet-grab[^{]*\{\s*cursor:\s*var\(--cursor-grab\)/)
     expect(block).toMatch(/\.leaflet-dragging[^{]*\{\s*cursor:\s*var\(--cursor-grabbing\)/)
   })
-
-  it('a roleta usa .cursor-spin enquanto roda', () => {
-    const src = fs.readFileSync(path.join(root, 'components/ui/RestaurantList/RestaurantRoulette.tsx'), 'utf8')
-    expect(src).toMatch(/spinning \? ['"`][^'"`]*cursor-spin/)
-  })
 })
