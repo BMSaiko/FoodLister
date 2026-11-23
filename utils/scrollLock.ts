@@ -53,11 +53,6 @@ export const unlockScroll = () => {
 };
 
 /**
- * Checks if scroll is currently locked
- */
-export const isScrollLocked = () => isLocked;
-
-/**
  * React hook for managing scroll lock state
  */
 export const useScrollLock = (shouldLock: boolean) => {

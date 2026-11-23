@@ -149,44 +149,6 @@ export function redirectToSignup(fallbackUrl: string = '/restaurants'): void {
   window.location.href = signupUrl;
 }
 
-// ==================== Session Storage Helpers ====================
-
-const SESSION_STORAGE_KEY = 'supabase.auth.token';
-
-/**
- * Checks if session data exists in storage
- */
-export function hasSessionInStorage(): boolean {
-  if (typeof window === 'undefined') return false;
-  
-  const hasCookie = document.cookie.includes(SESSION_STORAGE_KEY);
-  const hasLocalStorage = !!localStorage.getItem(SESSION_STORAGE_KEY);
-  
-  if (process.env.NODE_ENV === 'development') {
-    authLogger.log({
-      type: 'session_expired',
-      timestamp: Date.now(),
-      details: {
-        storageCheck: true,
-        hasCookie,
-        hasLocalStorage
-      }
-    });
-  }
-  
-  return hasCookie || hasLocalStorage;
-}
-
-/**
- * Clears session data from storage
- */
-export function clearSessionStorage(): void {
-  if (typeof window === 'undefined') return;
-  
-  localStorage.removeItem(SESSION_STORAGE_KEY);
-  logStorageOperation('remove', SESSION_STORAGE_KEY);
-}
-
 // Export for debugging in browser console
 if (typeof window !== 'undefined') {
   (window as any).__authLogger = authLogger;
