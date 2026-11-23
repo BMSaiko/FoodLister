@@ -70,7 +70,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
             text: `Confira este restaurante no FoodList!`,
             url: restaurantUrl,
           });
-        } catch (error) {
+        } catch {
           // Fallback to clipboard if share fails
           await navigator.clipboard.writeText(restaurantUrl);
           toast.success('Link do restaurante copiado!');
@@ -83,7 +83,7 @@ const RestaurantCardActions: React.FC<RestaurantCardActionsProps> = ({
       if (onShare) {
         onShare(e);
       }
-    } catch (error) {
+    } catch {
       toast.error('Erro ao compartilhar restaurante');
     } finally {
       setIsSharing(false);

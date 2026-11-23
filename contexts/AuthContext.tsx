@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (profileError && profileError.code !== '23505') {
             // Don't throw here as the auth signup was successful
           }
-        } catch (profileCreateError) {
+        } catch {
           // Don't throw here as the auth signup was successful
         }
       }
@@ -251,7 +251,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       return session?.access_token || null;
-    } catch (error) {
+    } catch {
       return null;
     }
   };
