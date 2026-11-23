@@ -8,6 +8,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { useInfiniteScroll } from "@/hooks/ui/useInfiniteScroll";
 import ToviLoader from "@/components/loading/ToviLoader";
 import Icon from "@/components/ui/icons/Icon";
+import { formatTimeAgo } from "@/utils/formatters";
 
 interface FeedItem {
   id: string;
@@ -24,19 +25,6 @@ const TYPE_META = {
   list: { label: "Nova lista", icon: "lista-mais" },
   follow: { label: "Novo seguidor", icon: "utilizador-mais" },
 } as const;
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMins = Math.floor((now.getTime() - date.getTime()) / 60000);
-  if (diffMins < 1) return "Agora mesmo";
-  if (diffMins < 60) return `há ${diffMins}min`;
-  const diffHours = Math.floor(diffMins / 60);
-  if (diffHours < 24) return `há ${diffHours}h`;
-  const diffDays = Math.floor(diffHours / 24);
-  if (diffDays < 7) return `há ${diffDays}d`;
-  return date.toLocaleDateString("pt-PT");
-}
 
 function Avatar({ actor }: { actor: FeedItem["actor"] }) {
   const inner = actor.avatar ? (
