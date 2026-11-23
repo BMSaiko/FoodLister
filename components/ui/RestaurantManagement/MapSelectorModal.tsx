@@ -43,8 +43,6 @@ export default function MapSelectorModal() {
     location !== 'undefined' && 
     location !== 'null';
 
-  const encodedLocation = validLocation ? encodeURIComponent(location.trim()) : '';
-
       // URLs for different map apps with proper validation
       // Google Maps uses extracted source_url (original Google Maps link from creation)
       // Waze and Apple Maps use only coordinates (no location string)
