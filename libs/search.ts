@@ -58,28 +58,6 @@ export function isValidCoordinates(
 }
 
 /**
- * Sort restaurants by distance from a reference point.
- */
-export function sortByDistance<T extends { latitude?: number | null; longitude?: number | null }>(
-  items: T[],
-  refLat: number,
-  refLng: number
-): Array<T & { distance: number }> {
-  return items
-    .filter(
-      (item) =>
-        item.latitude != null &&
-        item.longitude != null &&
-        isValidCoordinates(item.latitude, item.longitude)
-    )
-    .map((item) => ({
-      ...item,
-      distance: haversineDistance(refLat, refLng, item.latitude!, item.longitude!),
-    }))
-    .sort((a, b) => a.distance - b.distance);
-}
-
-/**
  * Supported sort options for restaurant search.
  */
 export type RestaurantSortBy = 'rating' | 'distance' | 'price' | 'name' | 'popularity';
