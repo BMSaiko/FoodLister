@@ -16,7 +16,6 @@ const PrivacyToggle: React.FC<PrivacyToggleProps> = ({
   className = ''
 }) => {
   const iconName = isPublic ? 'olho' : 'olho-off';
-  const statusText = isPublic ? 'Perfil Público' : 'Perfil Privado';
   const statusColor = isPublic ? 'text-green-600' : 'text-red-600';
 
   return (
