@@ -14,7 +14,7 @@ export default function UsersTable({ users, onRefresh }: UsersTableProps) {
   const [confirmModal, setConfirmModal] = useState<{ userId: string; userName: string } | null>(null);
   const [optimisticUsers, setOptimisticUsers] = useOptimistic(
     users,
-    (currentUsers: AdminUser[], updatedUsers: AdminUser[]) => updatedUsers
+    (_currentUsers: AdminUser[], updatedUsers: AdminUser[]) => updatedUsers
   );
 
   const toggleAdmin = async (userId: string, currentStatus: boolean) => {

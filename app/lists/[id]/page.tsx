@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import Link from "next/link";
@@ -72,7 +71,6 @@ export default function ListDetails() {
   const searchParams = useSearchParams();
   const highlightCommentId = searchParams?.get('comment') || undefined;
   const router = useRouter();
-  const { user } = useAuthUser();
   const [list, setList] = useState<List | null>(null);
 usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
   const [userRole, setUserRole] = useState<string>('none');
