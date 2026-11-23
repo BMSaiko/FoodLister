@@ -104,10 +104,3 @@ export async function cancelSubscriptionAtPeriodEnd(stripeSubscriptionId: string
 export async function cancelSubscriptionImmediately(stripeSubscriptionId: string): Promise<void> {
   await stripe.subscriptions.cancel(stripeSubscriptionId);
 }
-
-export async function constructWebhookEvent(
-  payload: string | Buffer,
-  signature: string
-): Promise<Stripe.Event> {
-  return stripe.webhooks.constructEvent(payload, signature, STRIPE_WEBHOOK_SECRET);
-}

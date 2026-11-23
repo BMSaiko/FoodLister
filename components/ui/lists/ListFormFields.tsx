@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import type { ListFilters, FilterOption, Restaurant } from '@/hooks/lists/useListFilters';
+import type { ListFilters, Restaurant } from '@/hooks/lists/useListFilters';
 import { useLanguage } from '@/contexts/LanguageContext';
 import ToviSpinner from '@/components/loading/ToviSpinner';
 import Icon from '@/components/ui/icons/Icon';
@@ -86,35 +86,6 @@ export const ModeSelector: React.FC<ModeSelectorProps> = ({ mode, onChange }) =>
         <Icon name="filtros" className="h-5 w-5" />
         Usar Filtros
       </button>
-    </div>
-  </div>
-);
-
-interface FilterChipsProps {
-  options: FilterOption[];
-  selected: string[];
-  onToggle: (id: string) => void;
-  title: string;
-}
-
-export const FilterChips: React.FC<FilterChipsProps> = ({ options, selected, onToggle, title }) => (
-  <div>
-    <h4 className="text-sm font-semibold text-[var(--foreground-secondary)] mb-2">{title}</h4>
-    <div className="flex flex-wrap gap-2">
-      {options.map(opt => (
-        <button
-          key={opt.id}
-          type="button"
-          onClick={() => onToggle(opt.id)}
-          className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-200 ${
-            selected.includes(opt.id)
-              ? 'bg-[var(--primary)] text-[var(--primary-foreground)] border-[var(--primary)] shadow-sm'
-              : 'bg-[var(--card-bg)] text-[var(--foreground)] border-[var(--card-border)] hover:border-[var(--primary-light)] hover:bg-[var(--primary-50)]'
-          }`}
-        >
-          {opt.name}
-        </button>
-      ))}
     </div>
   </div>
 );
