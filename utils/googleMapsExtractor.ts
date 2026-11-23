@@ -1,6 +1,7 @@
 // utils/googleMapsExtractor.ts
 
 import { logError } from './logger';
+import { isValidCoordinates } from '@/libs/search';
 
 /**
  * Extrai informações de um link do Google Maps
@@ -210,22 +211,6 @@ function extractCoordinates(url: string): { latitude: number; longitude: number 
     logError('Erro ao extrair coordenadas do Google Maps', error);
     return null;
   }
-}
-
-/**
- * Valida se as coordenadas são válidas
- */
-function isValidCoordinates(latitude: number, longitude: number): boolean {
-  return (
-    typeof latitude === 'number' &&
-    typeof longitude === 'number' &&
-    !isNaN(latitude) &&
-    !isNaN(longitude) &&
-    latitude >= -90 &&
-    latitude <= 90 &&
-    longitude >= -180 &&
-    longitude <= 180
-  );
 }
 
 /**

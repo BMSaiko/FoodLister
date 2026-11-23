@@ -8,6 +8,7 @@ import type { RestaurantSortBy, SortDirection } from '@/libs/search';
 import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { isUuid } from '@/libs/slug';
+import { isValidCoordinates } from '@/libs/search';
 
 
 interface Restaurant {
@@ -34,19 +35,6 @@ interface Restaurant {
   latitude?: number;
   longitude?: number;
   opening_hours?: string | null;
-}
-
-function isValidCoordinates(latitude: number, longitude: number): boolean {
-  return (
-    typeof latitude === 'number' &&
-    typeof longitude === 'number' &&
-    !isNaN(latitude) &&
-    !isNaN(longitude) &&
-    latitude >= -90 &&
-    latitude <= 90 &&
-    longitude >= -180 &&
-    longitude <= 180
-  );
 }
 
 function isCurrentlyOpen(openingHours: string | null): boolean | null {
