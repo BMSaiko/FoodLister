@@ -4,7 +4,6 @@ import RestaurantImagePlaceholder from "./RestaurantImagePlaceholder";
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { RestaurantWithDetails } from "@/libs/types";
 import { extractPlaceParts } from "@/utils/googleMapsExtractor";
 import { CreatorLink } from "@/components/ui/common/CreatorLink";
@@ -21,7 +20,6 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   variant = "small",
   centered = false,
 }) => {
-  const { user } = useAuthUser();
   const [isHovered, setIsHovered] = useState(false);
 
   const isLarge = variant === "large";
