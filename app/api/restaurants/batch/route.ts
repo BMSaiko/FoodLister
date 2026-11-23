@@ -4,7 +4,7 @@ import { requireAdmin } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
-import { normName, isDuplicate } from './utils';
+import { isDuplicate } from './utils';
 
 interface BatchRestaurant {
   name: string;

@@ -3,7 +3,6 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { checkRateLimit } from '@/libs/rate-limit';
-import { addParticipants, updateParticipantStatus, removeParticipant } from '@/libs/meals/participants';
 import { createNotification } from '@/libs/notifications/service';
 
 // Add participants to a meal

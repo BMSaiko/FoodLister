@@ -6,7 +6,7 @@ import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import { PageHeader } from '@/components/ui/PageHeader';
 import PricingCard from '@/components/subscription/PricingCard';
-import type { SubscriptionPlan, UserSubscription, SubscriptionTier } from '@/libs/types';
+import type { SubscriptionPlan, UserSubscription } from '@/libs/types';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { toast } from 'react-toastify';
 import { usePageTitle } from "@/hooks/usePageTitle";
