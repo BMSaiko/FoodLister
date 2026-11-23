@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApiClient } from '@/hooks/auth/useApiClient';
-import {  } from '@/utils/formatters';
-import {  } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
 import { 
   ProfileCard, 
