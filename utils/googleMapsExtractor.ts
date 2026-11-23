@@ -138,75 +138,31 @@ export function extractGoogleMapsData(url: string): GoogleMapsData {
 /**
  * Extrai coordenadas de vários formatos de URLs do Google Maps
  */
+function parseCoordinates(
+  text: string,
+  pattern: RegExp = /(-?\d+\.\d+),(-?\d+\.\d+)/
+): { latitude: number; longitude: number } | null {
+  const match = text.match(pattern);
+  if (!match) return null;
+  const lat = parseFloat(match[1]);
+  const lng = parseFloat(match[2]);
+  return isValidCoordinates(lat, lng) ? { latitude: lat, longitude: lng } : null;
+}
+
 function extractCoordinates(url: string): { latitude: number; longitude: number } | null {
   try {
     const urlObj = new URL(url);
-    const pathname = urlObj.pathname;
     const searchParams = urlObj.searchParams;
 
     // Formato 1: /@{lat},{lng},{zoom}z
-    const coordsMatch = pathname.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (coordsMatch) {
-      const lat = parseFloat(coordsMatch[1]);
-      const lng = parseFloat(coordsMatch[2]);
-      if (isValidCoordinates(lat, lng)) {
-        return { latitude: lat, longitude: lng };
-      }
-    }
-
-    // Formato 2: parâmetros de query (ex: ?ll={lat},{lng})
-    if (searchParams.has('ll')) {
-      const ll = searchParams.get('ll') || '';
-      const llMatch = ll.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (llMatch) {
-        const lat = parseFloat(llMatch[1]);
-        const lng = parseFloat(llMatch[2]);
-        if (isValidCoordinates(lat, lng)) {
-          return { latitude: lat, longitude: lng };
-        }
-      }
-    }
-
-    // Formato 3: parâmetro center
-    if (searchParams.has('center')) {
-      const center = searchParams.get('center') || '';
-      const centerMatch = center.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (centerMatch) {
-        const lat = parseFloat(centerMatch[1]);
-        const lng = parseFloat(centerMatch[2]);
-        if (isValidCoordinates(lat, lng)) {
-          return { latitude: lat, longitude: lng };
-        }
-      }
-    }
-
-    // Formato 4: parâmetro query com coordenadas (ex: ?q={lat},{lng} ou ?query={lat},{lng})
-    const queryParam = searchParams.get('q') || searchParams.get('query') || '';
-    if (queryParam) {
-      const qMatch = queryParam.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (qMatch) {
-        const lat = parseFloat(qMatch[1]);
-        const lng = parseFloat(qMatch[2]);
-        if (isValidCoordinates(lat, lng)) {
-          return { latitude: lat, longitude: lng };
-        }
-      }
-    }
-
-    // Formato 5: parâmetro view com coordenadas
-    if (searchParams.has('view')) {
-      const view = searchParams.get('view') || '';
-      const viewMatch = view.match(/(-?\d+\.\d+),(-?\d+\.\d+)/);
-      if (viewMatch) {
-        const lat = parseFloat(viewMatch[1]);
-        const lng = parseFloat(viewMatch[2]);
-        if (isValidCoordinates(lat, lng)) {
-          return { latitude: lat, longitude: lng };
-        }
-      }
-    }
-
-    return null;
+    // Formatos 2-5: parâmetros de query ll, center, q/query (coordenadas) e view
+    return (
+      parseCoordinates(urlObj.pathname, /@(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+      parseCoordinates(searchParams.get('ll') || '') ||
+      parseCoordinates(searchParams.get('center') || '') ||
+      parseCoordinates(searchParams.get('q') || searchParams.get('query') || '') ||
+      parseCoordinates(searchParams.get('view') || '')
+    );
   } catch (error) {
     logError('Erro ao extrair coordenadas do Google Maps', error);
     return null;
