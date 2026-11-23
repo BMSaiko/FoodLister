@@ -14,7 +14,6 @@ interface RestaurantCarouselProps {
  */
 export default function RestaurantCarousel({ images = [], className = '' }: RestaurantCarouselProps) {
   const [startIndex, setStartIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
@@ -97,10 +96,6 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
     setStartIndex(index);
     setTimeout(() => setIsTransitioning(false), 400);
   }, [startIndex, isTransitioning]);
-
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying);
-  };
 
   // Modal functions
   const openModal = useCallback((imageIndex: number) => {

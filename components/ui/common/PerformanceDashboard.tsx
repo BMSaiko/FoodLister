@@ -113,18 +113,6 @@ const PerformanceDashboard = () => {
     { name: 'Etiquetas ARIA', status: 'excellent', score: 100 }
   ];
 
-  const getScoreColor = (score: number): string => {
-    if (score >= 95) return 'var(--green-500)';
-    if (score >= 85) return 'var(--amber-500)';
-    return 'var(--red-500)';
-  };
-
-  const getScoreStatus = (score: number): string => {
-    if (score >= 95) return 'excellent';
-    if (score >= 85) return 'good';
-    return 'needs-improvement';
-  };
-
   return (
     <div className="bg-gradient-to-br from-[var(--amber-50)] to-[var(--orange-50)] rounded-xl p-6 shadow-lg border border-[var(--amber-100)]/50">
       {/* Header */}
