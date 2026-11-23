@@ -198,19 +198,6 @@ export function isValidGoogleMapsUrl(url: string): boolean {
 }
 
 /**
- * Formata a string de localização para ser usada no formulário
- */
-export function formatLocationString(data: GoogleMapsData): string {
-  if (data.address) {
-    return data.address;
-  }
-  if (data.latitude && data.longitude) {
-    return `${data.latitude}, ${data.longitude}`;
-  }
-  return '';
-}
-
-/**
  * Converte price_level numérico para símbolo visual
  */
 export function formatPriceLevel(level?: number): string {
