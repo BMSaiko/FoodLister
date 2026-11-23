@@ -1,14 +1,12 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';
 import AppIcon from '@/components/ui/icons/Icon';
 
 const UserErrorPage = ({ error, reset }: { error: Error; reset: () => void }) => {
-  const router = useRouter();
 
   // Smart back navigation
   const { navigateBack } = useSmartBackNavigation({
@@ -18,10 +16,6 @@ const UserErrorPage = ({ error, reset }: { error: Error; reset: () => void }) =>
 
   const handleRefresh = () => {
     reset();
-  };
-
-  const handleGoHome = () => {
-    router.push('/');
   };
 
   const handleGoBack = () => {

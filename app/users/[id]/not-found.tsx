@@ -1,24 +1,18 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';
 import AppIcon from '@/components/ui/icons/Icon';
 
 const ProfileNotFoundPage = () => {
-  const router = useRouter();
 
   // Smart back navigation
   const { navigateBack } = useSmartBackNavigation({
     fallbackRoute: '/restaurants',
     userContext: 'anonymous'
   });
-
-  const handleGoHome = () => {
-    router.push('/');
-  };
 
   const handleGoBack = () => {
     navigateBack();

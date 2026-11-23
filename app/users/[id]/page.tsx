@@ -20,36 +20,12 @@ import ScheduledMealsSection from "@/components/ui/profile/sections/meals/Schedu
 import UserLoadingPage from "./loading";
 import Icon from '@/components/ui/icons/Icon';
 
-interface UserProfile {
-  id: string;
-  userIdCode: string;
-  name: string;
-  profileImage?: string;
-  location?: string;
-  bio?: string;
-  website?: string;
-  publicProfile: boolean;
-  createdAt: string;
-  updatedAt: string;
-  stats: {
-    totalReviews: number;
-    totalLists: number;
-    totalRestaurantsAdded: number;
-    totalFollowers?: number;
-    joinedDate: string;
-  };
-  recentReviews: any[];
-  recentLists: any[];
-  isOwnProfile: boolean;
-}
-
 const UserProfilePage = () => {
   const { t } = useLanguage();
   const { user, loading: authLoading } = useAuthUser();
   const router = useRouter();
   const params = useParams();
   const userId = params.id as string;
-  const isUserCode = /^[A-Z]{2}\d{6}$/.test(userId);
 
   const [activeTab, setActiveTab] = useState<"reviews" | "lists" | "restaurants" | "meals" | "activity">("reviews");
   const [copySuccess, setCopySuccess] = useState(false);
@@ -62,7 +38,7 @@ const UserProfilePage = () => {
   const searchParams = useSearchParams();
 
   const {
-    profile, reviews, lists, restaurants, loading, loadingStates, error,
+    profile, restaurants, loading, loadingStates, error,
     fetchUserRestaurants, refreshProfile
   } = useUserData({
     userId, enableReviews: true, enableLists: true, enableRestaurants: true,
