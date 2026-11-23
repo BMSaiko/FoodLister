@@ -34,7 +34,7 @@ export const useProfileActions = (options: ProfileActionsOptions): ProfileAction
           text: `Confira o perfil de ${profileName} no FoodList!`,
           url: `${window.location.origin}/users/${profileId}`,
         });
-      } catch (error) {
+      } catch {
         handleCopyProfileLink(profileId, profileName);
       }
     } else {

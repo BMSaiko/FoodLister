@@ -38,7 +38,7 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
           text: `Confira o perfil de ${profile.name} no FoodList!`,
           url: `${window.location.origin}/users/${profile.userIdCode || profile.id}`,
         });
-      } catch (error) {
+      } catch {
       }
     } else {
       handleCopyProfileLink();

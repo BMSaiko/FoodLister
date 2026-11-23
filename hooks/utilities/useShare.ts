@@ -68,7 +68,7 @@ async function copyToClipboard(url: string, text?: string): Promise<void> {
     try {
       document.execCommand('copy');
       toast.success('Link copiado para a área de transferência!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao copiar o link');
     }
     document.body.removeChild(textArea);

@@ -71,7 +71,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
             text: `Confira minha avaliação deste restaurante no FoodList!`,
             url: reviewUrl,
           });
-        } catch (error) {
+        } catch {
           // Fallback to clipboard if share fails
           await navigator.clipboard.writeText(reviewUrl);
           toast.success('Link da avaliação copiado!');
@@ -84,7 +84,7 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
       if (onShare) {
         onShare(e);
       }
-    } catch (error) {
+    } catch {
       toast.error('Erro ao compartilhar avaliação');
     } finally {
       setIsSharing(false);

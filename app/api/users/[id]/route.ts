@@ -40,7 +40,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       if (authResult.data?.user) {
         currentUserId = authResult.data.user.id;
       }
-    } catch (error) {
+    } catch {
       // Ignore auth errors for public access
     }
 

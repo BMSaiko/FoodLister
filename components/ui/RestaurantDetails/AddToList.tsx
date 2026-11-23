@@ -106,7 +106,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
         if (l && l.id && !seen.has(l.id)) { seen.add(l.id); merged.push(l); }
       });
       setLists(merged);
-    } catch (e) {
+    } catch {
       toast.error(t("Erro ao carregar listas"));
     } finally { setLoading(false); }
   };
@@ -135,7 +135,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
         const err = await res.json().catch(() => ({}));
         toast.error(err.error || "Erro ao adicionar");
       }
-    } catch (e) {
+    } catch {
       toast.error(t("Erro ao adicionar a lista"));
     } finally { setAdding(null); }
   };

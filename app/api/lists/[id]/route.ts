@@ -222,7 +222,7 @@ export async function DELETE(
       success: true, 
       message: 'List deleted successfully' 
     });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
       { error: getErrorMessage(errorType), code: errorType },
@@ -333,7 +333,7 @@ export async function PUT(
       success: true, 
       message: 'List updated successfully' 
     });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
       { error: getErrorMessage(errorType), code: errorType },
@@ -468,7 +468,7 @@ export async function POST(
       list: newList,
       message: 'List duplicated successfully'
     });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json(
       { error: getErrorMessage(errorType), code: errorType },

@@ -213,7 +213,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       hasFetchedRestaurants.current = true;
 
 
-    } catch (error) {
+    } catch {
       // Fallback to loading first page if bulk load fails
       try {
         const fallbackResponse = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
@@ -225,7 +225,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
           setHasInitialized(true);
           hasFetchedRestaurants.current = true;
         }
-      } catch (fallbackError) {
+      } catch {
       }
     } finally {
       setIsLoadingAll(false);
