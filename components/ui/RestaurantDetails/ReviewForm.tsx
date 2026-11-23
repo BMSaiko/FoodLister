@@ -115,14 +115,6 @@ export default function ReviewForm({
             images: formData.images || []
           };
       
-      console.log('Review form submission:', {
-        method,
-        endpoint,
-        requestBody,
-        isEditing,
-        initialReviewId: initialReview?.id
-      });
-      
       const response = await fetch(endpoint, {
         method,
         headers: {
