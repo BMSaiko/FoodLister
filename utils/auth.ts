@@ -8,7 +8,7 @@
 export interface AuthEvent {
   type: 'session_start' | 'session_refresh' | 'session_expired' | 'token_error' | 'auth_error' | 'storage_operation';
   timestamp: number;
-  details?: any;
+  details?: unknown;
   userId?: string;
 }
 
@@ -53,22 +53,22 @@ class AuthLogger {
 export const authLogger = new AuthLogger();
 
 // Convenience logging functions
-export const logSessionStart = (details?: any, userId?: string) =>
+export const logSessionStart = (details?: unknown, userId?: string) =>
   authLogger.log({ type: 'session_start', timestamp: Date.now(), details, userId });
 
-export const logSessionRefresh = (details?: any, userId?: string) =>
+export const logSessionRefresh = (details?: unknown, userId?: string) =>
   authLogger.log({ type: 'session_refresh', timestamp: Date.now(), details, userId });
 
-export const logSessionExpired = (details?: any, userId?: string) =>
+export const logSessionExpired = (details?: unknown, userId?: string) =>
   authLogger.log({ type: 'session_expired', timestamp: Date.now(), details, userId });
 
-export const logTokenError = (details?: any, userId?: string) =>
+export const logTokenError = (details?: unknown, userId?: string) =>
   authLogger.log({ type: 'token_error', timestamp: Date.now(), details, userId });
 
-export const logAuthError = (details?: any, userId?: string) =>
+export const logAuthError = (details?: unknown, userId?: string) =>
   authLogger.log({ type: 'auth_error', timestamp: Date.now(), details, userId });
 
-export const logStorageOperation = (operation: 'get' | 'set' | 'remove', key: string, value?: any, success: boolean = true) =>
+export const logStorageOperation = (operation: 'get' | 'set' | 'remove', key: string, value?: unknown, success: boolean = true) =>
   authLogger.log({
     type: 'storage_operation',
     timestamp: Date.now(),
