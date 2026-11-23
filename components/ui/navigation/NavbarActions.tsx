@@ -8,11 +8,7 @@ import ToviSpinner from '@/components/loading/ToviSpinner';
 import Icon from '@/components/ui/icons/Icon';
 
 const NavbarActions = ({ activeSection, showLogin = true, showSignout = true }: { activeSection: 'restaurants' | 'lists'; showLogin?: boolean; showSignout?: boolean }) => {
-  const { user, signOut, loading } = useAuth();
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
