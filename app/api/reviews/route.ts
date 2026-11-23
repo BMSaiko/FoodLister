@@ -5,15 +5,12 @@ import { getServerClient, getPublicServerClient, requireUser } from '@/libs/supa
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/libs/supabase/types';
 import { checkRateLimit } from '@/libs/rate-limit';
 import { createNotification } from '@/libs/notifications/service';
 import { notifyMentionedUsers } from '@/libs/mentions';
 import { parsePaginationFromRequest } from '@/libs/utils/pagination';
 import { isUuid, resolveRestaurantId } from '@/libs/slug';
 
-type DbClient = SupabaseClient<Database>;
 // Database type is incomplete — use explicit query types
 type ReviewRow = any;
 type ProfileRow = any;

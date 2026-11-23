@@ -4,13 +4,11 @@ import { getServerClient, getPublicServerClient, requireUser } from '@/libs/supa
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
-import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
 import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { isUuid } from '@/libs/slug';
 
-type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
 interface Restaurant {
   id: string;
