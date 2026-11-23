@@ -42,39 +42,6 @@ const RestaurantCardHeader: React.FC<RestaurantCardHeaderProps> = ({
   const imageUrl = getDisplayImage();
   const hasImage = imageUrl && imageUrl !== '/placeholder-restaurant.jpg' && imageUrl !== '' && !imageUrl.startsWith('data:image');
 
-  // Function to render prices with € icons
-  const renderPriceCategory = (price: number) => {
-    if (price <= 10) return { label: 'Econômico', level: 1 };
-    if (price <= 20) return { label: 'Moderado', level: 2 };
-    if (price <= 50) return { label: 'Elevado', level: 3 };
-    return { label: 'Luxo', level: 4 };
-  };
-
-  // Get color class based on price level
-  const getPriceColorClass = (level: number) => {
-    switch(level) {
-      case 1: return 'text-[var(--primary-light)]';
-      case 2: return 'text-[var(--primary)]';
-      case 3: return 'text-[var(--primary-hover)]';
-      case 4: return 'text-[var(--primary-dark)]';
-      default: return 'text-[var(--primary-light)]';
-    }
-  };
-  
-  // Classe para o texto do label - garantindo melhor legibilidade
-  const getPriceLabelClass = (level: number) => {
-    switch(level) {
-      case 1: return 'text-[var(--primary-light)] font-bold';
-      case 2: return 'text-[var(--primary)] font-bold';
-      case 3: return 'text-[var(--primary-hover)] font-bold';
-      case 4: return 'text-[var(--primary-dark)] font-bold';
-      default: return 'text-[var(--primary-light)] font-medium';
-    }
-  };
-
-  const priceCategory = renderPriceCategory(restaurant.price_per_person || 0);
-  const priceColorClass = getPriceColorClass(priceCategory.level);
-
   // Style of rating based on value
   const getRatingStyle = (rating: number) => {
     if (rating >= 4.5) return 'bg-[var(--success-light)] text-[var(--success)]';
