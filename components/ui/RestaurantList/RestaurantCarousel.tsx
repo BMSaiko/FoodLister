@@ -46,16 +46,6 @@ export default function RestaurantCarousel({ images = [], className = '' }: Rest
   }, [images]);
 
   // Auto-play functionality - DISABLED for restaurant carousel (kept for menu carousel)
-  // useEffect(() => {
-  //   if (!images || images.length <= visibleCount || !isAutoPlaying) return;
-  //
-  //   const interval = setInterval(() => {
-  //     nextSet();
-  //   }, 6000); // Change every 6 seconds for better UX
-  //
-  //   return () => clearInterval(interval);
-  // }, [startIndex, images.length, visibleCount, isAutoPlaying]);
-
   if (!images || images.length === 0) {
     return (
       <div className={`flex flex-col items-center justify-center py-12 px-6 bg-[var(--amber-50)]/50 rounded-2xl border-2 border-dashed border-[var(--amber-200)] ${className}`}>
