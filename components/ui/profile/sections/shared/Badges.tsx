@@ -1,26 +1,5 @@
 import React from "react";
 
-export const RatingBadge = ({ rating }: { rating: number }) => (
-  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/15">
-    {rating.toFixed(1)}
-  </span>
-);
-
-export const PriceLevelBadge = ({ level }: { level: number }) => {
-  const euro = String.fromCharCode(8364);
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-orange-500/10 text-orange-400 border border-orange-500/15">
-      {Array(level).fill(euro).join("")}
-    </span>
-  );
-};
-
-export const LocationBadge = ({ location }: { location: string }) => (
-  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 truncate max-w-[150px]">
-    {location}
-  </span>
-);
-
 export const DateBadge = ({ date, prefix = "" }: { date: string; prefix?: string }) => (
   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/[0.04] text-white/40 border border-white/[0.06]">
     {prefix}{new Date(date).toLocaleDateString("pt-PT")}
