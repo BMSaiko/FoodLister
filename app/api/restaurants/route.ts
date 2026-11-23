@@ -8,6 +8,7 @@ import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
 import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
+import { isUuid } from '@/libs/slug';
 
 type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
@@ -81,8 +82,7 @@ export async function GET(request: NextRequest) {
     const ratingMin = searchParams.get('rating_min');
     const locationParam = searchParams.get('location');
     const cuisineList = (searchParams.get('cuisines') || '').split(',').map((c) => c.trim()).filter(Boolean);
-    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const cuisinesAreIds = cuisineList.length > 0 && cuisineList.every((c) => UUID_RE.test(c));
+    const cuisinesAreIds = cuisineList.length > 0 && cuisineList.every((c) => isUuid(c));
     // junção !inner só para filtrar (alias próprio: não altera o array cuisine_types devolvido)
     const cuisineFilterEmbed = cuisineList.length
       ? ', cuisine_filter:restaurant_cuisine_types!inner(cuisine_type:cuisine_types!inner(id, name))'
