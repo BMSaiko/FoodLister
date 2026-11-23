@@ -2,7 +2,6 @@
 "use client";
 
 import React from 'react';
-import {  } from '@/utils/formatters';
 import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCardFooterProps {

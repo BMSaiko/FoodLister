@@ -1,23 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import Link from 'next/link';
 import { useApiClient } from '@/hooks/auth/useApiClient';
-import {  } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
-import { 
-  ProfileCard, 
-  RatingBadge, 
-  PriceLevelBadge, 
-  LocationBadge, 
-  CuisineBadge, 
-  DateBadge,
-  TouchButton,
-  SkeletonLoader,
-  EmptyState 
-} from '../shared';
+import { SkeletonLoader, EmptyState } from '../shared';
 import RestaurantCard from './RestaurantCard';
 import RestaurantSkeletonLoader from './RestaurantSkeletonLoader';
-import {  } from '@/hooks/data/';
 import { useScrollLock } from '@/utils/scrollLock';
 import Icon from '@/components/ui/icons/Icon';
 

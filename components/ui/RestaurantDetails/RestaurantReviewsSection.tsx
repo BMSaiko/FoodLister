@@ -3,7 +3,6 @@ import { Review } from '@/libs/types';
 import { formatDate } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import Link from 'next/link';
-import {  } from 'next/navigation';
 import ReviewForm from './ReviewForm';
 import Icon from '@/components/ui/icons/Icon';
 
