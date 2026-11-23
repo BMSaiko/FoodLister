@@ -6,20 +6,8 @@ import type { ApiErrorType } from '@/types/api';
 
 import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { isUuid } from '@/libs/slug';
+import { isValidCoordinates } from '@/libs/search';
 // Valida se as coordenadas são válidas
-function isValidCoordinates(latitude: number, longitude: number): boolean {
-  return (
-    typeof latitude === 'number' &&
-    typeof longitude === 'number' &&
-    !isNaN(latitude) &&
-    !isNaN(longitude) &&
-    latitude >= -90 &&
-    latitude <= 90 &&
-    longitude >= -180 &&
-    longitude <= 180
-  );
-}
-
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
