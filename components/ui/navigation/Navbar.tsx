@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import Ico from '@/components/ui/icons/Ico';
 import {useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
@@ -45,17 +45,12 @@ export default function Navbar() {
   const supabase = getClient();
   // No mobile menu — navbar uses bottom tab bar on mobile
   
-  const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
   const hasNotifications = (unreadCount || 0) > 0;
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Scroll-driven transform
-  const { scrollY } = useScroll();
-  const navbarHeight = useTransform(scrollY, [0, 100], [64, 52]);
-  const springHeight = useSpring(navbarHeight, { stiffness: 120, damping: 20 });
 
   // Active section
   const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' || pathname === '/feed' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
