@@ -40,34 +40,6 @@ export function convertCloudinaryUrl(
 }
 
 /**
- * Validates if a given URL is a valid Cloudinary URL
- */
-export function isValidCloudinaryUrl(url: string): boolean {
-  if (!url || typeof url !== 'string') {
-    return false;
-  }
-
-  return url.includes('cloudinary.com');
-}
-
-/**
- * Extracts the public ID from a Cloudinary URL
- */
-export function extractCloudinaryPublicId(url: string): string | null {
-  if (!url || typeof url !== 'string') {
-    return null;
-  }
-
-  // Match Cloudinary URL pattern and extract public ID
-  const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z]+$/);
-  if (match && match[1]) {
-    return match[1];
-  }
-
-  return null;
-}
-
-/**
  * Validates if a file is a valid image
  * Uses both MIME type and file extension for maximum compatibility
  */
@@ -186,37 +158,3 @@ export async function uploadToCloudinary(file: File): Promise<string> {
   return uploadWithRetry();
 }
 
-/**
- * Generates an optimized Cloudinary image URL with custom transformations
- */
-export function getOptimizedImageUrl(
-  publicId: string,
-  options: {
-    width?: number;
-    height?: number;
-    quality?: number;
-    format?: string;
-  } = {}
-): string {
-  const { width, height, quality = 80, format = 'auto' } = options;
-
-  // Build transformation parameters
-  let transformations = `f_${format},q_${quality}`;
-
-  if (width) {
-    transformations += `,w_${width}`;
-  }
-
-  if (height) {
-    transformations += `,h_${height}`;
-  }
-
-  // Get cloud name from environment
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  if (!cloudName) {
-    throw new Error('CLOUDINARY_CLOUD_NAME não configurado');
-  }
-
-  // Construct full URL
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformations}/v1/${publicId}`;
-}

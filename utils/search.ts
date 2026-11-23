@@ -94,33 +94,3 @@ export function highlightText(text: string, query: string): string {
 function escapeRegex(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
-
-/**
- * Debounced search function
- */
-export function createSearchDebounced<T>(
-  searchFn: (query: string) => Promise<T>,
-  delay: number = 300
-): (query: string) => Promise<T> {
-  let timeoutId: NodeJS.Timeout | null = null;
-  let lastQuery = '';
-
-  return async (query: string): Promise<T> => {
-    lastQuery = query;
-    
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    return new Promise((resolve, reject) => {
-      timeoutId = setTimeout(async () => {
-        try {
-          const result = await searchFn(lastQuery);
-          resolve(result);
-        } catch (error) {
-          reject(error);
-        }
-      }, delay);
-    });
-  };
-}
