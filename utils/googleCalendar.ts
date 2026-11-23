@@ -18,7 +18,7 @@ export interface CalendarEventDetails {
  * Formats a Date object to Google Calendar's expected format (YYYYMMDDTHHmmSS)
  * Note: This uses local time, not UTC, to preserve the user's intended time
  */
-export function formatCalendarDateTime(date: Date): string {
+function formatCalendarDateTime(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');

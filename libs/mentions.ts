@@ -7,7 +7,7 @@ import { createNotification } from "@/libs/notifications/service";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 /** Extract distinct @mentions (display names) from text. Skips @FL###### codes. */
-export function extractMentionNames(text: string): string[] {
+function extractMentionNames(text: string): string[] {
   // ponytail: full display names may contain spaces; words joined by single space.
   const names = text.match(/@([\p{L}\p{N}_'\-.]+(?: [\p{L}\p{N}_'\-.]+)*)/gu) || [];
   return Array.from(new Set(
@@ -16,7 +16,7 @@ export function extractMentionNames(text: string): string[] {
 }
 
 /** Resolve mention names to user ids via profiles.display_name (exact). */
-export async function resolveMentionUsers(
+async function resolveMentionUsers(
   supabase: SupabaseClient,
   names: string[]
 ): Promise<{ user_id: string; name: string }[]> {
