@@ -17,8 +17,6 @@ export async function GET(request: NextRequest) {
     const to = from + limit - 1;
     const search = searchParams.get('search') || '';
 
-    console.log('Restaurant search:', { search, hasSearch: !!search });
-
     let query = admin.from('restaurants').select('id, slug, name, description, images, display_image_index, price_per_person, rating, location, creator_name, created_at, review_count', { count: 'exact' });
     if (search) {
       query = query.or(`name.ilike.%${search}%`);
