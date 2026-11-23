@@ -192,7 +192,6 @@ code/                              # Repositório principal (BMSaiko/FoodLister)
 │   ├── analytics.ts               # Analytics utilities
 │   ├── apiMonitor.ts              # API monitoring
 │   ├── auth.ts                    # Auth utilities
-│   ├── authUtils.js               # Auth helpers
 │   ├── cloudinaryConverter.ts     # Cloudinary URL conversion + image upload
 │   ├── dbMonitor.ts               # DB query monitoring
 │   ├── error-messages.ts          # Error message helpers
