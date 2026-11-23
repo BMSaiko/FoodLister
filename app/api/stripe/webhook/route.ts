@@ -86,7 +86,6 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.updated': {
         const sub = event.data.object as any;
-        const customerId = sub.customer as string;
 
         // Find subscription by Stripe ID
         const { data: existingSub } = await supabase
