@@ -51,16 +51,6 @@ export interface PaginatedData<T> {
   hasMore: boolean;
 }
 
-/**
- * Type guard to check if response is an error
- */
-export function isApiError(response: unknown): response is ApiError {
-  return response !== null && 
-         typeof response === 'object' && 
-         'error' in response && 
-         typeof (response as ApiError).error === 'string';
-}
-
 // Mapping of ApiErrorType to user-friendly messages
 const ERROR_MESSAGES: Record<string, string> = {
   'INTERNAL_ERROR': 'An internal server error occurred. Please try again later.',

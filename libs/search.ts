@@ -71,25 +71,3 @@ export interface NearbySearchParams {
   sortBy?: RestaurantSortBy;
   sortDirection?: SortDirection;
 }
-
-export function parseNearbySearchParams(searchParams: URLSearchParams): NearbySearchParams | null {
-  const lat = parseFloat(searchParams.get('lat') || '');
-  const lng = parseFloat(searchParams.get('lng') || '');
-
-  if (isNaN(lat) || isNaN(lng) || !isValidCoordinates(lat, lng)) {
-    return null;
-  }
-
-  const radius = parseFloat(searchParams.get('radius') || '10');
-  const sortBy = (searchParams.get('sort_by') || 'distance') as RestaurantSortBy;
-  const sortDirection = (searchParams.get('sort_direction') || 'asc') as SortDirection;
-
-  return {
-    lat,
-    lng,
-    radius: isNaN(radius) ? 10 : radius,
-    sortBy: ['rating', 'distance', 'price', 'name'].includes(sortBy) ? sortBy : 'distance',
-    sortDirection: ['asc', 'desc'].includes(sortDirection) ? sortDirection : 'asc',
-  };
-}
-

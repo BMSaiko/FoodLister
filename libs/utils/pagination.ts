@@ -46,18 +46,6 @@ export function buildPaginationMeta(
   };
 }
 
-export function paginatedResponse<T>(
-  data: T[],
-  total: number | null,
-  page: number,
-  limit: number
-): PaginatedResponse<T> {
-  return {
-    data,
-    pagination: buildPaginationMeta(page, limit, total),
-  };
-}
-
 /**
  * Parse pagination from NextRequest — convenience for API routes.
  * Supports ?page=N and ?limit=N query params.

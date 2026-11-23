@@ -52,14 +52,6 @@ class AuthLogger {
 
 export const authLogger = new AuthLogger();
 
-// Convenience logging functions
-export const logStorageOperation = (operation: 'get' | 'set' | 'remove', key: string, value?: unknown, success: boolean = true) =>
-  authLogger.log({
-    type: 'storage_operation',
-    timestamp: Date.now(),
-    details: { operation, key, value: operation === 'get' ? value : undefined, success }
-  });
-
 // ==================== Redirect Utilities ====================
 
 /**

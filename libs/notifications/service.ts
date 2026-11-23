@@ -75,22 +75,3 @@ export async function createNotification(input: CreateNotificationInput): Promis
 
   return { success: true };
 }
-
-/**
- * Send list collaboration notification.
- */
-export async function notifyListInvite(
-  inviteeId: string,
-  listName: string,
-  inviterName: string,
-  listId: string
-): Promise<{ success: boolean }> {
-  const result = await createNotification({
-    userId: inviteeId,
-    type: 'list_invite',
-    title: `Convite para lista: ${listName}`,
-    message: `${inviterName} convidou-te para colaborar na lista "${listName}"`,
-    link: `/lists/${listId}`,
-  });
-  return { success: result.success };
-}

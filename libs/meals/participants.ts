@@ -111,39 +111,3 @@ export async function updateParticipantStatus(
 
   return { success: true, data };
 }
-
-/**
- * Remove participant from a meal.
- */
-export async function removeParticipant(
-  mealId: string,
-  userId: string,
-  participantId?: string
-): Promise<ParticipantResult> {
-  const response = new NextResponse();
-  const supabase = await getServerClient({} as NextRequest, response) as any;
-
-  if (!supabase) {
-    return { success: false, error: 'Authentication required' };
-  }
-
-  let query = supabase
-    .from('meal_participants')
-    .delete()
-    .eq('scheduled_meal_id', mealId);
-
-  if (participantId) {
-    query = query.eq('id', participantId);
-  } else {
-    query = query.eq('user_id', userId);
-  }
-
-  const { error } = await query;
-
-  if (error) {
-    console.error('[ParticipantService] Remove error:', error);
-    return { success: false, error: error.message };
-  }
-
-  return { success: true };
-}
