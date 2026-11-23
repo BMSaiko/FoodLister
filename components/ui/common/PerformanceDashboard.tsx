@@ -4,8 +4,6 @@
 import type { IconName } from '@/components/ui/icons/names';
 import React, { useState, useEffect } from 'react';
 import { 
-  BarChart, 
-  Bar, 
   LineChart, 
   Line, 
   XAxis, 

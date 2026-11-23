@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useApiClient } from '@/hooks/auth/useApiClient';
 import { useShare } from '@/hooks/utilities/useShare';
 import { 
@@ -8,7 +7,6 @@ import {
   RestaurantCountBadge, 
   DateBadge,
   TouchButton,
-  SkeletonLoader,
   EmptyState 
 } from '../shared';
 import AppIcon from '@/components/ui/icons/Icon';
