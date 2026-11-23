@@ -21,12 +21,6 @@ export const LocationBadge = ({ location }: { location: string }) => (
   </span>
 );
 
-export const CuisineBadge = ({ name }: { name: string }) => (
-  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/15">
-    {name}
-  </span>
-);
-
 export const DateBadge = ({ date, prefix = "" }: { date: string; prefix?: string }) => (
   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/[0.04] text-white/40 border border-white/[0.06]">
     {prefix}{new Date(date).toLocaleDateString("pt-PT")}
