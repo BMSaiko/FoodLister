@@ -26,7 +26,7 @@ interface SpinHistoryEntry {
 }
 
 const RestaurantRoulette = () => {
-  const { user, getAccessToken } = useAuth();
+  const { user } = useAuth();
   const [restaurants, setRestaurants] = useState<RestaurantWithDetails[]>([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState<RestaurantWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +48,6 @@ const RestaurantRoulette = () => {
   }, []);
   
   // Filtros - usando o sistema de filtros lógicos
-  const [showFilters, setShowFilters] = useState(false);
   const [cuisineTypes, setCuisineTypes] = useState<any[]>([]);
   
   // Função para calcular innerRadius baseado no número de restaurantes      
@@ -70,7 +69,6 @@ const RestaurantRoulette = () => {
   // Advanced features
   const [filterPresets, setFilterPresets] = useState<FilterPreset[]>([]);
   const [showPresets, setShowPresets] = useState(false);
-  const [lastSpinResult, setLastSpinResult] = useState<RestaurantWithDetails | null>(null);
   const [spinHistory, setSpinHistory] = useState<SpinHistoryEntry[]>([]);
   const [showSpinHistory, setShowSpinHistory] = useState(false);
   
