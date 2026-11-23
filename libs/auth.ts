@@ -1,10 +1,4 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
-import { incrementLoginAttempts, resetLoginAttempts, isAccountLocked } from '@/libs/verification';
-type DbReview = Database['public']['Tables']['reviews']['Row'];
-type DbList = Database['public']['Tables']['lists']['Row'];
-type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
-type DbListRestaurant = Database['public']['Tables']['list_restaurants']['Row'];
 
 /**
  * Cria automaticamente um perfil para um usuário se não existir

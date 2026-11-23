@@ -4,14 +4,9 @@
  */
 
 import { 
-  Restaurant, 
   RestaurantWithDetails, 
   List, 
   Review, 
-  UserProfile,
-  CuisineType,
-  DietaryOption,
-  RestaurantFeature,
   RestaurantFilters,
   PaginatedResponse,
   ApiResponse 
