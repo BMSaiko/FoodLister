@@ -2,7 +2,6 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { createClient } from '@/libs/supabase/client';
 import { RestaurantFeature, DietaryOption } from '@/libs/types';
 import DualRangeSlider from './DualRangeSlider';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
@@ -13,13 +12,6 @@ interface RouletteFiltersProps {
   setFilters: (filters: any) => void;
   clearFilters: () => void;
   autoApply?: boolean;
-}
-
-interface FilterTab {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
-  isActive: boolean;
 }
 
 const RouletteFilters: React.FC<RouletteFiltersProps> = ({
@@ -37,21 +29,10 @@ const RouletteFilters: React.FC<RouletteFiltersProps> = ({
   const [locationQuery, setLocationQuery] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
-  const [filterPresets, setFilterPresets] = useState([]);
-  const [showPresets, setShowPresets] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const filterUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const metricsRef = useRef({
-    renderTime: 0,
-    filterTime: 0,
-    memoryUsage: 0,
-    fps: 0
-  });
 
   const { user } = useAuthUser();
-  const supabase = createClient();
 
   useEffect(() => {
     const loadData = async () => {
