@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/libs/supabase/server';
 import type { Database } from '@/types/database';
-import { getErrorMessage } from '@/types/api';
-import type { ApiErrorType } from '@/types/api';
 import { cacheOrSet } from '@/libs/cache';
 
 export const dynamic = 'force-dynamic';

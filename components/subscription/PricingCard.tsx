@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { SubscriptionPlan, SubscriptionTier } from '@/libs/types';
+import type { SubscriptionPlan } from '@/libs/types';
 import { formatPrice } from '@/libs/subscription';
 import Icon from '@/components/ui/icons/Icon';
 

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getServerClient } from '@/libs/supabase/server';
-import { isUuid, resolveRestaurantId } from '@/libs/slug';
+import { resolveRestaurantId } from '@/libs/slug';
 
 // Helper function to update restaurant rating based on reviews
 async function updateRestaurantRating(supabase: SupabaseClient, restaurantId: string) {

@@ -1,7 +1,6 @@
 'use client';
 
 import Icon from '@/components/ui/icons/Icon';
-import Link from 'next/link';
 
 interface RecentActivityProps {
   activities: {
