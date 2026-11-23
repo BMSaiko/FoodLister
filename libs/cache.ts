@@ -37,20 +37,6 @@ export function cacheSet<T>(key: string, value: T, ttlSeconds: number = 60): voi
 }
 
 /**
- * Delete a cache entry.
- */
-export function cacheDelete(key: string): void {
-  cache.delete(key);
-}
-
-/**
- * Clear all cache entries.
- */
-export function cacheClear(): void {
-  cache.clear();
-}
-
-/**
  * Get or set a cached value using a factory function.
  * If the key exists and is not expired, returns cached value.
  * Otherwise, calls the factory, caches the result, and returns it.
@@ -77,13 +63,6 @@ export function cacheInvalidatePrefix(prefix: string): void {
       cache.delete(key);
     }
   }
-}
-
-/**
- * Check if a cache entry exists and is not expired.
- */
-export function cacheHas(key: string): boolean {
-  return cacheGet(key) !== undefined;
 }
 
 /**
