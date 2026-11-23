@@ -9,6 +9,7 @@ import MentionText from "@/components/ui/common/MentionText";
 import MentionInput from "@/components/ui/common/MentionInput";
 import ToviSpinner from '@/components/loading/ToviSpinner';
 import Icon from '@/components/ui/icons/Icon';
+import { formatTimeAgo } from "@/utils/formatters";
 
 interface Comment {
   id: string;
@@ -123,18 +124,6 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
     finally { setSaving(false); }
   };
 
-  const formatDate = (dateString: string) => {
-    const diff = Date.now() - new Date(dateString).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "Agora mesmo";
-    if (mins < 60) return `há ${mins}min`;
-    const hours = Math.floor(diff / 3600000);
-    if (hours < 24) return `há ${hours}h`;
-    const days = Math.floor(diff / 86400000);
-    if (days < 7) return `há ${days}d`;
-    return new Date(dateString).toLocaleDateString("pt-PT");
-  };
-
   const wasEdited = (comment: Comment) => {
     return new Date(comment.updated_at).getTime() - new Date(comment.created_at).getTime() > 1000;
   };
@@ -235,7 +224,7 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
                         <Link href={`/users/${comment.profiles?.user_id_code || comment.user_id}`} className="truncate font-semibold hover:text-amber-300">
                           {comment.profiles?.display_name || "Utilizador"}
                         </Link>
-                        <span className="flex-shrink-0 text-xs text-white/50">{formatDate(comment.created_at)}</span>
+                        <span className="flex-shrink-0 text-xs text-white/50">{formatTimeAgo(comment.created_at)}</span>
                         {wasEdited(comment) && (
                           <span className="flex-shrink-0 text-xs italic text-white/30">(editado)</span>
                         )}
