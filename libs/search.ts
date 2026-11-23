@@ -80,20 +80,6 @@ export function sortByDistance<T extends { latitude?: number | null; longitude?:
 }
 
 /**
- * Filter restaurants within a given radius from a reference point.
- */
-export function filterByRadius<T extends { latitude?: number | null; longitude?: number | null }>(
-  items: T[],
-  refLat: number,
-  refLng: number,
-  radiusKm: number
-): Array<T & { distance: number }> {
-  return sortByDistance(items, refLat, refLng).filter(
-    (item) => item.distance <= radiusKm
-  );
-}
-
-/**
  * Supported sort options for restaurant search.
  */
 export type RestaurantSortBy = 'rating' | 'distance' | 'price' | 'name' | 'popularity';
