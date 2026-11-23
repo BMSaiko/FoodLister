@@ -135,20 +135,3 @@ The post should be engaging, highlight what makes this restaurant special, and e
 
   return generateContent({ prompt, model: 'gpt-4o-mini', maxTokens: platform === 'twitter' ? 100 : 300 });
 }
-
-
-/**
- * Generate content from a prompt template with variable substitution.
- */
-export async function generateFromTemplate(
-  template: string,
-  variables: Record<string, string>,
-  platform: string
-): Promise<GeneratedContent> {
-  let prompt = template;
-  for (const [key, value] of Object.entries(variables)) {
-    prompt = prompt.replace(new RegExp(`{{${key}}}`, 'g'), value);
-  }
-
-  return generateContent({ prompt, model: 'gpt-4o-mini', maxTokens: 400 });
-}
