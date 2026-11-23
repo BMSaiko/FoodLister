@@ -2,7 +2,6 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { createClient } from '@/libs/supabase/client';
 import { RestaurantFeature, DietaryOption } from '@/libs/types';
 import DualRangeSlider from './DualRangeSlider';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
@@ -13,13 +12,6 @@ interface TabbedRestaurantFiltersProps {
   setFilters: (filters: any) => void;
   clearFilters: () => void;
   autoApply?: boolean;
-}
-
-interface FilterTab {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
-  isActive: boolean;
 }
 
 const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
@@ -37,21 +29,10 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
-  const [filterPresets, setFilterPresets] = useState([]);
-  const [showPresets, setShowPresets] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
   
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const filterUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const metricsRef = useRef({
-    renderTime: 0,
-    filterTime: 0,
-    memoryUsage: 0,
-    fps: 0
-  });
 
   const { user } = useAuthUser();
-  const supabase = createClient();
 
   useEffect(() => {
     const loadData = async () => {
@@ -886,24 +867,6 @@ const TabbedRestaurantFilters: React.FC<TabbedRestaurantFiltersProps> = ({
     } else if (field === 'sort') {
       setFilters((prev: any) => ({ ...prev, sort_by: null, sort_direction: null }));
     }
-  }, [setFilters]);
-
-  const saveFilterPreset = useCallback((name: string) => {
-    const preset = {
-      name,
-      filters,
-      timestamp: Date.now()
-    };
-    
-    const savedPresets = JSON.parse(localStorage.getItem('restaurantFilterPresets') || '[]');
-    savedPresets.push(preset);
-    localStorage.setItem('restaurantFilterPresets', JSON.stringify(savedPresets));
-    setFilterPresets(savedPresets);
-  }, [filters]);
-
-  const loadFilterPreset = useCallback((preset: any) => {
-    setFilters(preset.filters);
-    setShowPresets(false);
   }, [setFilters]);
 
   return (
