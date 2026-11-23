@@ -169,7 +169,7 @@ function SelectedRestaurantPopup({ restaurant, onDeselect }: { restaurant: Resta
   useEffect(() => {
     if (!restaurant.latitude || !restaurant.longitude) return;
     const container = buildPopupContent(restaurant);
-    const popup = L.popup({ maxWidth: 260, minWidth: 240 })
+    L.popup({ maxWidth: 260, minWidth: 240 })
       .setLatLng([restaurant.latitude!, restaurant.longitude!])
       .setContent(container)
       .openOn(map);

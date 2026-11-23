@@ -15,7 +15,7 @@ export default function VerifyEmailPage() {
   usePageTitle(t("Verificar email - FoodLister"));
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { verifyEmail, loading: hookLoading } = useVerification();
+  const { verifyEmail } = useVerification();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
 

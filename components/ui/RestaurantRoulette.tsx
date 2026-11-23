@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Modal from "./Modal";
 import Icon from '@/components/ui/icons/Icon';
@@ -28,7 +28,6 @@ export default function RestaurantRoulette({ restaurants, onClose }: RestaurantR
   const [showResult, setShowResult] = useState(false);
   const [spinCount, setSpinCount] = useState(0);
   const [displayText, setDisplayText] = useState("");
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Typewriter effect for restaurant name during spin
   useEffect(() => {
