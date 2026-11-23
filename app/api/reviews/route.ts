@@ -10,6 +10,7 @@ import { createNotification } from '@/libs/notifications/service';
 import { notifyMentionedUsers } from '@/libs/mentions';
 import { parsePaginationFromRequest } from '@/libs/utils/pagination';
 import { isUuid, resolveRestaurantId } from '@/libs/slug';
+import { updateRestaurantRating } from '@/libs/restaurantRating';
 
 // Database type is incomplete — use explicit query types
 type ReviewRow = any;
@@ -22,40 +23,6 @@ interface ProcessedReview extends ReviewRow {
     profileImage: string | null;
     userIdCode: string | null;
   };
-}
-
-// Helper function to update restaurant rating based on reviews
-async function updateRestaurantRating(restaurantId: string) {
-  const supabase = getClient();
-
-  try {
-    const { data: reviews, error: reviewsError } = await supabase
-      .from('reviews')
-      .select('rating')
-      .eq('restaurant_id', restaurantId) as any;
-
-    if (reviewsError) {
-      console.error('Error fetching reviews for rating calculation:', reviewsError);
-      return;
-    }
-
-    let averageRating = 0;
-    if (reviews && reviews.length > 0) {
-      const totalRating = reviews.reduce((sum: number, review: any) => sum + review.rating, 0);
-      averageRating = totalRating / reviews.length;
-    }
-
-    const { error: updateError } = await (supabase as any)
-      .from('restaurants')
-      .update({ rating: averageRating })
-      .eq('id', restaurantId);
-
-    if (updateError) {
-      console.error('Error updating restaurant rating:', updateError);
-    }
-  } catch (error) {
-    console.error('Error in updateRestaurantRating:', error);
-  }
 }
 
 export async function GET(request: NextRequest) {
@@ -314,7 +281,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await updateRestaurantRating(resolvedRestaurantId);
+    await updateRestaurantRating(getClient(), resolvedRestaurantId);
 
     // ponytail: notify the restaurant owner that a review was posted
     const { data: reviewRestaurant } = await supabase
