@@ -93,8 +93,6 @@ export default function ScheduleMealModal({
         throw new Error("Resposta invalida do servidor");
       }
 
-      console.log("Schedule API status:", response.status, "data:", data);
-
       if (!response.ok || data.error) {
         throw new Error(data?.error || "Erro ao agendar refeição");
       }
