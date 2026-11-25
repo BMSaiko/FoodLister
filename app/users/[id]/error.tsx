@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { useSmartBackNavigation } from '@/hooks/navigation/useSmartBackNavigation';

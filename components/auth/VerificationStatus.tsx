@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { useVerification } from '@/hooks/auth/useVerification';
 import { useLanguage } from '@/contexts';
 import type { VerificationStatus as VerificationStatusType } from '@/libs/types';
