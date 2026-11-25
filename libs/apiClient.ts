@@ -103,7 +103,7 @@ function setCachedData<T>(key: string, data: T, ttl: number): void {
  * Default retry delay with exponential backoff
  */
 function getRetryDelay(attempt: number, baseDelay: number): number {
-  return baseDelay * Math.pow(2, attempt);
+  return baseDelay * 2 ** attempt;
 }
 
 /**
