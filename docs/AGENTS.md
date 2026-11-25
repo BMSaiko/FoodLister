@@ -263,7 +263,7 @@ git push origin main
 - **Error Boundary:** `components/ui/ErrorBoundary.tsx` wrap global em `layout.js`
 - **Barrel exports:** `components/index.ts` para imports limpos
 - **Types:** `libs/types.ts` (domínio), `types/database.ts` (Supabase gerados + explicit Insert/Update), `types/api.ts` (ApiErrorType), `types/notification.ts` (NotificationType)
-- **Libs (21+):** `activity.ts`, `admin.ts`, `ai.ts`, `api.ts`, `apiClient.ts`, `auth.ts`, `cache.ts`, `creatorCodes.ts`, `export.ts`, `feed.ts`, `ics-generator.ts`, `languages.ts`, `marketing.ts`, `mentions.ts`, `notifications/`, `rate-limit.ts`, `search.ts`, `slug.ts`, `stripe.ts`, `subscription.ts`, `supabase/`, `utils/`, `verification.ts`
+- **Libs (21+):** `activity.ts`, `admin.ts`, `ai.ts`, `api.ts`, `apiClient.ts`, `auth.ts`, `cache.ts`, `creatorCodes.ts`, `feed.ts`, `ics-generator.ts`, `languages.ts`, `marketing.ts`, `mentions.ts`, `notifications/`, `rate-limit.ts`, `search.ts`, `slug.ts`, `stripe.ts`, `subscription.ts`, `supabase/`, `utils/`, `verification.ts`
 - **Hooks (54+, 12 subdirs):** admin, auth, data, forms, lists, marketing, navigation, notifications, restaurants, subscription, ui, utilities
 - **Utils (18+):** analytics, apiMonitor, cloudinaryConverter, dbMonitor, error-messages, filters, formatters, googleMapsBatchExtractor, googleMapsExtractor, googleCalendar, index, logger, performanceMonitor, random, scrollLock, search, passwordValidation
 - **Components (160+ .tsx, 10 subdirs):** admin, auth, landing, layouts, lists, loading, pages, restaurant, subscription, ui

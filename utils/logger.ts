@@ -197,10 +197,3 @@ export function logWarn(message: string, context?: Record<string, any>): void {
 export function logInfo(message: string, context?: Record<string, any>): void {
   log(LogLevel.INFO, message, context);
 }
-
-/**
- * Logs a debug message
- */
-export function logDebug(message: string, context?: Record<string, any>): void {
-  log(LogLevel.DEBUG, message, context);
-}

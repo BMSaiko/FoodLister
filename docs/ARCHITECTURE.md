@@ -498,10 +498,10 @@ NODE_ENV
 
 - **Performance Dashboard:** `components/ui/common/PerformanceDashboard.tsx` (dev-only) — FPS, memory, filter time
 - **Auth Logger:** Last 100 auth events
-- **API Monitor:** Request/response logging (`libs/apiMonitor.ts`)
-- **DB Monitor:** Query performance (`libs/dbMonitor.ts`)
+- **API Monitor:** Request/response logging (`utils/apiMonitor.ts`)
+- **DB Monitor:** Query performance (`utils/dbMonitor.ts`)
 - **Error Boundary:** Global `ErrorBoundary.tsx` wrapping layout
-- **Performance Monitor:** (`libs/performanceMonitor.ts`)
+- **Performance Monitor:** (`utils/performanceMonitor.ts`)
 - **Sentry/LogRocket:** Not configured (potential improvement)
 - **Lighthouse:** `.lighthouserc.json` config
 - **Vercel Analytics:** Built-in deployment analytics

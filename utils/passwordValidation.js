@@ -51,19 +51,3 @@ export function getPasswordValidationMessage(requirements) {
 
   return messages.length > 0 ? messages.join(', ') : '';
 }
-
-/**
- * Gets password strength level
- * @param {string} password - The password to check
- * @returns {string} - Strength level: 'weak', 'medium', 'strong'
- */
-export function getPasswordStrength(password) {
-  if (!password) return 'weak';
-
-  const { requirements } = validatePassword(password);
-  const metRequirements = Object.values(requirements).filter(Boolean).length;
-
-  if (metRequirements < 3) return 'weak';
-  if (metRequirements < 5) return 'medium';
-  return 'strong';
-}

@@ -51,16 +51,6 @@ export interface PaginatedData<T> {
   hasMore: boolean;
 }
 
-/**
- * Type guard to check if response is an error
- */
-export function isApiError(response: unknown): response is ApiError {
-  return response !== null && 
-         typeof response === 'object' && 
-         'error' in response && 
-         typeof (response as ApiError).error === 'string';
-}
-
 // Mapping of ApiErrorType to user-friendly messages
 const ERROR_MESSAGES: Record<string, string> = {
   'INTERNAL_ERROR': 'An internal server error occurred. Please try again later.',
@@ -96,21 +86,6 @@ export function getErrorMessage(error: unknown): string {
   }
   return 'An unknown error occurred';
 }
-
-/**
- * Common HTTP status codes
- */
-export const HttpStatus = {
-  OK: 200,
-  CREATED: 201,
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  INTERNAL_SERVER_ERROR: 500,
-  TOO_MANY_REQUESTS: 429,
-} as const;
 
 /**
  * Restaurant related types

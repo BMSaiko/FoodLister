@@ -222,3 +222,16 @@ export function validateAndNormalizePhoneNumbers(phones: string[]): string[] {
     .map(phone => normalizePhoneNumber(phone.trim()))
     .filter((phone): phone is string => phone !== null);
 }
+
+/** Tempo relativo curto ("há 5min", "há 2h", "há 3d"); a partir de 7 dias, data pt-PT. */
+export function formatTimeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const diffMins = Math.floor((Date.now() - date.getTime()) / 60000);
+  if (diffMins < 1) return "Agora mesmo";
+  if (diffMins < 60) return `há ${diffMins}min`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `há ${diffHours}h`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `há ${diffDays}d`;
+  return date.toLocaleDateString("pt-PT");
+}

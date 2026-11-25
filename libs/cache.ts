@@ -64,11 +64,3 @@ export function cacheInvalidatePrefix(prefix: string): void {
     }
   }
 }
-
-/**
- * Return all cache keys, optionally filtered by prefix.
- */
-export function cacheKeys(prefix?: string): string[] {
-  if (!prefix) return Array.from(cache.keys());
-  return Array.from(cache.keys()).filter((k) => k.startsWith(prefix));
-}
