@@ -101,7 +101,7 @@ export function useUserData(options: UseUserDataOptions) {
   });
 
   const { get } = useApiClient();
-  const { get: getCache, setWithTTL: setCache, remove: removeCache, removeByPrefix } = useLocalStorage();
+  const { get: getCache, setWithTTL: setCache, removeByPrefix } = useLocalStorage();
   const cursorRef = useRef<string | null>(null);
   const hasMoreRef = useRef<boolean>(true);
 

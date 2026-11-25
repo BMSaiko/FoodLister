@@ -103,7 +103,7 @@ function setCachedData<T>(key: string, data: T, ttl: number): void {
  * Default retry delay with exponential backoff
  */
 function getRetryDelay(attempt: number, baseDelay: number): number {
-  return baseDelay * Math.pow(2, attempt);
+  return baseDelay * 2 ** attempt;
 }
 
 /**
@@ -116,7 +116,7 @@ function createDefaultHeaders(customHeaders?: Record<string, string>): Record<st
   };
   
   if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+    headers.Authorization = `Bearer ${authToken}`;
   }
   
   return headers;
@@ -392,11 +392,9 @@ function invalidateCache(pattern?: string | RegExp): void {
       if (key.includes(pattern)) {
         responseCache.delete(key);
       }
-    } else {
-      if (pattern.test(key)) {
+    } else if (pattern.test(key)) {
         responseCache.delete(key);
       }
-    }
   }
 }
 

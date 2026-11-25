@@ -205,7 +205,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
 
     return NextResponse.json({
       data: restaurants,
-      total: total,
+      total,
       page,
       limit,
       hasMore,
@@ -464,7 +464,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json({
       data: restaurants,
-      total: total,
+      total,
       page,
       limit,
       hasMore,

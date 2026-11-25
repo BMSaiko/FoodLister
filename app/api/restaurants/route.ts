@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     const randomParam = isRandomSort(request);
     const { page, limit, from, to, all: isAll } = parsePaginationFromRequest(request, { defaultLimit: 25 });
     let client = supabase;
-    let isPublicRequest = !supabase;
+    const isPublicRequest = !supabase;
     if (!supabase) {
       const publicClient = await getPublicServerClient();
       if (!publicClient) {
@@ -188,8 +188,8 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      let restaurantsData = allRestaurants;
-      let restaurantsError: any = null;
+      const restaurantsData = allRestaurants;
+      const restaurantsError: any = null;
 
       if (restaurantsError) {
         console.error('Error fetching restaurants:', restaurantsError);

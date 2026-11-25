@@ -4,7 +4,6 @@
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import { useModal } from '@/contexts/ModalContext';
 import ToviSpinner from '@/components/loading/ToviSpinner';
 import Icon from '@/components/ui/icons/Icon';
@@ -32,7 +31,6 @@ const ReviewCardActions: React.FC<ReviewCardActionsProps> = ({
   onShare,
   className = ''
 }) => {
-  const { user } = useAuthUser();
   const { openMapModal } = useModal();
   const [isSharing, setIsSharing] = useState(false);
   const restaurant = review.restaurant || null;

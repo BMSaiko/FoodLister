@@ -1,7 +1,6 @@
 'use client';
 
 import type { IconName } from '@/components/ui/icons/names';
-import React from 'react';
 import AppIcon from '@/components/ui/icons/Icon';
 
 export interface WizardStep {

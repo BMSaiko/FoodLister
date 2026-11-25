@@ -178,13 +178,11 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
           clearInterval(intervalRef.current);
           intervalRef.current = null;
         }
-      } else {
-        if (!intervalRef.current) {
+      } else if (!intervalRef.current) {
           intervalRef.current = setInterval(() => {
             fetchNotifications(false);
           }, pollingInterval);
         }
-      }
     };
 
     intervalRef.current = setInterval(() => {
