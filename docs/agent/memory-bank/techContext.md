@@ -116,7 +116,6 @@ npm run lint:fix
 ```
 
 ### IDE Configuration
-- **jsconfig.json**: Path aliases for IntelliSense
 - **TypeScript**: Strict mode with incremental compilation
 - **ESLint**: Integrated with Next.js and React Hooks rules
 
