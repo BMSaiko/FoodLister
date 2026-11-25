@@ -76,7 +76,7 @@ export default function GoogleMapsModal({ isOpen, onClose, onSubmit }: GoogleMap
           if (address && !data.address) {
             setExtractedData(prev => ({
               ...prev!,
-              address: address,
+              address,
               location: address
             }));
           }

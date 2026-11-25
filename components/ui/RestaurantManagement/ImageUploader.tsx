@@ -93,7 +93,7 @@ export default function ImageUploader({
       multipleProgress: { current: 0, total: acceptedFiles.length }
     });
 
-    let uploadErrors: string[] = [];
+    const uploadErrors: string[] = [];
 
     // Process files sequentially
     for (let i = 0; i < acceptedFiles.length; i++) {
@@ -149,7 +149,7 @@ export default function ImageUploader({
     },
     maxSize: 10 * 1024 * 1024,
     multiple: true,
-    maxFiles: maxFiles,
+    maxFiles,
     disabled: disabled || uploadState.isUploading,
     ...(isMobile === true ? { capture: 'environment' } : {})
   });

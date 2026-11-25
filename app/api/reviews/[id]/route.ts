@@ -66,7 +66,7 @@ function transformReviewData(review: ReviewRow, userProfile: UserProfileData) {
       id: review.user_id,
       name: displayName || review.user_name || emailName || 'Anonymous User',
       profileImage: avatarUrl,
-      userIdCode: userIdCode
+      userIdCode
     }
   };
 }

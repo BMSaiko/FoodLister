@@ -90,7 +90,7 @@ let codesClient: any = supabase;
     }
 
     // Fetch collaborator role map for the current user
-    let roleMap = new Map<string, string>();
+    const roleMap = new Map<string, string>();
     if (currentUserId && listsData.length > 0) {
       const supabaseForCollab = supabase;
       if (supabaseForCollab) {
