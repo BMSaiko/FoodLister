@@ -116,7 +116,7 @@ function createDefaultHeaders(customHeaders?: Record<string, string>): Record<st
   };
   
   if (authToken) {
-    headers['Authorization'] = `Bearer ${authToken}`;
+    headers.Authorization = `Bearer ${authToken}`;
   }
   
   return headers;

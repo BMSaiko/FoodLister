@@ -38,7 +38,7 @@ function formatTimeAgo(dateString: string): string {
 }
 
 export default function NotificationItem({ notification, onSelect }: NotificationItemProps) {
-  const typeConfig = iconMap[notification.type] || iconMap["system"];
+  const typeConfig = iconMap[notification.type] || iconMap.system;
   const iconName = typeConfig.icon;
   const isUnread = !notification.read;
 

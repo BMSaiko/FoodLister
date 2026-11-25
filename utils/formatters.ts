@@ -91,10 +91,10 @@ export function validatePhoneNumber(phone: string): boolean {
   if (!phone || typeof phone !== 'string') return false;
 
   // Remove all formatting characters to count digits
-  const digitsOnly = phone.replace(/[\s\-\(\)\+]/g, '');
+  const digitsOnly = phone.replace(/[\s\-()+]/g, '');
 
   // Must contain only valid characters: digits, spaces, hyphens, parentheses, +
-  if (!/^[+\-\(\)\s\d]+$/.test(phone)) return false;
+  if (!/^[+\-()\s\d]+$/.test(phone)) return false;
 
   // Must have at least 7 digits and at most 15 digits (E.164 standard)
   if (digitsOnly.length < 7 || digitsOnly.length > 15) return false;
@@ -133,13 +133,13 @@ export function normalizePhoneNumber(phone: string): string | null {
   if (!phone || typeof phone !== 'string') return null;
 
   // Basic validation: must contain only valid characters
-  if (!/^[+\-\(\)\s\d]+$/.test(phone)) return null;
+  if (!/^[+\-()\s\d]+$/.test(phone)) return null;
 
   // Must start with + for international format
   if (!phone.startsWith('+')) return null;
 
   // Remove all characters except digits and +
-  const normalized = phone.replace(/[^\d\+]/g, '');
+  const normalized = phone.replace(/[^\d+]/g, '');
 
   // Ensure it starts with +
   const withPlus = normalized.startsWith('+') ? normalized : '+' + normalized;
