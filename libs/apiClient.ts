@@ -392,11 +392,9 @@ function invalidateCache(pattern?: string | RegExp): void {
       if (key.includes(pattern)) {
         responseCache.delete(key);
       }
-    } else {
-      if (pattern.test(key)) {
+    } else if (pattern.test(key)) {
         responseCache.delete(key);
       }
-    }
   }
 }
 
