@@ -35,12 +35,11 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 }) => {
   const [reviews, setReviews] = useState(initialReviews);
   const [total, setTotal] = useState(initialTotal);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialReviews.length < initialTotal);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { get, put } = useApiClient();
+  const { get } = useApiClient();
 
   const loadMoreReviews = async () => {
     if (isLoadingMore || !hasMore) return;
@@ -66,14 +65,6 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
     } finally {
       setIsLoadingMore(false);
     }
-  };
-
-  const formatAmount = (amount?: number) => {
-    if (!amount) return null;
-    return new Intl.NumberFormat("pt-PT", {
-      style: "currency",
-      currency: "EUR"
-    }).format(amount);
   };
 
   const handleShareReview = (review: any) => {

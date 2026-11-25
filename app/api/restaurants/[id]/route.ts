@@ -157,7 +157,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // Admin-only access for restaurant updates
     const auth = await requireAdmin(request, new NextResponse());
     if (!auth.ok) return auth.response;
-    const user = auth.user;
 
     // Prepare update data
     const updateData: any = {};
@@ -274,7 +273,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     // Admin-only access for restaurant deletion
     const auth = await requireAdmin(request, new NextResponse());
     if (!auth.ok) return auth.response;
-    const user = auth.user;
 
     // Delete the restaurant
     const { error } = await supabase
