@@ -1,25 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {  Utensils } from 'lucide-react';
-import Link from 'next/link';
 import { useApiClient } from '@/hooks/auth/useApiClient';
-import {  } from '@/utils/formatters';
 import { toast } from 'react-toastify';
 import { useShare } from '@/hooks/utilities/useShare';
-import { 
-  ProfileCard, 
-  RatingBadge, 
-  PriceLevelBadge, 
-  LocationBadge, 
-  CuisineBadge, 
-  DateBadge,
-  TouchButton,
-  SkeletonLoader,
-  EmptyState 
-} from '../shared';
+import { SkeletonLoader, EmptyState } from '../shared';
 import RestaurantCard from './RestaurantCard';
 import RestaurantSkeletonLoader from './RestaurantSkeletonLoader';
-import {  } from '@/hooks/data/';
 import { useScrollLock } from '@/utils/scrollLock';
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserRestaurantsSectionProps {
   userId: string;
@@ -60,7 +47,6 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   error: hookError
 }) => {
   const [restaurants, setRestaurants] = useState(initialRestaurants);
-  const [isAdminUser, setIsAdminUser] = useState(isAdmin);
   const [total, setTotal] = useState(initialTotal);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
@@ -213,7 +199,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
       hasFetchedRestaurants.current = true;
 
 
-    } catch (error) {
+    } catch {
       // Fallback to loading first page if bulk load fails
       try {
         const fallbackResponse = await get(`/api/users/${userId}/restaurants?page=1&limit=12`);
@@ -225,7 +211,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
           setHasInitialized(true);
           hasFetchedRestaurants.current = true;
         }
-      } catch (fallbackError) {
+      } catch {
       }
     } finally {
       setIsLoadingAll(false);
@@ -358,7 +344,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
               key={restaurant.id}
               restaurant={restaurant}
               isOwnRestaurant={isOwnProfile}
-        isAdmin={isAdminUser}
+        isAdmin={isAdmin}
               onEdit={() => {
                 // Navigate to edit page with back navigation parameters
                 const currentUserId = window.location.pathname.split('/')[2];
@@ -391,7 +377,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   if (restaurants.length === 0 && !hookIsLoading && !hasInitialized) {
     return (
       <EmptyState
-        icon={<Utensils className="h-8 w-8 text-[var(--gray-400)]" />}
+        icon={<Icon name="restaurantes" className="h-8 w-8 text-[var(--gray-400)]" />}
         title="Nenhum restaurante encontrado"
         description={isOwnProfile 
           ? 'Você ainda não adicionou nenhum restaurante. Comece a explorar e adicionar seus restaurantes favoritos!'
@@ -400,7 +386,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
         action={isOwnProfile ? {
           label: 'Explorar restaurantes',
           onClick: () => window.location.href = '/restaurants',
-          icon: <Utensils className="h-4 w-4" />
+          icon: <Icon name="restaurantes" className="h-4 w-4" />
         } : undefined}
       />
     );

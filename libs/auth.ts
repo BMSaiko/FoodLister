@@ -1,10 +1,4 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
-import { incrementLoginAttempts, resetLoginAttempts, isAccountLocked } from '@/libs/verification';
-type DbReview = Database['public']['Tables']['reviews']['Row'];
-type DbList = Database['public']['Tables']['lists']['Row'];
-type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
-type DbListRestaurant = Database['public']['Tables']['list_restaurants']['Row'];
 
 /**
  * Cria automaticamente um perfil para um usuário se não existir
@@ -423,96 +417,6 @@ export async function getUserListsData(
 
   } catch (error) {
     console.error('Error fetching user lists data:', error);
-    return { data: [], total: 0, hasMore: false };
-  }
-}
-
-/**
- * Busca restaurantes criados pelo usuário (sempre público)
- */
-export async function getUserRestaurantsData(
-  supabase: SupabaseClient,
-  targetUserId: string,
-  page: number = 1,
-  limit: number = 10
-): Promise<{ data: any[]; total: number; hasMore: boolean }> {
-  try {
-    const offset = (page - 1) * limit;
-
-    const { data: restaurantsData, error: restaurantsError } = await supabase
-      .from('restaurants')
-      .select(`
-        id,
-        name,
-        description,
-        images,
-        display_image_index,
-        location,
-        price_per_person,
-        rating,
-        opening_hours,
-        website,
-        phone,
-        menu,
-        created_at,
-        updated_at,
-        cuisine_types (
-          name
-        ),
-        restaurant_dietary_options_junction (
-          restaurant_dietary_options (
-            name
-          )
-        ),
-        restaurant_restaurant_features (
-          restaurant_features (
-            name
-          )
-        )
-      `)
-      .eq('creator_id', targetUserId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    const { count } = await supabase
-      .from('restaurants')
-      .select('id', { count: 'exact', head: true })
-      .eq('creator_id', targetUserId);
-
-    if (restaurantsError) {
-      console.error('Error fetching user restaurants:', restaurantsError);
-      return { data: [], total: 0, hasMore: false };
-    }
-
-    const restaurants = (restaurantsData as any[])?.map((restaurant) => ({
-      id: restaurant.id,
-      name: restaurant.name,
-      description: restaurant.description,
-      imageUrl: (restaurant.images && restaurant.images.length > 0)
-        ? (restaurant.images[restaurant.display_image_index ?? 0] || restaurant.images[0]) || null
-        : null,
-      location: restaurant.location,
-      priceLevel: restaurant.price_per_person,
-      rating: restaurant.rating,
-      openingHours: restaurant.opening_hours,
-      website: restaurant.website,
-      phone: restaurant.phone,
-      menu: restaurant.menu,
-      createdAt: restaurant.created_at,
-      updatedAt: restaurant.updated_at,
-      cuisineTypes: restaurant.cuisine_types?.map((ct: { name: string }) => ct.name).filter(Boolean) || [],
-      dietaryOptions: restaurant.restaurant_dietary_options_junction?.map((junction: { restaurant_dietary_options: { name: string } | null }) => junction.restaurant_dietary_options?.name).filter(Boolean) || [],
-      features: restaurant.restaurant_restaurant_features?.map((junction: { restaurant_features: { name: string } | null }) => junction.restaurant_features?.name).filter(Boolean) || []
-    })) || [];
-
-    return {
-      data: restaurants,
-      total: count || 0,
-      hasMore: count ? count > (offset + limit) : false
-    };
-
-  } catch (error) {
-    console.error('Error fetching user restaurants data:', error);
     return { data: [], total: 0, hasMore: false };
   }
 }

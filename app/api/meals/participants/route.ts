@@ -3,7 +3,6 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { checkRateLimit } from '@/libs/rate-limit';
-import { addParticipants, updateParticipantStatus, removeParticipant } from '@/libs/meals/participants';
 import { createNotification } from '@/libs/notifications/service';
 
 // Add participants to a meal
@@ -122,63 +121,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-
-// ─── Helper: verify meal access ───
-async function verifyMealAccess(supabase: any, mealId: string, userId: string) {
-  const { data: meal, error } = await supabase
-    .from('scheduled_meals')
-    .select('organizer_id')
-    .eq('id', mealId)
-    .single();
-
-  if (error || !meal) return { error: 'Meal not found', status: 404 };
-  return {
-    meal,
-    isOrganizer: meal.organizer_id === userId,
-  };
-}
-
-// ─── Helper: get participant record ───
-async function getParticipant(supabase: any, mealId: string, userId: string) {
-  return supabase
-    .from('meal_participants')
-    .select('*')
-    .eq('scheduled_meal_id', mealId)
-    .eq('user_id', userId)
-    .maybeSingle();
-}
-
-// ─── Helper: build participant select ───
-const PARTICIPANT_SELECT = `
-  id,
-  user_id,
-  status,
-  profiles:profiles!meal_participants_user_id_fkey (
-    user_id,
-    display_name,
-    avatar_url,
-    user_id_code
-  )
-`;
-
-// ─── Helper: upsert participant status ───
-async function upsertParticipant(supabase: any, mealId: string, userId: string, status: string) {
-  const existing = await getParticipant(supabase, mealId, userId);
-  if (existing.data) {
-    return supabase
-      .from('meal_participants')
-      .update({ status })
-      .eq('scheduled_meal_id', mealId)
-      .eq('user_id', userId)
-      .select(PARTICIPANT_SELECT)
-      .single();
-  }
-  return supabase
-    .from('meal_participants')
-    .insert({ scheduled_meal_id: mealId, user_id: userId, status })
-    .select(PARTICIPANT_SELECT)
-    .single();
-}
 
 // Update participant status (accept/decline)
 export async function PATCH(request: NextRequest) {

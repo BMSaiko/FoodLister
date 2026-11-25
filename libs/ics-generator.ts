@@ -122,21 +122,6 @@ export function generateIcsBlob(event: IcsEvent): Blob {
 }
 
 /**
- * Download ICS file in the browser
- */
-export function downloadIcsFile(event: IcsEvent, filename?: string): void {
-  const blob = generateIcsBlob(event);
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename || `refeição-${event.title.toLowerCase().replace(/\s+/g, '-')}.ics`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-
-/**
  * Generate ICS content for a scheduled meal
  */
 export function generateMealIcsContent(meal: {

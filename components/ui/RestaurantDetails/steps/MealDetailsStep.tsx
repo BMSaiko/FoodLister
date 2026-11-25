@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Calendar, Clock } from "lucide-react";
 import { MealType } from "@/hooks/forms/useMealScheduling";
+import Icon from '@/components/ui/icons/Icon';
 
 interface MealDetailsStepProps {
   date: string;
@@ -28,7 +28,7 @@ export default function MealDetailsStep({
           Data
         </label>
         <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+          <Icon name="calendario" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
           <input
             type="date"
             value={date}
@@ -43,7 +43,7 @@ export default function MealDetailsStep({
           Hora
         </label>
         <div className="relative">
-          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
+          <Icon name="horario" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30" />
           <input
             type="time"
             value={time}

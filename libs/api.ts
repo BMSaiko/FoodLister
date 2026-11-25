@@ -4,19 +4,12 @@
  */
 
 import { 
-  Restaurant, 
   RestaurantWithDetails, 
   List, 
   Review, 
-  UserProfile,
-  CuisineType,
-  DietaryOption,
-  RestaurantFeature,
   RestaurantFilters,
-  PaginatedResponse,
-  ApiResponse 
+  PaginatedResponse
 } from './types';
-import type { ApiError } from '@/types/api';
 
 // ==================== API Endpoints ====================
 
@@ -206,7 +199,7 @@ export function createAuthHeaders(token?: string): Record<string, string> {
   };
   
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
   
   return headers;
@@ -277,70 +270,4 @@ export function isRateLimitError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
   const err = error as { code?: unknown; status?: unknown };
   return err.code === '429' || err.status === 429;
-}
-
-/**
- * Creates a retry delay promise
- */
-export function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Wraps a fetch call with retry logic
- */
-export async function fetchWithRetry<T>(
-  url: string,
-  options: ApiRequestOptions = {},
-  retries: number = 3,
-  delayMs: number = 1000
-): Promise<ApiResponse<T>> {
-  let lastError: ApiError | null = null;
-  
-  for (let i = 0; i < retries; i++) {
-    try {
-      const response = await fetch(url, {
-        method: options.method || HTTP_METHODS.GET,
-        headers: createAuthHeaders(options.token),
-        body: typeof options.body === 'string' ? options.body : JSON.stringify(options.body),
-        signal: options.signal
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        const apiError: ApiError = { 
-          error: data.error || data.message || 'Request failed',
-          code: String(response.status),
-          status: response.status
-        };
-        throw apiError;
-      }
-      
-      return { data };
-    } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'error' in error) {
-        lastError = error as ApiError;
-      } else {
-        lastError = { 
-          error: error instanceof Error ? error.message : 'Unknown error' 
-        };
-      }
-      
-      // Don't retry auth errors
-      if (isAuthError(lastError)) {
-        return { data: undefined as T, error: lastError.error };
-      }
-      
-      // Wait before retrying (exponential backoff)
-      if (i < retries - 1) {
-        await delay(delayMs * Math.pow(2, i));
-      }
-    }
-  }
-  
-  return { 
-    data: undefined as T, 
-    error: lastError?.error || 'Request failed after retries' 
-  };
 }

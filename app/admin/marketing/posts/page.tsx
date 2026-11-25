@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useMarketing } from '@/hooks/marketing/useMarketing';
 import { useRestaurants } from '@/hooks/data/useRestaurants';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
-import { Megaphone, Plus, ArrowLeft, Sparkles, Send, CalendarDays, List } from 'lucide-react';
 import { toast } from 'react-toastify';
 import type { SocialPlatform, PostType } from '@/libs/types';
 import { usePageTitle } from "@/hooks/usePageTitle";
+import Icon from '@/components/ui/icons/Icon';
 
 const PLATFORMS: SocialPlatform[] = ['twitter', 'instagram', 'facebook', 'linkedin', 'tiktok', 'youtube'];
 const PLATFORM_LABEL: Record<SocialPlatform, string> = {
@@ -156,7 +156,7 @@ export default function AdminPostsPage() {
         <div className="flex items-center justify-between">
           <div>
             <Link href="/admin/marketing" className="flex items-center gap-1 text-xs text-white/40 hover:text-amber-400 transition-colors mb-2">
-              <ArrowLeft className="h-3 w-3" /> Marketing
+              <Icon name="seta-esq" className="h-3 w-3" /> Marketing
             </Link>
             <h1 className="text-3xl font-bold text-white tracking-tight">Posts</h1>
           </div>
@@ -166,20 +166,20 @@ export default function AdminPostsPage() {
                 onClick={() => setView('list')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${view === 'list' ? 'bg-amber-500/20 text-amber-300' : 'text-white/50 hover:text-white'}`}
               >
-                <List className="h-3.5 w-3.5" /> Lista
+                <Icon name="lista" className="h-3.5 w-3.5" /> Lista
               </button>
               <button
                 onClick={() => setView('calendar')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${view === 'calendar' ? 'bg-amber-500/20 text-amber-300' : 'text-white/50 hover:text-white'}`}
               >
-                <CalendarDays className="h-3.5 w-3.5" /> Calendário
+                <Icon name="calendario-dias" className="h-3.5 w-3.5" /> Calendário
               </button>
             </div>
             <button
               onClick={openCreate}
               className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500/10 ring-1 ring-amber-500/20 text-amber-300 text-sm font-medium hover:bg-amber-500/20 transition-colors duration-150"
             >
-              <Plus className="h-4 w-4" /> Novo Post
+              <Icon name="mais" className="h-4 w-4" /> Novo Post
             </button>
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function AdminPostsPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center ring-1 ring-white/10">
-                        <Megaphone className="h-4 w-4 text-amber-400" />
+                        <Icon name="marketing" className="h-4 w-4 text-amber-400" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-white/80">{PLATFORM_LABEL[(p.platform as SocialPlatform)] ?? p.platform}</p>
@@ -366,7 +366,7 @@ export default function AdminPostsPage() {
                   disabled={generating || saving}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 ring-1 ring-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/30 disabled:opacity-40 transition-colors"
                 >
-                  <Sparkles className="h-4 w-4" /> {generating ? 'A gerar...' : 'Gerar com IA'}
+                  <Icon name="faiscas" className="h-4 w-4" /> {generating ? 'A gerar...' : 'Gerar com IA'}
                 </button>
                 <div className="flex gap-2">
                   <button
@@ -380,7 +380,7 @@ export default function AdminPostsPage() {
                     disabled={saving || generating}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 ring-1 ring-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/30 disabled:opacity-40 transition-colors"
                   >
-                    <Send className="h-4 w-4" /> {saving ? 'A criar...' : 'Criar Post'}
+                    <Icon name="enviar" className="h-4 w-4" /> {saving ? 'A criar...' : 'Criar Post'}
                   </button>
                 </div>
               </div>

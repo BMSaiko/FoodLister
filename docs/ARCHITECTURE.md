@@ -34,17 +34,16 @@ FoodLister é uma aplicação web full-stack construída com **Next.js 15 App Ro
 | **Database** | PostgreSQL | 15+ | 20+ tabelas, 81+ migrações (000-211) |
 | **Animations** | Framer Motion ^12.27.5 + motion ^12.40.0 | | UI animations, gesture-based |
 | **Icons** | Lucide React ^0.482.0, React Icons ^5.5.0 | | Icon libraries |
-| **Maps** | Leaflet ^1.9.4, react-leaflet ^5.0.0, react-leaflet-cluster ^4.1.3, dlv ^1.1.3 | | OpenStreetMap tiles, no API key |
-| **Forms** | React Hook Form ^7.54.2, react-phone-number-input ^3.4.14, react-dropzone ^14.3.8 | | Declarative form handling |
-| **Payments** | Stripe ^22.2.1, @stripe/stripe-js ^9.8.0 | | Checkout, Webhooks, subscriptions |
+| **Maps** | Leaflet ^1.9.4, react-leaflet ^5.0.0, react-leaflet-cluster ^4.1.3 | | OpenStreetMap tiles, no API key |
+| **Forms** | react-dropzone ^14.3.8 | | Upload de ficheiros por drag-and-drop |
+| **Payments** | Stripe ^22.2.1 | | Checkout, Webhooks, subscriptions |
 | **AI** | OpenAI ^6.42.0 | | GPT-4o-mini para conteúdo marketing |
-| **Images** | Cloudinary ^2.9.0, @cloudinary/url-gen ^1.22.0 | | Image hosting, signed uploads |
+| **Images** | Cloudinary ^2.9.0 | | Image hosting, signed uploads |
 | **UI Components** | Headless UI, @radix-ui/react-tooltip ^1.2.10 | | Unstyled accessible components |
 | **Testing** | Jest 29.7.0 + ts-jest 29.2.5 + jest-environment-jsdom | | Unit/integration tests |
 | **Testing RTL** | React Testing Library ^16.1.0, @testing-library/dom ^10.4.1 | | Component testing |
 | **Testing E2E** | Playwright ^1.60.0, @playwright/test | | End-to-end testing |
 | **Testing Alt** | Vitest ^4.1.8, @vitest/browser-playwright, @vitest/coverage-v8 | | Alternative test runner |
-| **PWA** | next-pwa ^5.6.0, web-push ^3.6.7 | | Service Worker, offline, VAPID |
 | **Charts** | Recharts ^2.15.1 | | Performance dashboard |
 | **Fonts** | Geist, Geist Mono (next/font/google) | | Primary/mono fonts |
 | **Linting** | ESLint 9.39.2 (flat config) | Code quality |
@@ -192,7 +191,6 @@ code/                              # Repositório principal (BMSaiko/FoodLister)
 │   ├── analytics.ts               # Analytics utilities
 │   ├── apiMonitor.ts              # API monitoring
 │   ├── auth.ts                    # Auth utilities
-│   ├── authUtils.js               # Auth helpers
 │   ├── cloudinaryConverter.ts     # Cloudinary URL conversion + image upload
 │   ├── dbMonitor.ts               # DB query monitoring
 │   ├── error-messages.ts          # Error message helpers
@@ -499,10 +497,10 @@ NODE_ENV
 
 - **Performance Dashboard:** `components/ui/common/PerformanceDashboard.tsx` (dev-only) — FPS, memory, filter time
 - **Auth Logger:** Last 100 auth events
-- **API Monitor:** Request/response logging (`libs/apiMonitor.ts`)
-- **DB Monitor:** Query performance (`libs/dbMonitor.ts`)
+- **API Monitor:** Request/response logging (`utils/apiMonitor.ts`)
+- **DB Monitor:** Query performance (`utils/dbMonitor.ts`)
 - **Error Boundary:** Global `ErrorBoundary.tsx` wrapping layout
-- **Performance Monitor:** (`libs/performanceMonitor.ts`)
+- **Performance Monitor:** (`utils/performanceMonitor.ts`)
 - **Sentry/LogRocket:** Not configured (potential improvement)
 - **Lighthouse:** `.lighthouserc.json` config
 - **Vercel Analytics:** Built-in deployment analytics

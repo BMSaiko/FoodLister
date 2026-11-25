@@ -2,10 +2,11 @@
 
 import React from "react";
 import { useListActivities } from "@/hooks/lists/useListActivities";
-import { ChevronDown } from "lucide-react";
 import type { ListActivityAction } from "@/libs/types";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
+import { formatTimeAgo } from "@/utils/formatters";
 
 interface ListActivityFeedProps {
   listId: string;
@@ -18,21 +19,6 @@ const ACTION_LABELS: Record<ListActivityAction, string> = {
   collaborator_added: "adicionou um colaborador",
   collaborator_removed: "removeu um colaborador",
   list_duplicated: "duplicou a lista" };
-
-function formatTimeAgo(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return "Agora mesmo";
-  if (diffMins < 60) return `há ${diffMins}min`;
-  if (diffHours < 24) return `há ${diffHours}h`;
-  if (diffDays < 7) return `há ${diffDays}d`;
-  return date.toLocaleDateString("pt-PT");
-}
 
 export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
   const { activities, total, isLoading, error, hasMore, loadMore } = useListActivities(listId);
@@ -104,7 +90,7 @@ export default function ListActivityFeed({ listId }: ListActivityFeedProps) {
                 <ToviSpinner className="h-4 w-4" />
               ) : (
                 <>
-                  <ChevronDown className="h-4 w-4" />
+                  <Icon name="chevron-baixo" className="h-4 w-4" />
                   Carregar mais
                 </>
               )}

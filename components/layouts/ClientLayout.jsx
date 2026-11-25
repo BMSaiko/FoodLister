@@ -31,7 +31,7 @@ export default function ClientLayout({ children }) {
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="light"
+            theme="dark"
             toastClassName="text-sm sm:text-base"
             bodyClassName="text-sm sm:text-base"
           />

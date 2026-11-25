@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageTitle } from "@/hooks/usePageTitle";
-import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Navbar from "@/components/ui/navigation/Navbar";
 import RestaurantRoulette from "@/components/ui/RestaurantRoulette";
 import Link from "next/link";
@@ -18,10 +17,10 @@ import ListComments from "@/components/ui/lists/ListComments";
 import ReportButton from "@/components/ui/common/ReportButton";
 import ListCollaborators from "@/components/ui/lists/ListCollaborators";
 import ListActivityFeed from "@/components/ui/lists/ListActivityFeed";
-import { ArrowLeft } from "lucide-react";
 import RestaurantFilters from "@/components/ui/Filters/RestaurantFilters";
 import NearbyBar from "@/components/ui/Nearby/NearbyBar";
 import LikeButton from "@/components/ui/lists/LikeButton";
+import Icon from '@/components/ui/icons/Icon';
 
 interface Restaurant {
   id: string;
@@ -72,7 +71,6 @@ export default function ListDetails() {
   const searchParams = useSearchParams();
   const highlightCommentId = searchParams?.get('comment') || undefined;
   const router = useRouter();
-  const { user } = useAuthUser();
   const [list, setList] = useState<List | null>(null);
 usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
   const [userRole, setUserRole] = useState<string>('none');
@@ -343,7 +341,7 @@ usePageTitle(list?.name ? `${list.name} - FoodLister` : "FoodLister - Lista");
           <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
             <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-1">
               <Link href="/lists" className="inline-flex items-center text-white/50 hover:text-white transition-colors mb-2 text-sm min-h-[44px]">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <Icon name="seta-esq" className="h-4 w-4 mr-2" />
                 <span>Listas</span>
               </Link>
               <ListSidePanel

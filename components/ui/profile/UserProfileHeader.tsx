@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { User, MapPin, Globe, Calendar, Copy, Share2, Edit, Eye, EyeOff, UserPlus, UserCheck } from "lucide-react";
 import Link from "next/link";
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserProfileHeaderProps {
   name: string;
@@ -60,7 +60,7 @@ export default function UserProfileHeader({
                 <img src={profileImage} alt={name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                  <User className="h-10 w-10 text-white/20" />
+                  <Icon name="perfil" className="h-10 w-10 text-white/20" />
                 </div>
               )}
             </div>
@@ -80,15 +80,15 @@ export default function UserProfileHeader({
             {/* Meta */}
             <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-white/35">
               {location && (
-                <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{location}</span>
+                <span className="flex items-center gap-1"><Icon name="pin" className="h-3.5 w-3.5" />{location}</span>
               )}
               {website && (
                 <a href={website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-purple-400/70 hover:text-purple-400 transition-colors">
-                  <Globe className="h-3.5 w-3.5" />Website
+                  <Icon name="globo" className="h-3.5 w-3.5" />Website
                 </a>
               )}
               {joinedDate && (
-                <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />Membro desde {new Date(joinedDate).toLocaleDateString("pt-PT", { month: "short", year: "numeric" })}</span>
+                <span className="flex items-center gap-1"><Icon name="calendario" className="h-3.5 w-3.5" />Membro desde {new Date(joinedDate).toLocaleDateString("pt-PT", { month: "short", year: "numeric" })}</span>
               )}
             </div>
           </div>
@@ -97,14 +97,14 @@ export default function UserProfileHeader({
           <div className="flex items-center gap-2 flex-shrink-0">
             {isOwnProfile && (
               <Link href="/users/settings" className="flex items-center gap-2 px-4 py-2.5 bg-purple-500/15 text-purple-400 rounded-xl hover:bg-purple-500/25 transition-all text-sm font-medium min-h-[44px]">
-                <Edit className="h-4 w-4" /><span className="hidden sm:inline">Editar</span>
+                <Icon name="editar" className="h-4 w-4" /><span className="hidden sm:inline">Editar</span>
               </Link>
             )}
             <button onClick={onCopyLink} className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] text-white/55 rounded-xl hover:bg-white/[0.08] transition-all text-sm font-medium min-h-[44px]">
-              <Copy className="h-4 w-4" /><span className="hidden sm:inline">{copySuccess ? "Copiado!" : "Copiar"}</span>
+              <Icon name="copiar" className="h-4 w-4" /><span className="hidden sm:inline">{copySuccess ? "Copiado!" : "Copiar"}</span>
             </button>
             <button onClick={onShare} className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.04] border border-white/[0.08] text-white/55 rounded-xl hover:bg-white/[0.08] transition-all text-sm font-medium min-h-[44px]">
-              <Share2 className="h-4 w-4" /><span className="hidden sm:inline">Partilhar</span>
+              <Icon name="partilhar" className="h-4 w-4" /><span className="hidden sm:inline">Partilhar</span>
             </button>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function UserProfileHeader({
                 : "bg-red-500/10 text-red-400 border border-red-500/20"
             } disabled:opacity-50`}
           >
-            {isPublic ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+            {isPublic ? <Icon name="olho" className="h-3 w-3" /> : <Icon name="olho-off" className="h-3 w-3" />}
             {isPublic ? "Perfil Público" : "Perfil Privado"}
           </button>
         )}
@@ -142,7 +142,7 @@ export default function UserProfileHeader({
                   : "bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30"
               }`}
             >
-              {isFollowing ? <UserCheck className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
+              {isFollowing ? <Icon name="utilizador-ok" className="h-4 w-4" /> : <Icon name="utilizador-mais" className="h-4 w-4" />}
               <span className="hidden sm:inline">{isFollowing ? "A Seguir" : "Seguir"}</span>
               {followCount !== undefined && <span className="text-white/40 text-xs">({followCount})</span>}
             </button>

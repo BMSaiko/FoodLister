@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ChevronRight, Copy } from 'lucide-react';
 import { toast } from 'react-toastify';
 import Modal from '@/components/ui/Modal';
+import Icon from '@/components/ui/icons/Icon';
 
 export const DIRECTIONS_PREF_KEY = 'foodlister:directions-app';
 
@@ -86,7 +86,7 @@ export default function DirectionsModal({ isOpen, onClose, place }: DirectionsMo
                 <b className="block text-sm text-white/90">{app.label}</b>
                 <small className="text-xs text-white/50">{app.hint}</small>
               </span>
-              <ChevronRight className="h-4 w-4 text-white/40" aria-hidden />
+              <Icon name="chevron-dir" className="h-4 w-4 text-white/40" aria-hidden />
             </a>
           ))}
           <button
@@ -94,7 +94,7 @@ export default function DirectionsModal({ isOpen, onClose, place }: DirectionsMo
             onClick={copyAddress}
             className="flex w-full items-center gap-3 min-h-[52px] px-3 rounded-xl border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] transition-colors text-left"
           >
-            <Copy className="h-5 w-5 text-amber-400" aria-hidden />
+            <Icon name="copiar" className="h-5 w-5 text-amber-400" aria-hidden />
             <span className="flex-1">
               <b className="block text-sm text-white/90">Copiar morada</b>
               <small className="text-xs text-white/50">Para colar noutra app</small>

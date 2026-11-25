@@ -1,6 +1,5 @@
 import EmptyState from "@/components/ui/EmptyState";
 import React, { useState, useEffect, forwardRef, useRef } from "react";
-import { Star, Edit, Trash2 } from "lucide-react";
 import { Review } from "@/libs/types";
 import { formatDate, formatPrice } from "@/utils/formatters";
 import { toast } from "react-toastify";
@@ -8,6 +7,7 @@ import Link from "next/link";
 import ReviewForm from "./ReviewForm";
 import TruncateText from "@/components/ui/common/TruncateText";
 import ReportButton from "@/components/ui/common/ReportButton";
+import Icon from '@/components/ui/icons/Icon';
 
 interface ReviewsFeedProps {
   restaurantId: string;
@@ -72,7 +72,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
         </h2>
         {user && !showForm && (
           <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-all duration-200 text-sm font-semibold min-h-[44px] hover:scale-105">
-            <Star className="h-4 w-4 fill-current" /><span>Avaliar</span>
+            <Icon name="estrela" className="h-4 w-4 fill-current" /><span>Avaliar</span>
           </button>
         )}
       </div>
@@ -86,7 +86,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
               <div className="leading-none"><span className="text-5xl font-light tracking-[-0.04em] text-white">{(restaurantRating || 0).toFixed(1)}</span><span className="ml-1.5 text-sm text-white/35">/ 5</span></div>
               <div className="flex items-center gap-0.5 mt-2">
                 {Array(5).fill(0).map((_, i) => (
-                  <Star key={i} className={"h-4 w-4 " + (i < Math.round(restaurantRating || 0) ? "text-amber-400 fill-current" : "text-white/15")} />
+                  <Icon name="estrela" key={i} className={"h-4 w-4 " + (i < Math.round(restaurantRating || 0) ? "text-amber-400 fill-current" : "text-white/15")} />
                 ))}
               </div>
             </div>
@@ -131,7 +131,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
           className="rounded-3xl bg-white/[0.02] border border-white/[0.04]"
           action={user && !showForm ? (
             <button onClick={() => setShowForm(true)} className="inline-flex items-center px-5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-colors text-sm font-semibold">
-              <Star className="h-4 w-4 mr-2 fill-current" />Fazer avaliação
+              <Icon name="estrela" className="h-4 w-4 mr-2 fill-current" />Fazer avaliação
             </button>
           ) : undefined}
         />
@@ -154,7 +154,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
                       <div className="text-xs text-white/35 mt-0.5">{formatDate(review.created_at)}</div>
                     </div>
                     <div className="flex items-center gap-0.5 flex-shrink-0">
-                      {Array(5).fill(0).map((_, si) => (<Star key={si} className={"h-3.5 w-3.5 " + (si < review.rating ? "text-amber-400 fill-current" : "text-white/15")} />))}
+                      {Array(5).fill(0).map((_, si) => (<Icon name="estrela" key={si} className={"h-3.5 w-3.5 " + (si < review.rating ? "text-amber-400 fill-current" : "text-white/15")} />))}
                     </div>
                   </div>
                   {review.comment && <TruncateText text={review.comment} maxLength={150} highlightMentions className="text-sm text-white/50 leading-relaxed" />}
@@ -171,8 +171,8 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
                     {user && <ReportButton targetType="review" targetId={review.id} label="Denunciar" />}
                     {user && (review.user_id === user.id || userProfile?.isAdmin) && (
                       <>
-                        <button onClick={() => { setEditing(review); setShowForm(true); }} className="flex items-center gap-1.5 min-h-[32px] text-white/55 hover:text-amber-400 transition-colors"><Edit className="h-3.5 w-3.5" />Editar</button>
-                        <button onClick={() => handleDelete(review.id)} className="flex items-center gap-1.5 min-h-[32px] text-red-400 hover:text-red-300 transition-colors"><Trash2 className="h-3.5 w-3.5" />Eliminar</button>
+                        <button onClick={() => { setEditing(review); setShowForm(true); }} className="flex items-center gap-1.5 min-h-[32px] text-white/55 hover:text-amber-400 transition-colors"><Icon name="editar" className="h-3.5 w-3.5" />Editar</button>
+                        <button onClick={() => handleDelete(review.id)} className="flex items-center gap-1.5 min-h-[32px] text-red-400 hover:text-red-300 transition-colors"><Icon name="apagar" className="h-3.5 w-3.5" />Eliminar</button>
                       </>
                     )}
                   </div>

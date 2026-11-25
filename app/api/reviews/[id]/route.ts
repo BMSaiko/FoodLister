@@ -34,23 +34,17 @@ async function getUserProfileData(supabase: SupabaseClient | null, userId: strin
       .eq('id', userId)
       .single();
 
-    const displayName = (!profileError && profileData !== null)
-      ? (profileData as ProfileRow).display_name
-      : null;
-
-    const avatarUrl = (!profileError && profileData !== null)
-      ? (profileData as ProfileRow).avatar_url
-      : null;
-
-    const email = (!userError && userData !== null)
+    const profile = !profileError ? (profileData as ProfileRow | null) : null;
+    const email = !userError && userData !== null
       ? (userData as { email: string }).email
       : null;
 
-    const userIdCode = (!profileError && profileData !== null)
-      ? (profileData as ProfileRow).user_id_code
-      : null;
-
-    return { displayName, avatarUrl, email, userIdCode };
+    return {
+      displayName: profile ? profile.display_name : null,
+      avatarUrl: profile ? profile.avatar_url : null,
+      email,
+      userIdCode: profile ? profile.user_id_code : null
+    };
   } catch (error) {
     console.error(`Error fetching profile for user ${userId}:`, error);
     return { displayName: null, avatarUrl: null, email: null, userIdCode: null };
@@ -72,7 +66,7 @@ function transformReviewData(review: ReviewRow, userProfile: UserProfileData) {
       id: review.user_id,
       name: displayName || review.user_name || emailName || 'Anonymous User',
       profileImage: avatarUrl,
-      userIdCode: userIdCode
+      userIdCode
     }
   };
 }

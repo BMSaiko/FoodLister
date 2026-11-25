@@ -1,13 +1,14 @@
 "use client";
 
+import type { IconName } from '@/components/ui/icons/names';
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Search, X, Utensils, List, User } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
 import { trackEvent, Events } from "@/utils/analytics";
 import Modal from "@/components/ui/Modal";
 import { useLanguage } from '@/contexts/LanguageContext';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface SearchResult {
   id: string;
@@ -151,9 +152,9 @@ export default function GlobalSearch() {
   if (!isOpen) return null;
 
   const grouped = [
-    { type: "restaurant" as const, label: "Restaurantes", icon: Utensils, items: results.filter(r => r.type === "restaurant") },
-    { type: "list" as const, label: "Listas", icon: List, items: results.filter(r => r.type === "list") },
-    { type: "user" as const, label: "Utilizadores", icon: User, items: results.filter(r => r.type === "user") },
+    { type: "restaurant" as const, label: "Restaurantes", icon: 'restaurantes', items: results.filter(r => r.type === "restaurant") },
+    { type: "list" as const, label: "Listas", icon: 'lista', items: results.filter(r => r.type === "list") },
+    { type: "user" as const, label: "Utilizadores", icon: 'perfil', items: results.filter(r => r.type === "user") },
   ].filter(g => g.items.length > 0);
 
   let flatIndex = -1;
@@ -171,7 +172,7 @@ export default function GlobalSearch() {
         {loading ? (
           <ToviSpinner className="h-5 w-5 text-amber-400 flex-shrink-0" />
         ) : (
-          <Search className="h-5 w-5 text-white/30 flex-shrink-0" />
+          <Icon name="pesquisa" className="h-5 w-5 text-white/30 flex-shrink-0" />
         )}
         <input
           ref={inputRef}
@@ -191,7 +192,7 @@ export default function GlobalSearch() {
           className="p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors flex-shrink-0"
           aria-label="Fechar pesquisa"
         >
-          <X className="h-4 w-4 text-white/40" />
+          <Icon name="fechar" className="h-4 w-4 text-white/40" />
         </button>
       </div>
 
@@ -227,7 +228,7 @@ export default function GlobalSearch() {
               id={`group-${group.type}`}
               className="px-4 py-2 text-[10px] font-semibold text-white/30 uppercase tracking-wider bg-white/[0.02] sticky top-0"
             >
-              <group.icon className="h-3 w-3 inline mr-1.5 -mt-0.5" />
+              <Icon name={group.icon as IconName} className="h-3 w-3 inline mr-1.5 -mt-0.5" />
               {group.label}
             </div>
             {group.items.map((result) => {
@@ -251,9 +252,9 @@ export default function GlobalSearch() {
                     result.type === "list" ? "bg-emerald-500/10 text-emerald-400" :
                     "bg-blue-500/10 text-blue-400"
                   }`}>
-                    {result.type === "restaurant" ? <Utensils className="h-4 w-4" /> :
-                     result.type === "list" ? <List className="h-4 w-4" /> :
-                     <User className="h-4 w-4" />}
+                    {result.type === "restaurant" ? <Icon name="restaurantes" className="h-4 w-4" /> :
+                     result.type === "list" ? <Icon name="lista" className="h-4 w-4" /> :
+                     <Icon name="perfil" className="h-4 w-4" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-white/85 truncate">{result.title}</p>

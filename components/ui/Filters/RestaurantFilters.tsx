@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { SlidersHorizontal, X, Star, Euro, ChevronDown, UtensilsCrossed, MapPin } from "lucide-react";
+import Icon from '@/components/ui/icons/Icon';
 
 interface Restaurant {
   id: string;
@@ -156,11 +156,11 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
             aria-expanded={showFilters}
             className={`ml-auto inline-flex min-h-[36px] items-center gap-1.5 rounded-full border px-3 text-[13px] ${showFilters || activeCount > 0 ? "border-amber-500/50 bg-amber-500/15 text-amber-300" : "border-white/[0.08] text-white/70"}`}
           >
-            <SlidersHorizontal className="h-3.5 w-3.5" /> Filtros{activeCount > 0 && ` (${activeCount})`}
+            <Icon name="ajustes" className="h-3.5 w-3.5" /> Filtros{activeCount > 0 && ` (${activeCount})`}
           </button>
           {activeCount > 0 && (
             <button onClick={clearFilters} className="inline-flex min-h-[36px] items-center gap-1 text-xs text-white/50 hover:text-white/80">
-              <X className="h-3 w-3" /> Limpar
+              <Icon name="fechar" className="h-3 w-3" /> Limpar
             </button>
           )}
           {rightSlot}
@@ -183,7 +183,7 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
                     onClick={() => setFilters(f => ({ ...f, ratingMin: f.ratingMin === r ? null : r }))}
                     className="flex h-10 w-9 items-center justify-center"
                   >
-                    <Star className={`h-5 w-5 ${filters.ratingMin != null && r <= filters.ratingMin ? "fill-amber-400 text-amber-400" : "text-white/25"}`} />
+                    <Icon name="estrela" className={`h-5 w-5 ${filters.ratingMin != null && r <= filters.ratingMin ? "fill-amber-400 text-amber-400" : "text-white/25"}`} />
                   </button>
                 ))}
               </div>
@@ -210,12 +210,12 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
               : "bg-white/[0.04] text-white/50 border border-white/[0.06] hover:bg-white/[0.08]"
           }`}
         >
-          <SlidersHorizontal className="h-4 w-4" />
+          <Icon name="ajustes" className="h-4 w-4" />
           <span>Filtros Avancados</span>
           {activeCount > 0 && (
             <span className="w-5 h-5 rounded-full bg-amber-500 text-black text-[10px] font-bold flex items-center justify-center">{activeCount}</span>
           )}
-          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${showFilters ? "rotate-180" : ""}`} />
+          <Icon name="chevron-baixo" className={`h-3.5 w-3.5 transition-transform duration-200 ${showFilters ? "rotate-180" : ""}`} />
         </button>
         {/* NearbyBar: same row, right after the filters toggle (T41) */}
         {rightSlot}
@@ -223,7 +223,7 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
         <div className="flex items-center gap-3">
           {activeCount > 0 && (
             <button onClick={clearFilters} className="flex items-center gap-1.5 text-xs text-white/35 hover:text-white/60 transition-colors">
-              <X className="h-3 w-3" />
+              <Icon name="fechar" className="h-3 w-3" />
               Limpar
             </button>
           )}
@@ -260,7 +260,7 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
           {availableCuisines.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <UtensilsCrossed className="h-4 w-4 text-amber-400/60" />
+                <Icon name="refeicoes" className="h-4 w-4 text-amber-400/60" />
                 <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Culinaria</span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -287,12 +287,12 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
           {/* Price filter */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Euro className="h-4 w-4 text-orange-400/60" />
+              <Icon name="preco" className="h-4 w-4 text-orange-400/60" />
               <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Preço</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-                <Euro className="h-3.5 w-3.5 text-white/25" />
+                <Icon name="preco" className="h-3.5 w-3.5 text-white/25" />
                 <input
                   type="number"
                   placeholder="Min"
@@ -303,7 +303,7 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
               </div>
               <span className="text-white/15">—</span>
               <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-                <Euro className="h-3.5 w-3.5 text-white/25" />
+                <Icon name="preco" className="h-3.5 w-3.5 text-white/25" />
                 <input
                   type="number"
                   placeholder="Max"
@@ -318,7 +318,7 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
           {/* Rating filter */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Star className="h-4 w-4 text-amber-400/60" />
+              <Icon name="estrela" className="h-4 w-4 text-amber-400/60" />
               <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Rating mínimo</span>
             </div>
             <div className="flex gap-2">
@@ -332,7 +332,7 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
                       : "bg-white/[0.04] text-white/45 border border-white/[0.06] hover:bg-white/[0.08]"
                   }`}
                 >
-                  {r}<Star className="h-3 w-3" />
+                  {r}<Icon name="estrela" className="h-3 w-3" />
                 </button>
               ))}
             </div>
@@ -343,11 +343,11 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
           {/* Location filter */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <MapPin className="h-4 w-4 text-amber-400/60" />
+              <Icon name="pin" className="h-4 w-4 text-amber-400/60" />
               <span className="text-[10px] text-white/30 uppercase tracking-[0.15em] font-medium">Localização</span>
             </div>
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-              <MapPin className="h-3.5 w-3.5 text-white/25" />
+              <Icon name="pin" className="h-3.5 w-3.5 text-white/25" />
               <input
                 type="text"
                 placeholder="Cidade, pais..."
@@ -360,7 +360,7 @@ export default function RestaurantFilters({ restaurants = EMPTY_RESTAURANTS, onF
                   onClick={() => setFilters(f => ({ ...f, location: "" }))}
                   className="text-white/20 hover:text-white/50 transition-colors"
                 >
-                  <X className="h-3 w-3" />
+                  <Icon name="fechar" className="h-3 w-3" />
                 </button>
               )}
             </div>

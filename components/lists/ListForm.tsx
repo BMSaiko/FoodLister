@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ArrowLeft, Globe, Lock, Search, Plus, Star, List, Eye, Sparkles, Info, Tag, Image, X } from "lucide-react";
 import Link from "next/link";
 import { VisibilityToggle } from "components/ui/lists/ListFormFields";
 import ListTagsInput from "components/ui/lists/ListTagsInput";
@@ -11,6 +10,7 @@ import ListFormPreview from "./ListFormPreview";
 import ListFormCelebration from "./ListFormCelebration";
 import { useLanguage } from '@/contexts/LanguageContext';
 import ToviLoader from "@/components/loading/ToviLoader";
+import Icon from '@/components/ui/icons/Icon';
 
 interface Restaurant {
   id: string;
@@ -48,21 +48,21 @@ interface ListFormProps {
 }
 
 const STEPS: WizardStep[] = [
-  { id: 1, label: "Info", icon: Info },
-  { id: 2, label: "Visibilidade", icon: Globe },
-  { id: 3, label: "Restaurantes", icon: Search },
-  { id: 4, label: "Organizar", icon: List },
-  { id: 5, label: "Preview", icon: Eye },
-  { id: 6, label: "Criar", icon: Sparkles },
+  { id: 1, label: "Info", icon: 'info' },
+  { id: 2, label: "Visibilidade", icon: 'globo' },
+  { id: 3, label: "Restaurantes", icon: 'pesquisa' },
+  { id: 4, label: "Organizar", icon: 'lista' },
+  { id: 5, label: "Preview", icon: 'olho' },
+  { id: 6, label: "Criar", icon: 'faiscas' },
 ];
 
 const SECTION_ICONS: Record<number, React.ReactNode> = {
-  1: <Info className="w-5 h-5" />,
-  2: <Globe className="w-5 h-5" />,
-  3: <Search className="w-5 h-5" />,
-  4: <Tag className="w-5 h-5" />,
-  5: <Image className="w-5 h-5" />,
-  6: <Sparkles className="w-5 h-5" />,
+  1: <Icon name="info" className="w-5 h-5" />,
+  2: <Icon name="globo" className="w-5 h-5" />,
+  3: <Icon name="pesquisa" className="w-5 h-5" />,
+  4: <Icon name="etiqueta" className="w-5 h-5" />,
+  5: <Icon name="imagem" className="w-5 h-5" />,
+  6: <Icon name="faiscas" className="w-5 h-5" />,
 };
 
 export default function ListForm({
@@ -140,7 +140,7 @@ export default function ListForm({
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-48 md:pb-8">
         {/* Back link */}
         <Link href={backLink} className="inline-flex items-center text-white/40 hover:text-amber-400 mb-4 transition-colors text-sm">
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <Icon name="seta-esq" className="h-4 w-4 mr-2" />
           {backText}
         </Link>
 
@@ -207,7 +207,7 @@ export default function ListForm({
                   <div className="space-y-4">
                     {/* Search */}
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25" />
+                      <Icon name="pesquisa" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25" />
                       <input
                         type="text"
                         value={searchQuery}
@@ -262,7 +262,7 @@ export default function ListForm({
                             </div>
                             {r.rating != null && (
                               <span className="flex items-center gap-0.5 text-xs text-amber-400/50 flex-shrink-0">
-                                <Star className="w-3 h-3 fill-current" />{r.rating.toFixed(1)}
+                                <Icon name="estrela" className="w-3 h-3 fill-current" />{r.rating.toFixed(1)}
                               </span>
                             )}
                             <button
@@ -270,7 +270,7 @@ export default function ListForm({
                               onClick={() => onAddRestaurant(r)}
                               className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors flex-shrink-0"
                             >
-                              <Plus className="w-4 h-4" />
+                              <Icon name="mais" className="w-4 h-4" />
                             </button>
                           </div>
                         ))
@@ -314,7 +314,7 @@ export default function ListForm({
                 <FormSection title={t('Restaurantes Selecionados')} icon={SECTION_ICONS[5]} description={`${selectedRestaurants.length} restaurante(s) na tua lista.`}>
                   {selectedRestaurants.length === 0 ? (
                     <div className="text-center py-10">
-                      <Search className="h-10 w-10 text-white/10 mx-auto mb-3" />
+                      <Icon name="pesquisa" className="h-10 w-10 text-white/10 mx-auto mb-3" />
                       <p className="text-sm text-white/50">{t('Ainda não adicionaste restaurantes.')}</p>
                       <button type="button" onClick={() => goToStep(3)} className="mt-3 text-sm text-amber-400 hover:text-amber-300 transition-colors">
                         Adicionar restaurantes →
@@ -338,7 +338,7 @@ export default function ListForm({
                           </div>
                           {r.rating != null && (
                             <span className="flex items-center gap-0.5 text-xs text-amber-400/50 flex-shrink-0">
-                              <Star className="w-3 h-3 fill-current" />{r.rating.toFixed(1)}
+                              <Icon name="estrela" className="w-3 h-3 fill-current" />{r.rating.toFixed(1)}
                             </span>
                           )}
                           <button
@@ -346,7 +346,7 @@ export default function ListForm({
                             onClick={() => onRemoveRestaurant(r.id)}
                             className="p-1.5 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <Icon name="fechar" className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ))}
@@ -367,7 +367,7 @@ export default function ListForm({
                       <div>
                         <span className="text-white/30">{t('Visibilidade')}</span>
                         <p className="text-white/80 font-medium flex items-center gap-1">
-                          {formData.isPublic ? <><Globe className="w-3.5 h-3.5 text-emerald-400" />Publica</> : <><Lock className="w-3.5 h-3.5 text-red-400" />Privada</>}
+                          {formData.isPublic ? <><Icon name="globo" className="w-3.5 h-3.5 text-emerald-400" />Publica</> : <><Icon name="privado" className="w-3.5 h-3.5 text-red-400" />Privada</>}
                         </p>
                       </div>
                       <div>

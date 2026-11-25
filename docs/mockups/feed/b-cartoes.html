@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/feed · B Cartões com contexto</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* B: cada atividade é um cartão com o contexto visível (foto do restaurante, capas da lista) */
+.list{display:grid;gap:14px}
+.card{position:relative;border:1px solid var(--line);background:var(--card);border-radius:18px;overflow:hidden;transition:border-color .15s,transform .15s}
+.card:hover{border-color:rgba(245,158,11,.4)}
+.card header{display:flex;gap:12px;align-items:flex-start;padding:14px 16px}
+.card header .t{flex:1}.card header p{margin:0 0 2px}
+.card header .tag{margin-left:auto;flex:none;padding-top:2px}
+.card .av{position:relative;z-index:2}
+.stretch{position:absolute;inset:0;border-radius:18px;z-index:1}
+.media{padding:0 16px 16px}
+.ph{display:block;width:100%;height:176px;object-fit:cover;border-radius:12px}
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.strip img{width:100%;height:96px;object-fit:cover;border-radius:10px}
+.strip.none{display:grid;place-items:center;height:56px;border:1px dashed var(--line);border-radius:10px;color:var(--dim)}.strip.none svg{width:20px;height:20px}
+.card.t-follow header{padding:14px 16px}
+@media(max-width:720px){.ph{height:152px}.strip img{height:80px}.card header .tag span{display:none}}
+.skels,.endmsg,.retry{display:none}
+.skels{margin-top:14px;gap:14px}
+.sk{display:grid;grid-template-columns:40px 1fr;gap:12px;padding:14px 16px;border:1px solid var(--line);background:var(--card);border-radius:18px}
+.sk .c{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.06)}
+.sk b{display:block;height:12px;border-radius:6px;background:rgba(255,255,255,.06);margin:6px 0}.sk b.s{width:40%}
+.sk em{grid-column:1/-1;height:150px;border-radius:12px;background:rgba(255,255,255,.05)}
+.sk>*{animation:pulse 1.2s ease-in-out infinite}@keyframes pulse{50%{opacity:.4}}
+body[data-state=more] .skels{display:grid}
+body[data-state=end] .endmsg{display:block;text-align:center;color:var(--dim);font-size:13px;padding:28px 0}
+body[data-state=error] .retry{display:flex}
+</style></head>
+<body data-state="default">
+<nav class="nav"><img src="assets/lockup-dark.svg" alt="FoodLister"><span class="me">A</span></nav>
+<main class="wrap">
+  <div class="head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><div><h1>Feed</h1><p class="sub">O que anda a acontecer à tua volta</p></div></div>
+  <div class="err" role="alert">Erro ao carregar atividade: API 500</div>
+  <div class="loading" role="status" aria-label="A carregar"><i></i></div>
+  <div class="full empty"><img src="assets/tovi-a-dormir.svg" alt=""><h2>Ainda sem atividade</h2><p>Segue amigos e restaurantes para ver aqui as novidades.</p><a class="cta" href="#restaurants">Explorar restaurantes</a></div>
+  <div class="full fatal"><img src="assets/tovi-triste.svg" alt=""><h2>Não conseguimos carregar o feed</h2><p>Erro ao carregar atividade: API 500</p><button class="cta">Tentar novamente</button></div>
+  <div class="list" id="list"></div>
+  <div id="sentinel" aria-hidden="true" style="height:8px"></div>
+  <div class="skels" aria-hidden="true"><div class="sk"><i class="c"></i><div><b></b><b class="s"></b></div></div><div class="sk"><i class="c"></i><div><b></b><b class="s"></b></div><em></em></div></div>
+  <p class="endmsg">Chegaste ao fim. Segue mais gente para ver mais atividade.</p>
+  <button class="more retry">Tentar novamente</button>
+</main>
+<div class="bn"><i>Início</i><i>Restaurantes</i><i class="on">Feed</i><i>Listas</i><i>Perfil</i></div>
+<script src="feed.js"></script><script>init("b")</script>
+</body></html>

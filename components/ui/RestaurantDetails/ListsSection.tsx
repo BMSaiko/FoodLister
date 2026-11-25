@@ -1,6 +1,6 @@
 import React from "react";
-import { ListChecks } from "lucide-react";
 import Link from "next/link";
+import Icon from '@/components/ui/icons/Icon';
 
 interface ListsSectionProps {
   lists: any[];
@@ -20,7 +20,7 @@ export default function ListsSection({ lists }: ListsSectionProps) {
             className="flex items-center gap-3 p-4 bg-white/[0.03] rounded-2xl ring-1 ring-white/[0.06] hover:bg-white/[0.05] transition-colors duration-150"
           >
             <div className="bg-amber-500/10 rounded-xl p-2.5 flex-shrink-0">
-              <ListChecks className="h-5 w-5 text-amber-400" />
+              <Icon name="lista-ok" className="h-5 w-5 text-amber-400" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white/80 truncate">{list.name}</p>

@@ -32,18 +32,6 @@ export const stripe = new Proxy({} as Stripe, {
 export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 
 /**
- * Returns the Stripe publishable key for client-side Stripe.js initialization.
- * @throws Error if NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set
- */
-export function getStripePublishableKey(): string {
-  const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-  if (!key) {
-    throw new Error('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set');
-  }
-  return key;
-}
-
-/**
  * Creates a new Stripe customer.
  * @param email - Customer email address
  * @param name - Optional display name
@@ -103,11 +91,4 @@ export async function cancelSubscriptionAtPeriodEnd(stripeSubscriptionId: string
 /** Immediately cancels a Stripe subscription. */
 export async function cancelSubscriptionImmediately(stripeSubscriptionId: string): Promise<void> {
   await stripe.subscriptions.cancel(stripeSubscriptionId);
-}
-
-export async function constructWebhookEvent(
-  payload: string | Buffer,
-  signature: string
-): Promise<Stripe.Event> {
-  return stripe.webhooks.constructEvent(payload, signature, STRIPE_WEBHOOK_SECRET);
 }

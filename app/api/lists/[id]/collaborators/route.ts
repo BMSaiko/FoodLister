@@ -49,7 +49,7 @@ export async function GET(
     }
 
     return NextResponse.json({ collaborators: collaborators || [] });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
@@ -160,7 +160,7 @@ export async function POST(
     }).catch(() => {});
 
     return NextResponse.json({ collaborator, message: 'Collaborator added successfully' });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
@@ -225,7 +225,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true, message: 'Collaborator removed successfully' });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }

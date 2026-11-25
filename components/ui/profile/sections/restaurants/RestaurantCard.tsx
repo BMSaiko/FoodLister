@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Star, MapPin } from "lucide-react";
 import Link from "next/link";
+import Icon from '@/components/ui/icons/Icon';
 
 interface RestaurantCardProps {
   restaurant: {
@@ -50,7 +50,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           {/* Rating badge */}
           {restaurant.rating != null && (
             <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-lg px-2 py-1">
-              <Star className="h-3 w-3 text-amber-400 fill-current" />
+              <Icon name="estrela" className="h-3 w-3 text-amber-400 fill-current" />
               <span className="text-xs font-semibold text-white">{restaurant.rating.toFixed(1)}</span>
             </div>
           )}
@@ -70,7 +70,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
 
           {restaurant.location && (
             <p className="text-xs text-white/30 mt-1 flex items-center gap-1">
-              <MapPin className="h-3 w-3" />{restaurant.location}
+              <Icon name="pin" className="h-3 w-3" />{restaurant.location}
             </p>
           )}
 

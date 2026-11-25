@@ -1,17 +1,18 @@
 'use client';
+import Icon from '@/components/ui/icons/Icon';
+import type { IconName } from '@/components/ui/icons/names';
 
-import { LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
   value: string | number;
-  icon?: LucideIcon;
+  icon?: IconName;
   trend?: number;
   subtitle?: string;
   delay?: number;
 }
 
-export default function StatsCard({ title, value, icon: Icon, trend, subtitle, delay = 0 }: StatsCardProps) {
+export default function StatsCard({ title, value, icon, trend, subtitle, delay = 0 }: StatsCardProps) {
   return (
     <div
       className="group relative p-1.5 rounded-[2rem] transition-colors duration-150 hover:bg-white/[0.06]"
@@ -31,9 +32,9 @@ export default function StatsCard({ title, value, icon: Icon, trend, subtitle, d
 
         <div className="relative flex items-center justify-between mb-3">
           <p className="text-xs font-medium uppercase tracking-[0.15em] text-white/40">{title}</p>
-          {Icon && (
+          {icon && (
             <div className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center ring-1 ring-white/10">
-              <Icon className="h-4 w-4 text-amber-400" />
+              <Icon name={icon} className="h-4 w-4 text-amber-400" />
             </div>
           )}
         </div>

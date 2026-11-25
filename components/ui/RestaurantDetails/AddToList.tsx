@@ -4,11 +4,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { createClient } from "@/libs/supabase/client";
-import { ListPlus, Check, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 import { usePublicApiClient } from "@/hooks/auth/usePublicApiClient";
 import { useLanguage } from '@/contexts/LanguageContext';
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface AddToListProps {
   restaurantId: string;
@@ -106,7 +106,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
         if (l && l.id && !seen.has(l.id)) { seen.add(l.id); merged.push(l); }
       });
       setLists(merged);
-    } catch (e) {
+    } catch {
       toast.error(t("Erro ao carregar listas"));
     } finally { setLoading(false); }
   };
@@ -135,7 +135,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
         const err = await res.json().catch(() => ({}));
         toast.error(err.error || "Erro ao adicionar");
       }
-    } catch (e) {
+    } catch {
       toast.error(t("Erro ao adicionar a lista"));
     } finally { setAdding(null); }
   };
@@ -181,7 +181,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
           >
             <span className="flex-1 text-sm text-white/80 truncate">{l.name}</span>
             {alreadyIn(l.id) ? (
-              <span className="text-xs text-emerald-400 flex items-center gap-1"><Check className="h-3.5 w-3.5" />{t('Na lista')}</span>
+              <span className="text-xs text-emerald-400 flex items-center gap-1"><Icon name="visto" className="h-3.5 w-3.5" />{t('Na lista')}</span>
             ) : adding === l.id ? (
               <ToviSpinner className="w-3.5 h-3.5" />
             ) : null}
@@ -202,7 +202,7 @@ export default function AddToList({ restaurantId, isAdmin, existingListIds }: Ad
         aria-expanded={open}
         className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.12] transition-all duration-200 text-sm font-medium min-h-[44px] hover:scale-105"
       >
-        <ListPlus className="h-4 w-4" /><span className="hidden sm:inline">Listas</span><ChevronDown className="h-3.5 w-3.5" />
+        <Icon name="lista-mais" className="h-4 w-4" /><span className="hidden sm:inline">Listas</span><Icon name="chevron-baixo" className="h-3.5 w-3.5" />
       </button>
 
       {createPortal(menu, document.body)}

@@ -5,9 +5,9 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import StatsCard from '@/components/admin/StatsCard';
 import PlatformConnections from '@/components/admin/PlatformConnections';
 import Link from 'next/link';
-import { Megaphone, Send, CheckCircle2, Heart, RefreshCw } from 'lucide-react';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 export default function AdminMarketingPage() {
   usePageTitle("Admin · Marketing - FoodLister");
@@ -29,7 +29,7 @@ export default function AdminMarketingPage() {
             {loading ? (
               <ToviSpinner className="w-4 h-4" />
             ) : (
-              <RefreshCw className='w-4 h-4' />
+              <Icon name="atualizar" className='w-4 h-4' />
             )}
             Atualizar
           </button>
@@ -47,13 +47,13 @@ export default function AdminMarketingPage() {
             href="/admin/marketing/campaigns"
             className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors duration-150"
           >
-            <Megaphone className="h-4 w-4" /> Gerir Campanhas
+            <Icon name="marketing" className="h-4 w-4" /> Gerir Campanhas
           </Link>
           <Link
             href="/admin/marketing/posts"
             className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/5 ring-1 ring-white/10 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors duration-150"
           >
-            <Send className="h-4 w-4" /> Gerir Posts
+            <Icon name="enviar" className="h-4 w-4" /> Gerir Posts
           </Link>
         </div>
 
@@ -62,28 +62,28 @@ export default function AdminMarketingPage() {
           <StatsCard
             title="Campanhas"
             value={data?.campaigns.total ?? 0}
-            icon={Megaphone}
+            icon="marketing"
             subtitle={data ? `${Object.keys(data.campaigns.byStatus).length} estados` : undefined}
             delay={0}
           />
           <StatsCard
             title="Posts"
             value={data?.posts.total ?? 0}
-            icon={Send}
+            icon="enviar"
             subtitle={data ? `${data.posts.published} publicados` : undefined}
             delay={100}
           />
           <StatsCard
             title="Publicados"
             value={data?.posts.published ?? 0}
-            icon={CheckCircle2}
+            icon="ok-circulo"
             subtitle="posts ativos"
             delay={200}
           />
           <StatsCard
             title="Engagement (likes)"
             value={data?.engagement.total.likes ?? 0}
-            icon={Heart}
+            icon="coracao"
             subtitle={data ? `${data.engagement.total.shares} partilhas · ${data.engagement.total.comments} comentários` : undefined}
             delay={300}
           />

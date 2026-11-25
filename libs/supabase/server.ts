@@ -61,25 +61,6 @@ export const getServerClient = async (request?: NextRequest, response?: NextResp
   }
 };
 
-// Secure server client with automatic logout on session expiration
-export const getSecureServerClient = async (request?: NextRequest, response?: NextResponse) => {
-  const supabase = createServerClient(request!, response!);
-  
-  // Validate session and check expiration
-  const { data: { session }, error } = await supabase.auth.getSession();
-  
-  if (!session || (session.expires_at && session.expires_at < Math.floor(Date.now() / 1000))) {
-    // Clear cookies and return unauthorized
-    if (response) {
-      response.cookies.set('sb-access-token', '', { expires: new Date(0) });
-      response.cookies.set('sb-refresh-token', '', { expires: new Date(0) });
-    }
-    throw new Error('Session expired');
-  }
-  
-  return supabase;
-};
-
 // Public server client for unauthenticated access to public data
 export const getPublicServerClient = async () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';

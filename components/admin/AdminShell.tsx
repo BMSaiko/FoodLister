@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
+import Icon from '@/components/ui/icons/Icon';
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -89,7 +89,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               aria-controls="admin-nav"
               onClick={() => setOpen((v) => !v)}
             >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {open ? <Icon name="fechar" className="h-5 w-5" /> : <Icon name="menu" className="h-5 w-5" />}
             </button>
             <h1 className="text-lg font-semibold text-[#f5f5f5] truncate">FoodLister Admin</h1>
           </div>

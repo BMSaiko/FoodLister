@@ -2,13 +2,13 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Calendar, Utensils, SearchX, Plus } from 'lucide-react';
 import { useScheduledMeals } from '@/hooks/data/useScheduledMeals';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import MealCard from './MealCard';
 import MealSearchBar, { MealFilters } from './MealSearchBar';
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ScheduledMealsSectionProps {
   userId?: string;
@@ -124,7 +124,7 @@ export default function ScheduledMealsSection({
           {hasActiveSearch ? (
             <>
               <div className="p-4 bg-[var(--gray-50)] rounded-full mb-4">
-                <SearchX className="h-8 w-8 text-[var(--gray-400)]" />
+                <Icon name="sem-resultados" className="h-8 w-8 text-[var(--gray-400)]" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-2">
                 Nenhuma refeição encontrada
@@ -136,7 +136,7 @@ export default function ScheduledMealsSection({
           ) : (
             <>
               <div className="p-4 bg-[var(--amber-50)] rounded-full mb-4">
-                <Calendar className="h-8 w-8 text-[var(--amber-500)]" />
+                <Icon name="calendario" className="h-8 w-8 text-[var(--amber-500)]" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--gray-900)] mb-2">
                 Sem refeições agendadas
@@ -151,7 +151,7 @@ export default function ScheduledMealsSection({
                   href="/restaurants"
                   className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[var(--amber-500)] text-black rounded-lg hover:bg-[var(--amber-600)] transition-colors text-sm font-medium"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Icon name="mais" className="h-4 w-4" />
                   Agendar refeição
                 </Link>
               )}
@@ -174,7 +174,7 @@ export default function ScheduledMealsSection({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Utensils className="h-5 w-5 text-[var(--amber-500)]" />
+          <Icon name="restaurantes" className="h-5 w-5 text-[var(--amber-500)]" />
           <h2 className="text-lg font-semibold text-[var(--gray-900)]">
             Refeições Agendadas
           </h2>

@@ -88,7 +88,7 @@ function sanitizeUrlForLogging(urlString: string): string {
     }
 
     return url.toString();
-  } catch (error) {
+  } catch {
     // If URL parsing fails, return a truncated version
     return urlString.length > 100 ? urlString.substring(0, 100) + '...' : urlString;
   }
@@ -165,7 +165,7 @@ function log(level: LogLevel, message: string, context?: Record<string, any>): v
 
   try {
     logMethod(JSON.stringify(entry));
-  } catch (stringifyError) {
+  } catch {
     // Fallback for circular references or other stringify issues
     logMethod(JSON.stringify({
       level: entry.level,
@@ -196,11 +196,4 @@ export function logWarn(message: string, context?: Record<string, any>): void {
  */
 export function logInfo(message: string, context?: Record<string, any>): void {
   log(LogLevel.INFO, message, context);
-}
-
-/**
- * Logs a debug message
- */
-export function logDebug(message: string, context?: Record<string, any>): void {
-  log(LogLevel.DEBUG, message, context);
 }

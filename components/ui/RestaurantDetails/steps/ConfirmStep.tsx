@@ -2,7 +2,7 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React from "react";
-import { Calendar, Clock, Users, Utensils } from "lucide-react";
+import Icon from '@/components/ui/icons/Icon';
 
 interface ConfirmStepProps {
   restaurantName: string;
@@ -47,22 +47,22 @@ export default function ConfirmStep({
 
         <div className="space-y-3 bg-white/0.02 rounded-xl p-4 border border-white/0.06">
           <div className="flex items-center gap-3">
-            <Utensils className="h-4 w-4 text-amber-400 flex-shrink-0" />
+            <Icon name="restaurantes" className="h-4 w-4 text-amber-400 flex-shrink-0" />
             <span className="text-sm text-white/85">{restaurantName}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <Calendar className="h-4 w-4 text-white/30 flex-shrink-0" />
+            <Icon name="calendario" className="h-4 w-4 text-white/30 flex-shrink-0" />
             <span className="text-sm text-white/70">{formatDate(date)}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <Clock className="h-4 w-4 text-white/30 flex-shrink-0" />
+            <Icon name="horario" className="h-4 w-4 text-white/30 flex-shrink-0" />
             <span className="text-sm text-white/70">{time} ({formatDuration(duration)})</span>
           </div>
 
           <div className="flex items-center gap-3">
-            <Users className="h-4 w-4 text-white/30 flex-shrink-0" />
+            <Icon name="utilizadores" className="h-4 w-4 text-white/30 flex-shrink-0" />
             <span className="text-sm text-white/70">{participantCount} participante{participantCount !== 1 ? "s" : ""}</span>
           </div>
 

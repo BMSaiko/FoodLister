@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Plus, Search, CookingPot } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Icon from '@/components/ui/icons/Icon';
 
 interface EmptyStateProps {
   searchQuery: string | null;
@@ -16,7 +16,7 @@ export const EmptyState = React.memo<EmptyStateProps>(({ searchQuery }) => {
     return (
       <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
         <div className="text-center max-w-md">
-          <Search className="h-10 w-10 sm:h-12 sm:w-12 text-[var(--foreground-muted)] mx-auto mb-4" />
+          <Icon name="pesquisa" className="h-10 w-10 sm:h-12 sm:w-12 text-[var(--foreground-muted)] mx-auto mb-4" />
           <h3 className="text-lg font-medium text-[var(--foreground)] mb-2">{t('Nenhum resultado encontrado')}</h3>
           <p className="text-[var(--foreground-secondary)] mb-6 text-sm sm:text-base">
             {t('Não encontramos nenhum restaurante que corresponda a "{q}".', { q: searchQuery ?? '' })}
@@ -33,7 +33,7 @@ export const EmptyState = React.memo<EmptyStateProps>(({ searchQuery }) => {
   return (
     <div className="w-full flex flex-col items-center justify-center py-6 sm:py-12 px-4">
       <div className="text-center max-w-md">
-        <CookingPot className="h-10 w-10 sm:h-12 sm:w-12 text-[var(--foreground-muted)] mx-auto mb-4" />
+        <Icon name="panela" className="h-10 w-10 sm:h-12 sm:w-12 text-[var(--foreground-muted)] mx-auto mb-4" />
         <h3 className="text-lg font-medium text-[var(--foreground)] mb-2">{t('Nenhum restaurante cadastrado')}</h3>
         <p className="text-[var(--foreground-secondary)] mb-6 text-sm sm:text-base">
           {t('Comece adicionando seu primeiro restaurante para criar sua coleção gastronômica.')}
@@ -42,7 +42,7 @@ export const EmptyState = React.memo<EmptyStateProps>(({ searchQuery }) => {
           href="/restaurants/create"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-[var(--radius-md)] shadow-sm text-[var(--primary-foreground)] bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Icon name="mais" className="h-4 w-4 mr-2" />
           {t('Adicionar Restaurante')}
         </Link>
       </div>

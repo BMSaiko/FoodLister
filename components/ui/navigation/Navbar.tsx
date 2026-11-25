@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, useScroll, useSpring, useTransform, AnimatePresence } from 'motion/react';
-import { User, LogOut, Settings, Shield, Calendar, Sparkles, Megaphone } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import Ico from '@/components/ui/icons/Ico';
 import {useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
@@ -13,6 +12,7 @@ import NotificationsDropdown from './NotificationsDropdown';
 import LanguageCombobox from './LanguageCombobox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useNotifications from '@/hooks/data/useNotifications';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ProfileData {
   display_name: string;
@@ -45,20 +45,15 @@ export default function Navbar() {
   const supabase = getClient();
   // No mobile menu — navbar uses bottom tab bar on mobile
   
-  const searchTriggerRef = useRef<HTMLButtonElement>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<ProfileData | null>(null);
   const hasNotifications = (unreadCount || 0) > 0;
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Scroll-driven transform
-  const { scrollY } = useScroll();
-  const navbarHeight = useTransform(scrollY, [0, 100], [64, 52]);
-  const springHeight = useSpring(navbarHeight, { stiffness: 120, damping: 20 });
 
   // Active section
-  const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
+  const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' || pathname === '/feed' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -105,8 +100,8 @@ export default function Navbar() {
       <header className="sticky top-0 z-[800] bg-[rgba(5,5,5,0.8)] backdrop-blur-[14px] border-b border-white/[0.08]">
         <div className="mx-auto flex items-center gap-1.5 md:gap-5 min-h-[60px] w-[min(1120px,calc(100%-32px))]">
           {/* Logo */}
-          <Link href="/" prefetch={false} className="flex-shrink-0" aria-label={t("FoodLister, início")}>
-            <img src="/brand/lockup-dark.svg" alt="FoodLister" className="h-7 w-auto max-w-none" />
+          <Link href="/" prefetch={false} className="flex-shrink-0 inline-flex items-center min-h-[44px]" aria-label={t("FoodLister, início")}>
+            <img src="/brand/lockup-dark.svg" alt="FoodLister" className="block h-7 w-auto max-w-none" />
           </Link>
 
           {/* Links */}
@@ -151,6 +146,21 @@ export default function Navbar() {
                 title={t("Criar restaurante")}
               >
                 <Ico name="plus" />
+              </Link>
+            )}
+            {user && (
+              <Link
+                href="/feed"
+                prefetch={false}
+                onClick={() => { if (pathname === '/feed') window.location.reload(); }}
+                aria-current={pathname === '/feed' ? 'page' : undefined}
+                className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] hover:bg-white/5 transition-colors ${
+                  pathname === '/feed' ? 'text-[var(--primary)]' : 'text-white/55 hover:text-[var(--foreground)]'
+                }`}
+                aria-label={t("Feed")}
+                title={t("Feed")}
+              >
+                <Icon name="atividade" className="h-5 w-5" />
               </Link>
             )}
             {user && (
@@ -225,14 +235,14 @@ export default function Navbar() {
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <User className="w-4 h-4" /> Meu Perfil
+                          <Icon name="perfil" className="w-4 h-4" /> Meu Perfil
                         </Link>
                         <Link
                           href="/users/settings"
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <Settings className="w-4 h-4" /> Configurações
+                          <Icon name="definicoes" className="w-4 h-4" /> Configurações
                         </Link>
                         {userProfile?.is_admin && (
                           <Link
@@ -240,7 +250,7 @@ export default function Navbar() {
                             onClick={() => setUserMenuOpen(false)}
                             className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                           >
-                            <Shield className="w-4 h-4" /> Admin
+                            <Icon name="escudo" className="w-4 h-4" /> Admin
                           </Link>
                         )}
                         <Link
@@ -248,14 +258,14 @@ export default function Navbar() {
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <Calendar className="w-4 h-4" /> Refeições
+                          <Icon name="calendario" className="w-4 h-4" /> Refeições
                         </Link>
                         <Link
                           href="/pricing"
                           onClick={() => setUserMenuOpen(false)}
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
-                          <Sparkles className="w-4 h-4" /> Premium
+                          <Icon name="faiscas" className="w-4 h-4" /> Premium
                         </Link>
                         {userProfile?.is_admin && (
                           <Link
@@ -263,7 +273,7 @@ export default function Navbar() {
                             onClick={() => setUserMenuOpen(false)}
                             className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                           >
-                            <Megaphone className="w-4 h-4" /> Marketing
+                            <Icon name="marketing" className="w-4 h-4" /> Marketing
                           </Link>
                         )}
                         <div className="border-t border-white/[0.06] my-1" />
@@ -271,7 +281,7 @@ export default function Navbar() {
                           onClick={handleSignOut}
                           className="magnetic-hover flex items-center gap-3 w-full px-3 py-2.5 text-sm text-[var(--error)] hover:bg-[var(--error-light)]"
                         >
-                          <LogOut className="w-4 h-4" />{t("Sair")}
+                          <Icon name="sair" className="w-4 h-4" />{t("Sair")}
                         </button>
                       </div>
                     </motion.div>

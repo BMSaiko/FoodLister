@@ -55,7 +55,6 @@ export async function GET(request: NextRequest) {
     const userId = targetUserId || user.id;
 
     // Parse search/filter params
-    const searchQuery = url.searchParams.get('search') || '';
     const dateFrom = url.searchParams.get('dateFrom') || '';
     const dateTo = url.searchParams.get('dateTo') || '';
     const mealType = url.searchParams.get('mealType') || '';

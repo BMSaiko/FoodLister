@@ -1,20 +1,20 @@
 'use client';
 
+import Icon from '@/components/ui/icons/Icon';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, UtensilsCrossed, Star, BarChart3, Megaphone, ArrowLeft, List, Flag } from 'lucide-react';
 
 const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/users', label: 'Utilizadores', icon: Users },
-  { href: '/admin/restaurants', label: 'Restaurantes', icon: UtensilsCrossed },
-  { href: '/admin/lists', label: 'Listas', icon: List },
-  { href: '/admin/reviews', label: 'Reviews', icon: Star },
-  { href: '/admin/reports', label: 'Reports', icon: Flag },
-  { href: '/admin/marketing', label: 'Marketing', icon: Megaphone },
-  { href: '/admin/statistics', label: 'Estatísticas', icon: BarChart3 },
-  { href: '/restaurants', label: 'Voltar à App', icon: ArrowLeft, external: true },
-];
+  { href: '/admin', label: 'Dashboard', icon: 'painel' },
+  { href: '/admin/users', label: 'Utilizadores', icon: 'utilizadores' },
+  { href: '/admin/restaurants', label: 'Restaurantes', icon: 'refeicoes' },
+  { href: '/admin/lists', label: 'Listas', icon: 'lista' },
+  { href: '/admin/reviews', label: 'Reviews', icon: 'estrela' },
+  { href: '/admin/reports', label: 'Reports', icon: 'bandeira' },
+  { href: '/admin/marketing', label: 'Marketing', icon: 'marketing' },
+  { href: '/admin/statistics', label: 'Estatísticas', icon: 'grafico' },
+  { href: '/restaurants', label: 'Voltar à App', icon: 'seta-esq', external: true },
+] as const;
 
 export default function AdminSidebar({ id, open = false }: { id?: string; open?: boolean }) {
   const pathname = usePathname();
@@ -41,7 +41,7 @@ export default function AdminSidebar({ id, open = false }: { id?: string; open?:
 
       {/* Nav Items */}
       <nav className="space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, label, icon }) => {
           const isActive = pathname === href || (href !== '/admin' && pathname.startsWith(href));
           return (
             <Link
@@ -53,7 +53,7 @@ export default function AdminSidebar({ id, open = false }: { id?: string; open?:
                   : 'text-white/50 hover:text-white/80 hover:bg-white/5'
               }`}
             >
-              <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-amber-400' : 'text-white/30 group-hover:text-white/50'}`} />
+              <Icon name={icon} className={`h-4 w-4 transition-colors ${isActive ? 'text-amber-400' : 'text-white/30 group-hover:text-white/50'}`} />
               {label}
               {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400" />}
             </Link>

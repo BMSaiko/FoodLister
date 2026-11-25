@@ -44,7 +44,7 @@ export async function GET(
     }
 
     return NextResponse.json({ comments: comments || [] });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
@@ -141,7 +141,7 @@ export async function POST(
         }
       }
     });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
@@ -210,7 +210,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true, message: 'Comment deleted successfully' });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
@@ -288,7 +288,7 @@ export async function PUT(
     }
 
     return NextResponse.json({ comment: updated });
-  } catch (_error: unknown) {
+  } catch {
     const errorType = 'INTERNAL_ERROR' as ApiErrorType;
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }

@@ -2,7 +2,6 @@
 
 import type { DashboardStats as Stats } from '@/libs/types';
 import StatsCard from './StatsCard';
-import { Users, UtensilsCrossed, Star, List } from 'lucide-react';
 
 interface DashboardStatsProps {
   stats: Stats | null;
@@ -28,16 +27,16 @@ export default function DashboardStats({ stats, loading }: DashboardStatsProps) 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
       <div className="lg:col-span-2">
-        <StatsCard title="Utilizadores" value={stats.users.total} icon={Users} trend={stats.users.growthRate} subtitle={`+${stats.users.newThisMonth} este mês`} delay={0} />
+        <StatsCard title="Utilizadores" value={stats.users.total} icon="utilizadores" trend={stats.users.growthRate} subtitle={`+${stats.users.newThisMonth} este mês`} delay={0} />
       </div>
       <div className="lg:col-span-1">
-        <StatsCard title="Restaurantes" value={stats.restaurants.total} icon={UtensilsCrossed} subtitle={`+${stats.restaurants.newThisMonth} este mês`} delay={100} />
+        <StatsCard title="Restaurantes" value={stats.restaurants.total} icon="refeicoes" subtitle={`+${stats.restaurants.newThisMonth} este mês`} delay={100} />
       </div>
       <div className="lg:col-span-1">
-        <StatsCard title="Reviews" value={stats.reviews.total} icon={Star} subtitle={`Média: ${stats.reviews.averageRating}`} delay={200} />
+        <StatsCard title="Reviews" value={stats.reviews.total} icon="estrela" subtitle={`Média: ${stats.reviews.averageRating}`} delay={200} />
       </div>
       <div className="lg:col-span-1">
-        <StatsCard title="Listas" value={stats.lists.total} icon={List} subtitle={`${stats.lists.public} públicas`} delay={300} />
+        <StatsCard title="Listas" value={stats.lists.total} icon="lista" subtitle={`${stats.lists.public} públicas`} delay={300} />
       </div>
     </div>
   );

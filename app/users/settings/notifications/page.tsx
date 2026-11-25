@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Bell, Mail, BellRing, Utensils, Users, List, Settings, CalendarCheck, Loader2 } from 'lucide-react';
 import { useNotificationPreferences } from '@/hooks/data/useNotificationPreferences';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
@@ -9,6 +8,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useLanguage } from "@/contexts";
 import ToviLoader from "@/components/loading/ToviLoader";
+import Icon from '@/components/ui/icons/Icon';
 
 interface PreferenceToggleProps {
   id: string;
@@ -72,26 +72,26 @@ export default function NotificationPreferencesPage() {
           <div className="space-y-6">
             <section>
               <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                <BellRing className="h-5 w-5 text-amber-500" />
+                <Icon name="campainha-toque" className="h-5 w-5 text-amber-500" />
                 {t("Metodo de Entrega")}
               </h2>
               <div className="space-y-3">
-                <PreferenceToggle id="email_notifications" label={t("Notificações por Email")} description={t("Recebe notificações importantes no teu email")} icon={<Mail className="h-5 w-5" />} checked={preferences.email_notifications} onChange={() => togglePreference('email_notifications')} disabled={loading} />
-                <PreferenceToggle id="push_notifications" label={t("Notificações Push")} description={t("Recebe notificações no navegador em tempo real")} icon={<Bell className="h-5 w-5" />} checked={preferences.push_notifications} onChange={() => togglePreference('push_notifications')} disabled={loading} />
-                <PreferenceToggle id="weekly_digest" label={t("Resumo Semanal")} description={t("Recebe um resumo semanal da atividade nas tuas listas")} icon={<CalendarCheck className="h-5 w-5" />} checked={preferences.weekly_digest} onChange={() => togglePreference('weekly_digest')} disabled={loading} />
+                <PreferenceToggle id="email_notifications" label={t("Notificações por Email")} description={t("Recebe notificações importantes no teu email")} icon={<Icon name="mail" className="h-5 w-5" />} checked={preferences.email_notifications} onChange={() => togglePreference('email_notifications')} disabled={loading} />
+                <PreferenceToggle id="push_notifications" label={t("Notificações Push")} description={t("Recebe notificações no navegador em tempo real")} icon={<Icon name="sino" className="h-5 w-5" />} checked={preferences.push_notifications} onChange={() => togglePreference('push_notifications')} disabled={loading} />
+                <PreferenceToggle id="weekly_digest" label={t("Resumo Semanal")} description={t("Recebe um resumo semanal da atividade nas tuas listas")} icon={<Icon name="calendario-ok" className="h-5 w-5" />} checked={preferences.weekly_digest} onChange={() => togglePreference('weekly_digest')} disabled={loading} />
               </div>
             </section>
 
             <section>
               <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                <Settings className="h-5 w-5 text-amber-500" />
+                <Icon name="definicoes" className="h-5 w-5 text-amber-500" />
                 {t("Tipos de Notificacao")}
               </h2>
               <div className="space-y-3">
-                <PreferenceToggle id="meal_invitations" label={t("Convites para Refeições")} description={t("Quando te convidam para uma refeição em grupo")} icon={<Utensils className="h-5 w-5" />} checked={preferences.meal_invitations} onChange={() => togglePreference('meal_invitations')} disabled={loading} />
-                <PreferenceToggle id="collaborator_updates" label={t("Atualizacoes de Colaboradores")} description={t("Quando alguem colabora nas tuas listas")} icon={<Users className="h-5 w-5" />} checked={preferences.collaborator_updates} onChange={() => togglePreference('collaborator_updates')} disabled={loading} />
-                <PreferenceToggle id="list_activity" label={t("Atividade em Listas")} description={t("Mudancas e comentarios nas tuas listas")} icon={<List className="h-5 w-5" />} checked={preferences.list_activity} onChange={() => togglePreference('list_activity')} disabled={loading} />
-                <PreferenceToggle id="system_updates" label={t("Atualizacoes do Sistema")} description={t("Novidades, manutencao e avisos importantes")} icon={<Bell className="h-5 w-5" />} checked={preferences.system_updates} onChange={() => togglePreference('system_updates')} disabled={loading} />
+                <PreferenceToggle id="meal_invitations" label={t("Convites para Refeições")} description={t("Quando te convidam para uma refeição em grupo")} icon={<Icon name="restaurantes" className="h-5 w-5" />} checked={preferences.meal_invitations} onChange={() => togglePreference('meal_invitations')} disabled={loading} />
+                <PreferenceToggle id="collaborator_updates" label={t("Atualizacoes de Colaboradores")} description={t("Quando alguem colabora nas tuas listas")} icon={<Icon name="utilizadores" className="h-5 w-5" />} checked={preferences.collaborator_updates} onChange={() => togglePreference('collaborator_updates')} disabled={loading} />
+                <PreferenceToggle id="list_activity" label={t("Atividade em Listas")} description={t("Mudancas e comentarios nas tuas listas")} icon={<Icon name="lista" className="h-5 w-5" />} checked={preferences.list_activity} onChange={() => togglePreference('list_activity')} disabled={loading} />
+                <PreferenceToggle id="system_updates" label={t("Atualizacoes do Sistema")} description={t("Novidades, manutencao e avisos importantes")} icon={<Icon name="sino" className="h-5 w-5" />} checked={preferences.system_updates} onChange={() => togglePreference('system_updates')} disabled={loading} />
               </div>
             </section>
 

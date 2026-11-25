@@ -1,5 +1,4 @@
 // app/api/restaurants/batch/utils.ts
-import type { NextRequest } from 'next/server';
 
 export function normName(name: string): string {
   return (name || '')

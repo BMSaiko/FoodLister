@@ -1,5 +1,5 @@
+import Icon from '@/components/ui/icons/Icon';
 import React from 'react';
-import { Eye, EyeOff } from 'lucide-react';
 import ToviSpinner from '@/components/loading/ToviSpinner';
 
 interface PrivacyToggleProps {
@@ -15,8 +15,7 @@ const PrivacyToggle: React.FC<PrivacyToggleProps> = ({
   isLoading = false,
   className = ''
 }) => {
-  const Icon = isPublic ? Eye : EyeOff;
-  const statusText = isPublic ? 'Perfil Público' : 'Perfil Privado';
+  const iconName = isPublic ? 'olho' : 'olho-off';
   const statusColor = isPublic ? 'text-green-600' : 'text-red-600';
 
   return (
@@ -31,7 +30,7 @@ const PrivacyToggle: React.FC<PrivacyToggleProps> = ({
       {isLoading ? (
         <ToviSpinner className={`h-5 w-5 ${statusColor}`} />
       ) : (
-        <Icon className={`h-5 w-5 ${statusColor}`} />
+        <Icon name={iconName} className={`h-5 w-5 ${statusColor}`} />
       )}
     </button>
   );

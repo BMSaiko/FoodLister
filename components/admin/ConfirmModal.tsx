@@ -1,7 +1,7 @@
 'use client';
 
-import { AlertTriangle, X } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -30,11 +30,11 @@ export default function ConfirmModal({
         onClick={onClose}
         className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
       >
-        <X className="h-4 w-4 text-white/50" />
+        <Icon name="fechar" className="h-4 w-4 text-white/50" />
       </button>
       <div className="p-6">
         <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${danger ? 'bg-red-500/10' : 'bg-amber-500/10'}`}>
-          <AlertTriangle className={`h-5 w-5 ${danger ? 'text-red-400' : 'text-amber-400'}`} />
+          <Icon name="alerta" className={`h-5 w-5 ${danger ? 'text-red-400' : 'text-amber-400'}`} />
         </div>
         <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
         <p className="text-sm text-white/50 mb-6">{message}</p>

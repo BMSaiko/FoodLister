@@ -144,7 +144,7 @@ This document describes the comprehensive refactoring performed on the FoodListe
 - `CreateReviewRequest` / `UpdateReviewRequest` - Review CRUD
 - `UpdateProfileRequest` - Profile updates
 - `SearchRequest` / `SearchResponse` - Search operations
-- Helper functions: `createAuthHeaders`, `buildQueryString`, `buildRestaurantFilterParams`, `isAuthError`, `isRateLimitError`, `fetchWithRetry`
+- Helper functions: `createAuthHeaders`, `buildQueryString`, `buildRestaurantFilterParams`, `isAuthError`, `isRateLimitError`
 
 ---
 

@@ -8,7 +8,6 @@ export * from './auth';
 
 // Data and formatting
 export * from './cloudinaryConverter';
-export * from './filters';
 export * from './formatters';
 export * from './googleMapsExtractor';
 export * from './logger';

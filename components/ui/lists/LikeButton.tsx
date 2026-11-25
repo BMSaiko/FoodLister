@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Heart } from 'lucide-react';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import Icon from '@/components/ui/icons/Icon';
 
 // ponytail: like-only popularity. Toggle via /api/lists/[id]/like. No downvote.
 export default function LikeButton({ listId }: { listId: string }) {
@@ -34,7 +34,7 @@ export default function LikeButton({ listId }: { listId: string }) {
       } disabled:opacity-50`}
       title={user ? (liked ? 'Remover gosto' : 'Gosto nesta lista') : 'Entra para dar gosto'}
     >
-      <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
+      <Icon name="coracao" className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
       {count || ''}
     </button>
   );

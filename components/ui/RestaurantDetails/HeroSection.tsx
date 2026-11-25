@@ -1,10 +1,10 @@
 import React, { useState, useRef, useCallback, type ReactNode } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { categorizePriceLevel } from "@/utils/formatters";
 import Modal from "@/components/ui/Modal";
 import { CreatorLink } from "@/components/ui/common/CreatorLink";
 import RestaurantActions from "@/components/ui/RestaurantDetails/RestaurantActions";
 import { ExpandIcon, PinIcon, MenuBookIcon, PhoneIcon, GlobeIcon, StarIcon } from "@/components/icons";
+import Icon from '@/components/ui/icons/Icon';
 
 interface HeroSectionProps {
   restaurant: {
@@ -290,15 +290,15 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
       >
         <div className="relative w-full h-full flex items-center justify-center p-4">
           <button onClick={closeLightbox} aria-label="Fechar" className="absolute top-4 right-4 z-50 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center cursor-pointer">
-            <X className="h-5 w-5" />
+            <Icon name="fechar" className="h-5 w-5" />
           </button>
           {allImages.length > 1 && (
             <>
               <button onClick={prevImg} aria-label="Foto anterior" className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center">
-                <ChevronLeft className="h-6 w-6" />
+                <Icon name="chevron-esq" className="h-6 w-6" />
               </button>
               <button onClick={nextImg} aria-label="Foto seguinte" className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full bg-white/[0.08] backdrop-blur-xl border border-white/[0.1] text-white/80 hover:bg-white/[0.15] transition-all duration-200 flex items-center justify-center">
-                <ChevronRight className="h-6 w-6" />
+                <Icon name="chevron-dir" className="h-6 w-6" />
               </button>
             </>
           )}

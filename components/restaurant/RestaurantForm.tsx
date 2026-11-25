@@ -13,13 +13,13 @@ import MenuManager from '@/components/ui/RestaurantManagement/MenuManager';
 import FormSection from '@/components/ui/common/FormSection';
 import FormField from '@/components/ui/common/FormField';
 import MultiplePhoneInput from '@/components/ui/common/MultiplePhoneInput';
-import { ArrowLeft, MapPin, Globe, Map, Info, Tag, Utensils, Image, Check } from 'lucide-react';
 import { useRestaurantForm } from '@/hooks/forms/useRestaurantForm';
 import Link from 'next/link';
 import { FormStepper, WizardNav, type WizardStep } from '@/components/ui/FormWizard';
 import RestaurantFormPreview from './RestaurantFormPreview';
 import RestaurantFormCelebration from './RestaurantFormCelebration';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Icon from '@/components/ui/icons/Icon';
 
 export interface RestaurantFormProps {
   restaurantId?: string;
@@ -31,22 +31,22 @@ export interface RestaurantFormProps {
 }
 
 const STEPS: WizardStep[] = [
-  { id: 1, label: 'Básico', icon: Info },
-  { id: 2, label: 'Categorias', icon: Tag },
-  { id: 3, label: 'Dietética', icon: Utensils },
-  { id: 4, label: 'Características', icon: MapPin },
-  { id: 5, label: 'Imagens', icon: Image },
-  { id: 6, label: 'Detalhes', icon: Check },
+  { id: 1, label: 'Básico', icon: 'info' },
+  { id: 2, label: 'Categorias', icon: 'etiqueta' },
+  { id: 3, label: 'Dietética', icon: 'restaurantes' },
+  { id: 4, label: 'Características', icon: 'pin' },
+  { id: 5, label: 'Imagens', icon: 'imagem' },
+  { id: 6, label: 'Detalhes', icon: 'visto' },
 ];
 
 const SECTION_ICONS = {
-  basic: Info,
-  categories: Tag,
-  dietary: Utensils,
-  features: MapPin,
-  images: Image,
-  details: Check,
-};
+  basic: 'info',
+  categories: 'etiqueta',
+  dietary: 'restaurantes',
+  features: 'pin',
+  images: 'imagem',
+  details: 'visto',
+} as const;
 
 export default function RestaurantForm({ restaurantId, backUrl, backLabel, enableBatchImport, onSuccess }: RestaurantFormProps) {
   const { t } = useLanguage();
@@ -146,7 +146,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 pb-48 md:pb-8">
         {/* Back link */}
         <Link href={backUrl} className="inline-flex items-center text-[var(--foreground-secondary)] hover:text-[var(--primary)] mb-6 transition-colors">
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <Icon name="seta-esq" className="h-4 w-4 mr-2" />
           {backLabel}
         </Link>
 
@@ -173,7 +173,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 1: Basic Info */}
               {currentStep === 1 && (
                 <div className="wizard-step-enter">
-                  <FormSection title={t('Informações Básicas')}  icon={<SECTION_ICONS.basic className="w-5 h-5" />}>
+                  <FormSection title={t('Informações Básicas')}  icon={<Icon name={SECTION_ICONS.basic} className="w-5 h-5" />}>
                     <div className="space-y-4">
                       {enableBatchImport && (
                         <button
@@ -181,7 +181,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                           onClick={() => setBatchImportOpen(true)}
                           className="px-4 py-2 bg-white/[0.04] border border-white/[0.08] rounded-full text-sm text-white/60 hover:text-white/90 hover:bg-white/[0.08] transition-colors flex items-center gap-2"
                         >
-                          <MapPin className="h-4 w-4" />
+                          <Icon name="pin" className="h-4 w-4" />
                           Importar lista do Google Maps
                         </button>
                       )}
@@ -192,7 +192,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                           onClick={() => setGoogleMapsModalOpen(true)}
                           className="px-4 py-2 bg-[var(--primary)] text-black rounded-full hover:bg-[var(--primary-hover)] flex items-center gap-2 font-medium text-sm transition-colors"
                         >
-                          <Map className="h-4 w-4" />
+                          <Icon name="mapa" className="h-4 w-4" />
                           <span className="hidden sm:inline">{t('Google Maps')}</span>
                         </button>
                       </FormField>
@@ -213,7 +213,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                         type="text"
                         value={formData.location}
                         onChange={handleChange}
-                        icon={MapPin}
+                        icon="pin"
                         helperText="Endereço ou coordenadas GPS"
                       />
                     </div>
@@ -224,7 +224,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 2: Categories */}
               {currentStep === 2 && (
                 <div className="wizard-step-enter">
-                  <FormSection title={t('Categorias Culinárias')}  icon={<SECTION_ICONS.categories className="w-5 h-5" />}>
+                  <FormSection title={t('Categorias Culinárias')}  icon={<Icon name={SECTION_ICONS.categories} className="w-5 h-5" />}>
                     <CuisineSelector
                       cuisineTypes={cuisineTypes}
                       selectedCuisineTypes={formData.selectedCuisineTypes}
@@ -238,7 +238,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 3: Dietary */}
               {currentStep === 3 && (
                 <div className="wizard-step-enter">
-                  <FormSection title={t('Opções Dietéticas')}  icon={<SECTION_ICONS.dietary className="w-5 h-5" />}>
+                  <FormSection title={t('Opções Dietéticas')}  icon={<Icon name={SECTION_ICONS.dietary} className="w-5 h-5" />}>
                     <DietaryOptionsSelector
                       dietaryOptions={dietaryOptions}
                       selectedDietaryOptions={formData.selectedDietaryOptions}
@@ -252,7 +252,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 4: Features */}
               {currentStep === 4 && (
                 <div className="wizard-step-enter">
-                  <FormSection title={t('Características')}  icon={<SECTION_ICONS.features className="w-5 h-5" />}>
+                  <FormSection title={t('Características')}  icon={<Icon name={SECTION_ICONS.features} className="w-5 h-5" />}>
                     <FeaturesSelector
                       features={features}
                       selectedFeatures={formData.selectedFeatures}
@@ -266,7 +266,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 5: Images */}
               {currentStep === 5 && (
                 <div className="wizard-step-enter">
-                  <FormSection title={t('Imagens')}  icon={<SECTION_ICONS.images className="w-5 h-5" />}>
+                  <FormSection title={t('Imagens')}  icon={<Icon name={SECTION_ICONS.images} className="w-5 h-5" />}>
                     <RestaurantImageManager
                       images={formData.images}
                       displayImageIndex={formData.display_image_index}
@@ -281,7 +281,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
               {/* Step 6: Additional */}
               {currentStep === 6 && (
                 <div className="wizard-step-enter">
-                  <FormSection title={t('Informações Adicionais')}  icon={<SECTION_ICONS.details className="w-5 h-5" />}>
+                  <FormSection title={t('Informações Adicionais')}  icon={<Icon name={SECTION_ICONS.details} className="w-5 h-5" />}>
                     <div className="space-y-4">
                       <FormField
                         label={t('Website')}
@@ -289,7 +289,7 @@ export default function RestaurantForm({ restaurantId, backUrl, backLabel, enabl
                         type="url"
                         value={formData.source_url}
                         onChange={handleChange}
-                        icon={Globe}
+                        icon="globo"
                         placeholder="https://..."
                         helperText="Link para o website do restaurante"
                       />

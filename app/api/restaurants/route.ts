@@ -4,12 +4,12 @@ import { getServerClient, getPublicServerClient, requireUser } from '@/libs/supa
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
-import type { Database } from '@/types/database';
 import type { RestaurantSortBy, SortDirection } from '@/libs/search';
 import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/pagination';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
+import { isUuid } from '@/libs/slug';
+import { isValidCoordinates } from '@/libs/search';
 
-type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
 interface Restaurant {
   id: string;
@@ -35,19 +35,6 @@ interface Restaurant {
   latitude?: number;
   longitude?: number;
   opening_hours?: string | null;
-}
-
-function isValidCoordinates(latitude: number, longitude: number): boolean {
-  return (
-    typeof latitude === 'number' &&
-    typeof longitude === 'number' &&
-    !isNaN(latitude) &&
-    !isNaN(longitude) &&
-    latitude >= -90 &&
-    latitude <= 90 &&
-    longitude >= -180 &&
-    longitude <= 180
-  );
 }
 
 function isCurrentlyOpen(openingHours: string | null): boolean | null {
@@ -81,8 +68,7 @@ export async function GET(request: NextRequest) {
     const ratingMin = searchParams.get('rating_min');
     const locationParam = searchParams.get('location');
     const cuisineList = (searchParams.get('cuisines') || '').split(',').map((c) => c.trim()).filter(Boolean);
-    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const cuisinesAreIds = cuisineList.length > 0 && cuisineList.every((c) => UUID_RE.test(c));
+    const cuisinesAreIds = cuisineList.length > 0 && cuisineList.every((c) => isUuid(c));
     // junção !inner só para filtrar (alias próprio: não altera o array cuisine_types devolvido)
     const cuisineFilterEmbed = cuisineList.length
       ? ', cuisine_filter:restaurant_cuisine_types!inner(cuisine_type:cuisine_types!inner(id, name))'
@@ -92,7 +78,7 @@ export async function GET(request: NextRequest) {
     const randomParam = isRandomSort(request);
     const { page, limit, from, to, all: isAll } = parsePaginationFromRequest(request, { defaultLimit: 25 });
     let client = supabase;
-    let isPublicRequest = !supabase;
+    const isPublicRequest = !supabase;
     if (!supabase) {
       const publicClient = await getPublicServerClient();
       if (!publicClient) {
@@ -202,8 +188,8 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      let restaurantsData = allRestaurants;
-      let restaurantsError: any = null;
+      const restaurantsData = allRestaurants;
+      const restaurantsError: any = null;
 
       if (restaurantsError) {
         console.error('Error fetching restaurants:', restaurantsError);

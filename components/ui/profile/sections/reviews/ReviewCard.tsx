@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Star, MapPin, Euro } from "lucide-react";
 import { formatDate } from "@/utils/formatters";
 import Link from "next/link";
 import MentionText from "@/components/ui/common/MentionText";
+import Icon from '@/components/ui/icons/Icon';
 
 interface ReviewCardProps {
   review: {
@@ -66,7 +66,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onShare, c
               <span className="font-medium text-white/80 text-sm truncate">{restaurant?.name || "Restaurante"}</span>
             )}
             <div className="flex items-center gap-1 flex-shrink-0">
-              <Star className="h-3.5 w-3.5 text-amber-400 fill-current" />
+              <Icon name="estrela" className="h-3.5 w-3.5 text-amber-400 fill-current" />
               <span className="text-sm font-semibold text-amber-400">{review.rating}</span>
             </div>
           </div>
@@ -74,10 +74,10 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, isOwnReview, onShare, c
           <div className="flex items-center gap-3 text-xs text-white/30 mb-2">
             <span>{formatDate(review.createdAt)}</span>
             {restaurant?.location && (
-              <span className="flex items-center gap-1 truncate"><MapPin className="h-3 w-3" />{restaurant.location}</span>
+              <span className="flex items-center gap-1 truncate"><Icon name="pin" className="h-3 w-3" />{restaurant.location}</span>
             )}
             {review.amountSpent != null && review.amountSpent > 0 && (
-              <span className="flex items-center gap-1"><Euro className="h-3 w-3" />{review.amountSpent.toFixed(2)}</span>
+              <span className="flex items-center gap-1"><Icon name="preco" className="h-3 w-3" />{review.amountSpent.toFixed(2)}</span>
             )}
           </div>
 

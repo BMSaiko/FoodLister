@@ -22,7 +22,7 @@ export function useMarketing() {
         const data = await res.json();
         setCampaigns(data.data || []);
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao carregar campanhas');
     } finally {
       setLoading(false);
@@ -38,7 +38,7 @@ export function useMarketing() {
         const data = await res.json();
         setPosts(data.data || []);
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao carregar posts');
     } finally {
       setLoading(false);
@@ -54,7 +54,7 @@ export function useMarketing() {
         const data = await res.json();
         setWorkflows(data.data || []);
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao carregar workflows');
     } finally {
       setLoading(false);

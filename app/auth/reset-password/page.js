@@ -8,10 +8,10 @@ import { useRouter } from "next/navigation";
 import { getClient } from "@/libs/supabase/client";
 import { toast } from "react-toastify";
 import { useLanguage } from "@/contexts";
-import { Eye, EyeOff, Mail, Lock, Key, ArrowRight, CheckCircle } from "lucide-react";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 function ResetPasswordForm() {
   const [email, setEmail] = useState("");
@@ -84,7 +84,7 @@ function ResetPasswordForm() {
         {isSuccess && (
           <div className="text-center p-8 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
-              <CheckCircle className="h-8 w-8 text-emerald-400" />
+              <Icon name="ok-circulo" className="h-8 w-8 text-emerald-400" />
             </div>
             <h2 className="text-2xl font-bold text-white mb-2">{t("Password Atualizada!")}</h2>
             <p className="text-white/40 text-sm">{t("A sua password foi alterada com sucesso. A redirecionar...")}</p>
@@ -96,7 +96,7 @@ function ResetPasswordForm() {
           <>
             <div className="text-center mb-8">
               <div className="mx-auto w-16 h-16 rounded-2xl bg-[var(--primary-lighter)] ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
-                <Mail className="h-7 w-7 text-[var(--primary)]" />
+                <Icon name="mail" className="h-7 w-7 text-[var(--primary)]" />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Recuperar Password")}</h1>
               <p className="text-white/40 text-sm">{t("Introduza o seu email para receber um código de verificação")}</p>
@@ -108,7 +108,7 @@ function ResetPasswordForm() {
                     <label htmlFor="email" className="sr-only">{t("Email")}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Mail className="h-5 w-5 text-white/25" />
+                        <Icon name="mail" className="h-5 w-5 text-white/25" />
                       </div>
                       <input
                         id="email" name="email" type="email" autoComplete="email" required disabled={isLoading}
@@ -121,7 +121,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-[var(--primary)] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Enviar Código")} <ArrowRight className="h-4 w-4" /></>}
+                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Enviar Código")} <Icon name="seta-dir" className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -134,7 +134,7 @@ function ResetPasswordForm() {
           <>
             <div className="text-center mb-8">
               <div className="mx-auto w-16 h-16 rounded-2xl bg-[var(--primary-lighter)] ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
-                <Key className="h-7 w-7 text-[var(--primary)]" />
+                <Icon name="chave" className="h-7 w-7 text-[var(--primary)]" />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Verificar Código")}</h1>
               <p className="text-white/40 text-sm">{t("Introduza o código de 6 dígitos enviado para ")}<span className="text-[var(--primary)]">{email}</span></p>
@@ -154,7 +154,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-[var(--primary)] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Verificar")} <ArrowRight className="h-4 w-4" /></>}
+                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Verificar")} <Icon name="seta-dir" className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>
@@ -167,7 +167,7 @@ function ResetPasswordForm() {
           <>
             <div className="text-center mb-8">
               <div className="mx-auto w-16 h-16 rounded-2xl bg-[var(--primary-lighter)] ring-1 ring-white/[0.08] flex items-center justify-center mb-6">
-                <Lock className="h-7 w-7 text-[var(--primary)]" />
+                <Icon name="privado" className="h-7 w-7 text-[var(--primary)]" />
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-2">{t("Nova Password")}</h1>
               <p className="text-white/40 text-sm">{t("Defina a sua nova password")}</p>
@@ -179,7 +179,7 @@ function ResetPasswordForm() {
                     <label htmlFor="password" className="sr-only">{t("Nova Password")}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-white/25" />
+                        <Icon name="privado" className="h-5 w-5 text-white/25" />
                       </div>
                       <input
                         id="password" name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" required disabled={isLoading}
@@ -188,7 +188,7 @@ function ResetPasswordForm() {
                         value={password} onChange={(e) => setPassword(e.target.value)}
                       />
                       <button type="button" aria-label={showPassword ? t("Ocultar password") : t("Mostrar password")} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 min-w-[48px] justify-center flex items-center text-white/25 hover:text-white/50 transition-colors">
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        {showPassword ? <Icon name="olho-off" className="h-5 w-5" /> : <Icon name="olho" className="h-5 w-5" />}
                       </button>
                     </div>
                   </div>
@@ -196,7 +196,7 @@ function ResetPasswordForm() {
                     <label htmlFor="confirmPassword" className="sr-only">{t("Confirmar Password")}</label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-white/25" />
+                        <Icon name="privado" className="h-5 w-5 text-white/25" />
                       </div>
                       <input
                         id="confirmPassword" name="confirmPassword" type="password" aria-invalid={!!formError} aria-describedby={formError ? "form-error" : undefined} autoComplete="new-password" required disabled={isLoading}
@@ -210,7 +210,7 @@ function ResetPasswordForm() {
                   <button type="submit" disabled={isLoading}
                     className="w-full py-3.5 bg-[var(--primary)] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[var(--primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-colors disabled:opacity-50 min-h-[48px] flex items-center justify-center gap-2"
                   >
-                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Atualizar Password")} <CheckCircle className="h-4 w-4" /></>}
+                    {isLoading ? <ToviSpinner className="w-5 h-5" /> : <>{t("Atualizar Password")} <Icon name="ok-circulo" className="h-4 w-4" /></>}
                   </button>
                 </form>
               </div>

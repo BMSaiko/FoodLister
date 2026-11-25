@@ -58,42 +58,6 @@ export function isValidCoordinates(
 }
 
 /**
- * Sort restaurants by distance from a reference point.
- */
-export function sortByDistance<T extends { latitude?: number | null; longitude?: number | null }>(
-  items: T[],
-  refLat: number,
-  refLng: number
-): Array<T & { distance: number }> {
-  return items
-    .filter(
-      (item) =>
-        item.latitude != null &&
-        item.longitude != null &&
-        isValidCoordinates(item.latitude, item.longitude)
-    )
-    .map((item) => ({
-      ...item,
-      distance: haversineDistance(refLat, refLng, item.latitude!, item.longitude!),
-    }))
-    .sort((a, b) => a.distance - b.distance);
-}
-
-/**
- * Filter restaurants within a given radius from a reference point.
- */
-export function filterByRadius<T extends { latitude?: number | null; longitude?: number | null }>(
-  items: T[],
-  refLat: number,
-  refLng: number,
-  radiusKm: number
-): Array<T & { distance: number }> {
-  return sortByDistance(items, refLat, refLng).filter(
-    (item) => item.distance <= radiusKm
-  );
-}
-
-/**
  * Supported sort options for restaurant search.
  */
 export type RestaurantSortBy = 'rating' | 'distance' | 'price' | 'name' | 'popularity';
@@ -107,25 +71,3 @@ export interface NearbySearchParams {
   sortBy?: RestaurantSortBy;
   sortDirection?: SortDirection;
 }
-
-export function parseNearbySearchParams(searchParams: URLSearchParams): NearbySearchParams | null {
-  const lat = parseFloat(searchParams.get('lat') || '');
-  const lng = parseFloat(searchParams.get('lng') || '');
-
-  if (isNaN(lat) || isNaN(lng) || !isValidCoordinates(lat, lng)) {
-    return null;
-  }
-
-  const radius = parseFloat(searchParams.get('radius') || '10');
-  const sortBy = (searchParams.get('sort_by') || 'distance') as RestaurantSortBy;
-  const sortDirection = (searchParams.get('sort_direction') || 'asc') as SortDirection;
-
-  return {
-    lat,
-    lng,
-    radius: isNaN(radius) ? 10 : radius,
-    sortBy: ['rating', 'distance', 'price', 'name'].includes(sortBy) ? sortBy : 'distance',
-    sortDirection: ['asc', 'desc'].includes(sortDirection) ? sortDirection : 'asc',
-  };
-}
-

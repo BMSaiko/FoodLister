@@ -1,13 +1,13 @@
 'use client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import React, { useState, useEffect } from 'react';
-import { Star, Euro, X } from 'lucide-react';
 import { Review, ReviewFormData } from '@/libs/types';
 import FormField from '@/components/ui/common/FormField';
 import FormActions from '@/components/ui/common/FormActions';
 import { toast } from 'react-toastify';
 import RestaurantImageManager from '@/components/ui/RestaurantManagement/RestaurantImageManager';
 import MentionInput from '@/components/ui/common/MentionInput';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ReviewFormProps {
   restaurantId: string;
@@ -115,14 +115,6 @@ export default function ReviewForm({
             images: formData.images || []
           };
       
-      console.log('Review form submission:', {
-        method,
-        endpoint,
-        requestBody,
-        isEditing,
-        initialReviewId: initialReview?.id
-      });
-      
       const response = await fetch(endpoint, {
         method,
         headers: {
@@ -219,7 +211,7 @@ export default function ReviewForm({
           className="p-1 hover:bg-[var(--gray-100)] rounded-full transition-colors"
           title={t('Cancelar')}
         >
-          <X className="h-5 w-5 text-[var(--gray-500)]" />
+          <Icon name="fechar" className="h-5 w-5 text-[var(--gray-500)]" />
         </button>
       </div>
 
@@ -247,7 +239,7 @@ export default function ReviewForm({
                   }`}
                   title={`Classificar ${starValue} estrela${starValue > 1 ? 's' : ''}`}
                 >
-                  <Star 
+                  <Icon name="estrela" 
                     className={`h-8 w-8 sm:h-10 w-10 ${
                       isActive ? 'fill-current' : 'stroke-current'
                     }`} 
@@ -283,7 +275,7 @@ export default function ReviewForm({
           value={formData.amount_spent !== undefined ? formData.amount_spent.toString() : ''}
           onChange={handleInputChange}
           placeholder="0.00"
-          icon={Euro}
+          icon="preco"
           helperText="Valor total gasto na visita (opcional)"
         />
         {errors.amount_spent && (

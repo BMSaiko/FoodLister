@@ -41,3 +41,22 @@ it("hasMore false quando slice cobre tudo", () => {
   const { hasMore } = buildFeedItems(reviews, [], [], profiles, 0, 10);
   expect(hasMore).toBe(false);
 });
+
+it("review traz a foto do restaurante (display_image_index) e follow não traz imagens", () => {
+  const reviews = [
+    { id: "r1", user_id: "u-pub", user_name: "Ana", created_at: "2026-08-16T10:00:00Z", restaurants: { name: "X", images: ["a.png", "b.png"], display_image_index: 1 } },
+    { id: "r2", user_id: "u-pub", user_name: "Ana", created_at: "2026-08-16T09:00:00Z", restaurants: { name: "Y", images: null } },
+  ];
+  const follows = [{ id: "f1", follower_id: "u-pub", following_id: "u-target", created_at: "2026-08-16T08:00:00Z" }];
+  const { data } = buildFeedItems(reviews, [], follows, profiles, 0, 10);
+  expect(data.map((d) => d.images)).toEqual([["b.png"], [], []]);
+});
+
+it("lista traz até 3 capas vindas de listImages", () => {
+  const lists = [
+    { id: "l1", creator_id: "u-pub", creator_name: "Ana", slug: "s", name: "N", created_at: "2026-08-16T10:00:00Z" },
+    { id: "l2", creator_id: "u-pub", creator_name: "Ana", slug: "t", name: "M", created_at: "2026-08-16T09:00:00Z" },
+  ];
+  const { data } = buildFeedItems([], lists, [], profiles, 0, 10, { l1: ["1.png", "2.png", "3.png", "4.png"] });
+  expect(data.map((d) => d.images)).toEqual([["1.png", "2.png", "3.png"], []]);
+});

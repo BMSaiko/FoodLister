@@ -414,11 +414,9 @@ export function invalidateQueries(pattern: string | RegExp): void {
       if (key.includes(pattern)) {
         queryCache.delete(key);
       }
-    } else {
-      if (pattern.test(key)) {
+    } else if (pattern.test(key)) {
         queryCache.delete(key);
       }
-    }
   }
   
   // Notify all observers
@@ -429,13 +427,11 @@ export function invalidateQueries(pattern: string | RegExp): void {
           observer();
         }
       }
-    } else {
-      if (pattern.test(key)) {
+    } else if (pattern.test(key)) {
         for (const observer of observers) {
           observer();
         }
       }
-    }
   }
 }
 

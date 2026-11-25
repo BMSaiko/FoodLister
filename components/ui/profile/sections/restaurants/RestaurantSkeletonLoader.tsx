@@ -1,5 +1,4 @@
 import React from 'react';
-import {  } from '../shared';
 import ToviLoader from "@/components/loading/ToviLoader";
 
 interface RestaurantSkeletonLoaderProps {

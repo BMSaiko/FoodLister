@@ -6,15 +6,6 @@ jest.mock('@/contexts/LanguageContext', () => ({
   useLanguage: () => ({ lang: 'pt', setLang: jest.fn(), t: (k) => k }),
 }));
 
-// Mock lucide-react icons
-jest.mock('lucide-react', () => ({
-  Filter: () => <span data-testid="filter-icon" />,
-  X: () => <span data-testid="x-icon" />,
-  Search: () => <span data-testid="search-icon" />,
-  Star: () => <span data-testid="star-icon" />,
-  ArrowUpDown: () => <span data-testid="arrow-up-down-icon" />,
-}));
-
 // Import after mocks
 const ListFilters = require('@/components/ui/lists/ListFilters').default;
 

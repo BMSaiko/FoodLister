@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, KeyboardEvent } from 'react';
-import { X, Tag } from 'lucide-react';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ListTagsInputProps {
   tags: string[];
@@ -42,7 +42,7 @@ export default function ListTagsInput({ tags, onChange, placeholder = 'Adicionar
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 text-sm text-[var(--gray-600)]">
-        <Tag className="h-4 w-4" />
+        <Icon name="etiqueta" className="h-4 w-4" />
         <span>Tags</span>
       </div>
       
@@ -61,7 +61,7 @@ export default function ListTagsInput({ tags, onChange, placeholder = 'Adicionar
                 className="hover:opacity-70 transition-opacity"
                 aria-label={`Remover tag ${tag}`}
               >
-                <X className="h-3 w-3" />
+                <Icon name="fechar" className="h-3 w-3" />
               </button>
             </span>
           );

@@ -2,10 +2,10 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Users, UserPlus, Trash2, Search, X } from "lucide-react";
 import { toast } from "react-toastify";
 import ToviLoader from "@/components/loading/ToviLoader";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface Collaborator {
   id: string;
@@ -230,7 +230,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
                   className="flex h-7 w-7 items-center justify-center rounded-full text-red-400 hover:bg-red-500/10"
                   aria-label={`Remover ${collab.profiles?.display_name || "colaborador"}`}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Icon name="apagar" className="h-3.5 w-3.5" />
                 </button>
               </TooltipFast>
             )}
@@ -243,7 +243,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
             aria-expanded={showInvite}
             className="inline-flex min-h-[36px] items-center gap-1.5 rounded-[10px] border border-white/[0.08] px-3 text-[13px] text-white/80 hover:bg-white/[0.05]"
           >
-            <Users className="h-4 w-4" /> Convidar
+            <Icon name="utilizadores" className="h-4 w-4" /> Convidar
           </button>
         )}
       </div>
@@ -256,7 +256,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
               Pesquisar utilizador
             </label>
             <div className="relative" ref={dropdownRef}>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" />
+              <Icon name="pesquisa" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/30 pointer-events-none" />
               <input
                 type="text"
                 value={query}
@@ -275,7 +275,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-white/10 transition-colors"
                   aria-label="Limpar pesquisa"
                 >
-                  <X className="h-3.5 w-3.5 text-white/40" />
+                  <Icon name="fechar" className="h-3.5 w-3.5 text-white/40" />
                 </button>
               )}
 
@@ -352,7 +352,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
                   onClick={handleClearSearch}
                   className="w-5 h-5 rounded-full bg-white/[0.06] flex items-center justify-center hover:bg-white/10 transition-colors"
                 >
-                  <X className="h-3 w-3 text-white/40" />
+                  <Icon name="fechar" className="h-3 w-3 text-white/40" />
                 </button>
               </div>
               <select
@@ -372,7 +372,7 @@ export default function ListCollaborators({ listId, isOwner }: ListCollaborators
                 {submitting ? (
                   <ToviSpinner className="h-4 w-4" />
                 ) : (
-                  <UserPlus className="h-4 w-4" />
+                  <Icon name="utilizador-mais" className="h-4 w-4" />
                 )}
                 <span className="hidden sm:inline">Adicionar</span>
               </button>

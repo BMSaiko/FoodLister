@@ -4,7 +4,8 @@ import { requireAdmin } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
-import { normName, isDuplicate } from './utils';
+import { isDuplicate } from './utils';
+import { isValidCoordinates } from '@/libs/search';
 
 interface BatchRestaurant {
   name: string;
@@ -15,19 +16,6 @@ interface BatchRestaurant {
   longitude?: number;
   address?: string;
   place_id?: string;
-}
-
-function isValidCoordinates(latitude: number, longitude: number): boolean {
-  return (
-    typeof latitude === 'number' &&
-    typeof longitude === 'number' &&
-    !isNaN(latitude) &&
-    !isNaN(longitude) &&
-    latitude >= -90 &&
-    latitude <= 90 &&
-    longitude >= -180 &&
-    longitude <= 180
-  );
 }
 
 export async function POST(request: NextRequest) {

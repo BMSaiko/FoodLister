@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Star, Utensils } from "lucide-react";
 
 import { useApiClient } from "@/hooks/auth/useApiClient";
 
 import {  EmptyState, TouchButton } from "../shared";
 import { toast } from "react-toastify";
 import ReviewCard from "./ReviewCard";
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserReviewsSectionProps {
   userId: string;
@@ -35,12 +35,11 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
 }) => {
   const [reviews, setReviews] = useState(initialReviews);
   const [total, setTotal] = useState(initialTotal);
-  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialReviews.length < initialTotal);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const { get, put } = useApiClient();
+  const { get } = useApiClient();
 
   const loadMoreReviews = async () => {
     if (isLoadingMore || !hasMore) return;
@@ -68,14 +67,6 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
     }
   };
 
-  const formatAmount = (amount?: number) => {
-    if (!amount) return null;
-    return new Intl.NumberFormat("pt-PT", {
-      style: "currency",
-      currency: "EUR"
-    }).format(amount);
-  };
-
   const handleShareReview = (review: any) => {
     const restaurant = review.restaurant || {};
     const reviewUrl = `${window.location.origin}/restaurants/${restaurant.id}?review=${review.id}`;
@@ -101,7 +92,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
   if (reviews.length === 0) {
     return (
       <EmptyState
-        icon={<Star className="h-8 w-8 text-gray-400" />}
+        icon={<Icon name="estrela" className="h-8 w-8 text-gray-400" />}
         title="Nenhuma avaliação encontrada"
         description={isOwnProfile 
           ? "Você ainda não avaliou nenhum restaurante. Comece a explorar e compartilhar suas experiências!"
@@ -110,7 +101,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
         action={isOwnProfile ? {
           label: "Explorar restaurantes",
           onClick: () => window.location.href = "/restaurants",
-          icon: <Utensils className="h-4 w-4" />
+          icon: <Icon name="restaurantes" className="h-4 w-4" />
         } : undefined}
       />
     );
@@ -138,7 +129,7 @@ const UserReviewsSection: React.FC<UserReviewsSectionProps> = ({
             variant="primary"
             size="md"
             disabled={isLoadingMore}
-            icon={isLoadingMore ? undefined : <Star className="h-4 w-4" />}
+            icon={isLoadingMore ? undefined : <Icon name="estrela" className="h-4 w-4" />}
             fullWidth={false}
           >
             {isLoadingMore ? "Carregando..." : "Carregar mais avaliações"}

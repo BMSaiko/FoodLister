@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
-import { buildFeedItems, SOURCE_LIMIT } from '@/libs/feed';
+import { buildFeedItems, restaurantImage, LIST_COVERS, SOURCE_LIMIT } from '@/libs/feed';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit;
 
   const [reviews, lists, follows] = await Promise.all([
-    supabase.from('reviews').select('id, user_id, user_name, created_at, restaurants(id, slug, name)')
+    supabase.from('reviews').select('id, user_id, user_name, created_at, restaurants(id, slug, name, images, display_image_index)')
       .order('created_at', { ascending: false }).limit(SOURCE_LIMIT),
     supabase.from('lists').select('id, creator_id, creator_name, slug, name, created_at')
       .eq('is_public', true).order('created_at', { ascending: false }).limit(SOURCE_LIMIT),
@@ -33,8 +33,31 @@ export async function GET(request: NextRequest) {
     .from('profiles').select('user_id, display_name, avatar_url, user_id_code, public_profile')
     .in('user_id', [...ids]);
 
+  // capas das listas: fotos dos primeiros restaurantes (ordem por position), como /api/lists
+  const listImages: Record<string, string[]> = {};
+  const listIds = (lists.data || []).map((l: { id: string }) => l.id);
+  if (listIds.length > 0) {
+    const { data: lr } = await supabase
+      .from('list_restaurants').select('list_id, restaurant_id')
+      .in('list_id', listIds).order('position', { ascending: true });
+    const wanted = new Map<string, string[]>();
+    for (const row of lr || []) {
+      const ids = wanted.get(row.list_id) || [];
+      if (ids.length < LIST_COVERS) { ids.push(row.restaurant_id); wanted.set(row.list_id, ids); }
+    }
+    const rIds = [...new Set([...wanted.values()].flat())];
+    if (rIds.length > 0) {
+      const { data: rs } = await supabase
+        .from('restaurants').select('id, images, display_image_index').in('id', rIds);
+      const imgById = new Map((rs || []).map((r) => [r.id, restaurantImage(r)[0]]));
+      for (const [lid, ids] of wanted) {
+        listImages[lid] = ids.map((id) => imgById.get(id)).filter((x): x is string => !!x);
+      }
+    }
+  }
+
   const { data, total, hasMore } = buildFeedItems(
-    reviews.data || [], lists.data || [], follows.data || [], profiles || [], offset, limit
+    reviews.data || [], lists.data || [], follows.data || [], profiles || [], offset, limit, listImages
   );
 
   return NextResponse.json({ data, total, page, limit, hasMore });

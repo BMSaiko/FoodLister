@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
 import type { RestaurantDetail } from '@/hooks/restaurants/useRestaurantDetail';
+import Icon from '@/components/ui/icons/Icon';
 
 const NOT_SET = <span className="text-white/35 italic">Não indicado</span>;
 
@@ -96,7 +96,7 @@ export default function RestaurantInfoPanel({ restaurant }: { restaurant: Restau
         className="mt-3 inline-flex items-center gap-1.5 min-h-[44px] px-4 rounded-xl border border-white/[0.08] text-sm text-white/75 hover:bg-white/[0.04]"
       >
         {more ? 'Ver menos' : 'Ver mais informações'}
-        <ChevronDown className={`h-4 w-4 transition-transform motion-reduce:transition-none ${more ? 'rotate-180' : ''}`} aria-hidden />
+        <Icon name="chevron-baixo" className={`h-4 w-4 transition-transform motion-reduce:transition-none ${more ? 'rotate-180' : ''}`} aria-hidden />
       </button>
     </section>
   );

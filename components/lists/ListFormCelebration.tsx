@@ -2,9 +2,9 @@
 
 import React from "react";
 import { motion } from "motion/react";
-import { Sparkles, Eye, Share2 } from "lucide-react";
 import Link from "next/link";
 import Modal from '@/components/ui/Modal';
+import Icon from '@/components/ui/icons/Icon';
 
 interface ListFormCelebrationProps {
   show: boolean;
@@ -35,7 +35,7 @@ export default function ListFormCelebration({ show, listId, listName, onClose }:
           transition={{ delay: 0.2, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-xl shadow-amber-500/20"
         >
-          <Sparkles className="h-10 w-10 text-white" />
+          <Icon name="faiscas" className="h-10 w-10 text-white" />
         </motion.div>
 
         <motion.div
@@ -61,14 +61,14 @@ export default function ListFormCelebration({ show, listId, listName, onClose }:
             href={`/lists/${listId}`}
             className="flex-1 py-3.5 px-5 bg-amber-500 text-black font-semibold rounded-2xl hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
           >
-            <Eye className="h-4 w-4" />
+            <Icon name="olho" className="h-4 w-4" />
             Ver Lista
           </Link>
           <button
             onClick={onClose}
             className="py-3.5 px-5 bg-white/[0.06] border border-white/[0.08] text-white/60 font-semibold rounded-2xl hover:bg-white/[0.1] transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
           >
-            <Share2 className="h-4 w-4" />
+            <Icon name="partilhar" className="h-4 w-4" />
             Fechar
           </button>
         </motion.div>

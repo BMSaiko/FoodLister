@@ -54,7 +54,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         data: [],
         total: 0,
         page: 1,
-        limit: limit,
+        limit,
         hasMore: false
       });
     }

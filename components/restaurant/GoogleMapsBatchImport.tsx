@@ -3,12 +3,12 @@
 
 import { TooltipFast } from "@/components/ui/Tooltip";
 import React, { useState, useCallback } from "react";
-import { X, MapPin, Upload, FileText, Code, CheckCircle, AlertCircle } from "lucide-react";
 import { extractBatch, parseUrlInput, BatchExtractionResult, ExtractionProgress } from "@/utils/googleMapsBatchExtractor";
 import Modal from "@/components/ui/Modal";
 import { BatchImportProgress } from "./BatchImportProgress";
 import { BatchExtractionProgress } from "./BatchExtractionProgress";
 import ToviSpinner from '@/components/loading/ToviSpinner';
+import Icon from '@/components/ui/icons/Icon';
 
 interface GoogleMapsBatchImportProps {
   isOpen: boolean;
@@ -179,7 +179,7 @@ export default function GoogleMapsBatchImport({
       {/* Header */}
       <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/[0.08]">
         <div className="flex items-center gap-3">
-          <MapPin className="h-5 w-5 text-[var(--primary)]" />
+          <Icon name="pin" className="h-5 w-5 text-[var(--primary)]" />
           <h2 className="text-lg font-semibold text-white/80">
             Importar lista do Google Maps
           </h2>
@@ -210,7 +210,7 @@ export default function GoogleMapsBatchImport({
           className="text-white/40 hover:text-white/60 p-1 rounded-md hover:bg-white/[0.04] transition-colors"
           aria-label="Fechar"
         >
-          <X className="h-5 w-5" />
+          <Icon name="fechar" className="h-5 w-5" />
         </button>
 </TooltipFast>
       </div>
@@ -236,19 +236,19 @@ export default function GoogleMapsBatchImport({
             >
               {tab === "urls" && (
                 <>
-                  <FileText className="h-4 w-4 inline mr-1.5" />
+                  <Icon name="documento" className="h-4 w-4 inline mr-1.5" />
                   URLs
                 </>
               )}
               {tab === "csv" && (
                 <>
-                  <Upload className="h-4 w-4 inline mr-1.5" />
+                  <Icon name="carregar" className="h-4 w-4 inline mr-1.5" />
                   CSV
                 </>
               )}
               {tab === "json" && (
                 <>
-                  <Code className="h-4 w-4 inline mr-1.5" />
+                  <Icon name="codigo" className="h-4 w-4 inline mr-1.5" />
                   JSON
                 </>
               )}
@@ -417,15 +417,15 @@ export default function GoogleMapsBatchImport({
                       <td className="px-4 py-2">
                         {result.status === "ready" && result.data.source_url && duplicateUrls.has(result.data.source_url) ? (
                           <span className="text-amber-400 flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" /> Já existe na app
+                            <Icon name="alerta-circulo" className="h-3 w-3" /> Já existe na app
                           </span>
                         ) : result.status === "ready" ? (
                           <span className="text-emerald-400 flex items-center gap-1">
-                            <CheckCircle className="h-3 w-3" /> Pronto
+                            <Icon name="ok-circulo" className="h-3 w-3" /> Pronto
                           </span>
                         ) : (
                           <span className="text-red-400 flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" /> Erro
+                            <Icon name="alerta-circulo" className="h-3 w-3" /> Erro
                           </span>
                         )}
                       </td>

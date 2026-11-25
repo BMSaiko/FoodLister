@@ -166,7 +166,7 @@ git log --oneline -10
   ```
 - **Verificar todos os exports:** Ao mockar um módulo, incluir TODOS os exports que a route importa
 - **Test coverage:** 52 test files, 404/404 passing (target 80%)
-- **Mock de lucide-react:** `__mocks__/lucide-react.js` já configurado em `jest.config.js`
+- **Ícones:** usar `<Icon name="…"/>` (sprite próprio); `lucide-react` foi removido e um teste falha se voltar
 
 ### Build & Deploy
 ```bash
@@ -263,9 +263,9 @@ git push origin main
 - **Error Boundary:** `components/ui/ErrorBoundary.tsx` wrap global em `layout.js`
 - **Barrel exports:** `components/index.ts` para imports limpos
 - **Types:** `libs/types.ts` (domínio), `types/database.ts` (Supabase gerados + explicit Insert/Update), `types/api.ts` (ApiErrorType), `types/notification.ts` (NotificationType)
-- **Libs (21+):** `activity.ts`, `admin.ts`, `ai.ts`, `api.ts`, `apiClient.ts`, `auth.ts`, `cache.ts`, `creatorCodes.ts`, `export.ts`, `feed.ts`, `ics-generator.ts`, `languages.ts`, `marketing.ts`, `mentions.ts`, `notifications/`, `rate-limit.ts`, `search.ts`, `slug.ts`, `stripe.ts`, `subscription.ts`, `supabase/`, `utils/`, `verification.ts`
+- **Libs (21+):** `activity.ts`, `admin.ts`, `ai.ts`, `api.ts`, `apiClient.ts`, `auth.ts`, `cache.ts`, `creatorCodes.ts`, `feed.ts`, `ics-generator.ts`, `languages.ts`, `marketing.ts`, `mentions.ts`, `notifications/`, `rate-limit.ts`, `search.ts`, `slug.ts`, `stripe.ts`, `subscription.ts`, `supabase/`, `utils/`, `verification.ts`
 - **Hooks (54+, 12 subdirs):** admin, auth, data, forms, lists, marketing, navigation, notifications, restaurants, subscription, ui, utilities
-- **Utils (18+):** analytics, apiMonitor, cloudinaryConverter, dbMonitor, error-messages, filters, formatters, googleMapsBatchExtractor, googleMapsExtractor, googleCalendar, index, logger, performanceMonitor, random, scrollLock, search, passwordValidation, authUtils
+- **Utils (18+):** analytics, apiMonitor, cloudinaryConverter, dbMonitor, error-messages, filters, formatters, googleMapsBatchExtractor, googleMapsExtractor, googleCalendar, index, logger, performanceMonitor, random, scrollLock, search, passwordValidation
 - **Components (160+ .tsx, 10 subdirs):** admin, auth, landing, layouts, lists, loading, pages, restaurant, subscription, ui
 - **Contexts (5):** AuthContext, FiltersContext, LanguageContext, ModalContext, index.tsx
 - **Scripts:** `scripts/` — Python scripts (`scrap-city-links.mjs`, `scrap-maps-places.py`, `gen_tests.py`, `apply_changes.py`)

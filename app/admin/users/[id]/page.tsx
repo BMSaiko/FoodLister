@@ -4,10 +4,10 @@ import { use } from 'react';
 import { useAdminUserDetail } from '@/hooks/admin/useAdminUserDetail';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import Link from 'next/link';
-import { ArrowLeft, Mail, MapPin, Globe, Calendar, Star, List, UserX } from 'lucide-react';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import { useState } from 'react';
 import ToviLoader from "@/components/loading/ToviLoader";
+import Icon from '@/components/ui/icons/Icon';
 
 interface UserDetailPageProps {
   params: Promise<{ id: string }>;
@@ -59,7 +59,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
             href="/admin/users"
             className="flex items-center gap-2 text-sm text-white/50 hover:text-white/80 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <Icon name="seta-esq" className="h-4 w-4" />
             Voltar à lista
           </Link>
           <div className="flex items-center gap-2">
@@ -68,7 +68,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
                 onClick={() => setShowDeactivateModal(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 ring-1 ring-red-500/20 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-colors duration-150"
               >
-                <UserX className="h-4 w-4" />
+                <Icon name="utilizador-x" className="h-4 w-4" />
                 Desativar
               </button>
             )}
@@ -99,24 +99,24 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
                 <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-white/40">
                   {user.email && (
                     <span className="flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5" />
+                      <Icon name="mail" className="h-3.5 w-3.5" />
                       {user.email}
                     </span>
                   )}
                   {user.location && (
                     <span className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5" />
+                      <Icon name="pin" className="h-3.5 w-3.5" />
                       {user.location}
                     </span>
                   )}
                   {user.website && (
                     <a href={user.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-white/60 transition-colors">
-                      <Globe className="h-3.5 w-3.5" />
+                      <Icon name="globo" className="h-3.5 w-3.5" />
                       Website
                     </a>
                   )}
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="h-3.5 w-3.5" />
+                    <Icon name="calendario" className="h-3.5 w-3.5" />
                     Desde {new Date(user.createdAt).toLocaleDateString('pt-PT')}
                   </span>
                 </div>
@@ -133,7 +133,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
           <div className="relative p-1.5 rounded-[1.5rem]">
             <div className="absolute inset-0 rounded-[1.5rem] bg-white/[0.05] ring-1 ring-white/10" />
             <div className="relative rounded-[calc(1.5rem-0.375rem)] p-5 bg-gradient-to-br from-[#0a0a0a] to-[#111111] text-center">
-              <Star className="h-5 w-5 text-amber-400 mx-auto mb-2" />
+              <Icon name="estrela" className="h-5 w-5 text-amber-400 mx-auto mb-2" />
               <p className="text-2xl font-bold text-white">{stats?.totalReviews || 0}</p>
               <p className="text-xs text-white/30 mt-1">Reviews</p>
             </div>
@@ -141,7 +141,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
           <div className="relative p-1.5 rounded-[1.5rem]">
             <div className="absolute inset-0 rounded-[1.5rem] bg-white/[0.05] ring-1 ring-white/10" />
             <div className="relative rounded-[calc(1.5rem-0.375rem)] p-5 bg-gradient-to-br from-[#0a0a0a] to-[#111111] text-center">
-              <List className="h-5 w-5 text-emerald-400 mx-auto mb-2" />
+              <Icon name="lista" className="h-5 w-5 text-emerald-400 mx-auto mb-2" />
               <p className="text-2xl font-bold text-white">{stats?.totalLists || 0}</p>
               <p className="text-xs text-white/30 mt-1">Listas</p>
             </div>
@@ -188,7 +188,7 @@ export default function UserDetailPage({ params }: UserDetailPageProps) {
                   {recentLists.map((list: any) => (
                     <div key={list.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03]">
                       <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                        <List className="h-3.5 w-3.5 text-emerald-400" />
+                        <Icon name="lista" className="h-3.5 w-3.5 text-emerald-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-white/70 truncate">{list.name}</p>
