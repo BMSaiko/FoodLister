@@ -11,6 +11,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  protected-files:
+    name: Protected files
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: python3 scripts/protected-guard.py origin/${{ github.base_ref }} HEAD
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
