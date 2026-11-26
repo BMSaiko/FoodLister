@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: [Deploy]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Só mostra versão e notas; não cria tag, Release nem escreve na BD'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag, Release e notas
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ler versão e notas
+        id: versao
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { dentro=1; next }
+            dentro && /^## \[/ { exit }
+            dentro { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "CHANGELOG.md sem secção [$VERSION]" >&2
+            exit 1
+          fi
+          echo "Versão: v$VERSION"
+          cat release-notes.md
+
+      - name: Criar tag e Release (se não existirem)
+        if: env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.versao.outputs.version }}
+        run: |
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "Release v$VERSION já existe; nada a fazer"
+          else
+            gh release create "v$VERSION" --target "$GITHUB_SHA" \
+              --title "v$VERSION" --notes-file release-notes.md
+          fi
+
+      # Falha da BD só assinala este passo; o deploy já correu noutro workflow.
+      - name: Publicar notas em release_notes
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ "$DRY_RUN" = 'true' ]; then
+            npx tsx scripts/release/publish-notes.ts --dry-run
+          else
+            npx tsx scripts/release/publish-notes.ts
+          fi
