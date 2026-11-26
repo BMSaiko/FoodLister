@@ -67,7 +67,7 @@ jobs:
           if gh release view "v$VERSION" >/dev/null 2>&1; then
             echo "Release v$VERSION já existe; nada a fazer"
           else
-            gh release create "v$VERSION" --target "$GITHUB_SHA" \
+            gh release create "v$VERSION" --target "$(git rev-parse HEAD)" \
               --title "v$VERSION" --notes-file release-notes.md
           fi
 
