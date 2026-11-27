@@ -13,6 +13,7 @@ import LanguageCombobox from './LanguageCombobox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useNotifications from '@/hooks/data/useNotifications';
 import Icon from '@/components/ui/icons/Icon';
+import useUnseenRelease from '@/hooks/releases/useUnseenRelease';
 
 interface ProfileData {
   display_name: string;
@@ -39,6 +40,7 @@ const UserIc = ({ className }: { className?: string }) => <Ico name="user" class
 export default function Navbar() {
   const { t } = useLanguage();
   const { user, signOut, loading } = useAuth();
+  const { release: unseenRelease } = useUnseenRelease();
   const { clearFilters: clearFiltersFromContext } = useFilters();
   const { unreadCount } = useNotifications({ polling: false });
   const pathname = usePathname();
@@ -119,6 +121,11 @@ export default function Navbar() {
                 }`}
               >
                 {t(item.label)}
+                {item.id === 'novidades' && unseenRelease && (
+                  <span data-testid="badge-novo" className="ml-1.5 rounded-full bg-[var(--primary)] px-1.5 py-px text-[10px] font-medium leading-none text-black">
+                    {t('Novo')}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -142,13 +149,16 @@ export default function Navbar() {
               prefetch={false}
               onClick={() => { if (pathname === '/novidades') window.location.reload(); }}
               aria-current={activeSection === 'novidades' ? 'page' : undefined}
-              className={`md:hidden inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] hover:bg-white/5 transition-colors ${
+              className={`relative md:hidden inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] hover:bg-white/5 transition-colors ${
                 activeSection === 'novidades' ? 'text-[var(--primary)]' : 'text-white/55 hover:text-[var(--foreground)]'
               }`}
               aria-label={t("Novidades")}
               title={t("Novidades")}
             >
               <Icon name="faiscas" className="h-5 w-5" />
+              {unseenRelease && (
+                <span data-testid="badge-novo-mobile" aria-hidden="true" className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--primary)]" />
+              )}
             </Link>
             <LanguageCombobox />
             {user && (

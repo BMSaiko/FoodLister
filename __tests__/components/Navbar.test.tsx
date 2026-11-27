@@ -23,9 +23,16 @@ jest.mock('@/hooks/data/useNotifications', () => ({
 jest.mock('@/components/ui/navigation/NotificationsDropdown', () => ({ __esModule: true, default: () => null }));
 jest.mock('@/components/ui/navigation/LanguageCombobox', () => ({ __esModule: true, default: () => null }));
 
+let mockUnseen: { version: string; title: string } | null = null;
+jest.mock('@/hooks/releases/useUnseenRelease', () => ({
+  __esModule: true,
+  default: () => ({ release: mockUnseen, loading: false, markSeen: jest.fn() }),
+}));
+
 describe('Navbar', () => {
   afterEach(() => {
     mockPath = '/';
+    mockUnseen = null;
   });
 
   it.each(['/novidades', '/novidades/1.2.0'])('marca «Novidades» como ativo em %s (e não Restaurantes)', (path) => {
@@ -50,5 +57,18 @@ describe('Navbar', () => {
     render(<Navbar />);
     expect(screen.getAllByRole('link', { name: 'Restaurantes' })[0]).toHaveAttribute('href', '/restaurants');
     expect(screen.getAllByRole('link', { name: 'Listas' })[0]).toHaveAttribute('href', '/lists');
+  });
+
+  it('mostra o badge «Novo» enquanto há release não vista', () => {
+    mockUnseen = { version: '1.2.0', title: 'Versão 1.2.0' };
+    render(<Navbar />);
+    expect(screen.getByTestId('badge-novo')).toHaveTextContent('Novo');
+    expect(screen.getByTestId('badge-novo-mobile')).toBeInTheDocument();
+  });
+
+  it('sem release por ver não há badge', () => {
+    render(<Navbar />);
+    expect(screen.queryByTestId('badge-novo')).toBeNull();
+    expect(screen.queryByTestId('badge-novo-mobile')).toBeNull();
   });
 });

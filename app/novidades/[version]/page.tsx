@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import ReleaseCard from '@/components/releases/ReleaseCard';
+import MarkReleaseSeen from '@/components/releases/MarkReleaseSeen';
 import { getPublicServerClient } from '@/libs/supabase/server';
 import { getRelease } from '@/libs/releases/server';
 import type { ReleaseNote } from '@/libs/releases/types';
@@ -38,6 +39,7 @@ export default async function NovidadeDetailPage({ params }: Params) {
           <Link href="/novidades" className="mb-4 inline-flex min-h-[44px] items-center text-sm text-[var(--gray-500)] hover:underline">
             ← Todas as novidades
           </Link>
+          <MarkReleaseSeen version={note.version} />
           <ReleaseCard note={note} detail />
         </main>
       </Container>
