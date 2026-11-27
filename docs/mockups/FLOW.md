@@ -264,3 +264,14 @@ Fonte: `app/feed/page.tsx` (133 linhas), `app/api/feed/route.ts`, `libs/feed.ts`
 - Chega de: Navbar «Roleta» (desktop e tab bar mobile); lista (`/lists/[id]`) abre a roleta em modal com os restaurantes da lista.
 - Tarefas: escolher fonte (Todos ou lista), filtrar, perto de mim, girar, abrir o restaurante sorteado.
 - Segue para: `/restaurants/<slug|id>`; Navbar. Mockups A/B (`roleta/a.html`, `b.html`) não mudam a navegação; paridade em `roleta/PARIDADE.md`.
+
+# Fluxo e inventário: `/meals`
+
+## Funcionalidades
+Lista das refeições agendadas do utilizador (`/api/meals/scheduled?type=all&limit=50`): estados sem sessão, loading, vazio (CTA para `/restaurants`); cartão com data, restaurante, hora, localização, participantes; sem erro explícito hoje. Detalhe em `refeicoes/PARIDADE.md`.
+
+## Fluxo
+Navbar/tab bar → `/meals` → `/meals/[id]` (ficha em 2 colunas: editar, eliminar, calendário, RSVP; paridade em `refeicoes/PARIDADE.md`). Vazio → `/restaurants`.
+
+## /notifications (mockups 2026-11-27)
+Notificações passa a ligar às preferências: atalho (engrenagem) no cabeçalho → `/users/settings/notifications` (fecha o ponto #21: antes só chegava de `/subscribe/success`). Chega de: navbar (sino), push, e-mail. Segue para: `link` de cada notificação, `/restaurants`.

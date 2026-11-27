@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { getClient } from '@/libs/supabase/client';
 import { toast } from 'react-toastify';
 import { AuthUser, VerificationStatus } from '@/libs/types';
@@ -247,14 +247,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getAccessToken = async () => {
+  // Identidade estável: useApiClient e consumidores dependem desta função
+  const getAccessToken = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       return session?.access_token || null;
     } catch {
       return null;
     }
-  };
+  }, [supabase]);
 
   const checkVerification = async () => {
     if (user?.id) {

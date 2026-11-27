@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: release
@@ -71,9 +72,19 @@ jobs:
               --title "v$VERSION" --notes-file release-notes.md
           fi
 
-      # Falha da BD só assinala este passo; o deploy já correu noutro workflow.
-      - name: Publicar notas em release_notes
-        continue-on-error: true
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Só leitura: bloqueia a publicação se houver migrations por aplicar em prod.
+      # Sem o segredo SUPABASE_DB_URL fica um aviso visível (não bloqueia).
+      - name: Verificar migrations em prod (só leitura)
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: node scripts/release/check-migrations.mjs
+
+      - name: Publicar notas em release_notes (backfill)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -83,3 +94,13 @@ jobs:
           else
             npx tsx scripts/release/publish-notes.ts
           fi
+
+      - name: Abrir issue se a Release falhar
+        if: failure() && env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          echo "::error::Release falhou: ver $RUN_URL"
+          gh issue create --title "Release falhou (${{ steps.versao.outputs.version }})" \
+            --body "O workflow Release falhou: $RUN_URL. Runbook: docs/guides/release-guide.md"

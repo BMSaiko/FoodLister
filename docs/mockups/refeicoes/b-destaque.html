@@ -1,0 +1,21 @@
+<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>/meals · B Próxima mesa</title><link rel="stylesheet" href="shared.css">
+<style>
+/* B · Próxima mesa: a refeição mais próxima é um cartão de destaque com contagem; as restantes em grelha; passadas compactas. */
+.hero{display:grid;grid-template-columns:1fr;border-radius:20px;overflow:hidden;margin:20px 0 28px;position:relative;min-height:260px;background:#120c02}
+.hero .thumb{position:absolute;inset:0;border-radius:0;opacity:.55}.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.15),rgba(5,5,5,.92) 72%)}
+.hero .in{position:relative;z-index:1;display:grid;align-content:end;gap:10px;padding:20px;min-height:260px}.hero .count{font:700 clamp(40px,9vw,64px)/1 'Geist';letter-spacing:-.04em;color:var(--primary)}.hero .count small{font-size:14px;font-weight:500;color:var(--fg-2);letter-spacing:0;margin-left:8px}
+.hero .name{font-size:22px;-webkit-line-clamp:2}.hero .tags{display:flex;gap:6px;flex-wrap:wrap}
+.grid{display:grid;gap:12px;grid-template-columns:1fr}@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+.c{display:grid;gap:12px;padding:12px;min-width:0}.c .thumb{aspect-ratio:16/9;border-radius:10px}.c .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.c .d{font:600 13px 'Geist Mono',monospace;color:var(--primary);text-transform:uppercase}.c .tags{display:flex;gap:6px;flex-wrap:wrap}
+.pl{display:grid;gap:0}.pl a{display:grid;grid-template-columns:96px 1fr auto;gap:12px;align-items:center;min-height:48px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;color:var(--fg-2)}.pl a:hover{color:var(--foreground)}.pl .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pl small{color:var(--fg-3)}
+</style></head><body>
+<div id="mockbar" class="mockbar"></div><div id="shell"></div>
+<main class="page"><div class="wrap" id="root"></div></main>
+<script src="data.js"></script><script src="states.js"></script>
+<script>
+MK.boot(l=>{const up=MK.up(l),pa=MK.past(l);const dated=up.filter(m=>m.meal_date);const first=dated[0];let h='';
+if(first){const n=MK.days(first.meal_date);h+=`<a class="hero" href="#meals/${first.id}" aria-label="Próxima refeição">${MK.thumb(first)}<div class="in"><div class="tags">${MK.badges(first)}</div><div class="count">${n===0?'Hoje':n===1?'Amanhã':n}${n>1?'<small>dias</small>':''}</div><h2 class="name">${MK.esc(first.restaurant.name)}</h2>${MK.info(first)}</div></a>`}
+const rest=up.filter(m=>m!==first);
+if(rest.length)h+=`<section class="group"><h2>A seguir</h2><div class="grid">${rest.map(m=>`<a class="card c" href="#meals/${m.id}">${MK.thumb(m)}<div class="top"><span class="d">${m.meal_date?MK.dnum(m.meal_date)+' '+MK.mon(m.meal_date)+' · '+MK.wk(m.meal_date).slice(0,3):'Sem data'}</span></div><h3 class="name">${MK.esc(m.restaurant.name)}</h3>${MK.info(m)}<div class="tags">${MK.badges(m)}</div></a>`).join('')}</div></section>`;
+if(pa.length)h+=`<section class="group" style="margin-top:20px"><h2>Passadas</h2><div class="pl">${pa.map(m=>`<a href="#meals/${m.id}"><small>${MK.dnum(m.meal_date)} ${MK.mon(m.meal_date)}</small><span class="n">${MK.esc(m.restaurant.name)}</span>${MK.ic('arrow')}</a>`).join('')}</div></section>`;return h});
+</script></body></html>

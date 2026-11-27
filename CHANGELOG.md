@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-27
+
+### Fixed
+- **Ordem das novidades** — `/novidades` mostra a release mais recente primeiro; releases do mesmo dia desempatam por versão (0.2.1 antes de 0.2.0) e o aviso usa o mesmo critério
+
+## [0.2.1] - 2026-11-27
+
+### Changed
+- **Publicação de novidades** — as notas de versões anteriores passam a aparecer em `/novidades` e só a versão mais recente gera aviso; a publicação passa a falhar de forma visível
+
+## [0.2.0] - 2026-11-27
+
 ### Added
 - **Aviso de novidades** — trigger `notify_release` em `release_notes` avisa todos os utilizadores (tipo `release`, respeita `system_updates`, idempotente por utilizador e versão), popup «Há novidades» e badge «Novo» no link «Novidades» (hook `useUnseenRelease`; visto em `localStorage` e na notificação lida)
 - **Novidades** — `/novidades` e `/novidades/[version]` com as notas de release como newsletter (filtros por tipo, estado vazio com Tovi, markdown inline seguro), `GET /api/releases` público e paginado, link na navegação

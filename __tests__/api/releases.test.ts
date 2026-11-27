@@ -24,7 +24,7 @@ jest.mock('@/libs/cache', () => ({
 }));
 
 const range = jest.fn();
-const order = jest.fn(() => ({ range }));
+const order: jest.Mock = jest.fn(() => ({ order, range }));
 const select = jest.fn(() => ({ order }));
 const from = jest.fn(() => ({ select }));
 const getPublicServerClient = jest.fn();

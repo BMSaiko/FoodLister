@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Tovi: feliz">
+  <path d="M14 96h92" stroke="#f5f5f5" stroke-width="5" stroke-linecap="round"/>
+  <path d="M20 94a40 38 0 0 1 80 0Z" fill="#f59e0b"/>
+  <path d="M28 80a33 30 0 0 1 14-18" stroke="#fff" stroke-opacity=".5" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+  <circle cx="60" cy="52" r="5" fill="#fde68a"/>
+  <g fill="#1a1203"><ellipse cx="46" cy="76" rx="3.6" ry="5"/><ellipse cx="74" cy="76" rx="3.6" ry="5"/></g>
+  <ellipse cx="38" cy="85" rx="5" ry="3" fill="#ef4444" opacity=".35"/><ellipse cx="82" cy="85" rx="5" ry="3" fill="#ef4444" opacity=".35"/>
+  <path d="M54 83q6 6 12 0" stroke="#1a1203" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>
