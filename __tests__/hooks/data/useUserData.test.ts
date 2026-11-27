@@ -69,3 +69,25 @@ describe('useUserData: estado inicial', () => {
     expect(result.current.error).toBe('Network down');
   });
 });
+
+describe('useUserData: restaurantes antes do perfil', () => {
+  it('restaurantes a responder primeiro não termina o loading nem mostra "não encontrado"', async () => {
+    let resolveProfile: (v: unknown) => void = () => {};
+    get.mockImplementation((url: string) =>
+      url.includes('/restaurants')
+        ? Promise.resolve(json({ data: [{ id: 'r1' }] }))
+        : new Promise(res => { resolveProfile = res; })
+    );
+    const renders: Array<{ loading: boolean; profile: unknown; error: string | null }> = [];
+    const { result } = renderHook(() => {
+      const r = useUserData({ userId: 'u-race', enableReviews: false, enableLists: false, enableRestaurants: true });
+      renders.push({ loading: r.loading, profile: r.profile, error: r.error });
+      return r;
+    });
+    await waitFor(() => expect(result.current.restaurants).toHaveLength(1));
+    expect(result.current.loading).toBe(true);
+    resolveProfile(json({ id: 'u-race', name: 'Ana', accessLevel: 'PUBLIC' }));
+    await waitFor(() => expect(result.current.profile?.name).toBe('Ana'));
+    expect(renders.filter(r => !r.loading && !r.profile && !r.error)).toHaveLength(0);
+  });
+});

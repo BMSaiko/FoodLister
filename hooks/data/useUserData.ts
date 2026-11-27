@@ -228,7 +228,6 @@ export function useUserData(options: UseUserDataOptions) {
     try {
       setUserData(prev => ({ 
         ...prev, 
-        loading: true, 
         loadingStates: { ...prev.loadingStates, restaurants: true } 
       }));
 
@@ -244,7 +243,6 @@ export function useUserData(options: UseUserDataOptions) {
         setUserData(prev => ({
           ...prev,
           restaurants,
-          loading: false,
           loadingStates: { ...prev.loadingStates, restaurants: false }
         }));
         return restaurants;
@@ -252,7 +250,6 @@ export function useUserData(options: UseUserDataOptions) {
       
       setUserData(prev => ({
         ...prev,
-        loading: false,
         loadingStates: { ...prev.loadingStates, restaurants: false }
       }));
       return [];
@@ -260,7 +257,6 @@ export function useUserData(options: UseUserDataOptions) {
       console.error('Error fetching restaurants:', error);
       setUserData(prev => ({
         ...prev,
-        loading: false,
         loadingStates: { ...prev.loadingStates, restaurants: false }
       }));
       return [];
