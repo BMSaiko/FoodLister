@@ -150,7 +150,7 @@ async function GETHandler(request: NextRequest) {
     };
 
     // Fetch + map + filter — cached by full query params (300s TTL)
-    const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${ratingMin||''}:${locationParam||''}:${cuisineList.join('|')}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}`;
+    const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${ratingMin||''}:${locationParam||''}:${cuisineList.join('|')}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}:${isPublicRequest?'pub':'auth'}`;
     const { restaurants, pagination, meta } = await cacheOrSet(cacheKey, async () => {
       // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
       let allRestaurants: any[] = [];
@@ -189,6 +189,7 @@ async function GETHandler(request: NextRequest) {
         }
       }
 
+      const fetchedRows = allRestaurants.length; // antes do filtro open_now
       const restaurantsData = allRestaurants;
       const restaurantsError: any = null;
 
@@ -225,9 +226,15 @@ async function GETHandler(request: NextRequest) {
       // ponytail: real total for feed (api counts rows); all/popularity already hold the full set
       let realTotal = restaurants.length;
       if (!isAll && !isPopularity) {
+        const startOffset = (page - 1) * limit;
+        if (fetchedRows < limit && (fetchedRows > 0 || page === 1)) {
+          // página incompleta: o total exato é conhecido sem 2.ª consulta
+          realTotal = startOffset + fetchedRows;
+        } else {
         const cq = client.from('restaurants').select('id' + cuisineFilterEmbed, { count: 'exact', head: true });
         const { count } = await applyFilters(cq);
         if (typeof count === 'number') realTotal = count;
+        }
       }
       // popularity ordena o conjunto completo no servidor mas devolve só a página pedida
       if (isPopularity && !isAll) restaurants = restaurants.slice((page - 1) * limit, page * limit);

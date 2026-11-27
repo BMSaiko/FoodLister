@@ -78,14 +78,20 @@ async function GETHandler(request: NextRequest) {
     // Fetch + map + filter — cached by geo params
     const cacheKey = `nearby:${lat.toFixed(4)}:${lng.toFixed(4)}:${effectiveRadius}:${sortBy}:${sortDirection}`;
     const restaurantsWithDistance = await cacheOrSet(cacheKey, async () => {
-      let { data: restaurantsData, error: dbError } = await client
-        .from('restaurants')
-        .select(nearbyColumns)
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null);
+      // pré-filtro por caixa envolvente (conservador): menos linhas do que "todas com coordenadas"; a distância exata continua em JS
+      const latDelta = effectiveRadius / 110;
+      const cosLat = Math.cos((lat * Math.PI) / 180);
+      const lngDelta = cosLat > 0.01 ? effectiveRadius / (110 * cosLat) : 180;
+      const useLng = lngDelta < 180 && lng - lngDelta >= -180 && lng + lngDelta <= 180;
+      const withBox = (q: any) => {
+        q = q.not('latitude', 'is', null).not('longitude', 'is', null)
+          .gte('latitude', lat - latDelta).lte('latitude', lat + latDelta);
+        return useLng ? q.gte('longitude', lng - lngDelta).lte('longitude', lng + lngDelta) : q;
+      };
+      let { data: restaurantsData, error: dbError } = await withBox(client.from('restaurants').select(nearbyColumns));
       if (dbError && dbError.code === '42703') {
         console.warn('nearby: missing column (migration 020/050 not applied):', dbError.message);
-        const fallback = await client.from('restaurants').select(nearbyColumnsFallback).not('latitude', 'is', null).not('longitude', 'is', null);
+        const fallback = await withBox(client.from('restaurants').select(nearbyColumnsFallback));
         restaurantsData = fallback.data;
         dbError = fallback.error;
       }
