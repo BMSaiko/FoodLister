@@ -18,7 +18,7 @@ window.MK={ic,esc,mon,dnum,wk,monthLong,days,isPast,TYPE,
   list(){let l=window.MEALS.filter(m=>role==='all'||m.role===role);if(state==='noresults')l=[];return l},
   up(l){return l.filter(m=>!isPast(m)).sort((a,b)=>(a.meal_date||'9').localeCompare(b.meal_date||'9')||(a.meal_time||'').localeCompare(b.meal_time||''))},
   past(l){return l.filter(isPast).sort((a,b)=>b.meal_date.localeCompare(a.meal_date))},
-  thumb(m,cls=''){const r=m.restaurant;return `<div class="thumb ${cls}">${r.image?`<img src="${r.image}" alt="" loading="lazy" onerror="this.remove()">`:esc(r.name.replace(/\D/g,'')||r.name[0])}</div>`},
+  thumb(m,cls=''){const r=m.restaurant;return `<div class="thumb ${cls}" style="position:relative">${r.image?`<img style="position:relative;z-index:1" src="${r.image}" alt="" loading="lazy" onerror="this.remove()">`:''}<svg viewBox="0 0 24 24" style="width:28px;height:28px;opacity:.7;position:absolute;z-index:-0">${I.fork}</svg></div>`},
   info(m){const r=m.restaurant;return `<div class="meta">${m.meal_time?`<span>${ic('clock')}${m.meal_time}</span>`:''}${r.location&&r.location!==r.name?`<span>${ic('pin')}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.location)}</span></span>`:''}${m.participant_count>0?`<span>${ic('users')}${m.participant_count}</span>`:''}</div>`},
   badges(m){return `<span class="tag${m.role==='organized'?'':' alt'}">${m.role==='organized'?'Organizas':'Participas'}</span>${m.meal_type&&TYPE[m.meal_type]?`<span class="tag alt">${TYPE[m.meal_type]}</span>`:''}`},
   boot(render){
@@ -31,7 +31,7 @@ window.MK={ic,esc,mon,dnum,wk,monthLong,days,isPast,TYPE,
       const head=`<h1>Refeições</h1><p class="sub">Gere as tuas refeições agendadas</p>`;
       if(state==='loading'){root.innerHTML=head+'<div style="margin-top:28px">'+'<div class="sk"></div>'.repeat(4)+'</div>';return}
       if(state==='error'){root.innerHTML=head+`<div class="state">${ic('alert').replace('<svg','<svg style="width:32px;height:32px;color:var(--danger)"')}<h2>Não foi possível carregar as refeições</h2><p>Verifica a ligação e tenta de novo.</p><a class="btn" href="?state=default">Tentar de novo</a></div>`;return}
-      if(state==='empty'){root.innerHTML=head+`<div class="state"><img src="assets/tovi-a-pensar.svg" alt=""><h2>Nenhuma refeição agendada</h2><p>Agenda uma refeição a partir de qualquer restaurante.</p><a class="btn" href="#">Explorar Restaurantes ${ic('arrow')}</a></div>`;return}
+      if(state==='empty'){root.innerHTML=head+`<div class="state"><img style="position:relative;z-index:1" src="assets/tovi-a-pensar.svg" alt=""><h2>Nenhuma refeição agendada</h2><p>Agenda uma refeição a partir de qualquer restaurante.</p><a class="btn" href="#">Explorar Restaurantes ${ic('arrow')}</a></div>`;return}
       const seg=`<div class="seg" role="group" aria-label="Filtrar refeições">${[['all','Todas'],['organized','Organizo'],['participating','Participo']].map(([k,l])=>`<button aria-pressed="${role===k}" data-r="${k}">${l}</button>`).join('')}</div>`;
       const l=MK.list();
       root.innerHTML=head+seg+(l.length?render(l):`<div class="state"><p>Nenhuma refeição nesta vista.</p><button class="btn" data-r="all">Ver todas</button></div>`);
