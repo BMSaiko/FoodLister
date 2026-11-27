@@ -88,7 +88,7 @@ describe('GET /api/releases', () => {
     expect(range).toHaveBeenCalledWith(0, 50);
   });
 
-  it.each(['?page=0', '?page=-1', '?page=abc', '?limit=0', '?limit=-3', '?limit=x'])(
+  it.each(['?page=0', '?page=-1', '?page=abc', '?page=1001','?limit=0', '?limit=-3', '?limit=x'])(
     'devolve 400 para %s',
     async (qs) => {
       const res = await call(qs);

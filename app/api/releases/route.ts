@@ -7,6 +7,9 @@ import { DEFAULT_LIMIT, MAX_LIMIT, listReleases } from '@/libs/releases/server';
 
 export const dynamic = 'force-dynamic';
 
+/** Teto de páginas: evita chaves de cache ilimitadas por pedidos públicos. */
+const MAX_PAGE = 1000;
+
 const fail = (type: ApiErrorType, status: number) =>
   NextResponse.json({ error: getErrorMessage(type), code: type }, { status });
 
@@ -23,7 +26,7 @@ export async function GET(request: NextRequest) {
     const params = request.nextUrl.searchParams;
     const page = positiveInt(params.get('page'), 1);
     const requested = positiveInt(params.get('limit'), DEFAULT_LIMIT);
-    if (page === null || requested === null) return fail('VALIDATION_ERROR', 400);
+    if (page === null || page > MAX_PAGE || requested === null) return fail('VALIDATION_ERROR', 400);
     const limit = Math.min(requested, MAX_LIMIT);
 
     const supabase = await getPublicServerClient();
