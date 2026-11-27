@@ -1,0 +1,23 @@
+<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>/meals · A Agenda</title><link rel="stylesheet" href="shared.css">
+<style>
+/* A · Agenda: lista cronológica agrupada por mês; a data é o eixo, o restaurante a imagem. */
+.row{display:grid;grid-template-columns:64px 1fr;gap:16px;padding:12px 0;align-items:center;border-top:1px solid var(--line)}
+.date{text-align:center;line-height:1}.date small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);font-weight:600}.date b{display:block;font-size:30px;font-weight:700;letter-spacing:-.03em;margin:4px 0 2px}.date em{font-style:normal;font-size:11px;color:var(--fg-3);text-transform:capitalize}
+.body{display:grid;grid-template-columns:72px 1fr 20px;gap:14px;align-items:center;min-width:0;padding:10px;border-radius:14px;border:1px solid transparent;transition:background .2s,border-color .2s}.body:hover{background:rgba(255,255,255,.03);border-color:var(--card-border)}
+.body .thumb{width:72px;height:72px;border-radius:12px}.body>div{min-width:0;display:grid;gap:6px}.tags{display:flex;gap:6px;flex-wrap:wrap}.body>svg{color:var(--fg-3)}
+.soon{font-size:12px;color:var(--primary);font-weight:600}
+.past .name,.past .date b{color:var(--fg-2)}.past .thumb{filter:grayscale(.8) opacity(.7)}
+.undated .date b{font-size:22px;color:var(--fg-3)}
+@media(max-width:480px){.row{grid-template-columns:48px 1fr;gap:8px}.body{grid-template-columns:56px 1fr 16px;gap:10px}.body .thumb{width:56px;height:56px}.date b{font-size:24px}}
+</style></head><body>
+<div id="mockbar" class="mockbar"></div><div id="shell"></div>
+<main class="page"><div class="wrap" id="root"></div></main>
+<script src="data.js"></script><script src="states.js"></script>
+<script>
+const row=(m,cls='')=>{const d=!!m.meal_date,n=d?MK.days(m.meal_date):null;
+return `<div class="row ${cls}${d?'':' undated'}"><div class="date">${d?`<small>${MK.mon(m.meal_date)}</small><b>${MK.dnum(m.meal_date)}</b><em>${MK.wk(m.meal_date).slice(0,3)}</em>`:'<b>—</b><em>sem data</em>'}</div>
+<a class="body" href="#meals/${m.id}">${MK.thumb(m)}<div><div class="tags">${MK.badges(m)}${n!==null&&n>=0&&n<=2?`<span class="soon">${n===0?'Hoje':n===1?'Amanhã':'Em 2 dias'}</span>`:''}</div><h3 class="name">${MK.esc(m.restaurant.name)}</h3>${MK.info(m)}</div>${MK.ic('arrow')}</a></div>`};
+MK.boot(l=>{const up=MK.up(l),pa=MK.past(l);let h='',cur='';
+up.forEach(m=>{const k=m.meal_date?MK.monthLong(m.meal_date):'Por agendar';if(k!==cur){h+=(cur?'</section>':'')+`<section class="group"><h2>${k}</h2>`;cur=k}h+=row(m)});if(cur)h+='</section>';
+if(pa.length)h+=`<section class="group"><h2>Passadas</h2>${pa.map(m=>row(m,'past')).join('')}</section>`;return h});
+</script></body></html>
