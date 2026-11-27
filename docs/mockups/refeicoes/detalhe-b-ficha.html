@@ -1,0 +1,40 @@
+<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>/meals/[id] · B Ficha</title><link rel="stylesheet" href="shared.css"><link rel="stylesheet" href="detalhe.css">
+<style>
+/* B · Ficha: duas colunas, estilo recibo. Esquerda = factos e pessoas (lê-se); direita = painel de ações fixo (age-se). */
+.layout{display:grid;gap:24px;margin-top:8px}@media(min-width:900px){.layout{grid-template-columns:1fr 340px;align-items:start}.side{position:sticky;top:104px}}
+.top{display:flex;gap:16px;align-items:center;margin:8px 0 22px}.top .thumb{width:76px;height:76px;border-radius:16px;flex:none}
+.top h1{font-size:clamp(24px,4.5vw,36px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.card.p{padding:6px 20px}.card.p+.card.p{margin-top:16px}.org{display:flex;gap:12px;align-items:center;padding:14px 0}
+.side .card{padding:18px;display:grid;gap:10px}.side h2.sec{margin:0}.side hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.status{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--fg-2)}
+.dockm{position:fixed;left:0;right:0;bottom:0;z-index:55;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(5,5,5,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line)}@media(min-width:900px){.dockm{display:none}}
+.side .rsvp{grid-template-columns:1fr}.side .btn{white-space:nowrap}.org{align-items:center}.org .av{width:40px;height:40px}
+.rsvp-d{display:none}@media(min-width:900px){.rsvp-d{display:grid}}
+</style></head><body>
+<div id="mockbar" class="mockbar"></div><div id="shell"></div>
+<main class="page" style="padding-bottom:120px"><div class="wrap" id="root" style="max-width:1040px"></div></main>
+<script src="data.js"></script><script src="states.js"></script><script src="detalhe.js"></script>
+<script>
+const {esc,ic,chip,av,fmtDate,endTime,durL,type,rsvp,cal,owner,people,isPast,N}=DT;
+DT.boot(m=>{const r=m.restaurant,past=isPast(m),end=endTime(m.time,m.dur),rs=rsvp(m);const loc=r.location&&r.location!==r.name?r.location:null;
+const thumb=`<div class="thumb" style="position:relative">${ic('fork').replace('<svg','<svg style="width:28px;height:28px;position:absolute"')}${r.image?`<img style="position:relative;z-index:1" src="${r.image}" alt="" onerror="this.remove()">`:''}</div>`;
+return `<a class="back" href="#perfil">${ic('back')}Voltar</a>
+<div class="top">${thumb}<div><div class="tags"><span class="tag">${type(m)}</span>${m.isOrganizer?'<span class="tag">Organizador</span>':''}${!m.isOrganizer&&m.status?chip(m.status):''}</div><h1>${esc(r.name)}</h1></div></div>
+<div class="layout"><div>
+ <section class="card p"><div class="facts">
+  <div class="fact">${ic('cal')}<div><small>Data</small><b>${m.date?fmtDate(m.date):'Sem data'}</b></div></div>
+  <div class="fact">${ic('clock')}<div><small>Hora</small><b>${m.time?`${m.time}${end?` – ${end}`:''}`:'Por definir'}</b></div></div>
+  <div class="fact">${ic('dur')}<div><small>Duração</small><b>${durL(m.dur)}</b></div></div>
+  ${loc?`<div class="fact">${ic('pin')}<div><small>Localização</small><b>${esc(loc)}</b></div></div>`:''}
+ </div></section>
+ <section class="card p"><h2 class="sec" style="padding-top:16px">Organizador</h2><div class="org">${av({name:m.organizer.name},'org')}<div><b>${esc(m.organizer.name)}</b>${m.organizer.code?`<small style="display:block;color:var(--fg-3);font-size:12px">${m.organizer.code}</small>`:''}</div></div></section>
+ ${m.participants.length?`<section class="card p"><h2 class="sec" style="padding-top:16px">Participantes (${m.participants.length})</h2>${people(m,6)}</section>`:''}
+ <a class="rest" href="#restaurante">Ver página do restaurante ${ic('arrow')}</a>
+</div>
+<aside class="side"><div class="card"><h2 class="sec">Ações</h2>
+ ${!m.isOrganizer&&m.status?`<div class="status"><span>A tua resposta</span>${chip(m.status)}</div><hr>`:''}
+ ${rs?`<div class="rsvp-d">${rs}</div>`:past?'<p class="past-note">Esta refeição já passou: a resposta está fechada.</p>':''}
+ ${cal(m)}${m.isOrganizer?`<hr>${owner(m)}`:''}</div></aside></div>
+${rs?`<div class="dockm">${rs}</div>`:''}`});
+</script></body></html>
