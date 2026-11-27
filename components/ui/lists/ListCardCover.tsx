@@ -1,3 +1,4 @@
+import SmartImage from '@/components/ui/common/SmartImage';
 
 
 interface ListCardCoverProps {
@@ -45,14 +46,9 @@ export default function ListCardCover({ name, photos = [], total = 0, className 
   return (
     <div className={`relative overflow-hidden aspect-[16/10] rounded-2xl bg-white/[0.04] grid ${cols} gap-0.5 ${className}`}>
       {withImage.map((p, i) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={i}
-          src={p.image as string}
-          alt=""
-          loading="lazy"
-          className={`w-full h-full object-cover ${withImage.length === 3 && i === 0 ? 'row-span-2' : ''}`}
-        />
+        <div key={i} className={`relative w-full h-full ${withImage.length === 3 && i === 0 ? 'row-span-2' : ''}`}>
+          <SmartImage src={p.image as string} alt="" sizes="(max-width: 640px) 50vw, 25vw" className="object-cover" />
+        </div>
       ))}
       {extra > 0 && (
         <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/70 text-white text-xs font-semibold">
