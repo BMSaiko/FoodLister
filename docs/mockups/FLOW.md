@@ -260,6 +260,11 @@ Fonte: `app/feed/page.tsx` (133 linhas), `app/api/feed/route.ts`, `libs/feed.ts`
 - Chega de: URL direto (sem entrada na `Navbar`).
 - Segue para: `/restaurants/{slug}`, `/lists/{slug}`, `/users/{código}`, `/restaurants` (vazio).
 
+## `/roulette` (roleta)
+- Chega de: Navbar «Roleta» (desktop e tab bar mobile); lista (`/lists/[id]`) abre a roleta em modal com os restaurantes da lista.
+- Tarefas: escolher fonte (Todos ou lista), filtrar, perto de mim, girar, abrir o restaurante sorteado.
+- Segue para: `/restaurants/<slug|id>`; Navbar. Mockups A/B (`roleta/a.html`, `b.html`) não mudam a navegação; paridade em `roleta/PARIDADE.md`.
+
 # Fluxo e inventário: `/meals`
 
 ## Funcionalidades

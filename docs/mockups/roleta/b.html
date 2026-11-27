@@ -1,0 +1,37 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="color-scheme" content="light"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Roleta B — Roda</title><link rel="stylesheet" href="shared.css">
+<style>
+.stage{display:grid;place-items:center;padding:28px 0;text-align:center}
+.wheel{width:min(320px,80vw);aspect-ratio:1;border-radius:50%;border:10px solid var(--amb);background:conic-gradient(#fef3c7 0 60deg,#fde68a 0 120deg,#fef3c7 0 180deg,#fde68a 0 240deg,#fef3c7 0 300deg,#fde68a 0);display:grid;place-items:center;position:relative;transition:transform 2.4s cubic-bezier(.2,.8,.2,1)}
+.wheel::before{content:"";position:absolute;top:-22px;border:12px solid transparent;border-top:20px solid var(--org)}
+.lbl{position:absolute;left:50%;top:50%;margin-left:20%;width:27%;transform-origin:-74% 50%;font-size:12px;font-weight:700;text-align:right;white-space:nowrap;pointer-events:none;padding-right:12px;color:#7c2d12;display:flex;justify-content:flex-end}.lbl i{font-style:normal;display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis}.lbl.f i{transform:rotate(180deg)}
+.hub{width:36%;aspect-ratio:1;border-radius:50%;background:#fff;border:3px solid var(--org);display:grid;place-items:center;font-weight:700}
+.name{min-height:2.4em;margin:20px 0 8px;font-size:22px;font-weight:700;max-width:90%}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+details.card{padding:0 16px}summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:600}
+.sheet{display:none}.done .sheet{display:block}
+</style></head><body data-vw="d">
+<nav class="nav"><b>FoodLister</b><span>Roleta</span></nav>
+<div class="frame"><main class="wrap">
+<div class="stage" aria-live="polite">
+<small style="color:var(--org);font-weight:700;letter-spacing:.08em">ROLETA</small><h1 style="font-size:clamp(26px,5vw,40px);margin:6px 0 18px">Onde vamos comer?</h1>
+<div class="tabs" role="group" aria-label="Fonte"><button class="chip" aria-pressed="true">Todos (6)</button><button class="chip" aria-pressed="false">Favoritos (3)</button><button class="chip" aria-pressed="false">Jantares de sexta…</button></div>
+<div class="wheel" id="wheel"><div class="hub" id="hub">?</div><span id="lbls" style="position:absolute;inset:0"></span></div>
+<div class="name" id="nm">Gira para descobrir</div>
+<p class="muted" data-count></p><button class="btn" data-spin id="go">Girar roleta</button>
+<p class="muted">Espaço para girar · Esc para fechar</p>
+<div class="sheet card" id="sheet" style="margin-top:16px;padding:16px;max-width:560px;width:100%;border:2px solid var(--amb)"><small style="color:var(--org);font-weight:700">RESTAURANTE SELECIONADO</small><div class="ph" id="sp" style="border-radius:12px;aspect-ratio:16/9;margin:8px 0"></div><p class="name" id="rn" style="margin:4px 0;min-height:0"></p><p class="meta" id="mt" style="font-size:15px"></p><div class="row" style="justify-content:center"><a class="btn" style="min-height:52px;font-size:18px" href="#">Ver restaurante</a><button class="btn ghost" id="again">Girar de novo</button></div></div>
+</div>
+<section class="card" style="padding:16px;margin-top:8px"><h3 style="font-size:14px;color:var(--mut);margin-bottom:10px">FILTROS</h3><div class="row"><button class="chip" aria-pressed="false">Perto de mim</button><select aria-label="Raio"><option>5 km</option><option>10 km</option></select><button class="chip" aria-pressed="false">Cozinha</button><button class="chip" aria-pressed="false">Preço</button><button class="chip" aria-pressed="false">Avaliação</button></div><p class="err muted" data-geo role="alert"></p></section>
+<h3 style="margin:24px 0 12px">Na roleta</h3><div class="grid" id="grid"></div>
+</main></div>
+<dialog id="dlg"><h2>Sem restaurantes</h2><p>A fonte escolhida está vazia.</p><button class="btn" onclick="dlg.close()">Fechar</button></dialog>
+<script src="shared.js"></script>
+<script>
+let spinning=false,deg=0;const L=()=>lbls.innerHTML=R.map((r,i)=>{const a=i*60+30-90,f=((a%360)+360)%360>90&&((a%360)+360)%360<270;return `<span class="lbl${f?' f':''}" style="transform:translate(0,-50%) rotate(${a}deg)"><i>${r[0].replace('Restaurante ','')}</i></span>`}).join('');L();const rm=()=>matchMedia("(prefers-reduced-motion:reduce)").matches;
+window.onState=(s,n)=>{nm.textContent=s==="loading"?"A carregar…":s==="error"?"Não foi possível carregar":n===0?"Sem restaurantes":"Gira para descobrir";lbls.style.display=n===0?"none":"";document.body.classList.remove("done")};
+function spin(){if(spinning||go.disabled)return;spinning=true;go.disabled=true;document.body.classList.remove("done");nm.textContent="A girar…";deg+=1440+Math.random()*360;if(!rm())wheel.style.transform=`rotate(${deg}deg)`;
+setTimeout(()=>{spinning=false;go.disabled=false;go.textContent="Girar novamente";const r=R[2],st=document.body.dataset.state;nm.textContent=st==="long"?LONG:r[0];rn.textContent=nm.textContent;hub.textContent="✓";sp.className="ph "+(st==="nophoto"?"none":"");sp.style.backgroundImage=`url(../home/assets/${r[1]})`;mt.textContent=`★ ${r[2]} · ${r[3]} · ${r[4]} · ${r[5]}`;document.body.classList.add("done")},rm()?0:2400)}
+go.onclick=spin;again.onclick=spin;
+addEventListener("keydown",e=>{if(e.code==="Space"&&e.target.tagName!=="BUTTON"){e.preventDefault();spin()}if(e.key==="Escape"&&!spinning){document.body.classList.remove("done");nm.textContent="Gira para descobrir";hub.textContent="?"}});
+let sx;sheet.addEventListener("touchstart",e=>sx=e.touches[0].clientX);sheet.addEventListener("touchend",e=>{if(Math.abs(e.changedTouches[0].clientX-sx)>50)spin()});
+</script></body></html>

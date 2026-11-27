@@ -117,16 +117,13 @@ export default function RoulettePage() {
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/15 mb-5">
-            <Icon name="faiscas" className="h-4 w-4 text-purple-400" />
-            <span className="text-xs font-semibold text-purple-300 uppercase tracking-wider">Roleta</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-4">
-            Roleta de Restaurantes
+        <div className="text-center mb-8">
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-500">Roleta</span>
+          <h1 className="text-3xl md:text-5xl font-bold text-white tracking-tight mt-1 mb-3">
+            Onde vamos comer?
           </h1>
-          <p className="text-lg text-white/40 max-w-xl mx-auto">
-            Nao consegue decidir onde comer? Deixe a roleta escolher o restaurante perfeito para si.
+          <p className="text-base text-white/40 max-w-xl mx-auto">
+            Não consegue decidir? Deixe a roleta escolher o restaurante por si.
           </p>
         </div>
 
@@ -204,11 +201,11 @@ export default function RoulettePage() {
               className={`flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-base transition-colors duration-300 min-h-[52px] ${
                 filteredRestaurants.length === 0
                   ? "bg-white/[0.04] text-white/20 cursor-not-allowed"
-                  : "bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 text-white hover:shadow-xl hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                  : "bg-amber-500 text-black hover:bg-amber-400 active:scale-[0.98]"
               }`}
             >
               <Icon name="baralhar" className="h-5 w-5" />
-              <span>Girar Roleta</span>
+              <span>Girar roleta</span>
             </button>
           </div>
         </div>
@@ -234,6 +231,7 @@ export default function RoulettePage() {
           </div>
         ) : (
           <div>
+            <h2 className="text-sm font-semibold uppercase tracking-[0.1em] text-white/40 mb-3">Na roleta</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredRestaurants.slice(0, 9).map(r => (
                 <RestaurantCard key={r.id} restaurant={r as any} />

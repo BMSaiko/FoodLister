@@ -1,0 +1,37 @@
+<!doctype html><html lang="pt"><head><meta charset="utf-8"><meta name="color-scheme" content="light"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Roleta A — Mesa</title><link rel="stylesheet" href="shared.css">
+<style>
+.hero{padding:32px 0 20px}.hero small{color:var(--org);font-weight:700;letter-spacing:.08em;text-transform:uppercase}.hero h1{font-size:clamp(28px,5vw,44px);margin:6px 0}
+.panel{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start}
+.side{position:sticky;top:12px;display:grid;gap:16px}
+.box{padding:16px}.box h3{font-size:14px;margin-bottom:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.reel{height:220px;display:grid;place-items:center;text-align:center;background:var(--amb-s);border-radius:var(--r);margin:8px 0 16px;font-size:24px;font-weight:700;padding:12px}
+.reel.spin{animation:blink .25s steps(2) infinite}@keyframes blink{50%{opacity:.5}}
+@media(max-width:820px){.panel{grid-template-columns:1fr}.side{position:static}}
+</style></head><body data-vw="d">
+<nav class="nav"><b>FoodLister</b><span>Roleta</span></nav>
+<div class="frame"><main class="wrap">
+<header class="hero"><small>Roleta</small><h1>Sem ideias para hoje?</h1><p class="muted">Escolhe a fonte, afina os filtros e deixa a sorte decidir.</p></header>
+<div class="panel">
+<aside class="side">
+<section class="card box"><h3>Fonte</h3><div class="row" id="src"><button class="chip" aria-pressed="true">Todos (6)</button><button class="chip" aria-pressed="false">Favoritos (3)</button><button class="chip" aria-pressed="false">Jantares de sexta…</button><span class="muted" id="ld" hidden>a carregar listas…</span></div></section>
+<section class="card box"><h3>Perto de mim</h3><div class="row"><button class="chip" aria-pressed="false">Ativar</button><select aria-label="Raio"><option>5 km</option><option>10 km</option><option>25 km</option></select></div><p class="err muted" data-geo role="alert"></p></section>
+<section class="card box"><h3>Filtros</h3><div class="row"><button class="chip" aria-pressed="false">Cozinha</button><button class="chip" aria-pressed="false">Preço</button><button class="chip" aria-pressed="false">Avaliação</button><button class="chip" aria-pressed="false">Cidade</button></div><p class="muted">Os mesmos filtros de /restaurants.</p></section>
+</aside>
+<section>
+<div class="card box result" aria-live="polite"><div class="reel" id="reel">Pronto a girar</div>
+<p class="muted" data-count></p><button class="btn" data-spin id="go">Girar roleta</button> <span class="muted">ou prime Espaço</span>
+<div id="res" hidden style="margin-top:16px"><h2>Restaurante selecionado</h2><div class="row" style="justify-content:center;margin-top:12px"><a class="btn" href="#">Ver restaurante</a><button class="btn ghost" id="again">Girar de novo</button></div></div></div>
+<h3 style="margin:24px 0 12px">Na roleta</h3><div class="grid" id="grid"></div>
+</section></div>
+</main></div>
+<dialog id="dlg"><h2>Sem restaurantes</h2><p>A fonte escolhida está vazia.</p><button class="btn" onclick="dlg.close()">Fechar</button></dialog>
+<script src="shared.js"></script>
+<script>
+let spinning=false;const reel=document.getElementById("reel");
+window.onState=(s,n)=>{reel.textContent=s==="loading"?"A carregar…":s==="error"?"Não foi possível carregar":n===0?"Sem restaurantes":"Pronto a girar";document.getElementById("ld").hidden=s!=="loading";document.getElementById("res").hidden=true};
+function spin(){if(spinning)return;if(++document.body.dataset.n===0){return}spinning=true;go.disabled=true;reel.classList.add("spin");let i=0,t=setInterval(()=>reel.textContent=R[i++%R.length][0],90);
+setTimeout(()=>{clearInterval(t);spinning=false;reel.classList.remove("spin");reel.textContent=R[2][0];go.disabled=false;go.textContent="Girar novamente";res.hidden=false},matchMedia("(prefers-reduced-motion:reduce)").matches?0:1800)}
+go.onclick=spin;again.onclick=()=>{res.hidden=true;spin()};
+addEventListener("keydown",e=>{if(e.code==="Space"&&e.target.tagName!=="BUTTON"){e.preventDefault();if(!go.disabled)spin()}if(e.key==="Escape"&&!spinning){res.hidden=true;reel.textContent="Pronto a girar"}});
+let sx;reel.parentElement.addEventListener("touchstart",e=>sx=e.touches[0].clientX);reel.parentElement.addEventListener("touchend",e=>{if(!res.hidden&&Math.abs(e.changedTouches[0].clientX-sx)>50)spin()});
+</script></body></html>
