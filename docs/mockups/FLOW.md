@@ -266,4 +266,4 @@ Fonte: `app/feed/page.tsx` (133 linhas), `app/api/feed/route.ts`, `libs/feed.ts`
 Lista das refeições agendadas do utilizador (`/api/meals/scheduled?type=all&limit=50`): estados sem sessão, loading, vazio (CTA para `/restaurants`); cartão com data, restaurante, hora, localização, participantes; sem erro explícito hoje. Detalhe em `refeicoes/PARIDADE.md`.
 
 ## Fluxo
-Navbar/tab bar → `/meals` → `/meals/[id]` (editar, eliminar, calendário). Vazio → `/restaurants`.
+Navbar/tab bar → `/meals` → `/meals/[id]` (ficha em 2 colunas: editar, eliminar, calendário, RSVP; paridade em `refeicoes/PARIDADE.md`). Vazio → `/restaurants`.

@@ -22,4 +22,21 @@ Estados: `?state=default|loading|empty|noresults|error|auth`.
 | 13 | **Novo:** separação próximas / passadas / por agendar | Grupos por mês | Hero + «A seguir» + «Passadas» |
 | 14 | **Novo:** tipo de refeição (Almoço/Jantar/Lanche) | Etiqueta | Etiqueta |
 
-Sem funcionalidade sem lugar. Pendente: validar a paridade das ações de `/meals/[id]` (editar, eliminar, .ics, Google Calendar) quando essa página entrar no âmbito, e adicionar `/meals` ao `FLOW.md`.
+Sem funcionalidade sem lugar em `/meals`.
+
+## `/meals/[id]` (direção B Ficha, implementada)
+
+| # | Funcionalidade atual | Onde fica |
+|---|---|---|
+| 1 | Voltar (`router.back`) | Topo, igual |
+| 2 | Tipo de refeição, badge Organizador, estado próprio (Aceite/Recusado/Pendente) | Chips no cabeçalho |
+| 3 | Restaurante (nome, imagem), link «Ver página do restaurante» | Cabeçalho + link sob os cartões |
+| 4 | Data, hora (agora início–fim), duração, localização | Cartão de factos |
+| 5 | Organizador (avatar, nome, código) | Cartão Organizador |
+| 6 | Participantes com estado | Cartão Participantes |
+| 7 | Download .ics, Google Calendar (se existir link) | Painel Ações |
+| 8 | Confirmar/Recusar (só futura, organizador ou convidado) | Painel Ações (desktop); barra fixa em baixo (telemóvel) |
+| 9 | Editar, Eliminar (só organizador) com modais inalterados | Painel Ações |
+| 10 | Loading e «Refeição não encontrada» | Inalterados |
+
+Verificação: `e2e/meal-detail.spec.ts` (dados, eliminar cancelável, não encontrada).
