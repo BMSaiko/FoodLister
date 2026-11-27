@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getPublicServerClient } from '@/libs/supabase/server';
-import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
+import { cacheOrSet } from '@/libs/cache';
+import { publicCache, withCachePolicy } from '@/libs/http-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,46 +14,49 @@ async function GETHandler() {
     if (!supabase) {
       return NextResponse.json({ error: 'backend unavailable', code: 'INTERNAL_ERROR' }, { status: 500 });
     }
-    const [re, rv, pr, ratings, top] = await Promise.all([
-      supabase.from('restaurants').select('id', { count: 'exact', head: true }),
-      supabase.from('reviews').select('id', { count: 'exact', head: true }),
-      supabase.from('profiles').select('id', { count: 'exact', head: true }),
-      supabase.from('restaurants').select('rating').not('rating', 'is', null).gt('review_count', 0),
-      supabase.from('restaurants')
-        .select(cols)
-        .gt('review_count', 0)
-        .not('rating', 'is', null)
-        .order('rating', { ascending: false })
-        .order('review_count', { ascending: false })
-        .limit(10),
-    ]);
-    const ratingsList = ratings.data || [];
-    const avg = ratingsList.length
-      ? Math.round((ratingsList.reduce((s, r) => s + (r.rating || 0), 0) / ratingsList.length) * 10) / 10
-      : 0;
-    const topRestaurants = (top.data || [])
-      .map((r: any) => ({
-        id: r.id,
-        name: r.name,
-        rating: r.rating || 0,
-        review_count: r.review_count || 0,
-        price_per_person: r.price_per_person || 0,
-        location: r.location || '',
-        images: r.images || [],
-        display_image_index: r.display_image_index,
-      }));
-    return NextResponse.json({
-      data: {
+    const data = await cacheOrSet('home:stats', async () => {
+      const [re, rv, pr, ratings, top] = await Promise.all([
+        supabase.from('restaurants').select('id', { count: 'exact', head: true }),
+        supabase.from('reviews').select('id', { count: 'exact', head: true }),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('restaurants').select('rating').not('rating', 'is', null).gt('review_count', 0),
+        supabase.from('restaurants')
+          .select(cols)
+          .gt('review_count', 0)
+          .not('rating', 'is', null)
+          .order('rating', { ascending: false })
+          .order('review_count', { ascending: false })
+          .limit(10),
+      ]);
+      const failed = [re, rv, pr, ratings, top].find((q) => q.error);
+      if (failed) throw failed.error;
+      const ratingsList = ratings.data || [];
+      const avg = ratingsList.length
+        ? Math.round((ratingsList.reduce((s, r) => s + (r.rating || 0), 0) / ratingsList.length) * 10) / 10
+        : 0;
+      const topRestaurants = (top.data || [])
+        .map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          rating: r.rating || 0,
+          review_count: r.review_count || 0,
+          price_per_person: r.price_per_person || 0,
+          location: r.location || '',
+          images: r.images || [],
+          display_image_index: r.display_image_index,
+        }));
+      return {
         restaurants: re.count || 0,
         users: pr.count || 0,
         reviews: rv.count || 0,
         avgRating: avg,
         topRestaurants,
-      },
-    });
+      };
+    }, 120);
+    return NextResponse.json({ data });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'internal', code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
 
-export const GET = withCachePolicy(privateNoStore, GETHandler);
+export const GET = withCachePolicy(publicCache(120, 300), GETHandler);

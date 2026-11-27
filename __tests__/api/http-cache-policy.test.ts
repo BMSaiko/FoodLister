@@ -18,7 +18,7 @@ function routes(dir: string): string[] {
   });
 }
 
-const PUBLIC_ROUTES = ['cuisine-types', 'dietary-options', 'features'];
+const PUBLIC_ROUTES = ['cuisine-types', 'dietary-options', 'features', 'home'];
 
 function fakeResponse(init: Record<string, string> = {}, status = 200) {
   const map = new Map(Object.entries(init));
