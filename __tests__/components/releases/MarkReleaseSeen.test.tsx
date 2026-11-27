@@ -3,6 +3,9 @@ import { render } from '@testing-library/react';
 import MarkReleaseSeen from '@/components/releases/MarkReleaseSeen';
 import { SEEN_KEY } from '@/hooks/releases/useUnseenRelease';
 
+jest.mock('@/hooks/auth/useAuthUser', () => ({
+  useAuthUser: () => ({ user: null, loading: false, isValidating: false }),
+}));
 jest.mock('@/libs/supabase/client', () => ({
   getClient: () => ({
     from: () => ({ select: () => ({ order: () => ({ limit: () => ({ maybeSingle: async () => ({ data: null }) }) }) }) }),
