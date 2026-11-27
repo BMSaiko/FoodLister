@@ -1,4 +1,6 @@
-// config without bundle-analyzer
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
 
 // ponytail: Report-Only until no violations logged for 72h. Then flip header name.
 const cspPolicy = [
@@ -60,4 +62,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

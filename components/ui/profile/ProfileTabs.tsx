@@ -2,7 +2,7 @@
 
 import Icon from '@/components/ui/icons/Icon';
 import React from "react";
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 
 const TAB_CONFIG = [
   { key: "reviews", label: "Reviews", icon: 'estrela' },

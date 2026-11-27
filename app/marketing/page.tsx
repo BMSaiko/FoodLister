@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
 import { Container } from "@/components/ui/Container";

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect } from 'react';
 import Navbar from '@/components/ui/navigation/Navbar';
-import { motion } from 'motion/react';
+import { m as motion } from 'motion/react';
 import Link from 'next/link';
 import { FiltersProvider } from '@/contexts';
 import { usePaginatedRestaurants } from '@/hooks/restaurants/usePaginatedRestaurants';
@@ -13,14 +13,17 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { trackEvent, Events } from '@/utils/analytics';
 
-import HeroRestaurantCard from '@/components/ui/RestaurantList/HeroRestaurantCard';
+import dynamic from 'next/dynamic';
 import { RestaurantGrid } from '@/components/ui/RestaurantList/RestaurantGrid';
-import RestaurantFilters from '@/components/ui/Filters/RestaurantFilters';
-import NearbyBar from '@/components/ui/Nearby/NearbyBar';
+
 import { useNearbyRestaurants } from '@/hooks/restaurants/useNearbyRestaurants';
 
 import Skeleton from '@/components/ui/Skeleton';
 import Icon from '@/components/ui/icons/Icon';
+
+const HeroRestaurantCard = dynamic(() => import('@/components/ui/RestaurantList/HeroRestaurantCard'));
+const RestaurantFilters = dynamic(() => import('@/components/ui/Filters/RestaurantFilters'));
+const NearbyBar = dynamic(() => import('@/components/ui/Nearby/NearbyBar'));
 
 function RestaurantsContent() {
   const searchParams = useSearchParams();
