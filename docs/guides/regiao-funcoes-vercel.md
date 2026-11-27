@@ -20,4 +20,4 @@ Migrar o Supabase para a UE (decisão do BMS): aproxima BD e utilizadores.
 Repor `"regions": ["iad1"]` em `vercel.json` e fazer deploy.
 
 ## Medir
-`vercel curl "<preview>/api/health?db=1"` (preview protegido por Vercel Authentication).
+O endpoint de medição `/api/health?db=1` (mediana de 3 queries `HEAD` à BD) existiu no commit `perf: /api/health?db=1 mede o RTT função→Supabase` deste PR e foi removido por ser público. Para repetir: repor esse commit num ramo de preview e `vercel curl "<preview>/api/health?db=1"`.
