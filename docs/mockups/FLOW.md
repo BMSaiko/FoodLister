@@ -267,3 +267,6 @@ Lista das refeições agendadas do utilizador (`/api/meals/scheduled?type=all&li
 
 ## Fluxo
 Navbar/tab bar → `/meals` → `/meals/[id]` (ficha em 2 colunas: editar, eliminar, calendário, RSVP; paridade em `refeicoes/PARIDADE.md`). Vazio → `/restaurants`.
+
+## /notifications (mockups 2026-11-27)
+Notificações passa a ligar às preferências: atalho (engrenagem) no cabeçalho → `/users/settings/notifications` (fecha o ponto #21: antes só chegava de `/subscribe/success`). Chega de: navbar (sino), push, e-mail. Segue para: `link` de cada notificação, `/restaurants`.

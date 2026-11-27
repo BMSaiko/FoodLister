@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notificações · A Cronologia</title><link rel="stylesheet" href="shared.css">
+<style>
+/* A · Cronologia: coluna única, trilho vertical por dia, cartões com ícone de tipo e ação sempre visível */
+.col{max-width:720px;margin:0 auto}
+.day{position:relative;padding-left:28px}
+.day::before{content:"";position:absolute;left:7px;top:6px;bottom:-14px;width:1px;background:var(--line)}
+.day>.group-h{position:relative;margin:0 0 10px}
+.day>.group-h::before{content:"";position:absolute;left:-26px;top:3px;width:9px;height:9px;border-radius:99px;background:var(--background);border:2px solid var(--primary)}
+.day+.day{margin-top:28px}
+.card{display:flex;gap:12px;align-items:flex-start;padding:14px 4px 14px 14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02);cursor:pointer;transition:background .2s,border-color .2s}
+.card:hover{background:rgba(255,255,255,.04);border-color:var(--card-border)}
+.card.unread{background:rgba(245,158,11,.04);border-color:rgba(245,158,11,.16)}
+.card .txt{flex:1;min-width:0;display:grid;gap:3px}
+.card .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card .meta .time::before{content:"·";margin-right:8px;color:var(--fg-3)}
+.card .more{margin-left:auto}
+.list{gap:8px}
+</style></head><body><div id="app"></div>
+<script src="notif.js"></script>
+<script>
+const N = NOTIF;
+const row = (n) => { const t = N.TYPES[n.type] || N.TYPES.system; return `<li class="card ${n.read ? 'read' : 'unread'}" style="--c:${t[1]}" data-open="${n.id}" tabindex="0" role="link" aria-label="${N.esc(n.title)}">
+  <span class="tico">${N.svg(t[2])}</span>
+  <div class="txt"><div class="meta"><span class="tag">${t[0]}</span><span class="time">${N.ago2(n.created_at)}</span>${n.read ? '' : '<span class="dot" role="img" aria-label="Não lida"></span>'}</div>
+  <div class="title">${N.esc(n.title)}</div><div class="msg">${N.esc(n.message)}</div></div>${N.itemMenu(n)}</li>`; };
+N.mount(() => N.shell(`<div class="col">${N.header()}${N.chips()}${N.body(row, (l, h) => `<section class="day"><h2 class="group-h">${l}</h2><ul class="list">${h}</ul></section>`)}</div>`));
+</script></body></html>
