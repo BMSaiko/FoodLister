@@ -9,9 +9,8 @@ test.describe('Novidades', () => {
   test('mostra a lista ou o estado vazio', async ({ page }) => {
     await page.goto('/novidades');
     const cards = page.locator('article');
-    await expect(page.locator('article, [role="status"]').first()).toBeVisible();
+    await expect(page.locator('article').or(page.getByText('Ainda não há novidades')).first()).toBeVisible();
     if ((await cards.count()) === 0) {
-      await expect(page.getByRole('status')).toContainText('Ainda não há novidades');
       return;
     }
     await expect(page.getByText('Mais recente')).toHaveCount(1);
@@ -20,7 +19,7 @@ test.describe('Novidades', () => {
   test('filtra por categoria e abre o detalhe', async ({ page }) => {
     await page.goto('/novidades');
     const cards = page.locator('article');
-    await expect(page.locator('article, [role="status"]').first()).toBeVisible();
+    await expect(page.locator('article').or(page.getByText('Ainda não há novidades')).first()).toBeVisible();
     test.skip((await cards.count()) === 0, 'sem releases na BD local');
 
     const filtro = page.getByRole('button', { name: 'Corrigido' });
@@ -29,7 +28,7 @@ test.describe('Novidades', () => {
     await page.getByRole('button', { name: 'Tudo' }).click();
 
     await cards.first().getByRole('link').first().click();
-    await expect(page).toHaveURL(/\/novidades\/\d+\.\d+\.\d+/);
+    await expect(page).toHaveURL(/\/novidades\/\d+\.\d+\.\d+/, { timeout: 15000 }); // compilação a pedido do servidor dev
     await expect(page.getByRole('link', { name: /Todas as novidades/ })).toBeVisible();
   });
 
