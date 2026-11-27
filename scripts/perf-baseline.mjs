@@ -37,10 +37,10 @@ export function resumir(amostras) {
   }
 }
 
-async function pedir(url) {
+async function pedir(url, cookie) {
   const t0 = performance.now()
   try {
-    const res = await fetch(url, { headers: { accept: 'application/json' } })
+    const res = await fetch(url, { headers: cookie ? { accept: 'application/json', cookie } : { accept: 'application/json' } })
     const buf = await res.arrayBuffer()
     return { ms: performance.now() - t0, bytes: buf.byteLength, status: res.status }
   } catch {
@@ -48,10 +48,10 @@ async function pedir(url) {
   }
 }
 
-export async function medirRota(base, rota, n, warmup) {
-  for (let i = 0; i < warmup; i++) await pedir(base + rota)
+export async function medirRota(base, rota, n, warmup, { cookie } = {}) {
+  for (let i = 0; i < warmup; i++) await pedir(base + rota, cookie)
   const amostras = []
-  for (let i = 0; i < n; i++) amostras.push(await pedir(base + rota))
+  for (let i = 0; i < n; i++) amostras.push(await pedir(base + rota, cookie))
   return { rota, ...resumir(amostras) }
 }
 
