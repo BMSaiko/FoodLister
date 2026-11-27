@@ -26,15 +26,6 @@
           "value": "camera=(), microphone=(), geolocation=(self)"
         }
       ]
-    },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, no-cache, must-revalidate"
-        }
-      ]
     }
   ],
   "rewrites": [

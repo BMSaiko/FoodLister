@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createNotification } from '@/libs/notifications/service';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const { userId, type, title, message, link } = body;
@@ -28,3 +29,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

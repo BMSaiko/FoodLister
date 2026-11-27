@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/libs/supabase/admin';
 import type { ApiErrorType } from '@/types/api';
 import { getErrorMessage } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 /**
  * Send email notification via Supabase Auth or external email service.
  * This endpoint is called internally by other APIs to trigger email notifications.
  */
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const { userId, type, title, message } = body;
@@ -69,3 +70,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

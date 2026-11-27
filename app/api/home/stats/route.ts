@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getPublicServerClient } from '@/libs/supabase/server';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 export const dynamic = 'force-dynamic';
 
 // roleta da home: top 10 por melhor avaliação (rating desc, desempate por nº de reviews)
 const cols = 'id, name, rating, review_count, price_per_person, location, images, display_image_index';
 
-export async function GET() {
+async function GETHandler() {
   try {
     const supabase = await getPublicServerClient();
     if (!supabase) {
@@ -53,3 +54,5 @@ export async function GET() {
     return NextResponse.json({ error: e?.message || 'internal', code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

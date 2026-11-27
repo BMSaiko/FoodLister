@@ -3,8 +3,9 @@ import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import { resolveListId } from '@/libs/slug';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -72,3 +73,5 @@ export async function GET(
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

@@ -1,6 +1,7 @@
 // T48 — GET /api/admin/reports : fila de reports (admin).
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/libs/supabase/server';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 const TYPE_TABLE: Record<string, { table: string; name_field: string }> = {
   restaurant: { table: 'restaurants', name_field: 'name' },
@@ -9,7 +10,7 @@ const TYPE_TABLE: Record<string, { table: string; name_field: string }> = {
   profile:    { table: 'profiles',    name_field: 'display_name' },
 };
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const auth = await requireAdmin(request, new NextResponse());
   if (!auth.ok) return auth.response;
 
@@ -44,3 +45,5 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ data: items });
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

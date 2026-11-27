@@ -3,8 +3,9 @@
 // requireUser auth; inserts own row. Fire-and-forget from client (keepalive).
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/libs/supabase/server';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const auth = await requireUser(request, new NextResponse());
   if (!auth.ok) return auth.response;
 
@@ -27,3 +28,5 @@ export async function POST(request: NextRequest) {
   }
   return NextResponse.json({ ok: true });
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

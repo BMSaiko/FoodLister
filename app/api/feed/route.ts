@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { buildFeedItems, restaurantImage, LIST_COVERS, SOURCE_LIMIT } from '@/libs/feed';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const supabase = await getServerClient(request, new NextResponse());
   if (!supabase) return NextResponse.json({ error: 'Unauthorized', code: 'AUTHENTICATION_ERROR' }, { status: 401 });
 
@@ -62,3 +63,5 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ data, total, page, limit, hasMore });
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

@@ -4,6 +4,7 @@ import { cacheOrSet } from '@/libs/cache';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { DEFAULT_LIMIT, MAX_LIMIT, listReleases } from '@/libs/releases/server';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,7 @@ function positiveInt(raw: string | null, fallback: number): number | null {
   return n >= 1 ? n : null;
 }
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const params = request.nextUrl.searchParams;
     const page = positiveInt(params.get('page'), 1);
@@ -39,3 +40,5 @@ export async function GET(request: NextRequest) {
     return fail('INTERNAL_ERROR', 500);
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

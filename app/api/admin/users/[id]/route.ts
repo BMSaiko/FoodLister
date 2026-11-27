@@ -3,8 +3,9 @@ import { getServerClient } from '@/libs/supabase/server';
 import { createAdminClient } from '@/libs/supabase/admin';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -113,7 +114,7 @@ export async function GET(
 }
 
 
-export async function PUT(
+async function PUTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -208,3 +209,7 @@ export async function PUT(
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const PUT = withCachePolicy(privateNoStore, PUTHandler);

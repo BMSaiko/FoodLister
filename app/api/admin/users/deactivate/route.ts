@@ -3,8 +3,9 @@ import { getServerClient } from '@/libs/supabase/server';
 import { createAdminClient } from '@/libs/supabase/admin';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -99,3 +100,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

@@ -6,8 +6,9 @@ import {
   getUserReviewsData,
   getUserListsData
 } from '@/libs/auth';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function GETHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: userId } = await params;
 
@@ -141,3 +142,5 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

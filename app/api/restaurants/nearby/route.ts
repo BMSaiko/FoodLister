@@ -8,6 +8,7 @@ import {
 } from '@/libs/search';
 import { cacheOrSet } from '@/libs/cache';
 import type { Database } from '@/types/database';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 type DbRestaurant = Database['public']['Tables']['restaurants']['Row'];
 
@@ -37,7 +38,7 @@ interface RestaurantWithDistance {
   distance: number;
 }
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const lat = parseFloat(searchParams.get('lat') || '');
@@ -169,3 +170,4 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export const GET = withCachePolicy(privateNoStore, GETHandler);

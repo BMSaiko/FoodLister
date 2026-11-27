@@ -11,6 +11,7 @@ import { notifyMentionedUsers } from '@/libs/mentions';
 import { parsePaginationFromRequest } from '@/libs/utils/pagination';
 import { isUuid, resolveRestaurantId } from '@/libs/slug';
 import { updateRestaurantRating } from '@/libs/restaurantRating';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // Database type is incomplete — use explicit query types
 type ReviewRow = any;
@@ -25,7 +26,7 @@ interface ProcessedReview extends ReviewRow {
   };
 }
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   // Rate limiting
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
   const { allowed, remaining } = checkRateLimit(`reviews-get-${ip}`, 30, 60_000);
@@ -154,7 +155,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   // Rate limiting
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
   const rateLimitResult = checkRateLimit(`reviews-post-${ip}`, 10, 60_000);
@@ -331,3 +332,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

@@ -3,9 +3,10 @@ import { getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { generateRestaurantPost } from '@/libs/ai';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // GET - List user's posts
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST - Create a post (with optional AI generation)
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -140,3 +141,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

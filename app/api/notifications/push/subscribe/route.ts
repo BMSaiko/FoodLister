@@ -3,11 +3,12 @@ import {  } from '@/libs/supabase/admin';
 import { getServerClient } from '@/libs/supabase/server';
 import type { ApiErrorType } from '@/types/api';
 import { getErrorMessage } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 /**
  * Save a push notification subscription for the current user.
  */
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -47,3 +48,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

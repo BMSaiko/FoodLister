@@ -6,6 +6,7 @@ import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
 import { isDuplicate } from './utils';
 import { isValidCoordinates } from '@/libs/search';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 interface BatchRestaurant {
   name: string;
@@ -18,7 +19,7 @@ interface BatchRestaurant {
   place_id?: string;
 }
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const response = NextResponse.next();
   try {
     const auth = await requireAdmin(request, response);
@@ -172,3 +173,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);
