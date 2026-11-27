@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getClient } from '@/libs/supabase/client';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
+import { compareReleasesDesc } from '@/libs/releases/order';
 
 export const SEEN_KEY = 'fl:release-seen';
 const SEEN_EVENT = 'fl:release-seen-change';
@@ -42,11 +43,13 @@ export default function useUnseenRelease() {
       try {
         const { data } = await getClient()
           .from('release_notes')
-          .select('version, title')
+          .select('version, title, released_at')
           .order('released_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (alive) setLatest(data ?? null);
+          .limit(5);
+        const newest = ((data ?? []) as Array<{ version: string; title: string; released_at: string }>).sort(
+          compareReleasesDesc,
+        )[0];
+        if (alive) setLatest(newest ? { version: newest.version, title: newest.title } : null);
       } catch {
         if (alive) setLatest(null);
       } finally {

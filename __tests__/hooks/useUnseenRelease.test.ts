@@ -3,9 +3,9 @@ import useUnseenRelease, { SEEN_KEY } from '@/hooks/releases/useUnseenRelease';
 
 let latest: { version: string; title: string } | null = null;
 let failFetch = false;
-const maybeSingle = jest.fn(async () => {
+const fetchLatest = jest.fn(async () => {
   if (failFetch) throw new Error('rede');
-  return { data: latest, error: null };
+  return { data: latest ? [{ ...latest, released_at: '2026-11-27' }] : [], error: null };
 });
 let mockUser: { id: string } | null = null;
 jest.mock('@/hooks/auth/useAuthUser', () => ({
@@ -30,7 +30,7 @@ jest.mock('@/libs/supabase/client', () => ({
   getClient: () => ({
     from: (table: string) => {
       if (table === 'release_notes') {
-        return { select: () => ({ order: () => ({ limit: () => ({ maybeSingle }) }) }) };
+        return { select: () => ({ order: () => ({ limit: fetchLatest }) }) };
       }
       notificationTables.push(table);
       return {
