@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-27
+
+### Changed
+- **Publicação de novidades** — as notas de versões anteriores passam a aparecer em `/novidades` e só a versão mais recente gera aviso; a publicação passa a falhar de forma visível
+
 ## [0.2.0] - 2026-11-27
 
 ### Added
