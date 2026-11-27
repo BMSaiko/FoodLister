@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { id: 'restaurants', label: 'Restaurantes', href: '/restaurants' },
   { id: 'map', label: 'Mapa', href: '/map' },
   { id: 'lists', label: 'Listas', href: '/lists' },
+  { id: 'novidades', label: 'Novidades', href: '/novidades' },
 ] as const;
 
 const HomeIc = ({ className }: { className?: string }) => <Ico name="home" className={className} />;
@@ -53,7 +54,7 @@ export default function Navbar() {
 
 
   // Active section
-  const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' || pathname === '/feed' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
+  const activeSection = pathname?.startsWith('/novidades') ? 'novidades' : pathname === '/roulette' ? 'roulette' : pathname === '/' || pathname === '/feed' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -136,6 +137,19 @@ export default function Navbar() {
           </button>
 
           <div className="flex items-center gap-1.5">
+            <Link
+              href="/novidades"
+              prefetch={false}
+              onClick={() => { if (pathname === '/novidades') window.location.reload(); }}
+              aria-current={activeSection === 'novidades' ? 'page' : undefined}
+              className={`md:hidden inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] hover:bg-white/5 transition-colors ${
+                activeSection === 'novidades' ? 'text-[var(--primary)]' : 'text-white/55 hover:text-[var(--foreground)]'
+              }`}
+              aria-label={t("Novidades")}
+              title={t("Novidades")}
+            >
+              <Icon name="faiscas" className="h-5 w-5" />
+            </Link>
             <LanguageCombobox />
             {user && (
               <Link
@@ -259,6 +273,13 @@ export default function Navbar() {
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
                           <Icon name="calendario" className="w-4 h-4" /> Refeições
+                        </Link>
+                        <Link
+                          href="/novidades"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
+                        >
+                          <Icon name="faiscas" className="w-4 h-4" /> Novidades
                         </Link>
                         <Link
                           href="/pricing"
