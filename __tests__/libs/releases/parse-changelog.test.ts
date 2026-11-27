@@ -92,6 +92,22 @@ describe('parseChangelog', () => {
   })
 })
 
+describe('cabeçalho com travessão', () => {
+  it('aceita «—» e «–» como separador da data (como o CHANGELOG real)', () => {
+    for (const sep of ['—', '–', '-']) {
+      const md = `## [0.1.0] ${sep} 2026-06-13\n\n### Added\n- algo\n`
+      expect(parseChangelog(md)).toEqual([
+        { version: '0.1.0', releasedAt: '2026-06-13', title: expect.any(String), items: { novo: ['algo'], melhorado: [], corrigido: [] } },
+      ])
+    }
+  })
+
+  it('CHANGELOG.md real tem a secção 0.1.0', () => {
+    const md = readFileSync(join(process.cwd(), 'CHANGELOG.md'), 'utf8')
+    expect(parseChangelog(md).some((n) => n.version === '0.1.0')).toBe(true)
+  })
+})
+
 describe('parseRelease', () => {
   it('lê uma secção isolada', () => {
     const nota = parseRelease('## [2.0.0] - 2027-01-02\n\n### Added\n- X\n')
