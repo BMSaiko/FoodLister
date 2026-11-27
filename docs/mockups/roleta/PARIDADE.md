@@ -4,6 +4,8 @@ Fonte: `app/roulette/page.tsx` (258 l), `components/ui/RestaurantRoulette.tsx` (
 Entrada: Navbar «Roleta» (desktop e tab bar mobile). Saída: `/restaurants/<slug|id>`; Navbar.
 Baseline: `tsc --noEmit` rc 0 em `dev` (8e152fa).
 
+**Estado (2026-11-27):** implementado (076187d); `tsc` rc 0, eslint 0 erros, jest da roleta 8/8. Coluna «Verificado» por marcar: falta verificação visual desktop+mobile (sem servidor dev nem env).
+
 | # | Funcionalidade atual | Onde fica no novo design | Verificado |
 |---|---|---|---|
 | 1 | Hero (badge, h1, subtítulo) | A: cabeçalho; B: título sobre a roda | [ ] |
