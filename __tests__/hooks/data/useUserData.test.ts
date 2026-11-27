@@ -6,7 +6,10 @@ const getCache = jest.fn();
 const setWithTTL = jest.fn();
 const removeByPrefix = jest.fn();
 
-jest.mock('@/hooks/auth/useApiClient', () => ({ useApiClient: () => ({ get }) }));
+let unstable = false;
+jest.mock('@/hooks/auth/useApiClient', () => ({
+  useApiClient: () => ({ get: unstable ? (...a: unknown[]) => get(...a) : get }),
+}));
 jest.mock('@/hooks/utilities/useLocalStorage', () => ({
   useLocalStorage: () => ({ get: getCache, setWithTTL, removeByPrefix }),
 }));
@@ -18,6 +21,7 @@ const opts = { enableReviews: false, enableLists: false, enableRestaurants: fals
 
 beforeEach(() => {
   jest.clearAllMocks();
+  unstable = false;
   getCache.mockReturnValue(null);
 });
 
@@ -89,5 +93,24 @@ describe('useUserData: restaurantes antes do perfil', () => {
     resolveProfile(json({ id: 'u-race', name: 'Ana', accessLevel: 'PUBLIC' }));
     await waitFor(() => expect(result.current.profile?.name).toBe('Ana'));
     expect(renders.filter(r => !r.loading && !r.profile && !r.error)).toHaveLength(0);
+  });
+});
+
+describe('useUserData: pedidos duplicados', () => {
+  it('opções inline e re-render: 1 pedido por endpoint', async () => {
+    get.mockImplementation(() => Promise.resolve(json({ id: 'u-dup', data: [], accessLevel: 'PUBLIC' })));
+    unstable = true;
+    const { result, rerender } = renderHook(() =>
+      useUserData({ userId: 'u-dup', enableReviews: true, enableLists: true, enableRestaurants: true })
+    );
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    rerender();
+    rerender();
+    await new Promise(r => setTimeout(r, 20));
+    const count = (s: string) => get.mock.calls.filter(([u]) => String(u).includes(s)).length;
+    expect(count('/api/users/u-dup/reviews')).toBe(1);
+    expect(count('/api/users/u-dup/lists')).toBe(1);
+    expect(count('/api/users/u-dup/restaurants')).toBe(1);
+    expect(get.mock.calls.filter(([u]) => u === '/api/users/u-dup')).toHaveLength(1);
   });
 });
