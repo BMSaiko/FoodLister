@@ -22,4 +22,8 @@ describe('migracoesPendentes', () => {
   it('saída sem tabela: vazio', () => {
     expect(migracoesPendentes('Connecting...')).toEqual([])
   })
+  it('lê o formato JSON do CLI fora de um terminal', () => {
+    const json = 'Target: prod\n{"migrations":[{"local":"1","remote":"1"},{"local":"2","remote":""},{"local":"3"},{"remote":"9"}],"message":"ok"}'
+    expect(migracoesPendentes(json)).toEqual(['2', '3'])
+  })
 })

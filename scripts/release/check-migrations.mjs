@@ -9,6 +9,16 @@ import { pathToFileURL } from 'node:url'
 /** Versões presentes em Local mas ausentes em Remote, a partir de `supabase migration list`. */
 export function migracoesPendentes(saida) {
   const pendentes = []
+  // Fora de um terminal o CLI devolve JSON: {"migrations":[{"local":"..","remote":".."}]}
+  const j = /\{[\s\S]*"migrations"[\s\S]*\}/.exec(saida)
+  if (j) {
+    try {
+      const { migrations } = JSON.parse(j[0])
+      return migrations.filter((m) => m.local && !m.remote).map((m) => m.local)
+    } catch {
+      // cai para o formato de tabela
+    }
+  }
   for (const linha of saida.split('\n')) {
     const [local, remoto] = linha.split('|').map((c) => c.trim())
     if (/^\d{8,}$/.test(local ?? '') && !remoto) pendentes.push(local)
