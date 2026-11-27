@@ -1,0 +1,32 @@
+<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>/meals/[id] · A Convite</title><link rel="stylesheet" href="shared.css"><link rel="stylesheet" href="detalhe.css">
+<style>
+/* A · Convite: coluna única. A imagem do restaurante abre; a data é a manchete; resposta (RSVP) fixa em baixo no telemóvel. */
+.hero{position:relative;border-radius:22px;overflow:hidden;min-height:240px;display:grid;align-items:end;background:linear-gradient(135deg,#2a1c05,#4a2f08)}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,5,5,.1) 0%,rgba(5,5,5,.92) 100%)}
+.hero>div{position:relative;z-index:1;padding:20px;display:grid;gap:8px}.hero .tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hero h1{font-size:clamp(26px,5vw,40px);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.when{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:22px 0 4px}.when b{font-size:clamp(22px,4vw,30px);letter-spacing:-.03em;font-weight:700}.when b::first-letter{text-transform:uppercase}.when span{color:var(--primary);font-family:'Geist Mono',monospace;font-size:20px}
+.when em{font-style:normal;color:var(--fg-3);font-size:13px;flex-basis:100%}
+.grid{display:grid;gap:28px;margin-top:24px}@media(min-width:820px){.grid{grid-template-columns:1.2fr 1fr;align-items:start}}
+.panel{padding:18px 20px}.stack{display:grid;gap:10px}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:55;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(5,5,5,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line)}@media(min-width:820px){.dock{position:static;padding:0;background:none;border:0;backdrop-filter:none}}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tools .btn{flex:1;min-width:140px}
+</style></head><body>
+<div id="mockbar" class="mockbar"></div><div id="shell"></div>
+<main class="page" style="padding-bottom:120px"><div class="wrap" id="root" style="max-width:880px"></div></main>
+<script src="data.js"></script><script src="states.js"></script><script src="detalhe.js"></script>
+<script>
+const {esc,ic,chip,av,fmtDate,endTime,durL,type,rsvp,cal,owner,people,isPast}=DT;
+DT.boot(m=>{const r=m.restaurant,past=isPast(m),end=endTime(m.time,m.dur),rs=rsvp(m);
+return `<a class="back" href="#perfil">${ic('back')}Voltar</a>
+<section class="hero">${ic('fork').replace('<svg','<svg style="position:absolute;top:28px;right:28px;width:48px;height:48px;color:var(--primary);opacity:.35"')}${r.image?`<img src="${r.image}" alt="" onerror="this.remove()">`:''}<div><div class="tags"><span class="tag">${type(m)}</span>${m.isOrganizer?'<span class="tag">Organizador</span>':''}${!m.isOrganizer&&m.status?chip(m.status):''}</div><h1>${esc(r.name)}</h1></div></section>
+<div class="when"><b>${m.date?fmtDate(m.date):'Sem data'}</b>${m.time?`<span>${m.time}${end?` – ${end}`:''}</span>`:''}<em>Duração ${durL(m.dur)}${r.location&&r.location!==r.name?` · ${esc(r.location)}`:''}</em></div>
+<div class="grid"><div class="stack">
+ <section class="card panel"><h2 class="sec">Organizador</h2><div style="display:flex;gap:12px;align-items:center">${av({name:m.organizer.name},'org')}<div><b>${esc(m.organizer.name)}</b>${m.organizer.code?`<small style="display:block;color:var(--fg-3);font-size:12px">${m.organizer.code}</small>`:''}</div></div></section>
+ ${m.participants.length?`<section class="card panel"><h2 class="sec">Participantes (${m.participants.length})</h2>${people(m,4)}</section>`:''}
+</div><div class="stack">
+ ${rs?`<div class="dock">${rs}</div>`:past?'<p class="past-note">Esta refeição já passou: a resposta está fechada.</p>':''}
+ <section class="card panel"><h2 class="sec">Calendário</h2><div class="stack">${cal(m)}</div>${m.isOrganizer?`<h2 class="sec" style="margin-top:18px">Organizador</h2><div class="tools">${owner(m)}</div>`:''}</section>
+ ${r.location||true?`<a class="rest" href="#restaurante">Ver página do restaurante ${ic('arrow')}</a>`:''}
+</div></div>`});
+</script></body></html>
