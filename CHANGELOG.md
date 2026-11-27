@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-27
+
 ### Added
 - **Aviso de novidades** — trigger `notify_release` em `release_notes` avisa todos os utilizadores (tipo `release`, respeita `system_updates`, idempotente por utilizador e versão), popup «Há novidades» e badge «Novo» no link «Novidades» (hook `useUnseenRelease`; visto em `localStorage` e na notificação lida)
 - **Novidades** — `/novidades` e `/novidades/[version]` com as notas de release como newsletter (filtros por tipo, estado vazio com Tovi, markdown inline seguro), `GET /api/releases` público e paginado, link na navegação
