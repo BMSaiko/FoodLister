@@ -3,7 +3,9 @@
 import { useAdminStats } from '@/hooks/admin/useAdminStats';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import DashboardStats from '@/components/admin/DashboardStats';
-import GrowthChart from '@/components/admin/GrowthChart';
+import dynamic from 'next/dynamic';
+
+const GrowthChart = dynamic(() => import('@/components/admin/GrowthChart'), { ssr: false });
 import Link from 'next/link';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import ToviSpinner from '@/components/loading/ToviSpinner';

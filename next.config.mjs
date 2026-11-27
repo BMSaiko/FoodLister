@@ -42,7 +42,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    optimizePackageImports: ['@supabase/supabase-js'],
+    optimizePackageImports: ['@supabase/supabase-js', 'recharts', 'motion', 'react-toastify'],
   },
 
   async headers() {
