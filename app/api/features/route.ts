@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPublicServerClient, getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
-import { cacheOrSet } from '@/libs/cache';
+import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
 import { publicCache, privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 export const dynamic = 'force-dynamic';
@@ -24,7 +24,7 @@ async function GETHandler(_request: NextRequest) {
     const data = await cacheOrSet(cacheKey, async () => {
       const { data, error } = await supabase
         .from('restaurant_features')
-        .select('*')
+        .select('id, name, icon')
         .order('name', { ascending: true });
       if (error) throw error;
       return data;
@@ -114,6 +114,8 @@ async function POSTHandler(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    cacheInvalidatePrefix('features:');
 
     return NextResponse.json({
       data,
