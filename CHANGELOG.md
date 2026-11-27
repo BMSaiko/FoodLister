@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-27
+
+### Fixed
+- **Ordem das novidades** — `/novidades` mostra a release mais recente primeiro; releases do mesmo dia desempatam por versão (0.2.1 antes de 0.2.0) e o aviso usa o mesmo critério
+
 ## [0.2.1] - 2026-11-27
 
 ### Changed
