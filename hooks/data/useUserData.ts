@@ -89,7 +89,7 @@ export function useUserData(options: UseUserDataOptions) {
     reviews: [],
     lists: [],
     restaurants: [],
-    loading: false,
+    loading: autoFetch && !!userId,
     loadingStates: {
       profile: false,
       reviews: false,
