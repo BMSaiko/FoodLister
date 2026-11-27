@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAuthUserResult } from '@/libs/supabase/server';
 import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 
@@ -18,7 +18,7 @@ async function GETHandler(request: NextRequest, { params }: { params: Promise<{ 
     let user = null;
     
     try {
-      const authResult = await supabase.auth.getUser();
+      const authResult = await getAuthUserResult(supabase);
       user = authResult.data?.user;
     } catch (error) {
       console.warn('Authentication check failed:', error);

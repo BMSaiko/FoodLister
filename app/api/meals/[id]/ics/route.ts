@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAuthUserResult } from '@/libs/supabase/server';
 import { generateMealIcsContent } from '@/libs/ics-generator';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
@@ -21,7 +21,7 @@ async function GETHandler(
       );
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await getAuthUserResult(supabase);
     if (!user) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
       return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 401 });

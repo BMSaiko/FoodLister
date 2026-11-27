@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, getAuthUserResult } from '@/libs/supabase/server';
 import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // Helper function to handle public requests (unauthenticated)
@@ -251,7 +251,7 @@ async function GETHandler(request: NextRequest, { params }: { params: Promise<{ 
     let authError = null;
     
     try {
-      const authResult = await supabase.auth.getUser();
+      const authResult = await getAuthUserResult(supabase);
       user = authResult.data?.user;
       authError = authResult.error;
     } catch (error) {

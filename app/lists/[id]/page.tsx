@@ -11,7 +11,9 @@ import { useShare } from "@/hooks/utilities/useShare";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import Skeleton from "@/components/ui/Skeleton";
 import ListSidePanel from "@/components/ui/lists/ListSidePanel";
-import ListStatistics from "@/components/ui/lists/ListStatistics";
+import dynamic from "next/dynamic";
+
+const ListStatistics = dynamic(() => import("@/components/ui/lists/ListStatistics"), { ssr: false });
 import ListRestaurantView from "@/components/ui/lists/ListRestaurantView";
 import ListComments from "@/components/ui/lists/ListComments";
 import ReportButton from "@/components/ui/common/ReportButton";
