@@ -20,6 +20,8 @@ const cspPolicy = [
 const nextConfig = {
   outputFileTracingRoot: process.cwd(),
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'source.unsplash.com' },

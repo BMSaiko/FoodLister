@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { MapPin, Star, Trash2, List as ListIcon, LayoutGrid } from "./MockIcons";
 import { toviSrc } from "@/utils/toviPlaceholder";
+import SmartImage from "@/components/ui/common/SmartImage";
 
 interface ListRestaurantViewProps {
   restaurants: any[];
@@ -34,8 +35,7 @@ function shortLoc(loc?: string): string {
 function Thumb({ r }: { r: any }) {
   const src = imageOf(r);
   return src ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={r.name} loading="lazy" className="h-full w-full object-cover" />
+    <span className="relative block h-full w-full"><SmartImage src={src} alt={r.name} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw" className="object-cover" /></span>
   ) : (
     <div className="flex h-full w-full flex-col items-center justify-center gap-1 bg-[#0c0c0c]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
