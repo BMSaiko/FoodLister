@@ -3,11 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 const TARGETS = ['restaurant', 'review', 'list', 'profile'];
 const REASONS = ['closed', 'wrong_data', 'prices', 'other', 'spam', 'offensive'];
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const auth = await requireUser(request, new NextResponse());
   if (!auth.ok) return auth.response;
 
@@ -44,3 +45,5 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ success: true });
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

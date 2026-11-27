@@ -9,6 +9,7 @@ import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/paginatio
 import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { isUuid } from '@/libs/slug';
 import { isValidCoordinates } from '@/libs/search';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 
 interface Restaurant {
@@ -56,7 +57,7 @@ function isCurrentlyOpen(openingHours: string | null): boolean | null {
   } catch { return null; }
 }
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const response = NextResponse.next();
   try {
     const supabase = await getServerClient(request, response);
@@ -283,7 +284,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const response = NextResponse.next();
   try {
     const auth = await requireUser(request, response);
@@ -336,3 +337,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

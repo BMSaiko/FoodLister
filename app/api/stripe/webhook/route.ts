@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/libs/supabase/admin';
 import { getStripe, STRIPE_WEBHOOK_SECRET } from '@/libs/stripe';
 import Stripe from 'stripe';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const body = await request.text();
     const sig = request.headers.get('stripe-signature');
@@ -163,3 +164,5 @@ export const config = {
     bodyParser: false,
   },
 };
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, getPublicServerClient, getAuthUserResult } from '@/libs/supabase/server';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // Helper function to handle public requests (unauthenticated)
 async function handlePublicRequest(request: NextRequest, supabase: any, params: { id: string }) {
@@ -227,7 +228,7 @@ async function handlePublicRequest(request: NextRequest, supabase: any, params: 
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function GETHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -485,3 +486,5 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

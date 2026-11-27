@@ -4,8 +4,9 @@ import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { checkRateLimit } from '@/libs/rate-limit';
 import { getUserMeals } from '@/libs/meals/service';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -105,3 +106,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

@@ -5,13 +5,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/libs/supabase/server';
 import { isDuplicate } from '../utils';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 interface CheckItem {
   name?: string;
   source_url?: string;
 }
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const auth = await requireAdmin(request, new NextResponse());
     if (!auth.ok) return auth.response;
@@ -36,3 +37,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erro interno', code: errorType }, { status: 500 });
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OSMService } from '@/utils/googleMapsExtractor';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 /**
  * Server-side proxy para o Nominatim (reverse + forward geocode).
@@ -8,7 +9,7 @@ import { OSMService } from '@/utils/googleMapsExtractor';
  * client-side. Correr o fetch aqui (Node) deixa impor o UA FoodLister.
  * Mesmo padrao do resolve-google-maps-url.
  */
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
   const lat = sp.get('lat');
   const lon = sp.get('lon');
@@ -39,3 +40,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to geocode' }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

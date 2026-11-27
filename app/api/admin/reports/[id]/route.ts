@@ -1,8 +1,9 @@
 // T48 — PATCH /api/admin/reports/[id] : resolve/dismiss (admin).
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/libs/supabase/server';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function PATCHHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin(request, new NextResponse());
   if (!auth.ok) return auth.response;
 
@@ -25,3 +26,5 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
   return NextResponse.json({ success: true });
 }
+
+export const PATCH = withCachePolicy(privateNoStore, PATCHHandler);

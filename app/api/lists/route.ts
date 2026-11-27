@@ -6,9 +6,10 @@ import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import type { Database } from '@/types/database';
 import { parsePaginationFromRequest } from '@/libs/utils/pagination';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 type DbList = Database['public']['Tables']['lists']['Row'];
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const responseObj = NextResponse.next();
     const supabase = await getServerClient(request, responseObj);
@@ -175,3 +176,5 @@ let codesClient: any = supabase;
       );
     }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

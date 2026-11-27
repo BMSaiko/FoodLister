@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+async function GETHandler(_request: NextRequest) {
   return NextResponse.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -11,3 +12,5 @@ export async function GET(_request: NextRequest) {
     version: process.env.npm_package_version || '0.1.0',
   });
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

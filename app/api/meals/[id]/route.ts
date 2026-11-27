@@ -3,9 +3,10 @@ import { getServerClient } from '@/libs/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // GET a single scheduled meal
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -121,7 +122,7 @@ export async function GET(
 }
 
 // PATCH - Update a scheduled meal (organizer only)
-export async function PATCH(
+async function PATCHHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -283,7 +284,7 @@ export async function PATCH(
 }
 
 // DELETE - Delete a scheduled meal (organizer only)
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -340,3 +341,9 @@ export async function DELETE(
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const PATCH = withCachePolicy(privateNoStore, PATCHHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);

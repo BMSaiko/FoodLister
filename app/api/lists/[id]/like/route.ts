@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { resolveListId } from '@/libs/slug';
 import { createNotification } from '@/libs/notifications/service';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // GET: like count + whether current user liked. POST: toggle like (auth only).
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function GETHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await getServerClient(request, new NextResponse());
   const listId = (await resolveListId(supabase, id)) ?? id;
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   return NextResponse.json({ count: count || 0, liked });
 }
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function POSTHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await getServerClient(request, new NextResponse());
   if (!supabase) return NextResponse.json({ error: 'Authentication required', code: 'AUTHENTICATION_ERROR' }, { status: 401 });
   const { data: { user } } = await supabase.auth.getUser();
@@ -57,3 +58,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   return NextResponse.json({ count: count || 0, liked: true });
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

@@ -6,9 +6,10 @@ import { logActivity } from '@/libs/activity';
 import { getListRole } from '@/libs/lists/permissions';
 import { resolveListId } from '@/libs/slug';
 import { createNotification } from '@/libs/notifications/service';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // GET - List all collaborators
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -56,7 +57,7 @@ export async function GET(
 }
 
 // POST - Add collaborator by user_id or user_id_code
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -167,7 +168,7 @@ export async function POST(
 }
 
 // DELETE - Remove collaborator
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -230,3 +231,9 @@ export async function DELETE(
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);

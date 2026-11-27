@@ -7,8 +7,9 @@ import type { ApiErrorType } from '@/types/api';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { isUuid } from '@/libs/slug';
 import { isValidCoordinates } from '@/libs/search';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 // Valida se as coordenadas são válidas
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function GETHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
@@ -130,7 +131,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function PATCHHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
@@ -247,7 +248,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function DELETEHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const response = NextResponse.next();
     const supabase = await getServerClient(request, response);
@@ -299,3 +300,9 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const PATCH = withCachePolicy(privateNoStore, PATCHHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);

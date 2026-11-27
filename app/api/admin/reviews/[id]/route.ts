@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { createAdminClient } from '@/libs/supabase/admin';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+async function DELETEHandler(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const supabase = await getServerClient(request, new NextResponse()) as any;
@@ -22,3 +23,5 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);
