@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { id: 'restaurants', label: 'Restaurantes', href: '/restaurants' },
   { id: 'map', label: 'Mapa', href: '/map' },
   { id: 'lists', label: 'Listas', href: '/lists' },
+  { id: 'novidades', label: 'Novidades', href: '/novidades' },
 ] as const;
 
 const HomeIc = ({ className }: { className?: string }) => <Ico name="home" className={className} />;
@@ -259,6 +260,13 @@ export default function Navbar() {
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
                           <Icon name="calendario" className="w-4 h-4" /> Refeições
+                        </Link>
+                        <Link
+                          href="/novidades"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
+                        >
+                          <Icon name="faiscas" className="w-4 h-4" /> Novidades
                         </Link>
                         <Link
                           href="/pricing"
