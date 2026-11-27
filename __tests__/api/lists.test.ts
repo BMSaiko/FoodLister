@@ -28,6 +28,7 @@ const mockLists = [{ id: '1', name: 'Test', creator_id: 'user-123', is_public: t
 const mockUser = { id: 'user-123', email: 'test@example.com' };
 
 jest.mock('@/libs/supabase/server', () => ({
+  getAuthUserResult: jest.fn(async () => ({ data: { user: mockUser }, error: null })),
   getServerClient: jest.fn(async () => ({
     from: jest.fn(() => ({
       select: jest.fn(() => ({

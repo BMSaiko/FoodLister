@@ -1,6 +1,6 @@
 // app/api/lists/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAuthUserResult } from '@/libs/supabase/server';
 import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
@@ -21,7 +21,7 @@ let codesClient: any = supabase;
     let currentUserId: string | null = null;
 
     if (supabase) {
-      const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+      const { data: { user } } = await getAuthUserResult(supabase);
       currentUserId = user?.id ?? null;
 
       if (user) {
@@ -63,7 +63,7 @@ let codesClient: any = supabase;
       let fallbackQuery = fallbackClient.from('lists')
         .select('id, slug, name, description, creator, creator_id, creator_name, is_public, filters, tags, cover_image_url, created_at, updated_at, like_count:list_likes(count)');
       if (supabase) {
-        const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }));
+        const { data: { user } } = await getAuthUserResult(supabase);
         currentUserId = user?.id ?? null;
         if (user) fallbackQuery = fallbackQuery;
         else fallbackQuery = fallbackQuery.eq('is_public', true);
