@@ -1,5 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReleaseItems, ReleaseNote } from './types';
+import { compareReleasesDesc } from './order';
+
+export { compareReleasesDesc };
 
 export const DEFAULT_LIMIT = 10;
 export const MAX_LIMIT = 50;
@@ -37,9 +40,10 @@ export async function listReleases(
     .from('release_notes')
     .select(COLUMNS)
     .order('released_at', { ascending: false })
+    .order('version', { ascending: false })
     .range(from, from + limit);
   if (error) throw error;
-  const rows = (data ?? []) as ReleaseRow[];
+  const rows = ((data ?? []) as ReleaseRow[]).sort(compareReleasesDesc);
   return { releases: rows.slice(0, limit).map(toNote), page, hasMore: rows.length > limit };
 }
 
