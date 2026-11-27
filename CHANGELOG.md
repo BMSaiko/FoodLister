@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Aviso de novidades** — trigger `notify_release` em `release_notes` avisa todos os utilizadores (tipo `release`, respeita `system_updates`, idempotente por utilizador e versão), popup «Há novidades» e badge «Novo» no link «Novidades» (hook `useUnseenRelease`; visto em `localStorage` e na notificação lida)
 - **Novidades** — `/novidades` e `/novidades/[version]` com as notas de release como newsletter (filtros por tipo, estado vazio com Tovi, markdown inline seguro), `GET /api/releases` público e paginado, link na navegação
 - **Workflow git** — ramos `feat|fix|docs|chore/<slug>` → `dev` (squash) → `main` (merge commit), proteção de ramos e CI em PR para `dev` e `main` (#281-#282)
 - **Supabase local** — baseline por timestamp (histórico em `migrations_legacy/`), MCP local, scripts `db:*` de backup, restauro e promoção, portas 553xx (#283-#287)
