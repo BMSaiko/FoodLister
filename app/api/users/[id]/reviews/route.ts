@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAuthUserResult } from '@/libs/supabase/server';
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     let user = null;
     
     try {
-      const authResult = await supabase.auth.getUser();
+      const authResult = await getAuthUserResult(supabase);
       user = authResult.data?.user;
     } catch (error) {
       console.warn('Authentication check failed:', error);

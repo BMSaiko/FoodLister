@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient, getPublicServerClient } from '@/libs/supabase/server';
+import { getServerClient, getPublicServerClient, getAuthUserResult } from '@/libs/supabase/server';
 import {
   validateProfileAccess,
   getUserProfileData,
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Get the authenticated user (optional for public profiles)
     let currentUserId = null;
     try {
-      const authResult = await supabase.auth.getUser();
+      const authResult = await getAuthUserResult(supabase);
       if (authResult.data?.user) {
         currentUserId = authResult.data.user.id;
       }
