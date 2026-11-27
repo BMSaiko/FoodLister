@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAuthUserResult } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const {
       data: { user },
       error: authError
-    } = await supabase.auth.getUser();
+    } = await getAuthUserResult(supabase);
 
     if (authError || !user) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;

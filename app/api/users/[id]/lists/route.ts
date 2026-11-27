@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAuthUserResult } from '@/libs/supabase/server';
 
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -14,10 +14,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Get the authenticated user (optional for public profiles)
-    let user = null;
+    let user: { id: string } | null = null;
     
     try {
-      const authResult = await supabase.auth.getUser();
+      const authResult = await getAuthUserResult(supabase);
       user = authResult.data?.user;
     } catch (error) {
       console.warn('Authentication check failed:', error);
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     // Check if the current user is viewing their own profile
-    const isOwnProfile = profileData.user_id === user.id;
+    const isOwnProfile = profileData.user_id === user?.id;
 
     // Simple access control:
     // - Users can always view their own profiles
