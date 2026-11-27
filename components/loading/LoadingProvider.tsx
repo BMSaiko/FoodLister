@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, LazyMotion, domAnimation } from "motion/react";
 import PageLoader from "./PageLoader";
 
 interface LoadingContextValue {
@@ -76,10 +76,12 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   return (
     <LoadingContext.Provider value={{ showLoading, hideLoading, isLoading: loading }}>
-      {children}
-      <AnimatePresence>
-        {loading && <PageLoader key="global-loader" variant="bar" />}
-      </AnimatePresence>
+      <LazyMotion features={domAnimation}>
+        {children}
+        <AnimatePresence>
+          {loading && <PageLoader key="global-loader" variant="bar" />}
+        </AnimatePresence>
+      </LazyMotion>
     </LoadingContext.Provider>
   );
 };

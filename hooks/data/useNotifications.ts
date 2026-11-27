@@ -25,6 +25,26 @@ interface UseNotificationsReturn {
   loadMore: () => Promise<void>;
 }
 
+// Pedidos GET iguais em curso partilham a mesma promessa (Navbar + dropdown montam o hook juntos).
+const inFlight = new Map<string, Promise<any>>();
+
+function fetchDeduped(url: string): Promise<any> {
+  const existing = inFlight.get(url);
+  if (existing) return existing;
+  const p = fetch(url, { credentials: 'include' })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.status}`);
+      }
+      return response.json();
+    })
+    .finally(() => {
+      inFlight.delete(url);
+    });
+  inFlight.set(url, p);
+  return p;
+}
+
 export function useNotifications(options: UseNotificationsOptions = {}): UseNotificationsReturn {
   const {
     unreadOnly = false,
@@ -61,15 +81,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     const currentOffset = append ? offsetRef.current : 0;
 
     try {
-      const response = await fetch(buildUrl(limit, currentOffset), {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status}`);
-      }
-
-      const result = await response.json();
+      const result = await fetchDeduped(buildUrl(limit, currentOffset));
       const newNotifications: Notification[] = result.data || [];
 
       if (append) {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
+import { m as motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import EmptyState from '@/components/ui/EmptyState';
 import Navbar from '@/components/ui/navigation/Navbar';

@@ -7,7 +7,7 @@ import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import ListCard from '@/components/ui/RestaurantManagement/ListCard';
 import Navbar from '@/components/ui/navigation/Navbar';
 import Link from 'next/link';
-import { motion } from 'motion/react';
+import { m as motion } from 'motion/react';
 import { Container } from '@/components/ui/Container';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import Icon from '@/components/ui/icons/Icon';

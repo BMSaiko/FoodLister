@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
+import { m as motion, AnimatePresence } from 'motion/react';
 import Ico from '@/components/ui/icons/Ico';
 import {useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';

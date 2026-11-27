@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'motion/react';
+import { m as motion } from 'motion/react';
 import ListCardCover from '@/components/ui/lists/ListCardCover';
 import Icon from '@/components/ui/icons/Icon';
 

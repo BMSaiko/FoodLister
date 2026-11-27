@@ -3,7 +3,7 @@
 import RestaurantImagePlaceholder from "./RestaurantImagePlaceholder";
 import React, { useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
+import { m as motion, AnimatePresence } from "motion/react";
 import { RestaurantWithDetails } from "@/libs/types";
 import { extractPlaceParts } from "@/utils/googleMapsExtractor";
 import { CreatorLink } from "@/components/ui/common/CreatorLink";
