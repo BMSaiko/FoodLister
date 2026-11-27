@@ -55,6 +55,7 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
   const [isLoadingAll, setIsLoadingAll] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const hasFetchedRestaurants = useRef(false);
+  const autoLoadTried = useRef(false);
 
   // Scroll lock: prevent scrolling while loading all restaurants
   useScrollLock(isLoadingAll);
@@ -82,10 +83,14 @@ const UserRestaurantsSection: React.FC<UserRestaurantsSectionProps> = ({
     const tab = urlParams.get('tab');
     const isRestaurantsTab = tab === 'restaurants';
     
-    if (isRestaurantsTab && !hasInitialized && restaurants.length === 0 && !hookIsLoading) {
+    // Espera pelo hook (isLoading e loadingStates.restaurants) e só tenta uma vez:
+    // evita o loadAll em paralelo com o pedido do hook
+    const hookBusy = hookIsLoading || loadingStates?.restaurants === true;
+    if (isRestaurantsTab && !hasInitialized && restaurants.length === 0 && !hookBusy && !autoLoadTried.current) {
+      autoLoadTried.current = true;
       loadAllRestaurants();
     }
-  }, [hasInitialized, restaurants.length, hookIsLoading]);
+  }, [hasInitialized, restaurants.length, hookIsLoading, loadingStates?.restaurants]);
 
   // Sync state with hook data when hook loading completes and we have data
   useEffect(() => {

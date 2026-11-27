@@ -3,8 +3,9 @@ import { getServerClient } from '@/libs/supabase/server';
 import { validateProfileAccess, getUserProfileData, getUserReviewsData, getUserListsData } from '@/libs/auth';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -118,7 +119,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+async function PUTHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -330,3 +331,7 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const PUT = withCachePolicy(privateNoStore, PUTHandler);

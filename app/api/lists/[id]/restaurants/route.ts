@@ -6,8 +6,9 @@ import { getErrorMessage } from '@/types/api';
 import { logActivity } from '@/libs/activity';
 import type { ApiErrorType } from '@/types/api';
 import { cacheInvalidatePrefix } from '@/libs/cache';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -162,3 +163,5 @@ export async function POST(
     );
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

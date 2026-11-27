@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPublicServerClient, getServerClient } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
-import { cacheOrSet } from '@/libs/cache';
+import { cacheOrSet, cacheInvalidatePrefix } from '@/libs/cache';
+import { publicCache, privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+async function GETHandler(_request: NextRequest) {
   try {
     const supabase = await getPublicServerClient();
     
@@ -22,7 +23,7 @@ export async function GET(_request: NextRequest) {
     const data = await cacheOrSet('dietary-options:all', async () => {
       const { data, error } = await supabase
         .from('restaurant_dietary_options')
-        .select('*')
+        .select('id, name, icon')
         .order('name', { ascending: true });
       if (error) throw error;
       return data;
@@ -42,7 +43,7 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const response = NextResponse.next();
   try {
     const supabase = await getServerClient(request, response);
@@ -113,6 +114,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    cacheInvalidatePrefix('dietary-options:');
+
     return NextResponse.json({
       data,
       message: 'Dietary option created successfully'
@@ -126,3 +129,7 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const GET = withCachePolicy(publicCache(300, 600), GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

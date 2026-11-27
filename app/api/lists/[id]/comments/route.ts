@@ -5,9 +5,10 @@ import { resolveListId } from '@/libs/slug';
 import type { ApiErrorType } from '@/types/api';
 import { createNotification } from '@/libs/notifications/service';
 import { notifyMentionedUsers } from '@/libs/mentions';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // GET - Fetch all comments for a list
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -51,7 +52,7 @@ export async function GET(
 }
 
 // POST - Create a new comment
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -148,7 +149,7 @@ export async function POST(
 }
 
 // DELETE - Delete a comment
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -217,7 +218,7 @@ export async function DELETE(
 }
 
 // PUT - Edit a comment
-export async function PUT(
+async function PUTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -293,3 +294,11 @@ export async function PUT(
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);
+
+export const PUT = withCachePolicy(privateNoStore, PUTHandler);

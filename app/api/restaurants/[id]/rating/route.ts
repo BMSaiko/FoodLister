@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient } from '@/libs/supabase/server';
 import { resolveRestaurantId } from '@/libs/slug';
 import { updateRestaurantRating } from '@/libs/restaurantRating';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -94,3 +95,5 @@ export async function POST(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

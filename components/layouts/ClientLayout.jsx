@@ -10,6 +10,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import MapSelectorModal from '@/components/ui/RestaurantManagement/MapSelectorModal';
 import GlobalSearch from '@/components/ui/GlobalSearch';
+import ReleasePopup from '@/components/releases/ReleasePopup';
 
 export default function ClientLayout({ children }) {
   return (
@@ -20,6 +21,7 @@ export default function ClientLayout({ children }) {
           <TooltipProvider>
           {children}
           <GlobalSearch />
+          <ReleasePopup />
           <MapSelectorModal />
           <ToastContainer
             position="top-center"

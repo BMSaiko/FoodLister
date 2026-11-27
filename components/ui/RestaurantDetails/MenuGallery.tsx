@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Modal from '@/components/ui/Modal';
 import Icon from '@/components/ui/icons/Icon';
+import SmartImage from "@/components/ui/common/SmartImage";
 
 interface MenuGalleryProps {
   images?: string[];
@@ -30,7 +31,7 @@ export default function MenuGallery({ images = [], restaurantName = "Menu" }: Me
       <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
         {valid.map((img, i) => (
           <button key={i} onClick={() => { setIdx(i); setOpen(true); }} aria-label={`Abrir ${restaurantName} ${i + 1}`} className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[#0c0c0c] border border-white/[0.08] hover:border-white/25 transition-colors cursor-pointer">
-            <img src={img} alt={`${restaurantName} ${i + 1}`} className="w-full h-full object-cover" />
+            <SmartImage src={img} alt={`${restaurantName} ${i + 1}`} sizes="(min-width: 1024px) 20vw, (min-width: 640px) 25vw, 33vw" className="object-cover" />
           </button>
         ))}
       </div>
@@ -51,8 +52,8 @@ export default function MenuGallery({ images = [], restaurantName = "Menu" }: Me
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 backdrop-blur-xl rounded-full px-3 py-2 border border-white/[0.08]">
             <span className="text-xs text-white/60 font-medium mr-1">{idx + 1}/{valid.length}</span>
             {valid.map((img, i) => (
-              <button key={i} onClick={() => setIdx(i)} className={"w-8 h-8 rounded-lg overflow-hidden ring-2 transition-all duration-200 " + (i === idx ? "ring-amber-500 scale-110" : "ring-transparent opacity-50 hover:opacity-80")}>
-                <img src={img} alt="" className="w-full h-full object-cover" />
+              <button key={i} onClick={() => setIdx(i)} className={"relative w-8 h-8 rounded-lg overflow-hidden ring-2 transition-all duration-200 " + (i === idx ? "ring-amber-500 scale-110" : "ring-transparent opacity-50 hover:opacity-80")}>
+                <SmartImage src={img} alt="" sizes="32px" className="object-cover" />
               </button>
             ))}
           </div>

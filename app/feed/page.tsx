@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/ui/navigation/Navbar";
+import SmartImage from "@/components/ui/common/SmartImage";
 import EmptyState from "@/components/ui/EmptyState";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useInfiniteScroll } from "@/hooks/ui/useInfiniteScroll";
@@ -28,8 +29,7 @@ const TYPE_META = {
 
 function Avatar({ actor }: { actor: FeedItem["actor"] }) {
   const inner = actor.avatar ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={actor.avatar} alt={actor.name} className="h-full w-full object-cover" />
+    <SmartImage src={actor.avatar} alt={actor.name} sizes="40px" className="object-cover" />
   ) : (
     <Icon name="perfil" className="h-[18px] w-[18px] text-[var(--primary-dark)]" />
   );
@@ -65,8 +65,9 @@ function FeedCard({ item }: { item: FeedItem }) {
 
       {item.type === "review" && item.images[0] && (
         <div className="px-4 pb-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.images[0]} alt="" loading="lazy" className="h-40 w-full rounded-xl object-cover sm:h-44" />
+          <div className="relative h-40 w-full overflow-hidden rounded-xl sm:h-44">
+            <SmartImage src={item.images[0]} alt="" sizes="(max-width: 768px) 100vw, 640px" className="object-cover" />
+          </div>
         </div>
       )}
       {item.type === "list" && (
@@ -74,8 +75,9 @@ function FeedCard({ item }: { item: FeedItem }) {
           {item.images.length > 0 ? (
             <div className="grid grid-cols-3 gap-1.5">
               {item.images.map((src, i) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={i} src={src} alt="" loading="lazy" className="h-20 w-full rounded-[10px] object-cover sm:h-24" />
+                <div key={i} className="relative h-20 w-full overflow-hidden rounded-[10px] sm:h-24">
+                  <SmartImage src={src} alt="" sizes="(max-width: 768px) 33vw, 210px" className="object-cover" />
+                </div>
               ))}
             </div>
           ) : (

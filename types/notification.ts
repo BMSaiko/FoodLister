@@ -7,7 +7,8 @@ export type NotificationType =
   | 'list_update'
   | 'like'
   | 'mention'
-  | 'system';
+  | 'system'
+  | 'release';
 
 export interface Notification {
   id: string;
@@ -43,4 +44,5 @@ export const NOTIFICATION_TYPE_CONFIG: Record<NotificationType, { label: string;
   like: { label: 'Gosto', color: '#ec4899' },
   mention: { label: 'Menção', color: '#a855f7' },
   system: { label: 'Sistema', color: 'rgba(255,255,255,0.5)' },
+  release: { label: 'Novidades', color: '#f59e0b' },
 };

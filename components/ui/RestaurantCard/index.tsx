@@ -1,9 +1,10 @@
 "use client";
 
 import RestaurantImagePlaceholder from "./RestaurantImagePlaceholder";
+import SmartImage from '@/components/ui/common/SmartImage';
 import React, { useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "motion/react";
+import { m as motion, AnimatePresence } from "motion/react";
 import { RestaurantWithDetails } from "@/libs/types";
 import { extractPlaceParts } from "@/utils/googleMapsExtractor";
 import { CreatorLink } from "@/components/ui/common/CreatorLink";
@@ -46,10 +47,11 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
       <Link href={`/restaurants/${restaurant.slug || restaurant.id}`} className="block">
         <div className={`relative overflow-hidden aspect-[3/2]`}>
           {hasImage ? (
-            <img
+            <SmartImage
               src={imageUrl}
               alt={restaurant.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <RestaurantImagePlaceholder name={restaurant.name} />

@@ -41,9 +41,11 @@ function makeQuery(result: { data: unknown[]; count: number }) {
 
 const mockClient = {
   from: jest.fn(() => ({
-    select: (cols: string) => {
+    select: (cols: string, opts?: { head?: boolean }) => {
       selects.push(cols);
-      return makeQuery({ data: [], count: 57 });
+      // página cheia (21 linhas) para forçar a contagem exata; a consulta de contagem (head) não traz dados
+      const data = opts?.head ? [] : Array.from({ length: 21 }, (_, i) => ({ id: `r${i}`, name: `R${i}` }));
+      return makeQuery({ data, count: 57 });
     },
   })),
   auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: null }, error: null })) },

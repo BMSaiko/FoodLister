@@ -1,0 +1,4 @@
+# Ficheiros protegidos: PR que os altere falha o job "Protected files"
+MEMORY.md
+AGENTS.md
+CLAUDE.md

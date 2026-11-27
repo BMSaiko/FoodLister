@@ -1,8 +1,9 @@
 // app/api/resolve-google-maps-url/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { isValidGoogleMapsUrl } from '@/utils/googleMapsExtractor';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const url = request.nextUrl.searchParams.get('url');
   
   if (!url) {
@@ -56,3 +57,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

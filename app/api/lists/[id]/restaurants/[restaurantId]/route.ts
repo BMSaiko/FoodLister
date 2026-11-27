@@ -5,8 +5,9 @@ import { getErrorMessage } from '@/types/api';
 import { resolveListId } from '@/libs/slug';
 import { logActivity } from '@/libs/activity';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; restaurantId: string }> }
 ) {
@@ -121,3 +122,5 @@ export async function DELETE(
     );
   }
 }
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);

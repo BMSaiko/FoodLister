@@ -88,7 +88,7 @@ Tovi é a cloche do logo, com cara. Aparece onde a app espera, está vazia ou fa
 
 - [Arquitetura](docs/ARCHITECTURE.md) · [PRD](docs/PRD.md) · [Design system](docs/DESIGN_SYSTEM.md)
 - [API](docs/api/api-endpoints-reference.md) · [Base de dados](docs/database/database-schema-reference.md)
-- Guias: [Git](docs/guides/git-workflow.md) · [Supabase](docs/guides/supabase-workflow.md) · [Desenvolvimento](docs/guides/development-guide.md) · [Deploy](docs/guides/deployment-guide.md) · [Contribuir](docs/guides/contribution-guide.md)
+- Guias: [Git](docs/guides/git-workflow.md) · [Supabase](docs/guides/supabase-workflow.md) · [Desenvolvimento](docs/guides/development-guide.md) · [Deploy](docs/guides/deployment-guide.md) · [Contribuir](docs/guides/contribution-guide.md) · [Release](docs/guides/release-guide.md)
 - [Changelog](CHANGELOG.md)
 
 ## Licença

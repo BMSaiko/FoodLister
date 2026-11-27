@@ -1,4 +1,6 @@
-// config without bundle-analyzer
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
 
 // ponytail: Report-Only until no violations logged for 72h. Then flip header name.
 const cspPolicy = [
@@ -18,6 +20,8 @@ const cspPolicy = [
 const nextConfig = {
   outputFileTracingRoot: process.cwd(),
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'source.unsplash.com' },
@@ -42,7 +46,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    optimizePackageImports: ['@supabase/supabase-js'],
+    optimizePackageImports: ['@supabase/supabase-js', 'recharts', 'motion', 'react-toastify'],
   },
 
   async headers() {
@@ -60,4 +64,4 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerClient, requireUser } from '@/libs/supabase/server';
 import { ensureUserProfileExists } from '@/libs/auth';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 type ReviewRow = any;
 type ProfileRow = any;
@@ -71,7 +72,7 @@ function transformReviewData(review: ReviewRow, userProfile: UserProfileData) {
   };
 }
 
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -138,7 +139,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
+async function PUTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -218,7 +219,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -249,3 +250,9 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const PUT = withCachePolicy(privateNoStore, PUTHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);

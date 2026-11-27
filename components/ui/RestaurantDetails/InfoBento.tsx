@@ -1,4 +1,3 @@
-'use client';
 import React from "react";
 import { PhoneIcon } from "@/components/icons";
 import MenuGallery from "./MenuGallery";

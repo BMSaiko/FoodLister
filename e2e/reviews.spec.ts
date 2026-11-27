@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './base';
 
 test.describe('Reviews', () => {
   test('should display reviews on restaurant detail', async ({ page }) => {

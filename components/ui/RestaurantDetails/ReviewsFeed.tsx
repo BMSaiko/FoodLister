@@ -8,6 +8,7 @@ import ReviewForm from "./ReviewForm";
 import TruncateText from "@/components/ui/common/TruncateText";
 import ReportButton from "@/components/ui/common/ReportButton";
 import Icon from '@/components/ui/icons/Icon';
+import SmartImage from "@/components/ui/common/SmartImage";
 
 interface ReviewsFeedProps {
   restaurantId: string;
@@ -141,7 +142,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
             <div key={review.id + "-" + i} id={"review-" + review.id} className="group p-[18px] rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.14] transition-colors duration-300">
               <div className="flex items-start gap-3">
                 {review.user.profileImage ? (
-                  <img src={review.user.profileImage} alt={review.user.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-white/[0.06] flex-shrink-0" />
+                  <span className="relative block w-10 h-10 rounded-full overflow-hidden ring-2 ring-white/[0.06] flex-shrink-0"><SmartImage src={review.user.profileImage} alt={review.user.name} sizes="40px" className="object-cover" /></span>
                 ) : (
                   <div className="w-10 h-10 bg-amber-500/10 rounded-full flex items-center justify-center ring-1 ring-amber-500/15 flex-shrink-0">
                     <span className="text-amber-400 font-semibold text-sm">{review.user.name.charAt(0).toUpperCase()}</span>
@@ -162,8 +163,7 @@ const ReviewsFeed = forwardRef<HTMLDivElement, ReviewsFeedProps>((props, ref) =>
                   {review.images && review.images.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {review.images.map((img, ii) => (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img key={img + ii} src={img} alt="" className="h-[84px] w-[84px] rounded-[10px] object-cover" />
+                        <span key={img + ii} className="relative block h-[84px] w-[84px] rounded-[10px] overflow-hidden"><SmartImage src={img} alt="" sizes="84px" className="object-cover" /></span>
                       ))}
                     </div>
                   )}

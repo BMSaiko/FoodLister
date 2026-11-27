@@ -9,6 +9,7 @@ import { parsePaginationFromRequest, isRandomSort } from '@/libs/utils/paginatio
 import { attachCreatorCodes } from '@/libs/creatorCodes';
 import { isUuid } from '@/libs/slug';
 import { isValidCoordinates } from '@/libs/search';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 
 interface Restaurant {
@@ -56,7 +57,7 @@ function isCurrentlyOpen(openingHours: string | null): boolean | null {
   } catch { return null; }
 }
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   const response = NextResponse.next();
   try {
     const supabase = await getServerClient(request, response);
@@ -149,7 +150,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Fetch + map + filter — cached by full query params (300s TTL)
-    const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${ratingMin||''}:${locationParam||''}:${cuisineList.join('|')}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}`;
+    const cacheKey = `restaurants:${search||''}:${openNowParam||''}:${priceMin||''}:${priceMax||''}:${ratingMin||''}:${locationParam||''}:${cuisineList.join('|')}:${sortByParam}:${sortDirectionParam}:${randomParam?'r':''}:${isAll?'all':page}:${limit}:${isPublicRequest?'pub':'auth'}`;
     const { restaurants, pagination, meta } = await cacheOrSet(cacheKey, async () => {
       // Fetch all rows using offset loop (handles >1000 rows from Supabase REST)
       let allRestaurants: any[] = [];
@@ -188,6 +189,7 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      const fetchedRows = allRestaurants.length; // antes do filtro open_now
       const restaurantsData = allRestaurants;
       const restaurantsError: any = null;
 
@@ -224,9 +226,15 @@ export async function GET(request: NextRequest) {
       // ponytail: real total for feed (api counts rows); all/popularity already hold the full set
       let realTotal = restaurants.length;
       if (!isAll && !isPopularity) {
+        const startOffset = (page - 1) * limit;
+        if (fetchedRows < limit && (fetchedRows > 0 || page === 1)) {
+          // página incompleta: o total exato é conhecido sem 2.ª consulta
+          realTotal = startOffset + fetchedRows;
+        } else {
         const cq = client.from('restaurants').select('id' + cuisineFilterEmbed, { count: 'exact', head: true });
         const { count } = await applyFilters(cq);
         if (typeof count === 'number') realTotal = count;
+        }
       }
       // popularity ordena o conjunto completo no servidor mas devolve só a página pedida
       if (isPopularity && !isAll) restaurants = restaurants.slice((page - 1) * limit, page * limit);
@@ -283,7 +291,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   const response = NextResponse.next();
   try {
     const auth = await requireUser(request, response);
@@ -336,3 +344,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'motion/react';
+import { m as motion, AnimatePresence } from 'motion/react';
 import Ico from '@/components/ui/icons/Ico';
 import {useAuth, useFilters } from '@/contexts';
 import { openGlobalSearch } from '@/components/ui/GlobalSearch';
@@ -13,6 +13,7 @@ import LanguageCombobox from './LanguageCombobox';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useNotifications from '@/hooks/data/useNotifications';
 import Icon from '@/components/ui/icons/Icon';
+import useUnseenRelease from '@/hooks/releases/useUnseenRelease';
 
 interface ProfileData {
   display_name: string;
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { id: 'restaurants', label: 'Restaurantes', href: '/restaurants' },
   { id: 'map', label: 'Mapa', href: '/map' },
   { id: 'lists', label: 'Listas', href: '/lists' },
+  { id: 'novidades', label: 'Novidades', href: '/novidades' },
 ] as const;
 
 const HomeIc = ({ className }: { className?: string }) => <Ico name="home" className={className} />;
@@ -38,6 +40,7 @@ const UserIc = ({ className }: { className?: string }) => <Ico name="user" class
 export default function Navbar() {
   const { t } = useLanguage();
   const { user, signOut, loading } = useAuth();
+  const { release: unseenRelease } = useUnseenRelease();
   const { clearFilters: clearFiltersFromContext } = useFilters();
   const { unreadCount } = useNotifications({ polling: false });
   const pathname = usePathname();
@@ -53,7 +56,7 @@ export default function Navbar() {
 
 
   // Active section
-  const activeSection = pathname === '/roulette' ? 'roulette' : pathname === '/' || pathname === '/feed' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
+  const activeSection = pathname?.startsWith('/novidades') ? 'novidades' : pathname === '/roulette' ? 'roulette' : pathname === '/' || pathname === '/feed' ? '' : pathname?.includes('/lists') ? 'lists' : pathname === '/map' ? 'map' : 'restaurants';
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -118,6 +121,11 @@ export default function Navbar() {
                 }`}
               >
                 {t(item.label)}
+                {item.id === 'novidades' && unseenRelease && (
+                  <span data-testid="badge-novo" className="ml-1.5 rounded-full bg-[var(--primary)] px-1.5 py-px text-[10px] font-medium leading-none text-black">
+                    {t('Novo')}
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
@@ -136,6 +144,22 @@ export default function Navbar() {
           </button>
 
           <div className="flex items-center gap-1.5">
+            <Link
+              href="/novidades"
+              prefetch={false}
+              onClick={() => { if (pathname === '/novidades') window.location.reload(); }}
+              aria-current={activeSection === 'novidades' ? 'page' : undefined}
+              className={`relative md:hidden inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-[10px] hover:bg-white/5 transition-colors ${
+                activeSection === 'novidades' ? 'text-[var(--primary)]' : 'text-white/55 hover:text-[var(--foreground)]'
+              }`}
+              aria-label={t("Novidades")}
+              title={t("Novidades")}
+            >
+              <Icon name="faiscas" className="h-5 w-5" />
+              {unseenRelease && (
+                <span data-testid="badge-novo-mobile" aria-hidden="true" className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[var(--primary)]" />
+              )}
+            </Link>
             <LanguageCombobox />
             {user && (
               <Link
@@ -259,6 +283,13 @@ export default function Navbar() {
                           className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
                         >
                           <Icon name="calendario" className="w-4 h-4" /> Refeições
+                        </Link>
+                        <Link
+                          href="/novidades"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="magnetic-hover flex items-center gap-3 px-3 py-2.5 text-sm text-[var(--foreground-secondary)] hover:bg-white/[0.03] hover:text-[var(--foreground)]"
+                        >
+                          <Icon name="faiscas" className="w-4 h-4" /> Novidades
                         </Link>
                         <Link
                           href="/pricing"

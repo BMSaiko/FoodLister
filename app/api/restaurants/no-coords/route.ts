@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPublicServerClient } from "@/libs/supabase/server";
 import { getErrorMessage } from "@/types/api";
 import type { Database } from "@/types/database";
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 type DbRestaurant = Database["public"]["Tables"]["restaurants"]["Row"];
 
@@ -13,7 +14,7 @@ interface RestaurantNoCoords {
   created_at: string;
 }
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const client = await getPublicServerClient();
     if (!client) {
@@ -61,3 +62,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

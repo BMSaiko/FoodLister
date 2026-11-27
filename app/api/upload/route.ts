@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkRateLimit } from '@/libs/rate-limit';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 /**
  * API endpoint for image upload to Cloudinary
  * Complete reimplementation from scratch
  */
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     // ponytail T51: cooldown on a heavy, paid (Cloudinary) endpoint. Shared guard at
     // the route covers every upload caller. Reuses checkRateLimit like reviews/meals.
@@ -187,3 +188,5 @@ function generateCloudinarySignature(params: Record<string, any>, apiSecret: str
     .update(sortedParams + apiSecret)
     .digest('hex');
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);

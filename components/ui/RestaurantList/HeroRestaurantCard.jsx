@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import { m as motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
 import { extractPlaceParts } from '@/utils/googleMapsExtractor';
 import { pickSeeded } from '@/utils/random';
 import { useAuthUser } from '@/hooks/auth/useAuthUser';import RestaurantImagePlaceholder from '@/components/ui/RestaurantCard/RestaurantImagePlaceholder';

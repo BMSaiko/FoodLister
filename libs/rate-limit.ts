@@ -1,13 +1,13 @@
-// Simple in-memory rate limiter (sufficient for single-instance deployment)
+// Simple in-memory rate limiter por instância (serverless: limite best-effort, sem KV)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
-// Clean up stale entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
+// Limpeza lazy (sem setInterval ao nível do módulo): purga expirados ao crescer
+const MAX_ENTRIES = 1000;
+function purgeExpired(now: number) {
   for (const [key, entry] of rateLimitMap) {
     if (now > entry.resetAt) rateLimitMap.delete(key);
   }
-}, 5 * 60 * 1000);
+}
 
 export function checkRateLimit(
   identifier: string,
@@ -15,6 +15,7 @@ export function checkRateLimit(
   windowMs: number = 60_000
 ): { allowed: boolean; remaining: number } {
   const now = Date.now();
+  if (rateLimitMap.size > MAX_ENTRIES) purgeExpired(now);
   const entry = rateLimitMap.get(identifier);
 
   if (!entry || now > entry.resetAt) {

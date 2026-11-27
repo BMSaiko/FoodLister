@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 import Link from "next/link";
 import { TooltipFast } from "@/components/ui/Tooltip";
@@ -40,7 +40,6 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
   const editRef = useRef<HTMLTextAreaElement>(null);
   const commentRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  useEffect(() => { fetchComments(); }, [listId]);
 
   useEffect(() => {
     if (highlightCommentId && commentRefs.current[highlightCommentId]) {
@@ -54,13 +53,15 @@ export default function ListComments({ listId, isOwner, highlightCommentId }: Li
     }
   }, [editingId]);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const res = await fetch(`/api/lists/${listId}/comments`);
       if (res.ok) setComments((await res.json()).comments || []);
     } catch (e) { console.error("Error fetching comments:", e); }
     finally { setLoading(false); }
-  };
+  }, [listId]);
+
+  useEffect(() => { fetchComments(); }, [fetchComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

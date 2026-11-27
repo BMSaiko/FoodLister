@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/libs/supabase/server';
+import { getServerClient, getAuthUserResult } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const {
       data: { user },
       error: authError
-    } = await supabase.auth.getUser();
+    } = await getAuthUserResult(supabase);
 
     if (authError || !user) {
       const errorType = 'AUTHENTICATION_ERROR' as ApiErrorType;
@@ -151,3 +152,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);

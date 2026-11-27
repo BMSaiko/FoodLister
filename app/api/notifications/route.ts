@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireUser } from '@/libs/supabase/server';
 import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(request: NextRequest) {
+async function GETHandler(request: NextRequest) {
   try {
     const auth = await requireUser(request, new NextResponse());
     if (!auth.ok) return auth.response;
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+async function PATCHHandler(request: NextRequest) {
   try {
     const auth = await requireUser(request, new NextResponse());
     if (!auth.ok) return auth.response;
@@ -99,7 +100,7 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function DELETEHandler(request: NextRequest) {
   try {
     const auth = await requireUser(request, new NextResponse());
     if (!auth.ok) return auth.response;
@@ -132,3 +133,9 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: getErrorMessage(errorType), code: errorType }, { status: 500 });
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const PATCH = withCachePolicy(privateNoStore, PATCHHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);

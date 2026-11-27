@@ -91,6 +91,41 @@ export const getPublicServerClient = async () => {
 };
 
 
+/**
+ * Valida o JWT da sessão uma só vez por pedido via `auth.getClaims()`:
+ * verificação local (assinatura + expiração, JWKS em cache) com chaves assimétricas;
+ * com segredo simétrico o próprio SDK recai em `getUser()` (continua seguro, sem ganho).
+ * O utilizador devolvido vem dos claims (id, email, metadata): rotas que precisam de
+ * campos frescos (ex.: `created_at`, alterações de perfil) mantêm `auth.getUser()`.
+ */
+export async function getAuthUser(supabase: SupabaseClient): Promise<User | null> {
+  try {
+    const { data, error } = await supabase.auth.getClaims();
+    const claims = data?.claims;
+    if (error || !claims?.sub) return null;
+    return {
+      id: claims.sub,
+      aud: claims.aud as string,
+      role: claims.role,
+      email: claims.email,
+      phone: claims.phone,
+      app_metadata: claims.app_metadata ?? {},
+      user_metadata: claims.user_metadata ?? {},
+      is_anonymous: claims.is_anonymous,
+      created_at: '',
+    } as User;
+  } catch (error) {
+    console.error('Unexpected error in getAuthUser:', error);
+    return null;
+  }
+}
+
+/** Forma compatível com `auth.getUser()` (`{ data: { user }, error }`) para migrar rotas de leitura sem mexer no resto. */
+export async function getAuthUserResult(supabase: SupabaseClient): Promise<{ data: { user: User | null }; error: Error | null }> {
+  const user = await getAuthUser(supabase);
+  return { data: { user }, error: user ? null : new Error('Authentication required') };
+}
+
 export type AuthResult =
   | { ok: true; supabase: SupabaseClient; user: User }
   | { ok: false; response: NextResponse };
@@ -102,8 +137,8 @@ export async function requireUser(request: NextRequest, response: NextResponse):
   if (!supabase) {
     return { ok: false, response: NextResponse.json({ error: 'Authentication required', code: 'AUTHENTICATION_ERROR' }, { status: 401 }) };
   }
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) {
+  const user = await getAuthUser(supabase);
+  if (!user) {
     return { ok: false, response: NextResponse.json({ error: 'Authentication required', code: 'AUTHENTICATION_ERROR' }, { status: 401 }) };
   }
   return { ok: true, supabase, user };

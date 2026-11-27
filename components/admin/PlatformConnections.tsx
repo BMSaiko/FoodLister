@@ -1,4 +1,3 @@
-'use client';
 
 import ToviSpinner from '@/components/loading/ToviSpinner';
 

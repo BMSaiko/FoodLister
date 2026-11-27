@@ -4,9 +4,10 @@ import { getErrorMessage } from '@/types/api';
 import type { ApiErrorType } from '@/types/api';
 import { checkRateLimit } from '@/libs/rate-limit';
 import { createNotification } from '@/libs/notifications/service';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
 // Add participants to a meal
-export async function POST(request: NextRequest) {
+async function POSTHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -123,7 +124,7 @@ export async function POST(request: NextRequest) {
 
 
 // Update participant status (accept/decline)
-export async function PATCH(request: NextRequest) {
+async function PATCHHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -381,7 +382,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 // Remove participant from a meal
-export async function DELETE(request: NextRequest) {
+async function DELETEHandler(request: NextRequest) {
   try {
     const response = new NextResponse();
     const supabase = await getServerClient(request, response) as any;
@@ -478,3 +479,9 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);
+
+export const PATCH = withCachePolicy(privateNoStore, PATCHHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);

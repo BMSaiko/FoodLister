@@ -5,6 +5,7 @@ import { CreatorLink } from "@/components/ui/common/CreatorLink";
 import RestaurantActions from "@/components/ui/RestaurantDetails/RestaurantActions";
 import { ExpandIcon, PinIcon, MenuBookIcon, PhoneIcon, GlobeIcon, StarIcon } from "@/components/icons";
 import Icon from '@/components/ui/icons/Icon';
+import SmartImage from "@/components/ui/common/SmartImage";
 
 interface HeroSectionProps {
   restaurant: {
@@ -108,14 +109,12 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
           <>
             {/* Mosaico 1+3 (≥lg) */}
             <div data-testid="photo-mosaic" className="hidden lg:grid h-[480px] grid-cols-[2fr_1fr] gap-1.5">
-              <button type="button" onClick={() => openLightbox(0)} aria-label={`Abrir foto 1 de ${allImages.length}`} className="row-span-3 overflow-hidden bg-[var(--card-bg)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={allImages[0]} alt={restaurant.name} className="h-full w-full object-cover" loading="eager" />
+              <button type="button" onClick={() => openLightbox(0)} aria-label={`Abrir foto 1 de ${allImages.length}`} className="relative row-span-3 overflow-hidden bg-[var(--card-bg)]">
+                <SmartImage src={allImages[0]} alt={restaurant.name} sizes="(min-width: 1280px) 800px, 66vw" priority className="object-cover" />
               </button>
               {allImages.slice(1, 4).map((img, i) => (
-                <button key={img + i} type="button" onClick={() => openLightbox(i + 1)} aria-label={`Abrir foto ${i + 2} de ${allImages.length}`} className="overflow-hidden bg-[var(--card-bg)]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt={`${restaurant.name} - Foto ${i + 2}`} className="h-full w-full object-cover" loading="lazy" />
+                <button key={img + i} type="button" onClick={() => openLightbox(i + 1)} aria-label={`Abrir foto ${i + 2} de ${allImages.length}`} className="relative overflow-hidden bg-[var(--card-bg)]">
+                  <SmartImage src={img} alt={`${restaurant.name} - Foto ${i + 2}`} sizes="(min-width: 1280px) 400px, 33vw" className="object-cover" />
                 </button>
               ))}
               <button
@@ -141,12 +140,12 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
                   aria-label={`Abrir foto ${i + 1} de ${allImages.length}`}
                   className="relative h-full flex-none snap-center w-[88%] md:w-[70%] lg:w-[60%] first:ml-0 overflow-hidden bg-[var(--card-bg)]"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <SmartImage
                     src={img}
                     alt={i === 0 ? restaurant.name : `${restaurant.name} - Foto ${i + 1}`}
-                    className="h-full w-full object-cover"
-                    loading={i <= startIndex + 1 ? "eager" : "lazy"}
+                    sizes="(min-width: 1024px) 60vw, (min-width: 768px) 70vw, 88vw"
+                    priority={i === startIndex}
+                    className="object-cover"
                   />
                 </button>
               ))}
@@ -183,12 +182,11 @@ export default function HeroSection({ restaurant, reviewImages, reviewCount, chi
                 onClick={() => goTo(i)}
                 aria-label={`Ir para a foto ${i + 1}`}
                 className={
-                  "flex-none h-11 w-11 rounded-lg overflow-hidden ring-2 transition-opacity " +
+                  "relative flex-none h-11 w-11 rounded-lg overflow-hidden ring-2 transition-opacity " +
                   (i === slide ? "ring-amber-500" : "ring-transparent opacity-60 hover:opacity-100")
                 }
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img} alt="" className="h-full w-full object-cover" />
+                <SmartImage src={img} alt="" sizes="44px" className="object-cover" />
               </button>
             ))}
           </div>

@@ -2,7 +2,9 @@
 
 import { useAdminStats } from '@/hooks/admin/useAdminStats';
 import StatsCard from '@/components/admin/StatsCard';
-import GrowthChart from '@/components/admin/GrowthChart';
+import dynamic from 'next/dynamic';
+
+const GrowthChart = dynamic(() => import('@/components/admin/GrowthChart'), { ssr: false });
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AdminStatisticsPage() {

@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
+import { m as motion, useReducedMotion, useScroll, useSpring } from 'motion/react';
 import Ico from '@/components/ui/icons/Ico';
 import Navbar from '@/components/ui/navigation/Navbar';
 import { Container } from '@/components/ui/Container';
 import RoletaDeck from '@/components/landing/RoletaDeck';
-import TasteProfile from '@/components/landing/TasteProfile';
-import FAQSection from '@/components/ui/common/FAQSection';
+import dynamic from 'next/dynamic';
+
+const TasteProfile = dynamic(() => import('@/components/landing/TasteProfile'));
+const FAQSection = dynamic(() => import('@/components/ui/common/FAQSection'));
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { useAuthUser } from '@/hooks/auth/useAuthUser';
 

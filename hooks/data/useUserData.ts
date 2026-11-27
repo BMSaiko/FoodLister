@@ -89,7 +89,7 @@ export function useUserData(options: UseUserDataOptions) {
     reviews: [],
     lists: [],
     restaurants: [],
-    loading: false,
+    loading: autoFetch && !!userId,
     loadingStates: {
       profile: false,
       reviews: false,
@@ -228,7 +228,6 @@ export function useUserData(options: UseUserDataOptions) {
     try {
       setUserData(prev => ({ 
         ...prev, 
-        loading: true, 
         loadingStates: { ...prev.loadingStates, restaurants: true } 
       }));
 
@@ -244,7 +243,6 @@ export function useUserData(options: UseUserDataOptions) {
         setUserData(prev => ({
           ...prev,
           restaurants,
-          loading: false,
           loadingStates: { ...prev.loadingStates, restaurants: false }
         }));
         return restaurants;
@@ -252,7 +250,6 @@ export function useUserData(options: UseUserDataOptions) {
       
       setUserData(prev => ({
         ...prev,
-        loading: false,
         loadingStates: { ...prev.loadingStates, restaurants: false }
       }));
       return [];
@@ -260,7 +257,6 @@ export function useUserData(options: UseUserDataOptions) {
       console.error('Error fetching restaurants:', error);
       setUserData(prev => ({
         ...prev,
-        loading: false,
         loadingStates: { ...prev.loadingStates, restaurants: false }
       }));
       return [];
@@ -340,12 +336,15 @@ export function useUserData(options: UseUserDataOptions) {
     }
   }, [userId, get, userData.loadingStates.restaurants]);
 
-  // Auto-fetch on mount
+  // Auto-fetch: `get` (via getAccessToken) muda a cada render; sem a ref o efeito repetia os pedidos
+  const loadDataRef = useRef(loadData);
+  loadDataRef.current = loadData;
+
   useEffect(() => {
     if (autoFetch && userId) {
-      loadData();
+      loadDataRef.current();
     }
-  }, [autoFetch, userId, loadData]);
+  }, [autoFetch, userId]);
 
   // Cleanup on unmount
   useEffect(() => {

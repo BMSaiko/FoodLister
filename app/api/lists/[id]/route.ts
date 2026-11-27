@@ -8,8 +8,9 @@ import { getListRole } from '@/libs/lists/permissions';
 import { logActivity } from '@/libs/activity';
 import { createNotification } from '@/libs/notifications/service';
 import type { ApiErrorType } from '@/types/api';
+import { privateNoStore, withCachePolicy } from '@/libs/http-cache';
 
-export async function GET(
+async function GETHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -162,7 +163,7 @@ export async function GET(
   }
 }
 
-export async function DELETE(
+async function DELETEHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -231,7 +232,7 @@ export async function DELETE(
   }
 }
 
-export async function PUT(
+async function PUTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -342,7 +343,7 @@ export async function PUT(
   }
 }
 
-export async function POST(
+async function POSTHandler(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -476,3 +477,11 @@ export async function POST(
     );
   }
 }
+
+export const GET = withCachePolicy(privateNoStore, GETHandler);
+
+export const DELETE = withCachePolicy(privateNoStore, DELETEHandler);
+
+export const PUT = withCachePolicy(privateNoStore, PUTHandler);
+
+export const POST = withCachePolicy(privateNoStore, POSTHandler);
