@@ -22,7 +22,7 @@ export default function ComponentName({ className = '' }: ComponentNameProps) {
 'use client';
 
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 interface ComponentNameProps {
   className?: string;

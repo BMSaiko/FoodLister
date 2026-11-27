@@ -9,7 +9,6 @@ export { default as UserProfileHeader } from './ui/profile/UserProfileHeader';
 export { default as ProfileTabs } from './ui/profile/ProfileTabs';
 export { default as PrivacyToggle } from './ui/profile/PrivacyToggle';
 export { default as ProfileActions } from './ui/profile/ProfileActions';
-export { default as PerformanceDashboard } from './ui/common/PerformanceDashboard';
 export { default as ScrollToTopButton } from './ui/common/ScrollToTopButton';
 export { default as CuisineSelector } from './ui/Filters/CuisineSelector';
 export { default as DietaryOptionsSelector } from './ui/Filters/DietaryOptionsSelector';
