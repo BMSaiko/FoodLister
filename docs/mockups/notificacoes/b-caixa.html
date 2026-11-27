@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notificações · B Caixa de entrada</title><link rel="stylesheet" href="shared.css">
+<style>
+/* B · Caixa de entrada: barra lateral de grupos com contagens (desktop) + linhas densas; chips no mobile */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:0}.layout>div{min-width:0}
+.side{display:none}
+@media(min-width:900px){
+ .layout{grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start}
+ .side{display:grid;gap:4px;position:sticky;top:112px}
+ .chips.m{display:none}
+}
+.side button{display:flex;justify-content:space-between;align-items:center;min-height:44px;padding:0 14px;border-radius:12px;color:var(--fg-2);font-size:14px;text-align:left}
+.side button:hover{background:rgba(255,255,255,.04)}
+.side button[aria-pressed=true]{background:var(--primary-soft);color:var(--primary);font-weight:600}
+.side em{font-style:normal;font:500 12px 'Geist Mono',monospace}
+.side hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.side a{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;color:var(--fg-3);font-size:13px}
+.side a:hover{color:var(--foreground)}
+.inbox{border:1px solid var(--card-border);border-radius:18px;background:var(--card-bg);overflow:hidden}
+.inbox .group-h{margin:0;padding:10px 16px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--line)}
+.inbox section+section .group-h{border-top:1px solid var(--line)}
+.inbox .list{gap:0}
+.r{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 4px 12px 16px;border-bottom:1px solid var(--line);cursor:pointer;position:relative}
+.r:last-child{border-bottom:0}
+.r:hover{background:rgba(255,255,255,.03)}
+.r.unread::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 99px 99px 0;background:var(--c)}
+.r .txt{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:2px}
+.r .top .time{flex:none}.r .top{display:flex;gap:10px;align-items:baseline;justify-content:space-between}
+.r .top .title{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r .tail{display:flex;align-items:center;gap:2px}
+.r .tag{display:none}
+@media(min-width:640px){.r .tag{display:inline}}
+.inbox>.state,.inbox>.list{padding:0}
+.inbox>.state{padding:56px 16px}
+</style></head><body><div id="app"></div>
+<script src="notif.js"></script>
+<script>
+const N = NOTIF;
+const row = (n) => { const t = N.TYPES[n.type] || N.TYPES.system; return `<li class="r ${n.read ? 'read' : 'unread'}" style="--c:${t[1]}" data-open="${n.id}" tabindex="0" role="link" aria-label="${N.esc(n.title)}">
+  <span class="tico">${N.svg(t[2])}</span>
+  <div class="txt"><div class="top"><span class="title">${N.esc(n.title)}</span><span class="time">${N.ago2(n.created_at)}</span></div>
+  <div class="msg">${N.esc(n.message)}</div><span class="tag">${t[0]}${n.read ? '' : ' · não lida'}</span></div>
+  <div class="tail">${n.read ? '' : '<span class="dot" role="img" aria-label="Não lida"></span>'}${N.itemMenu(n)}</div></li>`; };
+const side = () => `<aside class="side" aria-label="Filtros">${N.GROUPS.map((g, i) => `${i === 2 ? '<hr>' : ''}<button type="button" aria-pressed="${N.filter === g[0]}" data-filter="${g[0]}">${g[1]}<em>${N.count(g[0])}</em></button>`).join('')}<hr><a href="settings-notifications">${N.svg('gear')}Preferências de notificações</a></aside>`;
+N.mount(() => N.shell(`${N.header()}<div class="layout">${side()}<div><div class="chips m">${N.chips().replace(/^<div[^>]*>|<\/div>$/g, '')}</div><div class="inbox">${N.body(row, (l, h) => `<section><h2 class="group-h">${l}</h2><ul class="list">${h}</ul></section>`)}</div></div></div>`));
+</script></body></html>
