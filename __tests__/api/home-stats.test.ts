@@ -11,6 +11,7 @@ const getClient = jest.fn();
 jest.mock('@/libs/supabase/server', () => ({ getPublicServerClient: () => getClient() }));
 
 import { GET } from '@/app/api/home/stats/route';
+import { cacheInvalidatePrefix } from '@/libs/cache';
 
 const row = (id: string, rating: number, review_count: number) => ({
   id, name: id, rating, review_count, price_per_person: 10, location: 'Porto', images: [], display_image_index: 0,
@@ -33,6 +34,8 @@ function client(top: any[], ratings: any[] = [{ rating: 4 }, { rating: 5 }]) {
 }
 
 describe('GET /api/home/stats', () => {
+  beforeEach(() => cacheInvalidatePrefix('home:'));
+
   it('devolve contagens, média e top 10 por rating desc, review_count desc', async () => {
     const { client: c, topCalls } = client([row('a', 5, 3), row('b', 4.5, 9)]);
     getClient.mockResolvedValue(c);
@@ -50,6 +53,15 @@ describe('GET /api/home/stats', () => {
     const { data } = await ((await GET()) as any).json();
     expect(data.avgRating).toBe(0);
     expect(data.topRestaurants).toEqual([]);
+  });
+
+  it('segundo pedido serve da cache sem consultar a BD', async () => {
+    getClient.mockResolvedValue(client([row('a', 5, 3)]).client);
+    await GET();
+    getClient.mockClear();
+    const { data } = await ((await GET()) as any).json();
+    expect(data.topRestaurants).toHaveLength(1);
+    expect(getClient).toHaveBeenCalledTimes(1);
   });
 
   it('500 sem backend', async () => {
