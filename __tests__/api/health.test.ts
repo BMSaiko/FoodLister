@@ -24,6 +24,13 @@ jest.mock('next/server', () => {
   };
 });
 
+const mockQuery = jest.fn();
+jest.mock('@/libs/supabase/server', () => ({
+  getPublicServerClient: jest.fn(async () => ({
+    from: () => ({ select: () => ({ limit: () => mockQuery() }) }),
+  })),
+}));
+
 import { GET } from '@/app/api/health/route';
 
 describe('GET /api/health', () => {
@@ -51,5 +58,33 @@ describe('GET /api/health', () => {
     const response = await GET(request);
     const body = await response.json();
     expect(body.version).toBeDefined();
+  });
+
+  it('não toca na BD sem ?db=1', async () => {
+    mockQuery.mockClear();
+    const { NextRequest } = require('next/server');
+    const response = await GET(new NextRequest('http://localhost:3000/api/health'));
+    const body = await response.json();
+    expect(body.db).toBeUndefined();
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('?db=1 mede o RTT com 3 queries', async () => {
+    mockQuery.mockReset().mockResolvedValue({ error: null });
+    const { NextRequest } = require('next/server');
+    const response = await GET(new NextRequest('http://localhost:3000/api/health?db=1'));
+    const body = await response.json();
+    expect(mockQuery).toHaveBeenCalledTimes(3);
+    expect(body.db.samplesMs).toHaveLength(3);
+    expect(typeof body.db.rttMs).toBe('number');
+  });
+
+  it('?db=1 com erro da BD devolve rttMs null', async () => {
+    mockQuery.mockReset().mockResolvedValue({ error: { message: 'x' } });
+    const { NextRequest } = require('next/server');
+    const response = await GET(new NextRequest('http://localhost:3000/api/health?db=1'));
+    const body = await response.json();
+    expect(body.db.rttMs).toBeNull();
+    expect(body.db.error).toBe('query_failed');
   });
 });
