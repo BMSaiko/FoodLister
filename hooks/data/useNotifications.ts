@@ -25,6 +25,8 @@ interface UseNotificationsReturn {
   loadMore: () => Promise<void>;
 }
 
+const MAX_POLLING_INTERVAL = 300000;
+
 // Pedidos GET iguais em curso partilham a mesma promessa (Navbar + dropdown montam o hook juntos).
 const inFlight = new Map<string, Promise<any>>();
 
@@ -61,7 +63,8 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const offsetRef = useRef(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const fetchNotificationsRef = useRef<(append?: boolean) => Promise<void>>(async () => {});
+  const signatureRef = useRef('');
 
   const buildUrl = useCallback((currentLimit: number, currentOffset: number) => {
     const params = new URLSearchParams();
@@ -91,6 +94,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
       }
 
       setUnreadCount(result.unreadCount || 0);
+      signatureRef.current = `${result.unreadCount || 0}:${newNotifications[0]?.id ?? ''}:${newNotifications.length}`;
       setHasMore(newNotifications.length >= limit);
       offsetRef.current = currentOffset + newNotifications.length;
     } catch (err) {
@@ -100,6 +104,8 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
       setLoading(false);
     }
   }, [user, buildUrl, limit]);
+
+  fetchNotificationsRef.current = fetchNotifications;
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -180,34 +186,54 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Smart polling with visibility check
+  // Polling com visibilidade e back-off: só com a aba visível; o intervalo duplica
+  // (até ao máximo) enquanto nada muda e volta ao base quando há novidades.
   useEffect(() => {
     if (!user || !polling) return;
 
-    const handleVisibility = () => {
-      if (document.hidden) {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-          intervalRef.current = null;
-        }
-      } else if (!intervalRef.current) {
-          intervalRef.current = setInterval(() => {
-            fetchNotifications(false);
-          }, pollingInterval);
-        }
+    let delay = pollingInterval;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let signature = '';
+    let stopped = false;
+
+    const clear = () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
     };
 
-    intervalRef.current = setInterval(() => {
-      fetchNotifications(false);
-    }, pollingInterval);
+    const schedule = () => {
+      clear();
+      if (stopped || document.hidden) return;
+      timer = setTimeout(tick, delay);
+    };
 
+    const tick = async () => {
+      timer = null;
+      signature = signatureRef.current;
+      await fetchNotificationsRef.current(false);
+      const next = signatureRef.current;
+      delay = next === signature ? Math.min(delay * 2, MAX_POLLING_INTERVAL) : pollingInterval;
+      schedule();
+    };
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clear();
+      } else {
+        delay = pollingInterval;
+        void tick();
+      }
+    };
+
+    schedule();
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      stopped = true;
+      clear();
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [user, polling, pollingInterval]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, polling, pollingInterval]);
 
   return {
     notifications,
