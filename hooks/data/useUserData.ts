@@ -336,12 +336,15 @@ export function useUserData(options: UseUserDataOptions) {
     }
   }, [userId, get, userData.loadingStates.restaurants]);
 
-  // Auto-fetch on mount
+  // Auto-fetch: `get` (via getAccessToken) muda a cada render; sem a ref o efeito repetia os pedidos
+  const loadDataRef = useRef(loadData);
+  loadDataRef.current = loadData;
+
   useEffect(() => {
     if (autoFetch && userId) {
-      loadData();
+      loadDataRef.current();
     }
-  }, [autoFetch, userId, loadData]);
+  }, [autoFetch, userId]);
 
   // Cleanup on unmount
   useEffect(() => {
