@@ -11,7 +11,7 @@ const CATEGORIAS: Record<string, ReleaseCategory> = {
   corrigido: 'corrigido',
 }
 
-const CABECALHO = /^##\s+\[([^\]]+)\](?:\s*-\s*(\d{4}-\d{2}-\d{2}))?\s*$/
+const CABECALHO = /^##\s+\[([^\]]+)\](?:\s*[-–—]\s*(\d{4}-\d{2}-\d{2}))?\s*$/
 const SEMVER = /^v?(\d+\.\d+\.\d+)$/
 const UNRELEASED = 'unreleased'
 
