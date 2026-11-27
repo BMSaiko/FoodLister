@@ -1,4 +1,3 @@
-'use client';
 import Icon from '@/components/ui/icons/Icon';
 import type { IconName } from '@/components/ui/icons/names';
 

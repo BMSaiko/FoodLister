@@ -1,4 +1,3 @@
-'use client';
 
 import type { DashboardStats as Stats } from '@/libs/types';
 import StatsCard from './StatsCard';

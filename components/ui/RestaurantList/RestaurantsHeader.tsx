@@ -1,4 +1,3 @@
-'use client';
 
 interface RestaurantsHeaderProps {
   searchQuery: string | null;
