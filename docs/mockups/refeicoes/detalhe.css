@@ -1,0 +1,21 @@
+/* /meals/[id] — complementa shared.css */
+.back{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--fg-2);font-size:14px}.back:hover{color:var(--primary)}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px}.chip.ok{background:rgba(74,222,128,.14);color:#4ade80}.chip.no{background:rgba(248,113,113,.14);color:#f87171}.chip.wait{background:rgba(250,204,21,.14);color:#facc15}
+.av{width:36px;height:36px;border-radius:99px;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--fg-2);font-weight:600;font-size:14px;flex:none}.av.org{background:var(--primary-soft);color:var(--primary)}
+.btn.line{background:transparent;border:1px solid var(--card-border);color:var(--foreground)}.btn.line:hover{border-color:rgba(245,158,11,.5);background:var(--primary-soft)}
+.btn.line.danger{color:var(--danger)}.btn.line.danger:hover{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08)}
+.btn.ok{background:#16a34a;color:#fff}.btn.ok:hover{background:#15803d}.btn.no{background:transparent;border:1px solid rgba(248,113,113,.4);color:var(--danger)}.btn.no:hover{background:rgba(248,113,113,.1)}.btn.on{box-shadow:0 0 0 2px var(--background),0 0 0 4px currentColor}.btn.ok.on{box-shadow:0 0 0 2px var(--background),0 0 0 4px #4ade80}
+.btn.dangerfill{background:#dc2626;color:#fff}.btn{justify-content:center;transition:background .2s,border-color .2s}
+.rsvp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.people{list-style:none;padding:0;display:grid}.people li{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.people li:first-child{border-top:0}.people li>div{flex:1;min-width:0;display:grid}.people b{font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.people small{color:var(--fg-3);font-size:12px}
+.more{min-height:44px;color:var(--primary);font-size:14px;font-weight:600}
+h2.sec{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3);margin-bottom:8px}
+.facts{display:grid;gap:0}.fact{display:grid;grid-template-columns:20px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.fact:first-child{border-top:0}.fact svg{color:var(--primary);margin-top:3px}.fact small{display:block;color:var(--fg-3);font-size:12px}.fact b{font-weight:500;overflow-wrap:anywhere}.fact b::first-letter{text-transform:uppercase}
+.scrim{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.7);display:grid;place-items:center;padding:16px}
+.modal{width:100%;max-width:440px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;padding:24px;display:grid;gap:14px}.modal.sm{max-width:360px;text-align:center;justify-items:center}.modal h3{font-size:20px;letter-spacing:-.02em}.modal p{color:var(--fg-2);font-size:14px}
+.modal label{display:grid;gap:6px;font-size:13px;color:var(--fg-2);font-weight:500}.modal input,.modal select{min-height:44px;padding:0 12px;border-radius:10px;background:#111;border:1px solid var(--card-border);color:var(--foreground);font:inherit}
+.mfoot{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:6px}
+.dangerico{width:48px;height:48px;border-radius:99px;background:rgba(248,113,113,.14);color:var(--danger);display:grid;place-items:center}.dangerico svg{width:22px;height:22px}
+.state svg.big{width:32px;height:32px;color:var(--danger)}
+.rest{display:inline-flex;align-items:center;gap:6px;color:var(--primary);font-weight:600;font-size:14px;min-height:44px}
+.past-note{font-size:13px;color:var(--fg-3);padding:10px 14px;border:1px dashed var(--card-border);border-radius:12px}

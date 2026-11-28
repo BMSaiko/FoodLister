@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { m as motion, AnimatePresence } from 'motion/react';
+import { FILTER_GROUPS, matchesFilter, countFor, type FilterKey } from '@/libs/notifications/filters';
 import Link from 'next/link';
 import EmptyState from '@/components/ui/EmptyState';
 import Navbar from '@/components/ui/navigation/Navbar';
@@ -11,7 +12,6 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import useNotifications from '@/hooks/data/useNotifications';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import type { Notification } from '@/types/notification';
-import type { NotificationType } from '@/types/notification';
 import { NOTIFICATION_TYPE_CONFIG } from '@/types/notification';
 import { usePageTitle } from "@/hooks/usePageTitle";
 import AppIcon from '@/components/ui/icons/Icon';
@@ -65,16 +65,57 @@ function groupByDate(notifications: Notification[]): { label: string; items: Not
   return Object.entries(groups).map(([label, items]) => ({ label, items }));
 }
 
-type FilterType = 'all' | 'unread' | NotificationType;
+function MoreMenu({ notification, onDelete, onRead }: {
+  notification: Notification;
+  onDelete: (id: string) => void;
+  onRead: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent) { if (e.key === 'Escape') setOpen(false); return; }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    document.addEventListener('keydown', close);
+    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', close); };
+  }, [open]);
 
-const FILTER_TABS: { key: FilterType; label: string }[] = [
-  { key: 'all', label: 'Todas' },
-  { key: 'unread', label: 'Não lidas' },
-  { key: 'meal_invitation', label: 'Refeições' },
-  { key: 'review_created', label: 'Reviews' },
-  { key: 'list_invite', label: 'Listas' },
-  { key: 'system', label: 'Sistema' },
-];
+  return (
+    <div className="relative" ref={ref} onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        aria-label="Ações da notificação"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="w-11 h-11 grid place-items-center rounded-full text-white/40 hover:text-white hover:bg-white/[0.06] transition-colors"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" />
+        </svg>
+      </button>
+      {open && (
+        <div role="menu" className="absolute right-0 top-11 z-20 min-w-[200px] rounded-xl border border-white/[0.1] bg-[#111] p-1 shadow-xl">
+          {!notification.read && (
+            <button role="menuitem" type="button"
+              onClick={() => { onRead(notification.id); setOpen(false); }}
+              className="flex w-full items-center gap-2 min-h-[44px] px-3 rounded-lg text-sm text-white/80 hover:bg-white/[0.06]">
+              <AppIcon name="visto" className="h-4 w-4" /> Marcar como lida
+            </button>
+          )}
+          <button role="menuitem" type="button"
+            onClick={() => { onDelete(notification.id); setOpen(false); }}
+            className="flex w-full items-center gap-2 min-h-[44px] px-3 rounded-lg text-sm text-[var(--error)] hover:bg-white/[0.06]">
+            <AppIcon name="apagar" className="h-4 w-4" /> Apagar notificação
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function NotificationItem({ notification, onDelete, onRead }: {
   notification: Notification;
@@ -91,110 +132,55 @@ function NotificationItem({ notification, onDelete, onRead }: {
   };
 
   return (
-    <motion.div
+    <motion.li
       variants={ITEM_VARIANTS}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }}
-      className={`group relative rounded-2xl border transition-colors duration-150 ${
-        notification.read
-          ? 'bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.08]'
-          : 'bg-[rgba(245,158,11,0.03)] border-[rgba(245,158,11,0.12)] hover:bg-[rgba(245,158,11,0.05)]'
-      }`}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] as const }}
+      className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 py-3 pl-4 pr-1 border-b border-white/[0.06] last:border-b-0 cursor-pointer hover:bg-white/[0.03] transition-colors"
+      onClick={handleClick}
+      role="link"
+      tabIndex={0}
+      aria-label={notification.title}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleClick(); } }}
     >
-      {/* Unread accent line */}
       {!notification.read && (
-        <div
-          className="absolute left-0 top-4 bottom-4 w-[3px] rounded-r-full"
-          style={{ background: accentColor }}
-        />
+        <span className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full" style={{ background: accentColor }} />
       )}
-
-      <div
-        className="flex items-start gap-4 p-5 pl-6 cursor-pointer"
-        onClick={handleClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
-      >
-        {/* Icon */}
-        <div className="flex-shrink-0 mt-0.5">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            notification.read ? 'bg-white/[0.03]' : 'bg-white/[0.06]'
-          }`}>
-            {getNotificationIcon(notification.type, 'md')}
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <p className={`text-sm leading-snug ${
-                notification.read ? 'text-white/50 font-normal' : 'text-white/90 font-semibold'
-              }`}>
-                {notification.title}
-              </p>
-              <p className="text-sm text-white/30 mt-1 line-clamp-2 leading-relaxed">
-                {notification.message}
-              </p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              {!notification.read && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onRead(notification.id); }}
-                  className="p-2 rounded-lg text-white/20 hover:text-[var(--primary)] hover:bg-white/[0.04] transition-colors"
-                  aria-label="Marcar como lida"
-                >
-                  <AppIcon name="visto" className="h-4 w-4" />
-                </button>
-              )}
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(notification.id); }}
-                className="p-2 rounded-lg text-white/20 hover:text-[var(--error)] hover:bg-white/[0.04] transition-colors"
-                aria-label="Apagar notificação"
-              >
-                <AppIcon name="apagar" className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Meta row */}
-          <div className="flex items-center gap-3 mt-2.5">
-            <span className="text-[11px] text-white/20">
-              {formatTimeAgo(notification.created_at)}
-            </span>
-            {typeConfig && (
-              <span
-                className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                style={{ color: accentColor, background: `${accentColor}15` }}
-              >
-                {typeConfig.label}
-              </span>
-            )}
-            {!notification.read && (
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]" />
-            )}
-          </div>
-        </div>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${notification.read ? 'bg-white/[0.03]' : 'bg-white/[0.06]'}`}>
+        {getNotificationIcon(notification.type, 'md')}
       </div>
-    </motion.div>
+      <div className="min-w-0 grid grid-cols-[minmax(0,1fr)] gap-0.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <span className={`flex-1 min-w-0 truncate text-[15px] leading-snug ${
+            notification.read ? 'text-white/55 font-medium' : 'text-white font-semibold'
+          }`}>{notification.title}</span>
+          <span className="flex-none text-xs text-white/40 whitespace-nowrap">{formatTimeAgo(notification.created_at)}</span>
+        </div>
+        <p className={`text-sm line-clamp-2 break-words ${notification.read ? 'text-white/40' : 'text-white/65'}`}>
+          {notification.message}
+        </p>
+        {typeConfig && (
+          <span className="hidden sm:inline text-[11px] font-mono" style={{ color: accentColor }}>
+            {typeConfig.label}{notification.read ? '' : ' · não lida'}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-0.5">
+        {!notification.read && (
+          <span role="img" aria-label="Não lida" className="w-2 h-2 rounded-full bg-[var(--primary)]" />
+        )}
+        <MoreMenu notification={notification} onDelete={onDelete} onRead={onRead} />
+      </div>
+    </motion.li>
   );
 }
 
 function SkeletonItem() {
   return (
-    <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-5 pl-6 animate-pulse">
-      <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex-shrink-0" />
-        <div className="flex-1 space-y-2.5">
-          <div className="h-4 bg-white/[0.04] rounded w-2/3" />
-          <div className="h-3 bg-white/[0.03] rounded w-full" />
-          <div className="flex items-center gap-3 mt-3">
-            <div className="h-3 bg-white/[0.03] rounded w-16" />
-            <div className="h-3 bg-white/[0.03] rounded w-20" />
-          </div>
-        </div>
+    <div className="flex items-start gap-3 p-4 border-b border-white/[0.06] animate-pulse">
+      <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex-shrink-0" />
+      <div className="flex-1 space-y-2.5">
+        <div className="h-4 bg-white/[0.04] rounded w-2/3" />
+        <div className="h-3 bg-white/[0.03] rounded w-full" />
       </div>
     </div>
   );
@@ -203,142 +189,125 @@ function SkeletonItem() {
 export default function NotificationsPage() {
   usePageTitle("Notificações - FoodLister");
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const [displayNotifications, setDisplayNotifications] = useState<Notification[]>([]);
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('all');
 
-  useEffect(() => {
-    let filtered = notifications;
-    if (activeFilter === 'unread') {
-      filtered = filtered.filter(n => !n.read);
-    } else if (activeFilter !== 'all') {
-      filtered = filtered.filter(n => n.type === activeFilter);
-    }
-    setDisplayNotifications(filtered);
-  }, [notifications, activeFilter]);
+  const displayNotifications = notifications.filter((n) => matchesFilter(n, activeFilter));
 
-  const handleDelete = useCallback(async (id: string) => {
-    await deleteNotification(id);
-  }, [deleteNotification]);
-
-  const handleRead = useCallback(async (id: string) => {
-    await markAsRead(id);
-  }, [markAsRead]);
+  const handleDelete = useCallback(async (id: string) => { await deleteNotification(id); }, [deleteNotification]);
+  const handleRead = useCallback(async (id: string) => { await markAsRead(id); }, [markAsRead]);
 
   const grouped = groupByDate(displayNotifications);
 
+  const settingsLink = (
+    <Link
+      href="/users/settings/notifications"
+      aria-label="Preferências de notificações"
+      className="w-11 h-11 grid place-items-center rounded-full border border-white/[0.1] text-white/60 hover:text-white hover:bg-white/[0.06] transition-colors"
+    >
+      <AppIcon name="definicoes" className="h-5 w-5" />
+    </Link>
+  );
+
   return (
     <ErrorBoundary pageName="Notifications">
-      <div className="min-h-[100dvh] bg-[var(--background)] mesh-gradient-bg">
+      <div className="min-h-[100dvh] bg-[var(--background)]">
         <Navbar />
-        <Container variant="narrow" className="py-6 sm:py-10">
-
-          {/* Header */}
+        <Container variant="wide" className="py-6 sm:py-10">
           <PageHeader
             title="Notificações"
             subtitle={unreadCount > 0 ? `${unreadCount} não lida${unreadCount > 1 ? 's' : ''}` : 'Todas lidas'}
             backLink="/restaurants"
             action={
-              unreadCount > 0 ? (
-                <button
-                  onClick={markAllAsRead}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--primary)] text-black text-sm font-semibold hover:bg-[var(--primary-hover)] transition-colors min-h-[40px]"
-                >
-                  <AppIcon name="visto" className="h-4 w-4" />
-                  <span className="hidden sm:inline">Marcar todas</span>
-                </button>
-              ) : undefined
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="flex items-center gap-2 px-4 rounded-full border border-white/[0.1] text-white/80 text-sm font-semibold hover:bg-white/[0.06] transition-colors min-h-[44px]"
+                  >
+                    <AppIcon name="visto" className="h-4 w-4" />
+                    Marcar todas como lidas
+                  </button>
+                )}
+                {settingsLink}
+              </div>
             }
           />
 
-          {/* Filter Tabs */}
-          <div className="mt-6 mb-8">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {FILTER_TABS.map((tab) => {
-                const isActive = activeFilter === tab.key;
-                const count = tab.key === 'all'
-                  ? notifications.length
-                  : tab.key === 'unread'
-                    ? unreadCount
-                    : notifications.filter(n => n.type === tab.key).length;
-
-                return (
-                  <button
-                    key={tab.key}
-                    onClick={() => setActiveFilter(tab.key)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors duration-150 min-h-[40px] ${
-                      isActive
-                        ? 'bg-[var(--primary)] text-black'
-                        : 'bg-white/[0.04] text-white/40 hover:bg-white/[0.08] hover:text-white/60'
-                    }`}
-                  >
-                    {tab.label}
-                    {count > 0 && (
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                        isActive ? 'bg-black/10 text-black' : 'bg-white/[0.06] text-white/30'
-                      }`}>
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="space-y-6">
-            {loading && displayNotifications.length === 0 ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => <SkeletonItem key={i} />)}
+          <div className="mt-6 lg:grid lg:grid-cols-[230px_minmax(0,1fr)] lg:gap-10 lg:items-start">
+            {/* Filtros: chips (mobile) / barra lateral (desktop) */}
+            <nav aria-label="Filtros" className="mb-5 lg:mb-0 lg:sticky lg:top-28">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0">
+                {FILTER_GROUPS.map((tab) => {
+                  const isActive = activeFilter === tab.key;
+                  const count = countFor(notifications, tab.key);
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setActiveFilter(tab.key)}
+                      className={`flex items-center justify-between gap-2 px-4 text-sm font-medium whitespace-nowrap transition-colors min-h-[44px] rounded-full lg:rounded-xl lg:text-left ${
+                        isActive
+                          ? 'bg-[var(--primary)] text-black lg:bg-[rgba(245,158,11,0.12)] lg:text-[var(--primary)]'
+                          : 'bg-white/[0.04] text-white/60 hover:bg-white/[0.08] lg:bg-transparent'
+                      }`}
+                    >
+                      {tab.label}
+                      <span className="text-xs font-mono opacity-70">{count}</span>
+                    </button>
+                  );
+                })}
               </div>
-            ) : displayNotifications.length === 0 ? (
-              <EmptyState
-                mascot={activeFilter === 'unread' ? 'feliz' : 'a-dormir'}
-                title={activeFilter === 'unread' ? 'Sem notificações não lidas' : 'Sem notificações'}
-                description={activeFilter === 'unread'
-                  ? 'Estás a dia com tudo. Boa!'
-                  : 'Quando receberes notificações, elas aparecem aqui.'}
-                action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">Explorar restaurantes</Link>}
-              />
-            ) : (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeFilter}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6"
-                >
-                  {grouped.map((group) => (
-                    <div key={group.label}>
-                      {/* Group header */}
-                      <div className="flex items-center gap-3 mb-4">
-                        <h2 className="text-xs font-semibold text-white/20 uppercase tracking-wider">
+              <Link href="/users/settings/notifications" className="hidden lg:flex items-center gap-2 min-h-[44px] mt-3 pt-3 border-t border-white/[0.06] px-4 text-[13px] text-white/50 hover:text-white">
+                <AppIcon name="definicoes" className="h-4 w-4" /> Preferências de notificações
+              </Link>
+            </nav>
+
+            <div>
+              {loading && displayNotifications.length === 0 ? (
+                <div className="rounded-[18px] border border-white/[0.08] bg-white/[0.02] overflow-hidden">
+                  {[...Array(3)].map((_, i) => <SkeletonItem key={i} />)}
+                </div>
+              ) : displayNotifications.length === 0 ? (
+                <EmptyState
+                  mascot={activeFilter === 'unread' ? 'feliz' : 'a-dormir'}
+                  title={activeFilter === 'unread' ? 'Sem notificações não lidas' : 'Sem notificações'}
+                  description={activeFilter === 'unread'
+                    ? 'Estás a dia com tudo. Boa!'
+                    : 'Quando receberes notificações, elas aparecem aqui.'}
+                  action={<Link href="/restaurants" className="inline-flex items-center justify-center gap-2 px-5 rounded-xl bg-[var(--primary)] text-white text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors">Explorar restaurantes</Link>}
+                />
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeFilter}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="rounded-[18px] border border-white/[0.08] bg-white/[0.02] overflow-hidden"
+                  >
+                    {grouped.map((group) => (
+                      <section key={group.label} className="[&+&]:border-t [&+&]:border-white/[0.06]">
+                        <h2 className="px-4 py-2.5 bg-white/[0.02] border-b border-white/[0.06] text-xs font-mono uppercase tracking-wider text-white/50">
                           {group.label}
                         </h2>
-                        <div className="flex-1 h-px bg-white/[0.04]" />
-                        <span className="text-[10px] text-white/15 font-medium">
-                          {group.items.length}
-                        </span>
-                      </div>
-
-                      {/* Items */}
-                      <div className="space-y-3">
-                        {group.items.map((notification) => (
-                          <NotificationItem
-                            key={notification.id}
-                            notification={notification}
-                            onDelete={handleDelete}
-                            onRead={handleRead}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </motion.div>
-              </AnimatePresence>
-            )}
+                        <ul>
+                          {group.items.map((notification) => (
+                            <NotificationItem
+                              key={notification.id}
+                              notification={notification}
+                              onDelete={handleDelete}
+                              onRead={handleRead}
+                            />
+                          ))}
+                        </ul>
+                      </section>
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
+              )}
+            </div>
           </div>
         </Container>
       </div>

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-28
+
+### Added
+
+- Roleta reformulada com roda de fatias (#409).
+- Caixa de entrada em /notifications reformulada (#408).
+- /meals e /meals/[id] reformulados (agenda e ficha).
+
 ## [0.2.2] - 2026-11-27
 
 ### Fixed

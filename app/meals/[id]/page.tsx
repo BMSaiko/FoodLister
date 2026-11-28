@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts";
 import Modal from '@/components/ui/Modal';
 import ToviLoader from "@/components/loading/ToviLoader";
 import Icon from '@/components/ui/icons/Icon';
+import type { IconName } from '@/components/ui/icons/names';
 
 interface Meal {
   id: string;
@@ -307,249 +308,222 @@ export default function MealDetailsPage() {
     );
   }
 
+  const mealDateTime = new Date(`${meal.mealDate}T${meal.mealTime}`);
+  const isMealPast = mealDateTime < new Date();
+  const canRespond = !isMealPast && (meal.isOrganizer || (meal.participantStatus !== null && meal.participantStatus !== undefined));
+  const timeLabel = (() => {
+    const start = (meal.mealTime || '').slice(0, 5);
+    if (!start || !meal.durationMinutes) return start;
+    const [h, m] = start.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return start;
+    const end = (h * 60 + m + meal.durationMinutes) % 1440;
+    return `${start} – ${String(Math.floor(end / 60)).padStart(2, '0')}:${String(end % 60).padStart(2, '0')}`;
+  })();
+
+  const rsvp = canRespond ? (
+    <div className="grid grid-cols-1 gap-2.5">
+      <button
+        onClick={handleAccept}
+        disabled={updating}
+        className={`flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-3 font-semibold text-white transition-colors disabled:opacity-50 ${
+          meal.participantStatus === 'accepted'
+            ? 'bg-green-600 ring-2 ring-green-400 ring-offset-2 ring-offset-[var(--background)] hover:bg-green-700'
+            : 'bg-green-600 hover:bg-green-700'
+        }`}
+      >
+        <Icon name="visto" className="h-5 w-5 !text-white" />
+        <span>{updating ? t('A confirmar...') : meal.participantStatus === 'accepted' ? t('Aceite ✓') : t('Confirmar Presença')}</span>
+      </button>
+      <button
+        onClick={handleDecline}
+        disabled={updating}
+        className={`flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-4 py-3 font-semibold transition-colors disabled:opacity-50 ${
+          meal.participantStatus === 'declined'
+            ? 'border-red-400 bg-red-500/15 text-red-300 ring-2 ring-red-400 ring-offset-2 ring-offset-[var(--background)]'
+            : 'border-red-400/40 text-red-400 hover:bg-red-500/10'
+        }`}
+      >
+        <Icon name="fechar" className="h-5 w-5 !text-current" />
+        <span>{updating ? t('A recusar...') : meal.participantStatus === 'declined' ? t('Recusado ✓') : t('Recusar')}</span>
+      </button>
+    </div>
+  ) : null;
+
+  const facts: Array<{ icon: IconName; label: string; value: string }> = [
+    { icon: 'calendario', label: t('Data'), value: formatDate(meal.mealDate) },
+    { icon: 'horario', label: t('Hora'), value: timeLabel },
+    { icon: 'horario', label: t('Duração'), value: t('{n} minutos', { n: meal.durationMinutes }) },
+  ];
+  if (meal.restaurant?.location) {
+    facts.push({ icon: 'pin', label: t('Localização'), value: meal.restaurant.location });
+  }
+
   return (
     <ErrorBoundary pageName="MealDetails">
     <div className="min-h-[100dvh] bg-[var(--background)]">
       <Navbar />
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        {/* Back button */}
+      <main className={`container mx-auto max-w-5xl px-4 py-8 ${canRespond ? 'pb-32 lg:pb-8' : ''}`}>
         <button
           onClick={() => router.back()}
-          className="flex items-center text-white/50 hover:text-amber-600 mb-6 transition-colors"
+          className="mb-4 flex min-h-[44px] items-center text-white/50 transition-colors hover:text-amber-500"
         >
-          <Icon name="seta-esq" className="h-4 w-4 mr-2" />
+          <Icon name="seta-esq" className="mr-2 h-4 w-4" />
           {t("Voltar")}
         </button>
 
-        {/* Header */}
-        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 px-6 py-8">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-3 bg-amber-100 rounded-xl">
-                  <Icon name="restaurantes" className="h-6 w-6 text-amber-600" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-white/90">
-                    {meal.restaurant?.name || t('Restaurante')}
-                  </h1>
-                  <p className="text-amber-700 font-medium">
-                    {t(mealTypeLabels[meal.mealType] || meal.mealType)}
-                  </p>
-                </div>
-              </div>
+        {/* Cabeçalho */}
+        <header className="mb-6 flex items-center gap-4">
+          <div className="relative flex h-16 w-16 flex-none items-center justify-center overflow-hidden rounded-2xl bg-amber-500/15 text-amber-500 sm:h-20 sm:w-20">
+            <Icon name="restaurantes" className="absolute h-7 w-7" />
+            {meal.restaurant?.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={meal.restaurant.image}
+                alt=""
+                className="relative z-10 h-full w-full object-cover"
+                onError={(e) => e.currentTarget.remove()}
+              />
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-400">
+                {t(mealTypeLabels[meal.mealType] || meal.mealType)}
+              </span>
               {meal.isOrganizer && (
-                <span className="px-3 py-1 bg-amber-200 text-amber-800 text-sm font-medium rounded-full">
+                <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-400">
                   {t("Organizador")}
                 </span>
               )}
+              {meal.participantStatus && getStatusBadge(meal.participantStatus)}
+            </div>
+            <h1 className="break-words text-2xl font-bold text-white/90 sm:text-3xl">
+              {meal.restaurant?.name || t('Restaurante')}
+            </h1>
+          </div>
+        </header>
+
+        <div className="grid gap-6 lg:grid-cols-[1fr_340px] lg:items-start">
+          <div className="space-y-4">
+            <section className="rounded-2xl border border-white/[0.06] bg-white/[0.03] px-5">
+              {facts.map((f, i) => (
+                <div key={f.label} className={`flex items-start gap-3 py-3 ${i > 0 ? 'border-t border-white/[0.06]' : ''}`}>
+                  <Icon name={f.icon} className="mt-1 h-5 w-5 flex-none text-amber-500" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-white/40">{f.label}</p>
+                    <p className="break-words font-medium text-white/90 first-letter:uppercase">{f.value}</p>
+                  </div>
+                </div>
+              ))}
+            </section>
+
+            <section className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-white/40">{t("Organizador")}</h2>
+              <div className="flex items-center gap-3">
+                {meal.organizer?.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={meal.organizer.avatarUrl} alt="" className="h-10 w-10 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-amber-500/15 text-sm font-semibold text-amber-400">
+                    {meal.organizer?.displayName?.charAt(0) || '?'}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-white/90">{meal.organizer?.displayName || t('Utilizador')}</p>
+                  {meal.organizer?.userIdCode && <p className="text-xs text-white/40">{meal.organizer.userIdCode}</p>}
+                </div>
+              </div>
+            </section>
+
+            {meal.participants.length > 0 && (
+              <section className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
+                <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/40">
+                  <Icon name="utilizadores" className="h-4 w-4 text-amber-500" />
+                  {t("Participantes ({n})", { n: meal.participants.length })}
+                </h2>
+                <ul>
+                  {meal.participants.map((participant, i) => (
+                    <li key={participant.id} className={`flex items-center gap-3 py-2.5 ${i > 0 ? 'border-t border-white/[0.06]' : ''}`}>
+                      {participant.profile?.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={participant.profile.avatarUrl} alt="" className="h-9 w-9 flex-none rounded-full object-cover" />
+                      ) : (
+                        <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-white/[0.07] text-sm font-medium text-white/50">
+                          {participant.profile?.displayName?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-white/90">{participant.profile?.displayName || t('Utilizador')}</p>
+                        {participant.profile?.userIdCode && <p className="text-xs text-white/40">{participant.profile.userIdCode}</p>}
+                      </div>
+                      {getStatusBadge(participant.status)}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {meal.restaurant?.id && (
+              <Link
+                href={`/restaurants/${meal.restaurant.slug || meal.restaurant.id}`}
+                className="inline-flex min-h-[44px] items-center font-semibold text-amber-500 hover:text-amber-400"
+              >
+                {t("Ver página do restaurante →")}
+              </Link>
+            )}
+          </div>
+
+          {/* Painel de ações */}
+          <aside className="lg:sticky lg:top-24">
+            <div className="grid gap-2.5 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-white/40">{t("Ações")}</h2>
+              {rsvp && <div className="hidden lg:block">{rsvp}</div>}
+              <button
+                onClick={handleDownloadIcs}
+                className="flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-3 font-semibold text-white/90 transition-colors hover:border-amber-500/50 hover:bg-amber-500/10"
+              >
+                <Icon name="descarregar" className="h-5 w-5" />
+                <span>{t("Download .ics (Calendário)")}</span>
+              </button>
+              {meal.googleCalendarLink && (
+                <button
+                  onClick={handleGoogleCalendar}
+                  className="flex min-h-[44px] items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-3 font-semibold text-white/90 transition-colors hover:border-amber-500/50 hover:bg-amber-500/10"
+                >
+                  <Icon name="externo" className="h-5 w-5" />
+                  <span>{t("Adicionar ao Google Calendar")}</span>
+                </button>
+              )}
               {meal.isOrganizer && (
-                <div className="flex space-x-2">
+                <>
+                  <hr className="border-white/[0.06]" />
                   <button
                     onClick={handleEdit}
-                    className="p-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
-                    title={t("Editar refeição")}
+                    className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 font-semibold text-white/90 transition-colors hover:border-amber-500/50 hover:bg-amber-500/10"
                   >
                     <Icon name="editar" className="h-4 w-4" />
+                    <span>{t("Editar refeição")}</span>
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                    title={t("Eliminar refeição")}
+                    className="flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 font-semibold text-red-400 transition-colors hover:border-red-400/50 hover:bg-red-500/10"
                   >
                     <Icon name="apagar" className="h-4 w-4" />
+                    <span>{t("Eliminar refeição")}</span>
                   </button>
-                </div>
-              )}
-              {meal.participantStatus && getStatusBadge(meal.participantStatus)}
-            </div>
-          </div>
-
-          {/* Details */}
-          <div className="px-6 py-6 space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center space-x-3 text-white/70">
-                <Icon name="calendario" className="h-5 w-5 text-amber-500" />
-                <div>
-                  <p className="text-sm text-gray-500">{t("Data")}</p>
-                  <p className="font-medium">{formatDate(meal.mealDate)}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 text-white/70">
-                <Icon name="horario" className="h-5 w-5 text-amber-500" />
-                <div>
-                  <p className="text-sm text-gray-500">{t("Hora")}</p>
-                  <p className="font-medium">{meal.mealTime}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3 text-white/70">
-                <Icon name="horario" className="h-5 w-5 text-amber-500" />
-                <div>
-                  <p className="text-sm text-gray-500">{t("Duração")}</p>
-                  <p className="font-medium">{t("{n} minutos", { n: meal.durationMinutes })}</p>
-                </div>
-              </div>
-              {meal.restaurant?.location && (
-                <div className="flex items-center space-x-3 text-white/70">
-                  <svg className="h-5 w-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <div>
-                    <p className="text-sm text-gray-500">{t("Localização")}</p>
-                    <p className="font-medium">{meal.restaurant.location}</p>
-                  </div>
-                </div>
+                </>
               )}
             </div>
-          </div>
+          </aside>
         </div>
+      </main>
 
-        {/* Organizer */}
-        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
-          <div className="bg-white/[0.03] rounded-xl p-4">
-            <h2 className="text-lg font-semibold text-white/90 mb-4">{t("Organizador")}</h2>
-            <div className="flex items-center space-x-3">
-            {meal.organizer?.avatarUrl ? (
-              <img
-                src={meal.organizer.avatarUrl}
-                alt=""
-                className="h-10 w-10 rounded-full object-cover"
-              />
-            ) : (
-              <div className="h-10 w-10 rounded-full bg-amber-200 flex items-center justify-center text-sm font-medium text-amber-700">
-                {meal.organizer?.displayName?.charAt(0) || '?'}
-              </div>
-            )}
-            <div>
-              <p className="font-medium text-white/90">
-                {meal.organizer?.displayName || t('Utilizador')}
-              </p>
-              {meal.organizer?.userIdCode && (
-                <p className="text-sm text-gray-500">{meal.organizer.userIdCode}</p>
-              )}
-            </div>
-          </div>
-          </div>
+      {/* RSVP fixo no telemóvel */}
+      {rsvp && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-[#050505]/95 px-4 pt-3 backdrop-blur lg:hidden" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
+          <div className="mx-auto max-w-5xl [&>div]:grid-cols-2">{rsvp}</div>
         </div>
-
-        {/* Participants */}
-        {meal.participants.length > 0 && (
-          <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
-            <div className="bg-white/[0.03] rounded-xl p-4">
-              <div className="flex items-center space-x-2 mb-4">
-              <Icon name="utilizadores" className="h-5 w-5 text-amber-500" />
-              <h2 className="text-lg font-semibold text-white/90">
-                {t("Participantes ({n})", { n: meal.participants.length })}
-              </h2>
-            </div>
-            <div className="space-y-3">
-              {meal.participants.map(participant => (
-                <div key={participant.id} className="flex items-center justify-between py-2">
-                  <div className="flex items-center space-x-3">
-                    {participant.profile?.avatarUrl ? (
-                      <img
-                        src={participant.profile.avatarUrl}
-                        alt=""
-                        className="h-8 w-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-white/[0.06] flex items-center justify-center text-sm font-medium text-white/50">
-                        {participant.profile?.displayName?.charAt(0) || '?'}
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-medium text-white/90">
-                        {participant.profile?.displayName || t('Utilizador')}
-                      </p>
-                      {participant.profile?.userIdCode && (
-                        <p className="text-xs text-gray-500">{participant.profile.userIdCode}</p>
-                      )}
-                    </div>
-                  </div>
-                  {getStatusBadge(participant.status)}
-                </div>
-              ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="rounded-2xl bg-white/[0.02] border border-white/[0.06] p-6 mb-6">
-          <div className="bg-white/[0.03] rounded-xl p-4">
-            <h2 className="text-lg font-semibold text-white/90 mb-4">{t("Ações")}</h2>
-            <div className="space-y-3">
-            {/* Download ICS */}
-            <button
-              onClick={handleDownloadIcs}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium"
-            >
-              <Icon name="descarregar" className="h-5 w-5" />
-              <span>{t("Download .ics (Calendário)")}</span>
-            </button>
-
-            {/* Google Calendar */}
-            {meal.googleCalendarLink && (
-              <button
-                onClick={handleGoogleCalendar}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-[#0a0a0a] border border-white/[0.06] border-purple-500/30 text-purple-400 rounded-lg hover:bg-purple-500/10 transition-colors font-medium"
-              >
-                <Icon name="externo" className="h-5 w-5" />
-                <span>{t("Adicionar ao Google Calendar")}</span>
-              </button>
-            )}
-
-            {/* Accept/Decline for organizer and participants */}
-            {(() => {
-              const mealDateTime = new Date(`${meal.mealDate}T${meal.mealTime}`);
-              const isMealPast = mealDateTime < new Date();
-              const canRespond = meal.isOrganizer || meal.participantStatus !== null && meal.participantStatus !== undefined;
-              return !isMealPast && canRespond;
-            })() && (
-              <div className="flex space-x-3 pt-2">
-                <button
-                  onClick={handleAccept}
-                  disabled={updating}
-                  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors font-medium ${
-                    meal.participantStatus === 'accepted'
-                      ? 'bg-green-600 text-white ring-2 ring-green-300 hover:bg-green-700'
-                      : 'bg-green-500 text-white hover:bg-green-600'
-                  } disabled:opacity-50`}
-                >
-                  <Icon name="visto" className="h-5 w-5" />
-                  <span>{updating ? t('A confirmar...') : meal.participantStatus === 'accepted' ? t('Aceite ✓') : t('Confirmar Presença')}</span>
-                </button>
-                <button
-                  onClick={handleDecline}
-                  disabled={updating}
-                  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-colors font-medium ${
-                    meal.participantStatus === 'declined'
-                      ? 'bg-red-600 text-white ring-2 ring-red-300 hover:bg-red-700'
-                      : 'bg-red-500 text-white hover:bg-red-600'
-                  } disabled:opacity-50`}
-                >
-                  <Icon name="fechar" className="h-5 w-5" />
-                  <span>{updating ? t('A recusar...') : meal.participantStatus === 'declined' ? t('Recusado ✓') : t('Recusar')}</span>
-                </button>
-              </div>
-            )}
-          </div>
-          </div>
-        </div>
-
-        {/* View Restaurant Link */}
-        {meal.restaurant?.id && (
-          <div className="text-center">
-            <Link
-              href={`/restaurants/${meal.restaurant.slug || meal.restaurant.id}`}
-              className="text-amber-600 hover:text-amber-700 font-medium"
-            >
-              {t("Ver página do restaurante →")}
-            </Link>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Edit Modal */}
       <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} size="lg" ariaLabel={t("Editar Refeição")}>
@@ -560,7 +534,7 @@ export default function MealDetailsPage() {
                   onClick={() => setShowEditModal(false)}
                   className="text-gray-400 hover:text-white/50"
                 >
-                  <Icon name="fechar" className="h-5 w-5" />
+                  <Icon name="fechar" className="h-5 w-5 !text-current" />
                 </button>
               </div>
             </div>
