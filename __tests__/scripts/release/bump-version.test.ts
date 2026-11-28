@@ -1,5 +1,5 @@
 // @ts-expect-error módulo .mjs sem tipos
-import { calcularVersao, lerUnreleased, aplicarBump } from '../../../scripts/release/bump-version.mjs'
+import { calcularVersao, lerUnreleased, aplicarBump, gerarItens } from '../../../scripts/release/bump-version.mjs'
 
 describe('calcularVersao', () => {
   it('feat sobe o minor', () => {
@@ -80,5 +80,28 @@ describe('aplicarBump', () => {
     expect(notas[0]).toMatchObject({ version: '0.2.0', releasedAt: '2026-11-26' })
     expect(notas[0].items.novo).toHaveLength(1)
     expect(notas[0].items.corrigido).toHaveLength(1)
+  })
+})
+
+describe('gerarItens', () => {
+  it('feat vai para Added e fix para Fixed, sem o prefixo convencional', () => {
+    const md = gerarItens(['feat(ui): roleta nova (#409)', 'fix: pin do mapa (#2)', 'chore: deps', 'wip'])
+    expect(md).toBe('### Added\n\n- roleta nova (#409)\n\n### Fixed\n\n- pin do mapa (#2)\n')
+  })
+  it('sem feat/fix: vazio', () => {
+    expect(gerarItens(['chore: deps', 'docs: x'])).toBe('')
+  })
+})
+
+describe('aplicarBump com [Unreleased] vazio', () => {
+  const pkg = JSON.stringify({ name: 'x', version: '0.1.0' }, null, 2) + '\n'
+  const vazio = '## [Unreleased]\n\n## [0.1.0] - 2026-11-01\n- x\n'
+  it('usa os itens gerados em vez de falhar', () => {
+    const r = aplicarBump({ changelog: vazio, pkg, versao: '0.2.0', data: '2026-11-28', itens: '### Added\n\n- a (#1)\n' })
+    expect(r.changelog).toContain('## [0.2.0] - 2026-11-28\n\n### Added\n\n- a (#1)')
+    expect(lerUnreleased(r.changelog)).toBe(0)
+  })
+  it('sem itens gerados continua a recusar', () => {
+    expect(() => aplicarBump({ changelog: vazio, pkg, versao: '0.2.0', data: '2026-11-28', itens: '' })).toThrow(/sem itens/)
   })
 })

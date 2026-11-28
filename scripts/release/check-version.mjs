@@ -26,7 +26,7 @@ function corpoDaSecao(changelog, versao) {
 export function verificarVersao({ versao, base, changelog }) {
   const erros = []
   if (compararSemver(versao, base) <= 0) {
-    erros.push(`package.json ${versao} sem bump face a main (${base}): correr node scripts/release/bump-version.mjs`)
+    erros.push(`package.json ${versao} sem bump face a main (${base}): correr node scripts/release/bump-version.mjs --base origin/main (gera o CHANGELOG dos commits)`)
   }
   const corpo = corpoDaSecao(changelog, versao)
   if (corpo === null) erros.push(`CHANGELOG.md sem secção [${versao}]`)
