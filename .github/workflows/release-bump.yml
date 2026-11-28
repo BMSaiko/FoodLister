@@ -1,0 +1,64 @@
+name: Release bump
+
+# Calcula a versão e o CHANGELOG (npm run release:bump) e abre/atualiza um PR de bump para dev,
+# para o gate «Release version» de um PR dev→main passar sem passo manual.
+# Pré-requisito: Settings > Actions > «Allow GitHub Actions to create pull requests»,
+# ou o segredo RELEASE_BOT_TOKEN (PAT/App com contents + pull-requests).
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: release-bump
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ secrets.RELEASE_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+  RAMO: release-bump/auto
+
+jobs:
+  bump:
+    name: Bump de versão e CHANGELOG
+    runs-on: ubuntu-latest
+    # PRs de bump (base dev) não entram; em PR para main só o dev→main.
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'dev'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+          token: ${{ env.GH_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Bump
+        run: node scripts/release/bump-version.mjs --base origin/main
+      - name: Sem alterações (idempotente)
+        id: alt
+        run: |
+          if git diff --quiet; then echo "mudou=false" >> "$GITHUB_OUTPUT"; else echo "mudou=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Ramo e PR de bump
+        if: steps.alt.outputs.mudou == 'true'
+        run: |
+          VERSAO=$(node -p "require('./package.json').version")
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$RAMO"
+          git add package.json CHANGELOG.md
+          git commit -m "chore(release): bump $VERSAO"
+          git push --force origin "$RAMO"
+          if [ -z "$(gh pr list --head "$RAMO" --base dev --state open --json number --jq '.[0].number')" ]; then
+            gh pr create --base dev --head "$RAMO" \
+              --title "chore(release): bump $VERSAO" \
+              --body "Bump automático de versão e CHANGELOG ($VERSAO). Merge deste PR para o PR dev→main passar «Release version»."
+          fi
+          # PRs criados com GITHUB_TOKEN não disparam pull_request: o CI corre por workflow_dispatch no ramo.
+          gh workflow run ci.yml --ref "$RAMO"
